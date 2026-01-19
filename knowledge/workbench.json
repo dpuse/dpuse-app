@@ -1,0 +1,149 @@
+{
+    "id": "workbench",
+    "label": { "en": "Workbench" },
+    "description": { "en": "...." },
+    "colors": { "text": { "light": "#7d7974" } },
+    "icon": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-layout-dashboard-icon lucide-layout-dashboard'><rect width='7' height='9' x='3' y='3' rx='1'/><rect width='7' height='5' x='14' y='3' rx='1'/><rect width='7' height='9' x='14' y='12' rx='1'/><rect width='7' height='5' x='3' y='16' rx='1'/></svg>",
+    "benchtops": [
+        {
+            "id": "administrator",
+            "label": { "en": "Administrator" },
+            "description": { "en": "...." },
+            "colors": { "text": { "light": "#7d7974" } },
+            "icon": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-user-round-cog-icon lucide-user-round-cog'><path d='m14.305 19.53.923-.382'/><path d='m15.228 16.852-.923-.383'/><path d='m16.852 15.228-.383-.923'/><path d='m16.852 20.772-.383.924'/><path d='m19.148 15.228.383-.923'/><path d='m19.53 21.696-.382-.924'/><path d='M2 21a8 8 0 0 1 10.434-7.62'/><path d='m20.772 16.852.924-.383'/><path d='m20.772 19.148.924.383'/><circle cx='10' cy='8' r='5'/><circle cx='18' cy='18' r='3'/></svg>",
+            "primaryOptions": [],
+            "secondaryOptions": []
+        },
+        {
+            "id": "partner",
+            "label": { "en": "Partner" },
+            "description": { "en": "...." },
+            "colors": { "text": { "light": "#7d7974" } },
+            "icon": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-users-round-icon lucide-users-round'><path d='M18 21a8 8 0 0 0-16 0'/><circle cx='10' cy='8' r='5'/><path d='M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3'/></svg>",
+            "primaryOptions": [],
+            "secondaryOptions": []
+        },
+        {
+            "id": "workflow",
+            "label": { "en": "Workflow" },
+            "description": { "en": "...." },
+            "colors": { "text": { "light": "#7d7974" } },
+            "icon": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-repeat-icon lucide-repeat'><path d='m17 2 4 4-4 4'/><path d='M3 11v-1a4 4 0 0 1 4-4h14'/><path d='m7 22-4-4 4-4'/><path d='M21 13v1a4 4 0 0 1-4 4H3'/></svg>",
+            "primaryOptions": [
+                {
+                    "id": "establishDataViews",
+                    "label": { "en": "Establish Data Views" },
+                    "description": { "en": "...." },
+                    "state": {
+                        "kind": "single",
+                        "single": {
+                            "colors": { "text": { "light": "#4d83e0" } },
+                            "icon": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>"
+                        }
+                    },
+                    "step": 1,
+                    "tasks": [
+                        { "id": "selectConnection", "label": { "en": "Select Connection" }, "description": { "en": "...." } },
+                        { "id": "selectNode", "label": { "en": "Select Node" }, "description": { "en": "...." } },
+                        { "id": "auditContent", "label": { "en": "Audit Content" }, "description": { "en": "...." } },
+                        { "id": "auditRelationships", "label": { "en": "Audit Relationships" }, "description": { "en": "...." } },
+                        { "id": "applyTransforms", "label": { "en": "Apply Transforms" }, "description": { "en": "...." } },
+                        { "id": "verifyResult", "label": { "en": "Verify Result" }, "description": { "en": "...." } }
+                    ]
+                },
+                {
+                    "id": "assembleDimensions",
+                    "label": { "en": "Assemble Dimensions" },
+                    "description": { "en": "...." },
+                    "state": {
+                        "kind": "single",
+                        "single": {
+                            "colors": { "text": { "light": "#c89538" } },
+                            "icon": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-network-icon lucide-network'><rect x='16' y='16' width='6' height='6' rx='1'/><rect x='2' y='16' width='6' height='6' rx='1'/><rect x='9' y='2' width='6' height='6' rx='1'/><path d='M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3'/><path d='M12 12V8'/></svg>"
+                        }
+                    },
+                    "step": 2,
+                    "tasks": [
+                        { "id": "configureDimension", "label": { "en": "Configure Dimensions" }, "description": { "en": "...." } },
+                        { "id": "verifyResult", "label": { "en": "Verify Result" }, "description": { "en": "...." } }
+                    ]
+                },
+                {
+                    "id": "contextualiseData",
+                    "label": { "en": "Contextualise Data" },
+                    "description": { "en": "...." },
+                    "state": {
+                        "kind": "single",
+                        "single": {
+                            "colors": { "text": { "light": "#c89538" } },
+                            "icon": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-audio-lines-icon lucide-audio-lines'><path d='M2 10v3'/><path d='M6 6v11'/><path d='M10 3v18'/><path d='M14 8v7'/><path d='M18 5v13'/><path d='M22 10v3'/></svg>"
+                        }
+                    },
+                    "step": 3,
+                    "tasks": [
+                        { "id": "configureEventQuery", "label": { "en": "Configure Event Query" }, "description": { "en": "...." } },
+                        { "id": "verifyResult", "label": { "en": "Verify Result" }, "description": { "en": "...." } }
+                    ]
+                },
+                {
+                    "id": "explorePresentations",
+                    "label": { "en": "Explore Presentations" },
+                    "description": { "en": "...." },
+                    "state": {
+                        "kind": "single",
+                        "single": {
+                            "colors": { "text": { "light": "#2f8d82" } },
+                            "icon": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-telescope-icon lucide-telescope'><path d='m10.065 12.493-6.18 1.318a.934.934 0 0 1-1.108-.702l-.537-2.15a1.07 1.07 0 0 1 .691-1.265l13.504-4.44'/><path d='m13.56 11.747 4.332-.924'/><path d='m16 21-3.105-6.21'/><path d='M16.485 5.94a2 2 0 0 1 1.455-2.425l1.09-.272a1 1 0 0 1 1.212.727l1.515 6.06a1 1 0 0 1-.727 1.213l-1.09.272a2 2 0 0 1-2.425-1.455z'/><path d='m6.158 8.633 1.114 4.456'/><path d='m8 21 3.105-6.21'/><circle cx='12' cy='13' r='2'/></svg>"
+                        }
+                    },
+                    "step": 4,
+                    "tasks": []
+                },
+                {
+                    "id": "buildDataApps",
+                    "label": { "en": "Build Data Apps" },
+                    "description": { "en": "...." },
+                    "state": {
+                        "kind": "single",
+                        "single": {
+                            "colors": { "text": { "light": "#2f8d82" } },
+                            "icon": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-blocks-icon lucide-blocks'><path d='M10 22V7a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5a1 1 0 0 0-1-1H2'/><rect x='14' y='2' width='8' height='8' rx='1'/></svg>"
+                        }
+                    },
+                    "step": 5,
+                    "tasks": []
+                }
+            ],
+            "secondaryOptions": [
+                {
+                    "id": "settings",
+                    "label": { "en": "Settings" },
+                    "description": { "en": "...." },
+                    "state": {
+                        "kind": "single",
+                        "single": {
+                            "colors": { "text": { "light": "#7d7974" } },
+                            "icon": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915'/><circle cx='12' cy='12' r='3'/></svg>"
+                        }
+                    }
+                },
+                {
+                    "id": "account",
+                    "label": { "en": "Account" },
+                    "description": { "en": "...." },
+                    "state": {
+                        "kind": "boolean",
+                        "true": {
+                            "colors": { "text": { "light": "#7d7974" } },
+                            "icon": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915'/><circle cx='12' cy='12' r='3'/></svg>"
+                        },
+                        "false": {
+                            "colors": { "text": { "light": "#7d7974" } },
+                            "icon": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='m10 17 5-5-5-5'/><path d='M15 12H3'/><path d='M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4'/></svg>"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

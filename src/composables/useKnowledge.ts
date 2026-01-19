@@ -1,0 +1,84 @@
+// Data dependencies.
+import workbenchData from '~/knowledge/workbench.json';
+
+// Local type dependencies.
+import type { LocaleCode } from '@/locales';
+import type { BenchtopLocalisedConfig, WorkbenchConfig, WorkbenchLocalisedConfig } from '@/types/workbench';
+
+// Raw workbench configuration loaded from the knowledge bundle.
+const workbenchConfig = workbenchData as WorkbenchConfig;
+
+// Active localised workbench configuration.
+let activeLocaleCode: LocaleCode | undefined;
+let workbenchLocalisedConfig: WorkbenchLocalisedConfig | undefined;
+
+// Composable for loading and caching knowledge data.
+function useKnowledge() {
+    return {
+        getBenchtopConfig
+    };
+}
+
+// Exposures.
+export { useKnowledge };
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//#region Operations
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// Retrieve benchtop localized configuration by id for the given locale, throwing when missing.
+function getBenchtopConfig(id: string, localeCode: LocaleCode): BenchtopLocalisedConfig {
+    const workbenchLocalisedConfig = getWorkbenchLocalisedConfig(localeCode);
+    const benchtopLocalisedConfig = workbenchLocalisedConfig.benchtops.find((benchtopConfig) => benchtopConfig.id === id);
+    if (benchtopLocalisedConfig == null) throw new Error(`Cannot retrieve benchtop configuration, invalid benchtop identifier of '${id}'.`);
+    return benchtopLocalisedConfig;
+}
+
+//#endregion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//#region Helpers
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// ...
+function getWorkbenchLocalisedConfig(localeCode: LocaleCode): WorkbenchLocalisedConfig {
+    if (workbenchLocalisedConfig == null || activeLocaleCode !== localeCode) workbenchLocalisedConfig = localiseWorkbenchConfig(localeCode);
+    return workbenchLocalisedConfig;
+}
+
+// Build a localized workbench projection by copying the raw config and applying locale-specific labels and descriptions.
+function localiseWorkbenchConfig(localeCode: LocaleCode): WorkbenchLocalisedConfig {
+    return {
+        id: workbenchConfig.id,
+        label: workbenchConfig.label[localeCode] ?? workbenchConfig.id,
+        description: workbenchConfig.description[localeCode] ?? workbenchConfig.id,
+        colors: workbenchConfig.colors,
+        icon: workbenchConfig.icon,
+        benchtops: workbenchConfig.benchtops.map((benchtopConfig) => ({
+            id: benchtopConfig.id,
+            label: benchtopConfig.label[localeCode] ?? workbenchConfig.id,
+            description: benchtopConfig.description[localeCode] ?? workbenchConfig.id,
+            colors: benchtopConfig.colors,
+            icon: benchtopConfig.icon,
+            primaryOptions: benchtopConfig.primaryOptions.map((primaryOptionConfig) => ({
+                id: primaryOptionConfig.id,
+                label: primaryOptionConfig.label[localeCode] ?? workbenchConfig.id,
+                description: primaryOptionConfig.description[localeCode] ?? workbenchConfig.id,
+                state: primaryOptionConfig.state,
+                tasks: primaryOptionConfig.tasks.map((taskConfig) => ({
+                    id: taskConfig.id,
+                    label: taskConfig.label[localeCode] ?? workbenchConfig.id,
+                    description: taskConfig.description[localeCode] ?? workbenchConfig.id
+                }))
+            })),
+            secondaryOptions: benchtopConfig.secondaryOptions.map((secondaryOptionConfig) => ({
+                id: secondaryOptionConfig.id,
+                label: secondaryOptionConfig.label[localeCode] ?? workbenchConfig.id,
+                description: secondaryOptionConfig.description[localeCode] ?? workbenchConfig.id,
+                state: secondaryOptionConfig.state
+            }))
+        }))
+    };
+}
+
+//#endregion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
