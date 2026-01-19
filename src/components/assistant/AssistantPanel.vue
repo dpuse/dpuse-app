@@ -17,8 +17,8 @@ const isWide = ref(false);
 
 <template>
     <div
-        class="hidden flex-col overflow-hidden bg-[#fdfdfd] transition-[width,opacity] duration-300 md:flex"
-        :class="isOpen ? ['border-default', 'border-l', isWide ? 'w-[65ch]' : 'w-[36ch]'] : ['w-0', 'border-l-0', 'border-transparent', 'pointer-events-none', 'opacity-0']"
+        class="bg-faint hidden flex-col overflow-hidden transition-[width,opacity] duration-300 md:flex"
+        :class="isOpen ? ['border-l', isWide ? 'w-[65ch]' : 'w-[36ch]'] : ['w-0', 'border-l-0', 'border-transparent', 'pointer-events-none', 'opacity-0']"
     >
         <div class="flex h-14 flex-none flex-col">
             <div class="flex flex-1 items-center gap-2 pr-12 pl-2 text-sm">

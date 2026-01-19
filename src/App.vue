@@ -9,9 +9,9 @@ import { useSessionStore } from '@/stores/sessionStore';
 import AssistantPanel from '@/components/assistant/AssistantPanel.vue';
 import BenchtopOptionBar from '@/components/optionBar/OptionBar.vue';
 import BrandLogo from '@/components/brand/BrandLogo.vue';
-import Button from '@/components/Button.vue';
+import Button from '@/components/ui/button/Button.vue';
 import Icon from '@/components/Icon.vue';
-import Separator from '@/components/Separator.vue';
+import Separator from '@/components/ui/separator/Separator.vue';
 import StatusBar from '@/components/statusBar/StatusBar.vue';
 
 // Assistant panel state.
