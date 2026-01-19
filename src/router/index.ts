@@ -17,10 +17,10 @@ const router = createRouter({
             component: WorkflowHome,
             children: [
                 { path: 'establishDataViews', name: 'establishDataViews', component: () => import('@/views/workflow/establishDataViews/EstablishDataViews.vue') },
-                { path: 'assembleDimensions', name: 'assembleDimensions', component: () => import('@/views/workflow/establishDataViews/EstablishDataViews.vue') },
-                { path: 'contextualiseData', name: 'contextualiseData', component: () => import('@/views/workflow/establishDataViews/EstablishDataViews.vue') },
-                { path: 'explorePresentations', name: 'explorePresentations', component: () => import('@/views/workflow/establishDataViews/EstablishDataViews.vue') },
-                { path: 'buildDataApps', name: 'buildDataApps', component: () => import('@/views/workflow/establishDataViews/EstablishDataViews.vue') }
+                { path: 'assembleDimensions', name: 'assembleDimensions', component: () => import('@/views/workflow/assembleDimensions/AssembleDimensions.vue') },
+                { path: 'contextualiseData', name: 'contextualiseData', component: () => import('@/views/workflow/contextualiseData/ContextualiseData.vue') },
+                { path: 'explorePresentations', name: 'explorePresentations', component: () => import('@/views/workflow/explorePresentations/ExplorePresentations.vue') },
+                { path: 'buildDataApps', name: 'buildDataApps', component: () => import('@/views/workflow/buildDataApps/BuildDataApps.vue') }
             ]
         },
         { path: '/account', name: 'account', component: () => import('@/views/account/Account.vue') },
