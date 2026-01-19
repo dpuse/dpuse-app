@@ -4,6 +4,12 @@ import { ref } from 'vue';
 type Properties = { isOpen: boolean };
 const { isOpen } = defineProps<Properties>();
 
+import AssistantChatPanel from '@/components/assistant/AssistantChatPanel.vue';
+import AssistantLibraryPanel from '@/components/assistant/AssistantLibraryPanel.vue';
+import AssistantIndexPanel from '@/components/assistant/AssistantIndexPanel.vue';
+import Button from '@/components/ui/button/Button.vue';
+import Separator from '@/components/ui/separator/Separator.vue';
+
 type AssistantTabId = 'chat' | 'library' | 'index';
 const tabs: Array<{ id: AssistantTabId; label: string }> = [
     { id: 'chat', label: 'Chat' },
@@ -22,7 +28,7 @@ const isWide = ref(false);
     >
         <div class="flex h-14 flex-none flex-col">
             <div class="flex flex-1 items-center gap-2 pr-12 pl-2 text-sm">
-                <UButton
+                <Button
                     :aria-label="isWide ? 'Set assistant panel to compact width' : 'Set assistant panel to wide width'"
                     class="h-8 w-8 flex-none cursor-pointer items-center justify-center rounded-full p-0"
                     color="neutral"
@@ -44,7 +50,7 @@ const isWide = ref(false);
                     </button>
                 </div>
             </div>
-            <USeparator class="flex-none px-2" />
+            <Separator class="flex-none px-2" />
         </div>
 
         <div class="flex-1">

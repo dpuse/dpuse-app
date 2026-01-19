@@ -8,7 +8,9 @@ import { useKnowledge } from '@/composables/useKnowledge';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Component dependencies.
+import OptionIcon from '@/components/icon/OptionIcon.vue';
 import Button from '@/components/ui/button/Button.vue';
+import Separator from '@/components/ui/separator/Separator.vue';
 
 // Active benchtop configuration state.
 const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') ?? {
@@ -22,31 +24,28 @@ const optionStateValues = computed(() => ({ account: sessionStatus.value?.isAuth
 </script>
 
 <template>
-    <div class="bg-faint hidden w-18 flex-col border-r pt-14 md:flex">
+    <div class="bg-faint hidden w-16 flex-col border-r pt-14 md:flex">
+        <Separator />
+
         <!-- Options scroller. -->
         <div class="flex flex-1 flex-col items-center overflow-y-auto">
             <!-- Primary options. -->
             <div class="flex w-full flex-1 flex-col items-center pt-2">
-                <Button v-for="option of activeBenchtopConfig.primaryOptions" :key="option.id" class="cursor-pointer" color="neutral" size="xl" square variant="ghost">
-                    <BenchtopOptionIcon class="size-7" :option-id="option.id" :state="option.state" :state-values="optionStateValues" />
-                </Button>
+                <router-link v-for="option of activeBenchtopConfig.primaryOptions" :key="option.id" :to="{ name: option.id }" as-child>
+                    <Button size="icon-lg" variant="ghost">
+                        <OptionIcon class="size-6" :option-id="option.id" :state="option.state" :state-values="optionStateValues" />
+                    </Button>
+                </router-link>
             </div>
 
             <!-- Secondary options and separator. -->
-            <USeparator v-if="activeBenchtopConfig.secondaryOptions.length > 0" class="flex-none px-3 py-2" />
+            <Separator v-if="activeBenchtopConfig.secondaryOptions.length > 0" class="my-2 flex-none" />
             <div class="flex w-full flex-none flex-col items-center pb-4">
-                <Button
-                    v-for="option of activeBenchtopConfig.secondaryOptions"
-                    :key="option.id"
-                    class="cursor-pointer"
-                    color="neutral"
-                    size="xl"
-                    square
-                    variant="ghost"
-                    :to="{ name: option.id }"
-                >
-                    <BenchtopOptionIcon class="size-7" :option-id="option.id" :state="option.state" :state-values="optionStateValues" />
-                </Button>
+                <router-link v-for="option of activeBenchtopConfig.secondaryOptions" :key="option.id" :to="{ name: option.id }" as-child>
+                    <Button size="icon-lg" variant="ghost">
+                        <OptionIcon class="size-6" :option-id="option.id" :state="option.state" :state-values="optionStateValues" />
+                    </Button>
+                </router-link>
             </div>
         </div>
     </div>

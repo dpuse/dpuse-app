@@ -11,7 +11,18 @@ const router = createRouter({
         { path: '/', redirect: '/workflow' },
         { path: '/admin', name: 'admin', component: () => import('@/views/admin/AdminHome.vue') },
         { path: '/partner', name: 'partner', component: () => import('@/views/partner/PartnerHome.vue') },
-        { path: '/workflow', name: 'workflow', component: WorkflowHome },
+        {
+            path: '/workflow',
+            name: 'workflow',
+            component: WorkflowHome,
+            children: [
+                { path: 'establishDataViews', name: 'establishDataViews', component: () => import('@/views/workflow/establishDataViews/EstablishDataViews.vue') },
+                { path: 'assembleDimensions', name: 'assembleDimensions', component: () => import('@/views/workflow/establishDataViews/EstablishDataViews.vue') },
+                { path: 'contextualiseData', name: 'contextualiseData', component: () => import('@/views/workflow/establishDataViews/EstablishDataViews.vue') },
+                { path: 'explorePresentations', name: 'explorePresentations', component: () => import('@/views/workflow/establishDataViews/EstablishDataViews.vue') },
+                { path: 'buildDataApps', name: 'buildDataApps', component: () => import('@/views/workflow/establishDataViews/EstablishDataViews.vue') }
+            ]
+        },
         { path: '/account', name: 'account', component: () => import('@/views/account/Account.vue') },
         { path: '/settings', name: 'settings', component: () => import('@/views/settings/Settings.vue') },
         { path: '/:catchAll(.*)*', redirect: '/workflow' }

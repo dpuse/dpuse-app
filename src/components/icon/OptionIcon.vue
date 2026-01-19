@@ -9,6 +9,8 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue';
 // Workbench dependencies.
 import type { BenchtopOptionState } from '@/types/workbench';
 
+import Icon from '@/components/icon/Icon.vue';
+
 // Properties.
 type Properties = { optionId: string; state: BenchtopOptionState; stateValues?: Record<string, boolean | undefined> };
 const properties = defineProps<Properties>();

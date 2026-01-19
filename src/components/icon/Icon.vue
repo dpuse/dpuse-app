@@ -17,5 +17,13 @@ const colorStyles = computed(() => [
 </script>
 
 <template>
-    <div v-if="icon" aria-hidden="true" :style="colorStyles" v-html="icon" />
+    <div v-if="icon" aria-hidden="true" class="icon" :style="colorStyles" v-html="icon" />
 </template>
+
+<style scoped>
+.icon :deep(svg) {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+</style>
