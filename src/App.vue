@@ -10,7 +10,7 @@ import AssistantPanel from '@/components/assistant/AssistantPanel.vue';
 import BenchtopOptionBar from '@/components/optionBar/OptionBar.vue';
 import BrandLogo from '@/components/brand/BrandLogo.vue';
 import Button from '@/components/Button.vue';
-import Icon from '@/components/icon/Icon.vue';
+import Icon from '@/components/Icon.vue';
 import Separator from '@/components/Button.vue';
 import StatusBar from '@/components/statusBar/StatusBar.vue';
 

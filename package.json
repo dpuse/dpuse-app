@@ -1,6 +1,6 @@
 {
     "name": "datapos-workbench",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "private": true,
     "type": "module",
     "engines": {
@@ -50,6 +50,7 @@
         "build-only": "vite build",
         "type-check": "vue-tsc --build",
         "lint": "eslint . --fix --cache",
-        "format": "prettier --write --experimental-cli src/"
+        "format": "prettier --write --experimental-cli src/",
+        "sync": "node -e \"import('@datapos/datapos-development').then(m => m.syncProjectWithGitHub())\""
     }
 }
