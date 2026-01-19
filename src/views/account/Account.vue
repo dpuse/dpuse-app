@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useSessionStore } from '../stores/sessionStore';
+// Global state dependencies.
+import { useSessionStore } from '@/stores/sessionStore';
 
 const sessionState = useSessionStore();
 </script>

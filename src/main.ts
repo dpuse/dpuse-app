@@ -2,9 +2,12 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
-// Workbench dependencies.
-import App from './App.vue';
-import router from './router';
+// Style dependencies.
+import '@/assets/main.css';
+
+// ???
+import App from '@/App.vue';
+import router from '@/router';
 
 // Bootstrap workbench app.
 const app = createApp(App);
