@@ -1,3 +1,3 @@
 <template>
-    <div class="h-full px-4 py-3 text-sm text-gray-600">Library panel content goes here.</div>
+    <div class="h-full px-4 pt-3"></div>
 </template>

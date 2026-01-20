@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from 'vue';
 
-import { GalleryVerticalEnd } from 'lucide-vue-next';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field';
@@ -18,23 +17,20 @@ const props = defineProps<{
             <FieldGroup>
                 <div class="flex flex-col items-center gap-2 text-center">
                     <a href="#" class="flex flex-col items-center gap-2 font-medium">
-                        <div class="flex size-8 items-center justify-center rounded-md">
-                            <GalleryVerticalEnd class="size-6" />
-                        </div>
                         <span class="sr-only">Acme Inc.</span>
                     </a>
-                    <h1 class="text-xl font-bold">Welcome to Acme Inc.</h1>
+                    <h1 class="text-xl font-medium">Data Positioning & Utilisation</h1>
                     <FieldDescription>
                         Don't have an account?
                         <a href="#"> Sign up </a>
                     </FieldDescription>
                 </div>
                 <Field>
-                    <FieldLabel for="email"> Email </FieldLabel>
+                    <FieldLabel for="email">Email</FieldLabel>
                     <Input id="email" type="email" placeholder="m@example.com" required />
                 </Field>
                 <Field>
-                    <Button type="submit"> Login </Button>
+                    <Button type="submit">Sign in</Button>
                 </Field>
                 <FieldSeparator>Or</FieldSeparator>
                 <Field class="grid gap-4 sm:grid-cols-2">

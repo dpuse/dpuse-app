@@ -6,6 +6,8 @@ import { onMounted, ref } from 'vue';
 // Global state dependencies.
 import { useSessionStore } from '@/stores/sessionStore';
 
+import { Menu } from 'lucide-vue-next';
+
 // Component dependencies.
 import AssistantPanel from '@/components/assistant/AssistantPanel.vue';
 import BenchtopOptionBar from '@/components/optionBar/OptionBar.vue';
@@ -16,6 +18,7 @@ import StatusBar from '@/components/statusBar/StatusBar.vue';
 // Assistant panel state.
 const isAssistantPanelOpen = ref(true);
 
+// ???
 useColorMode();
 
 // Initialize session services (authentication, messenger) after the root app mounts.
@@ -27,18 +30,18 @@ onMounted(() => useSessionStore().initServices());
     <div class="fixed inset-0 flex flex-col overflow-hidden">
         <!-- Brand anchor & logo - fixed in top left corner above workbench body, always visible.  -->
         <div class="fixed top-0 left-0 z-20 flex h-14 w-16 flex-col items-center justify-center">
-            <BrandIcon class="size-7" />
+            <BrandIcon class="size-6" />
         </div>
 
         <!-- Assistant toggle button - fixed in top right corner above workbench body, always visible. -->
         <Button
             :aria-label="isAssistantPanelOpen ? 'Hide assistant panel' : 'Show assistant panel'"
-            class="fixed top-2.75 right-2 z-20 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full p-0"
-            color="neutral"
-            :variant="isAssistantPanelOpen ? 'ghost' : 'secondary'"
+            class="fixed top-2 right-3 z-20 flex cursor-pointer items-center justify-center rounded-full"
+            size="icon-lg"
+            :variant="isAssistantPanelOpen ? 'ghost' : 'ghost'"
             @click="isAssistantPanelOpen = !isAssistantPanelOpen"
         >
-            <!-- <Icon :name="isAssistantPanelOpen ? 'i-heroicons-x-mark' : 'i-heroicons-bars-3'" class="size-5" /> -->
+            <Menu c class="size-5" :stroke-width="1.25" />
         </Button>
 
         <!-- Workbench body -->

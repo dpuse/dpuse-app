@@ -9,8 +9,6 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue';
 // Workbench dependencies.
 import type { BenchtopOptionState } from '@/types/workbench';
 
-import Icon from '@/components/icon/Icon.vue';
-
 // Properties.
 type Properties = { optionId: string; state: BenchtopOptionState; stateValues?: Record<string, boolean | undefined> };
 const properties = defineProps<Properties>();
@@ -74,8 +72,23 @@ const resolvedCharacteristics = computed(() => {
 const icon = computed(() => resolvedCharacteristics.value.icon);
 const textDarkColorCode = computed(() => resolvedCharacteristics.value.colors.text.dark);
 const textLightColorCode = computed(() => resolvedCharacteristics.value.colors.text.light ?? '#000000');
+
+const colorStyles = computed(() => [
+    { color: textLightColorCode.value },
+    textDarkColorCode.value && {
+        '@media (prefers-color-scheme: dark)': { color: textDarkColorCode.value }
+    }
+]);
 </script>
 
 <template>
-    <Icon :text-dark-color-code="textDarkColorCode" :text-light-color-code="textLightColorCode" :icon="icon" />
+    <div v-if="icon" aria-hidden="true" class="icon" :style="colorStyles" v-html="icon" />
 </template>
+
+<style scoped>
+.icon :deep(svg) {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+</style>
