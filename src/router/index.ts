@@ -23,7 +23,21 @@ const router = createRouter({
                 { path: 'buildDataApps', name: 'buildDataApps', component: () => import('@/views/workflow/buildDataApps/BuildDataApps.vue') }
             ]
         },
-        { path: '/account', name: 'account', component: () => import('@/views/account/Account.vue') },
+        {
+            path: '/account',
+            name: 'account',
+            component: () => import('@/views/account/Account.vue'),
+            children: [
+                { path: 'manageAccess', name: 'manageAccess', component: () => import('@/views/account/ManageAccess.vue') },
+                { path: 'manageBillingDetails', name: 'manageBillingDetails', component: () => import('@/views/account/ManageBillingDetails.vue') },
+                { path: 'manageDataServices', name: 'manageDataServices', component: () => import('@/views/account/ManageDataServices.vue') },
+                { path: 'managePersonalDetails', name: 'managePersonalDetails', component: () => import('@/views/account/ManagePersonalDetails.vue') },
+                { path: 'manageSessions', name: 'manageSessions', component: () => import('@/views/account/ManageSessions.vue') },
+                { path: 'manageSettings', name: 'manageSettings', component: () => import('@/views/account/ManageSettings.vue') },
+                { path: 'reviewActivity', name: 'reviewActivity', component: () => import('@/views/account/ReviewActivity.vue') },
+                { path: 'generateToken', name: 'generateToken', component: () => import('@/views/account/GenerateToken.vue') }
+            ]
+        },
         { path: '/settings', name: 'settings', component: () => import('@/views/settings/Settings.vue') },
         { path: '/:catchAll(.*)*', redirect: '/workflow' }
     ],

@@ -24,9 +24,9 @@ onMounted(() => useSessionStore().initServices());
 
 <template>
     <!-- Workbench shell. -->
-    <div class="bg-background fixed inset-0 flex flex-col overflow-hidden">
+    <div class="fixed inset-0 flex flex-col overflow-hidden">
         <!-- Brand anchor & logo - fixed in top left corner above workbench body, always visible.  -->
-        <div class="fixed top-0 left-0 z-20 flex h-13.75 w-16 flex-col items-center justify-center">
+        <div class="fixed top-0 left-0 z-20 flex h-14 w-16 flex-col items-center justify-center">
             <BrandIcon class="size-6" />
         </div>
 
@@ -47,7 +47,7 @@ onMounted(() => useSessionStore().initServices());
             <BenchtopOptionBar />
 
             <!-- Workbench content area - fills browser window between benchtop option bar and assistant panel. -->
-            <div class="bg-muted flex-1 rounded-b-lg">
+            <div class="flex-1 rounded-b-lg">
                 <RouterView />
             </div>
 
