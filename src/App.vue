@@ -27,7 +27,7 @@ onMounted(() => useSessionStore().initServices());
     <div class="fixed inset-0 flex flex-col overflow-hidden">
         <!-- Brand anchor & logo - fixed in top left corner above workbench body, always visible.  -->
         <div class="fixed top-0 left-0 z-20 flex h-14 w-16 flex-col items-center justify-center">
-            <BrandIcon class="size-6" />
+            <BrandIcon class="size-7" />
         </div>
 
         <!-- Assistant toggle button - fixed in top right corner above workbench body, always visible. -->
