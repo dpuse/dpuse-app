@@ -3,7 +3,7 @@
 import { useSessionStore } from '@/stores/sessionStore';
 
 import Button from '@/components/ui/button/Button.vue';
-import LoginForm from '@/components/new-york-v4/blocks/login-04/components/LoginForm.vue';
+import LoginForm from '@/components/new-york-v4/blocks/login-05/components/LoginForm.vue';
 
 const sessionState = useSessionStore();
 </script>
@@ -14,8 +14,8 @@ const sessionState = useSessionStore();
             <Button @click="sessionState.signOut()">Sign Out</Button>
         </div>
 
-        <div v-else class="flex min-h-svh w-full flex-col items-center justify-center p-6 md:p-10">
-            <div class="w-full max-w-sm md:max-w-4xl">
+        <div v-else class="bg-background flex flex-col items-center justify-center gap-6 rounded-lg p-6 md:p-10">
+            <div class="w-full max-w-sm">
                 <LoginForm />
             </div>
         </div>

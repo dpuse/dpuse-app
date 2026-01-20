@@ -9,7 +9,7 @@ import { useSessionStore } from '@/stores/sessionStore';
 // Component dependencies.
 import AssistantPanel from '@/components/assistant/AssistantPanel.vue';
 import BenchtopOptionBar from '@/components/optionBar/OptionBar.vue';
-import BrandLogo from '@/components/brand/BrandLogo.vue';
+import BrandIcon from '@/components/icon/Brand.vue';
 import Button from '@/components/ui/button/Button.vue';
 import StatusBar from '@/components/statusBar/StatusBar.vue';
 
@@ -24,10 +24,10 @@ onMounted(() => useSessionStore().initServices());
 
 <template>
     <!-- Workbench shell. -->
-    <div class="fixed inset-0 flex flex-col overflow-hidden">
+    <div class="bg-background fixed inset-0 flex flex-col overflow-hidden">
         <!-- Brand anchor & logo - fixed in top left corner above workbench body, always visible.  -->
         <div class="fixed top-0 left-0 z-20 flex h-13.75 w-16 flex-col items-center justify-center">
-            <BrandLogo compact />
+            <BrandIcon class="size-7" />
         </div>
 
         <!-- Assistant toggle button - fixed in top right corner above workbench body, always visible. -->
@@ -47,7 +47,7 @@ onMounted(() => useSessionStore().initServices());
             <BenchtopOptionBar />
 
             <!-- Workbench content area - fills browser window between benchtop option bar and assistant panel. -->
-            <div class="flex-1">
+            <div class="bg-muted flex-1 rounded-b-lg">
                 <RouterView />
             </div>
 

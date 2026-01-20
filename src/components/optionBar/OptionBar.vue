@@ -24,7 +24,7 @@ const optionStateValues = computed(() => ({ account: sessionStatus.value?.isAuth
 </script>
 
 <template>
-    <div class="bg-faint hidden w-16 flex-col border-r pt-14 md:flex">
+    <div class="hidden w-16 flex-col border-r-0 pt-14 md:flex">
         <Separator />
 
         <!-- Options scroller. -->

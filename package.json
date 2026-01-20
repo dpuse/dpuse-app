@@ -1,6 +1,6 @@
 {
     "name": "datapos-workbench",
-    "version": "0.0.9",
+    "version": "0.0.10",
     "private": true,
     "type": "module",
     "engines": {
@@ -8,6 +8,7 @@
     },
     "dependencies": {
         "@datapos/datapos-shared": "^0.3.530",
+        "@tailwindcss/vite": "^4.1.18",
         "@teamhanko/hanko-frontend-sdk": "^2.3.0",
         "@vueuse/core": "^14.1.0",
         "class-variance-authority": "^0.7.1",
@@ -25,7 +26,6 @@
         "@cloudflare/workers-types": "^4.20260120.0",
         "@datapos/datapos-development": "^0.3.443",
         "@playwright/test": "^1.57.0",
-        "@tailwindcss/vite": "^4.1.18",
         "@tsconfig/node24": "^24.0.4",
         "@types/eslint-plugin-security": "^3.0.0",
         "@types/jsdom": "^27.0.0",
