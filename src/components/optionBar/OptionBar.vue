@@ -8,9 +8,8 @@ import { useKnowledge } from '@/composables/useKnowledge';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Component dependencies.
-import OptionIcon from '@/components/icon/OptionIcon.vue';
+import OptionIcon from '@/components/icon/Option.vue';
 import Button from '@/components/ui/button/Button.vue';
-import Separator from '@/components/ui/separator/Separator.vue';
 
 // Active benchtop configuration state.
 const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') ?? {
@@ -24,13 +23,11 @@ const optionStateValues = computed(() => ({ account: sessionStatus.value?.isAuth
 </script>
 
 <template>
-    <div class="hidden w-16 flex-col border-r-0 pt-14 md:flex">
-        <Separator />
-
+    <div class="hidden w-16 flex-col pt-14 md:flex">
         <!-- Options scroller. -->
         <div class="flex flex-1 flex-col items-center overflow-y-auto">
             <!-- Primary options. -->
-            <div class="flex w-full flex-1 flex-col items-center pt-2">
+            <div class="flex w-full flex-1 flex-col items-center">
                 <router-link v-for="option of activeBenchtopConfig.primaryOptions" :key="option.id" :to="{ name: option.id }" as-child>
                     <Button size="icon-lg" variant="ghost">
                         <OptionIcon class="size-6" :option-id="option.id" :state="option.state" :state-values="optionStateValues" />
@@ -39,8 +36,7 @@ const optionStateValues = computed(() => ({ account: sessionStatus.value?.isAuth
             </div>
 
             <!-- Secondary options and separator. -->
-            <Separator v-if="activeBenchtopConfig.secondaryOptions.length > 0" class="my-2 flex-none" />
-            <div class="flex w-full flex-none flex-col items-center pb-4">
+            <div class="flex w-full flex-none flex-col items-center">
                 <router-link v-for="option of activeBenchtopConfig.secondaryOptions" :key="option.id" :to="{ name: option.id }" as-child>
                     <Button size="icon-lg" variant="ghost">
                         <OptionIcon class="size-6" :option-id="option.id" :state="option.state" :state-values="optionStateValues" />
