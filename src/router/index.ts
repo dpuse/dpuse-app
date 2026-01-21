@@ -35,7 +35,8 @@ const router = createRouter({
                 { path: 'manageSessions', name: 'manageSessions', component: () => import('@/views/account/ManageSessions.vue') },
                 { path: 'manageSettings', name: 'manageSettings', component: () => import('@/views/account/ManageSettings.vue') },
                 { path: 'reviewActivity', name: 'reviewActivity', component: () => import('@/views/account/ReviewActivity.vue') },
-                { path: 'generateToken', name: 'generateToken', component: () => import('@/views/account/GenerateToken.vue') }
+                { path: 'generateToken', name: 'generateToken', component: () => import('@/views/account/GenerateToken.vue') },
+                { path: 'deleteAccount', name: 'deleteAccount', component: () => import('@/views/account/DeleteAccount.vue') }
             ]
         },
         { path: '/settings', name: 'settings', component: () => import('@/views/settings/Settings.vue') },

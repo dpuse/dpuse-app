@@ -11,7 +11,7 @@ import { Sparkles } from 'lucide-vue-next';
 // Component dependencies.
 import AssistantPanel from '@/components/assistant/AssistantPanel.vue';
 import BenchtopOptionBar from '@/components/optionBar/OptionBar.vue';
-import BrandIcon from '@/components/icon/Brand.vue';
+import DPULogo from '@/components/icon/logo/DPULogo.vue';
 import Button from '@/components/ui/button/Button.vue';
 import StatusBar from '@/components/statusBar/StatusBar.vue';
 
@@ -31,7 +31,7 @@ onMounted(() => useSessionStore().initServices());
         <!-- Brand anchor & logo - fixed in top left corner above workbench body, always visible.  -->
         <div class="fixed top-0 left-0 z-20 flex h-14 w-16 flex-col items-center justify-center">
             <RouterLink :to="{ name: 'workflow' }" as-child>
-                <BrandIcon class="size-7" />
+                <DPULogo class="size-7" />
             </RouterLink>
         </div>
 

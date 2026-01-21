@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { cn } from '@/lib/utils';
 import type { HTMLAttributes } from 'vue';
 import { useColorMode } from '@vueuse/core';
 
-import AppleLogo from '@/components/icon/logo/Apple.vue';
-import GitHubLogo from '@/components/icon/logo/GitHub.vue';
-import GoogleLogo from '@/components/icon/logo/Google.vue';
-import MicrosoftLogo from '@/components/icon/logo/Microsoft.vue';
+import { cn } from '@/lib/utils';
+
+import AppleLogo from '@/components/icon/logo/AppleLogo.vue';
+import GitHubLogo from '@/components/icon/logo/GitHubLogo.vue';
+import GoogleLogo from '@/components/icon/logo/GoogleLogo.vue';
+import MicrosoftLogo from '@/components/icon/logo/MicrosoftLogo.vue';
 
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field';
@@ -31,7 +32,7 @@ const props = defineProps<{
                     <h1 class="text-xl font-medium">Data Positioning + Use</h1>
                     <FieldDescription>
                         Don't have an account?
-                        <a href="#"> Sign up </a>
+                        <a href="#">Sign up</a>
                     </FieldDescription>
                 </div>
                 <Field>
