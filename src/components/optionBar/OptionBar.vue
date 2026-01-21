@@ -33,11 +33,11 @@ const optionStateValues = computed(() => ({ account: sessionStatus.value?.isAuth
         <div class="flex flex-1 flex-col items-center overflow-y-auto pt-2 pb-5.5">
             <!-- Primary options. -->
             <div class="flex w-full flex-1 flex-col items-center">
-                <router-link v-for="optionConfig of activeBenchtopConfig.primaryOptions" :key="optionConfig.id" :to="{ name: optionConfig.id }" as-child>
+                <RouterLink v-for="optionConfig of activeBenchtopConfig.primaryOptions" :key="optionConfig.id" :to="{ name: optionConfig.id }" as-child>
                     <Button size="icon-lg" variant="ghost">
                         <OptionIcon class="size-6" :option-id="optionConfig.id" :state="optionConfig.state" :state-values="optionStateValues" />
                     </Button>
-                </router-link>
+                </RouterLink>
             </div>
 
             <div class="w-full flex-none px-3 py-2">
@@ -46,11 +46,11 @@ const optionStateValues = computed(() => ({ account: sessionStatus.value?.isAuth
 
             <!-- Secondary options and separator. -->
             <div class="flex w-full flex-none flex-col items-center">
-                <router-link v-for="optionConfig of activeBenchtopConfig.secondaryOptions" :key="optionConfig.id" :to="{ name: optionConfig.id }" as-child>
+                <RouterLink v-for="optionConfig of activeBenchtopConfig.secondaryOptions" :key="optionConfig.id" :to="{ name: optionConfig.id }" as-child>
                     <Button size="icon-lg" variant="ghost">
                         <OptionIcon class="size-6" :option-id="optionConfig.id" :state="optionConfig.state" :state-values="optionStateValues" />
                     </Button>
-                </router-link>
+                </RouterLink>
             </div>
         </div>
     </div>

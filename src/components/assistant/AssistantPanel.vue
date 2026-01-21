@@ -37,8 +37,8 @@ const isWide = ref(false);
             </div>
         </div>
 
-        <div class="flex h-full flex-1 flex-col gap-y-2 px-4">
-            <div class="bg-muted flex-1 rounded-b-md"></div>
+        <div class="flex h-full flex-1 flex-col px-4">
+            <div class="bg-muted flex-1"></div>
 
             <div class="rounded-md border">
                 <Textarea

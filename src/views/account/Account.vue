@@ -33,11 +33,11 @@ const optionConfigs = [
 
                     <template v-for="optionConfig of optionConfigs" :key="optionConfig.id">
                         <div v-if="optionConfig.type === 'label'" class="mt-1 text-xs">{{ optionConfig.label.en }}</div>
-                        <router-link v-else :to="{ name: optionConfig.id }" as-child>
+                        <RouterLink v-else :to="{ name: optionConfig.id }" as-child>
                             <Button class="min-w-40 justify-start font-normal" variant="secondary">
                                 {{ optionConfig.label.en }}
                             </Button>
-                        </router-link>
+                        </RouterLink>
                     </template>
                 </div>
 
