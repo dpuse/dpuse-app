@@ -50,7 +50,7 @@ const props = defineProps<{
                                 fill="currentColor"
                             />
                         </svg> -->
-                        <AppleLogo :fill="colorMode === 'light' ? 'black' : 'white'" />
+                        <AppleLogo class="size-5" :fill="colorMode === 'light' ? 'black' : 'white'" />
                         Apple
                     </Button>
                     <Button variant="outline" type="button">
@@ -60,7 +60,7 @@ const props = defineProps<{
                                 fill="currentColor"
                             />
                         </svg> -->
-                        <GitHubLogo class="size-4" :fill="colorMode === 'light' ? 'black' : 'white'" />
+                        <GitHubLogo class="size-5" :fill="colorMode === 'light' ? 'black' : 'white'" />
                         Github
                     </Button>
                     <Button variant="outline" type="button">
@@ -70,7 +70,7 @@ const props = defineProps<{
                                 fill="currentColor"
                             />
                         </svg> -->
-                        <GoogleLogo class="size-4" />
+                        <GoogleLogo class="size-5" />
                         Google
                     </Button>
                     <Button variant="outline" type="button">
@@ -80,7 +80,7 @@ const props = defineProps<{
                                 fill="currentColor"
                             />
                         </svg> -->
-                        <MicrosoftLogo class="size-4" />
+                        <MicrosoftLogo class="size-5" />
                         Microsoft
                     </Button>
                 </Field>
