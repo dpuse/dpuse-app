@@ -1,13 +1,14 @@
 <script setup lang="ts">
 // Vendor dependencies
 import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
-import { nextTick, onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 // Global state dependencies.
 import { useSessionStore } from '@/stores/sessionStore';
 
 import Button from '@/components/ui/button/Button.vue';
-import LoginForm from '@/components/new-york-v4/blocks/login-05/components/LoginForm.vue';
+import LoginForm from '@/components/account/LoginForm.vue';
+import PasswordForm from '@/components/account/PasswordForm.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 
 const sessionState = useSessionStore();
@@ -27,13 +28,14 @@ const optionConfigs = [
     { id: 'generateToken', icon: '', label: { en: 'API token' } }
 ];
 
-const enterPasswordRef = ref<HTMLDivElement | null>(null);
+const handleIdEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
+const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 const uiStateId = ref<'enterId' | 'enterPassword' | 'done'>('enterId');
-const signInTriggerAction = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 
 onMounted(() => sessionState.constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state)));
 onUnmounted(() => sessionState.destroyFlow());
 
+// Sign out.
 const signOut = async () => {
     sessionState.destroyFlow();
     await sessionState.signOut();
@@ -46,13 +48,13 @@ function handleLoginFlowStateChange(state: AnyState) {
         case 'preflight':
             return;
         case 'login_init':
-            return handleLoginInitState(state);
+            return handleLoginFlowInitState(state);
         case 'login_method_chooser':
-            return handleLoginMethodChooserState(state);
+            return handleLoginFlowMethodChooserState(state);
         case 'login_password':
-            return handleLoginPasswordState(state);
+            return handleLoginFlowPasswordState(state);
         case 'onboarding_create_passkey':
-            return handleOnboardingCreatePasskeyState(state);
+            return handleLoginFlowOnboardingCreatePasskeyState(state);
         case 'success':
             uiStateId.value = 'done';
             sessionState.destroyFlow();
@@ -66,39 +68,36 @@ function handleLoginFlowStateChange(state: AnyState) {
     }
 }
 
-// Handle login flow initialisation state.
-async function handleLoginInitState(state: State<'login_init'>) {
+// Handle login flow initialisation state. User identifier (email address) input is required.
+async function handleLoginFlowInitState(state: State<'login_init'>) {
     const action = state.actions.continue_with_login_identifier as Action<ContinueWithLoginIdentifierInputs>;
     const input = (action.inputs.email || action.inputs.identifier) as Input<string>;
-    console.log('input', input);
     uiStateId.value = 'enterId';
-    // await nextTick();
-    signInTriggerAction.value = async (identifier: string) => {
+    handleIdEntered.value = async (identifier: string) => {
         const result = await action.run({ [input.name]: identifier });
         if (result.error) console.log(result.error, result);
     };
 }
 
-// Handle login flow method chooser state.
-async function handleLoginMethodChooserState(state: State<'login_method_chooser'>) {
+// Handle login flow method chooser state. Only password logins are support.
+async function handleLoginFlowMethodChooserState(state: State<'login_method_chooser'>) {
     const action = state.actions.continue_to_password_login!;
     const result = await action.run();
     if (result.error) console.log(result.error, result);
 }
 
-// Handle login flow password state.
-async function handleLoginPasswordState(state: State<'login_password'>) {
+// Handle login flow password state. Password input is required.
+async function handleLoginFlowPasswordState(state: State<'login_password'>) {
     const action = state.actions.password_login;
     uiStateId.value = 'enterPassword';
-    await nextTick();
-    enterPasswordRef.value!.onclick = async () => {
-        const result = await action.run({ password: 'datapos1111' });
+    handlePasswordEntered.value = async (password: string) => {
+        const result = await action.run({ password });
         if (result.error) console.log(result.error, result);
     };
 }
 
-// Handle login flow onboarding create passkey state.
-async function handleOnboardingCreatePasskeyState(state: State<'onboarding_create_passkey'>) {
+// Handle login flow onboarding create passkey state. Creation of passkeys is disabled.
+async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboarding_create_passkey'>) {
     const action = state.actions.skip!;
     const result = await action.run();
     if (result.error) console.log(result.error, result);
@@ -109,7 +108,7 @@ async function handleOnboardingCreatePasskeyState(state: State<'onboarding_creat
     <div class="bg-muted flex h-full flex-col items-center justify-center rounded-b-lg">
         <div v-if="sessionState.sessionStatus.isAuthenticated" class="bg-background flex w-full flex-1 flex-col overflow-y-hidden rounded-b-lg border-x border-b">
             <div class="px-4">
-                <div class="flex h-14 w-full flex-none items-center border-b pl-4 text-lg font-light">Account</div>
+                <div class="flex h-14 w-full flex-none items-center border-b text-lg font-light">Account</div>
             </div>
 
             <div class="flex flex-1 overflow-y-hidden">
@@ -142,10 +141,12 @@ async function handleOnboardingCreatePasskeyState(state: State<'onboarding_creat
 
         <div v-else class="bg-background my-2 overflow-y-auto rounded-lg">
             <div v-if="uiStateId === 'enterId'">
-                <LoginForm class="max-w-sm p-6 md:p-10" :on-trigger="signInTriggerAction" />
+                <LoginForm class="max-w-sm min-w-sm p-6 md:p-10" :on-trigger="handleIdEntered" />
             </div>
 
-            <button v-else-if="uiStateId === 'enterPassword'" ref="enterPasswordRef">Enter Password</button>
+            <div v-if="uiStateId === 'enterPassword'">
+                <PasswordForm class="max-w-sm min-w-sm p-6 md:p-10" :on-trigger="handlePasswordEntered" />
+            </div>
         </div>
     </div>
 </template>
