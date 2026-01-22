@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from 'vue';
+import { type HTMLAttributes, ref } from 'vue';
 import { useColorMode } from '@vueuse/core';
 
 import { cn } from '@/lib/utils';
@@ -18,7 +18,14 @@ const colorMode = useColorMode();
 
 const props = defineProps<{
     class?: HTMLAttributes['class'];
+    onTrigger?: (identifier: string) => Promise<void>;
 }>();
+
+const identifier = ref('terrell.jm@icloud.com');
+const handleSubmit = async () => {
+    if (!props.onTrigger) return;
+    await props.onTrigger(identifier.value);
+};
 </script>
 
 <template>
@@ -40,7 +47,7 @@ const props = defineProps<{
                     <Input id="email" type="email" placeholder="m@example.com" required />
                 </Field>
                 <Field>
-                    <Button type="submit">Sign in</Button>
+                    <Button type="button" @click="handleSubmit">Sign in</Button>
                 </Field>
                 <FieldSeparator>Or continue with</FieldSeparator>
                 <Field class="grid gap-4 sm:grid-cols-2">

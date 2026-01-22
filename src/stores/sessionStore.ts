@@ -1,7 +1,7 @@
 // Vendor dependencies.
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { type Claims, Hanko } from '@teamhanko/hanko-frontend-sdk';
+import { type AnyState, type Claims, type FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 
 // Constants.
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
@@ -18,6 +18,7 @@ interface SessionStatus {
 
 // Pina store for session state.
 const useSessionStore = defineStore('session', () => {
+    let flowCleanupFunction: (() => void) | undefined;
     let hankoInstance: Hanko | undefined;
     const sessionStatus = ref<SessionStatus>({});
 
@@ -32,20 +33,27 @@ const useSessionStore = defineStore('session', () => {
         sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
     }
 
+    function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): void {
+        flowCleanupFunction = hankoInstance?.onAfterStateChange(stateHandler);
+        hankoInstance?.createState(name);
+    }
+
+    function destroyFlow(): void {
+        flowCleanupFunction?.();
+    }
+
     async function signOut(): Promise<void> {
         await hankoInstance?.logout();
     }
 
-    return { initServices, sessionStatus, signOut };
+    return { constructFlow, destroyFlow, initServices, sessionStatus, signOut };
 });
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //#region Authentication Helpers
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-/**
- *
- */
+// ???
 function constructSessionStatus(claims?: Claims): SessionStatus {
     if (claims) {
         const establishedAt = claims.issued_at ? Date.parse(claims?.issued_at) : 0;

@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 const isWide = ref(false);
 
-const messages = ref<Record<number, string>[]>([]);
+const messages = ref<{ id: number; text: string }[]>([]);
 function runTest() {
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
@@ -34,7 +34,7 @@ function runTest() {
         .then((response) => response.json())
         .then((result) => {
             console.log(result);
-            const id = crypto.getRandomValues(new Uint32Array(1))[0];
+            const id = crypto.getRandomValues(new Uint32Array(1))[0] ?? 0;
             messages.value.push({ id, text: JSON.stringify(result) });
         })
         .catch((error) => console.log('error', error));

@@ -2,20 +2,21 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 // View dependencies.
-import WorkflowHome from '@/views/workflow/WorkflowHome.vue';
+import Workflow from '@/views/workflow/Workflow.vue';
 
 // Application router with scroll position restoration.
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
-        { path: '/', redirect: '/workflow' },
+        { path: '/', redirect: '/workflow/home' },
         { path: '/admin', name: 'admin', component: () => import('@/views/admin/AdminHome.vue') },
         { path: '/partner', name: 'partner', component: () => import('@/views/partner/PartnerHome.vue') },
         {
             path: '/workflow',
-            name: 'workflow',
-            component: WorkflowHome,
+            component: Workflow,
             children: [
+                { path: '', name: 'workflow', redirect: '/workflow/home' },
+                { path: 'home', name: 'workflowHome', component: () => import('@/views/workflow/WorkflowHome.vue') },
                 { path: 'establishDataViews', name: 'establishDataViews', component: () => import('@/views/workflow/establishDataViews/EstablishDataViews.vue') },
                 { path: 'assembleDimensions', name: 'assembleDimensions', component: () => import('@/views/workflow/assembleDimensions/AssembleDimensions.vue') },
                 { path: 'contextualiseData', name: 'contextualiseData', component: () => import('@/views/workflow/contextualiseData/ContextualiseData.vue') },
@@ -25,16 +26,16 @@ const router = createRouter({
         },
         {
             path: '/account',
-            name: 'account',
             component: () => import('@/views/account/Account.vue'),
             children: [
-                { path: 'manageAccess', name: 'manageAccess', component: () => import('@/views/account/ManageAccess.vue') },
-                { path: 'manageBillingDetails', name: 'manageBillingDetails', component: () => import('@/views/account/ManageBillingDetails.vue') },
-                { path: 'manageDataServices', name: 'manageDataServices', component: () => import('@/views/account/ManageDataServices.vue') },
+                { path: '', name: 'account', redirect: '/account/managePersonalDetails' },
                 { path: 'managePersonalDetails', name: 'managePersonalDetails', component: () => import('@/views/account/ManagePersonalDetails.vue') },
+                { path: 'manageSubscription', name: 'manageSubscription', component: () => import('@/views/account/ManageSubscription.vue') },
+                { path: 'managePreferences', name: 'managePreferences', component: () => import('@/views/account/ManagePreferences.vue') },
+                { path: 'manageAccess', name: 'manageAccess', component: () => import('@/views/account/ManageAccess.vue') },
                 { path: 'manageSessions', name: 'manageSessions', component: () => import('@/views/account/ManageSessions.vue') },
-                { path: 'manageSettings', name: 'manageSettings', component: () => import('@/views/account/ManageSettings.vue') },
                 { path: 'reviewActivity', name: 'reviewActivity', component: () => import('@/views/account/ReviewActivity.vue') },
+                { path: 'manageDataServiceTokens', name: 'manageDataServiceTokens', component: () => import('@/views/account/ManageDataServiceTokens.vue') },
                 { path: 'generateToken', name: 'generateToken', component: () => import('@/views/account/GenerateToken.vue') },
                 { path: 'deleteAccount', name: 'deleteAccount', component: () => import('@/views/account/DeleteAccount.vue') }
             ]
