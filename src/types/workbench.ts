@@ -73,7 +73,7 @@ type BenchtopSecondaryOptionLocalisedConfig = Omit<BenchtopSecondaryOptionConfig
     description: string;
 };
 
-type BenchtopOptionState = BenchtopOptionSingleState | BenchtopOptionBooleanState;
+type BenchtopOptionState = BenchtopOptionSingleState | BenchtopOptionBooleanState | BenchtopOptionMultipleState;
 
 type BenchtopOptionSingleState = {
     kind: 'single';
@@ -84,6 +84,11 @@ type BenchtopOptionBooleanState = {
     kind: 'boolean';
     true: BenchtopOptionStateCharacteristics;
     false: BenchtopOptionStateCharacteristics;
+};
+
+type BenchtopOptionMultipleState = {
+    kind: 'multiple';
+    multiple: BenchtopOptionStateCharacteristics;
 };
 
 type BenchtopOptionStateCharacteristics = {

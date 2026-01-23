@@ -57,8 +57,8 @@ function runTest() {
                     variant="ghost"
                     @click="isWide = !isWide"
                 >
-                    <ArrowRightToLine v-if="isWide" class="size-5" :stroke-width="1.25" />
-                    <ArrowLeftFromLine v-else class="size-5" :stroke-width="1.25" />
+                    <ArrowRightToLine v-if="isWide" class="size-6" :stroke-width="1.25" />
+                    <ArrowLeftFromLine v-else class="size-6" :stroke-width="1.25" />
                 </Button>
             </div>
         </div>

@@ -129,7 +129,9 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
 
                     <div class="flex flex-none flex-col gap-y-2 pt-2">
                         <Separator class="my-2" />
-                        <Button class="font-normal" variant="destructive" @click="sessionState.signOut()">Delete account</Button>
+                        <RouterLink :to="{ name: 'deleteAccount' }" as-child>
+                            <Button class="w-full font-normal" variant="destructive">Delete account</Button>
+                        </RouterLink>
                     </div>
                 </div>
 

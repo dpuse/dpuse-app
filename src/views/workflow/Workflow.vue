@@ -1,7 +1,5 @@
 <script setup lang="ts"></script>
 
 <template>
-    <div class="h-full">
-        <RouterView />
-    </div>
+    <div class="flex h-full items-center justify-center overflow-y-auto">Workflow home...</div>
 </template>

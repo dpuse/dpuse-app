@@ -59,6 +59,7 @@ const placeholderCharacteristics = { colors: { text: { light: 'transparent', dar
 const resolvedCharacteristics = computed(() => {
     // Single state: assign fixed characteristics.
     if (properties.state.kind === 'single') return properties.state.single;
+    if (properties.state.kind === 'multiple') return properties.state.multiple;
 
     // Boolean state: pick true/false characteristics using provided runtime value (default false).
     if (properties.state.kind === 'boolean') {

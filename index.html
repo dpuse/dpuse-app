@@ -1,14 +1,17 @@
 <!doctype html>
-<html lang="">
+<html dir="ltr" lang="en">
     <head>
-        <title lang="en">DPU</title>
-
         <meta charset="UTF-8" />
-        <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
         <meta name="color-scheme" content="dark light" />
-        <style lang="en">
+
+        <title>DPU Workbench</title>
+        <meta name="description" content="The Data Positioning and Usage workbench." />
+        <link rel="icon" href="/favicon.ico" />
+
+        <link rel="preconnect" href="https://www.datapos.app" />
+
+        <style>
             html {
                 background-color: #020617;
                 color: #e5e7eb;
@@ -21,26 +24,27 @@
                 }
             }
         </style>
-        <script lang="en">
+
+        <script>
             (function () {
                 try {
-                    var storageKey = 'vueuse-color-scheme';
-                    var stored = localStorage.getItem(storageKey) || 'auto';
-                    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    var theme = stored === 'auto' ? (prefersDark ? 'dark' : 'light') : stored;
-                    var root = document.documentElement;
+                    const storageKey = 'vueuse-color-scheme';
+                    const stored = localStorage.getItem(storageKey) || 'auto';
+                    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    const theme = stored === 'auto' ? (prefersDark ? 'dark' : 'light') : stored;
+                    const root = document.documentElement;
                     if (theme === 'dark') {
                         root.classList.add('dark');
                     } else {
                         root.classList.remove('dark');
                     }
-                } catch  {
+                } catch {
                     // Fail silently, VueUse will handle theme later.
                 }
             })();
         </script>
-        <link rel="preconnect" href="https://www.datapos.app" />
     </head>
+
     <body>
         <div id="app"></div>
         <script type="module" src="/src/main.ts"></script>

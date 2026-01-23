@@ -43,7 +43,7 @@ onMounted(() => useSessionStore().initServices());
             :variant="isAssistantPanelOpen ? 'ghost' : 'ghost'"
             @click="isAssistantPanelOpen = !isAssistantPanelOpen"
         >
-            <Sparkles class="size-5" :stroke-width="1.25" />
+            <Sparkles class="size-6" :stroke-width="1.25" />
         </Button>
 
         <!-- Workbench body -->
