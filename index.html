@@ -4,6 +4,41 @@
         <meta charset="UTF-8" />
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <meta name="color-scheme" content="dark light" />
+        <style>
+            html {
+                background-color: #020617;
+                color: #e5e7eb;
+            }
+
+            @media (prefers-color-scheme: light) {
+                html {
+                    background-color: #ffffff;
+                    color: #020617;
+                }
+            }
+        </style>
+        <script>
+            (function () {
+                try {
+                    var storageKey = 'vueuse-color-scheme';
+                    var stored = localStorage.getItem(storageKey) || 'auto';
+                    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    var theme = stored === 'auto' ? (prefersDark ? 'dark' : 'light') : stored;
+                    var root = document.documentElement;
+
+                    if (theme === 'dark') {
+                        root.classList.add('dark');
+                    } else {
+                        root.classList.remove('dark');
+                    }
+                } catch (e) {
+                    // fail silently – VueUse will handle theme later
+                }
+            })();
+        </script>
+
         <title>DPU</title>
     </head>
     <body>
