@@ -7,13 +7,13 @@ import { useColorMode } from '@vueuse/core';
 import { cn } from '@/lib/utils';
 
 // Components and icons
-import AppleLogoIcon from '@/components/icons/logos/AppleLogoIcon.vue';
-import { Button } from '~/src/components/primitives/button';
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '~/src/components/primitives/field';
-import GitHubLogoIcon from '@/components/icons/logos/GitHubLogoIcon.vue';
-import GoogleLogoIcon from '@/components/icons/logos/GoogleLogoIcon.vue';
-import { Input } from '~/src/components/primitives/input';
-import MicrosoftLogoIcon from '@/components/icons/logos/MicrosoftLogoIcon.vue';
+import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
+import { Button } from '~/src/components/base/button';
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '~/src/components/base/field';
+import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';
+import GoogleLogoIcon from '@/components/icon/logos/GoogleLogoIcon.vue';
+import { Input } from '~/src/components/base/input';
+import MicrosoftLogoIcon from '@/components/icon/logos/MicrosoftLogoIcon.vue';
 
 // Global state
 const colorMode = useColorMode();

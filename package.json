@@ -1,6 +1,6 @@
 {
     "name": "datapos-workbench",
-    "version": "0.0.32",
+    "version": "0.0.33",
     "private": true,
     "type": "module",
     "engines": {
@@ -27,7 +27,7 @@
         "@datapos/datapos-development": "^0.3.443",
         "@playwright/test": "^1.57.0",
         "@tsconfig/node24": "^24.0.4",
-        "@types/eslint-plugin-security": "^3.0.0",
+        "@types/eslint-plugin-security": "^3.0.1",
         "@types/jsdom": "^27.0.0",
         "@types/node": "^25.0.9",
         "@vite-pwa/assets-generator": "^1.0.2",
@@ -38,7 +38,11 @@
         "@vue/test-utils": "^2.4.6",
         "@vue/tsconfig": "^0.8.1",
         "eslint": "^9.39.2",
+        "eslint-import-resolver-typescript": "^4.4.4",
+        "eslint-plugin-import": "^2.32.0",
         "eslint-plugin-playwright": "^2.5.0",
+        "eslint-plugin-security": "^3.0.1",
+        "eslint-plugin-unicorn": "^62.0.0",
         "eslint-plugin-vue": "~10.7.0",
         "jiti": "^2.6.1",
         "jsdom": "^27.4.0",

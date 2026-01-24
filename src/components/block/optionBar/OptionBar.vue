@@ -8,13 +8,13 @@ import { useKnowledge } from '@/composables/useKnowledge';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Components and icons
-import OptionIcon from '@/components/icons/OptionIcon.vue';
-import Button from '@/components/primitives/button/Button.vue';
-import Separator from '@/components/primitives/separator/Separator.vue';
-import { HoverCardContent, HoverCardTrigger } from '~/src/components/primitives/hover-card';
+import OptionIcon from '@/components/icon/OptionIcon.vue';
+import Button from '@/components/base/button/Button.vue';
+import Separator from '@/components/base/separator/Separator.vue';
+import { HoverCardContent, HoverCardTrigger } from '~/src/components/base/hover-card';
 import { HoverCardRoot } from 'reka-ui';
-import { Label } from '~/src/components/primitives/label';
-import { Switch } from '~/src/components/primitives/switch';
+import { Label } from '~/src/components/base/label';
+import { Switch } from '~/src/components/base/switch';
 import { Monitor, Moon, Sun } from 'lucide-vue-next';
 
 // Global state

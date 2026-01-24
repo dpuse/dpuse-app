@@ -6,10 +6,10 @@ import { onMounted, onUnmounted, ref } from 'vue';
 // Application modules
 import { useSessionStore } from '@/stores/sessionStore';
 
-import Button from '@/components/primitives/button/Button.vue';
-import LoginForm from '@/components/blocks/account/LoginForm.vue';
-import PasswordForm from '@/components/blocks/account/PasswordForm.vue';
-import Separator from '@/components/primitives/separator/Separator.vue';
+import Button from '@/components/base/button/Button.vue';
+import LoginForm from '@/components/block/account/LoginForm.vue';
+import PasswordForm from '@/components/block/account/PasswordForm.vue';
+import Separator from '@/components/base/separator/Separator.vue';
 
 const sessionState = useSessionStore();
 

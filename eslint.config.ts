@@ -1,56 +1,57 @@
+// External dependencies
 import { globalIgnores } from 'eslint/config';
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
-import pluginVue from 'eslint-plugin-vue';
+import pluginImport from 'eslint-plugin-import';
 import pluginPlaywright from 'eslint-plugin-playwright';
+import pluginSecurity from 'eslint-plugin-security';
+import pluginUnicorn from 'eslint-plugin-unicorn';
 import pluginVitest from '@vitest/eslint-plugin';
+import pluginVue from 'eslint-plugin-vue';
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting';
+import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 
-// To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
-// import { configureVueProject } from '@vue/eslint-config-typescript'
-// configureVueProject({ scriptLangs: ['ts', 'tsx'] })
-// More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
-
+// ESlint configuration
 export default defineConfigWithVueTs(
     {
         name: 'app/files-to-lint',
-        files: ['**/*.{vue,ts,mts,tsx}']
+        files: ['**/*.{vue,ts,mts,tsx}'],
+        settings: {
+            'import/core-modules': ['eslint/config'],
+            'import/resolver': { typescript: { project: ['./tsconfig.json'] } }
+        }
     },
 
     globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
 
     ...pluginVue.configs['flat/essential'],
     vueTsConfigs.recommended,
+    pluginImport.flatConfigs.recommended,
+    pluginSecurity.configs.recommended,
+    pluginUnicorn.configs.recommended,
 
-    {
-        ...pluginPlaywright.configs['flat/recommended'],
-        files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}']
-    },
+    { ...pluginPlaywright.configs['flat/recommended'], files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'] },
 
-    {
-        ...pluginVitest.configs.recommended,
-        files: ['src/**/__tests__/*']
-    },
+    { ...pluginVitest.configs.recommended, files: ['src/**/__tests__/*'] },
 
     skipFormatting,
 
     {
         rules: {
             'vue/multi-word-component-names': 'off',
-            'vue/no-v-html': 'off'
+            'vue/no-v-html': 'off',
 
-            // 'import/no-duplicates': 'warn',
-            // 'sort-imports': ['warn', { allowSeparatedGroups: true, ignoreCase: true, memberSyntaxSortOrder: ['none', 'all', 'single', 'multiple'] }],
+            'import/no-duplicates': 'warn',
+            'sort-imports': ['warn', { allowSeparatedGroups: true, ignoreCase: true, memberSyntaxSortOrder: ['none', 'all', 'single', 'multiple'] }],
 
-            // 'security/detect-object-injection': 'off',
+            'security/detect-object-injection': 'off',
 
             // 'sonarjs/no-commented-code': 'warn',
             // 'sonarjs/no-dead-store': 'warn',
             // 'sonarjs/no-unused-vars': 'warn',
             // 'sonarjs/todo-tag': 'warn',
 
-            // 'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['App.vue', 'src/components/DPIcon(?:/.*)?'] }],
-            // 'unicorn/no-null': 'off',
-            // 'unicorn/prevent-abbreviations': ['error', { ignore: ['env.d.ts'] }]
+            'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['App.vue', 'src/components/DPIcon(?:/.*)?'] }],
+            'unicorn/no-null': 'off',
+            'unicorn/prevent-abbreviations': ['error', { ignore: ['env.d.ts'] }]
         }
     }
 );

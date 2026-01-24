@@ -1,11 +1,11 @@
 // External dependencies
 import { createRouter, createWebHistory } from 'vue-router';
 
-// Components and icons
+// Components
 import Workflow from '@/views/workflow/Workflow.vue';
 
-// Not exported from router, duplicated here to address eslint function return type rule
-type ScrollPositionCoordinates = { behavior?: ScrollOptions['behavior']; left?: number; top?: number };
+// Not exported by Vue router, duplicated here to address eslint function return type rule
+// type ScrollPositionCoordinates = { behavior?: ScrollOptions['behavior']; left?: number; top?: number };
 
 // Application router with web history and scroll position restoration
 const router = createRouter({
@@ -48,7 +48,7 @@ const router = createRouter({
         },
         { path: '/:catchAll(.*)', redirect: '/workflow' }
     ],
-    scrollBehavior: (to, from, savedPosition): ScrollPositionCoordinates => {
+    scrollBehavior: (to, from, savedPosition) => {
         return savedPosition ? { ...savedPosition, behavior: 'auto' } : { left: 0, top: 0 }; // NOTE: "behavior: 'auto'" required for Safari iOS v18.3.2.
     }
 });
