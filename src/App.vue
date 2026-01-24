@@ -9,8 +9,8 @@ import { useSessionStore } from '@/stores/sessionStore';
 // Components and icons
 import AssistantPanel from '@/components/block/assistant/AssistantPanel.vue';
 import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
-import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import Button from '@/components/base/button/Button.vue';
+import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import { Sparkles } from 'lucide-vue-next';
 import StatusBar from '@/components/block/statusBar/StatusBar.vue';
 
@@ -21,7 +21,7 @@ useColorMode();
 
 onMounted(() => useSessionStore().initServices()); // Initialize session services (authentication, messenger) after the app component mounts
 
-// Display width state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Display (browser window) width state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const isDisplayWide = useMediaQuery('(min-width: 768px)');
 watch(isDisplayWide, (newIsDisplayWide) => {

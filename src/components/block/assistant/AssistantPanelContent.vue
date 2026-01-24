@@ -1,17 +1,19 @@
 <script setup lang="ts">
+// Components and icons
 import Button from '@/components/base/button/Button.vue';
-import { Textarea } from '~/src/components/base/textarea';
+import { Textarea } from '@/components/base/textarea';
 import { MessageCircleMore, Search } from 'lucide-vue-next';
 
+// Properties
 type AssistantMessage = { id: number; text: string };
-
-const props = defineProps<{ messages: AssistantMessage[]; onRunTest: () => void }>();
+type Properties = { messages: AssistantMessage[]; onRunTest: () => void };
+const properties = defineProps<Properties>();
 </script>
 
 <template>
-    <div class="flex h-full flex-1 flex-col overflow-y-hidden px-4">
+    <div class="mb-5.5 flex h-full flex-1 flex-col overflow-y-hidden px-4">
         <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">
-            <div v-for="message of props.messages" :key="message.id">
+            <div v-for="message of properties.messages" :key="message.id">
                 {{ message.text }}
             </div>
         </div>
@@ -24,7 +26,7 @@ const props = defineProps<{ messages: AssistantMessage[]; onRunTest: () => void 
             />
 
             <div class="flex justify-end pr-1 pb-1">
-                <Button size="icon-sm" variant="ghost" @click="props.onRunTest">
+                <Button size="icon-sm" variant="ghost" @click="properties.onRunTest">
                     <MessageCircleMore class="size-5" stroke-width="1.25" />
                 </Button>
                 <Button size="icon-sm" variant="ghost">

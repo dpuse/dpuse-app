@@ -1,19 +1,17 @@
 <script setup lang="ts">
-/**
- *  Selects the correct option icon (and colors) based on the option's state and current runtime values.
- */
+// Selects the correct option icon (and colors) based on the option's state and current runtime values.
 
 // External dependencies
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
-// Workbench dependencies.
+// Application modules
 import type { BenchtopOptionKind } from '@/types/workbench';
 
-// Properties.
+// Properties
 type Properties = { optionId: string; kind: BenchtopOptionKind; optionKindValues?: Record<string, boolean | undefined> };
-const props = defineProps<Properties>();
+const properties = defineProps<Properties>();
 
-const kindValue = computed(() => props.optionKindValues?.[props.optionId]);
+const kindValue = computed(() => properties.optionKindValues?.[properties.optionId]);
 const showWaiting = ref(false);
 let waitingTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -37,6 +35,8 @@ watch(
     { immediate: true }
 );
 
+// Lifecycle event handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 onBeforeUnmount(() => {
     if (waitingTimer != null) clearTimeout(waitingTimer);
 });
@@ -58,13 +58,13 @@ const placeholderCharacteristics = { colors: { text: { light: 'transparent', dar
 // Benchtop icon characteristics state.
 const resolvedCharacteristics = computed(() => {
     // Single state: assign fixed characteristics.
-    if (props.kind.id === 'single') return props.kind.single;
-    if (props.kind.id === 'multiple') return props.kind.multiple;
+    if (properties.kind.id === 'single') return properties.kind.single;
+    if (properties.kind.id === 'multiple') return properties.kind.multiple;
 
     // Boolean state: pick true/false characteristics using provided runtime value (default false).
-    if (props.kind.id === 'boolean') {
+    if (properties.kind.id === 'boolean') {
         if (kindValue.value === undefined) return showWaiting.value ? waitingCharacteristics : placeholderCharacteristics;
-        return kindValue.value ? props.kind.true : props.kind.false;
+        return kindValue.value ? properties.kind.true : properties.kind.false;
     }
     // Defensive fallback to avoid runtime errors if data is malformed.
     return { colors: { text: { light: '#000000' } }, icon: '' };
@@ -83,11 +83,11 @@ const colorStyles = computed(() => [
 </script>
 
 <template>
-    <div v-if="icon" aria-hidden="true" class="icon" :style="colorStyles" v-html="icon" />
+    <div v-if="icon" aria-hidden="true" class="dpu-icon" :style="colorStyles" v-html="icon" />
 </template>
 
 <style scoped>
-.icon :deep(svg) {
+.dpu-icon :deep(svg) {
     display: block;
     height: 100%;
     width: 100%;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Sourced from Hanko.
+// Sourced from Hanko social connections settings panel
 </script>
 
 <template>
