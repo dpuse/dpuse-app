@@ -1,6 +1,6 @@
 // External dependencies
-import type { VariantProps } from 'class-variance-authority';
 import { cva } from 'class-variance-authority';
+import type { VariantProps } from 'class-variance-authority';
 
 // Variants
 export type ButtonVariants = VariantProps<typeof buttonVariants>;

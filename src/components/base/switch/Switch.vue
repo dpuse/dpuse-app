@@ -9,7 +9,8 @@ import type { SwitchRootEmits, SwitchRootProps } from 'reka-ui';
 import { cn } from '@/lib/utils';
 
 // Properties
-const properties = defineProps<SwitchRootProps & { class?: HTMLAttributes['class'] }>();
+type Properties = SwitchRootProps & { class?: HTMLAttributes['class'] };
+const properties = defineProps<Properties>();
 const delegatedProperties = reactiveOmit(properties, 'class');
 
 // Emits
