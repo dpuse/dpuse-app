@@ -64,7 +64,7 @@ function localiseWorkbenchConfig(localeCode: LocaleCode): WorkbenchLocalisedConf
                 id: primaryOptionConfig.id,
                 label: primaryOptionConfig.label[localeCode] ?? workbenchConfig.id,
                 description: primaryOptionConfig.description[localeCode] ?? workbenchConfig.id,
-                state: primaryOptionConfig.state,
+                kind: primaryOptionConfig.kind,
                 tasks: primaryOptionConfig.tasks.map((taskConfig) => ({
                     id: taskConfig.id,
                     label: taskConfig.label[localeCode] ?? workbenchConfig.id,
@@ -75,7 +75,7 @@ function localiseWorkbenchConfig(localeCode: LocaleCode): WorkbenchLocalisedConf
                 id: secondaryOptionConfig.id,
                 label: secondaryOptionConfig.label[localeCode] ?? workbenchConfig.id,
                 description: secondaryOptionConfig.description[localeCode] ?? workbenchConfig.id,
-                state: secondaryOptionConfig.state
+                kind: secondaryOptionConfig.kind
             }))
         }))
     };

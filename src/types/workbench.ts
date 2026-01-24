@@ -38,7 +38,7 @@ interface BenchtopPrimaryOptionConfig {
     id: string;
     label: Record<string, string>;
     description: Record<string, string>;
-    state: BenchtopOptionState;
+    kind: BenchtopOptionKind;
     step?: number;
     tasks: BenchtopPrimaryOptionTaskConfig[];
 }
@@ -64,7 +64,7 @@ interface BenchtopSecondaryOptionConfig {
     id: string;
     label: Record<string, string>;
     description: Record<string, string>;
-    state: BenchtopOptionState;
+    kind: BenchtopOptionKind;
     step?: number;
 }
 
@@ -73,21 +73,21 @@ type BenchtopSecondaryOptionLocalisedConfig = Omit<BenchtopSecondaryOptionConfig
     description: string;
 };
 
-type BenchtopOptionState = BenchtopOptionSingleState | BenchtopOptionBooleanState | BenchtopOptionMultipleState;
+type BenchtopOptionKind = BenchtopOptionSingleKind | BenchtopOptionBooleanKind | BenchtopOptionMultipleKind;
 
-type BenchtopOptionSingleState = {
-    kind: 'single';
+type BenchtopOptionSingleKind = {
+    id: 'single';
     single: BenchtopOptionStateCharacteristics;
 };
 
-type BenchtopOptionBooleanState = {
-    kind: 'boolean';
+type BenchtopOptionBooleanKind = {
+    id: 'boolean';
     true: BenchtopOptionStateCharacteristics;
     false: BenchtopOptionStateCharacteristics;
 };
 
-type BenchtopOptionMultipleState = {
-    kind: 'multiple';
+type BenchtopOptionMultipleKind = {
+    id: 'multiple';
     multiple: BenchtopOptionStateCharacteristics;
 };
 
@@ -99,4 +99,4 @@ type BenchtopOptionStateCharacteristics = {
 type WorkbenchColors = { text: { dark?: string; light: string } };
 
 // Exposures.
-export type { BenchtopLocalisedConfig, BenchtopOptionState, BenchtopPrimaryOptionLocalisedConfig, BenchtopOptionTaskLocalisedConfig, WorkbenchConfig, WorkbenchLocalisedConfig };
+export type { BenchtopLocalisedConfig, BenchtopOptionKind, BenchtopPrimaryOptionLocalisedConfig, BenchtopOptionTaskLocalisedConfig, WorkbenchConfig, WorkbenchLocalisedConfig };

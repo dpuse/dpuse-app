@@ -1,4 +1,4 @@
-// Vendor dependencies.
+// External dependencies
 import { cloudflare } from '@cloudflare/vite-plugin';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';

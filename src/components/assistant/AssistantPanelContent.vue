@@ -5,10 +5,7 @@ import { MessageCircleMore, Search } from 'lucide-vue-next';
 
 type AssistantMessage = { id: number; text: string };
 
-const props = defineProps<{
-    messages: AssistantMessage[];
-    onRunTest: () => void;
-}>();
+const props = defineProps<{ messages: AssistantMessage[]; onRunTest: () => void }>();
 </script>
 
 <template>

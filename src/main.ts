@@ -1,15 +1,15 @@
-// Vendor dependencies.
+// External dependencies
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
-// Style dependencies.
-import '@/assets/main.css';
-
-// ???
+// Application modules
 import App from '@/App.vue';
 import router from '@/router';
 
-// Bootstrap workbench app.
+// Styles
+import '@/assets/main.css';
+
+// Bootstrap workbench application
 const app = createApp(App);
 app.use(createPinia());
 app.use(router);

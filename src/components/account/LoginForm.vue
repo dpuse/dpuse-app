@@ -1,25 +1,24 @@
 <script setup lang="ts">
+// External dependencies
 import { type HTMLAttributes, ref } from 'vue';
 import { useColorMode } from '@vueuse/core';
 
+// Application modules
 import { cn } from '@/lib/utils';
 
-import AppleLogo from '@/components/icon/logo/AppleLogo.vue';
-import GitHubLogo from '@/components/icon/logo/GitHubLogo.vue';
-import GoogleLogo from '@/components/icon/logo/GoogleLogo.vue';
-import MicrosoftLogo from '@/components/icon/logo/MicrosoftLogo.vue';
-
+// Components and icons
+import AppleLogoIcon from '@/components/icon/logo/AppleLogoIcon.vue';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field';
+import GitHubLogoIcon from '@/components/icon/logo/GitHubLogoIcon.vue';
+import GoogleLogoIcon from '@/components/icon/logo/GoogleLogoIcon.vue';
 import { Input } from '@/components/ui/input';
+import MicrosoftLogoIcon from '@/components/icon/logo/MicrosoftLogoIcon.vue';
 
-// ???
+// Global state
 const colorMode = useColorMode();
 
-const props = defineProps<{
-    class?: HTMLAttributes['class'];
-    onTrigger?: (identifier: string) => Promise<void>;
-}>();
+const props = defineProps<{ class?: HTMLAttributes['class']; onTrigger?: (identifier: string) => Promise<void> }>();
 
 const identifier = ref('terrell.jm@icloud.com');
 const handleSubmit = async () => {
@@ -52,19 +51,19 @@ const handleSubmit = async () => {
                 <FieldSeparator>Or continue with</FieldSeparator>
                 <Field class="grid gap-4 sm:grid-cols-2">
                     <Button variant="outline" type="button">
-                        <AppleLogo class="size-5" :fill="colorMode === 'light' ? 'black' : 'white'" />
+                        <AppleLogoIcon class="size-5" :fill="colorMode === 'light' ? 'black' : 'white'" />
                         Apple
                     </Button>
                     <Button variant="outline" type="button">
-                        <GitHubLogo class="size-5" :fill="colorMode === 'light' ? 'black' : 'white'" />
+                        <GitHubLogoIcon class="size-5" :fill="colorMode === 'light' ? 'black' : 'white'" />
                         Github
                     </Button>
                     <Button variant="outline" type="button">
-                        <GoogleLogo class="size-5" />
+                        <GoogleLogoIcon class="size-5" />
                         Google
                     </Button>
                     <Button variant="outline" type="button">
-                        <MicrosoftLogo class="size-5" />
+                        <MicrosoftLogoIcon class="size-5" />
                         Microsoft
                     </Button>
                 </Field>

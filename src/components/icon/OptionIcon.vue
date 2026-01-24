@@ -3,22 +3,22 @@
  *  Selects the correct option icon (and colors) based on the option's state and current runtime values.
  */
 
-// Vendor dependencies.
+// External dependencies
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
 // Workbench dependencies.
-import type { BenchtopOptionState } from '@/types/workbench';
+import type { BenchtopOptionKind } from '@/types/workbench';
 
 // Properties.
-type Properties = { optionId: string; state: BenchtopOptionState; stateValues?: Record<string, boolean | undefined> };
-const properties = defineProps<Properties>();
+type Properties = { optionId: string; kind: BenchtopOptionKind; optionKindValues?: Record<string, boolean | undefined> };
+const props = defineProps<Properties>();
 
-const stateValue = computed(() => properties.stateValues?.[properties.optionId]);
+const kindValue = computed(() => props.optionKindValues?.[props.optionId]);
 const showWaiting = ref(false);
 let waitingTimer: ReturnType<typeof setTimeout> | null = null;
 
 watch(
-    stateValue,
+    kindValue,
     (value) => {
         if (value === undefined) {
             if (waitingTimer != null) return;
@@ -58,13 +58,13 @@ const placeholderCharacteristics = { colors: { text: { light: 'transparent', dar
 // Benchtop icon characteristics state.
 const resolvedCharacteristics = computed(() => {
     // Single state: assign fixed characteristics.
-    if (properties.state.kind === 'single') return properties.state.single;
-    if (properties.state.kind === 'multiple') return properties.state.multiple;
+    if (props.kind.id === 'single') return props.kind.single;
+    if (props.kind.id === 'multiple') return props.kind.multiple;
 
     // Boolean state: pick true/false characteristics using provided runtime value (default false).
-    if (properties.state.kind === 'boolean') {
-        if (stateValue.value === undefined) return showWaiting.value ? waitingCharacteristics : placeholderCharacteristics;
-        return stateValue.value ? properties.state.true : properties.state.false;
+    if (props.kind.id === 'boolean') {
+        if (kindValue.value === undefined) return showWaiting.value ? waitingCharacteristics : placeholderCharacteristics;
+        return kindValue.value ? props.kind.true : props.kind.false;
     }
     // Defensive fallback to avoid runtime errors if data is malformed.
     return { colors: { text: { light: '#000000' } }, icon: '' };

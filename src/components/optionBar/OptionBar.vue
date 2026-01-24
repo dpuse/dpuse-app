@@ -1,14 +1,14 @@
 <script setup lang="ts">
-// Vendor dependencies.
+// External dependencies
 import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 
-// Global state dependencies.
+// Application modules
 import { useKnowledge } from '@/composables/useKnowledge';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// Component dependencies.
-import OptionIcon from '@/components/icon/Option.vue';
+// Components and icons
+import OptionIcon from '@/components/icon/OptionIcon.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 import { HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
@@ -17,60 +17,63 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Monitor, Moon, Sun } from 'lucide-vue-next';
 
+// Global state
 const sessionState = useSessionStore();
+const { sessionStatus } = storeToRefs(sessionState);
 
-// Active benchtop configuration state.
+// Active benchtop configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') ?? {
     primaryOptions: [],
     secondaryOptions: []
 };
 
-// ???
-const { sessionStatus } = storeToRefs(useSessionStore());
-const optionStateValues = computed(() => ({ account: sessionStatus.value?.isAuthenticated }));
+// Option kind values state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const preferencesHoverOpen = ref(false);
-const closePreferencesHover = () => {
-    preferencesHoverOpen.value = false;
-};
+const optionKindValues = computed(() => ({ account: sessionStatus.value?.isAuthenticated }));
 
-// Sign out.
-const signOut = async () => {
+// Quick links panel state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const isQuickLinksPanelOpen = ref(false);
+
+function closeQuickLinksPanel() {
+    isQuickLinksPanelOpen.value = false;
+}
+
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+async function signOut() {
     sessionState.destroyFlow();
     await sessionState.signOut();
-    closePreferencesHover();
-};
+    closeQuickLinksPanel();
+}
 </script>
 
 <template>
-    <div class="hidden w-16 flex-col pt-14 md:flex">
-        <div class="px-3">
-            <Separator />
-        </div>
+    <div class="hidden w-16 flex-col pt-13.75 md:flex">
+        <!-- Top scroll boundary -->
+        <div class="px-3"><Separator /></div>
 
-        <!-- Options scroller. -->
+        <!-- Options scroller -->
         <div class="flex flex-1 flex-col items-center overflow-y-auto pt-2 pb-5.5">
-            <!-- Primary options. -->
+            <!-- Primary options -->
             <div class="flex w-full flex-1 flex-col items-center gap-y-1">
                 <RouterLink v-for="optionConfig of activeBenchtopConfig.primaryOptions" :key="optionConfig.id" :to="{ name: optionConfig.id }" as-child>
                     <Button size="icon-lg" variant="ghost">
-                        <OptionIcon class="size-6" :option-id="optionConfig.id" :state="optionConfig.state" :state-values="optionStateValues" />
+                        <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
                     </Button>
                 </RouterLink>
             </div>
 
-            <div class="w-full flex-none px-3 py-2">
-                <Separator />
-            </div>
-
-            <!-- Secondary options and separator. -->
+            <!-- Secondary options and separator -->
+            <div class="w-full flex-none px-3 py-2"><Separator /></div>
             <div class="flex w-full flex-none flex-col items-center gap-y-1">
                 <template v-for="optionConfig of activeBenchtopConfig.secondaryOptions" :key="optionConfig.id">
-                    <div v-if="optionConfig.state.kind === 'multiple'">
-                        <HoverCardRoot v-model:open="preferencesHoverOpen" :close-delay="0" :open-delay="0">
+                    <div v-if="optionConfig.kind.id === 'multiple'">
+                        <HoverCardRoot v-model:open="isQuickLinksPanelOpen" :close-delay="0" :open-delay="0">
                             <HoverCardTrigger>
                                 <Button size="icon-lg" variant="ghost">
-                                    <OptionIcon class="size-6" :option-id="optionConfig.id" :state="optionConfig.state" :state-values="optionStateValues" />
+                                    <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
                                 </Button>
                             </HoverCardTrigger>
                             <HoverCardContent align="end" side="right">
@@ -120,7 +123,7 @@ const signOut = async () => {
 
                     <RouterLink v-else :to="{ name: optionConfig.id }" as-child>
                         <Button size="icon-lg" variant="ghost">
-                            <OptionIcon class="size-6" :option-id="optionConfig.id" :state="optionConfig.state" :state-values="optionStateValues" />
+                            <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
                         </Button>
                     </RouterLink>
                 </template>

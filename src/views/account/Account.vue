@@ -3,7 +3,7 @@
 import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
 import { onMounted, onUnmounted, ref } from 'vue';
 
-// Global state dependencies.
+// Application modules
 import { useSessionStore } from '@/stores/sessionStore';
 
 import Button from '@/components/ui/button/Button.vue';

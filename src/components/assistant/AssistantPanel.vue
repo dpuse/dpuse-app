@@ -1,13 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-type Properties = {
-    isOpen: boolean;
-    isFloatingOpen?: boolean;
-};
-const props = withDefaults(defineProps<Properties>(), {
-    isFloatingOpen: false
-});
+type Properties = { isOpen: boolean; isFloatingOpen?: boolean };
+const props = withDefaults(defineProps<Properties>(), { isFloatingOpen: false });
 
 const emit = defineEmits<{
     (event: 'request-close'): void;
@@ -72,25 +67,49 @@ function runTest() {
         <AssistantPanelContent :messages="messages" :on-run-test="runTest" />
     </div>
 
-    <div v-if="props.isFloatingOpen" class="fixed inset-0 z-40 flex md:hidden">
-        <div class="bg-background/70 absolute inset-0 backdrop-blur-sm" @click="emit('request-close')"></div>
+    <Transition name="assistant-overlay" appear>
+        <div v-if="props.isFloatingOpen" class="assistant-overlay fixed inset-0 z-40 flex md:hidden">
+            <div class="bg-background/70 absolute inset-0 backdrop-blur-sm" @click="emit('request-close')"></div>
 
-        <div class="bg-background relative ml-auto flex h-full w-full max-w-[26rem] flex-col shadow-2xl" role="dialog" aria-modal="true">
-            <div class="flex h-14 flex-none items-center border-b px-4">
-                <div class="flex h-full flex-1 items-center text-lg font-light">Assistant</div>
+            <div class="assistant-panel bg-background relative ml-auto flex h-full w-full max-w-[26rem] flex-col shadow-2xl" role="dialog" aria-modal="true">
+                <div class="flex h-14 flex-none items-center border-b px-4">
+                    <div class="flex h-full flex-1 items-center text-lg font-light">Assistant</div>
 
-                <Button
-                    aria-label="Close assistant panel"
-                    class="flex-none cursor-pointer items-center justify-center rounded-full"
-                    size="icon-lg"
-                    variant="ghost"
-                    @click="emit('request-close')"
-                >
-                    <X class="size-5" :stroke-width="1.25" />
-                </Button>
+                    <Button
+                        aria-label="Close assistant panel"
+                        class="flex-none cursor-pointer items-center justify-center rounded-full"
+                        size="icon-lg"
+                        variant="ghost"
+                        @click="emit('request-close')"
+                    >
+                        <X class="size-5" :stroke-width="1.25" />
+                    </Button>
+                </div>
+
+                <AssistantPanelContent :messages="messages" :on-run-test="runTest" />
             </div>
-
-            <AssistantPanelContent :messages="messages" :on-run-test="runTest" />
         </div>
-    </div>
+    </Transition>
 </template>
+
+<style scoped>
+.assistant-overlay-enter-active,
+.assistant-overlay-leave-active {
+    transition: opacity 220ms ease;
+}
+
+.assistant-overlay-enter-from,
+.assistant-overlay-leave-to {
+    opacity: 0;
+}
+
+.assistant-overlay-enter-active .assistant-panel,
+.assistant-overlay-leave-active .assistant-panel {
+    transition: transform 260ms ease;
+}
+
+.assistant-overlay-enter-from .assistant-panel,
+.assistant-overlay-leave-to .assistant-panel {
+    transform: translateX(100%);
+}
+</style>

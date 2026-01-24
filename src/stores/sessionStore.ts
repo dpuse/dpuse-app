@@ -1,4 +1,4 @@
-// Vendor dependencies.
+// External dependencies
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { type AnyState, type Claims, type FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
