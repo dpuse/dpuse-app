@@ -1,23 +1,28 @@
 <script setup lang="ts">
+// External dependencies
 import { type HTMLAttributes, ref } from 'vue';
 
+// Application modules
 import { cn } from '@/lib/utils';
 
-import { Button } from '~/src/components/base/button';
-import { Field, FieldGroup, FieldLabel } from '~/src/components/base/field';
-import { Input } from '~/src/components/base/input';
+// Components
+import { Button } from '@/components/base/button';
+import { Input } from '@/components/base/input';
+import { Field, FieldGroup, FieldLabel } from '@/components/base/field';
 
-const props = defineProps<{ class?: HTMLAttributes['class']; onTrigger?: (password: string) => Promise<void> }>();
+// Properties
+type Properties = { class?: HTMLAttributes['class']; onTrigger: (password: string) => Promise<void> };
+const properties = defineProps<Properties>();
 
+// ???
 const password = ref('datapos1111');
-const handleSubmit = async () => {
-    if (!props.onTrigger) return;
-    await props.onTrigger(password.value);
-};
+async function handleSubmit() {
+    await properties.onTrigger(password.value);
+}
 </script>
 
 <template>
-    <div :class="cn('flex flex-col gap-6', props.class)">
+    <div :class="cn('flex flex-col gap-6', properties.class)">
         <form>
             <FieldGroup>
                 <div class="flex flex-col items-center gap-2 text-center">
@@ -26,10 +31,12 @@ const handleSubmit = async () => {
                     </a>
                     <h1 class="text-xl font-medium">Enter password</h1>
                 </div>
+
                 <Field>
                     <FieldLabel for="email">Password</FieldLabel>
                     <Input id="password" type="password" placeholder="Enter password" required />
                 </Field>
+
                 <Field>
                     <Button type="button" @click="handleSubmit">Continue</Button>
                 </Field>

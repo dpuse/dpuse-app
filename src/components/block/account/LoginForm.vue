@@ -1,34 +1,36 @@
 <script setup lang="ts">
 // External dependencies
-import { type HTMLAttributes, ref } from 'vue';
 import { useColorMode } from '@vueuse/core';
+import { type HTMLAttributes, ref } from 'vue';
 
 // Application modules
 import { cn } from '@/lib/utils';
 
 // Components and icons
 import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
-import { Button } from '~/src/components/base/button';
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '~/src/components/base/field';
+import { Button } from '@/components/base/button';
 import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';
 import GoogleLogoIcon from '@/components/icon/logos/GoogleLogoIcon.vue';
-import { Input } from '~/src/components/base/input';
+import { Input } from '@/components/base/input';
 import MicrosoftLogoIcon from '@/components/icon/logos/MicrosoftLogoIcon.vue';
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/base/field';
+
+// Properties
+type Properties = { class?: HTMLAttributes['class']; onTrigger: (identifier: string) => Promise<void> };
+const properties = defineProps<Properties>();
 
 // Global state
 const colorMode = useColorMode();
 
-const props = defineProps<{ class?: HTMLAttributes['class']; onTrigger?: (identifier: string) => Promise<void> }>();
-
+// ???
 const identifier = ref('terrell.jm@icloud.com');
-const handleSubmit = async () => {
-    if (!props.onTrigger) return;
-    await props.onTrigger(identifier.value);
-};
+async function handleSubmit() {
+    await properties.onTrigger(identifier.value);
+}
 </script>
 
 <template>
-    <div :class="cn('flex flex-col gap-6', props.class)">
+    <div :class="cn('flex flex-col gap-6', properties.class)">
         <form>
             <FieldGroup>
                 <div class="flex flex-col items-center gap-2 text-center">
@@ -41,14 +43,18 @@ const handleSubmit = async () => {
                         <a href="#">Sign up</a>
                     </FieldDescription>
                 </div>
+
                 <Field>
                     <FieldLabel for="email">Email</FieldLabel>
                     <Input id="email" type="email" placeholder="m@example.com" required />
                 </Field>
+
                 <Field>
                     <Button type="button" @click="handleSubmit">Sign in</Button>
                 </Field>
+
                 <FieldSeparator>Or continue with</FieldSeparator>
+
                 <Field class="grid gap-4 sm:grid-cols-2">
                     <Button variant="outline" type="button">
                         <AppleLogoIcon class="size-5" :fill="colorMode === 'light' ? 'black' : 'white'" />

@@ -59,7 +59,7 @@ function toggleAssistPanel() {
         <!-- Assistant toggle - fixed in top right corner above workbench body, always visible -->
         <Button
             :aria-label="assistToggleAriaLabel"
-            class="fixed top-2 right-3 z-20 flex cursor-pointer items-center justify-center rounded-full"
+            class="fixed top-1.75 right-4 z-20 flex cursor-pointer items-center justify-center rounded-full"
             size="icon-lg"
             variant="ghost"
             @click="toggleAssistPanel"

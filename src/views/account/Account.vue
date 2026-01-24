@@ -143,11 +143,11 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
 
         <div v-else class="bg-background my-2 overflow-y-auto rounded-lg">
             <div v-if="uiStateId === 'enterId'">
-                <LoginForm class="max-w-sm min-w-sm p-6 md:p-10" :on-trigger="handleIdEntered" />
+                <LoginForm class="max-w-sm min-w-sm p-6 md:p-10" :on-trigger="handleIdEntered!" />
             </div>
 
             <div v-if="uiStateId === 'enterPassword'">
-                <PasswordForm class="max-w-sm min-w-sm p-6 md:p-10" :on-trigger="handlePasswordEntered" />
+                <PasswordForm class="max-w-sm min-w-sm p-6 md:p-10" :on-trigger="handlePasswordEntered!" />
             </div>
         </div>
     </div>
