@@ -8,7 +8,7 @@ import { useKnowledge } from '@/composables/useKnowledge';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Components and icons
-import OptionIcon from '@/components/icon/OptionIcon.vue';
+import OptionIcon from '@/components/icons/OptionIcon.vue';
 import Button from '@/components/primitives/button/Button.vue';
 import Separator from '@/components/primitives/separator/Separator.vue';
 import { HoverCardContent, HoverCardTrigger } from '~/src/components/primitives/hover-card';

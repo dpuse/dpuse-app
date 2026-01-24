@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External dependencies
-import { useColorMode, useMediaQuery } from '@vueuse/core';
 import { computed, onMounted, ref, watch } from 'vue';
+import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // Application modules
 import { useSessionStore } from '@/stores/sessionStore';
@@ -9,7 +9,7 @@ import { useSessionStore } from '@/stores/sessionStore';
 // Components and icons
 import AssistantPanel from '@/components/blocks/assistant/AssistantPanel.vue';
 import BenchtopOptionBar from '@/components/blocks/optionBar/OptionBar.vue';
-import DPULogoIcon from '@/components/icon/logo/DPULogoIcon.vue';
+import DPULogoIcon from '@/components/icons/logos/DPULogoIcon.vue';
 import Button from '@/components/primitives/button/Button.vue';
 import { Sparkles } from 'lucide-vue-next';
 import StatusBar from '@/components/blocks/statusBar/StatusBar.vue';
