@@ -8,11 +8,11 @@ import { cn } from '@/lib/utils';
 
 // Components and icons
 import AppleLogoIcon from '@/components/icon/logo/AppleLogoIcon.vue';
-import { Button } from '@/components/ui/button';
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field';
+import { Button } from '~/src/components/primitives/button';
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '~/src/components/primitives/field';
 import GitHubLogoIcon from '@/components/icon/logo/GitHubLogoIcon.vue';
 import GoogleLogoIcon from '@/components/icon/logo/GoogleLogoIcon.vue';
-import { Input } from '@/components/ui/input';
+import { Input } from '~/src/components/primitives/input';
 import MicrosoftLogoIcon from '@/components/icon/logo/MicrosoftLogoIcon.vue';
 
 // Global state

@@ -1,13 +1,13 @@
 // External dependencies
 import { createRouter, createWebHistory } from 'vue-router';
 
-// View dependencies.
+// Components and icons
 import Workflow from '@/views/workflow/Workflow.vue';
 
-// Not exported from router, copied here to address eslint function return type rule.
+// Not exported from router, duplicated here to address eslint function return type rule
 type ScrollPositionCoordinates = { behavior?: ScrollOptions['behavior']; left?: number; top?: number };
 
-// Application router with scroll position restoration.
+// Application router with web history and scroll position restoration
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [

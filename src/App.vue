@@ -7,12 +7,12 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Components and icons
-import AssistantPanel from '@/components/assistant/AssistantPanel.vue';
-import BenchtopOptionBar from '@/components/optionBar/OptionBar.vue';
+import AssistantPanel from '@/components/blocks/assistant/AssistantPanel.vue';
+import BenchtopOptionBar from '@/components/blocks/optionBar/OptionBar.vue';
 import DPULogoIcon from '@/components/icon/logo/DPULogoIcon.vue';
-import Button from '@/components/ui/button/Button.vue';
+import Button from '@/components/primitives/button/Button.vue';
 import { Sparkles } from 'lucide-vue-next';
-import StatusBar from '@/components/statusBar/StatusBar.vue';
+import StatusBar from '@/components/blocks/statusBar/StatusBar.vue';
 
 // Global state
 useColorMode();

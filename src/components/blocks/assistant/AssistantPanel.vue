@@ -10,8 +10,8 @@ const emit = defineEmits<{
 
 import { ArrowLeftFromLine, ArrowRightToLine, X } from 'lucide-vue-next';
 
-import Button from '@/components/ui/button/Button.vue';
-import AssistantPanelContent from '@/components/assistant/AssistantPanelContent.vue';
+import Button from '@/components/primitives/button/Button.vue';
+import AssistantPanelContent from './AssistantPanelContent.vue';
 
 const isWide = ref(false);
 

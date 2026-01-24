@@ -3,9 +3,9 @@ import { type HTMLAttributes, ref } from 'vue';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
+import { Button } from '~/src/components/primitives/button';
+import { Field, FieldGroup, FieldLabel } from '~/src/components/primitives/field';
+import { Input } from '~/src/components/primitives/input';
 
 const props = defineProps<{ class?: HTMLAttributes['class']; onTrigger?: (password: string) => Promise<void> }>();
 

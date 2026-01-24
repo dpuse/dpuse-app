@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Button from '@/components/ui/button/Button.vue';
-import { Textarea } from '@/components/ui/textarea';
+import Button from '@/components/primitives/button/Button.vue';
+import { Textarea } from '~/src/components/primitives/textarea';
 import { MessageCircleMore, Search } from 'lucide-vue-next';
 
 type AssistantMessage = { id: number; text: string };

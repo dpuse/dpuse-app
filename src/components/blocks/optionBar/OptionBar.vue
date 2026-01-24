@@ -9,12 +9,12 @@ import { useSessionStore } from '@/stores/sessionStore';
 
 // Components and icons
 import OptionIcon from '@/components/icon/OptionIcon.vue';
-import Button from '@/components/ui/button/Button.vue';
-import Separator from '@/components/ui/separator/Separator.vue';
-import { HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import Button from '@/components/primitives/button/Button.vue';
+import Separator from '@/components/primitives/separator/Separator.vue';
+import { HoverCardContent, HoverCardTrigger } from '~/src/components/primitives/hover-card';
 import { HoverCardRoot } from 'reka-ui';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import { Label } from '~/src/components/primitives/label';
+import { Switch } from '~/src/components/primitives/switch';
 import { Monitor, Moon, Sun } from 'lucide-vue-next';
 
 // Global state
