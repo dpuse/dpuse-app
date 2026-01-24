@@ -1,16 +1,22 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-type Properties = { isOpen: boolean };
-const { isOpen } = defineProps<Properties>();
+type Properties = {
+    isOpen: boolean;
+    isFloatingOpen?: boolean;
+};
+const props = withDefaults(defineProps<Properties>(), {
+    isFloatingOpen: false
+});
 
-import { ArrowLeftFromLine } from 'lucide-vue-next';
-import { ArrowRightToLine } from 'lucide-vue-next';
-import { Search } from 'lucide-vue-next';
-import { MessageCircleMore } from 'lucide-vue-next';
+const emit = defineEmits<{
+    (event: 'request-close'): void;
+}>();
+
+import { ArrowLeftFromLine, ArrowRightToLine, X } from 'lucide-vue-next';
 
 import Button from '@/components/ui/button/Button.vue';
-import { Textarea } from '@/components/ui/textarea';
+import AssistantPanelContent from '@/components/assistant/AssistantPanelContent.vue';
 
 const isWide = ref(false);
 
@@ -44,7 +50,7 @@ function runTest() {
 <template>
     <div
         class="mb-5.5 hidden flex-col overflow-hidden transition-[width,opacity] duration-300 md:flex"
-        :class="isOpen ? ['border-l-0', isWide ? 'w-[65ch]' : 'w-[36ch]'] : ['w-0', 'border-l-0', 'border-transparent', 'pointer-events-none', 'opacity-0']"
+        :class="props.isOpen ? ['border-l-0', isWide ? 'w-[65ch]' : 'w-[36ch]'] : ['w-0', 'border-l-0', 'border-transparent', 'pointer-events-none', 'opacity-0']"
     >
         <div class="flex h-14 flex-none px-4">
             <div class="flex w-full items-center border-b pr-10">
@@ -63,29 +69,28 @@ function runTest() {
             </div>
         </div>
 
-        <div class="flex h-full flex-1 flex-col overflow-y-hidden px-4">
-            <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">
-                <div v-for="message of messages" :key="message.id">
-                    {{ message.text }}
-                </div>
+        <AssistantPanelContent :messages="messages" :on-run-test="runTest" />
+    </div>
+
+    <div v-if="props.isFloatingOpen" class="fixed inset-0 z-40 flex md:hidden">
+        <div class="bg-background/70 absolute inset-0 backdrop-blur-sm" @click="emit('request-close')"></div>
+
+        <div class="bg-background relative ml-auto flex h-full w-full max-w-[26rem] flex-col shadow-2xl" role="dialog" aria-modal="true">
+            <div class="flex h-14 flex-none items-center border-b px-4">
+                <div class="flex h-full flex-1 items-center text-lg font-light">Assistant</div>
+
+                <Button
+                    aria-label="Close assistant panel"
+                    class="flex-none cursor-pointer items-center justify-center rounded-full"
+                    size="icon-lg"
+                    variant="ghost"
+                    @click="emit('request-close')"
+                >
+                    <X class="size-5" :stroke-width="1.25" />
+                </Button>
             </div>
 
-            <div class="flex-none rounded-md border">
-                <Textarea
-                    class="placeholder:text-muted-foreground max-h-48 w-full resize-none overflow-y-auto border-0 bg-transparent px-2 text-base! shadow-none ring-0 outline-none placeholder:text-sm focus-visible:shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
-                    rows="1"
-                    placeholder="Ask a question → X to chat with assistant or;&#10;enter keywords → X to search the library…"
-                />
-
-                <div class="flex justify-end pr-1 pb-1">
-                    <Button size="icon-sm" variant="ghost" @click="runTest">
-                        <MessageCircleMore class="size-5" stroke-width="1.25" />
-                    </Button>
-                    <Button size="icon-sm" variant="ghost">
-                        <Search class="size-5" stroke-width="1.25" />
-                    </Button>
-                </div>
-            </div>
+            <AssistantPanelContent :messages="messages" :on-run-test="runTest" />
         </div>
     </div>
 </template>

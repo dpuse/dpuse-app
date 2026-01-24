@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Vendor dependencies.
-import { useColorMode } from '@vueuse/core';
-import { onMounted, ref } from 'vue';
+import { useColorMode, useMediaQuery } from '@vueuse/core';
+import { computed, onMounted, ref, watch } from 'vue';
 
 // Global state dependencies.
 import { useSessionStore } from '@/stores/sessionStore';
@@ -17,6 +17,28 @@ import StatusBar from '@/components/statusBar/StatusBar.vue';
 
 // Assistant panel state.
 const isAssistantPanelOpen = ref(true);
+const isMobileAssistantPanelOpen = ref(false);
+const isDesktopViewport = useMediaQuery('(min-width: 768px)');
+
+const assistantToggleLabel = computed(() => {
+    const isPanelVisible = isDesktopViewport.value ? isAssistantPanelOpen.value : isMobileAssistantPanelOpen.value;
+    return isPanelVisible ? 'Hide assistant panel' : 'Show assistant panel';
+});
+
+const toggleAssistantPanel = () => {
+    if (isDesktopViewport.value) {
+        isAssistantPanelOpen.value = !isAssistantPanelOpen.value;
+        return;
+    }
+
+    isMobileAssistantPanelOpen.value = !isMobileAssistantPanelOpen.value;
+};
+
+watch(isDesktopViewport, (isDesktop) => {
+    if (isDesktop) {
+        isMobileAssistantPanelOpen.value = false;
+    }
+});
 
 // ???
 useColorMode();
@@ -30,18 +52,18 @@ onMounted(() => useSessionStore().initServices());
     <div class="fixed inset-0 h-full overflow-y-hidden">
         <!-- Brand anchor & logo - fixed in top left corner above workbench body, always visible.  -->
         <div class="fixed top-0 left-0 z-20 flex h-14 w-16 flex-col items-center justify-center">
-            <RouterLink :to="{ name: 'workflow' }" as-child>
+            <Button aria-label="Datapos brand" size="icon-lg" variant="ghost">
                 <DPULogo class="size-7" />
-            </RouterLink>
+            </Button>
         </div>
 
         <!-- Assistant toggle button - fixed in top right corner above workbench body, always visible. -->
         <Button
-            :aria-label="isAssistantPanelOpen ? 'Hide assistant panel' : 'Show assistant panel'"
+            :aria-label="assistantToggleLabel"
             class="fixed top-2 right-3 z-20 flex cursor-pointer items-center justify-center rounded-full"
             size="icon-lg"
-            :variant="isAssistantPanelOpen ? 'ghost' : 'ghost'"
-            @click="isAssistantPanelOpen = !isAssistantPanelOpen"
+            variant="ghost"
+            @click="toggleAssistantPanel"
         >
             <Sparkles class="size-6" :stroke-width="1.25" />
         </Button>
@@ -62,7 +84,7 @@ onMounted(() => useSessionStore().initServices());
             </div>
 
             <!-- Assistant panel - fixed to right side of browser window. -->
-            <AssistantPanel class="flex-none" :is-open="isAssistantPanelOpen" />
+            <AssistantPanel class="flex-none" :is-open="isAssistantPanelOpen" :is-floating-open="isMobileAssistantPanelOpen" @request-close="isMobileAssistantPanelOpen = false" />
         </div>
     </div>
 </template>
