@@ -2,17 +2,11 @@
 // Components and icons
 import Button from '@/components/base/button/Button.vue';
 import { Textarea } from '@/components/base/textarea';
-import { ArrowBigLeftDashIcon, ArrowBigRightDashIcon, MessageCircleMoreIcon, SearchIcon, XIcon } from 'lucide-vue-next';
+import { ArrowBigLeftDashIcon, MessageCircleMoreIcon, SearchIcon, XIcon } from 'lucide-vue-next';
 
 // Properties
 type AssistantMessage = { id: number; text: string };
-type Properties = {
-    messages: AssistantMessage[];
-    onRunTest: () => void;
-    isPanelWide?: boolean;
-    onTogglePanelWidth?: () => void;
-    onRequestClose?: () => void;
-};
+type Properties = { messages: AssistantMessage[]; onRunTest: () => void; isPanelWide?: boolean; onTogglePanelWidth?: () => void; onRequestClose?: () => void };
 const properties = defineProps<Properties>();
 </script>
 
@@ -31,8 +25,7 @@ const properties = defineProps<Properties>();
                         variant="ghost"
                         @click="properties.onTogglePanelWidth?.()"
                     >
-                        <ArrowBigRightDashIcon v-if="properties.isPanelWide" class="size-6" :stroke-width="1.25" />
-                        <ArrowBigLeftDashIcon v-else class="size-6" :stroke-width="1.25" />
+                        <ArrowBigLeftDashIcon class="dpu-panel-width-icon size-6" :class="{ 'dpu-panel-width-icon-rotated': properties.isPanelWide }" :stroke-width="1.25" />
                     </Button>
 
                     <Button
@@ -75,3 +68,14 @@ const properties = defineProps<Properties>();
         </div>
     </div>
 </template>
+
+<style scoped>
+.dpu-panel-width-icon {
+    transition: transform 220ms ease-in-out;
+    transform-origin: center;
+}
+
+.dpu-panel-width-icon-rotated {
+    transform: rotate(180deg);
+}
+</style>
