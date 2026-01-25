@@ -16,7 +16,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') 
     <div class="flex h-full min-w-0 flex-col rounded-b-lg border-x border-b">
         <Header title="Workflow" />
 
-        <div class="flex-1 overflow-y-auto">
+        <div class="flex-1 overflow-y-auto overscroll-y-none">
             <div class="grid grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-4 p-4">
                 <Card v-for="optionConfig of activeBenchtopConfig.primaryOptions" :key="optionConfig.id" class="h-50">
                     <CardHeader>
