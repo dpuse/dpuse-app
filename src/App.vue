@@ -7,11 +7,11 @@ import { useColorMode, useMediaQuery } from '@vueuse/core';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Components and icons
+import AssistantIcon from '@/components/icon/AssistantIcon.vue';
 import AssistantPanel from '@/components/block/assistant/AssistantPanel.vue';
 import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import Button from '@/components/base/button/Button.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
-import { Sparkles } from 'lucide-vue-next';
 import StatusBar from '@/components/block/statusBar/StatusBar.vue';
 
 // Global state
@@ -88,7 +88,7 @@ function toggleBenchtopOptionBar() {
             variant="ghost"
             @click="toggleAssistPanel"
         >
-            <Sparkles class="size-6" :stroke-width="1.25" />
+            <AssistantIcon class="size-6" :stroke-width="1.25" />
         </Button>
 
         <!-- Workbench body -->
