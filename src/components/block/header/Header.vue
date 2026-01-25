@@ -3,12 +3,12 @@
 import { computed } from 'vue';
 
 // Application modules
-import { useWorkbenchChrome } from '@/composables/useWorkbenchChrome';
+import { useWorkbenchShell } from '@/composables/useWorkbenchShell';
 
 // Properties
 type Properties = { title: string };
 const properties = defineProps<Properties>();
-const { isAssistantPanelVisible, isOptionBarVisible } = useWorkbenchChrome();
+const { isAssistantPanelVisible, isOptionBarVisible } = useWorkbenchShell();
 
 // Header offsets
 const headerOffsets = computed(() => ({

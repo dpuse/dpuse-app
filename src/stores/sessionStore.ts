@@ -54,7 +54,6 @@ export const useSessionStore = defineStore('session', () => {
 //#region Authentication Helpers
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// ???
 function constructSessionStatus(claims?: Claims): SessionStatus {
     if (claims) {
         const establishedAt = claims.issued_at ? Date.parse(claims?.issued_at) : 0;

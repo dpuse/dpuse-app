@@ -4,7 +4,7 @@ import { computed, ref, watch, watchEffect } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // Application modules
-import { useWorkbenchChrome } from '@/composables/useWorkbenchChrome';
+import { useWorkbenchShell } from '@/composables/useWorkbenchShell';
 
 // Components and icons
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
@@ -22,7 +22,7 @@ const isAssistPanelOpenInWideDisplay = ref(true);
 const isAssistPanelOpenInNarrowDisplay = ref(false);
 const isBenchtopOptionBarOpenInNarrowDisplay = ref(false);
 const isDisplayWide = useMediaQuery('(min-width: 768px)');
-const { isAssistantPanelVisible, isOptionBarVisible } = useWorkbenchChrome();
+const { isAssistantPanelVisible, isOptionBarVisible } = useWorkbenchShell();
 
 const assistToggleAriaLabel = computed(() => {
     const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
