@@ -7,6 +7,7 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import { useSessionStore } from '@/stores/sessionStore';
 
 import Button from '@/components/base/button/Button.vue';
+import Header from '@/components/block/header/Header.vue';
 import LoginForm from '@/components/block/account/LoginForm.vue';
 import PasswordForm from '@/components/block/account/PasswordForm.vue';
 import Separator from '@/components/base/separator/Separator.vue';
@@ -107,9 +108,7 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
 <template>
     <div class="bg-muted flex h-full flex-col items-center justify-center rounded-b-lg">
         <div v-if="sessionState.sessionStatus.isAuthenticated" class="bg-background flex w-full flex-1 flex-col overflow-y-hidden rounded-b-lg border-x border-b">
-            <div class="px-4">
-                <div class="flex h-14 w-full flex-none items-center border-b text-lg font-light">Account</div>
-            </div>
+            <Header title="Account" />
 
             <div class="flex flex-1 overflow-y-hidden">
                 <div class="flex flex-none flex-col overflow-y-auto border-r p-4">
