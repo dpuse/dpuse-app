@@ -42,7 +42,7 @@ function runTest() {
 
 <template>
     <div
-        class="hidden flex-col overflow-hidden transition-[width,opacity] duration-300 md:flex"
+        class="hidden flex-col transition-[width,opacity] duration-300 md:flex"
         :class="properties.isOpen ? ['border-l-0', isPanelWide ? 'w-150' : 'w-100'] : ['w-0', 'border-l-0', 'border-transparent', 'pointer-events-none', 'opacity-0']"
     >
         <AssistantPanelContent :messages="messages" :on-run-test="runTest" :is-panel-wide="isPanelWide" :on-toggle-panel-width="togglePanelWidth" />

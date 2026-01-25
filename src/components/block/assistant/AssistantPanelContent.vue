@@ -17,7 +17,7 @@ const properties = defineProps<Properties>();
 </script>
 
 <template>
-    <div class="flex h-full flex-1 flex-col overflow-hidden">
+    <div class="flex h-full flex-1 flex-col">
         <div class="flex h-14 flex-none px-4">
             <div :class="['flex w-full items-center border-b', properties.onTogglePanelWidth ? 'pr-10' : '']">
                 <div class="flex h-full flex-1 items-center text-lg font-light">Assistant</div>
@@ -50,7 +50,7 @@ const properties = defineProps<Properties>();
         </div>
 
         <div class="mb-5.5 flex flex-1 flex-col overflow-y-hidden px-4">
-            <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">
+            <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto overscroll-y-none py-4 font-light wrap-break-word">
                 <div v-for="message of properties.messages" :key="message.id">
                     {{ message.text }}
                 </div>
