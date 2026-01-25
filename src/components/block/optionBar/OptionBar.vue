@@ -1,133 +1,55 @@
 <script setup lang="ts">
 // External dependencies
-import { storeToRefs } from 'pinia';
-import { computed, ref } from 'vue';
+import type { HTMLAttributes } from 'vue';
 
-// Application modules
-import { useKnowledge } from '@/composables/useKnowledge';
-import { useSessionStore } from '@/stores/sessionStore';
+// Components
+import OptionBarContent from './OptionBarContent.vue';
 
-// Components and icons
-import Button from '@/components/base/button/Button.vue';
-import { HoverCardRoot } from 'reka-ui';
-import { Label } from '@/components/base/label';
-import OptionIcon from '@/components/icon/OptionIcon.vue';
-import Separator from '@/components/base/separator/Separator.vue';
-import { Switch } from '@/components/base/switch';
-import { HoverCardContent, HoverCardTrigger } from '@/components/base/hover-card';
-import { Monitor, Moon, Sun } from 'lucide-vue-next';
+// Properties
+type Properties = { class?: HTMLAttributes['class']; isWideDisplay: boolean; isFloatingOpen?: boolean };
+const properties = withDefaults(defineProps<Properties>(), { isFloatingOpen: false });
 
-// Global state
-const sessionState = useSessionStore();
-const { sessionStatus } = storeToRefs(sessionState);
+// Emits
+const emit = defineEmits<{ (event: 'request-close'): void }>();
 
-// Active benchtop configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') ?? {
-    primaryOptions: [],
-    secondaryOptions: []
-};
-
-// Option kind values state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const optionKindValues = computed(() => ({ account: sessionStatus.value?.isAuthenticated }));
-
-// Quick links panel state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const isQuickLinksPanelOpen = ref(false);
-
-function closeQuickLinksPanel() {
-    isQuickLinksPanelOpen.value = false;
-}
-
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-async function signOut() {
-    sessionState.destroyFlow();
-    await sessionState.signOut();
-    closeQuickLinksPanel();
-}
+// Helpers
+const requestClose = () => emit('request-close');
 </script>
 
 <template>
-    <div class="hidden w-16 flex-col pt-13.75 md:flex">
-        <!-- Top scroll boundary -->
-        <div class="px-3"><Separator /></div>
+    <div :class="properties.class">
+        <OptionBarContent class="hidden w-16 flex-col pt-13.75 md:flex" />
 
-        <!-- Options scroller -->
-        <div class="flex flex-1 flex-col items-center overflow-y-auto pt-2 pb-5.5">
-            <!-- Primary options -->
-            <div class="flex w-full flex-1 flex-col items-center gap-y-1">
-                <RouterLink v-for="optionConfig of activeBenchtopConfig.primaryOptions" :key="optionConfig.id" :to="{ name: optionConfig.id }" as-child>
-                    <Button size="icon-lg" variant="ghost">
-                        <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
-                    </Button>
-                </RouterLink>
+        <Transition name="option-bar-overlay" appear>
+            <div v-if="properties.isFloatingOpen && !properties.isWideDisplay" class="option-bar-overlay fixed inset-0 z-30 flex md:hidden">
+                <div class="bg-background/70 absolute inset-0 backdrop-blur-sm" @click="requestClose"></div>
+
+                <dialog class="option-bar-panel bg-background relative mr-auto flex h-full w-16 flex-col border-0 shadow-2xl" open @cancel.prevent="requestClose">
+                    <OptionBarContent class="pt-13.75" />
+                </dialog>
             </div>
-
-            <!-- Secondary options and separator -->
-            <div class="w-full flex-none px-3 py-2"><Separator /></div>
-            <div class="flex w-full flex-none flex-col items-center gap-y-1">
-                <template v-for="optionConfig of activeBenchtopConfig.secondaryOptions" :key="optionConfig.id">
-                    <div v-if="optionConfig.kind.id === 'multiple'">
-                        <HoverCardRoot v-model:open="isQuickLinksPanelOpen" :close-delay="0" :open-delay="0">
-                            <HoverCardTrigger>
-                                <Button size="icon-lg" variant="ghost">
-                                    <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
-                                </Button>
-                            </HoverCardTrigger>
-                            <HoverCardContent align="end" side="right">
-                                <div class="flex flex-none flex-col gap-y-4">
-                                    <div>
-                                        <div class="mb-1 text-xs text-[0.625rem] font-bold uppercase">Display</div>
-                                        <div class="flex h-8 items-center space-x-2">
-                                            <Switch id="full-screen-mode" />
-                                            <Label for="full-screen-mode">Full screen</Label>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <div class="mb-1 text-xs text-[0.625rem] font-bold uppercase">Appearance</div>
-                                        <div class="flex h-8 items-center space-x-2">
-                                            <Button size="icon-sm" variant="secondary"><Moon /></Button>
-                                            <Button size="icon-sm" variant="ghost"><Sun /></Button>
-                                            <Button size="icon-sm" variant="ghost"><Monitor /></Button>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <div class="mb-1 text-xs text-[0.625rem] font-bold uppercase">Language</div>
-                                        <div class="bg-muted flex h-8 items-center space-x-2 rounded-md"></div>
-                                    </div>
-
-                                    <div>
-                                        <div class="mb-1 text-xs text-[0.625rem] font-bold uppercase">Locale</div>
-                                        <div class="bg-muted flex h-8 items-center space-x-2 rounded-md"></div>
-                                    </div>
-
-                                    <div>
-                                        <div class="mb-1 text-xs text-[0.625rem] font-bold uppercase">Time zone</div>
-                                        <div class="bg-muted flex h-8 items-center rounded-md"></div>
-                                    </div>
-
-                                    <div>
-                                        <Separator class="mb-3" />
-                                        <Button class="w-full font-normal" :disabled="!sessionState.sessionStatus.isAuthenticated" variant="warning" @click="signOut">
-                                            Sign out
-                                        </Button>
-                                    </div>
-                                </div>
-                            </HoverCardContent>
-                        </HoverCardRoot>
-                    </div>
-
-                    <RouterLink v-else :to="{ name: optionConfig.id }" as-child>
-                        <Button size="icon-lg" variant="ghost">
-                            <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
-                        </Button>
-                    </RouterLink>
-                </template>
-            </div>
-        </div>
+        </Transition>
     </div>
 </template>
+
+<style scoped>
+.option-bar-overlay-enter-active,
+.option-bar-overlay-leave-active {
+    transition: opacity 220ms ease;
+}
+
+.option-bar-overlay-enter-from,
+.option-bar-overlay-leave-to {
+    opacity: 0;
+}
+
+.option-bar-overlay-enter-active .option-bar-panel,
+.option-bar-overlay-leave-active .option-bar-panel {
+    transition: transform 260ms ease;
+}
+
+.option-bar-overlay-enter-from .option-bar-panel,
+.option-bar-overlay-leave-to .option-bar-panel {
+    transform: translateX(-100%);
+}
+</style>

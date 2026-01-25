@@ -17,15 +17,23 @@ import StatusBar from '@/components/block/statusBar/StatusBar.vue';
 // Global state
 useColorMode();
 
+// Reactive variables
+const isAssistPanelOpenInWideDisplay = ref(true);
+const isAssistPanelOpenInNarrowDisplay = ref(false);
+const isBenchtopOptionBarOpenInNarrowDisplay = ref(false);
+const isDisplayWide = useMediaQuery('(min-width: 768px)');
+
 // Lifecycle event handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 onMounted(() => useSessionStore().initServices()); // Initialize session services (authentication, messenger) after the app component mounts
 
 // Display (browser window) width state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const isDisplayWide = useMediaQuery('(min-width: 768px)');
 watch(isDisplayWide, (newIsDisplayWide) => {
-    if (newIsDisplayWide) isAssistPanelOpenInNarrowDisplay.value = false;
+    if (newIsDisplayWide) {
+        isAssistPanelOpenInNarrowDisplay.value = false;
+        isBenchtopOptionBarOpenInNarrowDisplay.value = false;
+    }
 });
 
 // Assistant panel state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -34,8 +42,6 @@ const assistToggleAriaLabel = computed(() => {
     const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
     return isPanelVisible ? 'Hide assistant panel' : 'Show assistant panel';
 });
-const isAssistPanelOpenInWideDisplay = ref(true);
-const isAssistPanelOpenInNarrowDisplay = ref(false);
 
 function toggleAssistPanel() {
     if (isDisplayWide.value) {
@@ -44,14 +50,32 @@ function toggleAssistPanel() {
     }
     isAssistPanelOpenInNarrowDisplay.value = !isAssistPanelOpenInNarrowDisplay.value;
 }
+
+// Benchtop option bar state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const benchtopToggleAriaLabel = computed(() => {
+    if (isDisplayWide.value) return 'DPU logo';
+    return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
+});
+
+function toggleBenchtopOptionBar() {
+    if (isDisplayWide.value) return;
+    isBenchtopOptionBarOpenInNarrowDisplay.value = !isBenchtopOptionBarOpenInNarrowDisplay.value;
+}
 </script>
 
 <template>
     <!-- Workbench shell -->
     <div class="fixed inset-0 overflow-y-hidden">
         <!-- Brand anchor & logo - fixed in top left corner above workbench body, always visible -->
-        <div class="fixed top-0 left-0 z-20 flex h-13.75 w-16 flex-col items-center justify-center">
-            <Button aria-label="DPU logo" size="icon-lg" variant="ghost">
+        <div class="fixed top-0 left-0 z-50 flex h-13.75 w-16 flex-col items-center justify-center">
+            <Button
+                :aria-label="benchtopToggleAriaLabel"
+                :aria-pressed="!isDisplayWide ? isBenchtopOptionBarOpenInNarrowDisplay : undefined"
+                size="icon-lg"
+                variant="ghost"
+                @click="toggleBenchtopOptionBar"
+            >
                 <DPULogoIcon class="size-7" />
             </Button>
         </div>
@@ -70,16 +94,21 @@ function toggleAssistPanel() {
         <!-- Workbench body -->
         <div class="z-10 flex h-full">
             <!-- Benchtop option (navigation) bar - fixed to left side of browser window -->
-            <BenchtopOptionBar class="flex-none" />
+            <BenchtopOptionBar
+                class="flex-none"
+                :is-wide-display="isDisplayWide"
+                :is-floating-open="isBenchtopOptionBarOpenInNarrowDisplay"
+                @request-close="isBenchtopOptionBarOpenInNarrowDisplay = false"
+            />
 
-            <!-- Workbench content column -->
+            <!-- Workbench content column - fills browser window between benchtop option bar and assistant panel -->
             <div class="flex flex-1 flex-col">
-                <!-- Workbench content area - fills browser window between benchtop option bar and assistant panel -->
+                <!-- Workbench content area row - fills content column above status bar row  -->
                 <div class="flex-1 overflow-y-hidden rounded-b-lg">
                     <RouterView />
                 </div>
 
-                <!-- Status bar - positioned at bottom of browser window below workbench body -->
+                <!-- Status bar row - positioned at bottom of workbench content column -->
                 <StatusBar class="flex-none" />
             </div>
 

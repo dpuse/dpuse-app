@@ -2,15 +2,15 @@
 // External dependencies
 import { type HTMLAttributes, ref } from 'vue';
 
+// Components
+import AssistantPanelContent from './AssistantPanelContent.vue';
+
 // Properties
 type Properties = { class?: HTMLAttributes['class']; isOpen: boolean; isFloatingOpen?: boolean };
 const properties = withDefaults(defineProps<Properties>(), { isFloatingOpen: false });
 
 // Emits
 const emit = defineEmits<{ (event: 'request-close'): void }>();
-
-// Components and icons
-import AssistantPanelContent from './AssistantPanelContent.vue';
 
 // Panel width state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
