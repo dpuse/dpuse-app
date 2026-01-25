@@ -58,7 +58,7 @@ async function signOut() {
         <div class="px-3"><Separator /></div>
 
         <!-- Options scroller -->
-        <div class="flex flex-1 flex-col items-center overflow-y-auto pt-2 pb-5.5">
+        <div class="flex flex-1 flex-col items-center overflow-y-auto overscroll-y-none pt-2 pb-5.5">
             <!-- Primary options -->
             <div class="flex w-full flex-1 flex-col items-center gap-y-1">
                 <RouterLink v-for="optionConfig of activeBenchtopConfig.primaryOptions" :key="optionConfig.id" :to="{ name: optionConfig.id }" as-child>
