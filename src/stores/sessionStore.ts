@@ -23,18 +23,22 @@ export const useSessionStore = defineStore('session', () => {
     const sessionStatus = ref<SessionStatus>({});
 
     async function initServices(hankoImportPromise: Promise<typeof import('@teamhanko/hanko-frontend-sdk')>): Promise<void> {
+        console.log('initServices');
         const hankoModule = await hankoImportPromise;
         hankoInstance = new hankoModule.Hanko(HANKO_API_URL);
+        console.log('initServices');
         hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
         hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
         hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
         hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
 
+        console.log('initServices');
         const validateSessionResponse = await hankoInstance.validateSession();
         sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
     }
 
     function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): void {
+        console.log('constructFlow');
         flowCleanupFunction = hankoInstance?.onAfterStateChange(stateHandler);
         hankoInstance?.createState(name);
     }
