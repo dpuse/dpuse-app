@@ -15,10 +15,15 @@ import OptionIcon from '@/components/icon/OptionIcon.vue';
 import Separator from '@/components/base/separator/Separator.vue';
 import { Switch } from '@/components/base/switch';
 import { HoverCardContent, HoverCardTrigger } from '@/components/base/hover-card';
-import { Monitor, Moon, Sun } from 'lucide-vue-next';
+import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-vue-next';
 
 // Properties
-const properties = defineProps<{ class?: string }>();
+type Properties = { class?: string; onOptionSelect?: () => void };
+const properties = defineProps<Properties>();
+
+function handleOptionSelect() {
+    properties.onOptionSelect?.();
+}
 
 // Global state
 const sessionState = useSessionStore();
@@ -62,7 +67,7 @@ async function signOut() {
             <!-- Primary options -->
             <div class="flex w-full flex-1 flex-col items-center gap-y-1">
                 <RouterLink v-for="optionConfig of activeBenchtopConfig.primaryOptions" :key="optionConfig.id" :to="{ name: optionConfig.id }" as-child>
-                    <Button size="icon-lg" variant="ghost">
+                    <Button size="icon-lg" variant="ghost" @click="handleOptionSelect">
                         <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
                     </Button>
                 </RouterLink>
@@ -92,9 +97,9 @@ async function signOut() {
                                     <div>
                                         <div class="mb-1 text-xs text-[0.625rem] font-bold uppercase">Appearance</div>
                                         <div class="flex h-8 items-center space-x-2">
-                                            <Button size="icon-sm" variant="secondary"><Moon /></Button>
-                                            <Button size="icon-sm" variant="ghost"><Sun /></Button>
-                                            <Button size="icon-sm" variant="ghost"><Monitor /></Button>
+                                            <Button size="icon-sm" variant="secondary"><MoonIcon /></Button>
+                                            <Button size="icon-sm" variant="ghost"><SunIcon /></Button>
+                                            <Button size="icon-sm" variant="ghost"><MonitorIcon /></Button>
                                         </div>
                                     </div>
 
@@ -125,7 +130,7 @@ async function signOut() {
                     </div>
 
                     <RouterLink v-else :to="{ name: optionConfig.id }" as-child>
-                        <Button size="icon-lg" variant="ghost">
+                        <Button size="icon-lg" variant="ghost" @click="handleOptionSelect">
                             <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
                         </Button>
                     </RouterLink>

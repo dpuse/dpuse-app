@@ -25,7 +25,7 @@ const requestClose = () => emit('request-close');
                 <div class="bg-background/70 absolute inset-0 backdrop-blur-sm" @click="requestClose"></div>
 
                 <dialog class="option-bar-panel bg-background relative mr-auto flex h-full w-16 flex-col border-0 shadow-2xl" open @cancel.prevent="requestClose">
-                    <OptionBarContent class="pt-13.75" />
+                    <OptionBarContent class="pt-13.75" :on-option-select="requestClose" />
                 </dialog>
             </div>
         </Transition>

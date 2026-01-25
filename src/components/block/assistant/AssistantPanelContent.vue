@@ -2,7 +2,7 @@
 // Components and icons
 import Button from '@/components/base/button/Button.vue';
 import { Textarea } from '@/components/base/textarea';
-import { ArrowLeftFromLine, ArrowRightToLine, MessageCircleMore, Search, X } from 'lucide-vue-next';
+import { ArrowBigLeftDashIcon, ArrowBigRightDashIcon, MessageCircleMoreIcon, SearchIcon, XIcon } from 'lucide-vue-next';
 
 // Properties
 type AssistantMessage = { id: number; text: string };
@@ -31,8 +31,8 @@ const properties = defineProps<Properties>();
                         variant="ghost"
                         @click="properties.onTogglePanelWidth?.()"
                     >
-                        <ArrowRightToLine v-if="properties.isPanelWide" class="size-6" :stroke-width="1.25" />
-                        <ArrowLeftFromLine v-else class="size-6" :stroke-width="1.25" />
+                        <ArrowBigRightDashIcon v-if="properties.isPanelWide" class="size-6" :stroke-width="1.25" />
+                        <ArrowBigLeftDashIcon v-else class="size-6" :stroke-width="1.25" />
                     </Button>
 
                     <Button
@@ -43,7 +43,7 @@ const properties = defineProps<Properties>();
                         variant="ghost"
                         @click="properties.onRequestClose?.()"
                     >
-                        <X class="size-5" :stroke-width="1.25" />
+                        <XIcon class="size-5" :stroke-width="1.25" />
                     </Button>
                 </div>
             </div>
@@ -65,10 +65,10 @@ const properties = defineProps<Properties>();
 
                 <div class="flex justify-end pr-1 pb-1">
                     <Button size="icon-sm" variant="ghost" @click="properties.onRunTest">
-                        <MessageCircleMore class="size-5" stroke-width="1.25" />
+                        <MessageCircleMoreIcon class="size-5" stroke-width="1.25" />
                     </Button>
                     <Button size="icon-sm" variant="ghost">
-                        <Search class="size-5" stroke-width="1.25" />
+                        <SearchIcon class="size-5" stroke-width="1.25" />
                     </Button>
                 </div>
             </div>
