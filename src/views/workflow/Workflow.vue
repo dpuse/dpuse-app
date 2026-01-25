@@ -13,7 +13,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') 
 </script>
 
 <template>
-    <div class="flex h-full flex-col rounded-b-lg border-x border-b">
+    <div class="flex h-full min-w-0 flex-col rounded-b-lg border-x border-b">
         <Header title="Workflow" />
 
         <div class="flex-1 overflow-y-auto">

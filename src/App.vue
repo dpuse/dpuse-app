@@ -1,10 +1,11 @@
 <script setup lang="ts">
 // External dependencies
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch, watchEffect } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // Application modules
 import { useSessionStore } from '@/stores/sessionStore';
+import { useWorkbenchChrome } from '@/composables/useWorkbenchChrome';
 
 // Components and icons
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
@@ -22,6 +23,7 @@ const isAssistPanelOpenInWideDisplay = ref(true);
 const isAssistPanelOpenInNarrowDisplay = ref(false);
 const isBenchtopOptionBarOpenInNarrowDisplay = ref(false);
 const isDisplayWide = useMediaQuery('(min-width: 768px)');
+const { isAssistantPanelVisible, isOptionBarVisible } = useWorkbenchChrome();
 
 // Lifecycle event handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -34,6 +36,14 @@ watch(isDisplayWide, (newIsDisplayWide) => {
         isAssistPanelOpenInNarrowDisplay.value = false;
         isBenchtopOptionBarOpenInNarrowDisplay.value = false;
     }
+});
+
+watchEffect(() => {
+    isOptionBarVisible.value = isDisplayWide.value || isBenchtopOptionBarOpenInNarrowDisplay.value;
+});
+
+watchEffect(() => {
+    isAssistantPanelVisible.value = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
 });
 
 // Assistant panel state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -102,9 +112,9 @@ function toggleBenchtopOptionBar() {
             />
 
             <!-- Workbench content column - fills browser window between benchtop option bar and assistant panel -->
-            <div class="flex flex-1 flex-col">
+            <div class="flex min-w-0 flex-1 flex-col">
                 <!-- Workbench content area row - fills content column above status bar row  -->
-                <div class="flex-1 overflow-y-hidden rounded-b-lg">
+                <div class="min-w-0 flex-1 overflow-y-hidden rounded-b-lg">
                     <RouterView />
                 </div>
 
