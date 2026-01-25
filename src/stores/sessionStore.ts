@@ -1,9 +1,9 @@
 // External dependencies
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { type AnyState, type Claims, type FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
+import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 
-// Constants.
+// Constants
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
 
 interface SessionStatus {
@@ -16,14 +16,15 @@ interface SessionStatus {
     userId?: string;
 }
 
-// Pina store for session state.
-const useSessionStore = defineStore('session', () => {
+// Pina store for session state
+export const useSessionStore = defineStore('session', () => {
     let flowCleanupFunction: (() => void) | undefined;
     let hankoInstance: Hanko | undefined;
     const sessionStatus = ref<SessionStatus>({});
 
-    async function initServices(): Promise<void> {
-        hankoInstance = new Hanko(HANKO_API_URL);
+    async function initServices(hankoImportPromise: Promise<typeof import('@teamhanko/hanko-frontend-sdk')>): Promise<void> {
+        const hankoModule = await hankoImportPromise;
+        hankoInstance = new hankoModule.Hanko(HANKO_API_URL);
         hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
         hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
         hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
@@ -72,6 +73,3 @@ function constructSessionStatus(claims?: Claims): SessionStatus {
 }
 
 //#endregion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-// Exposures.
-export { useSessionStore };

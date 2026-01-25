@@ -1,10 +1,9 @@
 <script setup lang="ts">
 // External dependencies
-import { computed, onMounted, ref, watch, watchEffect } from 'vue';
+import { computed, ref, watch, watchEffect } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // Application modules
-import { useSessionStore } from '@/stores/sessionStore';
 import { useWorkbenchChrome } from '@/composables/useWorkbenchChrome';
 
 // Components and icons
@@ -25,11 +24,15 @@ const isBenchtopOptionBarOpenInNarrowDisplay = ref(false);
 const isDisplayWide = useMediaQuery('(min-width: 768px)');
 const { isAssistantPanelVisible, isOptionBarVisible } = useWorkbenchChrome();
 
-// Lifecycle event handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const assistToggleAriaLabel = computed(() => {
+    const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
+    return isPanelVisible ? 'Hide assistant panel' : 'Show assistant panel';
+});
 
-onMounted(() => useSessionStore().initServices()); // Initialize session services (authentication, messenger) after the app component mounts
-
-// Display (browser window) width state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const benchtopToggleAriaLabel = computed(() => {
+    if (isDisplayWide.value) return 'DPU logo';
+    return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
+});
 
 watch(isDisplayWide, (newIsDisplayWide) => {
     if (newIsDisplayWide) {
@@ -46,12 +49,7 @@ watchEffect(() => {
     isAssistantPanelVisible.value = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
 });
 
-// Assistant panel state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const assistToggleAriaLabel = computed(() => {
-    const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
-    return isPanelVisible ? 'Hide assistant panel' : 'Show assistant panel';
-});
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function toggleAssistPanel() {
     if (isDisplayWide.value) {
@@ -60,13 +58,6 @@ function toggleAssistPanel() {
     }
     isAssistPanelOpenInNarrowDisplay.value = !isAssistPanelOpenInNarrowDisplay.value;
 }
-
-// Benchtop option bar state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const benchtopToggleAriaLabel = computed(() => {
-    if (isDisplayWide.value) return 'DPU logo';
-    return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
-});
 
 function toggleBenchtopOptionBar() {
     if (isDisplayWide.value) return;

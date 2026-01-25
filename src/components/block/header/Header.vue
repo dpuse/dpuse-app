@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { useWorkbenchChrome } from '@/composables/useWorkbenchChrome';
-
+// External dependencies
 import { computed } from 'vue';
+
+// Application modules
+import { useWorkbenchChrome } from '@/composables/useWorkbenchChrome';
 
 // Properties
 type Properties = { title: string };
 const properties = defineProps<Properties>();
 const { isAssistantPanelVisible, isOptionBarVisible } = useWorkbenchChrome();
 
+// Header offsets
 const headerOffsets = computed(() => ({
     paddingLeft: isOptionBarVisible.value ? undefined : '2.5rem',
     paddingRight: isAssistantPanelVisible.value ? undefined : '2.5rem'
@@ -15,11 +18,10 @@ const headerOffsets = computed(() => ({
 </script>
 
 <template>
-    <div class="px-4">
-        <div class="flex h-14 w-full flex-none items-center border-b" :style="headerOffsets">
+    <div class="flex-none px-4">
+        <div class="flex h-14 items-center border-b" :style="headerOffsets">
             <div class="truncate">
-                {{ properties.title }} {{ properties.title }} {{ properties.title }} {{ properties.title }} {{ properties.title }} {{ properties.title }} {{ properties.title }}
-                {{ properties.title }} {{ properties.title }} {{ properties.title }} {{ properties.title }} {{ properties.title }}
+                {{ properties.title }}
             </div>
         </div>
     </div>
