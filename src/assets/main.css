@@ -1,6 +1,11 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+html,
+body {
+    overscroll-behavior-y: none;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
