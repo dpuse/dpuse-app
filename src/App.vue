@@ -114,7 +114,7 @@ function toggleBenchtopOptionBar() {
             <!-- Workbench content column - fills browser window between benchtop option bar and assistant panel -->
             <div class="flex min-w-0 flex-1 flex-col">
                 <!-- Workbench content area row - fills content column above status bar row  -->
-                <div class="min-w-0 flex-1 overflow-y-hidden rounded-b-lg">
+                <div class="flex-1 overflow-y-hidden rounded-b-lg">
                     <RouterView />
                 </div>
 
