@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External dependencies
-import { computed, ref, watch, watchEffect } from 'vue';
+import { computed, onMounted, ref, watch, watchEffect } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // Application modules
@@ -13,6 +13,7 @@ import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import Button from '@/components/base/button/Button.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import StatusBar from '@/components/block/statusBar/StatusBar.vue';
+import { useSessionStore } from './stores/sessionStore';
 
 // Global state
 useColorMode();
@@ -33,6 +34,8 @@ const benchtopToggleAriaLabel = computed(() => {
     if (isDisplayWide.value) return 'DPU logo';
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
+
+onMounted(() => useSessionStore().initServices());
 
 watch(isDisplayWide, (newIsDisplayWide) => {
     if (newIsDisplayWide) {
