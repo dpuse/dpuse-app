@@ -8,13 +8,18 @@
         <meta
             http-equiv="Content-Security-Policy"
             content="
-    default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval';
-    style-src 'self' 'unsafe-inline';
-    img-src 'self' data: https:;
-    font-src 'self' data:;
-    connect-src 'self';
-  "
+                default-src: 'none';
+                base-uri: 'self';
+                connect-src: 'self' https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://743f845f-9767-4da0-8f7f-c29c46f12f0b.hanko.io data:;
+                form-action: 'none';
+                font-src 'self' data:;
+                frame-ancestors: 'none';
+                frame-src: 'none';
+                img-src: 'self' data:;
+                script-src 'self' https://engine-eu.datapos.app https://static.cloudflareinsights.com 'wasm-unsafe-eval' data: 'sha256-FKabkTPxmdbQtfvuUPyT13E2ga22HRaIjqUW0M21Zns=';
+                style-src 'self' 'unsafe-inline';
+                worker-src 'self' blob:;
+            "
         />
         <title>DPU Workbench</title>
         <meta name="description" content="The Data Positioning and Usage workbench." />
