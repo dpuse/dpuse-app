@@ -1,7 +1,0 @@
-/\*
-Access-Control-Allow-Origin: https://www.datapos.app
-Content-Security-Policy: default-src 'none'; base-uri 'self'; connect-src 'self' https://www.datapos.app wss://www.datapos.app https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://sample-data-eu.datapos.app https://743f845f-9767-4da0-8f7f-c29c46f12f0b.hanko.io; form-action 'none'; frame-ancestors 'none'; img-src 'self'; manifest-src 'self'; script-src 'self' https://engine-eu.datapos.app https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:;
-Cross-Origin-Opener-Policy: same-origin
-Cross-Origin-Embedder-Policy: require-corp
-Cross-Origin-Resource-Policy: cross-origin
-Document-Policy: js-profiling
