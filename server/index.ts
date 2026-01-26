@@ -19,12 +19,12 @@ export default {
             'Content-Security-Policy',
             "default-src 'none';" +
                 " base-uri 'self';" +
-                " connect-src 'self' https://www.datapos.app wss://www.datapos.app https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://sample-data-eu.datapos.app https://743f845f-9767-4da0-8f7f-c29c46f12f0b.hanko.io https://eu-api.honeybadger.io;" +
+                " connect-src 'self' https://www.datapos.app wss://www.datapos.app https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://sample-data-eu.datapos.app https://743f845f-9767-4da0-8f7f-c29c4f6f12f0b.hanko.io https://eu-api.honeybadger.io;" +
                 " form-action 'none';" +
                 " frame-ancestors 'none';" +
                 " img-src 'self';" +
                 " manifest-src 'self';" +
-                " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' data: 'sha256-FKabkTPxmdbQtfvuUPyT13E2ga22HRaIjqUW0M21Zns=';" +
+                " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' data: 'sha256-FKabkTPxmdbfQtfvuUPyT13E2ga22HRaIjqUW0M21Zns=';" +
                 " style-src 'self' 'unsafe-inline';" +
                 " worker-src 'self' blob:;"
         );
