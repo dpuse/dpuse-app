@@ -6,7 +6,7 @@ import vue from '@vitejs/plugin-vue';
 // import vueDevTools from 'vite-plugin-vue-devtools';
 import { fileURLToPath, URL } from 'node:url';
 
-// https://vite.dev/config/
+// Vite configuration
 export default defineConfig({
     plugins: [vue(), /*vueDevTools(),*/ tailwindcss(), cloudflare()],
     resolve: {
