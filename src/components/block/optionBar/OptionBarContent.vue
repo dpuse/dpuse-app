@@ -26,8 +26,8 @@ function handleOptionSelect() {
 }
 
 // Global state
-const sessionState = useSessionStore();
-const { sessionStatus } = storeToRefs(sessionState);
+// const sessionState = useSessionStore();
+// const { sessionStatus } = storeToRefs(sessionState);
 
 // Active benchtop configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -38,23 +38,23 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') 
 
 // Option kind values state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const optionKindValues = computed(() => ({ account: sessionStatus.value?.isAuthenticated }));
+const optionKindValues = computed(() => ({ account: false }));
 
 // Quick links panel state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const isQuickLinksPanelOpen = ref(false);
 
-function closeQuickLinksPanel() {
-    isQuickLinksPanelOpen.value = false;
-}
+// function closeQuickLinksPanel() {
+//     isQuickLinksPanelOpen.value = false;
+// }
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-async function signOut() {
-    sessionState.destroyFlow();
-    await sessionState.signOut();
-    closeQuickLinksPanel();
-}
+// async function signOut() {
+//     sessionState.destroyFlow();
+//     await sessionState.signOut();
+//     closeQuickLinksPanel();
+// }
 </script>
 
 <template>
@@ -120,9 +120,9 @@ async function signOut() {
 
                                     <div>
                                         <Separator class="mb-3" />
-                                        <Button class="w-full font-normal" :disabled="!sessionState.sessionStatus.isAuthenticated" variant="warning" @click="signOut">
+                                        <!-- <Button class="w-full font-normal" :disabled="!sessionState.sessionStatus.isAuthenticated" variant="warning" @click="signOut">
                                             Sign out
-                                        </Button>
+                                        </Button> -->
                                     </div>
                                 </div>
                             </HoverCardContent>
