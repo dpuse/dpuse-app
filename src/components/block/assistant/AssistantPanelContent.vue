@@ -50,7 +50,7 @@ const properties = defineProps<Properties>();
             </div>
 
             <div class="flex-none rounded-md border">
-                <Textarea
+                <!-- <Textarea
                     class="placeholder:text-muted-foreground max-h-48 w-full resize-none overflow-y-auto border-0 bg-transparent px-2 text-base! shadow-none ring-0 outline-none placeholder:text-sm focus-visible:shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
                     rows="1"
                     placeholder="Ask a question → X to chat with assistant or;&#10;enter keywords → X to search the library…"
@@ -63,7 +63,7 @@ const properties = defineProps<Properties>();
                     <Button size="icon-sm" variant="ghost">
                         <SearchIcon class="size-5" stroke-width="1.25" />
                     </Button>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
