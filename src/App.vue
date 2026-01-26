@@ -36,11 +36,11 @@ const benchtopToggleAriaLabel = computed(() => {
 });
 
 onMounted(() => {
-    nextTick(() => {
-        setTimeout(async () => {
-            useSessionStore().initServices();
-        });
-    });
+    // nextTick(() => {
+    //     setTimeout(async () => {
+    //         useSessionStore().initServices();
+    //     });
+    // });
 });
 
 watch(isDisplayWide, (newIsDisplayWide) => {
