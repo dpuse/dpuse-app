@@ -120,9 +120,9 @@ async function signOut() {
 
                                     <div>
                                         <Separator class="mb-3" />
-                                        <!-- <Button class="w-full font-normal" :disabled="!sessionState.sessionStatus.isAuthenticated" variant="warning" @click="signOut">
+                                        <Button class="w-full font-normal" :disabled="!sessionState.sessionStatus.isAuthenticated" variant="warning" @click="signOut">
                                             Sign out
-                                        </Button> -->
+                                        </Button>
                                     </div>
                                 </div>
                             </HoverCardContent>
@@ -130,9 +130,9 @@ async function signOut() {
                     </div>
 
                     <RouterLink v-else :to="{ name: optionConfig.id }" as-child>
-                        <Button size="icon-lg" variant="ghost" @click="handleOptionSelect">
+                        <!-- <Button size="icon-lg" variant="ghost" @click="handleOptionSelect">
                             <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
-                        </Button>
+                        </Button> -->
                     </RouterLink>
                 </template>
             </div>
