@@ -120,9 +120,9 @@ async function signOut() {
 
                                     <div>
                                         <Separator class="mb-3" />
-                                        <Button class="w-full font-normal" :disabled="!sessionState.sessionStatus.isAuthenticated" variant="warning" @click="signOut">
+                                        <!-- <Button class="w-full font-normal" :disabled="!sessionState.sessionStatus.isAuthenticated" variant="warning" @click="signOut">
                                             Sign out
-                                        </Button>
+                                        </Button> -->
                                     </div>
                                 </div>
                             </HoverCardContent>
