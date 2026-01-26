@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { type AnyState, type Claims, type FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
+import * as Cronitor from '@cronitorio/cronitor-rum';
 
 // Constants
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
@@ -31,6 +32,13 @@ export const useSessionStore = defineStore('session', () => {
 
         const validateSessionResponse = await hankoInstance.validateSession();
         sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
+
+        // Load the Cronitor tracker once in your app
+        console.log('Loading cronitor...');
+        Cronitor.load('a19996d0f3873b0a3e7f8921f7145a2e', {
+            debug: false, // <-- You can enable this to see logs in the console
+            trackMode: 'pageload' // <-- You can change this to 'off' to track events manually
+        });
     }
 
     function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): void {

@@ -1,12 +1,13 @@
 {
     "name": "datapos-workbench",
-    "version": "0.0.94",
+    "version": "0.0.95",
     "private": true,
     "type": "module",
     "engines": {
         "node": "^20.19.0 || >=22.12.0"
     },
     "dependencies": {
+        "@cronitorio/cronitor-rum": "^0.4.1",
         "@datapos/datapos-shared": "^0.3.530",
         "@tailwindcss/vite": "^4.1.18",
         "@teamhanko/hanko-frontend-sdk": "^2.4.0",
