@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External dependencies
-import { computed, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
+import { computed, onMounted, ref, watch, watchEffect } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // Application modules
@@ -35,23 +35,7 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
-onMounted(() => {
-    // nextTick(() => {
-    //     setTimeout(async () => {
-    useSessionStore().initServices();
-    //     });
-    // });
-});
-
-// function queueSessionInit() {
-//     const run = () => useSessionStore().initServices();
-//     if ('requestIdleCallback' in globalThis) {
-//         requestIdleCallback(run, { timeout: 4000 });
-//     } else {
-//         setTimeout(run, 2000);
-//     }
-// }
-// onMounted(() => queueSessionInit());
+onMounted(() => useSessionStore().initServices());
 
 watch(isDisplayWide, (newIsDisplayWide) => {
     if (newIsDisplayWide) {

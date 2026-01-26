@@ -33,7 +33,10 @@ const handleIdEntered = ref<((identifier: string) => Promise<void>) | undefined>
 const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 const uiStateId = ref<'enterId' | 'enterPassword' | 'done'>('enterId');
 
-onMounted(() => sessionState.constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state)));
+onMounted(async () => {
+    if (sessionState.sessionStatus.isAuthenticated) return;
+    sessionState.constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state));
+});
 onUnmounted(() => sessionState.destroyFlow());
 
 // Sign out.
@@ -58,6 +61,8 @@ function handleLoginFlowStateChange(state: AnyState) {
             return handleLoginFlowOnboardingCreatePasskeyState(state);
         case 'success':
             uiStateId.value = 'done';
+            handleIdEntered.value = undefined;
+            handlePasswordEntered.value = undefined;
             sessionState.destroyFlow();
             return;
         case 'error':
@@ -141,12 +146,12 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
         </div>
 
         <div v-else class="bg-background my-2 overflow-y-auto rounded-lg">
-            <div v-if="uiStateId === 'enterId'">
-                <LoginForm class="max-w-sm min-w-sm p-6 md:p-10" :on-trigger="handleIdEntered!" />
+            <div v-if="uiStateId === 'enterId' && handleIdEntered">
+                <LoginForm class="max-w-sm min-w-sm p-6 md:p-10" :on-trigger="handleIdEntered" />
             </div>
 
-            <div v-if="uiStateId === 'enterPassword'">
-                <PasswordForm class="max-w-sm min-w-sm p-6 md:p-10" :on-trigger="handlePasswordEntered!" />
+            <div v-if="uiStateId === 'enterPassword' && handlePasswordEntered">
+                <PasswordForm class="max-w-sm min-w-sm p-6 md:p-10" :on-trigger="handlePasswordEntered" />
             </div>
         </div>
     </div>

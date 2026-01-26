@@ -29,10 +29,15 @@ const router = createRouter({
                     ]
                 },
                 {
+                    name: 'account',
+                    path: 'account',
+                    component: () => import('@/views/account/Account.vue')
+                },
+                // Secure account children (optional):
+                {
                     path: 'account',
                     component: () => import('@/views/account/Account.vue'),
                     children: [
-                        { name: 'account', path: '', redirect: { name: 'managePersonalDetails' } },
                         { name: 'managePersonalDetails', path: 'managePersonalDetails', component: () => import('@/views/account/ManagePersonalDetails.vue') },
                         { name: 'manageSubscription', path: 'manageSubscription', component: () => import('@/views/account/ManageSubscription.vue') },
                         { name: 'managePreferences', path: 'managePreferences', component: () => import('@/views/account/ManagePreferences.vue') },
