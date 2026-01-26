@@ -23,7 +23,6 @@ export const useSessionStore = defineStore('session', () => {
     const sessionStatus = ref<SessionStatus>({});
 
     async function initServices(): Promise<void> {
-        console.log('initServices');
         hankoInstance = new Hanko(HANKO_API_URL);
         hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
         hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
