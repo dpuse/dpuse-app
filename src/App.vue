@@ -37,7 +37,7 @@ const benchtopToggleAriaLabel = computed(() => {
 onMounted(() => {
     const beginBootstrap = () => {
         nextTick(() => {
-            const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 1000));
+            const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 5000));
             raf(() => {
                 raf(async () => {
                     // const { initTelemetry } = await import('@/lib/posthogTelemetry');
