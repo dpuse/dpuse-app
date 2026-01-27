@@ -57,6 +57,7 @@ onMounted(() => {
     // }
 
     const stop = router.afterEach((to, from) => {
+        console.log('0000', from, to);
         if (from.matched.length === 0) {
             console.log(1111);
             stop(); // remove the hook so it’s a one-time effect
