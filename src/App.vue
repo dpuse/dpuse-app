@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // External dependencies
-import router from '@/router';
 import { computed, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
+import router from '@/router';
 
 // Application modules
 import { useWorkbenchShell } from '@/composables/useWorkbenchShell';
@@ -35,28 +35,36 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
-onMounted(() => {
-    const beginBootstrap = () => {
-        router.isReady().then(() => {
-            nextTick(() => {
-                const raf = window.requestAnimationFrame ?? ((cb) => setTimeout(cb, 16));
-                raf(() => {
-                    raf(async () => {
-                        const { useSessionStore } = await import('@/stores/sessionStore');
-                        useSessionStore().initServices();
-                    });
+const beginBootstrap = () => {
+    console.log('0000');
+    setTimeout(() => {
+        nextTick(() => {
+            const raf = window.requestAnimationFrame ?? ((cb) => setTimeout(cb, 16));
+            raf(() => {
+                raf(async () => {
+                    console.log('****');
+                    const { useSessionStore } = await import('@/stores/sessionStore');
+                    useSessionStore().initServices();
                 });
             });
         });
-    };
-
-    if (document.readyState === 'complete') {
-        beginBootstrap();
-    } else {
-        window.addEventListener('load', beginBootstrap, { once: true });
-    }
+    }, 1000); // explicit delay in ms
+};
+onMounted(() => {
+    // if (document.readyState === 'complete') {
+    //     beginBootstrap();
+    // } else {
+    //     window.addEventListener('load', beginBootstrap, { once: true });
+    // }
 });
 
+const stop = router.afterEach((to, from) => {
+    if (!from.matched.length) {
+        console.log(1111);
+        stop(); // remove the hook so it’s a one-time effect
+        queueMicrotask(() => beginBootstrap()); // or rAF sandwich
+    }
+});
 watch(isDisplayWide, (newIsDisplayWide) => {
     if (newIsDisplayWide) {
         isAssistPanelOpenInNarrowDisplay.value = false;

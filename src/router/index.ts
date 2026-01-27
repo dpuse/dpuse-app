@@ -58,5 +58,9 @@ const router = createRouter({
     }
 });
 
+router.afterEach((guard) => {
+    console.log('router.afterEach', guard);
+});
+
 // Exposures.
 export default router;
