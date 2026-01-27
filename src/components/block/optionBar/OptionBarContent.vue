@@ -5,7 +5,7 @@ import { computed, ref } from 'vue';
 
 // Application modules
 import { useKnowledge } from '@/composables/useKnowledge';
-import { useSessionStore } from '@/stores/sessionStore';
+// import { useSessionStore } from '@/stores/sessionStore';
 
 // Components and icons
 import Button from '@/components/base/button/Button.vue';
@@ -26,7 +26,7 @@ function handleOptionSelect() {
 }
 
 // Global state
-const sessionState = useSessionStore();
+// const sessionState = useSessionStore();
 // const { sessionStatus } = storeToRefs(sessionState);
 
 // Active benchtop configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -51,8 +51,8 @@ function closeQuickLinksPanel() {
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async function signOut() {
-    sessionState.destroyFlow();
-    await sessionState.signOut();
+    // sessionState.destroyFlow();
+    // await sessionState.signOut();
     closeQuickLinksPanel();
 }
 </script>
@@ -120,9 +120,9 @@ async function signOut() {
 
                                     <div>
                                         <Separator class="mb-3" />
-                                        <Button class="w-full font-normal" :disabled="!sessionState.sessionStatus.isAuthenticated" variant="warning" @click="signOut">
+                                        <!-- <Button class="w-full font-normal" :disabled="!sessionState.sessionStatus.isAuthenticated" variant="warning" @click="signOut">
                                             Sign out
-                                        </Button>
+                                        </Button> -->
                                     </div>
                                 </div>
                             </HoverCardContent>
