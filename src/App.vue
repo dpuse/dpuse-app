@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // External dependencies
+import router from '@/router';
 import { computed, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
@@ -36,18 +37,17 @@ const benchtopToggleAriaLabel = computed(() => {
 
 onMounted(() => {
     const beginBootstrap = () => {
-        setTimeout(() => {
+        router.isReady().then(() => {
             nextTick(() => {
                 const raf = window.requestAnimationFrame ?? ((cb) => setTimeout(cb, 16));
                 raf(() => {
                     raf(async () => {
-                        console.log('****');
                         const { useSessionStore } = await import('@/stores/sessionStore');
                         useSessionStore().initServices();
                     });
                 });
             });
-        }, 10000); // explicit delay in ms
+        });
     };
 
     if (document.readyState === 'complete') {
