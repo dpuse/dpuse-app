@@ -35,7 +35,7 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
-onMounted(() => useSessionStore().initServices());
+// onMounted(() => useSessionStore().initServices());
 
 watch(isDisplayWide, (newIsDisplayWide) => {
     if (newIsDisplayWide) {

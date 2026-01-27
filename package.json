@@ -1,13 +1,12 @@
 {
     "name": "datapos-workbench",
-    "version": "0.0.95",
+    "version": "0.0.96",
     "private": true,
     "type": "module",
     "engines": {
         "node": "^20.19.0 || >=22.12.0"
     },
     "dependencies": {
-        "@cronitorio/cronitor-rum": "^0.4.1",
         "@datapos/datapos-shared": "^0.3.530",
         "@tailwindcss/vite": "^4.1.18",
         "@teamhanko/hanko-frontend-sdk": "^2.4.0",
@@ -20,11 +19,12 @@
         "tailwind-merge": "^3.4.0",
         "tailwindcss": "^4.1.18",
         "vue": "^3.5.27",
-        "vue-router": "^4.6.4"
+        "vue-router": "^4.6.4",
+        "web-vitals": "^5.1.0"
     },
     "devDependencies": {
         "@cloudflare/vite-plugin": "^1.21.2",
-        "@cloudflare/workers-types": "^4.20260124.0",
+        "@cloudflare/workers-types": "^4.20260127.0",
         "@datapos/datapos-development": "^0.3.443",
         "@playwright/test": "^1.58.0",
         "@tsconfig/node24": "^24.0.4",
@@ -47,7 +47,7 @@
         "eslint-plugin-vue": "~10.7.0",
         "jiti": "^2.6.1",
         "jsdom": "^27.4.0",
-        "npm-check-updates": "^19.3.1",
+        "npm-check-updates": "^19.3.2",
         "npm-run-all2": "^8.0.4",
         "prettier": "3.8.1",
         "prettier-plugin-tailwindcss": "^0.7.2",

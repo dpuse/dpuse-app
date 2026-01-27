@@ -1,10 +1,21 @@
 // External dependencies
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { useNetwork } from '@vueuse/core';
 import { type AnyState, type Claims, type FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
-import * as Cronitor from '@cronitorio/cronitor-rum';
+import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
+import { ref, watch } from 'vue';
+
+// import posthog from 'posthog-js';
+// posthog.init('phc_stFCVM7oIBMHqRDgAkxA7yQq5jbV3SpQfFOTazKGwiq', {
+//     api_host: 'https://eu.i.posthog.com' // or your self-hosted URL
+// });
+import { useStatesMessenger } from '../composables/useStateMessenger';
+import { useWorkbenchContext } from '@/composables/useWorkbenchContext';
 
 // Constants
+const API_CONFIG_ENDPOINT = 'https://api.datapos.app/config';
+const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
+const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
 
 interface SessionStatus {
@@ -22,6 +33,39 @@ export const useSessionStore = defineStore('session', () => {
     let flowCleanupFunction: (() => void) | undefined;
     let hankoInstance: Hanko | undefined;
     const sessionStatus = ref<SessionStatus>({});
+    const { connect, disconnect } = useStatesMessenger();
+    let sessionExpiryTimer: ReturnType<typeof setTimeout> | undefined;
+
+    // Network online state
+    const { isOnline: networkIsOnline } = useNetwork();
+    watch(networkIsOnline, async (newNetworkIsOnline: boolean, oldNetworkIsOnline: boolean) => {
+        if (oldNetworkIsOnline === false && newNetworkIsOnline === true) {
+            pollForInternetConnection(); // Returns when internet connection verified, otherwise continuously polls for connection.
+        } else {
+            useSessionStore().internetIsOnline = false;
+        }
+    });
+
+    // Internet online state
+    const internetIsOnline = ref<boolean | undefined>(undefined);
+    watch(internetIsOnline, (newInternetIsOnline: boolean | undefined, oldInternetIsOnline: boolean | undefined) => {
+        // Take no action if the application was loading and the internet is now online.
+        if (oldInternetIsOnline === undefined && newInternetIsOnline) return;
+        // Show online alert if the internet was previously offline and is now online.
+        if (oldInternetIsOnline === false && newInternetIsOnline === true) {
+            connect();
+            // showNetworkToast(true);
+            return;
+        }
+        // Show offline alert.
+        // showNetworkToast(false);
+    });
+
+    document.addEventListener('visibilitychange', handleChangeInSessionPageVisibility);
+    pollForInternetConnection(); // Returns when internet connection verified, otherwise continuously polls for connection.
+    connect();
+    initServices(); // TODO: Maybe establishSession
+    window.addEventListener('beforeunload', disconnect);
 
     async function initServices(): Promise<void> {
         hankoInstance = new Hanko(HANKO_API_URL);
@@ -33,12 +77,55 @@ export const useSessionStore = defineStore('session', () => {
         const validateSessionResponse = await hankoInstance.validateSession();
         sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
 
-        // Load the Cronitor tracker once in your app
-        console.log('Loading cronitor...');
-        Cronitor.load('a19996d0f3873b0a3e7f8921f7145a2e', {
-            debug: false, // <-- You can enable this to see logs in the console
-            trackMode: 'pageload' // <-- You can change this to 'off' to track events manually
+        const defaultPayload = useWorkbenchContext();
+        onCLS((metric) => logEvent(metric, { ...defaultPayload, clsDelta: metric.delta, clsValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+        onINP((metric) => logEvent(metric, { ...defaultPayload, inpDelta: metric.delta, inpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+        onLCP((metric) => logEvent(metric, { ...defaultPayload, lcpDelta: metric.delta, lcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+        onFCP((metric) => logEvent(metric, { ...defaultPayload, fcpDelta: metric.delta, fcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+        onTTFB((metric) => logEvent(metric, { ...defaultPayload, ttfbDelta: metric.delta, ttfbValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+    }
+
+    async function logEvent(metric: Metric, data: Record<string, unknown>) {
+        console.log({
+            api_key: 'phc_stFCVM7oIBMHqRDgAkxA7yQq5jbV3SpQfFOTazKGwiq',
+            event: 'web_vitals',
+            properties: {
+                page_url: globalThis.location.href,
+                device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+                connection_type: (navigator as any).connection?.effectiveType || 'unknown',
+                ...data,
+                timestamp: Date.now()
+            }
         });
+        fetch('https://eu.posthog.com/capture/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                api_key: 'phc_lsZySXoMlZsSR2dvvUgW0miyzOZvSilsh6i7SC2qYOs',
+                event: 'web_vitals',
+                distinct_id: 'anonymous_' + Math.random().toString(36).substring(2, 10),
+                properties: {
+                    page_url: globalThis.location.href,
+                    device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+                    connection_type: (navigator as any).connection?.effectiveType || 'unknown',
+                    ...data,
+                    timestamp: Date.now()
+                }
+            })
+        }).catch(console.error);
+    }
+
+    function handleChangeInSessionPageVisibility(): void {
+        if (document.visibilityState === 'visible') {
+            if (sessionStatus.value.isAuthenticated) startSessionExpiryTimer();
+            if (networkIsOnline.value) {
+                pollForInternetConnection(); // Returns when internet connection verified, otherwise continuously polls for connection.
+            } else {
+                useSessionStore().internetIsOnline = false;
+            }
+        } else {
+            clearSessionExpiryTimer();
+        }
     }
 
     function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): void {
@@ -54,7 +141,23 @@ export const useSessionStore = defineStore('session', () => {
         await hankoInstance?.logout();
     }
 
-    return { constructFlow, destroyFlow, initServices, sessionStatus, signOut };
+    function clearSessionExpiryTimer(): void {
+        clearInterval(sessionExpiryTimer);
+        sessionExpiryTimer = undefined;
+    }
+
+    function startSessionExpiryTimer(runQuickly: boolean = false): void {
+        clearSessionExpiryTimer();
+        sessionExpiryTimer = setInterval(
+            () => {
+                sessionStatus.value.expiresIn = Math.max(0, (sessionStatus.value.expiresAt || 0) - Date.now());
+                if (sessionStatus.value.expiresIn === 0) clearSessionExpiryTimer();
+            },
+            runQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW
+        );
+    }
+
+    return { constructFlow, destroyFlow, initServices, internetIsOnline, sessionStatus, signOut };
 });
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -76,6 +179,25 @@ function constructSessionStatus(claims?: Claims): SessionStatus {
         };
     }
     return { isAuthenticated: false };
+}
+
+async function pollForInternetConnection(maxDelay = 30_000, initialDelay = 1000): Promise<void> {
+    let delay = initialDelay;
+    while (true) {
+        try {
+            const response = await fetch(API_CONFIG_ENDPOINT, { signal: AbortSignal.timeout(5000) });
+            if (response.ok) {
+                useSessionStore().internetIsOnline = true;
+                return;
+            }
+            useSessionStore().internetIsOnline = false;
+        } catch {
+            useSessionStore().internetIsOnline = false;
+        }
+        // console.log('Checking internet connection with delay of', delay);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay = Math.min(delay * 2, maxDelay); // Increases delay by twice current value but cap at 'maxDelay'.
+    }
 }
 
 //#endregion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

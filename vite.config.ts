@@ -20,12 +20,12 @@ export default defineConfig({
             'Content-Security-Policy':
                 "default-src 'none';" +
                 " base-uri 'self';" +
-                " connect-src 'self' http://localhost:5173 ws://localhost:5173 https://www.datapos.app wss://www.datapos.app https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://sample-data-eu.datapos.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io https://eu-api.honeybadger.io https://rum.cronitor.io;" +
+                " connect-src 'self' http://localhost:5173 ws://localhost:5173 https://www.datapos.app wss://www.datapos.app https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://sample-data-eu.datapos.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io https://eu.posthog.com https://eu.i.posthog.com;" +
                 " form-action 'none';" +
                 " frame-ancestors 'none';" +
                 " img-src 'self';" +
                 " manifest-src 'self';" +
-                " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' data: 'sha256-FKabkTPxmdbQtfvuUPyT13E2ga22HRaIjqUW0M21Zns=' 'sha256-ce72zhAu77fGKc0p7tlPMCkyzMv/Bgg66k7tvsmCnAM=';" +
+                " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' data: 'sha256-FKabkTPxmdbQtfvuUPyT13E2ga22HRaIjqUW0M21Zns=';" +
                 // " require-trusted-types-for 'script';" + // TODO: Can not get this to work with import of Engine Web Worker.
                 " style-src 'self' 'unsafe-inline';" + // TODO: SimpleTable set styles, need to change. See chat GDP answers.
                 " worker-src 'self' blob:;",

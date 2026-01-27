@@ -15,7 +15,7 @@ export default defineConfigWithVueTs(
         name: 'app/files-to-lint',
         files: ['**/*.{vue,ts,mts,tsx}'],
         settings: {
-            'import/core-modules': ['eslint/config'],
+            'import/core-modules': ['@datapos/datapos-shared/errors', 'eslint/config'],
             'import/resolver': { typescript: { project: ['./tsconfig.json'] } }
         }
     },
