@@ -42,6 +42,7 @@ onMounted(() => {
                 raf(async () => {
                     // const { initTelemetry } = await import('@/lib/posthogTelemetry');
                     // initTelemetry();
+                    console.log('****');
                     const { useSessionStore } = await import('@/stores/sessionStore');
                     useSessionStore().initServices();
                 });
