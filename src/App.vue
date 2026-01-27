@@ -13,7 +13,6 @@ import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import Button from '@/components/base/button/Button.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import StatusBar from '@/components/block/statusBar/StatusBar.vue';
-import { useSessionStore } from './stores/sessionStore';
 
 // Global state
 useColorMode();
@@ -36,16 +35,25 @@ const benchtopToggleAriaLabel = computed(() => {
 });
 
 onMounted(() => {
-    nextTick(() => {
-        const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 16));
-        raf(() => {
-            raf(async () => {
-                // const { initTelemetry } = await import('@/lib/posthogTelemetry');
-                // initTelemetry();
-                useSessionStore().initServices();
+    const beginBootstrap = () => {
+        nextTick(() => {
+            const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 16));
+            raf(() => {
+                raf(async () => {
+                    // const { initTelemetry } = await import('@/lib/posthogTelemetry');
+                    // initTelemetry();
+                    const { useSessionStore } = await import('@/stores/sessionStore');
+                    useSessionStore().initServices();
+                });
             });
         });
-    });
+    };
+
+    if (document.readyState === 'complete') {
+        beginBootstrap();
+    } else {
+        window.addEventListener('load', beginBootstrap, { once: true });
+    }
 });
 
 watch(isDisplayWide, (newIsDisplayWide) => {
