@@ -36,7 +36,6 @@ const benchtopToggleAriaLabel = computed(() => {
 });
 
 const beginBootstrap = () => {
-    console.log('0000');
     setTimeout(() => {
         nextTick(() => {
             const raf = window.requestAnimationFrame ?? ((cb) => setTimeout(cb, 16));
@@ -56,14 +55,14 @@ onMounted(() => {
     // } else {
     //     window.addEventListener('load', beginBootstrap, { once: true });
     // }
-});
 
-const stop = router.afterEach((to, from) => {
-    if (!from.matched.length) {
-        console.log(1111);
-        stop(); // remove the hook so it’s a one-time effect
-        queueMicrotask(() => beginBootstrap()); // or rAF sandwich
-    }
+    const stop = router.afterEach((to, from) => {
+        if (from.matched.length === 0) {
+            console.log(1111);
+            stop(); // remove the hook so it’s a one-time effect
+            queueMicrotask(() => beginBootstrap()); // or rAF sandwich
+        }
+    });
 });
 watch(isDisplayWide, (newIsDisplayWide) => {
     if (newIsDisplayWide) {
