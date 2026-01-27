@@ -37,11 +37,13 @@ const benchtopToggleAriaLabel = computed(() => {
 
 onMounted(() => {
     nextTick(() => {
-        const idle = globalThis.requestIdleCallback ?? ((callback) => setTimeout(callback, 2000));
-        idle(async () => {
-            // const { initTelemetry } = await import('@/lib/posthogTelemetry');
-            // initTelemetry();
-            useSessionStore().initServices();
+        const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 16));
+        raf(() => {
+            raf(async () => {
+                // const { initTelemetry } = await import('@/lib/posthogTelemetry');
+                // initTelemetry();
+                useSessionStore().initServices();
+            });
         });
     });
 });
