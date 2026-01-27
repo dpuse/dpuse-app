@@ -2,7 +2,6 @@
 // External dependencies
 import { computed, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
-import router from '@/router';
 
 // Application modules
 import { useWorkbenchShell } from '@/composables/useWorkbenchShell';
@@ -35,36 +34,29 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
-const beginBootstrap = () => {
-    setTimeout(() => {
+onMounted(() => {
+    const beginBootstrap = () => {
         nextTick(() => {
-            const raf = window.requestAnimationFrame ?? ((cb) => setTimeout(cb, 16));
+            const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 1000));
             raf(() => {
                 raf(async () => {
+                    // const { initTelemetry } = await import('@/lib/posthogTelemetry');
+                    // initTelemetry();
                     console.log('****');
                     const { useSessionStore } = await import('@/stores/sessionStore');
                     useSessionStore().initServices();
                 });
             });
         });
-    }, 1000); // explicit delay in ms
-};
-onMounted(() => {
-    // if (document.readyState === 'complete') {
-    //     beginBootstrap();
-    // } else {
-    //     window.addEventListener('load', beginBootstrap, { once: true });
-    // }
+    };
 
-    const stop = router.afterEach((to, from) => {
-        console.log('0000', from, to);
-        if (from.matched.length === 0) {
-            console.log(1111);
-            stop(); // remove the hook so it’s a one-time effect
-            queueMicrotask(() => beginBootstrap()); // or rAF sandwich
-        }
-    });
+    if (document.readyState === 'complete') {
+        beginBootstrap();
+    } else {
+        window.addEventListener('load', beginBootstrap, { once: true });
+    }
 });
+
 watch(isDisplayWide, (newIsDisplayWide) => {
     if (newIsDisplayWide) {
         isAssistPanelOpenInNarrowDisplay.value = false;
