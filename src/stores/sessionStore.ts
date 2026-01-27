@@ -27,9 +27,10 @@ const sessionStatus = ref<SessionStatus>({});
 // const { connect, disconnect } = useStatesMessenger();
 let sessionExpiryTimer: ReturnType<typeof setTimeout> | undefined;
 
+console.log(1111);
 // Pina store for session state
 export const useSessionStore = defineStore('session', () => {
-    console.log(1111);
+    console.log(2222);
     // connect();
     // initServices(); // TODO: Maybe establishSession
     // window.addEventListener('beforeunload', disconnect);
