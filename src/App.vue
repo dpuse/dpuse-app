@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External dependencies
-import { computed, onMounted, ref, watch, watchEffect } from 'vue';
+import { computed, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // Application modules
@@ -35,7 +35,16 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
-// onMounted(() => useSessionStore().initServices());
+onMounted(() => {
+    nextTick(() => {
+        const idle = globalThis.requestIdleCallback ?? ((callback) => setTimeout(callback, 2000));
+        idle(async () => {
+            // const { initTelemetry } = await import('@/lib/posthogTelemetry');
+            // initTelemetry();
+            useSessionStore().initServices();
+        });
+    });
+});
 
 watch(isDisplayWide, (newIsDisplayWide) => {
     if (newIsDisplayWide) {

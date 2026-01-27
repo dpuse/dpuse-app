@@ -1,19 +1,13 @@
 // External dependencies
 import { defineStore } from 'pinia';
-import { useNetwork } from '@vueuse/core';
+import { ref } from 'vue';
 import { type AnyState, type Claims, type FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
-import { ref, watch } from 'vue';
 
-// import posthog from 'posthog-js';
-// posthog.init('phc_stFCVM7oIBMHqRDgAkxA7yQq5jbV3SpQfFOTazKGwiq', {
-//     api_host: 'https://eu.i.posthog.com' // or your self-hosted URL
-// });
 import { useStatesMessenger } from '../composables/useStateMessenger';
 import { useWorkbenchContext } from '@/composables/useWorkbenchContext';
 
 // Constants
-const API_CONFIG_ENDPOINT = 'https://api.datapos.app/config';
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
@@ -36,35 +30,8 @@ export const useSessionStore = defineStore('session', () => {
     const { connect, disconnect } = useStatesMessenger();
     let sessionExpiryTimer: ReturnType<typeof setTimeout> | undefined;
 
-    // Network online state
-    const { isOnline: networkIsOnline } = useNetwork();
-    watch(networkIsOnline, async (newNetworkIsOnline: boolean, oldNetworkIsOnline: boolean) => {
-        if (oldNetworkIsOnline === false && newNetworkIsOnline === true) {
-            pollForInternetConnection(); // Returns when internet connection verified, otherwise continuously polls for connection.
-        } else {
-            useSessionStore().internetIsOnline = false;
-        }
-    });
-
-    // Internet online state
-    const internetIsOnline = ref<boolean | undefined>(undefined);
-    watch(internetIsOnline, (newInternetIsOnline: boolean | undefined, oldInternetIsOnline: boolean | undefined) => {
-        // Take no action if the application was loading and the internet is now online.
-        if (oldInternetIsOnline === undefined && newInternetIsOnline) return;
-        // Show online alert if the internet was previously offline and is now online.
-        if (oldInternetIsOnline === false && newInternetIsOnline === true) {
-            connect();
-            // showNetworkToast(true);
-            return;
-        }
-        // Show offline alert.
-        // showNetworkToast(false);
-    });
-
-    document.addEventListener('visibilitychange', handleChangeInSessionPageVisibility);
-    pollForInternetConnection(); // Returns when internet connection verified, otherwise continuously polls for connection.
-    connect();
-    initServices(); // TODO: Maybe establishSession
+    // connect();
+    // initServices(); // TODO: Maybe establishSession
     window.addEventListener('beforeunload', disconnect);
 
     async function initServices(): Promise<void> {
@@ -115,19 +82,6 @@ export const useSessionStore = defineStore('session', () => {
         }).catch(console.error);
     }
 
-    function handleChangeInSessionPageVisibility(): void {
-        if (document.visibilityState === 'visible') {
-            if (sessionStatus.value.isAuthenticated) startSessionExpiryTimer();
-            if (networkIsOnline.value) {
-                pollForInternetConnection(); // Returns when internet connection verified, otherwise continuously polls for connection.
-            } else {
-                useSessionStore().internetIsOnline = false;
-            }
-        } else {
-            clearSessionExpiryTimer();
-        }
-    }
-
     function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): void {
         flowCleanupFunction = hankoInstance?.onAfterStateChange(stateHandler);
         hankoInstance?.createState(name);
@@ -157,7 +111,7 @@ export const useSessionStore = defineStore('session', () => {
         );
     }
 
-    return { constructFlow, destroyFlow, initServices, internetIsOnline, sessionStatus, signOut };
+    return { constructFlow, destroyFlow, initServices, sessionStatus, signOut };
 });
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -179,25 +133,6 @@ function constructSessionStatus(claims?: Claims): SessionStatus {
         };
     }
     return { isAuthenticated: false };
-}
-
-async function pollForInternetConnection(maxDelay = 30_000, initialDelay = 1000): Promise<void> {
-    let delay = initialDelay;
-    while (true) {
-        try {
-            const response = await fetch(API_CONFIG_ENDPOINT, { signal: AbortSignal.timeout(5000) });
-            if (response.ok) {
-                useSessionStore().internetIsOnline = true;
-                return;
-            }
-            useSessionStore().internetIsOnline = false;
-        } catch {
-            useSessionStore().internetIsOnline = false;
-        }
-        // console.log('Checking internet connection with delay of', delay);
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        delay = Math.min(delay * 2, maxDelay); // Increases delay by twice current value but cap at 'maxDelay'.
-    }
 }
 
 //#endregion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

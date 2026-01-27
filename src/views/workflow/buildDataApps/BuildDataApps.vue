@@ -1,31 +1,4 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
-
-import { serialiseError } from '@datapos/datapos-shared/errors';
-
-const POSTHOG_PROJECT_API_KEY = import.meta.env.VITE_POSTHOG_PROJECT_API_KEY ?? 'phc_lsZySXoMlZsSR2dvvUgW0miyzOZvSilsh6i7SC2qYOs';
-
-// onMounted(async () => {
-//     // TODO: Example of error logging!
-//     const error = new Error('This is a test error.');
-//     const serialisedErrors = serialiseError(error);
-//     console.log('https://api.datapos.app/issues', JSON.stringify({ environment: 'production', serialisedErrors, tags: [], url: globalThis.location.href, version: '0.0.001' }));
-//     const response = await fetch('https://api.datapos.app/issues', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ environment: 'production', serialisedErrors, tags: [], url: globalThis.location.href, version: '0.0.001' })
-//     });
-//     if (response.ok) {
-//         const result = await response.json();
-//         console.log(result);
-//         const errorOccurrenceId = result.id;
-//         console.log('errorOccurrenceId', errorOccurrenceId);
-//     } else {
-//         const result = await response.text();
-//         console.log(result);
-//     }
-// });
-
 try {
     throw new Error('A test error');
 } catch (error) {
@@ -55,20 +28,16 @@ try {
         }
     };
 
-    if (!POSTHOG_PROJECT_API_KEY) {
-        console.warn('Missing PostHog project API key; skipping exception capture.');
-    } else {
-        fetch('https://eu.i.posthog.com/capture/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                api_key: POSTHOG_PROJECT_API_KEY,
-                ...payload
-            })
-        }).catch(console.error);
-    }
+    fetch('https://eu.i.posthog.com/capture/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            api_key: import.meta.env.VITE_POSTHOG_PROJECT_API_KEY,
+            ...payload
+        })
+    }).catch(console.error);
 }
 
 function parseStack(stack?: string) {
