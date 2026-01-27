@@ -47,7 +47,7 @@ onMounted(() => {
                     });
                 });
             });
-        }, 1000); // explicit delay in ms
+        }, 10000); // explicit delay in ms
     };
 
     if (document.readyState === 'complete') {
