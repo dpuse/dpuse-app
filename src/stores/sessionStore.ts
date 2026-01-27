@@ -44,12 +44,12 @@ export const useSessionStore = defineStore('session', () => {
         const validateSessionResponse = await hankoInstance.validateSession();
         sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
 
-        const defaultPayload = useWorkbenchContext();
-        onCLS((metric) => logEvent(metric, { ...defaultPayload, clsDelta: metric.delta, clsValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-        onINP((metric) => logEvent(metric, { ...defaultPayload, inpDelta: metric.delta, inpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-        onLCP((metric) => logEvent(metric, { ...defaultPayload, lcpDelta: metric.delta, lcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-        onFCP((metric) => logEvent(metric, { ...defaultPayload, fcpDelta: metric.delta, fcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-        onTTFB((metric) => logEvent(metric, { ...defaultPayload, ttfbDelta: metric.delta, ttfbValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+        // const defaultPayload = useWorkbenchContext();
+        // onCLS((metric) => logEvent(metric, { ...defaultPayload, clsDelta: metric.delta, clsValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+        // onINP((metric) => logEvent(metric, { ...defaultPayload, inpDelta: metric.delta, inpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+        // onLCP((metric) => logEvent(metric, { ...defaultPayload, lcpDelta: metric.delta, lcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+        // onFCP((metric) => logEvent(metric, { ...defaultPayload, fcpDelta: metric.delta, fcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+        // onTTFB((metric) => logEvent(metric, { ...defaultPayload, ttfbDelta: metric.delta, ttfbValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
     }
 
     async function logEvent(metric: Metric, data: Record<string, unknown>) {
