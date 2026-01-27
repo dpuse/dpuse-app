@@ -34,22 +34,20 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
-onMounted(() => {
-    const beginBootstrap = () => {
-        setTimeout(() => {
-            nextTick(() => {
-                const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 16));
-                raf(() => {
-                    raf(async () => {
-                        console.log('****');
-                        const { useSessionStore } = await import('@/stores/sessionStore');
-                        useSessionStore().initServices();
-                    });
+function beginBootstrap() {
+    setTimeout(() => {
+        nextTick(() => {
+            const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 16));
+            raf(() => {
+                raf(async () => {
+                    const { useSessionStore } = await import('@/stores/sessionStore');
+                    useSessionStore().initServices();
                 });
             });
-        }, 3000); // explicit delay in ms
-    };
-
+        });
+    }, 3000); // explicit delay in ms
+}
+onMounted(() => {
     if (document.readyState === 'complete') {
         beginBootstrap();
     } else {
