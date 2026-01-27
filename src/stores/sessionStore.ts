@@ -21,41 +21,57 @@ interface SessionStatus {
     sessionId?: string;
     userId?: string;
 }
+let flowCleanupFunction: (() => void) | undefined;
+let hankoInstance: Hanko | undefined;
+const sessionStatus = ref<SessionStatus>({});
+// const { connect, disconnect } = useStatesMessenger();
+let sessionExpiryTimer: ReturnType<typeof setTimeout> | undefined;
 
 // Pina store for session state
 export const useSessionStore = defineStore('session', () => {
-    let flowCleanupFunction: (() => void) | undefined;
-    let hankoInstance: Hanko | undefined;
-    const sessionStatus = ref<SessionStatus>({});
-    const { connect, disconnect } = useStatesMessenger();
-    let sessionExpiryTimer: ReturnType<typeof setTimeout> | undefined;
-
     // connect();
     // initServices(); // TODO: Maybe establishSession
-    window.addEventListener('beforeunload', disconnect);
+    // window.addEventListener('beforeunload', disconnect);
 
-    async function initServices(): Promise<void> {
-        hankoInstance = new Hanko(HANKO_API_URL);
-        hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
-        hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
-        hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
-        hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
+    return { constructFlow, destroyFlow, initServices, sessionStatus, signOut };
+});
+async function initServices(): Promise<void> {
+    hankoInstance = new Hanko(HANKO_API_URL);
+    hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
+    hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
+    hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
+    hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
 
-        const validateSessionResponse = await hankoInstance.validateSession();
-        sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
+    const validateSessionResponse = await hankoInstance.validateSession();
+    sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
 
-        // const defaultPayload = useWorkbenchContext();
-        // onCLS((metric) => logEvent(metric, { ...defaultPayload, clsDelta: metric.delta, clsValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-        // onINP((metric) => logEvent(metric, { ...defaultPayload, inpDelta: metric.delta, inpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-        // onLCP((metric) => logEvent(metric, { ...defaultPayload, lcpDelta: metric.delta, lcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-        // onFCP((metric) => logEvent(metric, { ...defaultPayload, fcpDelta: metric.delta, fcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-        // onTTFB((metric) => logEvent(metric, { ...defaultPayload, ttfbDelta: metric.delta, ttfbValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-    }
+    // const defaultPayload = useWorkbenchContext();
+    // onCLS((metric) => logEvent(metric, { ...defaultPayload, clsDelta: metric.delta, clsValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+    // onINP((metric) => logEvent(metric, { ...defaultPayload, inpDelta: metric.delta, inpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+    // onLCP((metric) => logEvent(metric, { ...defaultPayload, lcpDelta: metric.delta, lcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+    // onFCP((metric) => logEvent(metric, { ...defaultPayload, fcpDelta: metric.delta, fcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+    // onTTFB((metric) => logEvent(metric, { ...defaultPayload, ttfbDelta: metric.delta, ttfbValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+}
 
-    async function logEvent(metric: Metric, data: Record<string, unknown>) {
-        console.log({
-            api_key: 'phc_stFCVM7oIBMHqRDgAkxA7yQq5jbV3SpQfFOTazKGwiq',
+async function logEvent(metric: Metric, data: Record<string, unknown>) {
+    console.log({
+        api_key: 'phc_stFCVM7oIBMHqRDgAkxA7yQq5jbV3SpQfFOTazKGwiq',
+        event: 'web_vitals',
+        properties: {
+            page_url: globalThis.location.href,
+            device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+            connection_type: (navigator as any).connection?.effectiveType || 'unknown',
+            ...data,
+            timestamp: Date.now()
+        }
+    });
+    fetch('https://eu.posthog.com/capture/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            api_key: 'phc_lsZySXoMlZsSR2dvvUgW0miyzOZvSilsh6i7SC2qYOs',
             event: 'web_vitals',
+            distinct_id: 'anonymous_' + Math.random().toString(36).substring(2, 10),
             properties: {
                 page_url: globalThis.location.href,
                 device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
@@ -63,56 +79,38 @@ export const useSessionStore = defineStore('session', () => {
                 ...data,
                 timestamp: Date.now()
             }
-        });
-        fetch('https://eu.posthog.com/capture/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                api_key: 'phc_lsZySXoMlZsSR2dvvUgW0miyzOZvSilsh6i7SC2qYOs',
-                event: 'web_vitals',
-                distinct_id: 'anonymous_' + Math.random().toString(36).substring(2, 10),
-                properties: {
-                    page_url: globalThis.location.href,
-                    device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-                    connection_type: (navigator as any).connection?.effectiveType || 'unknown',
-                    ...data,
-                    timestamp: Date.now()
-                }
-            })
-        }).catch(console.error);
-    }
+        })
+    }).catch(console.error);
+}
 
-    function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): void {
-        flowCleanupFunction = hankoInstance?.onAfterStateChange(stateHandler);
-        hankoInstance?.createState(name);
-    }
+function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): void {
+    flowCleanupFunction = hankoInstance?.onAfterStateChange(stateHandler);
+    hankoInstance?.createState(name);
+}
 
-    function destroyFlow(): void {
-        flowCleanupFunction?.();
-    }
+function destroyFlow(): void {
+    flowCleanupFunction?.();
+}
 
-    async function signOut(): Promise<void> {
-        await hankoInstance?.logout();
-    }
+async function signOut(): Promise<void> {
+    await hankoInstance?.logout();
+}
 
-    function clearSessionExpiryTimer(): void {
-        clearInterval(sessionExpiryTimer);
-        sessionExpiryTimer = undefined;
-    }
+function clearSessionExpiryTimer(): void {
+    clearInterval(sessionExpiryTimer);
+    sessionExpiryTimer = undefined;
+}
 
-    function startSessionExpiryTimer(runQuickly: boolean = false): void {
-        clearSessionExpiryTimer();
-        sessionExpiryTimer = setInterval(
-            () => {
-                sessionStatus.value.expiresIn = Math.max(0, (sessionStatus.value.expiresAt || 0) - Date.now());
-                if (sessionStatus.value.expiresIn === 0) clearSessionExpiryTimer();
-            },
-            runQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW
-        );
-    }
-
-    return { constructFlow, destroyFlow, initServices, sessionStatus, signOut };
-});
+function startSessionExpiryTimer(runQuickly: boolean = false): void {
+    clearSessionExpiryTimer();
+    sessionExpiryTimer = setInterval(
+        () => {
+            sessionStatus.value.expiresIn = Math.max(0, (sessionStatus.value.expiresAt || 0) - Date.now());
+            if (sessionStatus.value.expiresIn === 0) clearSessionExpiryTimer();
+        },
+        runQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW
+    );
+}
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //#region Authentication Helpers
