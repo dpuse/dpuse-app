@@ -36,18 +36,18 @@ const benchtopToggleAriaLabel = computed(() => {
 
 onMounted(() => {
     const beginBootstrap = () => {
-        nextTick(() => {
-            const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 10000));
-            raf(() => {
-                raf(async () => {
-                    // const { initTelemetry } = await import('@/lib/posthogTelemetry');
-                    // initTelemetry();
-                    console.log('****');
-                    const { useSessionStore } = await import('@/stores/sessionStore');
-                    useSessionStore().initServices();
+        setTimeout(() => {
+            nextTick(() => {
+                const raf = window.requestAnimationFrame ?? ((cb) => setTimeout(cb, 16));
+                raf(() => {
+                    raf(async () => {
+                        console.log('****');
+                        const { useSessionStore } = await import('@/stores/sessionStore');
+                        useSessionStore().initServices();
+                    });
                 });
             });
-        });
+        }, 10000); // explicit delay in ms
     };
 
     if (document.readyState === 'complete') {
