@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Vendor dependencies
-import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
-import { onMounted, onUnmounted, ref } from 'vue';
+// import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
+// import { onMounted, onUnmounted, ref } from 'vue';
 
 // Application modules
 import { useSessionStore } from '@/stores/sessionStore';
@@ -33,9 +33,9 @@ const optionConfigs = [
     { id: 'generateToken', icon: '', label: { en: 'API token' } }
 ];
 
-const handleIdEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
-const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
-const uiStateId = ref<'enterId' | 'enterPassword' | 'done'>('enterId');
+// const handleIdEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
+// const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
+// const uiStateId = ref<'enterId' | 'enterPassword' | 'done'>('enterId');
 
 // onMounted(async () => {
 //     if (sessionState.sessionStatus.isAuthenticated) return;
@@ -45,73 +45,73 @@ const uiStateId = ref<'enterId' | 'enterPassword' | 'done'>('enterId');
 
 // Sign out.
 const signOut = async () => {
-    sessionState.destroyFlow();
+    // sessionState.destroyFlow();
     await sessionState.signOut();
-    sessionState.constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state));
+    // sessionState.constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state));
 };
 
-// Handle login flow state change.
-function handleLoginFlowStateChange(state: AnyState) {
-    switch (state.name) {
-        case 'preflight':
-            return;
-        case 'login_init':
-            return handleLoginFlowInitState(state);
-        case 'login_method_chooser':
-            return handleLoginFlowMethodChooserState(state);
-        case 'login_password':
-            return handleLoginFlowPasswordState(state);
-        case 'onboarding_create_passkey':
-            return handleLoginFlowOnboardingCreatePasskeyState(state);
-        case 'success':
-            uiStateId.value = 'done';
-            handleIdEntered.value = undefined;
-            handlePasswordEntered.value = undefined;
-            // sessionState.destroyFlow();
-            return;
-        case 'error':
-            console.log('STATE', 'error', state.error, state);
-            return;
-        default:
-            console.log('UNEXPECTED STATE', state.name, state);
-            return;
-    }
-}
+// // Handle login flow state change.
+// function handleLoginFlowStateChange(state: AnyState) {
+//     switch (state.name) {
+//         case 'preflight':
+//             return;
+//         case 'login_init':
+//             return handleLoginFlowInitState(state);
+//         case 'login_method_chooser':
+//             return handleLoginFlowMethodChooserState(state);
+//         case 'login_password':
+//             return handleLoginFlowPasswordState(state);
+//         case 'onboarding_create_passkey':
+//             return handleLoginFlowOnboardingCreatePasskeyState(state);
+//         case 'success':
+//             uiStateId.value = 'done';
+//             handleIdEntered.value = undefined;
+//             handlePasswordEntered.value = undefined;
+//             // sessionState.destroyFlow();
+//             return;
+//         case 'error':
+//             console.log('STATE', 'error', state.error, state);
+//             return;
+//         default:
+//             console.log('UNEXPECTED STATE', state.name, state);
+//             return;
+//     }
+// }
 
-// Handle login flow initialisation state. User identifier (email address) input is required.
-async function handleLoginFlowInitState(state: State<'login_init'>) {
-    const action = state.actions.continue_with_login_identifier as Action<ContinueWithLoginIdentifierInputs>;
-    const input = (action.inputs.email || action.inputs.identifier) as Input<string>;
-    uiStateId.value = 'enterId';
-    handleIdEntered.value = async (identifier: string) => {
-        const result = await action.run({ [input.name]: identifier });
-        if (result.error) console.log(result.error, result);
-    };
-}
+// // Handle login flow initialisation state. User identifier (email address) input is required.
+// async function handleLoginFlowInitState(state: State<'login_init'>) {
+//     const action = state.actions.continue_with_login_identifier as Action<ContinueWithLoginIdentifierInputs>;
+//     const input = (action.inputs.email || action.inputs.identifier) as Input<string>;
+//     uiStateId.value = 'enterId';
+//     handleIdEntered.value = async (identifier: string) => {
+//         const result = await action.run({ [input.name]: identifier });
+//         if (result.error) console.log(result.error, result);
+//     };
+// }
 
-// Handle login flow method chooser state. Only password logins are support.
-async function handleLoginFlowMethodChooserState(state: State<'login_method_chooser'>) {
-    const action = state.actions.continue_to_password_login!;
-    const result = await action.run();
-    if (result.error) console.log(result.error, result);
-}
+// // Handle login flow method chooser state. Only password logins are support.
+// async function handleLoginFlowMethodChooserState(state: State<'login_method_chooser'>) {
+//     const action = state.actions.continue_to_password_login!;
+//     const result = await action.run();
+//     if (result.error) console.log(result.error, result);
+// }
 
-// Handle login flow password state. Password input is required.
-async function handleLoginFlowPasswordState(state: State<'login_password'>) {
-    const action = state.actions.password_login;
-    uiStateId.value = 'enterPassword';
-    handlePasswordEntered.value = async (password: string) => {
-        const result = await action.run({ password });
-        if (result.error) console.log(result.error, result);
-    };
-}
+// // Handle login flow password state. Password input is required.
+// async function handleLoginFlowPasswordState(state: State<'login_password'>) {
+//     const action = state.actions.password_login;
+//     uiStateId.value = 'enterPassword';
+//     handlePasswordEntered.value = async (password: string) => {
+//         const result = await action.run({ password });
+//         if (result.error) console.log(result.error, result);
+//     };
+// }
 
-// Handle login flow onboarding create passkey state. Creation of passkeys is disabled.
-async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboarding_create_passkey'>) {
-    const action = state.actions.skip!;
-    const result = await action.run();
-    if (result.error) console.log(result.error, result);
-}
+// // Handle login flow onboarding create passkey state. Creation of passkeys is disabled.
+// async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboarding_create_passkey'>) {
+//     const action = state.actions.skip!;
+//     const result = await action.run();
+//     if (result.error) console.log(result.error, result);
+// }
 </script>
 
 <template>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 // External dependencies
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 // import { storeToRefs } from 'pinia';
 
 // Application modules
 import { useKnowledge } from '@/composables/useKnowledge';
-import { useSessionStore } from '@/stores/sessionStore';
+// import { useSessionStore } from '@/stores/sessionStore';
 
 // Components and icons
 import Button from '@/components/base/button/Button.vue';
@@ -27,7 +27,7 @@ function handleOptionSelect() {
 }
 
 // Global state
-const sessionState = useSessionStore();
+// const sessionState = useSessionStore();
 // const { sessionStatus } = storeToRefs(sessionState);
 // const sessionStatus = ref({ isAuthenticated: false });
 
@@ -49,11 +49,11 @@ const optionKindValues = computed(() => ({ account: properties.sessionIsAuthenti
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-async function signOut() {
-    // sessionState.destroyFlow();
-    await sessionState.signOut();
-    // closeQuickLinksPanel();
-}
+// async function signOut() {
+//     // sessionState.destroyFlow();
+//     await sessionState.signOut();
+//     // closeQuickLinksPanel();
+// }
 </script>
 
 <template>
