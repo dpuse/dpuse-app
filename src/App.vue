@@ -48,22 +48,10 @@ onMounted(() => {
 
         console.log('Page fully rendered, LCP measured');
 
-        // Wait for network and CPU to be idle
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(
-                () => {
-                    setTimeout(() => {
-                        sessionState.initServices();
-                    }, 1000);
-                },
-                { timeout: 3000 }
-            );
-        } else {
-            // Fallback for browsers without requestIdleCallback
-            setTimeout(() => {
-                sessionState.initServices();
-            }, 3000);
-        }
+        // Simple delay to push outside critical path measurement window
+        setTimeout(() => {
+            sessionState.initServices();
+        }, 3000);
     };
 
     const observer = new PerformanceObserver((list) => {
@@ -82,7 +70,7 @@ onMounted(() => {
     setTimeout(() => {
         observer.disconnect();
         runYourProcess();
-    }, 10000);
+    }, 5000);
 });
 
 // onMounted(() => {
