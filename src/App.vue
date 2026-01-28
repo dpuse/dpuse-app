@@ -72,7 +72,7 @@ onMounted(() => {
 
         setTimeout(() => {
             sessionState.initServices();
-        }, 0);
+        }, 5000);
     };
 
     const observer = new PerformanceObserver((list) => {
@@ -92,7 +92,7 @@ onMounted(() => {
     setTimeout(() => {
         observer.disconnect();
         runYourProcess();
-    }, 5000);
+    }, 10000);
 });
 
 // onMounted(async () => sessionState.initServices());
