@@ -72,7 +72,7 @@ onMounted(() => {
 
         setTimeout(() => {
             sessionState.initServices();
-        }, 5000);
+        }, 4000);
     };
 
     const observer = new PerformanceObserver((list) => {
