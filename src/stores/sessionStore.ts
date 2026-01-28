@@ -1,7 +1,7 @@
 // External dependencies
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { type AnyState, type Claims, type FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
+import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 import { useStatesMessenger } from '../composables/useStateMessenger';
@@ -38,7 +38,8 @@ export const useSessionStore = defineStore('session', () => {
     return { constructFlow, destroyFlow, initServices, sessionStatus, signOut };
 });
 async function initServices(): Promise<void> {
-    hankoInstance = new Hanko(HANKO_API_URL);
+    const hankoModule = await import('@teamhanko/hanko-frontend-sdk');
+    hankoInstance = new hankoModule.Hanko(HANKO_API_URL);
     hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
     hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
     hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
