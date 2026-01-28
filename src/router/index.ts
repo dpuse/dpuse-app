@@ -20,7 +20,7 @@ export default createRouter({
                 {
                     path: 'workflow',
                     children: [
-                        { name: 'workflow', path: '', component: Workflow },
+                        { name: 'workflow', path: '', component: () => import('@/views/workflow/Workflow.vue') },
                         { name: 'establishDataViews', path: 'establishDataViews', component: () => import('@/views/workflow/establishDataViews/EstablishDataViews.vue') },
                         { name: 'assembleDimensions', path: 'assembleDimensions', component: () => import('@/views/workflow/assembleDimensions/AssembleDimensions.vue') },
                         { name: 'contextualiseData', path: 'contextualiseData', component: () => import('@/views/workflow/contextualiseData/ContextualiseData.vue') },
