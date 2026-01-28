@@ -1,13 +1,13 @@
 <script setup lang="ts">
 // Components
 import Header from '@/components/block/header/Header.vue';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/base/card';
 
 // Application modules
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // Properties
-type Properties = { isDisplayWide: boolean; title: string };
+type Properties = { isDisplayWide: boolean };
 const properties = defineProps<Properties>();
 
 const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') ?? {

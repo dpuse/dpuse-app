@@ -4,8 +4,8 @@ import { ref } from 'vue';
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
-import { useStatesMessenger } from '../composables/useStateMessenger';
-import { useWorkbenchContext } from '@/composables/useWorkbenchContext';
+// import { useStatesMessenger } from '../composables/useStateMessenger';
+// import { useWorkbenchContext } from '@/composables/useWorkbenchContext';
 
 // Constants
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).

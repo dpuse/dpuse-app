@@ -6,10 +6,14 @@ import { onMounted, onUnmounted, ref } from 'vue';
 // Application modules
 import { useSessionStore } from '@/stores/sessionStore';
 
+// Properties
+type Properties = { isDisplayWide: boolean };
+const properties = defineProps<Properties>();
+
 import Button from '@/components/base/button/Button.vue';
 import Header from '@/components/block/header/Header.vue';
-import LoginForm from '@/components/block/account/LoginForm.vue';
-import PasswordForm from '@/components/block/account/PasswordForm.vue';
+// import LoginForm from '@/components/block/account/LoginForm.vue';
+// import PasswordForm from '@/components/block/account/PasswordForm.vue';
 import Separator from '@/components/base/separator/Separator.vue';
 
 const sessionState = useSessionStore();
@@ -33,11 +37,11 @@ const handleIdEntered = ref<((identifier: string) => Promise<void>) | undefined>
 const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 const uiStateId = ref<'enterId' | 'enterPassword' | 'done'>('enterId');
 
-onMounted(async () => {
-    if (sessionState.sessionStatus.isAuthenticated) return;
-    sessionState.constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state));
-});
-onUnmounted(() => sessionState.destroyFlow());
+// onMounted(async () => {
+//     if (sessionState.sessionStatus.isAuthenticated) return;
+//     sessionState.constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state));
+// });
+// onUnmounted(() => sessionState.destroyFlow());
 
 // Sign out.
 const signOut = async () => {
@@ -63,7 +67,7 @@ function handleLoginFlowStateChange(state: AnyState) {
             uiStateId.value = 'done';
             handleIdEntered.value = undefined;
             handlePasswordEntered.value = undefined;
-            sessionState.destroyFlow();
+            // sessionState.destroyFlow();
             return;
         case 'error':
             console.log('STATE', 'error', state.error, state);
@@ -112,8 +116,8 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
 
 <template>
     <div class="bg-muted flex h-full flex-col items-center justify-center rounded-b-lg">
-        <div v-if="sessionState.sessionStatus.isAuthenticated" class="bg-background flex w-full flex-1 flex-col overflow-y-hidden rounded-b-lg border-x border-b">
-            <Header title="Account" />
+        <div class="bg-background flex w-full flex-1 flex-col overflow-y-hidden rounded-b-lg border-x border-b">
+            <Header title="Account" :is-display-wide="properties.isDisplayWide" />
 
             <div class="flex flex-1 overflow-y-hidden">
                 <div class="flex flex-none flex-col overflow-y-auto border-r p-4">
@@ -144,7 +148,7 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
                 </div>
             </div>
         </div>
-
+        <!--
         <div v-else class="bg-background my-2 overflow-y-auto rounded-lg">
             <div v-if="uiStateId === 'enterId' && handleIdEntered">
                 <LoginForm class="max-w-sm min-w-sm p-6 md:p-10" :on-trigger="handleIdEntered" />
@@ -153,6 +157,6 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
             <div v-if="uiStateId === 'enterPassword' && handlePasswordEntered">
                 <PasswordForm class="max-w-sm min-w-sm p-6 md:p-10" :on-trigger="handlePasswordEntered" />
             </div>
-        </div>
+        </div> -->
     </div>
 </template>

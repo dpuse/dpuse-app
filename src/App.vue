@@ -8,13 +8,13 @@ import { useAuthDialog } from '@/composables/useAuthDialog';
 
 // Components and icons
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
-const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
 import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import Button from '@/components/base/button/Button.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import StatusBar from '@/components/block/statusBar/StatusBar.vue';
 import { useSessionStore } from '@/stores/sessionStore';
 
+const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
 const AuthDialog = defineAsyncComponent(() => import('@/components/AuthDialog.vue'));
 
 // Global state
@@ -28,7 +28,6 @@ const isBenchtopOptionBarOpenInNarrowDisplay = ref(false);
 const isDisplayWide = useMediaQuery('(min-width: 768px)');
 
 const sessionState = useSessionStore();
-const sessionIsAuthenticated = computed(() => sessionState.sessionStatus.isAuthenticated);
 
 const assistToggleAriaLabel = computed(() => {
     const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
@@ -129,7 +128,7 @@ function toggleBenchtopOptionBar() {
                 class="flex-none"
                 :is-wide-display="isDisplayWide"
                 :is-floating-open="isBenchtopOptionBarOpenInNarrowDisplay"
-                :session-is-authenticated="sessionIsAuthenticated"
+                :session-is-authenticated="sessionState.sessionStatus.isAuthenticated"
                 @request-close="isBenchtopOptionBarOpenInNarrowDisplay = false"
             />
 
