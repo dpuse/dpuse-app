@@ -43,14 +43,26 @@ async function initServices(): Promise<void> {
     const validateSessionResponse = await hankoInstance.validateSession();
     sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
 
-    const moduleStatesComposable = await import('@/composables/useModuleStates');
-    moduleStates = moduleStatesComposable.useModuleStates();
-    moduleStates.connect();
-    window.addEventListener('beforeunload', moduleStates.disconnect);
+    // const moduleStatesComposable = await import('@/composables/useModuleStates');
+    // moduleStates = moduleStatesComposable.useModuleStates();
+    // moduleStates.connect();
+    // window.addEventListener('beforeunload', moduleStates.disconnect);
 
-    const monitorComposable = await import('@/composables/useMonitor');
-    monitor = monitorComposable.useMonitor();
-    monitor.init();
+    // const monitorComposable = await import('@/composables/useMonitor');
+    // monitor = monitorComposable.useMonitor();
+    // monitor.init();
+
+    // Non-critical: Load these after a microtask to not block rendering
+    requestIdleCallback(() => {
+        Promise.all([import('@/composables/useModuleStates'), import('@/composables/useMonitor')]).then(([moduleStatesComposable, monitorComposable]) => {
+            moduleStates = moduleStatesComposable.useModuleStates();
+            moduleStates.connect();
+            window.addEventListener('beforeunload', moduleStates.disconnect);
+
+            monitor = monitorComposable.useMonitor();
+            monitor.init();
+        });
+    });
 
     // const defaultPayload = useWorkbenchContext();
     // onCLS((metric) => logEvent(metric, { ...defaultPayload, clsDelta: metric.delta, clsValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));

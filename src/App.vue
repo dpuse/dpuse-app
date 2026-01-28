@@ -57,6 +57,12 @@ onMounted(() => {
     });
 
     observer.observe({ type: 'largest-contentful-paint', buffered: true });
+
+    // Fallback: run after a timeout in case LCP doesn't fire
+    setTimeout(() => {
+        observer.disconnect();
+        sessionState.initServices();
+    }, 5000);
 });
 
 // onMounted(async () => sessionState.initServices());
