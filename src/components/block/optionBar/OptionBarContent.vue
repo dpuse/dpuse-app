@@ -5,7 +5,7 @@ import { computed, ref } from 'vue';
 
 // Application modules
 import { useKnowledge } from '@/composables/useKnowledge';
-// import { useSessionStore } from '@/stores/sessionStore';
+import { useSessionStore } from '@/stores/sessionStore';
 
 // Components and icons
 import Button from '@/components/base/button/Button.vue';
@@ -26,8 +26,8 @@ function handleOptionSelect() {
 }
 
 // Global state
-// const sessionState = useSessionStore();
-// const { sessionStatus } = storeToRefs(sessionState);
+const sessionState = useSessionStore();
+const { sessionStatus } = storeToRefs(sessionState);
 
 // Active benchtop configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -38,7 +38,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') 
 
 // Option kind values state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// const optionKindValues = computed(() => ({ account: sessionStatus.value?.isAuthenticated }));
+const optionKindValues = computed(() => ({ account: sessionStatus.value?.isAuthenticated }));
 
 // Quick links panel state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -51,8 +51,8 @@ function closeQuickLinksPanel() {
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async function signOut() {
-    // sessionState.destroyFlow();
-    // await sessionState.signOut();
+    sessionState.destroyFlow();
+    await sessionState.signOut();
     closeQuickLinksPanel();
 }
 </script>
@@ -68,7 +68,7 @@ async function signOut() {
             <div class="flex w-full flex-1 flex-col items-center gap-y-1">
                 <RouterLink v-for="optionConfig of activeBenchtopConfig.primaryOptions" :key="optionConfig.id" :to="{ name: optionConfig.id }" as-child>
                     <Button size="icon-lg" variant="ghost" @click="handleOptionSelect">
-                        <!-- <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" /> -->
+                        <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
                     </Button>
                 </RouterLink>
             </div>
@@ -81,7 +81,7 @@ async function signOut() {
                         <HoverCardRoot v-model:open="isQuickLinksPanelOpen" :close-delay="0" :open-delay="0">
                             <HoverCardTrigger>
                                 <Button size="icon-lg" variant="ghost">
-                                    <!-- <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" /> -->
+                                    <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
                                 </Button>
                             </HoverCardTrigger>
                             <HoverCardContent align="end" side="right">
@@ -120,9 +120,9 @@ async function signOut() {
 
                                     <div>
                                         <Separator class="mb-3" />
-                                        <!-- <Button class="w-full font-normal" :disabled="!sessionState.sessionStatus.isAuthenticated" variant="warning" @click="signOut">
+                                        <Button class="w-full font-normal" :disabled="!sessionState.sessionStatus.isAuthenticated" variant="warning" @click="signOut">
                                             Sign out
-                                        </Button> -->
+                                        </Button>
                                     </div>
                                 </div>
                             </HoverCardContent>
@@ -131,7 +131,7 @@ async function signOut() {
 
                     <RouterLink v-else :to="{ name: optionConfig.id }" as-child>
                         <Button size="icon-lg" variant="ghost" @click="handleOptionSelect">
-                            <!-- <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" /> -->
+                            <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
                         </Button>
                     </RouterLink>
                 </template>

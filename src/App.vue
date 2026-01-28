@@ -47,12 +47,14 @@ function beginBootstrap() {
         });
     }, 3000); // explicit delay in ms
 }
-onMounted(() => {
-    if (document.readyState === 'complete') {
-        beginBootstrap();
-    } else {
-        window.addEventListener('load', beginBootstrap, { once: true });
-    }
+onMounted(async () => {
+    // if (document.readyState === 'complete') {
+    //     beginBootstrap();
+    // } else {
+    //     window.addEventListener('load', beginBootstrap, { once: true });
+    // }
+    const { useSessionStore } = await import('@/stores/sessionStore');
+    useSessionStore().initServices();
 });
 
 watch(isDisplayWide, (newIsDisplayWide) => {
