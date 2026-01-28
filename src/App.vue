@@ -57,18 +57,22 @@ onMounted(() => {
         //     { timeout: 1000 }
         // ); // Fallback if browser doesn't support requestIdleCallback
 
-        // Wait for page load event
-        if (document.readyState === 'complete') {
+        // // Wait for page load event
+        // if (document.readyState === 'complete') {
+        //     sessionState.initServices();
+        // } else {
+        //     window.addEventListener(
+        //         'load',
+        //         () => {
+        //             sessionState.initServices();
+        //         },
+        //         { once: true }
+        //     );
+        // }
+
+        setTimeout(() => {
             sessionState.initServices();
-        } else {
-            window.addEventListener(
-                'load',
-                () => {
-                    sessionState.initServices();
-                },
-                { once: true }
-            );
-        }
+        }, 0);
     };
 
     const observer = new PerformanceObserver((list) => {
