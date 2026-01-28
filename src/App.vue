@@ -9,7 +9,7 @@ import { useWorkbenchShell } from '@/composables/useWorkbenchShell';
 // Components and icons
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
 // import AssistantPanel from '@/components/block/assistant/AssistantPanel.vue';
-import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
+// import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import Button from '@/components/base/button/Button.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import StatusBar from '@/components/block/statusBar/StatusBar.vue';
