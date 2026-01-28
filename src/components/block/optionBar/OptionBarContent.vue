@@ -1,11 +1,11 @@
 <script setup lang="ts">
 // External dependencies
-// import { storeToRefs } from 'pinia';
+import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 
 // Application modules
 import { useKnowledge } from '@/composables/useKnowledge';
-// import { useSessionStore } from '@/stores/sessionStore';
+import { useSessionStore } from '@/stores/sessionStore';
 
 // Components and icons
 import Button from '@/components/base/button/Button.vue';
@@ -26,9 +26,9 @@ function handleOptionSelect() {
 }
 
 // Global state
-// const sessionState = useSessionStore();
-// const { sessionStatus } = storeToRefs(sessionState);
-const sessionStatus = ref({ isAuthenticated: false });
+const sessionState = useSessionStore();
+const { sessionStatus } = storeToRefs(sessionState);
+// const sessionStatus = ref({ isAuthenticated: false });
 
 // Active benchtop configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

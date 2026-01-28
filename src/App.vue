@@ -13,6 +13,7 @@ import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import Button from '@/components/base/button/Button.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import StatusBar from '@/components/block/statusBar/StatusBar.vue';
+import { useSessionStore } from '@/stores/sessionStore';
 
 // Global state
 useColorMode();
@@ -23,6 +24,8 @@ const isAssistPanelOpenInNarrowDisplay = ref(false);
 const isBenchtopOptionBarOpenInNarrowDisplay = ref(false);
 const isDisplayWide = useMediaQuery('(min-width: 768px)');
 const { isAssistantPanelVisible, isOptionBarVisible } = useWorkbenchShell();
+
+const sessionIsAuthenticated = ref<boolean | undefined>(undefined);
 
 const assistToggleAriaLabel = computed(() => {
     const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
@@ -41,20 +44,22 @@ function beginBootstrap() {
             raf(() => {
                 raf(async () => {
                     const { useSessionStore } = await import('@/stores/sessionStore');
-                    useSessionStore().initServices();
+                    await useSessionStore().initServices();
+                    sessionIsAuthenticated.value = useSessionStore().sessionStatus.isAuthenticated;
                 });
             });
         });
     }, 3000); // explicit delay in ms
 }
 onMounted(async () => {
-    if (document.readyState === 'complete') {
-        beginBootstrap();
-    } else {
-        window.addEventListener('load', beginBootstrap, { once: true });
-    }
+    // if (document.readyState === 'complete') {
+    //     beginBootstrap();
+    // } else {
+    //     window.addEventListener('load', beginBootstrap, { once: true });
+    // }
     // const { useSessionStore } = await import('@/stores/sessionStore');
-    // useSessionStore().initServices();
+    useSessionStore().initServices();
+    // sessionIsAuthenticated.value = useSessionStore().sessionStatus.isAuthenticated;
 });
 
 watch(isDisplayWide, (newIsDisplayWide) => {
@@ -122,6 +127,7 @@ function toggleBenchtopOptionBar() {
                 class="flex-none"
                 :is-wide-display="isDisplayWide"
                 :is-floating-open="isBenchtopOptionBarOpenInNarrowDisplay"
+                :session-is-authenticated="sessionIsAuthenticated"
                 @request-close="isBenchtopOptionBarOpenInNarrowDisplay = false"
             />
 
