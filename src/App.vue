@@ -69,7 +69,7 @@ const benchtopToggleAriaLabel = computed(() => {
 
 onMounted(() => {
     let processRun = false;
-    let lastLCPTime = 0;
+    let lastLCPUpdateTime = 0;
 
     const runYourProcess = () => {
         if (processRun) return;
@@ -79,7 +79,7 @@ onMounted(() => {
 
         setTimeout(() => {
             sessionState.initServices();
-        }, 100); // Small delay after stabilization
+        }, 2000); // 2 second delay after stabilization
     };
 
     const observer = new PerformanceObserver((list) => {
@@ -89,19 +89,19 @@ onMounted(() => {
         const lcpTime = lcpEntry.renderTime || lcpEntry.loadTime;
 
         console.log('LCP candidate:', lcpTime);
-        lastLCPTime = lcpTime;
+        lastLCPUpdateTime = performance.now(); // Record WHEN we saw this update
     });
 
     observer.observe({ type: 'largest-contentful-paint', buffered: true });
 
-    // Wait for LCP to stabilize (no new LCP for 500ms means it's final)
+    // Wait for LCP to stabilize (no new LCP for 1000ms means it's final)
     const checkStabilized = setInterval(() => {
-        if (lastLCPTime > 0 && performance.now() - lastLCPTime > 500) {
+        if (lastLCPUpdateTime > 0 && performance.now() - lastLCPUpdateTime > 1000) {
             clearInterval(checkStabilized);
             observer.disconnect();
             runYourProcess();
         }
-    }, 100);
+    }, 200);
 
     // Fallback
     setTimeout(() => {
