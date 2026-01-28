@@ -1,21 +1,21 @@
 <script setup lang="ts">
 // External dependencies
-import { storeToRefs } from 'pinia';
+// import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 
 // Application modules
 import { useKnowledge } from '@/composables/useKnowledge';
-import { useSessionStore } from '@/stores/sessionStore';
+// import { useSessionStore } from '@/stores/sessionStore';
 
 // Components and icons
 import Button from '@/components/base/button/Button.vue';
-import { HoverCardRoot } from 'reka-ui';
-import { Label } from '@/components/base/label';
+// import { HoverCardRoot } from 'reka-ui';
+// import { Label } from '@/components/base/label';
 import OptionIcon from '@/components/icon/OptionIcon.vue';
 import Separator from '@/components/base/separator/Separator.vue';
-import { Switch } from '@/components/base/switch';
-import { HoverCardContent, HoverCardTrigger } from '@/components/base/hover-card';
-import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-vue-next';
+// import { Switch } from '@/components/base/switch';
+// import { HoverCardContent, HoverCardTrigger } from '@/components/base/hover-card';
+// import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-vue-next';
 
 // Properties
 type Properties = { class?: string; onOptionSelect?: () => void };
@@ -26,8 +26,9 @@ function handleOptionSelect() {
 }
 
 // Global state
-const sessionState = useSessionStore();
-const { sessionStatus } = storeToRefs(sessionState);
+// const sessionState = useSessionStore();
+// const { sessionStatus } = storeToRefs(sessionState);
+const sessionStatus = ref({ isAuthenticated: false });
 
 // Active benchtop configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -42,19 +43,19 @@ const optionKindValues = computed(() => ({ account: sessionStatus.value?.isAuthe
 
 // Quick links panel state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const isQuickLinksPanelOpen = ref(false);
+// const isQuickLinksPanelOpen = ref(false);
 
-function closeQuickLinksPanel() {
-    isQuickLinksPanelOpen.value = false;
-}
+// function closeQuickLinksPanel() {
+//     isQuickLinksPanelOpen.value = false;
+// }
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-async function signOut() {
-    sessionState.destroyFlow();
-    await sessionState.signOut();
-    closeQuickLinksPanel();
-}
+// async function signOut() {
+//     sessionState.destroyFlow();
+//     await sessionState.signOut();
+//     closeQuickLinksPanel();
+// }
 </script>
 
 <template>
@@ -78,7 +79,7 @@ async function signOut() {
             <div class="flex w-full flex-none flex-col items-center gap-y-1">
                 <template v-for="optionConfig of activeBenchtopConfig.secondaryOptions" :key="optionConfig.id">
                     <div v-if="optionConfig.kind.id === 'multiple'">
-                        <HoverCardRoot v-model:open="isQuickLinksPanelOpen" :close-delay="0" :open-delay="0">
+                        <!-- <HoverCardRoot v-model:open="isQuickLinksPanelOpen" :close-delay="0" :open-delay="0">
                             <HoverCardTrigger>
                                 <Button size="icon-lg" variant="ghost">
                                     <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
@@ -126,7 +127,7 @@ async function signOut() {
                                     </div>
                                 </div>
                             </HoverCardContent>
-                        </HoverCardRoot>
+                        </HoverCardRoot> -->
                     </div>
 
                     <RouterLink v-else :to="{ name: optionConfig.id }" as-child>
