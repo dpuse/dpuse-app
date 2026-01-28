@@ -34,14 +34,14 @@ export const useSessionStore = defineStore('session', () => {
 });
 
 async function initServices(): Promise<void> {
-    const hankoSDK = await import('@teamhanko/hanko-frontend-sdk');
-    hankoInstance = new hankoSDK.Hanko(HANKO_API_URL);
-    hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
-    hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
-    hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
-    hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
-    const validateSessionResponse = await hankoInstance.validateSession();
-    sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
+    // const hankoSDK = await import('@teamhanko/hanko-frontend-sdk');
+    // hankoInstance = new hankoSDK.Hanko(HANKO_API_URL);
+    // hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
+    // hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
+    // hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
+    // hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
+    // const validateSessionResponse = await hankoInstance.validateSession();
+    // sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
 
     // const moduleStatesComposable = await import('@/composables/useModuleStates');
     // moduleStates = moduleStatesComposable.useModuleStates();
@@ -54,14 +54,24 @@ async function initServices(): Promise<void> {
 
     // // Non-critical: Load these after a microtask to not block rendering
     // requestIdleCallback(() => {
-    Promise.all([import('@/composables/useModuleStates'), import('@/composables/useMonitor')]).then(([moduleStatesComposable, monitorComposable]) => {
-        moduleStates = moduleStatesComposable.useModuleStates();
-        moduleStates.connect();
-        window.addEventListener('beforeunload', moduleStates.disconnect);
+    Promise.all([import('@teamhanko/hanko-frontend-sdk'), import('@/composables/useModuleStates'), import('@/composables/useMonitor')]).then(
+        ([hankoSDK, moduleStatesComposable, monitorComposable]) => {
+            hankoInstance = new hankoSDK.Hanko(HANKO_API_URL);
+            hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
+            hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
+            hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
+            hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
+            hankoInstance.validateSession().then((validateSessionResponse) => {
+                sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
+            });
+            moduleStates = moduleStatesComposable.useModuleStates();
+            moduleStates.connect();
+            window.addEventListener('beforeunload', moduleStates.disconnect);
 
-        monitor = monitorComposable.useMonitor();
-        monitor.init();
-    });
+            monitor = monitorComposable.useMonitor();
+            monitor.init();
+        }
+    );
     // });
 
     // const defaultPayload = useWorkbenchContext();
