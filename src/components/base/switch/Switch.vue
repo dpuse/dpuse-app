@@ -5,7 +5,7 @@ import { reactiveOmit } from '@vueuse/core';
 import { SwitchRoot, SwitchThumb, useForwardPropsEmits } from 'reka-ui';
 import type { SwitchRootEmits, SwitchRootProps } from 'reka-ui';
 
-// Application modules
+// Core
 import { cn } from '@/lib/utils';
 
 // Properties

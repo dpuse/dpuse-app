@@ -3,7 +3,7 @@
 import Header from '@/components/block/header/Header.vue';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/base/card';
 
-// Application modules
+// Core
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // Properties

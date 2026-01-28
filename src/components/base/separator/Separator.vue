@@ -4,7 +4,7 @@ import type { HTMLAttributes } from 'vue';
 import { reactiveOmit } from '@vueuse/core';
 import { Separator, type SeparatorProps } from 'reka-ui';
 
-// Application modules
+// Core
 import { cn } from '@/lib/utils';
 
 // Properties

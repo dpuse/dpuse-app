@@ -3,7 +3,7 @@
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
-// Application modules
+// Core
 import { useAuthDialog } from '@/composables/useAuthDialog';
 
 // Components and icons
@@ -39,6 +39,8 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
+onMounted(async () => sessionState.initServices());
+
 // function beginBootstrap() {
 //     setTimeout(() => {
 //         nextTick(() => {
@@ -61,7 +63,7 @@ onMounted(async () => {
     //     window.addEventListener('load', beginBootstrap, { once: true });
     // }
     // const { useSessionStore } = await import('@/stores/sessionStore');
-    sessionState.initServices();
+    // sessionState.initServices();
     // sessionIsAuthenticated.value = useSessionStore().sessionStatus.isAuthenticated;
 });
 
@@ -71,9 +73,6 @@ watch(isDisplayWide, (newIsDisplayWide) => {
         isBenchtopOptionBarOpenInNarrowDisplay.value = false;
     }
 });
-
-// const isOptionBarVisible = computed(() => isDisplayWide.value || isBenchtopOptionBarOpenInNarrowDisplay.value);
-// const isAssistantPanelVisible = computed(() => (isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value));
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

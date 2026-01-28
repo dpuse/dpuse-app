@@ -4,7 +4,7 @@
 // External dependencies
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
-// Application modules
+// Core
 import type { BenchtopOptionKind } from '@/types/workbench';
 
 // Properties

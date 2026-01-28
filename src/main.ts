@@ -2,7 +2,7 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
-// Application modules
+// Core
 import App from '@/App.vue';
 import router from '@/router';
 

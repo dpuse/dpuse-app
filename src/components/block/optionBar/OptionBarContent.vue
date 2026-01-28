@@ -3,7 +3,7 @@
 import { computed } from 'vue';
 // import { storeToRefs } from 'pinia';
 
-// Application modules
+// Core
 import { useKnowledge } from '@/composables/useKnowledge';
 // import { useSessionStore } from '@/stores/sessionStore';
 

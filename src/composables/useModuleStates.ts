@@ -36,7 +36,7 @@ let webSocket: WebSocket | undefined;
 // const RefreshRawIcon = markRaw(RefreshIcon);
 
 /** Composables */
-export function useStatesMessenger() {
+export function useModuleStates() {
     // Operations - Connect to the 'States' WebSocket.
     function connect() {
         if (webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN)) return;

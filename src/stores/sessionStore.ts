@@ -23,29 +23,34 @@ interface SessionStatus {
 }
 let flowCleanupFunction: (() => void) | undefined;
 let hankoInstance: Hanko | undefined;
+let moduleStates: { connect: () => void; disconnect: () => void } | undefined;
+let monitor: { init: () => void } | undefined;
 const sessionStatus = ref<SessionStatus>({});
-// const { connect, disconnect } = useStatesMessenger();
 let sessionExpiryTimer: ReturnType<typeof setTimeout> | undefined;
 
 // Pina store for session state
 export const useSessionStore = defineStore('session', () => {
-    // connect();
-    // initServices(); // TODO: Maybe establishSession
-    // window.addEventListener('beforeunload', disconnect);
-
     return { constructFlow, destroyFlow, initServices, sessionStatus, signOut };
 });
+
 async function initServices(): Promise<void> {
-    console.log(1111);
-    const hankoModule = await import('@teamhanko/hanko-frontend-sdk');
-    hankoInstance = new hankoModule.Hanko(HANKO_API_URL);
+    const hankoSDK = await import('@teamhanko/hanko-frontend-sdk');
+    hankoInstance = new hankoSDK.Hanko(HANKO_API_URL);
     hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
     hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
     hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
     hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
-
     const validateSessionResponse = await hankoInstance.validateSession();
     sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
+
+    const moduleStatesComposable = await import('@/composables/useModuleStates');
+    moduleStates = moduleStatesComposable.useModuleStates();
+    moduleStates.connect();
+    window.addEventListener('beforeunload', moduleStates.disconnect);
+
+    const monitorComposable = await import('@/composables/useMonitor');
+    monitor = monitorComposable.useMonitor();
+    monitor.init();
 
     // const defaultPayload = useWorkbenchContext();
     // onCLS((metric) => logEvent(metric, { ...defaultPayload, clsDelta: metric.delta, clsValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));

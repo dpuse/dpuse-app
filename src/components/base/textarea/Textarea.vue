@@ -3,7 +3,7 @@
 import type { HTMLAttributes } from 'vue';
 import { useVModel } from '@vueuse/core';
 
-// Application modules
+// Core
 import { cn } from '@/lib/utils';
 
 // Properties
