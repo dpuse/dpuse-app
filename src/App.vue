@@ -49,13 +49,26 @@ onMounted(() => {
         // Your code here
         console.log('Page fully rendered, LCP measured');
 
-        // Defer execution to after the critical path
-        requestIdleCallback(
-            () => {
-                sessionState.initServices();
-            },
-            { timeout: 1000 }
-        ); // Fallback if browser doesn't support requestIdleCallback
+        // // Defer execution to after the critical path
+        // requestIdleCallback(
+        //     () => {
+        //         sessionState.initServices();
+        //     },
+        //     { timeout: 1000 }
+        // ); // Fallback if browser doesn't support requestIdleCallback
+
+        // Wait for page load event
+        if (document.readyState === 'complete') {
+            sessionState.initServices();
+        } else {
+            window.addEventListener(
+                'load',
+                () => {
+                    sessionState.initServices();
+                },
+                { once: true }
+            );
+        }
     };
 
     const observer = new PerformanceObserver((list) => {
