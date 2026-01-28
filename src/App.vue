@@ -48,7 +48,14 @@ onMounted(() => {
 
         // Your code here
         console.log('Page fully rendered, LCP measured');
-        sessionState.initServices();
+
+        // Defer execution to after the critical path
+        requestIdleCallback(
+            () => {
+                sessionState.initServices();
+            },
+            { timeout: 1000 }
+        ); // Fallback if browser doesn't support requestIdleCallback
     };
 
     const observer = new PerformanceObserver((list) => {
