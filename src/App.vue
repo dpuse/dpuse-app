@@ -46,39 +46,29 @@ onMounted(() => {
         if (processRun) return;
         processRun = true;
 
-        // Your code here
         console.log('Page fully rendered, LCP measured');
 
-        // // Defer execution to after the critical path
-        // requestIdleCallback(
-        //     () => {
-        //         sessionState.initServices();
-        //     },
-        //     { timeout: 1000 }
-        // ); // Fallback if browser doesn't support requestIdleCallback
-
-        // // Wait for page load event
-        // if (document.readyState === 'complete') {
-        //     sessionState.initServices();
-        // } else {
-        //     window.addEventListener(
-        //         'load',
-        //         () => {
-        //             sessionState.initServices();
-        //         },
-        //         { once: true }
-        //     );
-        // }
-
-        setTimeout(() => {
-            sessionState.initServices();
-        }, 4000);
+        // Wait for network and CPU to be idle
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(
+                () => {
+                    setTimeout(() => {
+                        sessionState.initServices();
+                    }, 1000);
+                },
+                { timeout: 3000 }
+            );
+        } else {
+            // Fallback for browsers without requestIdleCallback
+            setTimeout(() => {
+                sessionState.initServices();
+            }, 3000);
+        }
     };
 
     const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         const lastEntry = entries.at(-1);
-
         const lcpEntry = lastEntry as LargestContentfulPaint;
         console.log('LCP measured:', lcpEntry.renderTime || lcpEntry.loadTime);
 
@@ -94,6 +84,62 @@ onMounted(() => {
         runYourProcess();
     }, 10000);
 });
+
+// onMounted(() => {
+//     let processRun = false;
+
+//     const runYourProcess = () => {
+//         if (processRun) return;
+//         processRun = true;
+
+//         // Your code here
+//         console.log('Page fully rendered, LCP measured');
+
+//         // // Defer execution to after the critical path
+//         // requestIdleCallback(
+//         //     () => {
+//         //         sessionState.initServices();
+//         //     },
+//         //     { timeout: 1000 }
+//         // ); // Fallback if browser doesn't support requestIdleCallback
+
+//         // // Wait for page load event
+//         // if (document.readyState === 'complete') {
+//         //     sessionState.initServices();
+//         // } else {
+//         //     window.addEventListener(
+//         //         'load',
+//         //         () => {
+//         //             sessionState.initServices();
+//         //         },
+//         //         { once: true }
+//         //     );
+//         // }
+
+//         setTimeout(() => {
+//             sessionState.initServices();
+//         }, 4000);
+//     };
+
+//     const observer = new PerformanceObserver((list) => {
+//         const entries = list.getEntries();
+//         const lastEntry = entries.at(-1);
+
+//         const lcpEntry = lastEntry as LargestContentfulPaint;
+//         console.log('LCP measured:', lcpEntry.renderTime || lcpEntry.loadTime);
+
+//         runYourProcess();
+//         observer.disconnect();
+//     });
+
+//     observer.observe({ type: 'largest-contentful-paint', buffered: true });
+
+//     // Fallback: run after a timeout in case LCP doesn't fire
+//     setTimeout(() => {
+//         observer.disconnect();
+//         runYourProcess();
+//     }, 10000);
+// });
 
 // onMounted(async () => sessionState.initServices());
 
