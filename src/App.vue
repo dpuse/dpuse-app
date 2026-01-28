@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External dependencies
-import { computed, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
+import { computed, onMounted, ref, watch, watchEffect } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // Application modules
@@ -25,7 +25,12 @@ const isBenchtopOptionBarOpenInNarrowDisplay = ref(false);
 const isDisplayWide = useMediaQuery('(min-width: 768px)');
 const { isAssistantPanelVisible, isOptionBarVisible } = useWorkbenchShell();
 
-const sessionIsAuthenticated = ref<boolean | undefined>(undefined);
+const sessionState = useSessionStore();
+const sessionIsAuthenticated = computed(() => sessionState.sessionStatus.isAuthenticated);
+
+watch(sessionIsAuthenticated, (newValue, oldValue) => {
+    console.log(8888, oldValue, newValue);
+});
 
 const assistToggleAriaLabel = computed(() => {
     const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
@@ -37,20 +42,21 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
-function beginBootstrap() {
-    setTimeout(() => {
-        nextTick(() => {
-            const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 16));
-            raf(() => {
-                raf(async () => {
-                    const { useSessionStore } = await import('@/stores/sessionStore');
-                    await useSessionStore().initServices();
-                    sessionIsAuthenticated.value = useSessionStore().sessionStatus.isAuthenticated;
-                });
-            });
-        });
-    }, 3000); // explicit delay in ms
-}
+// function beginBootstrap() {
+//     setTimeout(() => {
+//         nextTick(() => {
+//             const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 16));
+//             raf(() => {
+//                 raf(async () => {
+//                     const { useSessionStore } = await import('@/stores/sessionStore');
+//                     await useSessionStore().initServices();
+//                     sessionIsAuthenticated.value = useSessionStore().sessionStatus.isAuthenticated;
+//                 });
+//             });
+//         });
+//     }, 3000); // explicit delay in ms
+// }
+
 onMounted(async () => {
     // if (document.readyState === 'complete') {
     //     beginBootstrap();
@@ -58,7 +64,7 @@ onMounted(async () => {
     //     window.addEventListener('load', beginBootstrap, { once: true });
     // }
     // const { useSessionStore } = await import('@/stores/sessionStore');
-    useSessionStore().initServices();
+    sessionState.initServices();
     // sessionIsAuthenticated.value = useSessionStore().sessionStatus.isAuthenticated;
 });
 

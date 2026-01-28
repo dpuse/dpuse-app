@@ -1,11 +1,11 @@
 <script setup lang="ts">
 // External dependencies
-import { storeToRefs } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
+// import { storeToRefs } from 'pinia';
 
 // Application modules
 import { useKnowledge } from '@/composables/useKnowledge';
-import { useSessionStore } from '@/stores/sessionStore';
+// import { useSessionStore } from '@/stores/sessionStore';
 
 // Components and icons
 import Button from '@/components/base/button/Button.vue';
@@ -18,7 +18,7 @@ import Separator from '@/components/base/separator/Separator.vue';
 // import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-vue-next';
 
 // Properties
-type Properties = { class?: string; onOptionSelect?: () => void };
+type Properties = { class?: string; sessionIsAuthenticated?: boolean; onOptionSelect?: () => void };
 const properties = defineProps<Properties>();
 
 function handleOptionSelect() {
@@ -26,20 +26,17 @@ function handleOptionSelect() {
 }
 
 // Global state
-const sessionState = useSessionStore();
-const { sessionStatus } = storeToRefs(sessionState);
+// const sessionState = useSessionStore();
+// const { sessionStatus } = storeToRefs(sessionState);
 // const sessionStatus = ref({ isAuthenticated: false });
 
 // Active benchtop configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') ?? {
-    primaryOptions: [],
-    secondaryOptions: []
-};
+const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') ?? { primaryOptions: [], secondaryOptions: [] };
 
 // Option kind values state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const optionKindValues = computed(() => ({ account: sessionStatus.value?.isAuthenticated }));
+const optionKindValues = computed(() => ({ account: properties.sessionIsAuthenticated }));
 
 // Quick links panel state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

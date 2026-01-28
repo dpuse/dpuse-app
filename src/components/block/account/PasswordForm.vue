@@ -34,7 +34,11 @@ async function handleSubmit() {
 
                 <Field>
                     <FieldLabel for="email">Password</FieldLabel>
-                    <Input id="password" type="password" placeholder="Enter password" required />
+
+                    <!-- Following required to help browsers and assistive tech recognize the form as a login or password form -->
+                    <Input id="username" type="text" autocomplete="username" placeholder="Username" style="display: none" tabindex="-1" aria-hidden="true" />
+
+                    <Input id="password" type="password" autocomplete="new-password" placeholder="Enter password" required />
                 </Field>
 
                 <Field>
