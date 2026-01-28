@@ -27,10 +27,8 @@ const sessionStatus = ref<SessionStatus>({});
 // const { connect, disconnect } = useStatesMessenger();
 let sessionExpiryTimer: ReturnType<typeof setTimeout> | undefined;
 
-console.log(1111);
 // Pina store for session state
 export const useSessionStore = defineStore('session', () => {
-    console.log(2222);
     // connect();
     // initServices(); // TODO: Maybe establishSession
     // window.addEventListener('beforeunload', disconnect);
@@ -104,16 +102,16 @@ function clearSessionExpiryTimer(): void {
     sessionExpiryTimer = undefined;
 }
 
-function startSessionExpiryTimer(runQuickly: boolean = false): void {
-    clearSessionExpiryTimer();
-    sessionExpiryTimer = setInterval(
-        () => {
-            sessionStatus.value.expiresIn = Math.max(0, (sessionStatus.value.expiresAt || 0) - Date.now());
-            if (sessionStatus.value.expiresIn === 0) clearSessionExpiryTimer();
-        },
-        runQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW
-    );
-}
+// function startSessionExpiryTimer(runQuickly: boolean = false): void {
+//     clearSessionExpiryTimer();
+//     sessionExpiryTimer = setInterval(
+//         () => {
+//             sessionStatus.value.expiresIn = Math.max(0, (sessionStatus.value.expiresAt || 0) - Date.now());
+//             if (sessionStatus.value.expiresIn === 0) clearSessionExpiryTimer();
+//         },
+//         runQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW
+//     );
+// }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //#region Authentication Helpers

@@ -8,7 +8,7 @@ import { useWorkbenchShell } from '@/composables/useWorkbenchShell';
 
 // Components and icons
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
-import AssistantPanel from '@/components/block/assistant/AssistantPanel.vue';
+// import AssistantPanel from '@/components/block/assistant/AssistantPanel.vue';
 import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import Button from '@/components/base/button/Button.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
@@ -137,12 +137,12 @@ function toggleBenchtopOptionBar() {
             </div>
 
             <!-- Assistant panel - fixed to right side of browser window -->
-            <AssistantPanel
+            <!-- <AssistantPanel
                 class="flex-none"
                 :is-open="isAssistPanelOpenInWideDisplay"
                 :is-floating-open="isAssistPanelOpenInNarrowDisplay"
                 @request-close="isAssistPanelOpenInNarrowDisplay = false"
-            />
+            /> -->
         </div>
     </div>
 </template>
