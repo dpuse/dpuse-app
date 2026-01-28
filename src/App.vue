@@ -39,38 +39,76 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
+// onMounted(() => {
+//     let processRun = false;
+
+//     const runYourProcess = () => {
+//         if (processRun) return;
+//         processRun = true;
+//         setTimeout(() => sessionState.initServices(), 3000);
+//     };
+
+//     const observer = new PerformanceObserver((list) => {
+//         const entries = list.getEntries();
+//         const lastEntry = entries.at(-1);
+//         const lcpEntry = lastEntry as LargestContentfulPaint;
+//         console.log('LCP measured:', lcpEntry.renderTime || lcpEntry.loadTime);
+
+//         runYourProcess();
+//         observer.disconnect();
+//     });
+
+//     observer.observe({ type: 'largest-contentful-paint', buffered: true });
+
+//     // Fallback: run after a timeout in case LCP doesn't fire
+//     setTimeout(() => {
+//         observer.disconnect();
+//         runYourProcess();
+//     }, 5000);
+// });
+
 onMounted(() => {
     let processRun = false;
+    let lastLCPTime = 0;
 
     const runYourProcess = () => {
         if (processRun) return;
         processRun = true;
 
-        console.log('Page fully rendered, LCP measured');
+        console.log('LCP stabilized, running process');
 
-        // Simple delay to push outside critical path measurement window
         setTimeout(() => {
             sessionState.initServices();
-        }, 3000);
+        }, 100); // Small delay after stabilization
     };
 
     const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         const lastEntry = entries.at(-1);
         const lcpEntry = lastEntry as LargestContentfulPaint;
-        console.log('LCP measured:', lcpEntry.renderTime || lcpEntry.loadTime);
+        const lcpTime = lcpEntry.renderTime || lcpEntry.loadTime;
 
-        runYourProcess();
-        observer.disconnect();
+        console.log('LCP candidate:', lcpTime);
+        lastLCPTime = lcpTime;
     });
 
     observer.observe({ type: 'largest-contentful-paint', buffered: true });
 
-    // Fallback: run after a timeout in case LCP doesn't fire
+    // Wait for LCP to stabilize (no new LCP for 500ms means it's final)
+    const checkStabilized = setInterval(() => {
+        if (lastLCPTime > 0 && performance.now() - lastLCPTime > 500) {
+            clearInterval(checkStabilized);
+            observer.disconnect();
+            runYourProcess();
+        }
+    }, 100);
+
+    // Fallback
     setTimeout(() => {
+        clearInterval(checkStabilized);
         observer.disconnect();
         runYourProcess();
-    }, 5000);
+    }, 10000);
 });
 
 // onMounted(() => {
