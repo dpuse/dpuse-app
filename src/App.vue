@@ -79,7 +79,7 @@ onMounted(() => {
 
         setTimeout(() => {
             sessionState.initServices();
-        }, 1000); // 2 second delay after stabilization
+        }, 2000); // 2 second delay after stabilization
     };
 
     const observer = new PerformanceObserver((list) => {
@@ -108,7 +108,7 @@ onMounted(() => {
         clearInterval(checkStabilized);
         observer.disconnect();
         runYourProcess();
-    }, 10000);
+    }, 5000);
 });
 
 // onMounted(() => {
