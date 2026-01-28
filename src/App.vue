@@ -42,17 +42,23 @@ const benchtopToggleAriaLabel = computed(() => {
 onMounted(() => {
     let processRun = false;
 
-    const observer = new PerformanceObserver((list) => {
+    const runYourProcess = () => {
         if (processRun) return;
+        processRun = true;
 
+        // Your code here
+        console.log('Page fully rendered, LCP measured');
+        sessionState.initServices();
+    };
+
+    const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         const lastEntry = entries.at(-1);
 
         const lcpEntry = lastEntry as LargestContentfulPaint;
-        console.log('LCP measured:', lcpEntry?.renderTime ?? lcpEntry?.loadTime);
+        console.log('LCP measured:', lcpEntry.renderTime || lcpEntry.loadTime);
 
-        processRun = true;
-        sessionState.initServices();
+        runYourProcess();
         observer.disconnect();
     });
 
@@ -61,7 +67,7 @@ onMounted(() => {
     // Fallback: run after a timeout in case LCP doesn't fire
     setTimeout(() => {
         observer.disconnect();
-        sessionState.initServices();
+        runYourProcess();
     }, 5000);
 });
 
