@@ -39,34 +39,6 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
-// onMounted(() => {
-//     let processRun = false;
-
-//     const runYourProcess = () => {
-//         if (processRun) return;
-//         processRun = true;
-//         setTimeout(() => sessionState.initServices(), 3000);
-//     };
-
-//     const observer = new PerformanceObserver((list) => {
-//         const entries = list.getEntries();
-//         const lastEntry = entries.at(-1);
-//         const lcpEntry = lastEntry as LargestContentfulPaint;
-//         console.log('LCP measured:', lcpEntry.renderTime || lcpEntry.loadTime);
-
-//         runYourProcess();
-//         observer.disconnect();
-//     });
-
-//     observer.observe({ type: 'largest-contentful-paint', buffered: true });
-
-//     // Fallback: run after a timeout in case LCP doesn't fire
-//     setTimeout(() => {
-//         observer.disconnect();
-//         runYourProcess();
-//     }, 5000);
-// });
-
 onMounted(() => {
     let processRun = false;
     let lastLCPUpdateTime = 0;
@@ -110,6 +82,36 @@ onMounted(() => {
         runYourProcess();
     }, 5000);
 });
+
+onMounted(async () => sessionState.initServices());
+
+// onMounted(() => {
+//     let processRun = false;
+
+//     const runYourProcess = () => {
+//         if (processRun) return;
+//         processRun = true;
+//         setTimeout(() => sessionState.initServices(), 3000);
+//     };
+
+//     const observer = new PerformanceObserver((list) => {
+//         const entries = list.getEntries();
+//         const lastEntry = entries.at(-1);
+//         const lcpEntry = lastEntry as LargestContentfulPaint;
+//         console.log('LCP measured:', lcpEntry.renderTime || lcpEntry.loadTime);
+
+//         runYourProcess();
+//         observer.disconnect();
+//     });
+
+//     observer.observe({ type: 'largest-contentful-paint', buffered: true });
+
+//     // Fallback: run after a timeout in case LCP doesn't fire
+//     setTimeout(() => {
+//         observer.disconnect();
+//         runYourProcess();
+//     }, 5000);
+// });
 
 // onMounted(() => {
 //     let processRun = false;
@@ -166,8 +168,6 @@ onMounted(() => {
 //         runYourProcess();
 //     }, 10000);
 // });
-
-// onMounted(async () => sessionState.initServices());
 
 // // function beginBootstrap() {
 // //     setTimeout(() => {
