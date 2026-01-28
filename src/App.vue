@@ -1,36 +1,34 @@
 <script setup lang="ts">
 // External dependencies
-import { computed, onMounted, ref, watch, watchEffect } from 'vue';
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // Application modules
-import { useWorkbenchShell } from '@/composables/useWorkbenchShell';
+import { useAuthDialog } from '@/composables/useAuthDialog';
 
 // Components and icons
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
-// import AssistantPanel from '@/components/block/assistant/AssistantPanel.vue';
+const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
 import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import Button from '@/components/base/button/Button.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import StatusBar from '@/components/block/statusBar/StatusBar.vue';
 import { useSessionStore } from '@/stores/sessionStore';
 
+const AuthDialog = defineAsyncComponent(() => import('@/components/AuthDialog.vue'));
+
 // Global state
+const { showAuthDialog } = useAuthDialog();
 useColorMode();
 
 // Reactive variables
-const isAssistPanelOpenInWideDisplay = ref(true);
+const isAssistPanelOpenInWideDisplay = ref(false);
 const isAssistPanelOpenInNarrowDisplay = ref(false);
 const isBenchtopOptionBarOpenInNarrowDisplay = ref(false);
 const isDisplayWide = useMediaQuery('(min-width: 768px)');
-const { isAssistantPanelVisible, isOptionBarVisible } = useWorkbenchShell();
 
 const sessionState = useSessionStore();
 const sessionIsAuthenticated = computed(() => sessionState.sessionStatus.isAuthenticated);
-
-watch(sessionIsAuthenticated, (newValue, oldValue) => {
-    console.log(8888, oldValue, newValue);
-});
 
 const assistToggleAriaLabel = computed(() => {
     const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
@@ -75,13 +73,8 @@ watch(isDisplayWide, (newIsDisplayWide) => {
     }
 });
 
-watchEffect(() => {
-    isOptionBarVisible.value = isDisplayWide.value || isBenchtopOptionBarOpenInNarrowDisplay.value;
-});
-
-watchEffect(() => {
-    isAssistantPanelVisible.value = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
-});
+// const isOptionBarVisible = computed(() => isDisplayWide.value || isBenchtopOptionBarOpenInNarrowDisplay.value);
+// const isAssistantPanelVisible = computed(() => (isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value));
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -126,6 +119,9 @@ function toggleBenchtopOptionBar() {
             <AssistantIcon class="size-6" :stroke-width="1.25" />
         </Button>
 
+        <!-- Global Auth Dialog -->
+        <AuthDialog v-if="showAuthDialog" />
+
         <!-- Workbench body -->
         <div class="z-10 flex h-full">
             <!-- Benchtop option (navigation) bar - fixed to left side of browser window -->
@@ -141,7 +137,9 @@ function toggleBenchtopOptionBar() {
             <div class="flex min-w-0 flex-1 flex-col">
                 <!-- Workbench content area row - fills content column above status bar row  -->
                 <div class="flex-1 overflow-y-hidden rounded-b-lg">
-                    <RouterView />
+                    <RouterView v-slot="{ Component }">
+                        <component :is="Component" :is-display-wide="isDisplayWide" />
+                    </RouterView>
                 </div>
 
                 <!-- Status bar row - positioned at bottom of workbench content column -->
@@ -149,12 +147,13 @@ function toggleBenchtopOptionBar() {
             </div>
 
             <!-- Assistant panel - fixed to right side of browser window -->
-            <!-- <AssistantPanel
+            <AssistantPanel
+                v-if="isAssistPanelOpenInWideDisplay || isAssistPanelOpenInNarrowDisplay"
                 class="flex-none"
                 :is-open="isAssistPanelOpenInWideDisplay"
                 :is-floating-open="isAssistPanelOpenInNarrowDisplay"
                 @request-close="isAssistPanelOpenInNarrowDisplay = false"
-            /> -->
+            />
         </div>
     </div>
 </template>

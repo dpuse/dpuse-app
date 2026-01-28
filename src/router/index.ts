@@ -8,7 +8,7 @@ import Workflow from '@/views/workflow/Workflow.vue';
 // type ScrollPositionCoordinates = { behavior?: ScrollOptions['behavior']; left?: number; top?: number };
 
 // Application router with web history and scroll position restoration
-const router = createRouter({
+export default createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
@@ -28,12 +28,7 @@ const router = createRouter({
                         { name: 'buildDataApps', path: 'buildDataApps', component: () => import('@/views/workflow/buildDataApps/BuildDataApps.vue') }
                     ]
                 },
-                {
-                    name: 'account',
-                    path: 'account',
-                    component: () => import('@/views/account/Account.vue')
-                },
-                // Secure account children (optional):
+                { name: 'account', path: 'account', component: () => import('@/views/account/Account.vue') },
                 {
                     path: 'account',
                     component: () => import('@/views/account/Account.vue'),
@@ -57,6 +52,3 @@ const router = createRouter({
         return savedPosition ? { ...savedPosition, behavior: 'auto' } : { left: 0, top: 0 }; // NOTE: "behavior: 'auto'" required for Safari iOS v18.3.2.
     }
 });
-
-// Exposures.
-export default router;

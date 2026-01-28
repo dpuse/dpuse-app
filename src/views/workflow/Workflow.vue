@@ -6,6 +6,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 // Application modules
 import { useKnowledge } from '@/composables/useKnowledge';
 
+// Properties
+type Properties = { isDisplayWide: boolean; title: string };
+const properties = defineProps<Properties>();
+
 const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') ?? {
     primaryOptions: [],
     secondaryOptions: []
@@ -14,7 +18,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') 
 
 <template>
     <div class="flex h-full flex-col rounded-b-lg border-x border-b">
-        <Header title="Workflow" />
+        <Header title="Workflow" :is-display-wide="properties.isDisplayWide" />
 
         <div class="flex-1 overflow-y-auto overscroll-y-none">
             <div class="grid grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-4 p-4">

@@ -2,18 +2,14 @@
 // External dependencies
 import { computed } from 'vue';
 
-// Application modules
-import { useWorkbenchShell } from '@/composables/useWorkbenchShell';
-
 // Properties
-type Properties = { title: string };
+type Properties = { isDisplayWide: boolean; title: string };
 const properties = defineProps<Properties>();
-const { isAssistantPanelVisible, isOptionBarVisible } = useWorkbenchShell();
 
 // Header offsets
 const headerOffsets = computed(() => ({
-    paddingLeft: isOptionBarVisible.value ? undefined : '2.5rem',
-    paddingRight: isAssistantPanelVisible.value ? undefined : '2.5rem'
+    paddingLeft: properties.isDisplayWide ? undefined : '2.5rem',
+    paddingRight: properties.isDisplayWide ? '2.5rem' : '2.5rem'
 }));
 </script>
 
