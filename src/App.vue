@@ -39,33 +39,53 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
-onMounted(async () => sessionState.initServices());
+onMounted(() => {
+    let processRun = false;
 
-// function beginBootstrap() {
-//     setTimeout(() => {
-//         nextTick(() => {
-//             const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 16));
-//             raf(() => {
-//                 raf(async () => {
-//                     const { useSessionStore } = await import('@/stores/sessionStore');
-//                     await useSessionStore().initServices();
-//                     sessionIsAuthenticated.value = useSessionStore().sessionStatus.isAuthenticated;
-//                 });
-//             });
-//         });
-//     }, 3000); // explicit delay in ms
-// }
+    const observer = new PerformanceObserver((list) => {
+        if (processRun) return;
 
-onMounted(async () => {
-    // if (document.readyState === 'complete') {
-    //     beginBootstrap();
-    // } else {
-    //     window.addEventListener('load', beginBootstrap, { once: true });
-    // }
-    // const { useSessionStore } = await import('@/stores/sessionStore');
-    // sessionState.initServices();
-    // sessionIsAuthenticated.value = useSessionStore().sessionStatus.isAuthenticated;
+        const entries = list.getEntries();
+        const lastEntry = entries.at(-1);
+
+        const lcpEntry = lastEntry as LargestContentfulPaint;
+        console.log('LCP measured:', lcpEntry?.renderTime ?? lcpEntry?.loadTime);
+
+        processRun = true;
+        sessionState.initServices();
+        observer.disconnect();
+    });
+
+    observer.observe({ type: 'largest-contentful-paint', buffered: true });
 });
+
+// onMounted(async () => sessionState.initServices());
+
+// // function beginBootstrap() {
+// //     setTimeout(() => {
+// //         nextTick(() => {
+// //             const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 16));
+// //             raf(() => {
+// //                 raf(async () => {
+// //                     const { useSessionStore } = await import('@/stores/sessionStore');
+// //                     await useSessionStore().initServices();
+// //                     sessionIsAuthenticated.value = useSessionStore().sessionStatus.isAuthenticated;
+// //                 });
+// //             });
+// //         });
+// //     }, 3000); // explicit delay in ms
+// // }
+
+// onMounted(async () => {
+//     // if (document.readyState === 'complete') {
+//     //     beginBootstrap();
+//     // } else {
+//     //     window.addEventListener('load', beginBootstrap, { once: true });
+//     // }
+//     // const { useSessionStore } = await import('@/stores/sessionStore');
+//     // sessionState.initServices();
+//     // sessionIsAuthenticated.value = useSessionStore().sessionStatus.isAuthenticated;
+// });
 
 watch(isDisplayWide, (newIsDisplayWide) => {
     if (newIsDisplayWide) {
