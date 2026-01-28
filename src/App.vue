@@ -40,60 +40,97 @@ const benchtopToggleAriaLabel = computed(() => {
 });
 
 onMounted(() => {
-    let processRun = false;
-
-    const runYourProcess = () => {
-        if (processRun) return;
-        processRun = true;
-
-        // Your code here
-        console.log('Page fully rendered, LCP measured');
-
-        // // Defer execution to after the critical path
-        // requestIdleCallback(
-        //     () => {
-        //         sessionState.initServices();
-        //     },
-        //     { timeout: 1000 }
-        // ); // Fallback if browser doesn't support requestIdleCallback
-
-        // // Wait for page load event
-        // if (document.readyState === 'complete') {
-        //     sessionState.initServices();
-        // } else {
-        //     window.addEventListener(
-        //         'load',
-        //         () => {
-        //             sessionState.initServices();
-        //         },
-        //         { once: true }
-        //     );
-        // }
-
-        setTimeout(() => {
-            sessionState.initServices();
-        }, 2000);
+    const initWhenReady = () => {
+        // Wait for load event + small buffer for browser to finish painting
+        if (document.readyState === 'complete') {
+            // Already loaded, add small delay to let paint complete
+            setTimeout(() => {
+                sessionState.initServices();
+            }, 100);
+        } else {
+            window.addEventListener(
+                'load',
+                () => {
+                    // Page loaded, add small delay to let paint complete
+                    setTimeout(() => {
+                        sessionState.initServices();
+                    }, 100);
+                },
+                { once: true }
+            );
+        }
     };
 
+    // Observe LCP to know rendering is progressing
     const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         const lastEntry = entries.at(-1);
-
         const lcpEntry = lastEntry as LargestContentfulPaint;
         console.log('LCP measured:', lcpEntry.renderTime || lcpEntry.loadTime);
-
-        runYourProcess();
         observer.disconnect();
     });
 
     observer.observe({ type: 'largest-contentful-paint', buffered: true });
 
-    // Fallback: run after a timeout in case LCP doesn't fire
-    setTimeout(() => {
-        observer.disconnect();
-        runYourProcess();
-    }, 10000);
+    // Initialize services after page load
+    initWhenReady();
 });
+
+// onMounted(() => {
+//     let processRun = false;
+
+//     const runYourProcess = () => {
+//         if (processRun) return;
+//         processRun = true;
+
+//         // Your code here
+//         console.log('Page fully rendered, LCP measured');
+
+//         // // Defer execution to after the critical path
+//         // requestIdleCallback(
+//         //     () => {
+//         //         sessionState.initServices();
+//         //     },
+//         //     { timeout: 1000 }
+//         // ); // Fallback if browser doesn't support requestIdleCallback
+
+//         // // Wait for page load event
+//         // if (document.readyState === 'complete') {
+//         //     sessionState.initServices();
+//         // } else {
+//         //     window.addEventListener(
+//         //         'load',
+//         //         () => {
+//         //             sessionState.initServices();
+//         //         },
+//         //         { once: true }
+//         //     );
+//         // }
+
+//         setTimeout(() => {
+//             sessionState.initServices();
+//         }, 2000);
+//     };
+
+//     const observer = new PerformanceObserver((list) => {
+//         const entries = list.getEntries();
+//         const lastEntry = entries.at(-1);
+
+//         const lcpEntry = lastEntry as LargestContentfulPaint;
+//         console.log('LCP measured:', lcpEntry.renderTime || lcpEntry.loadTime);
+
+//         runYourProcess();
+//         observer.disconnect();
+//     });
+
+//     observer.observe({ type: 'largest-contentful-paint', buffered: true });
+
+//     // Fallback: run after a timeout in case LCP doesn't fire
+//     setTimeout(() => {
+//         observer.disconnect();
+//         runYourProcess();
+//     }, 10000);
+// });
 
 // onMounted(async () => sessionState.initServices());
 
