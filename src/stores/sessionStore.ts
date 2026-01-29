@@ -1,8 +1,10 @@
 // External dependencies
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import type { EngineConfig } from '@datapos/datapos-shared/engine';
+import { ref, shallowRef } from 'vue';
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
+import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 
 // import { useStatesMessenger } from '../composables/useStateMessenger';
 // import { useWorkbenchContext } from '@/composables/useWorkbenchContext';
@@ -23,14 +25,15 @@ interface SessionStatus {
 }
 let flowCleanupFunction: (() => void) | undefined;
 let hankoInstance: Hanko | undefined;
-let moduleStates: { connect: () => void; disconnect: () => void } | undefined;
-let monitor: { init: () => void } | undefined;
 const sessionStatus = ref<SessionStatus>({});
 let sessionExpiryTimer: ReturnType<typeof setTimeout> | undefined;
 
 // Pina store for session state
 export const useSessionStore = defineStore('session', () => {
-    return { constructFlow, destroyFlow, initServices, sessionStatus, signOut };
+    const engineConfig = shallowRef<EngineConfig | undefined>();
+    const toolConfigs = shallowRef<ToolConfig[] | undefined>();
+
+    return { constructFlow, destroyFlow, engineConfig, initServices, sessionStatus, signOut, toolConfigs };
 });
 
 async function initServices(): Promise<void> {
@@ -60,19 +63,12 @@ async function initServices(): Promise<void> {
         hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
         hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
         hankoInstance.validateSession().then((validateSessionResponse) => {
-            sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
+            const claims = validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined;
+            sessionStatus.value = constructSessionStatus(claims);
+            import('@/composables/useEventWorker').then(({ useEventWorker }) => {
+                void useEventWorker().init(claims);
+            });
         });
-    });
-
-    import('@/composables/useModuleStates').then((moduleStatesComposable) => {
-        moduleStates = moduleStatesComposable.useModuleStates();
-        moduleStates.connect();
-        window.addEventListener('beforeunload', moduleStates.disconnect);
-    });
-
-    import('@/composables/useMonitor').then((monitorComposable) => {
-        monitor = monitorComposable.useMonitor();
-        monitor.init();
     });
 
     // const defaultPayload = useWorkbenchContext();
