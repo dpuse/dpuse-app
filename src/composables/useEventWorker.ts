@@ -6,7 +6,7 @@ import { ref } from 'vue';
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // Application core
-import { useWorkbenchContext } from './useWorkbenchContext';
+// import { useWorkbenchContext } from './useWorkbenchContext';
 
 type WorkerResponse = { type: string; payload?: unknown; meta?: { requestId?: number } };
 
@@ -55,11 +55,12 @@ async function startWorker(sessionClaims?: Claims): Promise<void> {
     // onLCP((metric) => logEvent(metric, { ...defaultPayload, lcpDelta: metric.delta, lcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
     // onFCP((metric) => logEvent(metric, { ...defaultPayload, fcpDelta: metric.delta, fcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
     // onTTFB((metric) => logEvent(metric, { ...defaultPayload, ttfbDelta: metric.delta, ttfbValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-    onCLS((metric) => logEvent2(metric));
-    onINP((metric) => logEvent2(metric));
-    onLCP((metric) => logEvent2(metric));
-    onFCP((metric) => logEvent2(metric));
-    onTTFB((metric) => logEvent2(metric));
+    const userAgent = navigator.userAgent;
+    onCLS((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
+    onINP((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
+    onLCP((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
+    onFCP((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
+    onTTFB((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
 }
 
 // async function logEvent(metric: Metric, data: Record<string, unknown>) {
@@ -91,10 +92,6 @@ async function startWorker(sessionClaims?: Claims): Promise<void> {
 //     //     })
 //     // }).catch(console.error);
 // }
-
-function logEvent2(metric: Metric) {
-    console.log(metric.name, metric.delta, metric.value);
-}
 
 function setupBeforeUnload(): void {
     if (beforeUnloadRegistered || globalThis.window === undefined) return;
