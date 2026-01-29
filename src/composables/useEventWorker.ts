@@ -17,6 +17,8 @@ export function useEventWorker() {
     return { init, postEvent, workerReady };
 }
 
+// Operations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 async function init(sessionClaims?: Claims): Promise<void> {
     await Promise.all([startWorker(sessionClaims), ensureModuleStates(), ensureMonitor()]);
 }
@@ -24,6 +26,8 @@ async function init(sessionClaims?: Claims): Promise<void> {
 function postEvent(payload: unknown): void {
     worker?.postMessage({ type: 'event', payload });
 }
+
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async function startWorker(sessionClaims?: Claims): Promise<void> {
     if (!worker) {
