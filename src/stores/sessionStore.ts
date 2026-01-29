@@ -4,7 +4,7 @@
 import { defineStore } from 'pinia';
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
-import { type AnyState, type Claims, type FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
+import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { ref, shallowRef } from 'vue';
 
 // Session status
@@ -39,18 +39,18 @@ export const useSessionStore = defineStore('session', () => {
     const toolConfigs = shallowRef<ToolConfig[] | undefined>();
 
     function initServices(): void {
-        // import('@teamhanko/hanko-frontend-sdk').then((hankoSDK) => {
-        hankoInstance = new Hanko(HANKO_API_URL);
-        hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
-        hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
-        hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
-        hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
-        hankoInstance.validateSession().then((validateSessionResponse) => {
-            const claims = validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined;
-            sessionStatus.value = constructSessionStatus(claims);
-            import('@/composables/useEventWorker').then(({ useEventWorker }) => useEventWorker().init(claims));
+        import('@teamhanko/hanko-frontend-sdk').then((hankoSDK) => {
+            hankoInstance = new hankoSDK.Hanko(HANKO_API_URL);
+            hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
+            hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
+            hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
+            hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
+            hankoInstance.validateSession().then((validateSessionResponse) => {
+                const claims = validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined;
+                sessionStatus.value = constructSessionStatus(claims);
+                import('@/composables/useEventWorker').then(({ useEventWorker }) => useEventWorker().init(claims));
+            });
         });
-        // });
     }
 
     function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): void {
