@@ -60,7 +60,7 @@ async function initServices(): Promise<void> {
         hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
         hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
         hankoInstance.validateSession().then((validateSessionResponse) => {
-            sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
+            // sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
         });
     });
 
