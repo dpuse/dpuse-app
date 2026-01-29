@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// External dependencies
+// Vendor dependencies
 import { type HTMLAttributes, ref } from 'vue';
 
-// Core
+// Application core
 import { cn } from '@/lib/utils';
 
 // Components

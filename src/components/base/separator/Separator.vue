@@ -1,10 +1,10 @@
 <script setup lang="ts">
-// External dependencies
+// Vendor dependencies
 import type { HTMLAttributes } from 'vue';
 import { reactiveOmit } from '@vueuse/core';
 import { Separator, type SeparatorProps } from 'reka-ui';
 
-// Core
+// Application core
 import { cn } from '@/lib/utils';
 
 // Properties

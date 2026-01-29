@@ -1,10 +1,10 @@
 <script setup lang="ts">
 // Selects the correct option icon (and colors) based on the option's state and current runtime values.
 
-// External dependencies
+// Vendor dependencies
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
-// Core
+// Application core
 import type { BenchtopOptionKind } from '@/types/workbench';
 
 // Properties

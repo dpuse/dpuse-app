@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// External dependencies
+// Vendor dependencies
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
-// Core
+// Application core
 import { useAuthDialog } from '@/composables/useAuthDialog';
 
 // Components and icons

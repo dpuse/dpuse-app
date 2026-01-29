@@ -3,7 +3,7 @@
 // import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
 // import { onMounted, onUnmounted, ref } from 'vue';
 
-// Core
+// Application core
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Properties

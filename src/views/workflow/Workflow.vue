@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Core
+// Application core
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // Components

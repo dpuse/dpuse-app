@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// External dependencies
+// Vendor dependencies
 import type { HTMLAttributes } from 'vue';
 import { Primitive, type PrimitiveProps } from 'reka-ui';
 
-// Core
+// Application core
 import { buttonVariants } from '.';
 import type { ButtonVariants } from '.';
 import { cn } from '@/lib/utils';

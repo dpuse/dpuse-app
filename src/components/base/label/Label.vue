@@ -1,11 +1,11 @@
 <script setup lang="ts">
-// External dependencies
+// Vendor dependencies
 import type { HTMLAttributes } from 'vue';
 import { Label } from 'reka-ui';
 import type { LabelProps } from 'reka-ui';
 import { reactiveOmit } from '@vueuse/core';
 
-// Core
+// Application core
 import { cn } from '@/lib/utils';
 
 // Properties

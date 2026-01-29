@@ -1,4 +1,4 @@
-// External dependencies
+// Vendor dependencies
 import { defineStore } from 'pinia';
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
 import { ref, shallowRef } from 'vue';
@@ -36,26 +36,7 @@ export const useSessionStore = defineStore('session', () => {
     return { constructFlow, destroyFlow, engineConfig, initServices, sessionStatus, signOut, toolConfigs };
 });
 
-function initServices(): void {
-    // const hankoSDK = await import('@teamhanko/hanko-frontend-sdk');
-    // hankoInstance = new hankoSDK.Hanko(HANKO_API_URL);
-    // hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
-    // hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
-    // hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
-    // hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
-    // const validateSessionResponse = await hankoInstance.validateSession();
-    // sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
-
-    // const moduleStatesComposable = await import('@/composables/useModuleStates');
-    // moduleStates = moduleStatesComposable.useModuleStates();
-    // moduleStates.connect();
-    // window.addEventListener('beforeunload', moduleStates.disconnect);
-
-    // const monitorComposable = await import('@/composables/useMonitor');
-    // monitor = monitorComposable.useMonitor();
-    // monitor.init();
-
-    // Import and initialize each module in parallel, process as soon as each resolves
+async function initServices(): Promise<void> {
     import('@teamhanko/hanko-frontend-sdk').then((hankoSDK) => {
         hankoInstance = new hankoSDK.Hanko(HANKO_API_URL);
         hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));

@@ -1,16 +1,24 @@
-// External dependencies
+// Vendor dependencies
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
-// Core
+// Application core
+import '@/assets/main.css';
 import App from '@/App.vue';
 import router from '@/router';
 
-// Styles
-import '@/assets/main.css';
-
 // Bootstrap workbench application
-const app = createApp(App);
-app.use(createPinia());
-app.use(router);
-app.mount('#app');
+try {
+    const app = createApp(App);
+    app.use(createPinia());
+    app.use(router);
+    app.mount('#app');
+} catch (error) {
+    reportBootstrapError(error);
+}
+
+function reportBootstrapError(error: unknown): void {
+    console.log(error);
+    // TODO: Insert error into the dom...
+    // TODO: Attempt to send to error tracker...
+}

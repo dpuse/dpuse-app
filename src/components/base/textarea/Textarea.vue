@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// External dependencies
+// Vendor dependencies
 import type { HTMLAttributes } from 'vue';
 import { useVModel } from '@vueuse/core';
 
-// Core
+// Application core
 import { cn } from '@/lib/utils';
 
 // Properties

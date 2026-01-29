@@ -1,4 +1,4 @@
-// External dependencies
+// Vendor dependencies
 import { createRouter, createWebHistory } from 'vue-router';
 
 // Components

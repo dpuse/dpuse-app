@@ -1,6 +1,10 @@
-import { ref } from 'vue';
-import type { Claims } from '@teamhanko/hanko-frontend-sdk';
+/* eslint-disable unicorn/prefer-add-event-listener */
 
+// Vendor dependencies
+import type { Claims } from '@teamhanko/hanko-frontend-sdk';
+import { ref } from 'vue';
+
+// Application core
 type ModuleStatesController = { connect: () => void; disconnect: () => void };
 type MonitorController = { init: () => void };
 
@@ -10,15 +14,15 @@ let worker: Worker | undefined;
 const workerReady = ref(false);
 
 export function useEventWorker() {
-    async function init(sessionClaims?: Claims): Promise<void> {
-        await Promise.all([startWorker(sessionClaims), ensureModuleStates(), ensureMonitor()]);
-    }
-
-    function postEvent(payload: unknown): void {
-        worker?.postMessage({ type: 'event', payload });
-    }
-
     return { init, postEvent, workerReady };
+}
+
+async function init(sessionClaims?: Claims): Promise<void> {
+    await Promise.all([startWorker(sessionClaims), ensureModuleStates(), ensureMonitor()]);
+}
+
+function postEvent(payload: unknown): void {
+    worker?.postMessage({ type: 'event', payload });
 }
 
 async function startWorker(sessionClaims?: Claims): Promise<void> {
@@ -37,7 +41,7 @@ async function ensureModuleStates(): Promise<void> {
     const moduleStatesComposable = await import('@/composables/useModuleStates');
     moduleStates = moduleStatesComposable.useModuleStates();
     moduleStates.connect();
-    if (typeof window !== 'undefined') {
+    if (globalThis.window !== undefined) {
         window.addEventListener('beforeunload', moduleStates.disconnect);
     }
 }

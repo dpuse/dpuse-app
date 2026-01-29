@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// External dependencies
+// Vendor dependencies
 import { computed } from 'vue';
 // import { storeToRefs } from 'pinia';
 
-// Core
+// Application core
 import { useKnowledge } from '@/composables/useKnowledge';
 // import { useSessionStore } from '@/stores/sessionStore';
 
