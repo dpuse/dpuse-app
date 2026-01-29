@@ -15,6 +15,7 @@ import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import Button from '@/components/base/button/Button.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import StatusBar from '@/components/block/statusBar/StatusBar.vue';
+import { useEventWorker } from './composables/useEventWorker';
 
 // Global state
 const sessionState = useSessionStore();
@@ -39,8 +40,12 @@ const assistPanelToggleAriaLabel = computed(() => {
     return isPanelVisible ? 'Hide assistant panel' : 'Show assistant panel';
 });
 
+watch(useEventWorker().workerReady, (newWorkerReady) => {
+    if (newWorkerReady) useEventWorker().postEvent('this is a test...');
+});
+
 // Lifecycle hooks
-onMounted(async () => sessionState.initServices()); // Initialise authentication, module status and monitor services.
+onMounted(() => sessionState.initServices()); // Initialise authentication, module status and monitor services.
 
 // Hide narrow versions of option bar and assistant panels when display width transitions from narrow to wide
 watch(isDisplayWide, (newIsDisplayWide) => {
