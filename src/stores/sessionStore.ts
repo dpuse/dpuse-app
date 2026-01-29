@@ -1,17 +1,13 @@
 // Vendor dependencies
 import { defineStore } from 'pinia';
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
-import { ref, shallowRef } from 'vue';
-import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
-import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
-
-// import { useStatesMessenger } from '../composables/useStateMessenger';
-// import { useWorkbenchContext } from '@/composables/useWorkbenchContext';
+import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
+import { ref, shallowRef } from 'vue';
 
 // Constants
-const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
-const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
+// const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
+// const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
 
 interface SessionStatus {
@@ -26,7 +22,7 @@ interface SessionStatus {
 let flowCleanupFunction: (() => void) | undefined;
 let hankoInstance: Hanko | undefined;
 const sessionStatus = ref<SessionStatus>({});
-let sessionExpiryTimer: ReturnType<typeof setTimeout> | undefined;
+// let sessionExpiryTimer: ReturnType<typeof setTimeout> | undefined;
 
 // Pina store for session state
 export const useSessionStore = defineStore('session', () => {
@@ -51,43 +47,6 @@ async function initServices(): Promise<void> {
             });
         });
     });
-
-    // const defaultPayload = useWorkbenchContext();
-    // onCLS((metric) => logEvent(metric, { ...defaultPayload, clsDelta: metric.delta, clsValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-    // onINP((metric) => logEvent(metric, { ...defaultPayload, inpDelta: metric.delta, inpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-    // onLCP((metric) => logEvent(metric, { ...defaultPayload, lcpDelta: metric.delta, lcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-    // onFCP((metric) => logEvent(metric, { ...defaultPayload, fcpDelta: metric.delta, fcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-    // onTTFB((metric) => logEvent(metric, { ...defaultPayload, ttfbDelta: metric.delta, ttfbValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-}
-
-async function logEvent(metric: Metric, data: Record<string, unknown>) {
-    console.log({
-        api_key: 'phc_stFCVM7oIBMHqRDgAkxA7yQq5jbV3SpQfFOTazKGwiq',
-        event: 'web_vitals',
-        properties: {
-            page_url: globalThis.location.href,
-            device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-            connection_type: (navigator as any).connection?.effectiveType || 'unknown',
-            ...data,
-            timestamp: Date.now()
-        }
-    });
-    fetch('https://eu.posthog.com/capture/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            api_key: 'phc_lsZySXoMlZsSR2dvvUgW0miyzOZvSilsh6i7SC2qYOs',
-            event: 'web_vitals',
-            distinct_id: 'anonymous_' + Math.random().toString(36).substring(2, 10),
-            properties: {
-                page_url: globalThis.location.href,
-                device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-                connection_type: (navigator as any).connection?.effectiveType || 'unknown',
-                ...data,
-                timestamp: Date.now()
-            }
-        })
-    }).catch(console.error);
 }
 
 function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): void {
@@ -103,10 +62,10 @@ async function signOut(): Promise<void> {
     await hankoInstance?.logout();
 }
 
-function clearSessionExpiryTimer(): void {
-    clearInterval(sessionExpiryTimer);
-    sessionExpiryTimer = undefined;
-}
+// function clearSessionExpiryTimer(): void {
+//     clearInterval(sessionExpiryTimer);
+//     sessionExpiryTimer = undefined;
+// }
 
 // function startSessionExpiryTimer(runQuickly: boolean = false): void {
 //     clearSessionExpiryTimer();
@@ -119,9 +78,7 @@ function clearSessionExpiryTimer(): void {
 //     );
 // }
 
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//#region Authentication Helpers
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function constructSessionStatus(claims?: Claims): SessionStatus {
     if (claims) {
@@ -139,5 +96,3 @@ function constructSessionStatus(claims?: Claims): SessionStatus {
     }
     return { isAuthenticated: false };
 }
-
-//#endregion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
