@@ -11,6 +11,7 @@ import router from '@/router';
 try {
     const app = createApp(App);
     app.use(createPinia());
+    import('@/stores/sessionStore').then((module) => module.useSessionStore().initServices());
     app.use(router);
     app.mount('#app');
 } catch (error) {

@@ -18,6 +18,7 @@ const AssistantPanel = defineAsyncComponent(() => import('@/components/block/ass
 const AuthDialog = defineAsyncComponent(() => import('@/components/AuthDialog.vue'));
 
 // Global state
+const sessionState = useSessionStore();
 const { showAuthDialog } = useAuthDialog();
 useColorMode();
 
@@ -26,8 +27,6 @@ const isAssistPanelOpenInWideDisplay = ref(false);
 const isAssistPanelOpenInNarrowDisplay = ref(false);
 const isBenchtopOptionBarOpenInNarrowDisplay = ref(false);
 const isDisplayWide = useMediaQuery('(min-width: 768px)');
-
-const sessionState = useSessionStore();
 
 const assistToggleAriaLabel = computed(() => {
     const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
@@ -39,51 +38,51 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
-onMounted(() => {
-    let processRun = false;
-    let lastLCPUpdateTime = 0;
+// onMounted(async () => sessionState.initServices());
 
-    const runYourProcess = () => {
-        if (processRun) return;
-        processRun = true;
+// onMounted(() => {
+//     let processRun = false;
+//     let lastLCPUpdateTime = 0;
 
-        console.log('LCP stabilized, running process');
+//     const runYourProcess = () => {
+//         if (processRun) return;
+//         processRun = true;
 
-        setTimeout(() => {
-            sessionState.initServices();
-        }, 2000); // 2 second delay after stabilization
-    };
+//         console.log('LCP stabilized, running process');
 
-    const observer = new PerformanceObserver((list) => {
-        const entries = list.getEntries();
-        const lastEntry = entries.at(-1);
-        const lcpEntry = lastEntry as LargestContentfulPaint;
-        const lcpTime = lcpEntry.renderTime || lcpEntry.loadTime;
+//         setTimeout(() => {
+//             sessionState.initServices();
+//         }, 2000); // 2 second delay after stabilization
+//     };
 
-        console.log('LCP candidate:', lcpTime);
-        lastLCPUpdateTime = performance.now(); // Record WHEN we saw this update
-    });
+//     const observer = new PerformanceObserver((list) => {
+//         const entries = list.getEntries();
+//         const lastEntry = entries.at(-1);
+//         const lcpEntry = lastEntry as LargestContentfulPaint;
+//         const lcpTime = lcpEntry.renderTime || lcpEntry.loadTime;
 
-    observer.observe({ type: 'largest-contentful-paint', buffered: true });
+//         console.log('LCP candidate:', lcpTime);
+//         lastLCPUpdateTime = performance.now(); // Record WHEN we saw this update
+//     });
 
-    // Wait for LCP to stabilize (no new LCP for 1000ms means it's final)
-    const checkStabilized = setInterval(() => {
-        if (lastLCPUpdateTime > 0 && performance.now() - lastLCPUpdateTime > 1000) {
-            clearInterval(checkStabilized);
-            observer.disconnect();
-            runYourProcess();
-        }
-    }, 200);
+//     observer.observe({ type: 'largest-contentful-paint', buffered: true });
 
-    // Fallback
-    setTimeout(() => {
-        clearInterval(checkStabilized);
-        observer.disconnect();
-        runYourProcess();
-    }, 5000);
-});
+//     // Wait for LCP to stabilize (no new LCP for 1000ms means it's final)
+//     const checkStabilized = setInterval(() => {
+//         if (lastLCPUpdateTime > 0 && performance.now() - lastLCPUpdateTime > 1000) {
+//             clearInterval(checkStabilized);
+//             observer.disconnect();
+//             runYourProcess();
+//         }
+//     }, 200);
 
-onMounted(async () => sessionState.initServices());
+//     // Fallback
+//     setTimeout(() => {
+//         clearInterval(checkStabilized);
+//         observer.disconnect();
+//         runYourProcess();
+//     }, 5000);
+// });
 
 // onMounted(() => {
 //     let processRun = false;

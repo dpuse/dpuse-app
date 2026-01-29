@@ -65,6 +65,7 @@ function localiseWorkbenchConfig(localeCode: LocaleCode): WorkbenchLocalisedConf
                 label: primaryOptionConfig.label[localeCode] ?? workbenchConfig.id,
                 description: primaryOptionConfig.description[localeCode] ?? workbenchConfig.id,
                 kind: primaryOptionConfig.kind,
+                step: primaryOptionConfig.step,
                 tasks: primaryOptionConfig.tasks.map((taskConfig) => ({
                     id: taskConfig.id,
                     label: taskConfig.label[localeCode] ?? workbenchConfig.id,
