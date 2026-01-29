@@ -32,7 +32,9 @@ export const useSessionStore = defineStore('session', () => {
     return { constructFlow, destroyFlow, engineConfig, initServices, sessionStatus, signOut, toolConfigs };
 });
 
-async function initServices(): Promise<void> {
+// Operations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function initServices(): void {
     import('@teamhanko/hanko-frontend-sdk').then((hankoSDK) => {
         hankoInstance = new hankoSDK.Hanko(HANKO_API_URL);
         hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
@@ -42,9 +44,7 @@ async function initServices(): Promise<void> {
         hankoInstance.validateSession().then((validateSessionResponse) => {
             const claims = validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined;
             sessionStatus.value = constructSessionStatus(claims);
-            import('@/composables/useEventWorker').then(({ useEventWorker }) => {
-                void useEventWorker().init(claims);
-            });
+            import('@/composables/useEventWorker').then(({ useEventWorker }) => useEventWorker().init(claims));
         });
     });
 }
