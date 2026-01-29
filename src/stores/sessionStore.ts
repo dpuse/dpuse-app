@@ -36,7 +36,7 @@ export const useSessionStore = defineStore('session', () => {
     return { constructFlow, destroyFlow, engineConfig, initServices, sessionStatus, signOut, toolConfigs };
 });
 
-async function initServices(): Promise<void> {
+function initServices(): void {
     // const hankoSDK = await import('@teamhanko/hanko-frontend-sdk');
     // hankoInstance = new hankoSDK.Hanko(HANKO_API_URL);
     // hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
