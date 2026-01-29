@@ -52,27 +52,28 @@ async function initServices(): Promise<void> {
     // monitor = monitorComposable.useMonitor();
     // monitor.init();
 
-    // // Non-critical: Load these after a microtask to not block rendering
-    // requestIdleCallback(() => {
-    Promise.all([import('@teamhanko/hanko-frontend-sdk'), import('@/composables/useModuleStates'), import('@/composables/useMonitor')]).then(
-        ([hankoSDK, moduleStatesComposable, monitorComposable]) => {
-            hankoInstance = new hankoSDK.Hanko(HANKO_API_URL);
-            hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
-            hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
-            hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
-            hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
-            hankoInstance.validateSession().then((validateSessionResponse) => {
-                sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
-            });
-            moduleStates = moduleStatesComposable.useModuleStates();
-            moduleStates.connect();
-            window.addEventListener('beforeunload', moduleStates.disconnect);
+    // Import and initialize each module in parallel, process as soon as each resolves
+    import('@teamhanko/hanko-frontend-sdk').then((hankoSDK) => {
+        hankoInstance = new hankoSDK.Hanko(HANKO_API_URL);
+        hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
+        hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
+        hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
+        hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
+        hankoInstance.validateSession().then((validateSessionResponse) => {
+            sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
+        });
+    });
 
-            monitor = monitorComposable.useMonitor();
-            monitor.init();
-        }
-    );
-    // });
+    import('@/composables/useModuleStates').then((moduleStatesComposable) => {
+        moduleStates = moduleStatesComposable.useModuleStates();
+        moduleStates.connect();
+        window.addEventListener('beforeunload', moduleStates.disconnect);
+    });
+
+    import('@/composables/useMonitor').then((monitorComposable) => {
+        monitor = monitorComposable.useMonitor();
+        monitor.init();
+    });
 
     // const defaultPayload = useWorkbenchContext();
     // onCLS((metric) => logEvent(metric, { ...defaultPayload, clsDelta: metric.delta, clsValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
