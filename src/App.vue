@@ -38,7 +38,7 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
-// onMounted(async () => sessionState.initServices());
+onMounted(async () => sessionState.initServices());
 
 // onMounted(() => {
 //     let processRun = false;
