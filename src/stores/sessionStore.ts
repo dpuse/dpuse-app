@@ -60,19 +60,19 @@ async function initServices(): Promise<void> {
         hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
         hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
         hankoInstance.validateSession().then((validateSessionResponse) => {
-            // sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
+            sessionStatus.value = constructSessionStatus(validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined);
+
+            import('@/composables/useModuleStates').then((moduleStatesComposable) => {
+                moduleStates = moduleStatesComposable.useModuleStates();
+                moduleStates.connect();
+                window.addEventListener('beforeunload', moduleStates.disconnect);
+            });
+
+            import('@/composables/useMonitor').then((monitorComposable) => {
+                monitor = monitorComposable.useMonitor();
+                monitor.init();
+            });
         });
-    });
-
-    import('@/composables/useModuleStates').then((moduleStatesComposable) => {
-        moduleStates = moduleStatesComposable.useModuleStates();
-        moduleStates.connect();
-        window.addEventListener('beforeunload', moduleStates.disconnect);
-    });
-
-    import('@/composables/useMonitor').then((monitorComposable) => {
-        monitor = monitorComposable.useMonitor();
-        monitor.init();
     });
 
     // const defaultPayload = useWorkbenchContext();
