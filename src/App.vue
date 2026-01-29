@@ -15,7 +15,6 @@ import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import Button from '@/components/base/button/Button.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import StatusBar from '@/components/block/statusBar/StatusBar.vue';
-import { useEventWorker } from './composables/useEventWorker';
 
 // Global state
 const sessionState = useSessionStore();
@@ -38,10 +37,6 @@ const isAssistPanelOpenInNarrowDisplay = ref(false);
 const assistPanelToggleAriaLabel = computed(() => {
     const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
     return isPanelVisible ? 'Hide assistant panel' : 'Show assistant panel';
-});
-
-watch(useEventWorker().workerReady, (newWorkerReady) => {
-    if (newWorkerReady) useEventWorker().postEvent('this is a test...');
 });
 
 // Lifecycle hooks
@@ -74,7 +69,7 @@ function toggleAssistPanel() {
 <template>
     <!-- Workbench shell -->
     <div class="fixed inset-0">
-        <!-- Brand anchor & logo - fixed in top left corner above workbench body, always visible -->
+        <!-- Brand anchor & logo fixed in top left corner above workbench body, always visible -->
         <div class="fixed top-0 left-0 z-50 flex h-13.75 w-16 flex-col items-center justify-center">
             <Button
                 :aria-label="benchtopOptionBarToggleAriaLabel"
@@ -87,7 +82,7 @@ function toggleAssistPanel() {
             </Button>
         </div>
 
-        <!-- Assistant toggle - fixed in top right corner above workbench body, always visible -->
+        <!-- Assistant toggle fixed in top right corner above workbench body, always visible -->
         <Button
             :aria-label="assistPanelToggleAriaLabel"
             class="fixed top-1.75 right-4 z-20 flex cursor-pointer items-center justify-center rounded-full"
@@ -98,12 +93,12 @@ function toggleAssistPanel() {
             <AssistantIcon class="size-6" :stroke-width="1.25" />
         </Button>
 
-        <!-- Global Auth Dialog -->
+        <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
         <AuthDialog v-if="showAuthDialog" />
 
-        <!-- Workbench body -->
+        <!-- Body -->
         <div class="z-10 flex h-full">
-            <!-- Benchtop option (navigation) bar - fixed to left side of browser window -->
+            <!-- Column fixed to left side of browser window -->
             <BenchtopOptionBar
                 class="flex-none"
                 :is-wide-display="isDisplayWide"
@@ -112,20 +107,20 @@ function toggleAssistPanel() {
                 @request-close="isBenchtopOptionBarOpenInNarrowDisplay = false"
             />
 
-            <!-- Workbench content column - fills browser window between benchtop option bar and assistant panel -->
+            <!-- Column filling workbench body between benchtop option bar and assistant panel -->
             <div class="flex min-w-0 flex-1 flex-col">
-                <!-- Workbench content area row - fills content column above status bar row  -->
+                <!-- Row filling content column above status bar row  -->
                 <div class="flex-1 overflow-y-hidden rounded-b-lg">
                     <RouterView v-slot="{ Component }">
                         <component :is="Component" :is-display-wide="isDisplayWide" />
                     </RouterView>
                 </div>
 
-                <!-- Status bar row - positioned at bottom of workbench content column -->
+                <!-- Row positioned at bottom of workbench content column -->
                 <StatusBar class="flex-none" />
             </div>
 
-            <!-- Assistant panel - fixed to right side of browser window -->
+            <!-- Column fixed to right side of browser window -->
             <AssistantPanel
                 v-if="isAssistPanelOpenInWideDisplay || isAssistPanelOpenInNarrowDisplay"
                 class="flex-none"

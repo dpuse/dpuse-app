@@ -14,10 +14,10 @@ async function handleMessage(event: MessageEvent<WorkerMessage>): Promise<void> 
     const { type, payload, meta } = event.data || {};
 
     switch (type) {
-        case 'session:init':
+        case 'initialise':
             await handleSessionInit(payload);
             break;
-        case 'session:teardown':
+        case 'cleanUp':
             handleSessionTeardown();
             break;
         case 'event':
@@ -32,6 +32,7 @@ async function handleSessionInit(payload: unknown): Promise<void> {
     await Promise.all([ensureModuleStates(), ensureMonitor()]);
     // Placeholder: store session context or perform handshake with backend
     console.debug('[event-worker] session:init', payload);
+    self.postMessage({ type: 'event:result', payload: 'test' });
 }
 
 function handleSessionTeardown(): void {
