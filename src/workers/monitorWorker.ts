@@ -17,6 +17,8 @@ async function handleMessage(event: MessageEvent<WorkerMessage>): Promise<void> 
         case 'initialise':
             await handleSessionInit(payload);
             break;
+        case 'identifyUser':
+            break;
         case 'cleanUp':
             handleSessionTeardown();
             break;

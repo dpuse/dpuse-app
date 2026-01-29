@@ -50,7 +50,9 @@ export const useSessionStore = defineStore('session', () => {
                 const claims = validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined;
                 sessionStatus.value = constructSessionStatus(claims);
                 import('@/composables/useMonitor').then(({ useMonitor }) => {
-                    useMonitor().initialise(claims);
+                    const monitor = useMonitor();
+                    monitor.initialise();
+                    monitor.identifyUser(claims);
                     window.addEventListener('beforeunload', (event) => {
                         if (!areUpdatesPending.value) return;
                         useMonitor().cleanUp();
