@@ -3,6 +3,7 @@
 // Vendor dependencies
 import type { Claims } from '@teamhanko/hanko-frontend-sdk';
 import { ref } from 'vue';
+import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // Application core
 // import { useWorkbenchContext } from './useWorkbenchContext';
@@ -55,14 +56,12 @@ async function startWorker(sessionClaims?: Claims): Promise<void> {
     // onFCP((metric) => logEvent(metric, { ...defaultPayload, fcpDelta: metric.delta, fcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
     // onTTFB((metric) => logEvent(metric, { ...defaultPayload, ttfbDelta: metric.delta, ttfbValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
 
-    import('web-vitals').then((module) => {
-        const userAgent = navigator.userAgent;
-        module.onCLS((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
-        module.onINP((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
-        module.onLCP((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
-        module.onFCP((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
-        module.onTTFB((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
-    });
+    const userAgent = navigator.userAgent;
+    onCLS((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
+    onINP((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
+    onLCP((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
+    onFCP((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
+    onTTFB((metric) => postEvent({ name: 'webVitals', data: { name: metric.name, value: metric.value, delta: metric.delta }, userAgent }));
 }
 
 // async function logEvent(metric: Metric, data: Record<string, unknown>) {
