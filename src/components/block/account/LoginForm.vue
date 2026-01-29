@@ -6,7 +6,7 @@ import { type HTMLAttributes, ref } from 'vue';
 // Application core
 import { cn } from '@/lib/utils';
 
-// Components and icons
+// Components
 import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
 import { Button } from '@/components/base/button';
 import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';

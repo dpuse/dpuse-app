@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Components and icons
+// Components
 import Button from '@/components/base/button/Button.vue';
 import { Textarea } from '@/components/base/textarea';
 import { ArrowBigLeftDashIcon, MessageCircleMoreIcon, SearchIcon, XIcon } from 'lucide-vue-next';

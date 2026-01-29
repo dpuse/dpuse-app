@@ -3,6 +3,8 @@
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // Components
+import BenchtopScroller from '@/components/block/benchtop/BenchtopScroller.vue';
+import BenchtopShell from '@/components/block/benchtop/BenchtopShell.vue';
 import Header from '@/components/block/header/Header.vue';
 
 // Properties
@@ -11,17 +13,17 @@ const properties = defineProps<{ isDisplayWide: boolean }>();
 // Global state
 const activeLangId = 'en'; // TODO: Remove hardcoding...
 
-// Workflow step configurations source from knowledge store
+// Workflow step configurations sourced from knowledge store
 const workflowStepConfigs = useKnowledge()
     .getBenchtopConfig('workflow', activeLangId)
     .primaryOptions.filter((config) => config.step);
 </script>
 
 <template>
-    <div class="flex h-full flex-col rounded-b-lg border-x border-b">
+    <BenchtopShell>
         <Header title="Workflow" :is-display-wide="properties.isDisplayWide" />
 
-        <div class="flex-1 overflow-y-auto overscroll-y-none">
+        <BenchtopScroller>
             <div class="grid grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-4 p-4">
                 <div
                     v-for="config of workflowStepConfigs"
@@ -35,6 +37,6 @@ const workflowStepConfigs = useKnowledge()
                     <div class="px-4 py-4 sm:px-6"></div>
                 </div>
             </div>
-        </div>
-    </div>
+        </BenchtopScroller>
+    </BenchtopShell>
 </template>

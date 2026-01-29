@@ -1,4 +1,12 @@
 <script setup lang="ts">
+// Components
+import BenchtopScroller from '@/components/block/benchtop/BenchtopScroller.vue';
+import BenchtopShell from '@/components/block/benchtop/BenchtopShell.vue';
+import Header from '@/components/block/header/Header.vue';
+
+// Properties
+const properties = defineProps<{ isDisplayWide: boolean }>();
+
 try {
     throw new Error('A test error');
 } catch (error) {
@@ -6,7 +14,7 @@ try {
     // const DISTINCT_ID_KEY = 'posthog_distinct_id';
     // let distinctId = localStorage.getItem(DISTINCT_ID_KEY);
     // if (!distinctId) {
-    const distinctId = 'anon_' + Math.random().toString(36).substring(2, 10);
+    const distinctId = 'anon_' + Math.random().toString(36).slice(2, 10);
     //     localStorage.setItem(DISTINCT_ID_KEY, distinctId);
     // }
 
@@ -37,6 +45,7 @@ try {
             api_key: import.meta.env.VITE_POSTHOG_PROJECT_API_KEY,
             ...payload
         })
+        // eslint-disable-next-line unicorn/prefer-top-level-await
     }).catch(console.error);
 }
 
@@ -67,5 +76,9 @@ function parseStack(stack?: string) {
 </script>
 
 <template>
-    <div class="flex h-full items-center justify-center overflow-y-auto rounded-b-lg border-x border-b">Build data apps...</div>
+    <BenchtopShell>
+        <Header title="Build Data Apps" :is-display-wide="properties.isDisplayWide" />
+
+        <BenchtopScroller></BenchtopScroller>
+    </BenchtopShell>
 </template>

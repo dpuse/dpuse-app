@@ -7,7 +7,7 @@ import { computed } from 'vue';
 import { useKnowledge } from '@/composables/useKnowledge';
 // import { useSessionStore } from '@/stores/sessionStore';
 
-// Components and icons
+// Components
 import Button from '@/components/base/button/Button.vue';
 // import { HoverCardRoot } from 'reka-ui';
 // import { Label } from '@/components/base/label';

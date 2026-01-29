@@ -5,195 +5,44 @@ import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // Application core
 import { useAuthDialog } from '@/composables/useAuthDialog';
+import { useSessionStore } from '@/stores/sessionStore';
 
-// Components and icons
+// Components
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
+const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
+const AuthDialog = defineAsyncComponent(() => import('@/components/AuthDialog.vue'));
 import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import Button from '@/components/base/button/Button.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import StatusBar from '@/components/block/statusBar/StatusBar.vue';
-import { useSessionStore } from '@/stores/sessionStore';
-
-const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
-const AuthDialog = defineAsyncComponent(() => import('@/components/AuthDialog.vue'));
 
 // Global state
 const sessionState = useSessionStore();
 const { showAuthDialog } = useAuthDialog();
 useColorMode();
 
-// Reactive variables
-const isAssistPanelOpenInWideDisplay = ref(false);
-const isAssistPanelOpenInNarrowDisplay = ref(false);
-const isBenchtopOptionBarOpenInNarrowDisplay = ref(false);
+// Display width state
 const isDisplayWide = useMediaQuery('(min-width: 768px)');
 
-const assistToggleAriaLabel = computed(() => {
-    const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
-    return isPanelVisible ? 'Hide assistant panel' : 'Show assistant panel';
-});
-
-const benchtopToggleAriaLabel = computed(() => {
+// Benchtop option bar states
+const isBenchtopOptionBarOpenInNarrowDisplay = ref(false);
+const benchtopOptionBarToggleAriaLabel = computed(() => {
     if (isDisplayWide.value) return 'DPU logo';
     return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
-onMounted(async () => sessionState.initServices());
+// Assistant panel states
+const isAssistPanelOpenInWideDisplay = ref(false);
+const isAssistPanelOpenInNarrowDisplay = ref(false);
+const assistPanelToggleAriaLabel = computed(() => {
+    const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
+    return isPanelVisible ? 'Hide assistant panel' : 'Show assistant panel';
+});
 
-// onMounted(() => {
-//     let processRun = false;
-//     let lastLCPUpdateTime = 0;
+// Lifecycle hooks
+onMounted(async () => sessionState.initServices()); // Initialise authentication, module status and monitor services.
 
-//     const runYourProcess = () => {
-//         if (processRun) return;
-//         processRun = true;
-
-//         console.log('LCP stabilized, running process');
-
-//         setTimeout(() => {
-//             sessionState.initServices();
-//         }, 2000); // 2 second delay after stabilization
-//     };
-
-//     const observer = new PerformanceObserver((list) => {
-//         const entries = list.getEntries();
-//         const lastEntry = entries.at(-1);
-//         const lcpEntry = lastEntry as LargestContentfulPaint;
-//         const lcpTime = lcpEntry.renderTime || lcpEntry.loadTime;
-
-//         console.log('LCP candidate:', lcpTime);
-//         lastLCPUpdateTime = performance.now(); // Record WHEN we saw this update
-//     });
-
-//     observer.observe({ type: 'largest-contentful-paint', buffered: true });
-
-//     // Wait for LCP to stabilize (no new LCP for 1000ms means it's final)
-//     const checkStabilized = setInterval(() => {
-//         if (lastLCPUpdateTime > 0 && performance.now() - lastLCPUpdateTime > 1000) {
-//             clearInterval(checkStabilized);
-//             observer.disconnect();
-//             runYourProcess();
-//         }
-//     }, 200);
-
-//     // Fallback
-//     setTimeout(() => {
-//         clearInterval(checkStabilized);
-//         observer.disconnect();
-//         runYourProcess();
-//     }, 5000);
-// });
-
-// onMounted(() => {
-//     let processRun = false;
-
-//     const runYourProcess = () => {
-//         if (processRun) return;
-//         processRun = true;
-//         setTimeout(() => sessionState.initServices(), 3000);
-//     };
-
-//     const observer = new PerformanceObserver((list) => {
-//         const entries = list.getEntries();
-//         const lastEntry = entries.at(-1);
-//         const lcpEntry = lastEntry as LargestContentfulPaint;
-//         console.log('LCP measured:', lcpEntry.renderTime || lcpEntry.loadTime);
-
-//         runYourProcess();
-//         observer.disconnect();
-//     });
-
-//     observer.observe({ type: 'largest-contentful-paint', buffered: true });
-
-//     // Fallback: run after a timeout in case LCP doesn't fire
-//     setTimeout(() => {
-//         observer.disconnect();
-//         runYourProcess();
-//     }, 5000);
-// });
-
-// onMounted(() => {
-//     let processRun = false;
-
-//     const runYourProcess = () => {
-//         if (processRun) return;
-//         processRun = true;
-
-//         // Your code here
-//         console.log('Page fully rendered, LCP measured');
-
-//         // // Defer execution to after the critical path
-//         // requestIdleCallback(
-//         //     () => {
-//         //         sessionState.initServices();
-//         //     },
-//         //     { timeout: 1000 }
-//         // ); // Fallback if browser doesn't support requestIdleCallback
-
-//         // // Wait for page load event
-//         // if (document.readyState === 'complete') {
-//         //     sessionState.initServices();
-//         // } else {
-//         //     window.addEventListener(
-//         //         'load',
-//         //         () => {
-//         //             sessionState.initServices();
-//         //         },
-//         //         { once: true }
-//         //     );
-//         // }
-
-//         setTimeout(() => {
-//             sessionState.initServices();
-//         }, 4000);
-//     };
-
-//     const observer = new PerformanceObserver((list) => {
-//         const entries = list.getEntries();
-//         const lastEntry = entries.at(-1);
-
-//         const lcpEntry = lastEntry as LargestContentfulPaint;
-//         console.log('LCP measured:', lcpEntry.renderTime || lcpEntry.loadTime);
-
-//         runYourProcess();
-//         observer.disconnect();
-//     });
-
-//     observer.observe({ type: 'largest-contentful-paint', buffered: true });
-
-//     // Fallback: run after a timeout in case LCP doesn't fire
-//     setTimeout(() => {
-//         observer.disconnect();
-//         runYourProcess();
-//     }, 10000);
-// });
-
-// // function beginBootstrap() {
-// //     setTimeout(() => {
-// //         nextTick(() => {
-// //             const raf = globalThis.requestAnimationFrame ?? ((callback) => setTimeout(callback, 16));
-// //             raf(() => {
-// //                 raf(async () => {
-// //                     const { useSessionStore } = await import('@/stores/sessionStore');
-// //                     await useSessionStore().initServices();
-// //                     sessionIsAuthenticated.value = useSessionStore().sessionStatus.isAuthenticated;
-// //                 });
-// //             });
-// //         });
-// //     }, 3000); // explicit delay in ms
-// // }
-
-// onMounted(async () => {
-//     // if (document.readyState === 'complete') {
-//     //     beginBootstrap();
-//     // } else {
-//     //     window.addEventListener('load', beginBootstrap, { once: true });
-//     // }
-//     // const { useSessionStore } = await import('@/stores/sessionStore');
-//     // sessionState.initServices();
-//     // sessionIsAuthenticated.value = useSessionStore().sessionStatus.isAuthenticated;
-// });
-
+// Hide narrow versions of option bar and assistant panels when display width transitions from narrow to wide
 watch(isDisplayWide, (newIsDisplayWide) => {
     if (newIsDisplayWide) {
         isAssistPanelOpenInNarrowDisplay.value = false;
@@ -203,17 +52,17 @@ watch(isDisplayWide, (newIsDisplayWide) => {
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+function toggleBenchtopOptionBar() {
+    if (isDisplayWide.value) return;
+    isBenchtopOptionBarOpenInNarrowDisplay.value = !isBenchtopOptionBarOpenInNarrowDisplay.value;
+}
+
 function toggleAssistPanel() {
     if (isDisplayWide.value) {
         isAssistPanelOpenInWideDisplay.value = !isAssistPanelOpenInWideDisplay.value;
         return;
     }
     isAssistPanelOpenInNarrowDisplay.value = !isAssistPanelOpenInNarrowDisplay.value;
-}
-
-function toggleBenchtopOptionBar() {
-    if (isDisplayWide.value) return;
-    isBenchtopOptionBarOpenInNarrowDisplay.value = !isBenchtopOptionBarOpenInNarrowDisplay.value;
 }
 </script>
 
@@ -223,7 +72,7 @@ function toggleBenchtopOptionBar() {
         <!-- Brand anchor & logo - fixed in top left corner above workbench body, always visible -->
         <div class="fixed top-0 left-0 z-50 flex h-13.75 w-16 flex-col items-center justify-center">
             <Button
-                :aria-label="benchtopToggleAriaLabel"
+                :aria-label="benchtopOptionBarToggleAriaLabel"
                 :aria-pressed="!isDisplayWide ? isBenchtopOptionBarOpenInNarrowDisplay : undefined"
                 size="icon-lg"
                 variant="ghost"
@@ -235,7 +84,7 @@ function toggleBenchtopOptionBar() {
 
         <!-- Assistant toggle - fixed in top right corner above workbench body, always visible -->
         <Button
-            :aria-label="assistToggleAriaLabel"
+            :aria-label="assistPanelToggleAriaLabel"
             class="fixed top-1.75 right-4 z-20 flex cursor-pointer items-center justify-center rounded-full"
             size="icon-lg"
             variant="ghost"
