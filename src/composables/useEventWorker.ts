@@ -4,9 +4,10 @@
 import type { Claims } from '@teamhanko/hanko-frontend-sdk';
 import { ref } from 'vue';
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
-import { useWorkbenchContext } from './useWorkbenchContext';
 
 // Application core
+import { useWorkbenchContext } from './useWorkbenchContext';
+
 type WorkerResponse = { type: string; payload?: unknown; meta?: { requestId?: number } };
 
 let worker: Worker | undefined;
@@ -48,42 +49,51 @@ async function startWorker(sessionClaims?: Claims): Promise<void> {
     worker.postMessage({ type: 'session:init', payload: sessionClaims });
     workerReady.value = true;
 
-    const defaultPayload = useWorkbenchContext();
-    onCLS((metric) => logEvent(metric, { ...defaultPayload, clsDelta: metric.delta, clsValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-    onINP((metric) => logEvent(metric, { ...defaultPayload, inpDelta: metric.delta, inpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-    onLCP((metric) => logEvent(metric, { ...defaultPayload, lcpDelta: metric.delta, lcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-    onFCP((metric) => logEvent(metric, { ...defaultPayload, fcpDelta: metric.delta, fcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
-    onTTFB((metric) => logEvent(metric, { ...defaultPayload, ttfbDelta: metric.delta, ttfbValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+    // const defaultPayload = useWorkbenchContext();
+    // onCLS((metric) => logEvent(metric, { ...defaultPayload, clsDelta: metric.delta, clsValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+    // onINP((metric) => logEvent(metric, { ...defaultPayload, inpDelta: metric.delta, inpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+    // onLCP((metric) => logEvent(metric, { ...defaultPayload, lcpDelta: metric.delta, lcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+    // onFCP((metric) => logEvent(metric, { ...defaultPayload, fcpDelta: metric.delta, fcpValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+    // onTTFB((metric) => logEvent(metric, { ...defaultPayload, ttfbDelta: metric.delta, ttfbValue: metric.value, navigationType: metric.navigationType, rating: metric.rating }));
+    onCLS((metric) => logEvent2(metric));
+    onINP((metric) => logEvent2(metric));
+    onLCP((metric) => logEvent2(metric));
+    onFCP((metric) => logEvent2(metric));
+    onTTFB((metric) => logEvent2(metric));
 }
 
-async function logEvent(metric: Metric, data: Record<string, unknown>) {
-    console.log({
-        api_key: 'phc_stFCVM7oIBMHqRDgAkxA7yQq5jbV3SpQfFOTazKGwiq',
-        event: 'web_vitals',
-        properties: {
-            page_url: globalThis.location.href,
-            device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-            connection_type: (navigator as any).connection?.effectiveType || 'unknown',
-            ...data,
-            timestamp: Date.now()
-        }
-    });
-    // fetch('https://eu.posthog.com/capture/', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({
-    //         api_key: 'phc_lsZySXoMlZsSR2dvvUgW0miyzOZvSilsh6i7SC2qYOs',
-    //         event: 'web_vitals',
-    //         distinct_id: 'anonymous_' + Math.random().toString(36).substring(2, 10),
-    //         properties: {
-    //             page_url: globalThis.location.href,
-    //             device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-    //             connection_type: (navigator as any).connection?.effectiveType || 'unknown',
-    //             ...data,
-    //             timestamp: Date.now()
-    //         }
-    //     })
-    // }).catch(console.error);
+// async function logEvent(metric: Metric, data: Record<string, unknown>) {
+//     console.log({
+//         api_key: 'phc_stFCVM7oIBMHqRDgAkxA7yQq5jbV3SpQfFOTazKGwiq',
+//         event: 'web_vitals',
+//         properties: {
+//             page_url: globalThis.location.href,
+//             device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+//             connection_type: (navigator as any).connection?.effectiveType || 'unknown',
+//             ...data,
+//             timestamp: Date.now()
+//         }
+//     });
+//     // fetch('https://eu.posthog.com/capture/', {
+//     //     method: 'POST',
+//     //     headers: { 'Content-Type': 'application/json' },
+//     //     body: JSON.stringify({
+//     //         api_key: 'phc_lsZySXoMlZsSR2dvvUgW0miyzOZvSilsh6i7SC2qYOs',
+//     //         event: 'web_vitals',
+//     //         distinct_id: 'anonymous_' + Math.random().toString(36).substring(2, 10),
+//     //         properties: {
+//     //             page_url: globalThis.location.href,
+//     //             device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+//     //             connection_type: (navigator as any).connection?.effectiveType || 'unknown',
+//     //             ...data,
+//     //             timestamp: Date.now()
+//     //         }
+//     //     })
+//     // }).catch(console.error);
+// }
+
+function logEvent2(metric: Metric) {
+    console.log(metric.name, metric.delta, metric.value);
 }
 
 function setupBeforeUnload(): void {
