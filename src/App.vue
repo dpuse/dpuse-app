@@ -45,10 +45,7 @@ watch(useEventWorker().workerReady, (newWorkerReady) => {
 });
 
 // Lifecycle hooks
-onMounted(() => {
-    console.log(1111);
-    // sessionState.initServices();
-}); // Initialise authentication, module status and monitor services.
+onMounted(() => sessionState.initServices()); // Initialise authentication, module status and monitor services.
 
 // Hide narrow versions of option bar and assistant panels when display width transitions from narrow to wide
 watch(isDisplayWide, (newIsDisplayWide) => {

@@ -38,8 +38,8 @@ export const useSessionStore = defineStore('session', () => {
     const sessionStatus = ref<SessionStatus>({});
     const toolConfigs = shallowRef<ToolConfig[] | undefined>();
 
-    function initServices(importPromise: Promise<typeof import('@teamhanko/hanko-frontend-sdk')>): void {
-        importPromise.then((hankoSDK) => {
+    function initServices(): void {
+        import('@teamhanko/hanko-frontend-sdk').then((hankoSDK) => {
             hankoInstance = new hankoSDK.Hanko(HANKO_API_URL);
             hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
             hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
