@@ -1,6 +1,6 @@
 {
     "name": "datapos-workbench",
-    "version": "0.0.184",
+    "version": "0.0.185",
     "private": true,
     "type": "module",
     "engines": {
@@ -12,26 +12,22 @@
         "@tanstack/vue-virtual": "^3.13.18",
         "@teamhanko/hanko-frontend-sdk": "^2.4.0",
         "@vueuse/core": "^14.1.0",
-        "class-variance-authority": "^0.7.1",
-        "clsx": "^2.1.1",
         "lucide-vue-next": "^0.563.0",
         "pinia": "^3.0.4",
-        "reka-ui": "^2.7.0",
-        "tailwind-merge": "^3.4.0",
         "tailwindcss": "^4.1.18",
         "vue": "^3.5.27",
-        "vue-router": "^4.6.4",
+        "vue-router": "^5.0.1",
         "web-vitals": "^5.1.0"
     },
     "devDependencies": {
-        "@cloudflare/vite-plugin": "^1.21.2",
-        "@cloudflare/workers-types": "^4.20260127.0",
+        "@cloudflare/vite-plugin": "^1.22.1",
+        "@cloudflare/workers-types": "^4.20260130.0",
         "@datapos/datapos-development": "^0.3.443",
-        "@playwright/test": "^1.58.0",
+        "@playwright/test": "^1.58.1",
         "@tsconfig/node24": "^24.0.4",
         "@types/eslint-plugin-security": "^3.0.1",
         "@types/jsdom": "^27.0.0",
-        "@types/node": "^25.0.10",
+        "@types/node": "^25.1.0",
         "@vite-pwa/assets-generator": "^1.0.2",
         "@vitejs/plugin-vue": "^6.0.3",
         "@vitest/eslint-plugin": "^1.6.6",
@@ -58,7 +54,7 @@
         "vite-plugin-vue-devtools": "^8.0.5",
         "vitest": "^4.0.18",
         "vue-tsc": "^3.2.4",
-        "wrangler": "^4.60.0"
+        "wrangler": "^4.61.1"
     },
     "scripts": {
         "dev": "vite",

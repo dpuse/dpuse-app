@@ -6,8 +6,6 @@ interface WorkbenchConfig {
     id: string;
     label: Record<string, string>;
     description: Record<string, string>;
-    colors: WorkbenchColors;
-    icon: string;
     benchtops: BenchtopConfig[];
 }
 
@@ -21,82 +19,42 @@ interface BenchtopConfig {
     id: string;
     label: Record<string, string>;
     description: Record<string, string>;
-    colors: WorkbenchColors;
     icon: string;
-    primaryOptions: BenchtopPrimaryOptionConfig[];
-    secondaryOptions: BenchtopSecondaryOptionConfig[];
+    options: BenchtopOptionConfig[];
 }
 
-type BenchtopLocalisedConfig = Omit<BenchtopConfig, 'label' | 'description' | 'primaryOptions' | 'secondaryOptions'> & {
+type BenchtopLocalisedConfig = Omit<BenchtopConfig, 'label' | 'description' | 'options'> & {
     label: string;
     description: string;
-    primaryOptions: BenchtopPrimaryOptionLocalisedConfig[];
-    secondaryOptions: BenchtopSecondaryOptionLocalisedConfig[];
+    options: BenchtopOptionLocalisedConfig[];
 };
 
-interface BenchtopPrimaryOptionConfig {
+interface BenchtopOptionConfig {
     id: string;
     label: Record<string, string>;
     description: Record<string, string>;
-    kind: BenchtopOptionKind;
-    step?: number;
-    tasks: BenchtopPrimaryOptionTaskConfig[];
+    color: string;
+    icon: string;
+    step: number;
+    tasks: BenchtopOptionTaskConfig[];
 }
 
-type BenchtopPrimaryOptionLocalisedConfig = Omit<BenchtopPrimaryOptionConfig, 'label' | 'description' | 'tasks'> & {
+type BenchtopOptionLocalisedConfig = Omit<BenchtopOptionConfig, 'label' | 'description' | 'tasks'> & {
     label: string;
     description: string;
     tasks: BenchtopOptionTaskLocalisedConfig[];
 };
 
-interface BenchtopPrimaryOptionTaskConfig {
+interface BenchtopOptionTaskConfig {
     id: string;
     label: Record<string, string>;
     description: Record<string, string>;
 }
 
-type BenchtopOptionTaskLocalisedConfig = Omit<BenchtopPrimaryOptionTaskConfig, 'label' | 'description'> & {
+type BenchtopOptionTaskLocalisedConfig = Omit<BenchtopOptionTaskConfig, 'label' | 'description'> & {
     label: string;
     description: string;
 };
-
-interface BenchtopSecondaryOptionConfig {
-    id: string;
-    label: Record<string, string>;
-    description: Record<string, string>;
-    kind: BenchtopOptionKind;
-    step?: number;
-}
-
-type BenchtopSecondaryOptionLocalisedConfig = Omit<BenchtopSecondaryOptionConfig, 'label' | 'description'> & {
-    label: string;
-    description: string;
-};
-
-type BenchtopOptionKind = BenchtopOptionSingleKind | BenchtopOptionBooleanKind | BenchtopOptionMultipleKind;
-
-type BenchtopOptionSingleKind = {
-    id: 'single';
-    single: BenchtopOptionStateCharacteristics;
-};
-
-type BenchtopOptionBooleanKind = {
-    id: 'boolean';
-    true: BenchtopOptionStateCharacteristics;
-    false: BenchtopOptionStateCharacteristics;
-};
-
-type BenchtopOptionMultipleKind = {
-    id: 'multiple';
-    multiple: BenchtopOptionStateCharacteristics;
-};
-
-type BenchtopOptionStateCharacteristics = {
-    colors: WorkbenchColors;
-    icon: string;
-};
-
-type WorkbenchColors = { text: { dark?: string; light: string } };
 
 // Exposures.
-export type { BenchtopLocalisedConfig, BenchtopOptionKind, BenchtopPrimaryOptionLocalisedConfig, BenchtopOptionTaskLocalisedConfig, WorkbenchConfig, WorkbenchLocalisedConfig };
+export type { BenchtopLocalisedConfig, BenchtopOptionLocalisedConfig, BenchtopOptionTaskLocalisedConfig, WorkbenchConfig, WorkbenchLocalisedConfig };

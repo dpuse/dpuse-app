@@ -10,11 +10,11 @@ import { useSessionStore } from '@/stores/sessionStore';
 type Properties = { isDisplayWide: boolean };
 const properties = defineProps<Properties>();
 
-import Button from '@/components/base/button/Button.vue';
 import Header from '@/components/block/header/Header.vue';
+import TextButton from '@/components/base/TextButton.vue';
 // import LoginForm from '@/components/block/account/LoginForm.vue';
 // import PasswordForm from '@/components/block/account/PasswordForm.vue';
-import Separator from '@/components/base/separator/Separator.vue';
+// import Separator from '@/components/base/separator/Separator.vue';
 
 const sessionState = useSessionStore();
 
@@ -120,25 +120,29 @@ const signOut = async () => {
             <Header title="Account" :is-display-wide="properties.isDisplayWide" />
 
             <div class="flex flex-1 overflow-y-hidden">
-                <div class="flex flex-none flex-col overflow-y-auto border-r p-4">
-                    <div class="flex flex-1 flex-col gap-y-2">
-                        <Button class="font-normal" variant="warning" @click="signOut">Sign out</Button>
-                        <Separator class="mt-2" />
+                <div class="flex flex-none flex-col divide-y overflow-y-auto border-r p-4">
+                    <div class="flex flex-1 flex-col gap-y-2 divide-y">
+                        <div class="pb-2">
+                            <TextButton class="w-full font-normal" variant="warning" @click="signOut">Sign out</TextButton>
+                        </div>
+                        <!-- <Separator class="mt-2" /> -->
 
-                        <template v-for="optionConfig of optionConfigs" :key="optionConfig.id">
-                            <div v-if="optionConfig.type === 'label'" class="mt-2 text-xs text-[0.625rem] font-semibold uppercase">{{ optionConfig.label.en }}</div>
-                            <RouterLink v-else :to="{ name: optionConfig.id }" as-child>
-                                <Button class="w-full justify-start font-normal" :variant="optionConfig.id === 'deleteAccount' ? 'destructive' : 'secondary'">
-                                    {{ optionConfig.label.en }}
-                                </Button>
-                            </RouterLink>
-                        </template>
+                        <div class="flex flex-1 flex-col gap-y-2">
+                            <template v-for="optionConfig of optionConfigs" :key="optionConfig.id">
+                                <div v-if="optionConfig.type === 'label'" class="mt-2 text-xs text-[0.625rem] font-semibold uppercase">{{ optionConfig.label.en }}</div>
+                                <RouterLink v-else :to="{ name: optionConfig.id }" as-child>
+                                    <TextButton class="w-full justify-start font-normal" :variant="optionConfig.id === 'deleteAccount' ? 'destructive' : 'secondary'">
+                                        {{ optionConfig.label.en }}
+                                    </TextButton>
+                                </RouterLink>
+                            </template>
+                        </div>
                     </div>
 
                     <div class="flex flex-none flex-col gap-y-2 pt-2">
-                        <Separator class="my-2" />
+                        <!-- <Separator class="my-2" /> -->
                         <RouterLink :to="{ name: 'deleteAccount' }" as-child>
-                            <Button class="w-full font-normal" variant="destructive">Delete account</Button>
+                            <TextButton class="w-full font-normal" variant="destructive">Delete account</TextButton>
                         </RouterLink>
                     </div>
                 </div>

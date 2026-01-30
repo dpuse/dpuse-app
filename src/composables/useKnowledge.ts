@@ -13,18 +13,11 @@ let activeLocaleCode: LocaleCode | undefined;
 let workbenchLocalisedConfig: WorkbenchLocalisedConfig | undefined;
 
 // Composable for loading and caching knowledge data.
-function useKnowledge() {
-    return {
-        getBenchtopConfig
-    };
+export function useKnowledge() {
+    return { getBenchtopConfig };
 }
 
-// Exposures.
-export { useKnowledge };
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//#region Workbench Operations
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Operations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 // Retrieve benchtop localized configuration by id for the given locale, throwing when missing.
 function getBenchtopConfig(id: string, localeCode: LocaleCode): BenchtopLocalisedConfig {
@@ -34,11 +27,7 @@ function getBenchtopConfig(id: string, localeCode: LocaleCode): BenchtopLocalise
     return benchtopLocalisedConfig;
 }
 
-//#endregion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//#region Workbench Helpers
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 // ...
 function getWorkbenchLocalisedConfig(localeCode: LocaleCode): WorkbenchLocalisedConfig {
@@ -52,34 +41,24 @@ function localiseWorkbenchConfig(localeCode: LocaleCode): WorkbenchLocalisedConf
         id: workbenchConfig.id,
         label: workbenchConfig.label[localeCode] ?? workbenchConfig.id,
         description: workbenchConfig.description[localeCode] ?? workbenchConfig.id,
-        colors: workbenchConfig.colors,
-        icon: workbenchConfig.icon,
         benchtops: workbenchConfig.benchtops.map((benchtopConfig) => ({
             id: benchtopConfig.id,
             label: benchtopConfig.label[localeCode] ?? workbenchConfig.id,
             description: benchtopConfig.description[localeCode] ?? workbenchConfig.id,
-            colors: benchtopConfig.colors,
             icon: benchtopConfig.icon,
-            primaryOptions: benchtopConfig.primaryOptions.map((primaryOptionConfig) => ({
-                id: primaryOptionConfig.id,
-                label: primaryOptionConfig.label[localeCode] ?? workbenchConfig.id,
-                description: primaryOptionConfig.description[localeCode] ?? workbenchConfig.id,
-                kind: primaryOptionConfig.kind,
-                step: primaryOptionConfig.step,
-                tasks: primaryOptionConfig.tasks.map((taskConfig) => ({
+            options: benchtopConfig.options.map((optionConfig) => ({
+                id: optionConfig.id,
+                label: optionConfig.label[localeCode] ?? workbenchConfig.id,
+                description: optionConfig.description[localeCode] ?? workbenchConfig.id,
+                color: optionConfig.color,
+                icon: optionConfig.icon,
+                step: optionConfig.step,
+                tasks: optionConfig.tasks.map((taskConfig) => ({
                     id: taskConfig.id,
                     label: taskConfig.label[localeCode] ?? workbenchConfig.id,
                     description: taskConfig.description[localeCode] ?? workbenchConfig.id
                 }))
-            })),
-            secondaryOptions: benchtopConfig.secondaryOptions.map((secondaryOptionConfig) => ({
-                id: secondaryOptionConfig.id,
-                label: secondaryOptionConfig.label[localeCode] ?? workbenchConfig.id,
-                description: secondaryOptionConfig.description[localeCode] ?? workbenchConfig.id,
-                kind: secondaryOptionConfig.kind
             }))
         }))
     };
 }
-
-//#endregion ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

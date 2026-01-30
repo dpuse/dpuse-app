@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // Components
-import Button from '@/components/base/button/Button.vue';
-import { Textarea } from '@/components/base/textarea';
+import IconButton from '@/components/base/IconButton.vue';
 import { ArrowBigLeftDashIcon, MessageCircleMoreIcon, SearchIcon, XIcon } from 'lucide-vue-next';
 
 // Properties
@@ -17,7 +16,7 @@ const properties = defineProps<Properties>();
                 <div class="flex h-full flex-1 items-center text-lg font-light">Assistant</div>
 
                 <div class="flex items-center gap-x-2">
-                    <Button
+                    <IconButton
                         v-if="properties.onTogglePanelWidth"
                         :aria-label="properties.isPanelWide ? 'Set assistant panel to compact width' : 'Set assistant panel to wide width'"
                         class="flex-none cursor-pointer items-center justify-center rounded-full"
@@ -26,9 +25,9 @@ const properties = defineProps<Properties>();
                         @click="properties.onTogglePanelWidth?.()"
                     >
                         <ArrowBigLeftDashIcon class="dpu-panel-width-icon size-6" :class="{ 'dpu-panel-width-icon-rotated': properties.isPanelWide }" :stroke-width="1.25" />
-                    </Button>
+                    </IconButton>
 
-                    <Button
+                    <IconButton
                         v-if="properties.onRequestClose"
                         aria-label="Close assistant panel"
                         class="flex-none cursor-pointer items-center justify-center rounded-full"
@@ -37,7 +36,7 @@ const properties = defineProps<Properties>();
                         @click="properties.onRequestClose?.()"
                     >
                         <XIcon class="size-5" :stroke-width="1.25" />
-                    </Button>
+                    </IconButton>
                 </div>
             </div>
         </div>
@@ -50,21 +49,32 @@ const properties = defineProps<Properties>();
             </div>
 
             <div class="flex-none rounded-md border">
-                <Textarea
+                <!-- <Textarea
                     id="assistant-input"
                     name="assistant-input"
                     class="placeholder:text-muted-foreground max-h-48 w-full resize-none overflow-y-auto border-0 bg-transparent px-2 text-base! shadow-none ring-0 outline-none placeholder:text-sm focus-visible:shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
                     rows="1"
                     placeholder="Ask a question → X to chat with assistant or;&#10;enter keywords → X to search the library…"
-                />
+                /> -->
+                <div>
+                    <label for="comment" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Add your comment</label>
+                    <div class="mt-2">
+                        <textarea
+                            rows="4"
+                            name="comment"
+                            id="comment"
+                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                        ></textarea>
+                    </div>
+                </div>
 
                 <div class="flex justify-end pr-1 pb-1">
-                    <Button size="icon-sm" variant="ghost" @click="properties.onRunTest">
+                    <IconButton size="icon-sm" variant="ghost" @click="properties.onRunTest">
                         <MessageCircleMoreIcon class="size-5" stroke-width="1.25" />
-                    </Button>
-                    <Button size="icon-sm" variant="ghost">
+                    </IconButton>
+                    <IconButton size="icon-sm" variant="ghost">
                         <SearchIcon class="size-5" stroke-width="1.25" />
-                    </Button>
+                    </IconButton>
                 </div>
             </div>
         </div>

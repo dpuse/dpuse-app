@@ -1,140 +1,80 @@
 <script setup lang="ts">
 // Vendor dependencies
-import { computed } from 'vue';
-// import { storeToRefs } from 'pinia';
+import { ref, watch } from 'vue';
 
 // Application core
 import { useKnowledge } from '@/composables/useKnowledge';
-// import { useSessionStore } from '@/stores/sessionStore';
 
 // Components
-import Button from '@/components/base/button/Button.vue';
-// import { HoverCardRoot } from 'reka-ui';
-// import { Label } from '@/components/base/label';
-import OptionIcon from '@/components/icon/OptionIcon.vue';
-import Separator from '@/components/base/separator/Separator.vue';
-// import { storeToRefs } from 'pinia';
-// import { Switch } from '@/components/base/switch';
-// import { HoverCardContent, HoverCardTrigger } from '@/components/base/hover-card';
-// import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-vue-next';
+import { LayoutDashboardIcon, LoaderCircleIcon, LogInIcon, UserCogIcon } from 'lucide-vue-next';
 
 // Properties
-type Properties = { class?: string; sessionIsAuthenticated?: boolean; onOptionSelect?: () => void };
-const properties = defineProps<Properties>();
+const properties = defineProps<{ sessionIsAuthenticated?: boolean; onOptionSelect?: () => void }>();
+
+const classes =
+    'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 flex h-10 w-10 flex-none items-center justify-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:focus-visible:outline-indigo-500';
+
+const authIconState = ref<boolean | undefined>(undefined);
+
+// Active localised benchtop configuration
+const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
+
+watch(
+    () => properties.sessionIsAuthenticated,
+    (newSessionIsAuthenticatedValue) => setTimeout(() => (authIconState.value = newSessionIsAuthenticatedValue), 300)
+);
+
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleOptionSelect() {
     properties.onOptionSelect?.();
 }
-
-// Global state
-// const sessionState = useSessionStore();
-// const { sessionStatus } = storeToRefs(sessionState);
-// const sessionStatus = ref({ isAuthenticated: false });
-
-// Active benchtop configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en') ?? { primaryOptions: [], secondaryOptions: [] };
-
-// Option kind values state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const optionKindValues = computed(() => ({ account: properties.sessionIsAuthenticated }));
-
-// Quick links panel state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-// const isQuickLinksPanelOpen = ref(false);
-
-// function closeQuickLinksPanel() {
-//     isQuickLinksPanelOpen.value = false;
-// }
-
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-// async function signOut() {
-//     // sessionState.destroyFlow();
-//     await sessionState.signOut();
-//     // closeQuickLinksPanel();
-// }
 </script>
 
 <template>
-    <div :class="['flex h-full flex-col', properties.class]">
-        <!-- Top scroll boundary -->
-        <div class="px-3"><Separator /></div>
-
+    <div class="flex h-full flex-col">
         <!-- Options scroller -->
-        <div class="flex flex-1 flex-col items-center overflow-y-auto overscroll-y-none pt-2 pb-5.5">
-            <!-- Primary options -->
-            <div class="flex w-full flex-1 flex-col items-center gap-y-1">
-                <RouterLink v-for="optionConfig of activeBenchtopConfig.primaryOptions" :key="optionConfig.id" :to="{ name: optionConfig.id }" as-child>
-                    <Button size="icon-lg" variant="ghost" @click="handleOptionSelect">
-                        <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
-                    </Button>
+        <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none border-t px-3 pt-2 pb-5.5">
+            <div class="flex w-full flex-1 flex-col items-center">
+                <RouterLink :class="classes" :to="{ name: activeBenchtopConfig.id }" @click="handleOptionSelect">
+                    <LayoutDashboardIcon class="size-6" :stroke-width="1.25" />
+                </RouterLink>
+
+                <RouterLink v-for="config of activeBenchtopConfig.options" :key="config.id" :class="classes" :to="{ name: config.id }" @click="handleOptionSelect">
+                    <div aria-hidden="true" class="size-6" :style="{ color: `${config.color}` }" v-html="config.icon" />
                 </RouterLink>
             </div>
 
-            <!-- Secondary options and separator -->
-            <div class="w-full flex-none px-3 py-2"><Separator /></div>
-            <div class="flex w-full flex-none flex-col items-center gap-y-1">
-                <template v-for="optionConfig of activeBenchtopConfig.secondaryOptions" :key="optionConfig.id">
-                    <div v-if="optionConfig.kind.id === 'multiple'">
-                        <!-- <HoverCardRoot v-model:open="isQuickLinksPanelOpen" :close-delay="0" :open-delay="0">
-                            <HoverCardTrigger>
-                                <Button size="icon-lg" variant="ghost">
-                                    <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
-                                </Button>
-                            </HoverCardTrigger>
-                            <HoverCardContent align="end" side="right">
-                                <div class="flex flex-none flex-col gap-y-4">
-                                    <div>
-                                        <div class="mb-1 text-xs text-[0.625rem] font-bold uppercase">Display</div>
-                                        <div class="flex h-8 items-center space-x-2">
-                                            <Switch id="full-screen-mode" />
-                                            <Label for="full-screen-mode">Full screen</Label>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <div class="mb-1 text-xs text-[0.625rem] font-bold uppercase">Appearance</div>
-                                        <div class="flex h-8 items-center space-x-2">
-                                            <Button size="icon-sm" variant="secondary"><MoonIcon /></Button>
-                                            <Button size="icon-sm" variant="ghost"><SunIcon /></Button>
-                                            <Button size="icon-sm" variant="ghost"><MonitorIcon /></Button>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <div class="mb-1 text-xs text-[0.625rem] font-bold uppercase">Language</div>
-                                        <div class="bg-muted flex h-8 items-center space-x-2 rounded-md"></div>
-                                    </div>
-
-                                    <div>
-                                        <div class="mb-1 text-xs text-[0.625rem] font-bold uppercase">Locale</div>
-                                        <div class="bg-muted flex h-8 items-center space-x-2 rounded-md"></div>
-                                    </div>
-
-                                    <div>
-                                        <div class="mb-1 text-xs text-[0.625rem] font-bold uppercase">Time zone</div>
-                                        <div class="bg-muted flex h-8 items-center rounded-md"></div>
-                                    </div>
-
-                                    <div>
-                                        <Separator class="mb-3" />
-                                        <Button class="w-full font-normal" :disabled="!sessionState.sessionStatus.isAuthenticated" variant="warning" @click="signOut">
-                                            Sign out
-                                        </Button>
-                                    </div>
-                                </div>
-                            </HoverCardContent>
-                        </HoverCardRoot> -->
-                    </div>
-
-                    <RouterLink v-else :to="{ name: optionConfig.id }" as-child>
-                        <Button size="icon-lg" variant="ghost" @click="handleOptionSelect">
-                            <OptionIcon class="size-6" :option-id="optionConfig.id" :kind="optionConfig.kind" :option-kind-values="optionKindValues" />
-                        </Button>
-                    </RouterLink>
-                </template>
-            </div>
+            <RouterLink :class="classes" :to="{ name: 'managePersonalDetails' }" @click="handleOptionSelect">
+                <div class="relative size-6">
+                    <TransitionGroup name="fade">
+                        <UserCogIcon v-if="authIconState === true" key="user" class="absolute inset-0 size-6" :stroke-width="1.25" />
+                        <LogInIcon v-if="authIconState === false" key="login" class="absolute inset-0 size-6" :stroke-width="1.25" />
+                        <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute inset-0 size-6 animate-spin text-neutral-300" />
+                    </TransitionGroup>
+                </div>
+            </RouterLink>
         </div>
     </div>
 </template>
+
+<style scoped>
+.fade-enter-active {
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
+    will-change: opacity;
+}
+.fade-leave-active {
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 1, 1);
+    will-change: opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: none;
+    }
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+</style>

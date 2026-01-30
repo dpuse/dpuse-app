@@ -1,0 +1,80 @@
+<script setup lang="ts">
+// Vendor dependencies
+import { useColorMode } from '@vueuse/core';
+import { type HTMLAttributes, ref } from 'vue';
+
+// Application core
+import { cn } from '@/lib/utils';
+
+// Components
+import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
+import { Button } from '@/components/base/button';
+import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';
+import GoogleLogoIcon from '@/components/icon/logos/GoogleLogoIcon.vue';
+import { Input } from '@/components/base/input';
+import MicrosoftLogoIcon from '@/components/icon/logos/MicrosoftLogoIcon.vue';
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/base/field';
+
+// Properties
+type Properties = { class?: HTMLAttributes['class']; onTrigger: (identifier: string) => Promise<void> };
+const properties = defineProps<Properties>();
+
+// Global state
+const colorMode = useColorMode();
+
+// ???
+const identifier = ref('terrell.jm@icloud.com');
+async function handleSubmit() {
+    await properties.onTrigger(identifier.value);
+}
+</script>
+
+<template>
+    <div :class="cn('flex flex-col gap-6', properties.class)">
+        <form>
+            <FieldGroup>
+                <div class="flex flex-col items-center gap-2 text-center">
+                    <a href="#" class="flex flex-col items-center gap-2 font-medium">
+                        <span class="sr-only">Acme Inc.</span>
+                    </a>
+                    <h1 class="text-xl font-medium">Data Positioning + Use</h1>
+                    <FieldDescription>
+                        Don't have an account?
+                        <a href="#">Sign up</a>
+                    </FieldDescription>
+                </div>
+
+                <Field>
+                    <FieldLabel for="email">Email</FieldLabel>
+                    <Input id="email" type="email" placeholder="m@example.com" required />
+                </Field>
+
+                <Field>
+                    <Button type="button" @click="handleSubmit">Sign in</Button>
+                </Field>
+
+                <FieldSeparator>Or continue with</FieldSeparator>
+
+                <Field class="grid gap-4 sm:grid-cols-2">
+                    <Button variant="outline" type="button">
+                        <AppleLogoIcon class="size-5" :fill="colorMode === 'light' ? 'black' : 'white'" />
+                        Apple
+                    </Button>
+                    <Button variant="outline" type="button">
+                        <GitHubLogoIcon class="size-5" :fill="colorMode === 'light' ? 'black' : 'white'" />
+                        Github
+                    </Button>
+                    <Button variant="outline" type="button">
+                        <GoogleLogoIcon class="size-5" />
+                        Google
+                    </Button>
+                    <Button variant="outline" type="button">
+                        <MicrosoftLogoIcon class="size-5" />
+                        Microsoft
+                    </Button>
+                </Field>
+            </FieldGroup>
+        </form>
+        <FieldDescription class="px-6 text-center"> By clicking continue, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. </FieldDescription>
+    </div>
+</template>

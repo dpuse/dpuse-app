@@ -14,9 +14,7 @@ const properties = defineProps<{ isDisplayWide: boolean }>();
 const activeLangId = 'en'; // TODO: Remove hardcoding...
 
 // Workflow step configurations sourced from knowledge store
-const workflowStepConfigs = useKnowledge()
-    .getBenchtopConfig('workflow', activeLangId)
-    .primaryOptions.filter((config) => config.step);
+const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', activeLangId).options;
 </script>
 
 <template>

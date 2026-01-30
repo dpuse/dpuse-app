@@ -72,17 +72,24 @@ function startWorker(): void {
 }
 
 function postWebVitalsEvent(metric: Metric, userAgent: string) {
-    postEvent({
-        name: 'webVitals',
-        data: {
-            id: metric.id,
-            name: metric.name,
-            value: metric.value,
-            delta: metric.delta,
-            entries: metric.entries.map((entry) => entry.toJSON()),
-            navigationType: metric.navigationType,
-            rating: metric.rating,
-            userAgent
-        }
-    });
+    try {
+        const data = {
+            name: 'webVitals',
+            data: {
+                id: metric.id,
+                name: metric.name,
+                value: metric.value,
+                delta: metric.delta,
+                entries: metric.entries.map((entry) => entry.toJSON()),
+                navigationType: metric.navigationType,
+                rating: metric.rating,
+                userAgent
+            }
+        };
+        postEvent(data);
+    } catch (error) {
+        console.log(1111, error);
+        console.log(2222, metric);
+        console.log(3333, userAgent);
+    }
 }
