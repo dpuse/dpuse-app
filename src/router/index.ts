@@ -48,6 +48,7 @@ export default createRouter({
         },
         { path: '/:catchAll(.*)', redirect: '/workflow' }
     ],
+
     scrollBehavior: (to, from, savedPosition) => {
         return savedPosition ? { ...savedPosition, behavior: 'auto' } : { left: 0, top: 0 }; // NOTE: "behavior: 'auto'" required for Safari iOS v18.3.2.
     }

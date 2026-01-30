@@ -10,7 +10,7 @@ import { useSessionStore } from '@/stores/sessionStore';
 // Components
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
 const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
-const AuthDialog = defineAsyncComponent(() => import('@/components/AuthDialog.vue'));
+const AuthDialog = defineAsyncComponent(() => import('@/components/block/account/AuthDialog.vue'));
 import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import IconButton from '@/components/base/IconButton.vue';
