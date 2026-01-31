@@ -1,11 +1,15 @@
 /* eslint-disable unicorn/prefer-add-event-listener */
 
 // Vendor dependencies
-import type { Claims } from '@teamhanko/hanko-frontend-sdk';
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
+// Application core
+import type { SessionStatus } from '@/stores/sessionStore';
+
+//
 type WorkerResponse = { type: string; payload?: unknown; meta?: { requestId?: number } };
 
+//
 let worker: Worker | undefined;
 
 //
@@ -23,9 +27,10 @@ function initialise(): void {
     startWorker();
 }
 
-function identifyUser(sessionClaims?: Claims): void {
+function identifyUser(sessionStatus: SessionStatus): void {
     if (!worker) startWorker();
-    worker?.postMessage({ type: 'identifyUser', payload: sessionClaims });
+    console.log('IDENTIFY USER', sessionStatus);
+    // worker?.postMessage({ type: 'identifyUser', payload: sessionClaims });
 }
 
 function postEvent(payload: { name: string; data: Record<string, unknown> }): Promise<unknown> {

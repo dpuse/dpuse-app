@@ -13,17 +13,19 @@ import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
 
 // Session status
-interface SessionStatus {
+export interface SessionStatus {
     establishedAt?: number;
     expiresAt?: number;
     expiresIn?: number;
     isAuthenticated?: boolean; // undefined if Hanko validate session pending; false if not signed in; true if signed in
     lifetime?: number;
+    monitorId?: string;
     sessionId?: string;
     userId?: string;
 }
 
 // Constants
+const DPU_ANON_ID_KEY = 'dpu_anon_id';
 // const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 // const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
@@ -54,14 +56,11 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
             hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
             hankoInstance.validateSession().then((result) => {
-                console.log(crypto.randomUUID(), result);
-                if (result.is_valid) hankoInstance!.getUser().then((user) => console.log('User profile:', user));
-                const claims = result.is_valid ? result.claims : undefined;
-                sessionStatus.value = constructSessionStatus(claims);
+                sessionStatus.value = constructSessionStatus(result.is_valid ? result.claims : undefined);
                 import('@/composables/useMonitor').then(({ useMonitor }) => {
                     const monitor = useMonitor();
                     monitor.initialise();
-                    monitor.identifyUser(claims);
+                    monitor.identifyUser(sessionStatus.value);
                     window.addEventListener('beforeunload', (event) => {
                         if (!areUpdatesPending.value) return;
                         useMonitor().cleanUp();
@@ -112,15 +111,23 @@ function constructSessionStatus(claims?: Claims): SessionStatus {
     if (claims) {
         const establishedAt = claims.issued_at ? Date.parse(claims?.issued_at) : 0;
         const expiresAt = claims.expiration ? Date.parse(claims.expiration) : 0;
+        const userId = claims.subject ?? 'unknown';
         return {
             establishedAt,
             expiresAt,
             expiresIn: 0,
             isAuthenticated: true,
             lifetime: expiresAt - establishedAt,
+            monitorId: `user_${userId}`,
             sessionId: claims.session_id ?? undefined,
-            userId: claims.subject
+            userId
         };
     }
-    return { isAuthenticated: false };
+
+    let monitorId = localStorage.getItem(DPU_ANON_ID_KEY);
+    if (!monitorId) {
+        monitorId = `anon_${crypto.randomUUID()}`;
+        localStorage.setItem(DPU_ANON_ID_KEY, monitorId);
+    }
+    return { isAuthenticated: false, monitorId };
 }
