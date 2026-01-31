@@ -1,4 +1,4 @@
-// This composable provides a reactive flag for showing the Signi dialog based on the current route
+// This composable provides a reactive flag for showing the Auth dialog based on the current route
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
