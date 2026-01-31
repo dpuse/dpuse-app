@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Application core
+// Workbench core
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // Components

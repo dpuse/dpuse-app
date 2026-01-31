@@ -2,7 +2,7 @@
 import { createPinia } from 'pinia';
 import { type ComponentPublicInstance, createApp } from 'vue';
 
-// Application core
+// Workbench core
 import '@/assets/main.css';
 import App from '@/App.vue';
 import router from '@/router';

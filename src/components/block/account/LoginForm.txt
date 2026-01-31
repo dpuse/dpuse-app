@@ -3,7 +3,7 @@
 import { useColorMode } from '@vueuse/core';
 import { type HTMLAttributes, ref } from 'vue';
 
-// Application core
+// Workbench core
 import { cn } from '@/lib/utils';
 
 // Components

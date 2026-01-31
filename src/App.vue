@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
-// Application core
+// Workbench core
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Components

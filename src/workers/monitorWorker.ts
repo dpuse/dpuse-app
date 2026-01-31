@@ -1,7 +1,34 @@
+import { UAParser } from 'ua-parser-js';
+
+import { version } from '~/package.json';
+
 type ModuleStatesController = { connect: () => void; disconnect: () => void };
 type MonitorController = { init: () => void };
 type MessageMeta = { requestId?: number };
-type WorkerMessage = { type: string; payload?: unknown; meta?: MessageMeta };
+
+type WorkerMessage = { eventId: string; payload: WorkerMessagePayload; meta?: MessageMeta };
+
+export interface WorkerMessagePayload {
+    userId: string;
+    anonId: string;
+    sessionId: string;
+    connectionEffectiveType: string;
+    connectionDownlink: number;
+    connectionDownlinkMax: number;
+    connectionRTT: number;
+    connectionSaveData: boolean;
+    connectionType: string;
+    browserLanguage: string;
+    url: string;
+    host: string;
+    pathname: string;
+    referrer: string;
+    screenHeight: number;
+    screenWidth: number;
+    viewportHeight: number;
+    viewportWidth: number;
+    userAgent: string;
+}
 
 let moduleStates: ModuleStatesController | undefined;
 let monitor: MonitorController | undefined;
@@ -11,13 +38,70 @@ self.addEventListener('message', (event) => {
 });
 
 async function handleMessage(event: MessageEvent<WorkerMessage>): Promise<void> {
-    const { type, payload, meta } = event.data || {};
+    const { eventId, payload, meta } = event.data || {};
 
-    switch (type) {
+    switch (eventId) {
         case 'initialise':
             await handleSessionInit(payload);
             break;
-        case 'identifyUser':
+        case '$identify':
+            console.log('$identify', payload);
+            const userId = payload.userId;
+
+            const parser = new UAParser(payload.userAgent);
+            const result = parser.getResult();
+            console.log(result);
+
+            fetch('https://eu.i.posthog.com/capture/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    api_key: import.meta.env.VITE_POSTHOG_PROJECT_API_KEY,
+                    event: '$identify',
+                    distinct_id: userId,
+                    properties: {
+                        $insert_id: crypto.randomUUID(),
+                        $anon_distinct_id: payload.anonId,
+                        $session_id: undefined, // TODO
+                        connection_effective_type: payload.connectionEffectiveType,
+                        connection_downlink: payload.connectionDownlink,
+                        connection_downlinkMax: payload.connectionDownlinkMax,
+                        connection_rtt: payload.connectionRTT,
+                        connection_save_data: payload.connectionSaveData,
+                        connection_type: payload.connectionType,
+                        $browser_language: payload.browserLanguage,
+                        $current_url: payload.url,
+                        $pathname: payload.pathname,
+                        $host: payload.host,
+                        $referrer: payload.referrer,
+                        $browser: result.browser.name,
+                        $browser_version: result.browser.major,
+                        browser_version_full: result.browser.version,
+                        engine: result.engine.name,
+                        engine_version: result.engine.version,
+                        $device: result.device.model || result.device.type || 'Desktop',
+                        $device_type: result.device.type || 'Desktop',
+                        device_vendor: result.device.vendor,
+                        $os: result.os.name,
+                        $os_version: result.os.version,
+                        $screen_height: payload.screenHeight,
+                        $screen_width: payload.screenWidth,
+                        $viewport_height: payload.viewportHeight,
+                        $viewport_width: payload.viewportWidth,
+                        $lib: 'workbench',
+                        $lib_version: version,
+                        $user_agent: payload.userAgent,
+                        // For $identify events specifically
+                        $set: {
+                            // mutable user properties
+                        },
+                        $set_once: {
+                            // immutable properties
+                        }
+                    }
+                })
+            }).catch(console.error);
+
             break;
         case 'cleanUp':
             handleSessionTeardown();
@@ -34,7 +118,12 @@ async function handleSessionInit(payload: unknown): Promise<void> {
     await Promise.all([ensureModuleStates(), ensureMonitor()]);
     // Placeholder: store session context or perform handshake with backend
     console.debug('[event-worker] session:init', payload);
-    self.postMessage({ type: 'event:result', payload: 'test' });
+    try {
+        self.postMessage({ type: 'event:result', payload: 'test' });
+    } catch (error) {
+        console.log('ERROR', error);
+        console.log('PAYLOAD', payload);
+    }
 }
 
 function handleSessionTeardown(): void {
@@ -44,7 +133,12 @@ function handleSessionTeardown(): void {
 async function handleEvent(payload: unknown, meta?: MessageMeta): Promise<void> {
     // Placeholder: in a real app you might route to PostHog or your API.
     const result = await simulateEventProcessing(payload);
-    self.postMessage({ type: 'event:result', payload: result, meta });
+    try {
+        self.postMessage({ type: 'event:result', payload: result, meta });
+    } catch (error) {
+        console.log('ERROR', error);
+        console.log('PAYLOAD', payload);
+    }
 }
 
 async function ensureModuleStates(): Promise<void> {

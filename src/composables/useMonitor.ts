@@ -3,11 +3,19 @@
 // Vendor dependencies
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
-// Application core
-import type { SessionStatus } from '@/stores/sessionStore';
+// Workbench core
+import type { WorkerMessagePayload } from '@/workers/monitorWorker';
 
 //
 type WorkerResponse = { type: string; payload?: unknown; meta?: { requestId?: number } };
+
+// Still experimental so no type definitions
+type NavigatorConnection = { effectiveType?: string; downlink?: number; downlinkMax?: number; rtt?: number; saveData?: boolean; type?: string };
+interface NavigatorWithConnection extends Navigator {
+    connection?: NavigatorConnection;
+    mozConnection?: NavigatorConnection;
+    webkitConnection?: NavigatorConnection;
+}
 
 //
 let worker: Worker | undefined;
@@ -27,10 +35,35 @@ function initialise(): void {
     startWorker();
 }
 
-function identifyUser(sessionStatus: SessionStatus): void {
+function identifyUser(userId: string): void {
     if (!worker) startWorker();
-    console.log('IDENTIFY USER', sessionStatus);
-    // worker?.postMessage({ type: 'identifyUser', payload: sessionClaims });
+    const anonId = localStorage.getItem('dpu_anon_user_id');
+    const connection =
+        (navigator as NavigatorWithConnection).connection || (navigator as NavigatorWithConnection).mozConnection || (navigator as NavigatorWithConnection).webkitConnection;
+    worker?.postMessage({
+        eventId: '$identify',
+        payload: {
+            userId,
+            anonId,
+            sessionId: '', // TODO
+            connectionEffectiveType: connection?.effectiveType,
+            connectionDownlink: connection?.downlink,
+            connectionDownlinkMax: connection?.downlinkMax,
+            connectionRTT: connection?.rtt,
+            connectionSaveData: connection?.saveData,
+            connectionType: connection?.type,
+            browserLanguage: globalThis.navigator.language,
+            url: globalThis.location.href,
+            host: globalThis.location.host,
+            pathname: globalThis.location.pathname,
+            referrer: globalThis.document.referrer,
+            screenHeight: globalThis.screen.height,
+            screenWidth: globalThis.screen.width,
+            viewportHeight: globalThis.window.innerHeight,
+            viewportWidth: globalThis.window.innerWidth,
+            userAgent: globalThis.navigator.userAgent
+        } as WorkerMessagePayload
+    });
 }
 
 function postEvent(payload: { name: string; data: Record<string, unknown> }): Promise<unknown> {

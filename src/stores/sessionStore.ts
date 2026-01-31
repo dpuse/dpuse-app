@@ -5,7 +5,7 @@ import { defineStore } from 'pinia';
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { ref, shallowRef } from 'vue';
 
-// Application core
+// Workbench core
 import type { ConnectionConfig } from '@datapos/datapos-shared/component/connector';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 
@@ -19,13 +19,16 @@ export interface SessionStatus {
     expiresIn?: number;
     isAuthenticated?: boolean; // undefined if Hanko validate session pending; false if not signed in; true if signed in
     lifetime?: number;
-    monitorId?: string;
+    monitorSessionId?: string;
+    monitorUserId?: string;
     sessionId?: string;
     userId?: string;
 }
 
 // Constants
-const DPU_ANON_ID_KEY = 'dpu_anon_id';
+const DPU_ANON_USER_ID_KEY = 'dpu_anon_user_id';
+// const DPU_ANON_SESSION_ID_KEY = 'dpu_anon_session_id';
+// const DPU_ANON_SESSION_LAST_KEY = 'dpu_anon_session_last';
 // const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 // const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
@@ -60,7 +63,7 @@ export const useSessionStore = defineStore('session', () => {
                 import('@/composables/useMonitor').then(({ useMonitor }) => {
                     const monitor = useMonitor();
                     monitor.initialise();
-                    monitor.identifyUser(sessionStatus.value);
+                    monitor.identifyUser(sessionStatus.value.monitorUserId!);
                     window.addEventListener('beforeunload', (event) => {
                         if (!areUpdatesPending.value) return;
                         useMonitor().cleanUp();
@@ -91,6 +94,33 @@ export const useSessionStore = defineStore('session', () => {
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+function constructSessionStatus(claims?: Claims): SessionStatus {
+    if (claims) {
+        const establishedAt = claims.issued_at ? Date.parse(claims?.issued_at) : 0;
+        const expiresAt = claims.expiration ? Date.parse(claims.expiration) : 0;
+        const userId = claims.subject ?? 'unknown';
+        const sessionId = claims.session_id ?? 'unknown';
+        return {
+            establishedAt,
+            expiresAt,
+            expiresIn: 0,
+            isAuthenticated: true,
+            lifetime: expiresAt - establishedAt,
+            monitorSessionId: `user_${sessionId}`,
+            monitorUserId: `user_${userId}`,
+            sessionId,
+            userId
+        };
+    }
+
+    let monitorUserId = localStorage.getItem(DPU_ANON_USER_ID_KEY);
+    if (!monitorUserId) {
+        monitorUserId = `anon_${crypto.randomUUID()}`;
+        localStorage.setItem(DPU_ANON_USER_ID_KEY, monitorUserId);
+    }
+    return { isAuthenticated: false, monitorUserId };
+}
+
 // function clearSessionExpiryTimer(): void {
 //     clearInterval(sessionExpiryTimer);
 //     sessionExpiryTimer = undefined;
@@ -106,28 +136,3 @@ export const useSessionStore = defineStore('session', () => {
 //         runQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW
 //     );
 // }
-
-function constructSessionStatus(claims?: Claims): SessionStatus {
-    if (claims) {
-        const establishedAt = claims.issued_at ? Date.parse(claims?.issued_at) : 0;
-        const expiresAt = claims.expiration ? Date.parse(claims.expiration) : 0;
-        const userId = claims.subject ?? 'unknown';
-        return {
-            establishedAt,
-            expiresAt,
-            expiresIn: 0,
-            isAuthenticated: true,
-            lifetime: expiresAt - establishedAt,
-            monitorId: `user_${userId}`,
-            sessionId: claims.session_id ?? undefined,
-            userId
-        };
-    }
-
-    let monitorId = localStorage.getItem(DPU_ANON_ID_KEY);
-    if (!monitorId) {
-        monitorId = `anon_${crypto.randomUUID()}`;
-        localStorage.setItem(DPU_ANON_ID_KEY, monitorId);
-    }
-    return { isAuthenticated: false, monitorId };
-}

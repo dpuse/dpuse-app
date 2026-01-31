@@ -2,7 +2,7 @@
 // Vendor dependencies
 import { ref, watch } from 'vue';
 
-// Application core
+// Workbench core
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // Components
