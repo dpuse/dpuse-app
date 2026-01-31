@@ -49,17 +49,17 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.validateSession().then((validateSessionResponse) => {
                 const claims = validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined;
                 sessionStatus.value = constructSessionStatus(claims);
-                //  monitor.identifyUser(claims);
-            });
-        });
-        import('@/composables/useMonitor').then(({ useMonitor }) => {
-            const monitor = useMonitor();
-            monitor.initialise();
-            window.addEventListener('beforeunload', (event) => {
-                if (!areUpdatesPending.value) return;
-                useMonitor().cleanUp();
-                event.preventDefault();
-                event.returnValue = '';
+                import('@/composables/useMonitor').then(({ useMonitor }) => {
+                    const monitor = useMonitor();
+                    monitor.initialise();
+                    monitor.identifyUser(claims);
+                    window.addEventListener('beforeunload', (event) => {
+                        if (!areUpdatesPending.value) return;
+                        useMonitor().cleanUp();
+                        event.preventDefault();
+                        event.returnValue = '';
+                    });
+                });
             });
         });
     }

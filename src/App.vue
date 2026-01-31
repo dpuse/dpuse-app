@@ -1,27 +1,29 @@
 <script setup lang="ts">
 // Vendor dependencies
+import { useRoute } from 'vue-router';
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // Application core
-import { useAuthDialog } from '@/composables/useAuthDialog';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Components
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
-const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
-const AuthDialog = defineAsyncComponent(() => import('@/components/block/account/AuthDialog.vue'));
 import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import IconButton from '@/components/base/IconButton.vue';
-import StatusBar from '@/components/block/statusBar/StatusBar.vue';
+
+// Components (Lazy load)
+const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
+const AuthDialog = defineAsyncComponent(() => import('@/components/block/account/AuthDialog.vue'));
+const StatusBar = defineAsyncComponent(() => import('@/components/block/statusBar/StatusBar.vue'));
 
 // Global state
-const sessionState = useSessionStore();
-const { showAuthDialog } = useAuthDialog();
 useColorMode();
+const route = useRoute();
+const sessionState = useSessionStore();
 
-// Display width state
+// Display wide width state
 const isDisplayWide = useMediaQuery('(min-width: 768px)');
 
 // Benchtop option bar states
@@ -39,8 +41,11 @@ const assistPanelToggleAriaLabel = computed(() => {
     return isPanelVisible ? 'Hide assistant panel' : 'Show assistant panel';
 });
 
-// Lifecycle hooks
-onMounted(() => sessionState.initServices()); // Initialise authentication, module status and monitor services.
+// Authentication dialog state
+const authDialogIsVisible = computed(() => route.query.dialog === 'auth');
+
+// Initialise authentication and monitor services
+// onMounted(() => sessionState.initServices());
 
 // Hide narrow versions of option bar and assistant panels when display width transitions from narrow to wide
 watch(isDisplayWide, (newIsDisplayWide) => {
@@ -90,7 +95,7 @@ function toggleAssistPanel() {
         </IconButton>
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
-        <AuthDialog v-if="showAuthDialog" />
+        <AuthDialog v-if="authDialogIsVisible" />
 
         <!-- Body -->
         <div class="z-10 flex h-full">
@@ -113,7 +118,9 @@ function toggleAssistPanel() {
                 </div>
 
                 <!-- Row positioned at bottom of workbench content column -->
-                <StatusBar class="flex-none" />
+                <div class="h-5.5 flex-none">
+                    <StatusBar />
+                </div>
             </div>
 
             <!-- Column fixed to right side of browser window -->

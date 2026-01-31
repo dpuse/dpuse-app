@@ -7,6 +7,7 @@ import '@/assets/main.css';
 import App from '@/App.vue';
 import router from '@/router';
 import { ApplicationError, normalizeToError, VueHandledError, WindowHandledPromiseRejectionError, WindowHandledRuntimeError } from '@datapos/datapos-shared/errors';
+import { useSessionStore } from './stores/sessionStore';
 
 // Window error handlers
 // globalThis.addEventListener('error', reportWindowError);
@@ -22,7 +23,11 @@ try {
     app.mount('#app');
 
     // Wait for the mount to finish, then initialise the monitoring system and session services in parallel.
-    // requestAnimationFrame(initialiseServices);
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            useSessionStore().initServices();
+        });
+    });
 } catch (error) {
     //  reportErrorUsingBrowser(new ApplicationError('Failed to load application.', 'datapos-app|main', { cause: error }));
     reportBootstrapError(error);
