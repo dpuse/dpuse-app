@@ -2,10 +2,15 @@
 
 // Vendor dependencies
 import { defineStore } from 'pinia';
-import type { EngineConfig } from '@datapos/datapos-shared/engine';
-import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { ref, shallowRef } from 'vue';
+
+// Application core
+import type { ConnectionConfig } from '@datapos/datapos-shared/component/connector';
+import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
+
+// Engine
+import type { EngineConfig } from '@datapos/datapos-shared/engine';
 
 // Session status
 interface SessionStatus {
@@ -35,19 +40,23 @@ let flowCleanupFunction: (() => void) | undefined;
 // Pina store for session state
 export const useSessionStore = defineStore('session', () => {
     const areUpdatesPending = ref(false);
+    const connectionConfigs = shallowRef<ConnectionConfig[]>([]);
     const engineConfig = shallowRef<EngineConfig | undefined>();
+    const localMetaNodeConnectionConfig = shallowRef<ConnectionConfig | undefined>();
     const sessionStatus = ref<SessionStatus>({});
     const toolConfigs = shallowRef<ToolConfig[] | undefined>();
 
-    function initServices(): void {
+    function initialiseServices(): void {
         import('@teamhanko/hanko-frontend-sdk').then(({ Hanko }) => {
             hankoInstance = new Hanko(HANKO_API_URL);
             hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
             hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
             hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
             hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
-            hankoInstance.validateSession().then((validateSessionResponse) => {
-                const claims = validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined;
+            hankoInstance.validateSession().then((result) => {
+                console.log(crypto.randomUUID(), result);
+                if (result.is_valid) hankoInstance!.getUser().then((user) => console.log('User profile:', user));
+                const claims = result.is_valid ? result.claims : undefined;
                 sessionStatus.value = constructSessionStatus(claims);
                 import('@/composables/useMonitor').then(({ useMonitor }) => {
                     const monitor = useMonitor();
@@ -78,7 +87,7 @@ export const useSessionStore = defineStore('session', () => {
         await hankoInstance?.logout(); // Fails silently in no Hanko instance
     }
 
-    return { constructFlow, destroyFlow, engineConfig, initServices, sessionStatus, signOut, toolConfigs };
+    return { connectionConfigs, constructFlow, destroyFlow, engineConfig, initialiseServices, localMetaNodeConnectionConfig, sessionStatus, signOut, toolConfigs };
 });
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

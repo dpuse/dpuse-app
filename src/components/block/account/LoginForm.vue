@@ -137,6 +137,9 @@ async function handleSubmit() {
                             <div class="relative flex justify-center text-sm/6 font-medium">
                                 <span class="bg-white px-6 text-gray-900 dark:bg-gray-900 dark:text-gray-300">Or continue with</span>
                             </div>
+                            <div class="relative flex justify-center text-sm/6 font-medium">
+                                <span class="bg-white px-6 text-gray-900 dark:bg-gray-900 dark:text-gray-300">Or sign in with your email</span>
+                            </div>
                         </div>
 
                         <div class="mt-6 grid grid-cols-2 gap-4">

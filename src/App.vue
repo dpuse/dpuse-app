@@ -45,7 +45,7 @@ const assistPanelToggleAriaLabel = computed(() => {
 const authDialogIsVisible = computed(() => route.query.dialog === 'auth');
 
 // Initialise authentication and monitor services
-// onMounted(() => sessionState.initServices());
+onMounted(() => sessionState.initialiseServices());
 
 // Hide narrow versions of option bar and assistant panels when display width transitions from narrow to wide
 watch(isDisplayWide, (newIsDisplayWide) => {
