@@ -40,7 +40,29 @@ export const useSessionStore = defineStore('session', () => {
     const toolConfigs = shallowRef<ToolConfig[] | undefined>();
 
     function initServices(): void {
-        import('@teamhanko/hanko-frontend-sdk').then(({ Hanko }) => {
+        // import('@teamhanko/hanko-frontend-sdk').then(({ Hanko }) => {
+        //     hankoInstance = new Hanko(HANKO_API_URL);
+        //     hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
+        //     hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
+        //     hankoInstance.onUserDeleted(() => (sessionStatus.value = constructSessionStatus()));
+        //     hankoInstance.onUserLoggedOut(() => (sessionStatus.value = constructSessionStatus()));
+        //     hankoInstance.validateSession().then((validateSessionResponse) => {
+        //         const claims = validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined;
+        //         sessionStatus.value = constructSessionStatus(claims);
+        //         import('@/composables/useMonitor').then(({ useMonitor }) => {
+        //             const monitor = useMonitor();
+        //             monitor.initialise();
+        //             monitor.identifyUser(claims);
+        //             window.addEventListener('beforeunload', (event) => {
+        //                 if (!areUpdatesPending.value) return;
+        //                 useMonitor().cleanUp();
+        //                 event.preventDefault();
+        //                 event.returnValue = '';
+        //             });
+        //         });
+        //     });
+        // });
+        Promise.all([import('@teamhanko/hanko-frontend-sdk'), import('@/composables/useMonitor')]).then(([{ Hanko }, { useMonitor }]) => {
             hankoInstance = new Hanko(HANKO_API_URL);
             hankoInstance.onSessionCreated((sessionDetails) => (sessionStatus.value = constructSessionStatus(sessionDetails.claims)));
             hankoInstance.onSessionExpired(() => (sessionStatus.value = constructSessionStatus()));
@@ -49,16 +71,14 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.validateSession().then((validateSessionResponse) => {
                 const claims = validateSessionResponse.is_valid ? validateSessionResponse.claims : undefined;
                 sessionStatus.value = constructSessionStatus(claims);
-                import('@/composables/useMonitor').then(({ useMonitor }) => {
-                    const monitor = useMonitor();
-                    monitor.initialise();
-                    monitor.identifyUser(claims);
-                    window.addEventListener('beforeunload', (event) => {
-                        if (!areUpdatesPending.value) return;
-                        useMonitor().cleanUp();
-                        event.preventDefault();
-                        event.returnValue = '';
-                    });
+                const monitor = useMonitor();
+                monitor.initialise();
+                monitor.identifyUser(claims);
+                window.addEventListener('beforeunload', (event) => {
+                    if (!areUpdatesPending.value) return;
+                    useMonitor().cleanUp();
+                    event.preventDefault();
+                    event.returnValue = '';
                 });
             });
         });
