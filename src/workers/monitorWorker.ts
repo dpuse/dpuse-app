@@ -27,73 +27,49 @@ export interface WorkerMessageExceptionPayload extends WorkerMessagePayload {
 export interface WorkerMessageWebVitalPayload extends WorkerMessagePayload {
     webVitalMetric: Record<string, unknown>;
 }
-export type WorkerResponse = { typeId: string; payload: Record<string, unknown>; meta?: { requestId?: number } };
+export type WorkerResponse = { typeId: string; payload: Record<string, unknown> };
 
 // Constants
 const DPU_API_HOST = 'api.datapos.app';
 const POSTHOG_CAPTURE_URL = 'https://eu.i.posthog.com/capture';
 const TIMEOUT_DELAY = 5000;
 
+// Long-lived session-scoped websocket
 let webSocket: WebSocket | undefined;
 
-self.addEventListener('message', (event) => {
-    void handleMessage(event);
-});
-
-async function handleMessage(event: MessageEvent<WorkerMessage>): Promise<void> {
+self.addEventListener('message', (event): void => {
     const message = event.data;
     if (!message) return;
 
-    const { typeId, payload, meta } = message;
-    const requestId = meta?.requestId;
-
-    try {
-        let responsePayload: Record<string, unknown> | undefined;
-        switch (typeId) {
-            case 'initialise':
-                await postToPostHog(JSON.stringify(constructPostHogIdentifyBody(payload)), 'initialise');
-                await handleSessionInit();
-                responsePayload = { ok: true };
-                break;
-            case 'resetUser':
-                await postToPostHog(JSON.stringify(constructPostHogIdentifyBody(payload)), 'resetUser');
-                responsePayload = { ok: true };
-                break;
-            case 'logWebVitals':
-                await postToPostHog(JSON.stringify(constructPostHogWebVitalsBody(payload as WorkerMessageWebVitalPayload)), 'logWebVitals');
-                responsePayload = { ok: true };
-                break;
-            case 'logPageView':
-                await postToPostHog(JSON.stringify(constructPostHogPageViewBody(payload)), 'logPageView');
-                responsePayload = { ok: true };
-                break;
-            case 'logException':
-                await postToPostHog(JSON.stringify(constructPostHogExceptionBody(payload as WorkerMessageExceptionPayload)), 'logException');
-                responsePayload = { ok: true };
-                break;
-            case 'cleanUp':
-                handleSessionTeardown();
-                responsePayload = { ok: true };
-                break;
-            default:
-                console.debug('[event-worker] unknown message', event.data);
-                return;
-        }
-
-        postWorkerResult(responsePayload ?? {}, requestId);
-    } catch (error) {
-        console.error('[event-worker] handler error', error);
-        postWorkerError(error, requestId, typeId);
+    const { typeId, payload } = message;
+    switch (typeId) {
+        case 'initialise':
+            postToPostHog(JSON.stringify(constructPostHogIdentifyBody(payload)));
+            handleSessionInit();
+            break;
+        case 'resetUser':
+            postToPostHog(JSON.stringify(constructPostHogIdentifyBody(payload)));
+            break;
+        case 'logWebVitals':
+            postToPostHog(JSON.stringify(constructPostHogWebVitalsBody(payload as WorkerMessageWebVitalPayload)));
+            break;
+        case 'logPageView':
+            postToPostHog(JSON.stringify(constructPostHogPageViewBody(payload)));
+            break;
+        case 'logException':
+            postToPostHog(JSON.stringify(constructPostHogExceptionBody(payload as WorkerMessageExceptionPayload)));
+            break;
+        case 'cleanUp':
+            handleSessionTeardown();
+            break;
     }
+});
+
+function postToPostHog(body: string): void {
+    fetch(POSTHOG_CAPTURE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
 }
 
-async function postToPostHog(body: string, label: string): Promise<void> {
-    const options: RequestInit = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body };
-    const response = await fetch(POSTHOG_CAPTURE_URL, options);
-    console.log(label, await response.text());
-}
-
-async function handleSessionInit(): Promise<void> {
+function handleSessionInit(): void {
     if (webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN)) return;
     webSocket = connectToStatesWebSocket();
 }
@@ -157,26 +133,7 @@ function handleSessionTeardown(): void {
     webSocket = undefined; //
 }
 
-function postWorkerResult(payload: Record<string, unknown>, requestId?: number) {
-    if (requestId === undefined) return;
-    self.postMessage({ typeId: 'event:result', payload, meta: { requestId } });
-}
-
-function postWorkerError(error: unknown, requestId?: number, sourceTypeId?: string) {
-    if (requestId === undefined) return;
-    const normalizedError = error instanceof Error ? error : new Error(String(error));
-    self.postMessage({
-        typeId: 'event:error',
-        meta: { requestId },
-        payload: {
-            message: normalizedError.message,
-            stack: normalizedError.stack,
-            sourceTypeId
-        }
-    });
-}
-
-// Construct PostHog body helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PostHog fetch body construction ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function constructPostHogIdentifyBody(payload: WorkerMessagePayload) {
     return {
@@ -230,6 +187,24 @@ function constructPostHogExceptionProperties(error: unknown) {
             }
         ]
     };
+}
+
+function parseStack(stack?: string) {
+    if (!stack) return [];
+    const lines = stack.split('\n').slice(1);
+    return lines.map((line) => {
+        const match = line.match(/at (.*?) \((.*?):(\d+):(\d+)\)/);
+        if (!match) return { platform: 'javascript', lang: 'javascript', function: line.trim() || '<anonymous>', in_app: true };
+        return {
+            platform: 'javascript',
+            lang: 'javascript',
+            function: match[1] || '<anonymous>',
+            filename: match[2],
+            lineno: Number.parseInt(match[3] ?? '', 10),
+            colno: Number.parseInt(match[4] ?? '', 10),
+            in_app: true
+        };
+    });
 }
 
 // function xxxx(error: unknown) {
@@ -317,22 +292,4 @@ function constructPostHogCommonBodyProperties(payload: WorkerMessagePayload) {
         $viewport_width: payload.viewport.width,
         $window_id: undefined
     };
-}
-
-function parseStack(stack?: string) {
-    if (!stack) return [];
-    const lines = stack.split('\n').slice(1);
-    return lines.map((line) => {
-        const match = line.match(/at (.*?) \((.*?):(\d+):(\d+)\)/);
-        if (!match) return { platform: 'javascript', lang: 'javascript', function: line.trim() || '<anonymous>', in_app: true };
-        return {
-            platform: 'javascript',
-            lang: 'javascript',
-            function: match[1] || '<anonymous>',
-            filename: match[2],
-            lineno: Number.parseInt(match[3] ?? '', 10),
-            colno: Number.parseInt(match[4] ?? '', 10),
-            in_app: true
-        };
-    });
 }

@@ -1,126 +1,95 @@
-/* eslint-disable unicorn/prefer-add-event-listener */
-
 // Vendor dependencies
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // Workbench core
-import type { WorkerMessageExceptionPayload, WorkerMessagePayload, WorkerMessageWebVitalPayload, WorkerResponse } from '@/workers/monitorWorker';
+import type { WorkerMessagePayload, WorkerMessageWebVitalPayload, WorkerResponse } from '@/workers/monitorWorker';
 
-// Still experimental so no type definitions
-type NavigatorConnection = { effectiveType?: string; downlink?: number; downlinkMax?: number; rtt?: number; saveData?: boolean; type?: string };
-interface NavigatorWithConnection extends Navigator {
-    connection?: NavigatorConnection;
-    mozConnection?: NavigatorConnection;
-    webkitConnection?: NavigatorConnection;
-}
-
-//
+// Long-lived session-scoped user identifier
 let activeUserId: string | undefined;
-let messageId = 0;
-type PendingWorkerMessage = { resolve: (payload: Record<string, unknown>) => void; reject: (reason?: unknown) => void };
-const pendingMessageMap = new Map<number, PendingWorkerMessage>();
-let worker: Worker | undefined;
+
+// Long-lived session-scoped monitor worker
+let monitorWorker: Worker | undefined;
 
 // Composable
 export function useMonitor() {
     return { cleanUp, initialise, logException, logPageView, resetUser };
 }
 
-// Operations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Composable operations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function initialise(userId: string): Promise<unknown> {
-    if (!worker) startWorker();
-
+function initialise(userId: string): void {
+    if (!monitorWorker) startMonitorWorker();
     activeUserId = userId;
-    const requestId = ++messageId;
-    return new Promise((resolve, reject) => {
-        pendingMessageMap.set(requestId, { resolve, reject });
-        const payload = constructCommonPayload();
-        worker?.postMessage({ typeId: 'initialise', payload, meta: { requestId } });
-    });
+    monitorWorker?.postMessage({ typeId: 'initialise', payload: constructCommonPayload() /* TODO: anon identifier */ });
 }
 
-function resetUser(userId: string): Promise<Record<string, unknown>> {
-    if (!worker) return Promise.reject('Attempt to reset user before initialisation.');
-
+function resetUser(userId: string): void {
+    if (!monitorWorker) return;
     activeUserId = userId;
-    const requestId = ++messageId;
-    return new Promise((resolve, reject) => {
-        pendingMessageMap.set(requestId, { resolve, reject });
-        const payload = constructCommonPayload();
-        worker?.postMessage({ typeId: 'resetUser', payload, meta: { requestId } });
-    });
+    monitorWorker?.postMessage({ typeId: 'resetUser', payload: constructCommonPayload() });
 }
 
-function logPageView(): Promise<Record<string, unknown>> {
-    if (!worker) return Promise.resolve({}); // TODO: Push to pending stack, up to a maximum number of page views...
-
-    const requestId = ++messageId;
-    return new Promise((resolve, reject) => {
-        pendingMessageMap.set(requestId, { resolve, reject });
-        const payload = constructCommonPayload();
-        worker?.postMessage({ typeId: 'logPageView', payload, meta: { requestId } });
-    });
+function logPageView(): void {
+    if (!monitorWorker) return;
+    monitorWorker?.postMessage({ typeId: 'logPageView', payload: constructCommonPayload() });
 }
 
-function logException(error?: unknown): Promise<Record<string, unknown>> {
-    if (!worker) return Promise.resolve({}); // TODO: Push to pending stack, up to a maximum number of exceptions...
-
-    const requestId = ++messageId;
-    return new Promise((resolve, reject) => {
-        pendingMessageMap.set(requestId, { resolve, reject });
-        const payload: WorkerMessageExceptionPayload = { ...constructCommonPayload(), error };
-        worker?.postMessage({ typeId: 'logException', payload, meta: { requestId } });
-    });
+function logException(error?: unknown): void {
+    if (!monitorWorker) return;
+    monitorWorker?.postMessage({ typeId: 'logException', payload: { ...constructCommonPayload(), error } });
 }
 
-async function cleanUp(): Promise<void> {
-    if (!worker) return;
-
-    const requestId = ++messageId;
-    const payload = constructCommonPayload();
-    const cleanUpPromise = new Promise((resolve, reject) => {
-        pendingMessageMap.set(requestId, { resolve, reject });
-        worker?.postMessage({ typeId: 'cleanUp', payload, meta: { requestId } });
-    });
-
-    try {
-        await cleanUpPromise;
-    } catch (error) {
-        console.debug('[monitor] cleanUp acknowledgement failed', error);
-    } finally {
-        forceTerminateWorker('Monitor worker cleaned up.');
-    }
+function cleanUp(): void {
+    if (!monitorWorker) return;
+    monitorWorker?.postMessage({ typeId: 'cleanUp' });
 }
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Monitor worker management ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function startWorker(): void {
-    if (worker) return;
+function startMonitorWorker(): void {
+    if (monitorWorker) return;
 
-    worker = new Worker(new URL('@/workers/monitorWorker.ts', import.meta.url), { type: 'module' });
-    worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
-        const { typeId, payload, meta } = event.data || {};
-        if ((typeId === 'event:result' || typeId === 'event:error') && meta?.requestId !== undefined) {
-            const pending = pendingMessageMap.get(meta.requestId);
-            if (pending) {
-                if (typeId === 'event:result') pending.resolve(payload);
-                if (typeId === 'event:error') pending.reject(payload);
-                pendingMessageMap.delete(meta.requestId);
-            }
-            return;
-        }
+    monitorWorker = new Worker(new URL('@/workers/monitorWorker.ts', import.meta.url), { type: 'module' });
+    monitorWorker.addEventListener('message', (event: MessageEvent<WorkerResponse>) => {
+        // const { typeId, payload, meta } = event.data || {};
+        // if ((typeId === 'event:result' || typeId === 'event:error') && meta?.requestId !== undefined) {
+        //     const pending = pendingMessageMap.get(meta.requestId);
+        //     if (pending) {
+        //         if (typeId === 'event:result') pending.resolve(payload);
+        //         if (typeId === 'event:error') pending.reject(payload);
+        //         pendingMessageMap.delete(meta.requestId);
+        //     }
+        //     return;
+        // }
         console.debug('FROM MONITOR WORKER', event.data);
-    };
-    worker.onerror = (event: ErrorEvent) => {
+    });
+    monitorWorker.addEventListener('error', (event: ErrorEvent) => {
         console.error('WORKER ONERROR', event);
         forceTerminateWorker('Monitor worker crashed.');
-    };
-    worker.onmessageerror = (event: MessageEvent) => {
+    });
+    monitorWorker.addEventListener('messageerror', (event: MessageEvent) => {
         console.error('WORKER ONMESSAGEERROR', event);
         forceTerminateWorker('Monitor worker message parsing error.');
-    };
+    });
+    logWebVitalMetrics();
+}
 
+function forceTerminateWorker(reason: string) {
+    if (!monitorWorker) return;
+    // rejectPendingRequests(reason);
+    monitorWorker.terminate();
+    monitorWorker = undefined;
+}
+
+// function rejectPendingRequests(reason: string) {
+//     if (pendingMessageMap.size === 0) return;
+//     for (const pending of pendingMessageMap.values()) pending.reject(reason);
+//     pendingMessageMap.clear();
+// }
+
+// Web vital metric logging ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function logWebVitalMetrics() {
     // Must be run on main thread
     onCLS((metric) => logWebVitalMetric(metric));
     onINP((metric) => logWebVitalMetric(metric));
@@ -148,15 +117,23 @@ function logWebVitalMetric(metric: Metric) {
             rating: metric.rating
         }
     };
-    worker?.postMessage({ typeId: 'logWebVitals', payload });
+    monitorWorker?.postMessage({ typeId: 'logWebVitals', payload });
+}
+
+// Common payload construction ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// Custom type declarations for navigator with connection properties (connection properties are still experimental)
+type NavigatorConnection = { effectiveType?: string; downlink?: number; downlinkMax?: number; rtt?: number; saveData?: boolean; type?: string };
+interface NavigatorWithConnection extends Navigator {
+    connection?: NavigatorConnection;
+    mozConnection?: NavigatorConnection;
+    webkitConnection?: NavigatorConnection;
 }
 
 function constructCommonPayload(): WorkerMessagePayload {
     const anonId = localStorage.getItem('dpu_anon_user_id') || undefined;
-
     const navigatorWithConnection = navigator as NavigatorWithConnection;
     const connection = navigatorWithConnection.connection || navigatorWithConnection.mozConnection || navigatorWithConnection.webkitConnection;
-
     return {
         userId: activeUserId!,
         anonId,
@@ -176,17 +153,4 @@ function constructCommonPayload(): WorkerMessagePayload {
         userAgent: globalThis.navigator.userAgent,
         viewport: { height: globalThis.window.innerHeight, width: globalThis.window.innerWidth }
     };
-}
-
-function forceTerminateWorker(reason: string) {
-    if (!worker) return;
-    rejectPendingRequests(reason);
-    worker.terminate();
-    worker = undefined;
-}
-
-function rejectPendingRequests(reason: string) {
-    if (pendingMessageMap.size === 0) return;
-    for (const pending of pendingMessageMap.values()) pending.reject(reason);
-    pendingMessageMap.clear();
 }
