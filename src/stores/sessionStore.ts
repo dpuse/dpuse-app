@@ -61,9 +61,7 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.validateSession().then((result) => {
                 sessionStatus.value = constructSessionStatus(result.is_valid ? result.claims : undefined);
                 import('@/composables/useMonitor').then(({ useMonitor }) => {
-                    const monitor = useMonitor();
-                    monitor.initialise();
-                    monitor.identifyUser(sessionStatus.value.monitorUserId!);
+                    useMonitor().initialise(sessionStatus.value.monitorUserId!);
                     window.addEventListener('beforeunload', (event) => {
                         if (!areUpdatesPending.value) return;
                         useMonitor().cleanUp();

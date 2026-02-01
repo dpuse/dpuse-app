@@ -8,6 +8,9 @@ import App from '@/App.vue';
 import router from '@/router';
 import { normalizeToError, VueHandledError, WindowHandledPromiseRejectionError, WindowHandledRuntimeError } from '@datapos/datapos-shared/errors';
 
+// import posthog from 'posthog-js';
+// posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, { api_host: 'https://eu.i.posthog.com', defaults: '2025-11-30' });
+
 // Window error handlers
 globalThis.addEventListener('error', reportWindowError);
 globalThis.addEventListener('unhandledrejection', reportWindowUnhandledRejection);

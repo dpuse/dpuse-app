@@ -4,10 +4,7 @@
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // Workbench core
-import type { WorkerMessagePayload } from '@/workers/monitorWorker';
-
-//
-type WorkerResponse = { type: string; payload?: unknown; meta?: { requestId?: number } };
+import type { WorkerMessageExceptionPayload, WorkerMessagePayload, WorkerMessageWebVitalPayload, WorkerResponse } from '@/workers/monitorWorker';
 
 // Still experimental so no type definitions
 type NavigatorConnection = { effectiveType?: string; downlink?: number; downlinkMax?: number; rtt?: number; saveData?: boolean; type?: string };
@@ -18,116 +15,178 @@ interface NavigatorWithConnection extends Navigator {
 }
 
 //
-let worker: Worker | undefined;
-
-//
+let activeUserId: string | undefined;
 let messageId = 0;
-const pendingMessageMap = new Map<number, (value: unknown) => void>();
+type PendingWorkerMessage = { resolve: (payload: Record<string, unknown>) => void; reject: (reason?: unknown) => void };
+const pendingMessageMap = new Map<number, PendingWorkerMessage>();
+let worker: Worker | undefined;
 
 // Composable
 export function useMonitor() {
-    return { cleanUp, identifyUser, initialise, postEvent };
+    return { cleanUp, initialise, logException, logPageView, resetUser };
 }
 
 // Operations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function initialise(): void {
-    startWorker();
-}
-
-function identifyUser(userId: string): void {
+function initialise(userId: string): Promise<unknown> {
     if (!worker) startWorker();
-    const anonId = localStorage.getItem('dpu_anon_user_id');
-    const connection =
-        (navigator as NavigatorWithConnection).connection || (navigator as NavigatorWithConnection).mozConnection || (navigator as NavigatorWithConnection).webkitConnection;
-    worker?.postMessage({
-        eventId: '$identify',
-        payload: {
-            userId,
-            anonId,
-            sessionId: '', // TODO
-            connectionEffectiveType: connection?.effectiveType,
-            connectionDownlink: connection?.downlink,
-            connectionDownlinkMax: connection?.downlinkMax,
-            connectionRTT: connection?.rtt,
-            connectionSaveData: connection?.saveData,
-            connectionType: connection?.type,
-            browserLanguage: globalThis.navigator.language,
-            url: globalThis.location.href,
-            host: globalThis.location.host,
-            pathname: globalThis.location.pathname,
-            referrer: globalThis.document.referrer,
-            screenHeight: globalThis.screen.height,
-            screenWidth: globalThis.screen.width,
-            viewportHeight: globalThis.window.innerHeight,
-            viewportWidth: globalThis.window.innerWidth,
-            userAgent: globalThis.navigator.userAgent
-        } as WorkerMessagePayload
-    });
-}
 
-function postEvent(payload: { name: string; data: Record<string, unknown> }): Promise<unknown> {
-    if (!worker) startWorker();
+    activeUserId = userId;
     const requestId = ++messageId;
-    return new Promise((resolve) => {
-        pendingMessageMap.set(requestId, resolve);
-        worker?.postMessage({ type: 'event', payload, meta: { requestId } });
+    return new Promise((resolve, reject) => {
+        pendingMessageMap.set(requestId, { resolve, reject });
+        const payload = constructCommonPayload();
+        worker?.postMessage({ typeId: 'initialise', payload, meta: { requestId } });
     });
 }
 
-function cleanUp() {
+function resetUser(userId: string): Promise<Record<string, unknown>> {
+    if (!worker) return Promise.reject('Attempt to reset user before initialisation.');
+
+    activeUserId = userId;
+    const requestId = ++messageId;
+    return new Promise((resolve, reject) => {
+        pendingMessageMap.set(requestId, { resolve, reject });
+        const payload = constructCommonPayload();
+        worker?.postMessage({ typeId: 'resetUser', payload, meta: { requestId } });
+    });
+}
+
+function logPageView(): Promise<Record<string, unknown>> {
+    if (!worker) return Promise.resolve({}); // TODO: Push to pending stack, up to a maximum number of page views...
+
+    const requestId = ++messageId;
+    return new Promise((resolve, reject) => {
+        pendingMessageMap.set(requestId, { resolve, reject });
+        const payload = constructCommonPayload();
+        worker?.postMessage({ typeId: 'logPageView', payload, meta: { requestId } });
+    });
+}
+
+function logException(error?: unknown): Promise<Record<string, unknown>> {
+    if (!worker) return Promise.resolve({}); // TODO: Push to pending stack, up to a maximum number of exceptions...
+
+    const requestId = ++messageId;
+    return new Promise((resolve, reject) => {
+        pendingMessageMap.set(requestId, { resolve, reject });
+        const payload: WorkerMessageExceptionPayload = { ...constructCommonPayload(), error };
+        worker?.postMessage({ typeId: 'logException', payload, meta: { requestId } });
+    });
+}
+
+async function cleanUp(): Promise<void> {
     if (!worker) return;
-    worker.postMessage({ type: 'cleanUp' });
+
+    const requestId = ++messageId;
+    const payload = constructCommonPayload();
+    const cleanUpPromise = new Promise((resolve, reject) => {
+        pendingMessageMap.set(requestId, { resolve, reject });
+        worker?.postMessage({ typeId: 'cleanUp', payload, meta: { requestId } });
+    });
+
+    try {
+        await cleanUpPromise;
+    } catch (error) {
+        console.debug('[monitor] cleanUp acknowledgement failed', error);
+    } finally {
+        forceTerminateWorker('Monitor worker cleaned up.');
+    }
 }
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function startWorker(): void {
+    if (worker) return;
+
     worker = new Worker(new URL('@/workers/monitorWorker.ts', import.meta.url), { type: 'module' });
     worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
-        const { type, payload, meta } = event.data || {};
-
-        if (type === 'event:result' && meta?.requestId !== undefined) {
-            const resolver = pendingMessageMap.get(meta.requestId);
-            if (resolver) {
-                resolver(payload);
+        const { typeId, payload, meta } = event.data || {};
+        if ((typeId === 'event:result' || typeId === 'event:error') && meta?.requestId !== undefined) {
+            const pending = pendingMessageMap.get(meta.requestId);
+            if (pending) {
+                if (typeId === 'event:result') pending.resolve(payload);
+                if (typeId === 'event:error') pending.reject(payload);
                 pendingMessageMap.delete(meta.requestId);
             }
+            return;
         }
-
-        console.debug('[event-worker]', event.data);
+        console.debug('FROM MONITOR WORKER', event.data);
+    };
+    worker.onerror = (event: ErrorEvent) => {
+        console.error('WORKER ONERROR', event);
+        forceTerminateWorker('Monitor worker crashed.');
+    };
+    worker.onmessageerror = (event: MessageEvent) => {
+        console.error('WORKER ONMESSAGEERROR', event);
+        forceTerminateWorker('Monitor worker message parsing error.');
     };
 
-    worker.postMessage({ type: 'initialise', payload: undefined });
-
     // Must be run on main thread
-    const userAgent = navigator.userAgent;
-    onCLS((metric) => postWebVitalsEvent(metric, userAgent));
-    onINP((metric) => postWebVitalsEvent(metric, userAgent));
-    onLCP((metric) => postWebVitalsEvent(metric, userAgent));
-    onFCP((metric) => postWebVitalsEvent(metric, userAgent));
-    onTTFB((metric) => postWebVitalsEvent(metric, userAgent));
+    onCLS((metric) => logWebVitalMetric(metric));
+    onINP((metric) => logWebVitalMetric(metric));
+    onLCP((metric) => logWebVitalMetric(metric));
+    onFCP((metric) => logWebVitalMetric(metric));
+    onTTFB((metric) => logWebVitalMetric(metric));
 }
 
-function postWebVitalsEvent(metric: Metric, userAgent: string) {
+function logWebVitalMetric(metric: Metric) {
+    let entries;
     try {
-        const data = {
-            name: 'webVitals',
-            data: {
-                id: metric.id,
-                name: metric.name,
-                value: metric.value,
-                delta: metric.delta,
-                entries: metric.entries.map((entry) => entry.toJSON()),
-                navigationType: metric.navigationType,
-                rating: metric.rating,
-                userAgent
-            }
-        };
-        postEvent(data);
+        entries = metric.entries.map((entry) => entry.toJSON());
     } catch (error) {
-        console.log(1111, error);
-        console.log(2222, metric);
-        console.log(3333, userAgent);
+        entries = [{ error: String(error) }];
     }
+    const payload: WorkerMessageWebVitalPayload = {
+        ...constructCommonPayload(),
+        webVitalMetric: {
+            id: metric.id,
+            name: metric.name,
+            value: metric.value,
+            delta: metric.delta,
+            entries,
+            navigationType: metric.navigationType,
+            rating: metric.rating
+        }
+    };
+    worker?.postMessage({ typeId: 'logWebVitals', payload });
+}
+
+function constructCommonPayload(): WorkerMessagePayload {
+    const anonId = localStorage.getItem('dpu_anon_user_id') || undefined;
+
+    const navigatorWithConnection = navigator as NavigatorWithConnection;
+    const connection = navigatorWithConnection.connection || navigatorWithConnection.mozConnection || navigatorWithConnection.webkitConnection;
+
+    return {
+        userId: activeUserId!,
+        anonId,
+        sessionId: '', // TODO
+        browser: { language: globalThis.navigator.language },
+        connection: {
+            effectiveType: connection?.effectiveType,
+            downlink: connection?.downlink,
+            downlinkMax: connection?.downlinkMax,
+            rtt: connection?.rtt,
+            saveData: connection?.saveData,
+            type: connection?.type
+        },
+        document: { referrer: globalThis.document.referrer },
+        screen: { height: globalThis.screen.height, width: globalThis.screen.width },
+        url: { href: globalThis.location.href, host: globalThis.location.host, pathname: globalThis.location.pathname },
+        userAgent: globalThis.navigator.userAgent,
+        viewport: { height: globalThis.window.innerHeight, width: globalThis.window.innerWidth }
+    };
+}
+
+function forceTerminateWorker(reason: string) {
+    if (!worker) return;
+    rejectPendingRequests(reason);
+    worker.terminate();
+    worker = undefined;
+}
+
+function rejectPendingRequests(reason: string) {
+    if (pendingMessageMap.size === 0) return;
+    for (const pending of pendingMessageMap.values()) pending.reject(reason);
+    pendingMessageMap.clear();
 }
