@@ -18,7 +18,7 @@ const handleIdEntered = ref<((identifier: string) => Promise<void>) | undefined>
 const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 const uiStateId = ref<'enterId' | 'enterPassword' | 'done'>('enterId');
 onMounted(async () => {
-    // if (sessionState.sessionStatus.isAuthenticated) return;
+    // if (sessionState.isAuthenticated) return;
     sessionState.constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state));
 });
 onUnmounted(() => sessionState.destroyFlow());

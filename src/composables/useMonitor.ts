@@ -4,29 +4,39 @@ import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 // Workbench core
 import type { WorkerMessagePayload, WorkerMessageWebVitalPayload, WorkerResponse } from '@/workers/monitorWorker';
 
-// Long-lived session-scoped user identifier
+// Long-lived module-scoped monitor worker
+let monitorWorker: Worker | undefined;
+
+// Long-lived session-scoped user identifier, initialised by 'initialise' operation, updated by 'resetUser' operation
 let activeUserId: string | undefined;
 
-// Long-lived session-scoped monitor worker
-let monitorWorker: Worker | undefined;
+// Long-lived session-scoped identifier, initialised by 'initialise' operation, updated by 'resetUser' operation
+let activeSessionId: string | undefined;
 
 // Composable
 export function useMonitor() {
-    return { cleanUp, initialise, logException, logPageView, resetUser };
+    return { initialise, logException, logPageView, resetSession, resetUser, shutdown };
 }
 
 // Composable operations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function initialise(userId: string): void {
+function initialise(userId: string, sessionId: string): void {
     if (!monitorWorker) startMonitorWorker();
     activeUserId = userId;
+    activeSessionId = sessionId;
     monitorWorker?.postMessage({ typeId: 'initialise', payload: constructCommonPayload() /* TODO: anon identifier */ });
 }
 
-function resetUser(userId: string): void {
+function resetUser(userId: string, sessionId: string): void {
     if (!monitorWorker) return;
     activeUserId = userId;
+    activeSessionId = sessionId;
     monitorWorker?.postMessage({ typeId: 'resetUser', payload: constructCommonPayload() });
+}
+
+function resetSession(sessionId: string): void {
+    if (!monitorWorker) return;
+    activeSessionId = sessionId;
 }
 
 function logPageView(): void {
@@ -39,9 +49,9 @@ function logException(error?: unknown): void {
     monitorWorker?.postMessage({ typeId: 'logException', payload: { ...constructCommonPayload(), error } });
 }
 
-function cleanUp(): void {
+function shutdown(): void {
     if (!monitorWorker) return;
-    monitorWorker?.postMessage({ typeId: 'cleanUp' });
+    monitorWorker?.postMessage({ typeId: 'shutdown' });
 }
 
 // Monitor worker management ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -50,47 +60,45 @@ function startMonitorWorker(): void {
     if (monitorWorker) return;
 
     monitorWorker = new Worker(new URL('@/workers/monitorWorker.ts', import.meta.url), { type: 'module' });
+
+    // Response (outbound) message listener
     monitorWorker.addEventListener('message', (event: MessageEvent<WorkerResponse>) => {
-        // const { typeId, payload, meta } = event.data || {};
-        // if ((typeId === 'event:result' || typeId === 'event:error') && meta?.requestId !== undefined) {
-        //     const pending = pendingMessageMap.get(meta.requestId);
-        //     if (pending) {
-        //         if (typeId === 'event:result') pending.resolve(payload);
-        //         if (typeId === 'event:error') pending.reject(payload);
-        //         pendingMessageMap.delete(meta.requestId);
-        //     }
-        //     return;
-        // }
-        console.debug('FROM MONITOR WORKER', event.data);
+        const { typeId, payload } = event.data;
+        switch (typeId) {
+            case 'modulesRegistered':
+                console.log('MODULES REGISTERED', payload);
+                break;
+            case 'modulesUnregistered':
+                console.log('MODULES UNREGISTERED', payload);
+                break;
+            case 'shutdownComplete':
+                break;
+        }
     });
+
     monitorWorker.addEventListener('error', (event: ErrorEvent) => {
         console.error('WORKER ONERROR', event);
-        forceTerminateWorker('Monitor worker crashed.');
+        shutdownWorker();
     });
+
     monitorWorker.addEventListener('messageerror', (event: MessageEvent) => {
         console.error('WORKER ONMESSAGEERROR', event);
-        forceTerminateWorker('Monitor worker message parsing error.');
+        shutdownWorker();
     });
+
     logWebVitalMetrics();
 }
 
-function forceTerminateWorker(reason: string) {
+function shutdownWorker() {
     if (!monitorWorker) return;
-    // rejectPendingRequests(reason);
     monitorWorker.terminate();
     monitorWorker = undefined;
 }
 
-// function rejectPendingRequests(reason: string) {
-//     if (pendingMessageMap.size === 0) return;
-//     for (const pending of pendingMessageMap.values()) pending.reject(reason);
-//     pendingMessageMap.clear();
-// }
-
-// Web vital metric logging ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Web vital metrics logging ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function logWebVitalMetrics() {
-    // Must be run on main thread
+    // The following callbacks must run on main thread
     onCLS((metric) => logWebVitalMetric(metric));
     onINP((metric) => logWebVitalMetric(metric));
     onLCP((metric) => logWebVitalMetric(metric));
@@ -131,13 +139,13 @@ interface NavigatorWithConnection extends Navigator {
 }
 
 function constructCommonPayload(): WorkerMessagePayload {
-    const anonId = localStorage.getItem('dpu_anon_user_id') || undefined;
+    // const anonId = localStorage.getItem('dpu_anon_user_id') || undefined;
     const navigatorWithConnection = navigator as NavigatorWithConnection;
     const connection = navigatorWithConnection.connection || navigatorWithConnection.mozConnection || navigatorWithConnection.webkitConnection;
     return {
         userId: activeUserId!,
-        anonId,
-        sessionId: '', // TODO
+        // anonId,
+        sessionId: activeSessionId!,
         browser: { language: globalThis.navigator.language },
         connection: {
             effectiveType: connection?.effectiveType,

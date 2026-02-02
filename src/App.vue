@@ -104,7 +104,7 @@ function toggleAssistPanel() {
                 class="flex-none"
                 :is-wide-display="isDisplayWide"
                 :is-floating-open="isBenchtopOptionBarOpenInNarrowDisplay"
-                :session-is-authenticated="sessionState.sessionStatus.isAuthenticated"
+                :session-is-authenticated="sessionState.isAuthenticated"
                 @request-close="isBenchtopOptionBarOpenInNarrowDisplay = false"
             />
 

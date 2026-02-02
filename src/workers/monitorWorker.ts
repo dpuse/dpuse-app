@@ -1,9 +1,6 @@
 // Vendor dependencies
 import { UAParser } from 'ua-parser-js';
 
-// Framework
-import type { ModuleConfig } from '@datapos/datapos-shared/component';
-
 // Data
 import { version } from '~/package.json';
 
@@ -34,34 +31,28 @@ const DPU_API_HOST = 'api.datapos.app';
 const POSTHOG_CAPTURE_URL = 'https://eu.i.posthog.com/capture';
 const TIMEOUT_DELAY = 5000;
 
-// Long-lived session-scoped websocket
-let webSocket: WebSocket | undefined;
+// Long-lived session-scoped module states WebSocket
+let moduleStatesWebSocket: WebSocket | undefined;
 
+// Request (inbound) message listener
 self.addEventListener('message', (event): void => {
-    const message = event.data;
-    if (!message) return;
-
-    const { typeId, payload } = message;
+    const { typeId, payload } = event.data;
     switch (typeId) {
         case 'initialise':
             postToPostHog(JSON.stringify(constructPostHogIdentifyBody(payload)));
-            handleSessionInit();
-            break;
+            if (moduleStatesWebSocket && (moduleStatesWebSocket.readyState === WebSocket.CONNECTING || moduleStatesWebSocket.readyState === WebSocket.OPEN)) return;
+            moduleStatesWebSocket = connectToModuleStatesWebSocket();
+            return;
         case 'resetUser':
-            postToPostHog(JSON.stringify(constructPostHogIdentifyBody(payload)));
-            break;
+            return postToPostHog(JSON.stringify(constructPostHogIdentifyBody(payload)));
         case 'logWebVitals':
-            postToPostHog(JSON.stringify(constructPostHogWebVitalsBody(payload as WorkerMessageWebVitalPayload)));
-            break;
+            return postToPostHog(JSON.stringify(constructPostHogWebVitalsBody(payload)));
         case 'logPageView':
-            postToPostHog(JSON.stringify(constructPostHogPageViewBody(payload)));
-            break;
+            return postToPostHog(JSON.stringify(constructPostHogPageViewBody(payload)));
         case 'logException':
-            postToPostHog(JSON.stringify(constructPostHogExceptionBody(payload as WorkerMessageExceptionPayload)));
-            break;
-        case 'cleanUp':
-            handleSessionTeardown();
-            break;
+            return postToPostHog(JSON.stringify(constructPostHogExceptionBody(payload)));
+        case 'shutdownWebSocket':
+            return shutdownWebSocket();
     }
 });
 
@@ -69,12 +60,7 @@ function postToPostHog(body: string): void {
     fetch(POSTHOG_CAPTURE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
 }
 
-function handleSessionInit(): void {
-    if (webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN)) return;
-    webSocket = connectToStatesWebSocket();
-}
-
-function connectToStatesWebSocket(): WebSocket | undefined {
+function connectToModuleStatesWebSocket(): WebSocket | undefined {
     try {
         const wsURL = `wss://${DPU_API_HOST}/states/websocket`;
         let statesWebSocket: WebSocket | undefined = new WebSocket(wsURL);
@@ -88,12 +74,11 @@ function connectToStatesWebSocket(): WebSocket | undefined {
                 const eventData = JSON.parse(event.data);
                 switch (eventData.typeId) {
                     case 'init':
-                        return registerModules(eventData.modules as ModuleConfig[]);
+                        return self.postMessage({ typeId: 'modulesRegistered', payload: eventData.modules });
                     case 'deploy':
-                        registerModules([eventData.module as ModuleConfig]);
-                        return;
+                        return self.postMessage({ typeId: 'modulesRegistered', payload: [eventData.module] });
                     case 'delete':
-                        return unregisterModules([eventData.module as ModuleConfig]);
+                        return self.postMessage({ typeId: 'modulesUnregistered', payload: [eventData.module] });
                 }
             } catch (error) {
                 console.info(`[datapos] ❌ App: Module registration error: ${error}`);
@@ -103,7 +88,7 @@ function connectToStatesWebSocket(): WebSocket | undefined {
         statesWebSocket.addEventListener('close', (event) => {
             console.info(`[datapos] ⚠️ App: WebSocket close event '${event.code}' received.`);
             statesWebSocket = undefined;
-            setTimeout(connectToStatesWebSocket, TIMEOUT_DELAY);
+            setTimeout(connectToModuleStatesWebSocket, TIMEOUT_DELAY);
         });
 
         statesWebSocket.addEventListener('error', (error) => {
@@ -119,18 +104,12 @@ function connectToStatesWebSocket(): WebSocket | undefined {
     }
 }
 
-function registerModules(moduleConfigs: ModuleConfig[]): void {
-    self.postMessage({ typeId: 'modulesRegistered', payload: moduleConfigs });
-}
-
-function unregisterModules(moduleConfigs: ModuleConfig[]): void {
-    self.postMessage({ typeId: 'modulesUnregistered', payload: moduleConfigs });
-}
-
-function handleSessionTeardown(): void {
-    if (!webSocket) return;
-    webSocket.close();
-    webSocket = undefined; //
+function shutdownWebSocket(): void {
+    if (moduleStatesWebSocket) {
+        moduleStatesWebSocket.close(); // TODO: Won't this just open again? Maybe check event.code?
+        moduleStatesWebSocket = undefined;
+    }
+    self.postMessage({ typeId: 'shutdownComplete' });
 }
 
 // PostHog fetch body construction ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -279,7 +258,7 @@ function constructPostHogCommonBodyProperties(payload: WorkerMessagePayload) {
         $referring_domain: undefined,
         $send_at: undefined,
         $session_id: undefined, // TODO
-        $session_entry_url: undefined,
+        $session_entry_url: undefined, // TODO: are these correct? Maybe just for identify?
         $session_entry_host: undefined,
         $session_entry_pathname: undefined,
         $session_entry_referrer: undefined,

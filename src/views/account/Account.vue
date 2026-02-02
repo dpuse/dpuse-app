@@ -38,7 +38,7 @@ const optionConfigs = [
 // const uiStateId = ref<'enterId' | 'enterPassword' | 'done'>('enterId');
 
 // onMounted(async () => {
-//     if (sessionState.sessionStatus.isAuthenticated) return;
+//     if (sessionState.isAuthenticated) return;
 //     sessionState.constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state));
 // });
 // onUnmounted(() => sessionState.destroyFlow());
