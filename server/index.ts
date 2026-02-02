@@ -1,16 +1,17 @@
-import type { Request as CfRequest, Response as CfResponse, ExportedHandler } from '@cloudflare/workers-types/experimental';
+import type { Request as CfRequest, Response as CfResponse, ExportedHandler, Fetcher } from '@cloudflare/workers-types/experimental';
 
-type Environment = Record<string, unknown>;
+type Environment = {
+    ASSETS: Fetcher;
+};
 
 export default {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    fetch(request: CfRequest, environment: Environment): CfResponse {
+    fetch(request: CfRequest, env: Environment): CfResponse {
         const url = new URL(request.url);
 
         if (url.pathname.startsWith('/api/')) {
             return Response.json({ name: 'Cloudflare' }) as unknown as CfResponse;
         }
 
-        return new Response(null, { status: 404 }) as unknown as CfResponse;
+        return env.ASSETS.fetch(request); // serves dist files directly
     }
 } satisfies ExportedHandler<Environment>;

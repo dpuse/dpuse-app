@@ -107,12 +107,6 @@ function logWebVitalMetrics() {
 }
 
 function logWebVitalMetric(metric: Metric) {
-    let entries;
-    try {
-        entries = metric.entries.map((entry) => entry.toJSON());
-    } catch (error) {
-        entries = [{ error: String(error) }];
-    }
     const payload: WorkerMessageWebVitalPayload = {
         ...constructCommonPayload(),
         webVitalMetric: {
@@ -120,7 +114,6 @@ function logWebVitalMetric(metric: Metric) {
             name: metric.name,
             value: metric.value,
             delta: metric.delta,
-            entries,
             navigationType: metric.navigationType,
             rating: metric.rating
         }

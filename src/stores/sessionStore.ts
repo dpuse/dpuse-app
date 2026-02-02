@@ -16,8 +16,8 @@ import type { EngineConfig } from '@datapos/datapos-shared/engine';
 // Constants
 const DPU_ANON_USER_ID_KEY = 'dpu_anon_user_id';
 const DPU_ANON_SESSION_ID_KEY = 'dpu_anon_session_id';
-// const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
-// const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
+const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
+const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
 const SESSION_IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
@@ -27,25 +27,25 @@ let hankoInstance: Hanko | undefined;
 // Cleanup callback for the active Hanko flow
 let hankoFlowCleanupFunction: (() => void) | undefined;
 
+// Long-lived module-scoped monitor composition function
 let useMonitor: typeof import('@/composables/useMonitor').useMonitor | undefined;
 
-//
-// let sessionExpiryTimer: ReturnType<typeof setTimeout> | undefined;
+// Long-lived authenticated-session-scoped expiry timer
+let expiryTimer: ReturnType<typeof setTimeout> | undefined;
 
 // Pina store for session state
 export const useSessionStore = defineStore('session', () => {
     const areUpdatesPending = ref(false);
     const connectionConfigs = shallowRef<ConnectionConfig[]>([]);
     const engineConfig = shallowRef<EngineConfig | undefined>();
-    const establishedAt = ref<number | undefined>(undefined);
-    const expiresAt = ref<number | undefined>(undefined);
-    const expiresIn = ref<number | undefined>(undefined);
-    const isAuthenticated = ref<boolean | undefined>(undefined); // undefined if Hanko validate session pending; false if signed OUT; true if signed IN
-    const lifetime = ref<number | undefined>(undefined);
+    const expiresAt = ref<number | undefined>();
+    const expiresIn = ref<number | undefined>();
+    const isAuthenticated = ref<boolean | undefined>(); // undefined if Hanko validate session pending; false if signed OUT; true if signed IN
+    const lifetime = ref<number | undefined>();
     const localMetaNodeConnectionConfig = shallowRef<ConnectionConfig | undefined>();
-    const sessionId = ref<string | undefined>(undefined);
+    const sessionId = ref<string | undefined>();
     const toolConfigs = shallowRef<ToolConfig[] | undefined>();
-    const userId = ref<string | undefined>(undefined);
+    const userId = ref<string | undefined>();
 
     const { idle: isIdle /*, lastActive*/ } = useIdle(SESSION_IDLE_TIMEOUT);
     watch(isIdle, (newIsIdle) => {
@@ -94,17 +94,37 @@ export const useSessionStore = defineStore('session', () => {
         await hankoInstance?.logout(); // Fails silently in no Hanko instance
     }
 
+    return {
+        connectionConfigs,
+        constructFlow,
+        destroyFlow,
+        engineConfig,
+        expiresAt,
+        expiresIn,
+        initialiseServices,
+        isAuthenticated,
+        lifetime,
+        localMetaNodeConnectionConfig,
+        signOut,
+        toolConfigs
+    };
+
+    // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
     function constructIt(claims?: Claims): void {
         if (claims) {
-            establishedAt.value = claims.issued_at ? Date.parse(claims?.issued_at) : 0;
+            const establishedAt = claims.issued_at ? Date.parse(claims?.issued_at) : 0;
             expiresAt.value = claims.expiration ? Date.parse(claims.expiration) : 0;
-            expiresIn.value = 0;
+            expiresIn.value = Math.max(0, (expiresAt.value || 0) - Date.now());
             isAuthenticated.value = true;
-            lifetime.value = expiresAt.value - establishedAt.value;
+            lifetime.value = expiresAt.value - establishedAt;
             sessionId.value = claims.session_id ?? 'unknown';
             userId.value = claims.subject ?? 'unknown';
+            startSessionExpiryTimer(true);
+            globalThis.document.addEventListener('visibilitychange', resetSessionExpiryTimer);
         } else {
-            establishedAt.value = undefined;
+            clearSessionExpiryTimer();
+            globalThis.document.removeEventListener('visibilitychange', resetSessionExpiryTimer);
             expiresAt.value = undefined;
             expiresIn.value = undefined;
             isAuthenticated.value = false;
@@ -124,23 +144,23 @@ export const useSessionStore = defineStore('session', () => {
         }
     }
 
-    return { connectionConfigs, constructFlow, destroyFlow, engineConfig, initialiseServices, isAuthenticated, localMetaNodeConnectionConfig, signOut, toolConfigs };
+    function resetSessionExpiryTimer() {
+        startSessionExpiryTimer();
+    }
+
+    function startSessionExpiryTimer(runQuickly: boolean = false): void {
+        clearSessionExpiryTimer();
+        expiryTimer = globalThis.setInterval(
+            () => {
+                expiresIn.value = Math.max(0, (expiresAt.value || 0) - Date.now());
+                if (expiresIn.value <= 0) clearSessionExpiryTimer();
+            },
+            runQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW
+        );
+    }
+
+    function clearSessionExpiryTimer(): void {
+        globalThis.clearInterval(expiryTimer);
+        expiryTimer = undefined;
+    }
 });
-
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-// function clearSessionExpiryTimer(): void {
-//     clearInterval(sessionExpiryTimer);
-//     sessionExpiryTimer = undefined;
-// }
-
-// function startSessionExpiryTimer(runQuickly: boolean = false): void {
-//     clearSessionExpiryTimer();
-//     sessionExpiryTimer = setInterval(
-//         () => {
-//             sessionStatus.value.expiresIn = Math.max(0, (sessionStatus.value.expiresAt || 0) - Date.now());
-//             if (sessionStatus.value.expiresIn === 0) clearSessionExpiryTimer();
-//         },
-//         runQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW
-//     );
-// }
