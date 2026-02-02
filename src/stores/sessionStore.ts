@@ -27,6 +27,8 @@ let hankoInstance: Hanko | undefined;
 // Cleanup callback for the active Hanko flow
 let hankoFlowCleanupFunction: (() => void) | undefined;
 
+let useMonitor: typeof import('@/composables/useMonitor').useMonitor | undefined;
+
 //
 // let sessionExpiryTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -51,7 +53,7 @@ export const useSessionStore = defineStore('session', () => {
             const anonSessionId = crypto.randomUUID();
             sessionId.value = anonSessionId;
             localStorage.setItem(DPU_ANON_SESSION_ID_KEY, anonSessionId);
-            import('@/composables/useMonitor').then(({ useMonitor }) => useMonitor().resetSession(sessionId.value!));
+            useMonitor?.().resetSession(sessionId.value!); // Fails silently in no 'useMonitor' function'
         }
     });
 
@@ -64,11 +66,12 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.onUserLoggedOut(() => constructIt());
             hankoInstance.validateSession().then((result) => {
                 constructIt(result.is_valid ? result.claims : undefined);
-                import('@/composables/useMonitor').then(({ useMonitor }) => {
+                import('@/composables/useMonitor').then((module) => {
+                    useMonitor = module.useMonitor;
                     useMonitor().initialise(userId.value!, sessionId.value!);
                     window.addEventListener('beforeunload', (event) => {
                         if (!areUpdatesPending.value) return;
-                        useMonitor().shutdown();
+                        useMonitor?.().shutdown(); // Fails silently in no 'useMonitor' function'
                         event.preventDefault();
                         event.returnValue = '';
                     });
