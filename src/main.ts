@@ -69,7 +69,7 @@ function reportErrorSafely(error: unknown): void {
     console.log(error);
 
     // Insert error message into the body of the page
-    const errorDiv = document.createElement('div');
+    const errorDiv = globalThis.document.createElement('div');
     errorDiv.textContent = `Application failed to load: ${error instanceof Error ? error.message : String(error)}`;
     errorDiv.style.position = 'fixed';
     errorDiv.style.top = '0';
@@ -81,7 +81,7 @@ function reportErrorSafely(error: unknown): void {
     errorDiv.style.fontSize = '1.25rem';
     errorDiv.style.zIndex = '9999';
     errorDiv.style.fontFamily = 'monospace, monospace';
-    document.body.append(errorDiv);
+    globalThis.document.body.append(errorDiv);
 
     // TODO: Attempt to send to error tracker...
     try {

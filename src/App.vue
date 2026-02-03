@@ -75,7 +75,7 @@ function toggleAssistPanel() {
     <!-- Workbench shell -->
     <div class="fixed inset-0">
         <!-- Brand anchor & logo fixed in top left corner above workbench body, always visible -->
-        <div class="fixed top-0 left-0 z-50 flex h-13.75 w-16 flex-col items-center justify-center">
+        <!-- <div class="fixed top-0 left-0 z-50 flex h-13.75 w-16 flex-col items-center justify-center">
             <IconButton
                 :aria-label="benchtopOptionBarToggleAriaLabel"
                 :aria-pressed="!isDisplayWide ? isBenchtopOptionBarOpenInNarrowDisplay : undefined"
@@ -83,16 +83,16 @@ function toggleAssistPanel() {
             >
                 <DPULogoIcon class="size-7" />
             </IconButton>
-        </div>
+        </div> -->
 
         <!-- Assistant toggle fixed in top right corner above workbench body, always visible -->
-        <IconButton
+        <!-- <IconButton
             :aria-label="assistPanelToggleAriaLabel"
             class="fixed top-1.75 right-4 z-20 flex cursor-pointer items-center justify-center rounded-full"
             @click="toggleAssistPanel"
         >
             <AssistantIcon class="size-6" :stroke-width="1.25" />
-        </IconButton>
+        </IconButton> -->
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
         <AuthDialog v-if="authDialogIsVisible" />
@@ -100,37 +100,37 @@ function toggleAssistPanel() {
         <!-- Body -->
         <div class="z-10 flex h-full">
             <!-- Column fixed to left side of browser window -->
-            <BenchtopOptionBar
+            <!-- <BenchtopOptionBar
                 class="flex-none"
                 :is-wide-display="isDisplayWide"
                 :is-floating-open="isBenchtopOptionBarOpenInNarrowDisplay"
                 :session-is-authenticated="sessionState.isAuthenticated"
                 @request-close="isBenchtopOptionBarOpenInNarrowDisplay = false"
-            />
+            /> -->
 
             <!-- Column filling workbench body between benchtop option bar and assistant panel -->
-            <div class="flex min-w-0 flex-1 flex-col">
-                <!-- Row filling content column above status bar row  -->
+            <!-- <div class="flex min-w-0 flex-1 flex-col">
+                <! -- Row filling content column above status bar row  -- >
                 <div class="flex-1 overflow-y-hidden rounded-b-lg">
                     <RouterView v-slot="{ Component }">
                         <component :is="Component" :is-display-wide="isDisplayWide" />
                     </RouterView>
                 </div>
 
-                <!-- Row positioned at bottom of workbench content column -->
-                <div class="h-5.5 flex-none">
+                <! -- Row positioned at bottom of workbench content column -- >
+                <div class="lex-none">
                     <StatusBar />
                 </div>
-            </div>
+            </div> -->
 
             <!-- Column fixed to right side of browser window -->
-            <AssistantPanel
+            <!-- <AssistantPanel
                 v-if="isAssistPanelOpenInWideDisplay || isAssistPanelOpenInNarrowDisplay"
                 class="flex-none"
                 :is-open="isAssistPanelOpenInWideDisplay"
                 :is-floating-open="isAssistPanelOpenInNarrowDisplay"
                 @request-close="isAssistPanelOpenInNarrowDisplay = false"
-            />
+            /> -->
         </div>
     </div>
 </template>

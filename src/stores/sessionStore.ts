@@ -120,11 +120,9 @@ export const useSessionStore = defineStore('session', () => {
             lifetime.value = expiresAt.value - establishedAt;
             sessionId.value = claims.session_id ?? 'unknown';
             userId.value = claims.subject ?? 'unknown';
-            startSessionExpiryTimer(true);
-            globalThis.document.addEventListener('visibilitychange', resetSessionExpiryTimer);
+            startSessionExpiryTimer();
         } else {
             clearSessionExpiryTimer();
-            globalThis.document.removeEventListener('visibilitychange', resetSessionExpiryTimer);
             expiresAt.value = undefined;
             expiresIn.value = undefined;
             isAuthenticated.value = false;
@@ -142,10 +140,6 @@ export const useSessionStore = defineStore('session', () => {
             }
             sessionId.value = anonSessionId;
         }
-    }
-
-    function resetSessionExpiryTimer() {
-        startSessionExpiryTimer();
     }
 
     function startSessionExpiryTimer(runQuickly: boolean = false): void {
