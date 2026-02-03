@@ -124,13 +124,13 @@ function toggleAssistPanel() {
             </div>
 
             <!-- Column fixed to right side of browser window -->
-            <!-- <AssistantPanel
+            <AssistantPanel
                 v-if="isAssistPanelOpenInWideDisplay || isAssistPanelOpenInNarrowDisplay"
                 class="flex-none"
                 :is-open="isAssistPanelOpenInWideDisplay"
                 :is-floating-open="isAssistPanelOpenInNarrowDisplay"
                 @request-close="isAssistPanelOpenInNarrowDisplay = false"
-            /> -->
+            />
         </div>
     </div>
 </template>
