@@ -8,7 +8,7 @@ import { fileURLToPath, URL } from 'node:url';
 
 // Vite configuration
 export default defineConfig({
-    plugins: [vue(), /*vueDevTools(),*/ tailwindcss(), cloudflare()],
+    plugins: [vue(), /*vueDevTools(),*/ tailwindcss() /*, cloudflare()*/],
     resolve: {
         alias: {
             '~': fileURLToPath(new URL('.', import.meta.url)),
