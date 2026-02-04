@@ -8,7 +8,6 @@
     },
     "dependencies": {
         "@datapos/datapos-shared": "^0.3.530",
-        "//": "This is a comment about dependencies",
         "@tailwindcss/vite": "^4.1.18",
         "@tanstack/vue-virtual": "^3.13.18",
         "@teamhanko/hanko-frontend-sdk": "^2.4.0",
