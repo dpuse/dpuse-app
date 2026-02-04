@@ -10,11 +10,11 @@ import { ref, shallowRef, watch } from 'vue';
 import type { ConnectionConfig } from '@datapos/datapos-shared/component/connector';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 
-// Workbench core
-import type { Exception } from '@/composables/useMonitor';
-
 // Engine
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
+
+//
+export type Exception = { typeId: 'app' | 'promise' | 'runtime' | 'vue'; error?: unknown; message?: string; info?: string };
 
 // Constants
 const DPU_ANON_USER_ID_KEY = 'dpu_anon_user_id';

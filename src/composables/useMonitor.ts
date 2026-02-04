@@ -5,11 +5,8 @@ import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import { serialiseError } from '@datapos/datapos-shared/errors';
 
 // Workbench core
+import { type Exception, pendingExceptions } from '@/stores/sessionStore';
 import type { WorkerMessagePayload, WorkerMessageWebVitalPayload, WorkerResponse } from '@/workers/monitorWorker';
-import { pendingExceptions } from '../stores/sessionStore';
-
-export type Exception = { typeId: ErrorTypeId; error?: unknown; message?: string; info?: string; colno?: number; lineno?: number; filename?: string };
-type ErrorTypeId = 'app' | 'promise' | 'runtime' | 'vue';
 
 // Long-lived module-scoped monitor worker
 let monitorWorker: Worker | undefined;
