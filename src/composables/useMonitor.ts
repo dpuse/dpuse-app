@@ -2,14 +2,14 @@
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // Application framework
-// import { normalizeToError, VueHandledError, WindowHandledPromiseRejectionError, WindowHandledRuntimeError } from '@datapos/datapos-shared/errors';
+import { serialiseError } from '@datapos/datapos-shared/errors';
 
 // Workbench core
 import type { WorkerMessagePayload, WorkerMessageWebVitalPayload, WorkerResponse } from '@/workers/monitorWorker';
+import { pendingExceptions } from '../stores/sessionStore';
 
-export type Exception = { typeId: ErrorTypeId; payload: ErrorEvent | PromiseRejectionEvent | VueErrorContext };
+export type Exception = { typeId: ErrorTypeId; error?: unknown; message?: string; info?: string; colno?: number; lineno?: number; filename?: string };
 type ErrorTypeId = 'app' | 'promise' | 'runtime' | 'vue';
-type VueErrorContext = { error: unknown; info: string };
 
 // Long-lived module-scoped monitor worker
 let monitorWorker: Worker | undefined;
@@ -29,6 +29,12 @@ export function useMonitor() {
 
 function initialise(userId: string, sessionId: string): void {
     if (!monitorWorker) startMonitorWorker();
+
+    console.log(3333, pendingExceptions);
+    for (const exception of pendingExceptions) {
+        logException(exception);
+    }
+
     activeUserId = userId;
     activeSessionId = sessionId;
     monitorWorker?.postMessage({ typeId: 'initialise', payload: constructCommonPayload() /* TODO: anon identifier */ });
@@ -36,6 +42,7 @@ function initialise(userId: string, sessionId: string): void {
 
 function resetUser(userId: string, sessionId: string): void {
     if (!monitorWorker) return;
+
     activeUserId = userId;
     activeSessionId = sessionId;
     monitorWorker?.postMessage({ typeId: 'resetUser', payload: constructCommonPayload() });
@@ -43,19 +50,22 @@ function resetUser(userId: string, sessionId: string): void {
 
 function resetSession(sessionId: string): void {
     if (!monitorWorker) return;
+
     activeSessionId = sessionId;
 }
 
 function logPageView(): void {
     if (!monitorWorker) return;
+
     monitorWorker?.postMessage({ typeId: 'logPageView', payload: constructCommonPayload() });
 }
 
-function logException(exception: Exception): void {
+function logException(exception?: Exception): void {
     if (!monitorWorker) return;
-    // TODO: Normalise exception...
-    const normalisedException = exception;
-    monitorWorker?.postMessage({ typeId: 'logException', payload: { ...constructCommonPayload(), normalisedException } });
+
+    const serialisedErrors = serialiseError(exception?.error ?? exception?.message ?? 'Unknown error');
+    console.log('serialisedErrors', serialisedErrors);
+    // monitorWorker?.postMessage({ typeId: 'logException', payload: { ...constructCommonPayload(), serialisedErrors } });
 }
 
 // function reportVueError(unhandledError: unknown, vm: ComponentPublicInstance | null, info: string): void {

@@ -7,23 +7,27 @@ import '@/assets/main.css';
 import App from '@/App.vue';
 import type { Exception } from '@/composables/useMonitor';
 import router from '@/router';
-import { monitorInstance, pendingExceptions } from '@/stores/sessionStore';
+import { monitorInstance, pendingExceptions, useSessionStore } from '@/stores/sessionStore';
 
 // import posthog from 'posthog-js';
 // posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, { api_host: 'https://eu.i.posthog.com', defaults: '2025-11-30' });
 
 // Window error handlers
-globalThis.addEventListener('error', (event) => reportException({ typeId: 'runtime', payload: event }));
-globalThis.addEventListener('unhandledrejection', (event) => reportException({ typeId: 'promise', payload: event }));
+globalThis.addEventListener('error', (event) =>
+    reportException({ typeId: 'runtime', error: event.error, message: event.message, colno: event.colno, lineno: event.lineno, filename: event.filename })
+);
+globalThis.addEventListener('unhandledrejection', (event) => reportException({ typeId: 'promise', error: undefined, message: event.reason }));
 
 // Bootstrap workbench application
 try {
     const app = createApp(App);
-    app.config.errorHandler = (error, instance, info) => reportException({ typeId: 'vue', payload: { error, info } });
+    app.config.errorHandler = (error, instance, info) => reportException({ typeId: 'vue', error, info });
     app.use(createPinia());
     app.use(router);
     // initTranslations(app); // Setup internationalization.
     app.mount('#app');
+
+    useSessionStore().initialiseServices();
 } catch (error) {
     reportErrorSafely(error);
 }
@@ -32,8 +36,10 @@ try {
 
 function reportException(exception: Exception) {
     if (monitorInstance) {
+        console.log(1111, exception);
         monitorInstance.logException(exception);
     } else {
+        console.log(2222, exception);
         pendingExceptions.push(exception);
     }
 }
