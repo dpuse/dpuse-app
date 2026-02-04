@@ -6,9 +6,12 @@ import { useIdle } from '@vueuse/core';
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { ref, shallowRef, watch } from 'vue';
 
-// Workbench core
+// Application framework
 import type { ConnectionConfig } from '@datapos/datapos-shared/component/connector';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
+
+// Workbench core
+import type { Exception } from '@/composables/useMonitor';
 
 // Engine
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
@@ -27,8 +30,11 @@ let hankoInstance: Hanko | undefined;
 // Cleanup callback for the active Hanko flow
 let hankoFlowCleanupFunction: (() => void) | undefined;
 
-// Long-lived module-scoped monitor composition function
-let useMonitor: typeof import('@/composables/useMonitor').useMonitor | undefined;
+// Long-lived app-scoped monitor instance
+export let monitorInstance: ReturnType<typeof import('@/composables/useMonitor').useMonitor> | undefined;
+
+// Temporary app-scoped pending exception array
+export const pendingExceptions: Exception[] = [];
 
 // Long-lived authenticated-session-scoped expiry timer
 let expiryTimer: ReturnType<typeof setTimeout> | undefined;
@@ -53,7 +59,7 @@ export const useSessionStore = defineStore('session', () => {
             const anonSessionId = crypto.randomUUID();
             sessionId.value = anonSessionId;
             localStorage.setItem(DPU_ANON_SESSION_ID_KEY, anonSessionId);
-            useMonitor?.().resetSession(sessionId.value!); // Fails silently in no 'useMonitor' function'
+            monitorInstance?.resetSession(sessionId.value!); // Fails silently in no 'useMonitor' function'
         }
     });
 
@@ -67,11 +73,11 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.validateSession().then((result) => {
                 constructIt(result.is_valid ? result.claims : undefined);
                 import('@/composables/useMonitor').then((module) => {
-                    useMonitor = module.useMonitor;
-                    useMonitor().initialise(userId.value!, sessionId.value!);
+                    monitorInstance = module.useMonitor();
+                    monitorInstance.initialise(userId.value!, sessionId.value!);
                     window.addEventListener('beforeunload', (event) => {
                         if (!areUpdatesPending.value) return;
-                        useMonitor?.().shutdown(); // Fails silently in no 'useMonitor' function'
+                        monitorInstance?.shutdown(); // Fails silently in no 'useMonitor' function'
                         event.preventDefault();
                         event.returnValue = '';
                     });

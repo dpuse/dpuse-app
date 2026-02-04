@@ -1,8 +1,15 @@
 // Vendor dependencies
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
+// Application framework
+// import { normalizeToError, VueHandledError, WindowHandledPromiseRejectionError, WindowHandledRuntimeError } from '@datapos/datapos-shared/errors';
+
 // Workbench core
 import type { WorkerMessagePayload, WorkerMessageWebVitalPayload, WorkerResponse } from '@/workers/monitorWorker';
+
+export type Exception = { typeId: ErrorTypeId; payload: ErrorEvent | PromiseRejectionEvent | VueErrorContext };
+type ErrorTypeId = 'app' | 'promise' | 'runtime' | 'vue';
+type VueErrorContext = { error: unknown; info: string };
 
 // Long-lived module-scoped monitor worker
 let monitorWorker: Worker | undefined;
@@ -44,10 +51,44 @@ function logPageView(): void {
     monitorWorker?.postMessage({ typeId: 'logPageView', payload: constructCommonPayload() });
 }
 
-function logException(error?: unknown): void {
+function logException(exception: Exception): void {
     if (!monitorWorker) return;
-    monitorWorker?.postMessage({ typeId: 'logException', payload: { ...constructCommonPayload(), error } });
+    // TODO: Normalise exception...
+    const normalisedException = exception;
+    monitorWorker?.postMessage({ typeId: 'logException', payload: { ...constructCommonPayload(), normalisedException } });
 }
+
+// function reportVueError(unhandledError: unknown, vm: ComponentPublicInstance | null, info: string): void {
+//     try {
+//         const normalisedError = normalizeToError(unhandledError ?? 'Unknown error.');
+//         const message = 'Unhandled runtime error intercepted by global Vue error handler.';
+//         reportErrorPlaceholder(new VueHandledError(message, 'workbench.reportVueError', info, vm?.$options?.name, { cause: normalisedError }), true, ['Unhandled']);
+//     } catch (error) {
+//         reportErrorSafely(error);
+//     }
+// }
+
+// function reportWindowError(event: ErrorEvent): void {
+//     try {
+//         const normalisedError = normalizeToError(event?.error ?? event?.message ?? 'Unknown error.');
+//         // if (normalisedError.message.includes('ResizeObserver loop ')) return; // Ignore this benign warning
+//         const message = 'Unhandled runtime error intercepted by global Window error handler.';
+//         reportErrorPlaceholder(new WindowHandledRuntimeError(message, 'workbench.reportWindowError', { cause: normalisedError }), true, ['Unhandled']);
+//     } catch (error) {
+//         reportErrorSafely(error);
+//     }
+// }
+
+// function reportWindowUnhandledRejection(event: PromiseRejectionEvent): void {
+//     try {
+//         const normalisedError = normalizeToError(event?.reason ?? 'Unknown promise rejection reason.');
+//         // if (normalisedError.message.includes('ResizeObserver loop ')) return; // Ignore this benign warning
+//         const message = 'Unhandled promise rejection intercepted by global Window error handler.';
+//         reportErrorPlaceholder(new WindowHandledPromiseRejectionError(message, 'workbench.reportWindowUnhandledRejection', { cause: normalisedError }), true, ['Unhandled']);
+//     } catch (error) {
+//         reportErrorSafely(error);
+//     }
+// }
 
 function shutdown(): void {
     if (!monitorWorker) return;

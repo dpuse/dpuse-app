@@ -1,24 +1,25 @@
 // Vendor dependencies
+import { createApp } from 'vue';
 import { createPinia } from 'pinia';
-import { type ComponentPublicInstance, createApp } from 'vue';
 
 // Workbench core
 import '@/assets/main.css';
 import App from '@/App.vue';
+import type { Exception } from '@/composables/useMonitor';
 import router from '@/router';
-import { normalizeToError, VueHandledError, WindowHandledPromiseRejectionError, WindowHandledRuntimeError } from '@datapos/datapos-shared/errors';
+import { monitorInstance, pendingExceptions } from '@/stores/sessionStore';
 
 // import posthog from 'posthog-js';
 // posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, { api_host: 'https://eu.i.posthog.com', defaults: '2025-11-30' });
 
 // Window error handlers
-globalThis.addEventListener('error', reportWindowError);
-globalThis.addEventListener('unhandledrejection', reportWindowUnhandledRejection);
+globalThis.addEventListener('error', (event) => reportException({ typeId: 'runtime', payload: event }));
+globalThis.addEventListener('unhandledrejection', (event) => reportException({ typeId: 'promise', payload: event }));
 
 // Bootstrap workbench application
 try {
     const app = createApp(App);
-    app.config.errorHandler = reportVueError;
+    app.config.errorHandler = (error, instance, info) => reportException({ typeId: 'vue', payload: { error, info } });
     app.use(createPinia());
     app.use(router);
     // initTranslations(app); // Setup internationalization.
@@ -27,47 +28,17 @@ try {
     reportErrorSafely(error);
 }
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Error helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function reportVueError(unhandledError: unknown, vm: ComponentPublicInstance | null, info: string): void {
-    try {
-        const normalisedError = normalizeToError(unhandledError ?? 'Unknown error.');
-        const message = 'Unhandled runtime error intercepted by global Vue error handler.';
-        reportErrorPlaceholder(new VueHandledError(message, 'workbench.reportVueError', info, vm?.$options?.name, { cause: normalisedError }), true, ['Unhandled']);
-    } catch (error) {
-        reportErrorSafely(error);
+function reportException(exception: Exception) {
+    if (monitorInstance) {
+        monitorInstance.logException(exception);
+    } else {
+        pendingExceptions.push(exception);
     }
-}
-
-function reportWindowError(event: ErrorEvent): void {
-    try {
-        const normalisedError = normalizeToError(event?.error ?? event?.message ?? 'Unknown error.');
-        // if (normalisedError.message.includes('ResizeObserver loop ')) return; // Ignore this benign warning
-        const message = 'Unhandled runtime error intercepted by global Window error handler.';
-        reportErrorPlaceholder(new WindowHandledRuntimeError(message, 'workbench.reportWindowError', { cause: normalisedError }), true, ['Unhandled']);
-    } catch (error) {
-        reportErrorSafely(error);
-    }
-}
-
-function reportWindowUnhandledRejection(event: PromiseRejectionEvent): void {
-    try {
-        const normalisedError = normalizeToError(event?.reason ?? 'Unknown promise rejection reason.');
-        // if (normalisedError.message.includes('ResizeObserver loop ')) return; // Ignore this benign warning
-        const message = 'Unhandled promise rejection intercepted by global Window error handler.';
-        reportErrorPlaceholder(new WindowHandledPromiseRejectionError(message, 'workbench.reportWindowUnhandledRejection', { cause: normalisedError }), true, ['Unhandled']);
-    } catch (error) {
-        reportErrorSafely(error);
-    }
-}
-
-function reportErrorPlaceholder(error: unknown, isShown: boolean, tags: string[]) {
-    console.log(error, isShown, tags);
 }
 
 function reportErrorSafely(error: unknown): void {
-    console.log(error);
-
     // Insert error message into the body of the page
     const errorDiv = globalThis.document.createElement('div');
     errorDiv.textContent = `Application failed to load: ${error instanceof Error ? error.message : String(error)}`;
