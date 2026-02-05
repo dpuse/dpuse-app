@@ -31,7 +31,6 @@ export function useMonitor(userId?: string, authSessionId?: string, emailAddress
 
 function identifyUser(userId: string, authSessionId: string, emailAddress?: string): void {
     posthog.register_for_session({ dpu_auth_session_id: authSessionId });
-    console.log('dddd', userId, authSessionId, emailAddress, { dpu_user_id: userId, dpu_email_address: emailAddress });
     posthog.identify(userId, { dpu_user_id: userId, dpu_email_address: emailAddress });
 }
 
