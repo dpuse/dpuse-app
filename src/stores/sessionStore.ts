@@ -43,6 +43,9 @@ let expiryTimer: ReturnType<typeof setTimeout> | undefined;
 export const useSessionStore = defineStore('session', () => {
     const areUpdatesPending = ref(false);
     const connectionConfigs = shallowRef<ConnectionConfig[]>([]);
+    const emailAddress = ref<string | undefined>();
+    const emailIsPrimary = ref<boolean | undefined>();
+    const emailIsVerified = ref<boolean | undefined>();
     const engineConfig = shallowRef<EngineConfig | undefined>();
     const expiresAt = ref<number | undefined>();
     const expiresIn = ref<number | undefined>();
@@ -66,8 +69,8 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.validateSession().then((result) => {
                 establishSession(result.is_valid ? result.claims : undefined, true);
                 import('@/composables/useMonitor').then((module) => {
-                    console.log(userId.value, sessionId.value);
-                    monitorInstance = module.useMonitor(userId.value, sessionId.value);
+                    console.log(userId.value, sessionId.value, emailAddress.value);
+                    monitorInstance = module.useMonitor(userId.value, sessionId.value, emailAddress.value);
                     window.addEventListener('beforeunload', (event) => {
                         if (!areUpdatesPending.value) return;
                         monitorInstance?.shutdown(); // Fails silently in no monitor instance
@@ -114,6 +117,16 @@ export const useSessionStore = defineStore('session', () => {
 
     function establishSession(claims?: Claims, isLoading = false): void {
         if (claims) {
+            console.log(claims);
+            if (claims.email) {
+                emailAddress.value = claims.email.address;
+                emailIsPrimary.value = claims.email.is_primary;
+                emailIsVerified.value = claims.email.is_verified;
+            } else {
+                emailAddress.value = undefined;
+                emailIsPrimary.value = undefined;
+                emailIsVerified.value = undefined;
+            }
             const establishedAt = claims.issued_at ? Date.parse(claims?.issued_at) : 0;
             expiresAt.value = claims.expiration ? Date.parse(claims.expiration) : 0;
             expiresIn.value = Math.max(0, (expiresAt.value || 0) - Date.now());
@@ -122,9 +135,12 @@ export const useSessionStore = defineStore('session', () => {
             sessionId.value = claims.session_id;
             userId.value = claims.subject;
             startSessionExpiryTimer();
-            if (!isLoading) monitorInstance?.identifyUser(claims.subject, claims.session_id); // Fails silently in no monitor instance
+            if (!isLoading) monitorInstance?.identifyUser(claims.subject, claims.session_id, claims.email?.address); // Fails silently in no monitor instance
         } else {
             clearSessionExpiryTimer();
+            emailAddress.value = undefined;
+            emailIsPrimary.value = undefined;
+            emailIsVerified.value = undefined;
             expiresAt.value = undefined;
             expiresIn.value = undefined;
             isAuthenticated.value = false;

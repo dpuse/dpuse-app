@@ -14,10 +14,10 @@ const TIMEOUT_DELAY = 5000;
 let moduleStatesWebSocket: WebSocket | undefined;
 
 // Composable
-export function useMonitor(userId?: string, authSessionId?: string) {
+export function useMonitor(userId?: string, authSessionId?: string, emailAddress?: string) {
     posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, { api_host: POSTHOG_URL, defaults: POSTHOG_DEFAULTS });
 
-    if (userId && authSessionId) identifyUser(userId, authSessionId);
+    if (userId && authSessionId) identifyUser(userId, authSessionId, emailAddress);
 
     for (const exception of pendingExceptions) logException(exception);
     pendingExceptions.length = 0;
@@ -29,10 +29,10 @@ export function useMonitor(userId?: string, authSessionId?: string) {
 
 // Composable operations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function identifyUser(userId: string, authSessionId: string): void {
+function identifyUser(userId: string, authSessionId: string, emailAddress?: string): void {
     posthog.register_for_session({ dpu_auth_session_id: authSessionId });
-    console.log(userId, authSessionId);
-    posthog.identify(userId, { username: userId });
+    console.log(userId, authSessionId, emailAddress, { dpu_user_id: userId, dpu_email_address: emailAddress });
+    posthog.identify(userId, { dpu_user_id: userId, dpu_email_address: emailAddress });
 }
 
 function resetUser(): void {
