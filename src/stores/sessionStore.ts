@@ -2,9 +2,9 @@
 
 // Vendor dependencies
 import { defineStore } from 'pinia';
-import { useIdle } from '@vueuse/core';
+// import { useIdle } from '@vueuse/core';
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
-import { ref, shallowRef, watch } from 'vue';
+import { ref, shallowRef } from 'vue';
 
 // Application framework
 import type { ConnectionConfig } from '@datapos/datapos-shared/component/connector';
@@ -22,7 +22,7 @@ const DPU_ANON_SESSION_ID_KEY = 'dpu_anon_session_id';
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
-const SESSION_IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+// const SESSION_IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
 // Long-lived module-scoped Hanko instance reused across multiple authentication sessions
 let hankoInstance: Hanko | undefined;
@@ -53,15 +53,15 @@ export const useSessionStore = defineStore('session', () => {
     const toolConfigs = shallowRef<ToolConfig[] | undefined>();
     const userId = ref<string | undefined>();
 
-    const { idle: isIdle } = useIdle(SESSION_IDLE_TIMEOUT);
-    watch(isIdle, (newIsIdle) => {
-        if (newIsIdle && isAuthenticated.value === false) {
-            const anonSessionId = crypto.randomUUID();
-            sessionId.value = anonSessionId;
-            localStorage.setItem(DPU_ANON_SESSION_ID_KEY, anonSessionId);
-            monitorInstance?.resetSession(sessionId.value!); // Fails silently in no monitor instance
-        }
-    });
+    // const { idle: isIdle } = useIdle(SESSION_IDLE_TIMEOUT);
+    // watch(isIdle, (newIsIdle) => {
+    //     if (newIsIdle && isAuthenticated.value === false) {
+    //         const anonSessionId = crypto.randomUUID();
+    //         sessionId.value = anonSessionId;
+    //         localStorage.setItem(DPU_ANON_SESSION_ID_KEY, anonSessionId);
+    //         monitorInstance?.resetSession(sessionId.value!); // Fails silently in no monitor instance
+    //     }
+    // });
 
     function initialiseServices(): void {
         // TODO: Return promise...
