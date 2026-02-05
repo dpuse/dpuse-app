@@ -100,6 +100,7 @@ export const useSessionStore = defineStore('session', () => {
         connectionConfigs,
         constructFlow,
         destroyFlow,
+        emailAddress,
         engineConfig,
         expiresAt,
         expiresIn,
@@ -123,7 +124,7 @@ export const useSessionStore = defineStore('session', () => {
                 emailIsPrimary.value = claims.email.is_primary;
                 emailIsVerified.value = claims.email.is_verified;
             } else {
-                emailAddress.value = undefined;
+                emailAddress.value = emailAddress.value;
                 emailIsPrimary.value = undefined;
                 emailIsVerified.value = undefined;
             }
