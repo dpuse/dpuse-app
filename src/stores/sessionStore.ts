@@ -137,7 +137,7 @@ export const useSessionStore = defineStore('session', () => {
             userId.value = claims.subject;
             startSessionExpiryTimer();
             console.log('bbbb', claims.subject, claims.session_id, claims.email?.address);
-            if (!isLoading) monitorInstance?.identifyUser(claims.subject, claims.session_id, claims.email?.address); // Fails silently in no monitor instance
+            if (!isLoading) monitorInstance?.identifyUser(claims.subject, claims.session_id, claims.email?.address || emailAddress.value); // Fails silently in no monitor instance
         } else {
             clearSessionExpiryTimer();
             emailAddress.value = undefined;
