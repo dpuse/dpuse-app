@@ -69,7 +69,7 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.validateSession().then((result) => {
                 establishSession(result.is_valid ? result.claims : undefined, true);
                 import('@/composables/useMonitor').then((module) => {
-                    console.log(userId.value, sessionId.value, emailAddress.value);
+                    console.log('cccc', userId.value, sessionId.value, emailAddress.value);
                     monitorInstance = module.useMonitor(userId.value, sessionId.value, emailAddress.value);
                     window.addEventListener('beforeunload', (event) => {
                         if (!areUpdatesPending.value) return;
@@ -117,7 +117,7 @@ export const useSessionStore = defineStore('session', () => {
 
     function establishSession(claims?: Claims, isLoading = false): void {
         if (claims) {
-            console.log(claims);
+            console.log('aaaa', claims);
             if (claims.email) {
                 emailAddress.value = claims.email.address;
                 emailIsPrimary.value = claims.email.is_primary;
@@ -135,6 +135,7 @@ export const useSessionStore = defineStore('session', () => {
             sessionId.value = claims.session_id;
             userId.value = claims.subject;
             startSessionExpiryTimer();
+            console.log('bbbb', claims.subject, claims.session_id, claims.email?.address);
             if (!isLoading) monitorInstance?.identifyUser(claims.subject, claims.session_id, claims.email?.address); // Fails silently in no monitor instance
         } else {
             clearSessionExpiryTimer();
