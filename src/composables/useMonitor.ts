@@ -31,7 +31,8 @@ export function useMonitor(userId?: string, authSessionId?: string) {
 
 function identifyUser(userId: string, authSessionId: string): void {
     posthog.register_for_session({ dpu_auth_session_id: authSessionId });
-    posthog.identify(userId);
+    console.log(userId, authSessionId);
+    posthog.identify(userId, { username: userId });
 }
 
 function resetUser(): void {
