@@ -1,5 +1,5 @@
 // Vendor dependencies
-import posthog from 'posthog-js';
+import posthog from 'posthog-js/dist/module.no-external';
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // Application framework
