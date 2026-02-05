@@ -43,6 +43,7 @@ function handleLoginFlowStateChange(state: AnyState) {
         case 'onboarding_create_passkey':
             return handleLoginFlowOnboardingCreatePasskeyState(state);
         case 'success':
+            console.log('SUCCESS', state);
             uiStateId.value = 'done';
             handleIdEntered.value = undefined;
             handlePasswordEntered.value = undefined;
