@@ -3,9 +3,6 @@
 // import { useColorMode } from '@vueuse/core';
 import { type HTMLAttributes, ref } from 'vue';
 
-// Workbench core
-import { useSessionStore } from '@/stores/sessionStore';
-
 // Components
 // import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
 // import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';
@@ -22,7 +19,6 @@ const properties = defineProps<Properties>();
 // ???
 const identifier = ref('terrell.jm@icloud.com');
 async function handleSubmit() {
-    useSessionStore().emailAddress = identifier.value;
     await properties.onTrigger(identifier.value);
 }
 </script>

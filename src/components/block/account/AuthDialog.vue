@@ -65,6 +65,8 @@ async function handleLoginFlowInitState(state: State<'login_init'>) {
     handleIdEntered.value = async (identifier: string) => {
         const result = await action.run({ [input.name]: identifier });
         if (result.error) console.log(result.error, result);
+
+        sessionState.emailAddress = identifier; // TODO: This should be moved to success state
     };
 }
 
