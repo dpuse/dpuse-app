@@ -9,13 +9,13 @@ import router from '@/router';
 import { type Exception, monitorInstance, pendingExceptions, useSessionStore } from '@/stores/sessionStore';
 
 // Window error handlers
-globalThis.addEventListener('error', (event) => reportException({ typeId: 'runtime', error: event.error, message: event.message }));
-globalThis.addEventListener('unhandledrejection', (event) => reportException({ typeId: 'promise', error: undefined, message: event.reason }));
+globalThis.addEventListener('error', (event) => reportException({ typeId: 'unhandledRuntime', payload: event }));
+globalThis.addEventListener('unhandledrejection', (event) => reportException({ typeId: 'unhandledPromise', payload: event }));
 
 // Bootstrap workbench application
 try {
     const app = createApp(App);
-    app.config.errorHandler = (error, instance, info) => reportException({ typeId: 'vue', error, info });
+    app.config.errorHandler = (error, instance, info) => reportException({ typeId: 'unhandledVue', payload: { error, instance, info } });
     app.use(createPinia());
     app.use(router);
     // initTranslations(app); // Setup internationalization.

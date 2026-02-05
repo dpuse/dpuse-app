@@ -1,6 +1,6 @@
 {
     "name": "datapos-workbench",
-    "version": "0.0.219",
+    "version": "0.0.220",
     "private": true,
     "type": "module",
     "engines": {
@@ -16,7 +16,6 @@
         "pinia": "^3.0.4",
         "posthog-js": "^1.341.0",
         "tailwindcss": "^4.1.18",
-        "ua-parser-js": "^2.0.9",
         "vue": "^3.5.27",
         "vue-router": "^5.0.2",
         "web-vitals": "^5.1.0"

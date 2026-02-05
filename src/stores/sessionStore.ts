@@ -2,27 +2,27 @@
 
 // Vendor dependencies
 import { defineStore } from 'pinia';
-// import { useIdle } from '@vueuse/core';
+import { useIdle } from '@vueuse/core';
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
-import { ref, shallowRef } from 'vue';
+import { type ComponentPublicInstance, ref, shallowRef } from 'vue';
 
-// Application framework
+// DPU framework
 import type { ConnectionConfig } from '@datapos/datapos-shared/component/connector';
+import type { EngineConfig } from '@datapos/datapos-shared/engine';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 
-// Engine
-import type { EngineConfig } from '@datapos/datapos-shared/engine';
-
-//
-export type Exception = { typeId: 'handled' | 'promise' | 'runtime' | 'vue'; error?: unknown; message?: string; info?: string; context?: string };
+// Exception declarations
+type HandledException = { typeId: 'handled'; payload: { error?: unknown; locator: string } };
+type UnhandledVueException = { typeId: 'unhandledVue'; payload: { error?: unknown; instance: ComponentPublicInstance | null; info?: string } };
+type UnhandledRuntimeException = { typeId: 'unhandledRuntime'; payload: ErrorEvent };
+type UnhandledPromiseRejectException = { typeId: 'unhandledPromise'; payload: PromiseRejectionEvent };
+export type Exception = HandledException | UnhandledRuntimeException | UnhandledPromiseRejectException | UnhandledVueException;
 
 // Constants
-const DPU_ANON_USER_ID_KEY = 'dpu_anon_user_id';
-const DPU_ANON_SESSION_ID_KEY = 'dpu_anon_session_id';
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
-// const SESSION_IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+const SESSION_IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
 // Long-lived module-scoped Hanko instance reused across multiple authentication sessions
 let hankoInstance: Hanko | undefined;
@@ -33,7 +33,7 @@ let hankoFlowCleanupFunction: (() => void) | undefined;
 // Long-lived app-scoped monitor instance
 export let monitorInstance: ReturnType<typeof import('@/composables/useMonitor').useMonitor> | undefined;
 
-// Temporary app-scoped pending exception array
+// Temporary app-scoped pending exceptions array
 export const pendingExceptions: Exception[] = [];
 
 // Long-lived authenticated-session-scoped expiry timer
@@ -53,29 +53,20 @@ export const useSessionStore = defineStore('session', () => {
     const toolConfigs = shallowRef<ToolConfig[] | undefined>();
     const userId = ref<string | undefined>();
 
-    // const { idle: isIdle } = useIdle(SESSION_IDLE_TIMEOUT);
-    // watch(isIdle, (newIsIdle) => {
-    //     if (newIsIdle && isAuthenticated.value === false) {
-    //         const anonSessionId = crypto.randomUUID();
-    //         sessionId.value = anonSessionId;
-    //         localStorage.setItem(DPU_ANON_SESSION_ID_KEY, anonSessionId);
-    //         monitorInstance?.resetSession(sessionId.value!); // Fails silently in no monitor instance
-    //     }
-    // });
+    const { idle, lastActive } = useIdle(SESSION_IDLE_TIMEOUT);
 
     function initialiseServices(): void {
         // TODO: Return promise...
         import('@teamhanko/hanko-frontend-sdk').then(({ Hanko }) => {
             hankoInstance = new Hanko(HANKO_API_URL);
-            hankoInstance.onSessionCreated((sessionDetails) => initialiseSession(sessionDetails.claims));
-            hankoInstance.onSessionExpired(() => initialiseSession());
-            hankoInstance.onUserDeleted(() => initialiseSession());
-            hankoInstance.onUserLoggedOut(() => initialiseSession());
+            hankoInstance.onSessionCreated((sessionDetails) => establishSession(sessionDetails.claims));
+            hankoInstance.onSessionExpired(() => establishSession());
+            hankoInstance.onUserDeleted(() => establishSession());
+            hankoInstance.onUserLoggedOut(() => establishSession());
             hankoInstance.validateSession().then((result) => {
-                initialiseSession(result.is_valid ? result.claims : undefined);
+                establishSession(result.is_valid ? result.claims : undefined, true);
                 import('@/composables/useMonitor').then((module) => {
-                    monitorInstance = module.useMonitor();
-                    monitorInstance.initialise(userId.value!, sessionId.value!);
+                    monitorInstance = module.useMonitor(userId.value, sessionId.value);
                     window.addEventListener('beforeunload', (event) => {
                         if (!areUpdatesPending.value) return;
                         monitorInstance?.shutdown(); // Fails silently in no monitor instance
@@ -108,46 +99,42 @@ export const useSessionStore = defineStore('session', () => {
         engineConfig,
         expiresAt,
         expiresIn,
+        idle,
         initialiseServices,
         isAuthenticated,
+        lastActive,
         lifetime,
         localMetaNodeConnectionConfig,
         signOut,
         toolConfigs
     };
 
-    // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Session helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    function initialiseSession(claims?: Claims): void {
+    function establishSession(claims?: Claims, isLoading = false): void {
         if (claims) {
             const establishedAt = claims.issued_at ? Date.parse(claims?.issued_at) : 0;
             expiresAt.value = claims.expiration ? Date.parse(claims.expiration) : 0;
             expiresIn.value = Math.max(0, (expiresAt.value || 0) - Date.now());
             isAuthenticated.value = true;
             lifetime.value = expiresAt.value - establishedAt;
-            sessionId.value = claims.session_id ?? 'unknown';
-            userId.value = claims.subject ?? 'unknown';
+            sessionId.value = claims.session_id;
+            userId.value = claims.subject;
             startSessionExpiryTimer();
+            if (!isLoading) monitorInstance?.identifyUser(claims.subject, claims.session_id); // Fails silently in no monitor instance
         } else {
             clearSessionExpiryTimer();
             expiresAt.value = undefined;
             expiresIn.value = undefined;
             isAuthenticated.value = false;
             lifetime.value = undefined;
-            let anonUserId = localStorage.getItem(DPU_ANON_USER_ID_KEY);
-            if (!anonUserId) {
-                anonUserId = `anon_${crypto.randomUUID()}`;
-                localStorage.setItem(DPU_ANON_USER_ID_KEY, anonUserId);
-            }
-            userId.value = anonUserId;
-            let anonSessionId = localStorage.getItem(DPU_ANON_SESSION_ID_KEY);
-            if (!anonSessionId) {
-                anonSessionId = crypto.randomUUID();
-                localStorage.setItem(DPU_ANON_SESSION_ID_KEY, anonSessionId);
-            }
-            sessionId.value = anonSessionId;
+            userId.value = undefined;
+            sessionId.value = undefined;
+            monitorInstance?.resetUser(); // Fails silently in no monitor instance
         }
     }
+
+    // Expiry timer helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     function startSessionExpiryTimer(runQuickly: boolean = false): void {
         clearSessionExpiryTimer();

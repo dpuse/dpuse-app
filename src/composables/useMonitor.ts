@@ -1,114 +1,107 @@
 // Vendor dependencies
-import posthog from 'posthog-js/dist/module.no-external';
-// import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
-
-// // Application framework
-// import { serialiseError } from '@datapos/datapos-shared/errors';
+import posthog, { type CaptureOptions, type Properties } from 'posthog-js/dist/module.no-external';
 
 // Workbench core
-import { pendingExceptions } from '@/stores/sessionStore';
-// import type { WorkerMessagePayload, WorkerMessageWebVitalPayload, WorkerResponse } from '@/workers/monitorWorker';
+import { type Exception, pendingExceptions } from '@/stores/sessionStore';
 
 // Constants
 const DPU_API_HOST = 'api.datapos.app';
+const POSTHOG_DEFAULTS = '2025-11-30';
+const POSTHOG_URL = 'https://eu.i.posthog.com';
 const TIMEOUT_DELAY = 5000;
-
-// Long-lived module-scoped monitor worker
-// let monitorWorker: Worker | undefined;
-
-// Long-lived session-scoped user identifier, initialised by 'initialise' operation, updated by 'resetUser' operation
-let activeAuthUserId: string | undefined;
-
-// Long-lived session-scoped identifier, initialised by 'initialise' operation, updated by 'resetUser' operation
-let activeAuthSessionId: string | undefined;
 
 // Long-lived session-scoped module states WebSocket
 let moduleStatesWebSocket: WebSocket | undefined;
 
 // Composable
-export function useMonitor() {
-    posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, { api_host: 'https://eu.i.posthog.com', defaults: '2025-11-30' });
-    return { initialise, logException, logPageView, resetUser, shutdown };
-}
+export function useMonitor(userId?: string, authSessionId?: string) {
+    posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, { api_host: POSTHOG_URL, defaults: POSTHOG_DEFAULTS });
 
-// Composable operations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function initialise(userId: string, authSessionId: string): void {
-    // if (!monitorWorker) startMonitorWorker();
-    activeAuthUserId = userId;
-    activeAuthSessionId = authSessionId;
-
-    if (moduleStatesWebSocket && (moduleStatesWebSocket.readyState === WebSocket.CONNECTING || moduleStatesWebSocket.readyState === WebSocket.OPEN)) return;
-    moduleStatesWebSocket = connectToModuleStatesWebSocket();
+    if (userId && authSessionId) identifyUser(userId, authSessionId);
 
     for (const exception of pendingExceptions) logException(exception);
     pendingExceptions.length = 0;
 
-    // monitorWorker?.postMessage({ typeId: 'initialise', payload: constructCommonPayload() /* TODO: anon identifier */ });
-    posthog.identify(activeAuthUserId);
+    if (moduleStatesWebSocket && (moduleStatesWebSocket.readyState === WebSocket.CONNECTING || moduleStatesWebSocket.readyState === WebSocket.OPEN)) return;
+    moduleStatesWebSocket = connectToModuleStatesWebSocket();
+    return { captureEvent, identifyUser, logException, resetUser, shutdown };
+}
+
+// Composable operations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function identifyUser(userId: string, authSessionId: string): void {
+    posthog.register_for_session({ dpu_auth_session_id: authSessionId });
+    posthog.identify(userId);
 }
 
 function resetUser(): void {
-    // if (!monitorWorker) return;
-
-    activeAuthUserId = undefined;
-    activeAuthSessionId = undefined;
-    // monitorWorker?.postMessage({ typeId: 'resetUser', payload: constructCommonPayload() });
+    posthog.unregister_for_session('dpu_auth_session_id');
     posthog.reset();
 }
 
-// function resetSession(sessionId: string): void {
-//     // if (!monitorWorker) return;
-
-//     activeAuthSessionId = sessionId;
-// }
-
-function logPageView(): void {
-    // if (!monitorWorker) return;
-    // monitorWorker?.postMessage({ typeId: 'logPageView', payload: constructCommonPayload() });
+function captureEvent(name: string, properties: Properties, options: CaptureOptions) {
+    posthog.capture(name, properties, options);
 }
 
-function logException(error?: unknown): void {
-    // if (!monitorWorker) return;
-
-    const result = posthog.captureException(error, { activeAuthSessionId });
-    console.log('CAPTURE RESULT', result);
-    // const serialisedErrors = serialiseError(exception?.error ?? exception?.message ?? 'Unknown error');
-    // console.log('serialisedErrors', serialisedErrors);
-    // monitorWorker?.postMessage({ typeId: 'logException', payload: { ...constructCommonPayload(), serialisedErrors } });
+function logException(exception: Exception): void {
+    let exceptionError;
+    let exceptionProperties;
+    switch (exception.typeId) {
+        case 'unhandledVue': {
+            const payload = exception.payload;
+            exceptionError = payload.error instanceof Error ? payload.error : new Error('Unknown Vue error.');
+            const options = payload.instance?.$options ?? {};
+            exceptionProperties = {
+                dpu_exception_type_id: exception.typeId,
+                dpu_exception_component_name: options.__name,
+                dpu_exception_info: payload.info
+            };
+            break;
+        }
+        case 'unhandledRuntime': {
+            const payload = exception.payload;
+            exceptionError = payload.error instanceof Error ? payload.error : new Error(payload.message || 'Unknown runtime error.');
+            exceptionProperties = {
+                dpu_exception_type_id: 'runtime',
+                dpu_exception_source_filename: payload.filename,
+                dpu_exception_source_lineno: payload.lineno,
+                dpu_exception_source_colno: payload.colno,
+                dpu_exception_original_message: payload.message,
+                dpu_exception_has_native_error: payload.error instanceof Error
+            };
+            break;
+        }
+        case 'unhandledPromise': {
+            const payload = exception.payload;
+            exceptionError = payload.reason instanceof Error ? payload.reason : new Error(`Unhandled promise rejection - ${String(payload.reason)}.`);
+            exceptionProperties = {
+                dpu_exception_type_id: exception.typeId,
+                dpu_exception_reason: payload.reason
+            };
+            break;
+        }
+        default: {
+            const payload = exception.payload;
+            exceptionError = payload.error instanceof Error ? payload.error : new Error('Unknown handled error.');
+            exceptionProperties = {
+                dpu_exception_type_id: exception.typeId,
+                dpu_exception_locator: payload.locator
+            };
+            break;
+        }
+    }
+    const result = posthog.captureException(exceptionError, exceptionProperties);
+    console.log('EXCEPTION', result);
 }
 
-// function reportVueError(unhandledError: unknown, vm: ComponentPublicInstance | null, info: string): void {
-//     try {
-//         const normalisedError = normalizeToError(unhandledError ?? 'Unknown error.');
-//         const message = 'Unhandled runtime error intercepted by global Vue error handler.';
-//         reportErrorPlaceholder(new VueHandledError(message, 'workbench.reportVueError', info, vm?.$options?.name, { cause: normalisedError }), true, ['Unhandled']);
-//     } catch (error) {
-//         reportErrorSafely(error);
-//     }
-// }
+function shutdown(): void {
+    if (moduleStatesWebSocket) {
+        moduleStatesWebSocket.close(); // TODO: Won't this just open again? Maybe check event.code?
+        moduleStatesWebSocket = undefined;
+    }
+}
 
-// function reportWindowError(event: ErrorEvent): void {
-//     try {
-//         const normalisedError = normalizeToError(event?.error ?? event?.message ?? 'Unknown error.');
-//         // if (normalisedError.message.includes('ResizeObserver loop ')) return; // Ignore this benign warning
-//         const message = 'Unhandled runtime error intercepted by global Window error handler.';
-//         reportErrorPlaceholder(new WindowHandledRuntimeError(message, 'workbench.reportWindowError', { cause: normalisedError }), true, ['Unhandled']);
-//     } catch (error) {
-//         reportErrorSafely(error);
-//     }
-// }
-
-// function reportWindowUnhandledRejection(event: PromiseRejectionEvent): void {
-//     try {
-//         const normalisedError = normalizeToError(event?.reason ?? 'Unknown promise rejection reason.');
-//         // if (normalisedError.message.includes('ResizeObserver loop ')) return; // Ignore this benign warning
-//         const message = 'Unhandled promise rejection intercepted by global Window error handler.';
-//         reportErrorPlaceholder(new WindowHandledPromiseRejectionError(message, 'workbench.reportWindowUnhandledRejection', { cause: normalisedError }), true, ['Unhandled']);
-//     } catch (error) {
-//         reportErrorSafely(error);
-//     }
-// }
+// Module states WebSocket helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function connectToModuleStatesWebSocket(): WebSocket | undefined {
     try {
@@ -153,114 +146,3 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
         return undefined;
     }
 }
-
-function shutdown(): void {
-    // if (!monitorWorker) return;
-    // monitorWorker?.postMessage({ typeId: 'shutdown' });
-    if (moduleStatesWebSocket) {
-        moduleStatesWebSocket.close(); // TODO: Won't this just open again? Maybe check event.code?
-        moduleStatesWebSocket = undefined;
-    }
-}
-
-// Monitor worker management ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-// function startMonitorWorker(): void {
-//     if (monitorWorker) return;
-
-//     monitorWorker = new Worker(new URL('@/workers/monitorWorker.ts', import.meta.url), { type: 'module' });
-
-//     // Response (outbound) message listener
-//     monitorWorker.addEventListener('message', (event: MessageEvent<WorkerResponse>) => {
-//         const { typeId, payload } = event.data;
-//         switch (typeId) {
-//             case 'modulesRegistered':
-//                 console.log('MODULES REGISTERED', payload);
-//                 break;
-//             case 'modulesUnregistered':
-//                 console.log('MODULES UNREGISTERED', payload);
-//                 break;
-//             case 'shutdownComplete':
-//                 break;
-//         }
-//     });
-
-//     monitorWorker.addEventListener('error', (event: ErrorEvent) => {
-//         console.error('WORKER ONERROR', event);
-//         shutdownWorker();
-//     });
-
-//     monitorWorker.addEventListener('messageerror', (event: MessageEvent) => {
-//         console.error('WORKER ONMESSAGEERROR', event);
-//         shutdownWorker();
-//     });
-
-//     logWebVitalMetrics();
-// }
-
-// function shutdownWorker() {
-//     if (!monitorWorker) return;
-//     monitorWorker.terminate();
-//     monitorWorker = undefined;
-// }
-
-// Web vital metrics logging ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-// function logWebVitalMetrics() {
-//     // The following callbacks must run on main thread
-//     // onCLS((metric) => logWebVitalMetric(metric));
-//     // onINP((metric) => logWebVitalMetric(metric));
-//     // onLCP((metric) => logWebVitalMetric(metric));
-//     // onFCP((metric) => logWebVitalMetric(metric));
-//     // onTTFB((metric) => logWebVitalMetric(metric));
-// }
-
-// function logWebVitalMetric(metric: Metric) {
-//     const payload: WorkerMessageWebVitalPayload = {
-//         ...constructCommonPayload(),
-//         webVitalMetric: {
-//             id: metric.id,
-//             name: metric.name,
-//             value: metric.value,
-//             delta: metric.delta,
-//             navigationType: metric.navigationType,
-//             rating: metric.rating
-//         }
-//     };
-//     monitorWorker?.postMessage({ typeId: 'logWebVitals', payload });
-// }
-
-// Common payload construction ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-// // Custom type declarations for navigator with connection properties (connection properties are still experimental)
-// type NavigatorConnection = { effectiveType?: string; downlink?: number; downlinkMax?: number; rtt?: number; saveData?: boolean; type?: string };
-// interface NavigatorWithConnection extends Navigator {
-//     connection?: NavigatorConnection;
-//     mozConnection?: NavigatorConnection;
-//     webkitConnection?: NavigatorConnection;
-// }
-
-// function constructCommonPayload(): WorkerMessagePayload {
-//     // const anonId = localStorage.getItem('dpu_anon_user_id') || undefined;
-//     const navigatorWithConnection = navigator as NavigatorWithConnection;
-//     const connection = navigatorWithConnection.connection || navigatorWithConnection.mozConnection || navigatorWithConnection.webkitConnection;
-//     return {
-//         userId: activeUserId!,
-//         // anonId,
-//         sessionId: activeSessionId!,
-//         browser: { language: globalThis.navigator.language },
-//         connection: {
-//             effectiveType: connection?.effectiveType,
-//             downlink: connection?.downlink,
-//             downlinkMax: connection?.downlinkMax,
-//             rtt: connection?.rtt,
-//             saveData: connection?.saveData,
-//             type: connection?.type
-//         },
-//         document: { referrer: globalThis.document.referrer },
-//         screen: { height: globalThis.screen.height, width: globalThis.screen.width },
-//         url: { href: globalThis.location.href, host: globalThis.location.host, pathname: globalThis.location.pathname },
-//         userAgent: globalThis.navigator.userAgent,
-//         viewport: { height: globalThis.window.innerHeight, width: globalThis.window.innerWidth }
-//     };
-// }
