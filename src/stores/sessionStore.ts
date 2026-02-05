@@ -14,7 +14,7 @@ import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
 
 //
-export type Exception = { typeId: 'app' | 'promise' | 'runtime' | 'vue'; error?: unknown; message?: string; info?: string };
+export type Exception = { typeId: 'handled' | 'promise' | 'runtime' | 'vue'; error?: unknown; message?: string; info?: string; context?: string };
 
 // Constants
 const DPU_ANON_USER_ID_KEY = 'dpu_anon_user_id';
@@ -53,31 +53,32 @@ export const useSessionStore = defineStore('session', () => {
     const toolConfigs = shallowRef<ToolConfig[] | undefined>();
     const userId = ref<string | undefined>();
 
-    const { idle: isIdle /*, lastActive*/ } = useIdle(SESSION_IDLE_TIMEOUT);
+    const { idle: isIdle } = useIdle(SESSION_IDLE_TIMEOUT);
     watch(isIdle, (newIsIdle) => {
         if (newIsIdle && isAuthenticated.value === false) {
             const anonSessionId = crypto.randomUUID();
             sessionId.value = anonSessionId;
             localStorage.setItem(DPU_ANON_SESSION_ID_KEY, anonSessionId);
-            monitorInstance?.resetSession(sessionId.value!); // Fails silently in no 'useMonitor' function'
+            monitorInstance?.resetSession(sessionId.value!); // Fails silently in no monitor instance
         }
     });
 
     function initialiseServices(): void {
+        // TODO: Return promise...
         import('@teamhanko/hanko-frontend-sdk').then(({ Hanko }) => {
             hankoInstance = new Hanko(HANKO_API_URL);
-            hankoInstance.onSessionCreated((sessionDetails) => constructIt(sessionDetails.claims));
-            hankoInstance.onSessionExpired(() => constructIt());
-            hankoInstance.onUserDeleted(() => constructIt());
-            hankoInstance.onUserLoggedOut(() => constructIt());
+            hankoInstance.onSessionCreated((sessionDetails) => initialiseSession(sessionDetails.claims));
+            hankoInstance.onSessionExpired(() => initialiseSession());
+            hankoInstance.onUserDeleted(() => initialiseSession());
+            hankoInstance.onUserLoggedOut(() => initialiseSession());
             hankoInstance.validateSession().then((result) => {
-                constructIt(result.is_valid ? result.claims : undefined);
+                initialiseSession(result.is_valid ? result.claims : undefined);
                 import('@/composables/useMonitor').then((module) => {
                     monitorInstance = module.useMonitor();
                     monitorInstance.initialise(userId.value!, sessionId.value!);
                     window.addEventListener('beforeunload', (event) => {
                         if (!areUpdatesPending.value) return;
-                        monitorInstance?.shutdown(); // Fails silently in no 'useMonitor' function'
+                        monitorInstance?.shutdown(); // Fails silently in no monitor instance
                         event.preventDefault();
                         event.returnValue = '';
                     });
@@ -117,7 +118,7 @@ export const useSessionStore = defineStore('session', () => {
 
     // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    function constructIt(claims?: Claims): void {
+    function initialiseSession(claims?: Claims): void {
         if (claims) {
             const establishedAt = claims.issued_at ? Date.parse(claims?.issued_at) : 0;
             expiresAt.value = claims.expiration ? Date.parse(claims.expiration) : 0;

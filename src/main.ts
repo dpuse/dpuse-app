@@ -2,9 +2,6 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
-// import posthog from 'posthog-js';
-// posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, { api_host: 'https://eu.i.posthog.com', defaults: '2025-11-30' });
-
 // Workbench core
 import '@/assets/main.css';
 import App from '@/App.vue';
@@ -12,13 +9,13 @@ import router from '@/router';
 import { type Exception, monitorInstance, pendingExceptions, useSessionStore } from '@/stores/sessionStore';
 
 // Window error handlers
-globalThis.addEventListener('error', (event) => reportException({ typeId: 'runtime', error: event.error, message: event.message }));
-globalThis.addEventListener('unhandledrejection', (event) => reportException({ typeId: 'promise', error: undefined, message: event.reason }));
+// globalThis.addEventListener('error', (event) => reportException({ typeId: 'runtime', error: event.error, message: event.message }));
+// globalThis.addEventListener('unhandledrejection', (event) => reportException({ typeId: 'promise', error: undefined, message: event.reason }));
 
 // Bootstrap workbench application
 try {
     const app = createApp(App);
-    app.config.errorHandler = (error, instance, info) => reportException({ typeId: 'vue', error, info });
+    // app.config.errorHandler = (error, instance, info) => reportException({ typeId: 'vue', error, info });
     app.use(createPinia());
     app.use(router);
     // initTranslations(app); // Setup internationalization.
@@ -31,13 +28,13 @@ try {
 
 // Error helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function reportException(exception: Exception) {
-    if (monitorInstance) {
-        monitorInstance.logException(exception);
-    } else {
-        pendingExceptions.push(exception);
-    }
-}
+// function reportException(exception: Exception) {
+//     if (monitorInstance) {
+//         monitorInstance.logException(exception);
+//     } else {
+//         pendingExceptions.push(exception);
+//     }
+// }
 
 function reportErrorSafely(error: unknown): void {
     // Insert error message into the body of the page

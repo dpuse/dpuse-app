@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Vendor dependencies
 import { useRoute } from 'vue-router';
-import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // Workbench core
@@ -43,11 +43,6 @@ const assistPanelToggleAriaLabel = computed(() => {
 
 // Authentication dialog state
 const authDialogIsVisible = computed(() => route.query.dialog === 'auth');
-
-// Initialise authentication and monitor services
-onMounted(() => {
-    throw new Error('Just testing...');
-});
 
 // Hide narrow versions of option bar and assistant panels when display width transitions from narrow to wide
 watch(isDisplayWide, (newIsDisplayWide) => {

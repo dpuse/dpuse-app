@@ -1,4 +1,5 @@
 // Vendor dependencies
+import posthog from 'posthog-js';
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // Application framework
@@ -19,6 +20,7 @@ let activeSessionId: string | undefined;
 
 // Composable
 export function useMonitor() {
+    posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, { api_host: 'https://eu.i.posthog.com', defaults: '2025-11-30' });
     return { initialise, logException, logPageView, resetSession, resetUser, shutdown };
 }
 
@@ -147,11 +149,11 @@ function shutdownWorker() {
 
 function logWebVitalMetrics() {
     // The following callbacks must run on main thread
-    onCLS((metric) => logWebVitalMetric(metric));
-    onINP((metric) => logWebVitalMetric(metric));
-    onLCP((metric) => logWebVitalMetric(metric));
-    onFCP((metric) => logWebVitalMetric(metric));
-    onTTFB((metric) => logWebVitalMetric(metric));
+    // onCLS((metric) => logWebVitalMetric(metric));
+    // onINP((metric) => logWebVitalMetric(metric));
+    // onLCP((metric) => logWebVitalMetric(metric));
+    // onFCP((metric) => logWebVitalMetric(metric));
+    // onTTFB((metric) => logWebVitalMetric(metric));
 }
 
 function logWebVitalMetric(metric: Metric) {
