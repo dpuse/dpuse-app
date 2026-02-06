@@ -5,11 +5,11 @@ import BenchtopShell from '@/components/block/benchtop/BenchtopShell.vue';
 import Header from '@/components/block/header/Header.vue';
 
 // Properties
-const properties = defineProps<{ isDisplayWide: boolean }>();
+const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isDisplayWide: boolean }>();
 </script>
 
 <template>
-    <BenchtopShell :is-display-wide="properties.isDisplayWide">
+    <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="properties.isDisplayWide">
         <Header title="Contextualise Data" :is-display-wide="properties.isDisplayWide" />
 
         <BenchtopScroller></BenchtopScroller>

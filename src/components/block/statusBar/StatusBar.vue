@@ -20,7 +20,7 @@ const formattedExpiryTime = computed(() => {
 <template>
     <div class="flex h-6 items-center justify-center gap-x-4 text-xs">
         <div>© Jonathan Terrell</div>
-        <div class="relative flex w-40 items-center justify-start rounded-xs border bg-neutral-100">
+        <div class="relative flex w-40 items-center justify-start rounded-xs border bg-neutral-50">
             <div class="absolute top-0 bottom-0 left-0 bg-green-100" :style="{ width: `${elapsed}%` }"></div>
             <div class="relative pl-1">Expires at {{ formattedExpiryTime }}</div>
         </div>
