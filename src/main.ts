@@ -6,7 +6,7 @@ import { createPinia } from 'pinia';
 import '@/assets/main.css';
 import App from '@/App.vue';
 import router from '@/router';
-import { type Exception, monitorInstance, pendingExceptions, useSessionStore } from '@/stores/sessionStore';
+// import { type Exception, monitorInstance, pendingExceptions, useSessionStore } from '@/stores/sessionStore';
 
 // Window error handlers
 globalThis.addEventListener('error', (event) => reportException({ typeId: 'unhandledRuntime', payload: event }));
@@ -23,7 +23,8 @@ try {
 
     globalThis.window.addEventListener('load', () => {
         requestIdleCallback(async () => {
-            useSessionStore().initialiseServices();
+            import('@/stores/sessionStore').then((module) => module.useSessionStore().initialiseServices);
+            // useSessionStore().initialiseServices();
         });
     });
 } catch (error) {
@@ -32,12 +33,12 @@ try {
 
 // Error helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function reportException(exception: Exception) {
-    if (monitorInstance) {
-        monitorInstance.logException(exception);
-    } else {
-        pendingExceptions.push(exception);
-    }
+function reportException(exception: unknown) {
+    // if (monitorInstance) {
+    //     monitorInstance.logException(exception);
+    // } else {
+    //     pendingExceptions.push(exception);
+    // }
 }
 
 function reportErrorSafely(error: unknown): void {
