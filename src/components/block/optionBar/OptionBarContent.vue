@@ -52,8 +52,8 @@ function handleOptionSelect() {
                 </RouterLink>
             </div>
 
-            <RouterLink :class="classes" :to="{ name: 'managePersonalDetails' }" @click="handleOptionSelect">
-                <div class="relative size-6">
+            <RouterLink aria-label="Manage personal details" :class="classes" :to="{ name: 'managePersonalDetails' }" @click="handleOptionSelect">
+                <div aria-hidden="true" class="relative size-6">
                     <TransitionGroup name="fade">
                         <UserCogIcon v-if="authIconState === true" key="user" class="absolute inset-0 size-6" :stroke-width="1.25" />
                         <LogInIcon v-if="authIconState === false" key="login" class="absolute inset-0 size-6" :stroke-width="1.25" />
