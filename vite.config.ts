@@ -28,7 +28,7 @@ export default defineConfig({
                 " frame-ancestors 'none';" +
                 " img-src 'self';" +
                 " manifest-src 'self';" +
-                " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' data: 'sha256-FKabkTPxmdbQtfvuUPyT13E2ga22HRaIjqUW0M21Zns=';" +
+                " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' data: 'sha256-zB6mwYmmKIlxJrDq5yysgDwDqL4RFTYqD9cEDekVWCA=';" +
                 // " require-trusted-types-for 'script';" + // TODO: Can not get this to work with import of Engine Web Worker.
                 " style-src 'self' 'unsafe-inline';" + // TODO: SimpleTable set styles, need to change. See chat GDP answers.
                 " worker-src 'self' blob:;",

@@ -58,31 +58,25 @@ export const useSessionStore = defineStore('session', () => {
 
     const { idle, lastActive } = useIdle(SESSION_IDLE_TIMEOUT);
 
-    function initialiseServices(): Promise<void> {
-        // TODO: Return promise...
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                import('@teamhanko/hanko-frontend-sdk').then(({ Hanko }) => {
-                    hankoInstance = new Hanko(HANKO_API_URL);
-                    hankoInstance.onSessionCreated((sessionDetails) => establishSession(sessionDetails.claims));
-                    hankoInstance.onSessionExpired(() => establishSession());
-                    hankoInstance.onUserDeleted(() => establishSession());
-                    hankoInstance.onUserLoggedOut(() => establishSession());
-                    hankoInstance.validateSession().then((result) => {
-                        establishSession(result.is_valid ? result.claims : undefined, true);
-                        import('@/composables/useMonitor').then((module) => {
-                            monitorInstance = module.useMonitor(userId.value, sessionId.value, emailAddress.value);
-                            window.addEventListener('beforeunload', (event) => {
-                                if (!areUpdatesPending.value) return;
-                                monitorInstance?.shutdown(); // Fails silently in no monitor instance
-                                event.preventDefault();
-                                event.returnValue = '';
-                            });
-                            resolve();
-                        });
+    function initialiseServices(): void {
+        import('@teamhanko/hanko-frontend-sdk').then(({ Hanko }) => {
+            hankoInstance = new Hanko(HANKO_API_URL);
+            hankoInstance.onSessionCreated((sessionDetails) => establishSession(sessionDetails.claims));
+            hankoInstance.onSessionExpired(() => establishSession());
+            hankoInstance.onUserDeleted(() => establishSession());
+            hankoInstance.onUserLoggedOut(() => establishSession());
+            hankoInstance.validateSession().then((result) => {
+                establishSession(result.is_valid ? result.claims : undefined, true);
+                import('@/composables/useMonitor').then((module) => {
+                    monitorInstance = module.useMonitor(userId.value, sessionId.value, emailAddress.value);
+                    window.addEventListener('beforeunload', (event) => {
+                        if (!areUpdatesPending.value) return;
+                        monitorInstance?.shutdown(); // Fails silently in no monitor instance
+                        event.preventDefault();
+                        event.returnValue = '';
                     });
                 });
-            }, 3000);
+            });
         });
     }
 
