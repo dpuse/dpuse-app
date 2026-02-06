@@ -1,5 +1,5 @@
 // Vendor dependencies
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, type RouterScrollBehavior } from 'vue-router';
 
 // Components
 import Workflow from '@/views/workflow/Workflow.vue';
@@ -46,7 +46,7 @@ export const appRoutes = [
     { path: '/:catchAll(.*)', redirect: '/workflow' }
 ];
 
-const scrollBehavior = (to, from, savedPosition) => {
+const scrollBehavior: RouterScrollBehavior = (to, from, savedPosition) => {
     return savedPosition ? { ...savedPosition, behavior: 'auto' } : { left: 0, top: 0 }; // NOTE: "behavior: 'auto'" required for Safari iOS v18.3.2.
 };
 

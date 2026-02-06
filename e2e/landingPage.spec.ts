@@ -15,7 +15,8 @@ test.setTimeout(210_000);
 // By default Playwright Test has no timeout for actions (e.g. clicking an element).
 test.use({ actionTimeout: 10_000 });
 
-//
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const url = process.env.PLAYWRIGHT_BASE_URL ?? '/';
 
 /** Tests */
