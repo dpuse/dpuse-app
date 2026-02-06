@@ -23,7 +23,7 @@ try {
 
     globalThis.window.addEventListener('load', () => {
         requestIdleCallback(async () => {
-            import('@/stores/sessionStore').then((module) => module.useSessionStore().initialiseServices);
+            import('@/stores/sessionStore').then((module) => module.useSessionStore().initialiseServices());
             // useSessionStore().initialiseServices();
         });
     });
