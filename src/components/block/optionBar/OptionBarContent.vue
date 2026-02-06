@@ -36,11 +36,18 @@ function handleOptionSelect() {
         <!-- Options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none border-t px-3 pt-2 pb-5.5">
             <div class="flex w-full flex-1 flex-col items-center">
-                <RouterLink :class="classes" :to="{ name: activeBenchtopConfig.id }" @click="handleOptionSelect">
-                    <LayoutDashboardIcon class="size-6" :stroke-width="1.25" />
+                <RouterLink :aria-label="activeBenchtopConfig.label" :class="classes" :to="{ name: activeBenchtopConfig.id }" @click="handleOptionSelect">
+                    <LayoutDashboardIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
                 </RouterLink>
 
-                <RouterLink v-for="config of activeBenchtopConfig.options" :key="config.id" :class="classes" :to="{ name: config.id }" @click="handleOptionSelect">
+                <RouterLink
+                    v-for="config of activeBenchtopConfig.options"
+                    :key="config.id"
+                    :aria-label="config.label"
+                    :class="classes"
+                    :to="{ name: config.id }"
+                    @click="handleOptionSelect"
+                >
                     <div aria-hidden="true" class="size-6" :style="{ color: `${config.color}` }" v-html="config.icon" />
                 </RouterLink>
             </div>
