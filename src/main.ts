@@ -25,7 +25,7 @@ try {
         setTimeout(async () => {
             import('@/stores/sessionStore').then((module) => module.useSessionStore().initialiseServices());
             // useSessionStore().initialiseServices();
-        }, 5000);
+        }, 3000);
     });
 } catch (error) {
     reportErrorSafely(error);
