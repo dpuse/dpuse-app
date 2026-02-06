@@ -20,11 +20,12 @@ const url = process.env.PLAYWRIGHT_BASE_URL ?? '/';
 
 /** Tests */
 test.describe('Landing page', () => {
-    test('renders heading', async ({ page }) => {
+    test('renders header', async ({ page }) => {
         await page.goto(url);
 
-        const heading = page.getByTestId('heading');
+        const heading = page.getByTestId('header');
         await expect(heading).toBeVisible();
+        await expect(heading).toContainText('Workflow');
 
         // await expect(page.getByText('Making it easier to work with data.', { exact: false })).toBeVisible();
 
