@@ -52,6 +52,7 @@ function handleOptionSelect() {
                 </RouterLink>
             </div>
 
+            <!-- TODO: Dynamic based on session settings... -->
             <RouterLink aria-label="Manage personal details" :class="classes" :to="{ name: 'managePersonalDetails' }" @click="handleOptionSelect">
                 <div aria-hidden="true" class="relative size-6">
                     <TransitionGroup name="fade">

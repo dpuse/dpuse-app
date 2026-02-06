@@ -17,7 +17,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <BenchtopShell>
+    <BenchtopShell :is-display-wide="properties.isDisplayWide">
         <Header title="Assemble Dimensions" :is-display-wide="properties.isDisplayWide" />
 
         <BenchtopScroller></BenchtopScroller>

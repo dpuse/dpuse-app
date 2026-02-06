@@ -18,7 +18,7 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', activeL
 </script>
 
 <template>
-    <BenchtopShell>
+    <BenchtopShell :is-display-wide="properties.isDisplayWide">
         <Header title="Workflow" :is-display-wide="properties.isDisplayWide" />
 
         <BenchtopScroller>

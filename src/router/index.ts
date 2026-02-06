@@ -28,11 +28,11 @@ export default createRouter({
                         { name: 'buildDataApps', path: 'buildDataApps', component: () => import('@/views/workflow/buildDataApps/BuildDataApps.vue') }
                     ]
                 },
-                { name: 'account', path: 'account', component: () => import('@/views/account/Account.vue') },
                 {
                     path: 'account',
                     component: () => import('@/views/account/Account.vue'),
                     children: [
+                        { path: '', redirect: { name: 'managePersonalDetails' } },
                         { name: 'managePersonalDetails', path: 'managePersonalDetails', component: () => import('@/views/account/ManagePersonalDetails.vue') },
                         { name: 'manageSubscription', path: 'manageSubscription', component: () => import('@/views/account/ManageSubscription.vue') },
                         { name: 'managePreferences', path: 'managePreferences', component: () => import('@/views/account/ManagePreferences.vue') },

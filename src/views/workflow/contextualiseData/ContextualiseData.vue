@@ -9,7 +9,7 @@ const properties = defineProps<{ isDisplayWide: boolean }>();
 </script>
 
 <template>
-    <BenchtopShell>
+    <BenchtopShell :is-display-wide="properties.isDisplayWide">
         <Header title="Contextualise Data" :is-display-wide="properties.isDisplayWide" />
 
         <BenchtopScroller></BenchtopScroller>
