@@ -34,7 +34,7 @@ function handleOptionSelect() {
 <template>
     <div class="flex h-full flex-col">
         <!-- Options scroller -->
-        <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none border-t px-3 pt-2 pb-5.5">
+        <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none border-t px-3 pt-2 pb-6">
             <div class="flex w-full flex-1 flex-col items-center">
                 <RouterLink :aria-label="activeBenchtopConfig.label" :class="classes" :to="{ name: activeBenchtopConfig.id }" @click="handleOptionSelect">
                     <LayoutDashboardIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />

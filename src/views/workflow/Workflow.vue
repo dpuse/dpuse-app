@@ -19,7 +19,7 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', activeL
 
 <template>
     <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="properties.isDisplayWide">
-        <Header title="Workflow" :is-display-wide="properties.isDisplayWide" />
+        <Header title="Workflow" data-testid="header" :is-display-wide="properties.isDisplayWide" />
 
         <BenchtopScroller>
             <div class="grid grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-4 p-4">

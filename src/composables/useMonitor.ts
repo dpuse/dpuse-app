@@ -16,7 +16,17 @@ let moduleStatesWebSocket: WebSocket | undefined;
 
 // Composable
 export function useMonitor(userId?: string, authSessionId?: string, emailAddress?: string) {
-    posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, { api_host: POSTHOG_URL, defaults: POSTHOG_DEFAULTS, advanced_disable_flags: true });
+    posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, {
+        api_host: POSTHOG_URL,
+        defaults: POSTHOG_DEFAULTS,
+        advanced_disable_flags: true,
+        capture_pageview: 'history_change',
+        disable_session_recording: true,
+        disable_surveys: true,
+        enable_recording_console_log: false,
+        enable_heatmaps: false,
+        person_profiles: 'identified_only'
+    });
 
     if (userId && authSessionId) identifyUser(userId, authSessionId, emailAddress);
 

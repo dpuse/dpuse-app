@@ -41,7 +41,7 @@ const properties = defineProps<Properties>();
             </div>
         </div>
 
-        <div class="mb-5.5 flex flex-1 flex-col overflow-y-hidden px-4">
+        <div class="mb-6 flex flex-1 flex-col overflow-y-hidden px-4">
             <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">
                 <div v-for="message of properties.messages" :key="message.id">
                     {{ message.text }}
