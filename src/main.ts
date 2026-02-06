@@ -21,7 +21,11 @@ try {
     // initTranslations(app); // Setup internationalization.
     app.mount('#app');
 
-    useSessionStore().initialiseServices();
+    globalThis.window.addEventListener('load', () => {
+        requestIdleCallback(async () => {
+            useSessionStore().initialiseServices();
+        });
+    });
 } catch (error) {
     reportErrorSafely(error);
 }
