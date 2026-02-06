@@ -22,10 +22,10 @@ try {
     app.mount('#app');
 
     globalThis.window.addEventListener('load', () => {
-        requestIdleCallback(async () => {
+        setTimeout(async () => {
             import('@/stores/sessionStore').then((module) => module.useSessionStore().initialiseServices());
             // useSessionStore().initialiseServices();
-        });
+        }, 5000);
     });
 } catch (error) {
     reportErrorSafely(error);
