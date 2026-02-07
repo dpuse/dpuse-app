@@ -2,7 +2,7 @@
 // Vendor dependencies
 import { type HTMLAttributes, ref } from 'vue';
 
-// Components
+// Workbench components
 import AssistantPanelContent from './AssistantPanelContent.vue';
 
 // Properties

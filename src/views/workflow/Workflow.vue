@@ -2,7 +2,7 @@
 // Workbench core
 import { useKnowledge } from '@/composables/useKnowledge';
 
-// Components
+// Workbench components
 import BenchtopScroller from '@/components/block/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/block/benchtop/BenchtopShell.vue';
 import Header from '@/components/block/header/Header.vue';

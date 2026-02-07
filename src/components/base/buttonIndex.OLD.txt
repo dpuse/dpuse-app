@@ -33,5 +33,5 @@ export const buttonVariants = cva(
     }
 );
 
-// Components
+// Workbench components
 export { default as Button } from './Button.vue';

@@ -1,7 +1,7 @@
 // Vendor dependencies
 import { createRouter, createWebHistory, type RouterScrollBehavior } from 'vue-router';
 
-// Components
+// Workbench components
 import Workflow from '@/views/workflow/Workflow.vue';
 
 // Not exported by Vue router, duplicated here to address eslint function return type rule

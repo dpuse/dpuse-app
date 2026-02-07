@@ -102,7 +102,7 @@ function logException(exception: Exception): void {
         }
     }
     const result = posthog.captureException(exceptionError, exceptionProperties);
-    console.log('EXCEPTION', result);
+    console.log('EXCEPTION', exceptionError, exceptionProperties, result);
 }
 
 function shutdown(): void {

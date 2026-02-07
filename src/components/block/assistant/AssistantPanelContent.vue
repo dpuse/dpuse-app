@@ -1,7 +1,9 @@
 <script setup lang="ts">
-// Components
-import IconButton from '@/components/base/IconButton.vue';
+// Vendor dependencies
 import { ArrowBigLeftDashIcon, MessageCircleMoreIcon, SearchIcon, XIcon } from 'lucide-vue-next';
+
+// Workbench components
+import IconButton from '@/components/base/IconButton.vue';
 
 // Properties
 type AssistantMessage = { id: number; text: string };
