@@ -23,12 +23,18 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', activeL
 
         <BenchtopScroller>
             <div class="grid grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-4 p-4">
-                <div v-for="config of workflowStepConfigs" :key="config.id" class="bg-background-secondary overflow-hidden rounded-lg border">
-                    <div class="px-4 py-5 sm:px-6">
-                        {{ config.label }}
+                <div
+                    v-for="config of workflowStepConfigs"
+                    :key="config.id"
+                    class="bg-background-card outline-border overflow-hidden font-light outline -outline-offset-1 sm:rounded-lg"
+                >
+                    <div class="flex flex-col gap-y-4 p-4">
+                        <div aria-hidden="true" class="size-8" :style="{ color: `${config.color}` }" v-html="config.icon" />
+                        <div>
+                            <div class="text-foreground-secondary text-xs font-normal uppercase">Step {{ config.step }}</div>
+                            {{ config.label }}
+                        </div>
                     </div>
-                    <div class="px-4 py-5 sm:p-6"></div>
-                    <div class="px-4 py-4 sm:px-6"></div>
                 </div>
             </div>
         </BenchtopScroller>

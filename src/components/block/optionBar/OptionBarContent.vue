@@ -22,7 +22,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
 <template>
     <div class="flex h-full flex-col">
         <!-- Separator -->
-        <div class="bg-border mx-3 h-px" />
+        <div class="bg-separator mx-3 h-px" />
 
         <!-- Benchtop options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-3">

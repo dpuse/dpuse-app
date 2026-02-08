@@ -14,7 +14,7 @@ const properties = defineProps<Properties>();
 <template>
     <div class="flex h-full flex-1 flex-col">
         <div class="flex h-14 flex-none px-4">
-            <div :class="['flex w-full items-center border-b', properties.onTogglePanelWidth ? 'pr-10' : '']">
+            <div :class="['border-separator flex w-full items-center border-b', properties.onTogglePanelWidth ? 'pr-10' : '']">
                 <div class="flex h-full flex-1 items-center text-lg font-light">Assistant</div>
 
                 <div class="flex items-center gap-x-2">

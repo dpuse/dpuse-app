@@ -14,7 +14,7 @@ const headerOffsets = computed(() => ({
 
 <template>
     <div class="flex-none px-4">
-        <div class="flex h-14 items-center border-b text-lg font-light" :style="headerOffsets">
+        <div class="border-separator flex h-14 items-center border-b text-lg font-light" :style="headerOffsets">
             <div class="truncate">
                 {{ properties.title }}
             </div>

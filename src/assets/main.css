@@ -11,36 +11,43 @@ body {
 @theme inline {
     --color-background-primary: var(--background-primary);
     --color-background-secondary: var(--background-secondary);
+    --color-background-card: var(--background-card);
     --color-border: var(--border);
     --color-foreground-primary: var(--foreground-primary);
     --color-foreground-secondary: var(--foreground-secondary);
+    --color-foreground-muted: var(--foreground-muted);
     --color-ring: var(--ring);
+    --color-separator: var(--separator);
 }
 
 :root {
     --background-primary: var(--color-white);
-    --background-secondary: color-mix(in srgb, var(--color-zinc-50) 40%, transparent);
-    --border: color-mix(in srgb, var(--color-black) 10%, transparent);
+    --background-secondary: color-mix(in srgb, var(--color-zinc-50) 20%, transparent);
+    --background-card: color-mix(in srgb, var(--color-zinc-50) 75%, transparent);
+    --border: color-mix(in srgb, var(--color-zinc-200) 50%, transparent);
     --foreground-primary: var(--color-zinc-800);
-    --foreground-secondary: var(--color-zinc-600);
-    --foreground-muted: var(--color-zinc-400);
+    --foreground-secondary: var(--color-zinc-500);
+    --foreground-muted: var(--color-zinc-300);
     --ring: oklch(0.708 0 0);
+    --separator: color-mix(in srgb, var(--color-zinc-200) 75%, transparent);
 }
 
 .dark {
     --background-primary: var(--color-zinc-950);
     --background-secondary: var(--color-zinc-900);
-    --border: color-mix(in srgb, var(--color-white) 18%, transparent);
+    --background-card: var(--color-zinc-900);
+    --border: color-mix(in srgb, var(--color-white) 10%, transparent);
     --foreground-primary: var(--color-zinc-300);
     --foreground-secondary: var(--color-zinc-400);
     --foreground-muted: var(--color-zinc-500);
     --ring: oklch(0.556 0 0);
+    --separator: color-mix(in srgb, var(--color-white) 10%, transparent);
 }
 
 @layer base {
-    * {
+    /* * {
         @apply border-border outline-ring/50;
-    }
+    } */
     /* body {
         @apply bg-background-primary text-foreground-primary;
     } */
