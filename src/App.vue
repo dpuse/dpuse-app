@@ -15,7 +15,7 @@ import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import IconButton from '@/components/base/IconButton.vue';
 
 // Workbench components (Lazy load)
-// const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
+// TODO: const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
 const AuthDialog = defineAsyncComponent(() => import('@/components/block/account/AuthDialog.vue'));
 
 // Global state
@@ -54,12 +54,12 @@ watch(isDisplayWide, (newIsDisplayWide) => {
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function toggleBenchtopOptionBar() {
+function handleToggleBenchtopOptionBar() {
     if (isDisplayWide.value) return;
     isBenchtopOptionBarOpenInNarrowDisplay.value = !isBenchtopOptionBarOpenInNarrowDisplay.value;
 }
 
-function toggleAssistPanel() {
+function handleToggleAssistPanel() {
     if (isDisplayWide.value) {
         isAssistPanelOpenInWideDisplay.value = !isAssistPanelOpenInWideDisplay.value;
         return;
@@ -76,7 +76,7 @@ function toggleAssistPanel() {
             <IconButton
                 :aria-label="benchtopOptionBarToggleAriaLabel"
                 :aria-pressed="!isDisplayWide ? isBenchtopOptionBarOpenInNarrowDisplay : undefined"
-                @click="toggleBenchtopOptionBar"
+                @click="handleToggleBenchtopOptionBar"
             >
                 <DPULogoIcon class="size-7" />
             </IconButton>
@@ -86,7 +86,7 @@ function toggleAssistPanel() {
         <IconButton
             :aria-label="assistPanelToggleAriaLabel"
             class="fixed top-1.75 right-4 z-20 flex cursor-pointer items-center justify-center rounded-full"
-            @click="toggleAssistPanel"
+            @click="handleToggleAssistPanel"
         >
             <AssistantIcon class="size-6" :stroke-width="1.25" />
         </IconButton>
@@ -113,12 +113,7 @@ function toggleAssistPanel() {
             </div>
 
             <!-- Column fixed to right side of browser window -->
-            <AssistantPanel
-                class="flex-none"
-                :is-open="isAssistPanelOpenInWideDisplay"
-                :is-floating-open="isAssistPanelOpenInNarrowDisplay"
-                @request-close="isAssistPanelOpenInNarrowDisplay = false"
-            />
+            <AssistantPanel :is-open="isAssistPanelOpenInWideDisplay" :is-floating-open="isAssistPanelOpenInNarrowDisplay" @close="isAssistPanelOpenInNarrowDisplay = false" />
         </div>
     </div>
 </template>

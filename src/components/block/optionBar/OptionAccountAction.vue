@@ -14,14 +14,21 @@ const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () 
 const CLASSES =
     'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 flex h-10 w-10 flex-none items-center justify-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:focus-visible:outline-indigo-500';
 
-const authIconState = ref<boolean | undefined>(undefined);
+const authIconState = ref<boolean | undefined>(properties.sessionIsAuthenticated);
 
 const optionComponent = computed(() => (properties.sessionIsAuthenticated ? RouterLink : 'button'));
 const optionAttributes = computed(() => (properties.sessionIsAuthenticated ? { to: { name: 'managePersonalDetails' } } : { type: 'button' }));
 
 watch(
     () => properties.sessionIsAuthenticated,
-    (newSessionIsAuthenticatedValue) => setTimeout(() => (authIconState.value = newSessionIsAuthenticatedValue), 200)
+    (newSessionIsAuthenticatedValue, oldSessionIsAuthenticatedValue) => {
+        if (oldSessionIsAuthenticatedValue === undefined) {
+            setTimeout(() => (authIconState.value = newSessionIsAuthenticatedValue), 200);
+            return;
+        }
+        authIconState.value = newSessionIsAuthenticatedValue;
+    },
+    { immediate: true }
 );
 
 function handleSelect() {

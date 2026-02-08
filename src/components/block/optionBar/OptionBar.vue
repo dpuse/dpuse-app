@@ -3,7 +3,7 @@
 import OptionBarContent from './OptionBarContent.vue';
 
 // Properties
-const properties = defineProps<{ isWideDisplay: boolean; isFloatingOpen: boolean; sessionIsAuthenticated?: boolean }>();
+defineProps<{ isWideDisplay: boolean; isFloatingOpen: boolean; sessionIsAuthenticated?: boolean }>();
 
 // Emits
 const emit = defineEmits<{ (event: 'select'): void }>();
@@ -14,10 +14,10 @@ const handleSelect = () => emit('select');
 
 <template>
     <div>
-        <OptionBarContent class="hidden w-16 flex-col pt-13.75 md:flex" :on-select="handleSelect" :session-is-authenticated="properties.sessionIsAuthenticated" />
+        <OptionBarContent class="hidden w-16 flex-col pt-13.75 md:flex" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
 
         <Transition name="option-bar-overlay" appear>
-            <div v-if="properties.isFloatingOpen && !properties.isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
+            <div v-if="isFloatingOpen && !isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
                 <div class="bg-background-primary/70 absolute inset-0" @click="handleSelect"></div>
 
                 <dialog
@@ -25,7 +25,7 @@ const handleSelect = () => emit('select');
                     open
                     @cancel.prevent="handleSelect"
                 >
-                    <OptionBarContent class="pt-13.75" :on-select="handleSelect" :session-is-authenticated="properties.sessionIsAuthenticated" />
+                    <OptionBarContent class="pt-13.75" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
                 </dialog>
             </div>
         </Transition>

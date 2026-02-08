@@ -9,7 +9,7 @@ import AssistantPanelContent from './AssistantPanelContent.vue';
 const properties = withDefaults(defineProps<{ isOpen: boolean; isFloatingOpen?: boolean }>(), { isFloatingOpen: false });
 
 // Emits
-const emit = defineEmits<{ (event: 'request-close'): void }>();
+const emit = defineEmits<{ (event: 'close'): void }>();
 
 // ...
 const isPanelWide = ref(false);
@@ -22,7 +22,7 @@ function handleTogglePanelWidth() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const messages = ref<{ id: number; text: string }[]>([]);
-const requestClose = () => emit('request-close');
+const requestClose = () => emit('close');
 
 function runTest() {
     const myHeaders = new Headers();
@@ -44,7 +44,7 @@ function runTest() {
 
 <template>
     <div
-        class="hidden flex-col transition-[width,opacity] duration-300 md:flex"
+        class="hidden flex-none flex-col transition-[width,opacity] duration-300 md:flex"
         :class="properties.isOpen ? ['border-l-0', isPanelWide ? 'w-150' : 'w-100'] : ['w-0', 'border-l-0', 'border-transparent', 'pointer-events-none', 'opacity-0']"
     >
         <AssistantPanelContent :messages="messages" :on-run-test="runTest" :is-panel-wide="isPanelWide" :on-toggle-panel-width="handleTogglePanelWidth" />
