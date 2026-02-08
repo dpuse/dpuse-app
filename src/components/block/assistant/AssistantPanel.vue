@@ -49,10 +49,14 @@ function runTest() {
     </div>
 
     <Transition name="assistant-overlay" appear>
-        <div v-if="properties.isFloatingOpen" class="assistant-overlay fixed inset-0 z-40 flex md:hidden">
-            <div class="bg-background/70 absolute inset-0 backdrop-blur-sm" @click="requestClose"></div>
+        <div v-if="properties.isFloatingOpen" class="bg-background-primary fixed inset-0 z-40 flex md:hidden">
+            <div class="bg-background-primary/70 absolute inset-0" @click="requestClose"></div>
 
-            <dialog class="dpu-assistant-panel bg-background relative ml-auto flex h-full w-full max-w-100 flex-col shadow-2xl" open @cancel.prevent="requestClose">
+            <dialog
+                class="dpu-assistant-panel bg-background-secondary border-separator relative ml-auto flex h-full w-full max-w-100 flex-col border-l shadow-xl"
+                open
+                @cancel.prevent="requestClose"
+            >
                 <AssistantPanelContent :messages="messages" :on-run-test="runTest" :on-request-close="requestClose" />
             </dialog>
         </div>
@@ -64,17 +68,14 @@ function runTest() {
 .assistant-overlay-leave-active {
     transition: opacity 220ms ease;
 }
-
 .assistant-overlay-enter-from,
 .assistant-overlay-leave-to {
     opacity: 0;
 }
-
 .assistant-overlay-enter-active .dpu-assistant-panel,
 .assistant-overlay-leave-active .dpu-assistant-panel {
     transition: transform 260ms ease;
 }
-
 .assistant-overlay-enter-from .dpu-assistant-panel,
 .assistant-overlay-leave-to .dpu-assistant-panel {
     transform: translateX(100%);

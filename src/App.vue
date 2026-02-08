@@ -9,12 +9,13 @@ import { useSessionStore } from '@/stores/sessionStore';
 
 // Workbench components
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
+import AssistantPanel from '@/components/block/assistant/AssistantPanel.vue';
 import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import IconButton from '@/components/base/IconButton.vue';
 
 // Workbench components (Lazy load)
-const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
+// const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
 const AuthDialog = defineAsyncComponent(() => import('@/components/block/account/AuthDialog.vue'));
 
 // Global state
@@ -113,7 +114,6 @@ function toggleAssistPanel() {
 
             <!-- Column fixed to right side of browser window -->
             <AssistantPanel
-                v-if="isAssistPanelOpenInWideDisplay || isAssistPanelOpenInNarrowDisplay"
                 class="flex-none"
                 :is-open="isAssistPanelOpenInWideDisplay"
                 :is-floating-open="isAssistPanelOpenInNarrowDisplay"
