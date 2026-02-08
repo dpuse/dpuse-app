@@ -28,8 +28,10 @@ watch(
     { immediate: true }
 );
 
-function handleSelectAuthenticated() {
+function handleSelectAuthenticated(event: MouseEvent, navigate: () => void) {
+    event.preventDefault();
     properties.onSelect();
+    navigate();
 }
 
 function handleSelectUnauthenticated() {
@@ -39,14 +41,16 @@ function handleSelectUnauthenticated() {
 </script>
 
 <template>
-    <RouterLink v-if="properties.sessionIsAuthenticated" aria-label="Manage personal details" :class="CLASSES" :to="{ name: 'managePersonalDetails' }" @click="handleSelectAuthenticated">
-        <div aria-hidden="true" class="relative size-6">
-            <TransitionGroup name="fade">
-                <UserCogIcon v-if="authIconState === true" key="user" class="absolute inset-0 size-6" :stroke-width="1.25" />
-                <LogInIcon v-if="authIconState === false" key="login" class="absolute inset-0 size-6" :stroke-width="1.25" />
-                <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute inset-0 size-6 animate-spin text-neutral-300" />
-            </TransitionGroup>
-        </div>
+    <RouterLink v-if="properties.sessionIsAuthenticated" custom :to="{ name: 'managePersonalDetails' }" v-slot="{ navigate }">
+        <button aria-label="Manage personal details" :class="CLASSES" type="button" @click="(event) => handleSelectAuthenticated(event, navigate)">
+            <div aria-hidden="true" class="relative size-6">
+                <TransitionGroup name="fade">
+                    <UserCogIcon v-if="authIconState === true" key="user" class="absolute inset-0 size-6" :stroke-width="1.25" />
+                    <LogInIcon v-if="authIconState === false" key="login" class="absolute inset-0 size-6" :stroke-width="1.25" />
+                    <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute inset-0 size-6 animate-spin text-neutral-300" />
+                </TransitionGroup>
+            </div>
+        </button>
     </RouterLink>
 
     <button v-else aria-label="Manage personal details" :class="CLASSES" type="button" @click="handleSelectUnauthenticated">
