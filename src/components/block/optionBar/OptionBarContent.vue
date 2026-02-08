@@ -25,7 +25,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
         <div class="bg-border mx-3 h-px" />
 
         <!-- Benchtop options scroller -->
-        <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-6">
+        <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-3">
             <div class="flex w-full flex-1 flex-col items-center">
                 <RouterLink :aria-label="activeBenchtopConfig.label" :class="CLASSES" :to="{ name: activeBenchtopConfig.id }" @click="onSelect">
                     <LayoutDashboardIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />

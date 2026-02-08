@@ -30,10 +30,10 @@ body {
 .dark {
     --background-primary: var(--color-zinc-950);
     --background-secondary: var(--color-zinc-900);
-    --border: color-mix(in srgb, var(--color-white) 10%, transparent);
-    --foreground-primary: var(--color-zinc-100);
+    --border: color-mix(in srgb, var(--color-white) 18%, transparent);
+    --foreground-primary: var(--color-zinc-300);
     --foreground-secondary: var(--color-zinc-400);
-    --foreground-muted: var(--color-zinc-600);
+    --foreground-muted: var(--color-zinc-500);
     --ring: oklch(0.556 0 0);
 }
 

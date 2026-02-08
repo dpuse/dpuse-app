@@ -3,8 +3,7 @@
 import { computed } from 'vue';
 
 // Properties
-type Properties = { isDisplayWide: boolean; title: string };
-const properties = defineProps<Properties>();
+const properties = defineProps<{ isDisplayWide: boolean; title: string }>();
 
 // Header offsets
 const headerOffsets = computed(() => ({
@@ -15,7 +14,7 @@ const headerOffsets = computed(() => ({
 
 <template>
     <div class="flex-none px-4">
-        <div class="flex h-14 items-center border-b" :style="headerOffsets">
+        <div class="flex h-14 items-center border-b text-lg font-light" :style="headerOffsets">
             <div class="truncate">
                 {{ properties.title }}
             </div>

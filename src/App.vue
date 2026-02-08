@@ -16,7 +16,6 @@ import IconButton from '@/components/base/IconButton.vue';
 // Workbench components (Lazy load)
 const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
 const AuthDialog = defineAsyncComponent(() => import('@/components/block/account/AuthDialog.vue'));
-const StatusBar = defineAsyncComponent(() => import('@/components/block/statusBar/StatusBar.vue'));
 
 // Global state
 useColorMode();
@@ -106,18 +105,10 @@ function toggleAssistPanel() {
             />
 
             <!-- Column filling workbench body between benchtop option bar and assistant panel -->
-            <div class="flex min-w-0 flex-1 flex-col">
-                <!-- Row filling content column above status bar row  -->
-                <div class="flex-1 overflow-y-hidden" :class="isDisplayWide ? (isAssistPanelOpenInWideDisplay ? 'rounded-b-lg' : 'rounded-bl-lg') : undefined">
-                    <RouterView v-slot="{ Component }">
-                        <component :is="Component" :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="isDisplayWide" />
-                    </RouterView>
-                </div>
-
-                <!-- Row positioned at bottom of workbench content column -->
-                <div class="lex-none">
-                    <StatusBar />
-                </div>
+            <div class="flex-1 overflow-y-hidden">
+                <RouterView v-slot="{ Component }">
+                    <component :is="Component" :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="isDisplayWide" />
+                </RouterView>
             </div>
 
             <!-- Column fixed to right side of browser window -->

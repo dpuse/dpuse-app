@@ -43,14 +43,14 @@ const properties = defineProps<Properties>();
             </div>
         </div>
 
-        <div class="mb-6 flex flex-1 flex-col overflow-y-hidden px-4">
+        <div class="flex flex-1 flex-col overflow-y-hidden px-4">
             <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">
                 <div v-for="message of properties.messages" :key="message.id">
                     {{ message.text }}
                 </div>
             </div>
 
-            <div class="flex-none rounded-md border">
+            <div class="flex-none">
                 <!-- <Textarea
                     id="assistant-input"
                     name="assistant-input"
@@ -59,13 +59,13 @@ const properties = defineProps<Properties>();
                     placeholder="Ask a question → X to chat with assistant or;&#10;enter keywords → X to search the library…"
                 /> -->
                 <div>
-                    <label for="comment" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Add your comment</label>
+                    <!-- <label for="comment" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Add your comment</label> -->
                     <div class="mt-2">
                         <textarea
                             rows="4"
                             name="comment"
                             id="comment"
-                            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                            class="bg-background-primary block max-h-48 w-full resize-none rounded-md border-0 px-3 py-1.5 text-base outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
                         ></textarea>
                     </div>
                 </div>
