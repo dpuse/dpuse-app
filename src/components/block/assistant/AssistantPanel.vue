@@ -70,7 +70,7 @@ function runTest() {
 }
 .assistant-overlay-enter-from,
 .assistant-overlay-leave-to {
-    /* opacity: 0; */
+    opacity: 0;
 }
 .assistant-overlay-enter-active .dpu-assistant-panel,
 .assistant-overlay-leave-active .dpu-assistant-panel {
