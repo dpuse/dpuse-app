@@ -17,7 +17,7 @@ const handleSelect = () => emit('select');
         <OptionBarContent class="hidden w-16 flex-col pt-13.75 md:flex" :on-select="handleSelect" :session-is-authenticated="properties.sessionIsAuthenticated" />
 
         <Transition name="option-bar-overlay" appear>
-            <div v-if="properties.isFloatingOpen && !properties.isWideDisplay" class="bg-background-primary fixed inset-0 z-30 flex md:hidden">
+            <div v-if="properties.isFloatingOpen && !properties.isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
                 <div class="bg-background-primary/70 absolute inset-0" @click="handleSelect"></div>
 
                 <dialog
@@ -35,7 +35,7 @@ const handleSelect = () => emit('select');
 <style scoped>
 .option-bar-overlay-enter-active,
 .option-bar-overlay-leave-active {
-    transition: opacity 220ms ease;
+    transition: opacity 220ms ease-in-out;
 }
 .option-bar-overlay-enter-from,
 .option-bar-overlay-leave-to {
@@ -43,7 +43,7 @@ const handleSelect = () => emit('select');
 }
 .option-bar-overlay-enter-active .dpu-option-bar-panel,
 .option-bar-overlay-leave-active .dpu-option-bar-panel {
-    transition: transform 260ms ease;
+    transition: transform 260ms ease-in-out;
 }
 .option-bar-overlay-enter-from .dpu-option-bar-panel,
 .option-bar-overlay-leave-to .dpu-option-bar-panel {

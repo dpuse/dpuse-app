@@ -22,8 +22,8 @@ body {
 
 :root {
     --background-primary: var(--color-white);
-    --background-secondary: color-mix(in srgb, var(--color-zinc-50) 20%, transparent);
-    --background-card: color-mix(in srgb, var(--color-zinc-50) 75%, transparent);
+    --background-secondary: #fdfdfd;
+    --background-card: #fcfcfc;
     --border: color-mix(in srgb, var(--color-zinc-200) 50%, transparent);
     --foreground-primary: var(--color-zinc-800);
     --foreground-secondary: var(--color-zinc-500);

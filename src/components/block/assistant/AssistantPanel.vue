@@ -1,23 +1,23 @@
 <script setup lang="ts">
 // Vendor dependencies
-import { type HTMLAttributes, ref } from 'vue';
+import { ref } from 'vue';
 
 // Workbench components
 import AssistantPanelContent from './AssistantPanelContent.vue';
 
 // Properties
-type Properties = { class?: HTMLAttributes['class']; isOpen: boolean; isFloatingOpen?: boolean };
-const properties = withDefaults(defineProps<Properties>(), { isFloatingOpen: false });
+const properties = withDefaults(defineProps<{ isOpen: boolean; isFloatingOpen?: boolean }>(), { isFloatingOpen: false });
 
 // Emits
 const emit = defineEmits<{ (event: 'request-close'): void }>();
 
-// Panel width state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
+// ...
 const isPanelWide = ref(false);
-const togglePanelWidth = () => {
+
+//
+function handleTogglePanelWidth() {
     isPanelWide.value = !isPanelWide.value;
-};
+}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -38,6 +38,8 @@ function runTest() {
         })
         .catch((error) => console.log('error', error));
 }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 </script>
 
 <template>
@@ -45,11 +47,11 @@ function runTest() {
         class="hidden flex-col transition-[width,opacity] duration-300 md:flex"
         :class="properties.isOpen ? ['border-l-0', isPanelWide ? 'w-150' : 'w-100'] : ['w-0', 'border-l-0', 'border-transparent', 'pointer-events-none', 'opacity-0']"
     >
-        <AssistantPanelContent :messages="messages" :on-run-test="runTest" :is-panel-wide="isPanelWide" :on-toggle-panel-width="togglePanelWidth" />
+        <AssistantPanelContent :messages="messages" :on-run-test="runTest" :is-panel-wide="isPanelWide" :on-toggle-panel-width="handleTogglePanelWidth" />
     </div>
 
     <Transition name="assistant-overlay" appear>
-        <div v-if="properties.isFloatingOpen" class="bg-background-primary fixed inset-0 z-40 flex md:hidden">
+        <div v-if="properties.isFloatingOpen" class="fixed inset-0 z-40 flex md:hidden">
             <div class="bg-background-primary/70 absolute inset-0" @click="requestClose"></div>
 
             <dialog
@@ -66,7 +68,7 @@ function runTest() {
 <style scoped>
 .assistant-overlay-enter-active,
 .assistant-overlay-leave-active {
-    transition: opacity 220ms ease;
+    transition: opacity 220ms ease-in-out;
 }
 .assistant-overlay-enter-from,
 .assistant-overlay-leave-to {
@@ -74,7 +76,7 @@ function runTest() {
 }
 .assistant-overlay-enter-active .dpu-assistant-panel,
 .assistant-overlay-leave-active .dpu-assistant-panel {
-    transition: transform 260ms ease;
+    transition: transform 260ms ease-in-out;
 }
 .assistant-overlay-enter-from .dpu-assistant-panel,
 .assistant-overlay-leave-to .dpu-assistant-panel {
