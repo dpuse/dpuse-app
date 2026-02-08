@@ -18,9 +18,9 @@ const handleSelect = () => emit('select');
 
         <Transition name="option-bar-overlay" appear>
             <div v-if="properties.isFloatingOpen && !properties.isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
-                <div class="bg-background/70 absolute inset-0 backdrop-blur-sm" @click="handleSelect"></div>
+                <div class="bg-background-primary/70 absolute inset-0" @click="handleSelect"></div>
 
-                <dialog class="option-bar-panel bg-background relative mr-auto flex h-full w-16 flex-col border-0 shadow-2xl" open @cancel.prevent="handleSelect">
+                <dialog class="option-bar-panel bg-background border-separator relative mr-auto flex h-full w-16 flex-col border-r shadow-xl" open @cancel.prevent="handleSelect">
                     <OptionBarContent class="pt-13.75" :on-select="handleSelect" :session-is-authenticated="properties.sessionIsAuthenticated" />
                 </dialog>
             </div>
@@ -31,7 +31,7 @@ const handleSelect = () => emit('select');
 <style scoped>
 .option-bar-overlay-enter-active,
 .option-bar-overlay-leave-active {
-    transition: opacity 220ms ease;
+    transition: opacity 1220ms ease;
 }
 .option-bar-overlay-enter-from,
 .option-bar-overlay-leave-to {
@@ -39,7 +39,7 @@ const handleSelect = () => emit('select');
 }
 .option-bar-overlay-enter-active .option-bar-panel,
 .option-bar-overlay-leave-active .option-bar-panel {
-    transition: transform 260ms ease;
+    transition: transform 1260ms ease;
 }
 .option-bar-overlay-enter-from .option-bar-panel,
 .option-bar-overlay-leave-to .option-bar-panel {

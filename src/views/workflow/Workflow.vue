@@ -23,10 +23,11 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', activeL
 
         <BenchtopScroller>
             <div class="grid grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-4 p-4">
-                <div
+                <RouterLink
                     v-for="config of workflowStepConfigs"
                     :key="config.id"
                     class="bg-background-card outline-border overflow-hidden font-light outline -outline-offset-1 sm:rounded-lg"
+                    :to="{ name: config.id }"
                 >
                     <div class="flex flex-col gap-y-4 p-4">
                         <div aria-hidden="true" class="size-8" :style="{ color: `${config.color}` }" v-html="config.icon" />
@@ -35,7 +36,7 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', activeL
                             {{ config.label }}
                         </div>
                     </div>
-                </div>
+                </RouterLink>
             </div>
         </BenchtopScroller>
     </BenchtopShell>
