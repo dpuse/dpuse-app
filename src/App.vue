@@ -105,7 +105,7 @@ function toggleAssistPanel() {
             />
 
             <!-- Column filling workbench body between benchtop option bar and assistant panel -->
-            <div class="border-separator flex-1 overflow-y-hidden border-b">
+            <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
                     <component :is="Component" :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="isDisplayWide" />
                 </RouterView>
