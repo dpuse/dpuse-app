@@ -32,13 +32,17 @@ watch(
 );
 
 function handleSelect() {
-    if (!properties.sessionIsAuthenticated) router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });
     properties.onSelect();
+    if (properties.sessionIsAuthenticated) {
+        router.push({ name: 'managePersonalDetails' });
+    } else {
+        router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });
+    }
 }
 </script>
 
 <template>
-    <component :is="optionComponent" aria-label="Manage personal details" :class="CLASSES" v-bind="optionAttributes" @click="handleSelect">
+    <!-- <component :is="optionComponent" aria-label="Manage personal details" :class="CLASSES" v-bind="optionAttributes" @click="handleSelect">
         <div aria-hidden="true" class="relative size-6">
             <TransitionGroup name="fade">
                 <UserCogIcon v-if="authIconState === true" key="user" class="absolute inset-0 size-6" :stroke-width="1.25" />
@@ -46,7 +50,16 @@ function handleSelect() {
                 <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute inset-0 size-6 animate-spin text-neutral-300" />
             </TransitionGroup>
         </div>
-    </component>
+    </component> -->
+    <button aria-label="Manage personal details" :class="CLASSES" @click="handleSelect">
+        <div aria-hidden="true" class="relative size-6">
+            <TransitionGroup name="fade">
+                <UserCogIcon v-if="authIconState === true" key="user" class="absolute inset-0 size-6" :stroke-width="1.25" />
+                <LogInIcon v-if="authIconState === false" key="login" class="absolute inset-0 size-6" :stroke-width="1.25" />
+                <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute inset-0 size-6 animate-spin text-neutral-300" />
+            </TransitionGroup>
+        </div>
+    </button>
 </template>
 
 <style scoped>
