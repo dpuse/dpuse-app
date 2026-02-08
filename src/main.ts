@@ -18,7 +18,6 @@ try {
     app.config.errorHandler = (error, instance, info) => reportException({ typeId: 'unhandledVue', payload: { error, instance, info } });
     app.use(createPinia());
     app.use(router);
-    // initTranslations(app); // Setup internationalization.
     app.mount('#app');
 
     useSessionStore().initialiseServices();

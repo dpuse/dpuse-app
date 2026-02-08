@@ -22,7 +22,7 @@ export default defineConfigWithVueTs(
 
     globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
 
-    ...pluginVue.configs['flat/essential'],
+    ...pluginVue.configs['flat/recommended'],
     vueTsConfigs.recommended,
     pluginImport.flatConfigs.recommended,
     pluginSecurity.configs.recommended,
@@ -52,7 +52,9 @@ export default defineConfigWithVueTs(
             'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['App.vue', 'DPULogoIcon.vue' /*'src/components/icon(?:/.*)?'*/] }],
             'unicorn/no-null': 'off',
             'unicorn/prevent-abbreviations': ['error', { ignore: ['env.d.ts'] }],
-            'unicorn/switch-case-braces': 'off'
+            'unicorn/switch-case-braces': 'off',
+
+            'vue/no-bare-strings-in-template': ['warn']
         }
     }
 );

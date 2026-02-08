@@ -2,14 +2,14 @@
 import workbenchData from '~/knowledge/workbench.json';
 
 // Local type dependencies.
-import type { LocaleCode } from '@/locales';
+import type { LocaleId } from '@/locales';
 import type { BenchtopLocalisedConfig, WorkbenchConfig, WorkbenchLocalisedConfig } from '@/types/workbench';
 
 // Raw workbench configuration loaded from the knowledge bundle.
 const workbenchConfig = workbenchData as WorkbenchConfig;
 
 // Active localised workbench configuration.
-let activeLocaleCode: LocaleCode | undefined;
+let activeLocaleCode: LocaleId | undefined;
 let workbenchLocalisedConfig: WorkbenchLocalisedConfig | undefined;
 
 // Composable for loading and caching knowledge data.
@@ -20,7 +20,7 @@ export function useKnowledge() {
 // Operations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 // Retrieve benchtop localized configuration by id for the given locale, throwing when missing.
-function getBenchtopConfig(id: string, localeCode: LocaleCode): BenchtopLocalisedConfig {
+function getBenchtopConfig(id: string, localeCode: LocaleId): BenchtopLocalisedConfig {
     const workbenchLocalisedConfig = getWorkbenchLocalisedConfig(localeCode);
     const benchtopLocalisedConfig = workbenchLocalisedConfig.benchtops.find((benchtopConfig) => benchtopConfig.id === id);
     if (benchtopLocalisedConfig == null) throw new Error(`Cannot retrieve benchtop configuration, invalid benchtop identifier of '${id}'.`);
@@ -30,13 +30,13 @@ function getBenchtopConfig(id: string, localeCode: LocaleCode): BenchtopLocalise
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 // ...
-function getWorkbenchLocalisedConfig(localeCode: LocaleCode): WorkbenchLocalisedConfig {
+function getWorkbenchLocalisedConfig(localeCode: LocaleId): WorkbenchLocalisedConfig {
     if (workbenchLocalisedConfig == null || activeLocaleCode !== localeCode) workbenchLocalisedConfig = localiseWorkbenchConfig(localeCode);
     return workbenchLocalisedConfig;
 }
 
 // Build a localized workbench projection by copying the raw config and applying locale-specific labels and descriptions.
-function localiseWorkbenchConfig(localeCode: LocaleCode): WorkbenchLocalisedConfig {
+function localiseWorkbenchConfig(localeCode: LocaleId): WorkbenchLocalisedConfig {
     return {
         id: workbenchConfig.id,
         label: workbenchConfig.label[localeCode] ?? workbenchConfig.id,

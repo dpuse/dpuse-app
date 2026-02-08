@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Workbench core
 import { useKnowledge } from '@/composables/useKnowledge';
+import { localeId, t } from '@/locales';
 
 // Workbench components
 import BenchtopScroller from '@/components/block/benchtop/BenchtopScroller.vue';
@@ -10,16 +11,16 @@ import Header from '@/components/block/header/Header.vue';
 // Properties
 const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isDisplayWide: boolean }>();
 
-// Global state
-const activeLangId = 'en'; // TODO: Remove hardcoding...
+// Constants
+const TRANSLATIONS = { step: { en: 'Step', es: 'Paso' }, workflow: { en: 'Workflow', es: 'Flujo de trabajo' } };
 
 // Workflow step configurations sourced from knowledge store
-const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', activeLangId).options;
+const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeId.value).options;
 </script>
 
 <template>
     <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="properties.isDisplayWide">
-        <Header title="Workflow" data-testid="header" :is-display-wide="properties.isDisplayWide" />
+        <Header :title="t(TRANSLATIONS, 'workflow')" data-testid="header" :is-display-wide="properties.isDisplayWide" />
 
         <BenchtopScroller>
             <div class="grid grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-4 p-4">
@@ -32,7 +33,7 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', activeL
                     <div class="flex flex-col gap-y-4 p-4">
                         <div aria-hidden="true" class="size-8" :style="{ color: `${config.color}` }" v-html="config.icon" />
                         <div>
-                            <div class="text-foreground-secondary text-xs font-normal uppercase">Step {{ config.step }}</div>
+                            <div class="text-foreground-secondary text-xs font-normal uppercase">{{ t(TRANSLATIONS, 'step') }} {{ config.step }}</div>
                             {{ config.label }}
                         </div>
                     </div>
