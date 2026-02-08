@@ -14,9 +14,9 @@ const handleSelect = () => emit('select');
 
 <template>
     <div>
-        <OptionBarContent class="hidden w-16 flex-col pt-13.75 md:flex" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
+        <OptionBarContent class="flex w-16 flex-col pt-13.75" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
 
-        <Transition name="option-bar-overlay" appear>
+        <!-- <Transition name="option-bar-overlay" appear>
             <div v-if="isFloatingOpen && !isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
                 <div class="bg-background-primary/70 absolute inset-0" @click="handleSelect"></div>
 
@@ -28,7 +28,7 @@ const handleSelect = () => emit('select');
                     <OptionBarContent class="pt-13.75" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
                 </div>
             </div>
-        </Transition>
+        </Transition> -->
     </div>
 </template>
 

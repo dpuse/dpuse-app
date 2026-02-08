@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Vendor dependencies
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { LoaderCircleIcon, LogInIcon, UserCogIcon } from 'lucide-vue-next';
 import { RouterLink, useRouter } from 'vue-router';
 
@@ -16,6 +16,9 @@ const CLASSES =
 
 const authIconState = ref<boolean | undefined>(properties.sessionIsAuthenticated);
 
+const optionComponent = computed(() => (properties.sessionIsAuthenticated ? RouterLink : 'button'));
+const optionAttributes = computed(() => (properties.sessionIsAuthenticated ? { to: { name: 'managePersonalDetails' } } : { type: 'button' }));
+
 watch(
     () => properties.sessionIsAuthenticated,
     (newSessionIsAuthenticatedValue, oldSessionIsAuthenticatedValue) => {
@@ -28,32 +31,27 @@ watch(
     { immediate: true }
 );
 
-function handleSelectAuthenticated(event: MouseEvent, navigate: () => void) {
-    event.preventDefault();
+function handleSelect() {
     properties.onSelect();
-    navigate();
-}
-
-function handleSelectUnauthenticated() {
-    properties.onSelect();
-    router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });
+    if (properties.sessionIsAuthenticated) {
+        router.push({ name: 'managePersonalDetails' });
+    } else {
+        router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });
+    }
 }
 </script>
 
 <template>
-    <RouterLink v-if="properties.sessionIsAuthenticated" custom :to="{ name: 'managePersonalDetails' }" v-slot="{ navigate }">
-        <button aria-label="Manage personal details" :class="CLASSES" type="button" @click="(event) => handleSelectAuthenticated(event, navigate)">
-            <div aria-hidden="true" class="relative size-6">
-                <TransitionGroup name="fade">
-                    <UserCogIcon v-if="authIconState === true" key="user" class="absolute inset-0 size-6" :stroke-width="1.25" />
-                    <LogInIcon v-if="authIconState === false" key="login" class="absolute inset-0 size-6" :stroke-width="1.25" />
-                    <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute inset-0 size-6 animate-spin text-neutral-300" />
-                </TransitionGroup>
-            </div>
-        </button>
-    </RouterLink>
-
-    <button v-else aria-label="Manage personal details" :class="CLASSES" type="button" @click="handleSelectUnauthenticated">
+    <!-- <component :is="optionComponent" aria-label="Manage personal details" :class="CLASSES" v-bind="optionAttributes" @click="handleSelect">
+        <div aria-hidden="true" class="relative size-6">
+            <TransitionGroup name="fade">
+                <UserCogIcon v-if="authIconState === true" key="user" class="absolute inset-0 size-6" :stroke-width="1.25" />
+                <LogInIcon v-if="authIconState === false" key="login" class="absolute inset-0 size-6" :stroke-width="1.25" />
+                <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute inset-0 size-6 animate-spin text-neutral-300" />
+            </TransitionGroup>
+        </div>
+    </component> -->
+    <button aria-label="Manage personal details" :class="CLASSES" @click="handleSelect">
         <div aria-hidden="true" class="relative size-6">
             <TransitionGroup name="fade">
                 <UserCogIcon v-if="authIconState === true" key="user" class="absolute inset-0 size-6" :stroke-width="1.25" />
