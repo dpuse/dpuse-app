@@ -70,7 +70,7 @@ function toggleAssistPanel() {
 
 <template>
     <!-- Workbench shell -->
-    <div class="fixed inset-0">
+    <div class="bg-background-secondary text-foreground-primary fixed inset-0">
         <!-- Brand anchor & logo fixed in top left corner above workbench body, always visible -->
         <div class="fixed top-0 left-0 z-50 flex h-13.75 w-16 flex-col items-center justify-center">
             <IconButton
