@@ -34,7 +34,7 @@ watch(
 function handleSelect() {
     properties.onSelect();
     if (properties.sessionIsAuthenticated) {
-        router.push({ name: 'managePersonalDetails' });
+        router.push({ name: 'account' });
     } else {
         router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });
     }
