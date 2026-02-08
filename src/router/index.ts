@@ -2,6 +2,7 @@
 import { createRouter, createWebHistory, type RouterScrollBehavior } from 'vue-router';
 
 // Workbench components
+import Account from '@/views/account/Account.vue';
 import Workflow from '@/views/workflow/Workflow.vue';
 
 // Not exported by Vue router, duplicated here to address eslint function return type rule
@@ -27,7 +28,7 @@ export const appRoutes = [
             },
             {
                 path: 'account',
-                component: () => import('@/views/account/Account.vue'),
+                component: Account,
                 children: [
                     { name: 'account', path: '', redirect: { name: 'managePersonalDetails' } },
                     { name: 'managePersonalDetails', path: 'managePersonalDetails', component: () => import('@/views/account/ManagePersonalDetails.vue') },
