@@ -14,21 +14,21 @@ const handleSelect = () => emit('select');
 
 <template>
     <div>
-        <OptionBarContent class="flex w-16 flex-col pt-13.75" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
+        <OptionBarContent class="hidden w-16 flex-col pt-13.75 md:flex" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
 
-        <!-- <Transition name="option-bar-overlay" appear>
+        <Transition name="option-bar-overlay" appear>
             <div v-if="isFloatingOpen && !isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
                 <div class="bg-background-primary/70 absolute inset-0" @click="handleSelect"></div>
 
-                <div
+                <dialog
                     class="dpu-option-bar-panel bg-background-secondary border-separator relative mr-auto flex h-full w-16 flex-col border-r shadow-xl"
                     open
                     @cancel.prevent="handleSelect"
                 >
                     <OptionBarContent class="pt-13.75" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
-                </div>
+                </dialog>
             </div>
-        </Transition> -->
+        </Transition>
     </div>
 </template>
 

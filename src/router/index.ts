@@ -26,21 +26,25 @@ export const appRoutes = [
                     { name: 'buildDataApps', path: 'buildDataApps', component: () => import('@/views/workflow/buildDataApps/BuildDataApps.vue') }
                 ]
             },
+            // {
+            //     path: 'account',
+            //     component: () => import('@/views/account/Account.vue'),
+            //     children: [
+            //         { path: '', redirect: { name: 'managePersonalDetails' } },
+            //         { name: 'managePersonalDetails', path: 'managePersonalDetails', component: () => import('@/views/account/ManagePersonalDetails.vue') },
+            //         { name: 'manageSubscription', path: 'manageSubscription', component: () => import('@/views/account/ManageSubscription.vue') },
+            //         { name: 'managePreferences', path: 'managePreferences', component: () => import('@/views/account/ManagePreferences.vue') },
+            //         { name: 'manageAccess', path: 'manageAccess', component: () => import('@/views/account/ManageAccess.vue') },
+            //         { name: 'manageSessions', path: 'manageSessions', component: () => import('@/views/account/ManageSessions.vue') },
+            //         { name: 'reviewActivity', path: 'reviewActivity', component: () => import('@/views/account/ReviewActivity.vue') },
+            //         { name: 'manageDataServiceTokens', path: 'manageDataServiceTokens', component: () => import('@/views/account/ManageDataServiceTokens.vue') },
+            //         { name: 'generateToken', path: 'generateToken', component: () => import('@/views/account/GenerateToken.vue') },
+            //         { name: 'deleteAccount', path: 'deleteAccount', component: () => import('@/views/account/DeleteAccount.vue') }
+            //     ]
+            // },
             {
                 path: 'account',
-                // component: Account,
-                children: [
-                    { path: '', redirect: { name: 'managePersonalDetails' } },
-                    { name: 'managePersonalDetails', path: 'managePersonalDetails', component: () => import('@/views/account/ManagePersonalDetails.vue') },
-                    { name: 'manageSubscription', path: 'manageSubscription', component: () => import('@/views/account/ManageSubscription.vue') },
-                    { name: 'managePreferences', path: 'managePreferences', component: () => import('@/views/account/ManagePreferences.vue') },
-                    { name: 'manageAccess', path: 'manageAccess', component: () => import('@/views/account/ManageAccess.vue') },
-                    { name: 'manageSessions', path: 'manageSessions', component: () => import('@/views/account/ManageSessions.vue') },
-                    { name: 'reviewActivity', path: 'reviewActivity', component: () => import('@/views/account/ReviewActivity.vue') },
-                    { name: 'manageDataServiceTokens', path: 'manageDataServiceTokens', component: () => import('@/views/account/ManageDataServiceTokens.vue') },
-                    { name: 'generateToken', path: 'generateToken', component: () => import('@/views/account/GenerateToken.vue') },
-                    { name: 'deleteAccount', path: 'deleteAccount', component: () => import('@/views/account/DeleteAccount.vue') }
-                ]
+                children: [{ name: 'account', path: '', component: Account }]
             }
         ]
     },
