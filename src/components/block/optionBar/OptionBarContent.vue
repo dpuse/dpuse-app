@@ -7,6 +7,7 @@ import { useKnowledge } from '@/composables/useKnowledge';
 
 // Workbench components
 import OptionAccountAction from './OptionAccountAction.vue';
+import IconActionContent from '../../base/IconActionContent.vue';
 
 // Properties
 defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
@@ -28,11 +29,15 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-3">
             <div class="flex w-full flex-1 flex-col items-center">
                 <RouterLink :aria-label="activeBenchtopConfig.label" :class="CLASSES" :to="{ name: activeBenchtopConfig.id }" @click="onSelect">
-                    <LayoutDashboardIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
+                    <IconActionContent>
+                        <LayoutDashboardIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
+                    </IconActionContent>
                 </RouterLink>
 
                 <RouterLink v-for="config of activeBenchtopConfig.options" :key="config.id" :aria-label="config.label" :class="CLASSES" :to="{ name: config.id }" @click="onSelect">
-                    <div aria-hidden="true" class="size-6" :style="{ color: `${config.color}` }" v-html="config.icon" />
+                    <IconActionContent>
+                        <div aria-hidden="true" class="size-6" :style="{ color: `${config.color}` }" v-html="config.icon" />
+                    </IconActionContent>
                 </RouterLink>
             </div>
 

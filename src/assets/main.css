@@ -45,14 +45,11 @@ body {
 }
 
 @layer base {
-    /* * {
-        @apply border-border outline-ring/50;
-    } */
-    /* body {
-        @apply bg-background-primary text-foreground-primary;
-    } */
     button:not(:disabled),
     [role='button']:not(:disabled) {
         cursor: pointer;
+    }
+    .dpu-action {
+        @apply rounded-md outline-offset-2 outline-zinc-400 focus:outline-2 dark:outline-zinc-500;
     }
 }

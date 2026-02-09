@@ -12,7 +12,7 @@ import AssistantIcon from '@/components/icon/AssistantIcon.vue';
 import AssistantPanel from '@/components/block/assistant/AssistantPanel.vue';
 import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
-import IconButton from '@/components/base/IconButton.vue';
+import IconActionContent from '@/components/base/IconActionContent.vue';
 
 // Workbench components (Lazy load)
 // TODO: const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
@@ -73,23 +73,23 @@ function handleToggleAssistPanel() {
     <div class="bg-background-secondary text-foreground-primary fixed inset-0">
         <!-- Brand anchor & logo fixed in top left corner above workbench body, always visible -->
         <div class="fixed top-0 left-0 z-40 flex h-13.75 w-16 flex-col items-center justify-center">
-            <IconButton
+            <IconActionContent
                 :aria-label="benchtopOptionBarToggleAriaLabel"
                 :aria-pressed="!isDisplayWide ? isBenchtopOptionBarOpenInNarrowDisplay : undefined"
                 @click="handleToggleBenchtopOptionBar"
             >
-                <DPULogoIcon class="size-7" />
-            </IconButton>
+                <DPULogoIcon class="size-6" />
+            </IconActionContent>
         </div>
 
         <!-- Assistant toggle fixed in top right corner above workbench body, always visible -->
-        <IconButton
+        <IconActionContent
             :aria-label="assistPanelToggleAriaLabel"
             class="fixed top-1.75 right-4 z-20 flex cursor-pointer items-center justify-center rounded-full"
             @click="handleToggleAssistPanel"
         >
             <AssistantIcon class="size-6" :stroke-width="1.25" />
-        </IconButton>
+        </IconActionContent>
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
         <AuthDialog v-if="authDialogIsVisible" />

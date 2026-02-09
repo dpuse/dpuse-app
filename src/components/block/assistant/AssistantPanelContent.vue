@@ -3,7 +3,7 @@
 import { ArrowBigLeftDashIcon, MessageCircleMoreIcon, SearchIcon, XIcon } from 'lucide-vue-next';
 
 // Workbench components
-import IconButton from '@/components/base/IconButton.vue';
+import IconActionContent from '@/components/base/IconActionContent.vue';
 
 // Properties
 type AssistantMessage = { id: number; text: string };
@@ -18,7 +18,7 @@ defineProps<Properties>();
                 <div class="flex h-full flex-1 items-center text-lg font-light">Assistant</div>
 
                 <div class="flex items-center gap-x-2">
-                    <IconButton
+                    <IconActionContent
                         v-if="onTogglePanelWidth"
                         :aria-label="isPanelWide ? 'Set assistant panel to compact width' : 'Set assistant panel to wide width'"
                         class="flex-none cursor-pointer items-center justify-center rounded-full"
@@ -27,9 +27,9 @@ defineProps<Properties>();
                         @click="onTogglePanelWidth?.()"
                     >
                         <ArrowBigLeftDashIcon class="dpu-panel-width-icon size-6" :class="{ 'dpu-panel-width-icon-rotated': isPanelWide }" :stroke-width="1.25" />
-                    </IconButton>
+                    </IconActionContent>
 
-                    <IconButton
+                    <IconActionContent
                         v-if="onRequestClose"
                         aria-label="Close assistant panel"
                         class="flex-none cursor-pointer items-center justify-center rounded-full"
@@ -38,7 +38,7 @@ defineProps<Properties>();
                         @click="onRequestClose?.()"
                     >
                         <XIcon class="size-5" :stroke-width="1.25" />
-                    </IconButton>
+                    </IconActionContent>
                 </div>
             </div>
         </div>
@@ -71,12 +71,12 @@ defineProps<Properties>();
                 </div>
 
                 <div class="flex justify-end pr-1 pb-1">
-                    <IconButton size="icon-sm" variant="ghost" @click="onRunTest">
+                    <IconActionContent size="icon-sm" variant="ghost" @click="onRunTest">
                         <MessageCircleMoreIcon class="size-5" stroke-width="1.25" />
-                    </IconButton>
-                    <IconButton size="icon-sm" variant="ghost">
+                    </IconActionContent>
+                    <IconActionContent size="icon-sm" variant="ghost">
                         <SearchIcon class="size-5" stroke-width="1.25" />
-                    </IconButton>
+                    </IconActionContent>
                 </div>
             </div>
         </div>
