@@ -72,14 +72,16 @@ function handleToggleAssistPanel() {
     <!-- Workbench shell -->
     <div class="bg-background-secondary text-foreground-primary fixed inset-0">
         <!-- Brand anchor & logo fixed in top left corner above workbench body, always visible -->
-        <div class="fixed top-0 left-0 z-40 flex h-13.75 w-16 flex-col items-center justify-center">
-            <IconActionContent
-                :aria-label="benchtopOptionBarToggleAriaLabel"
-                :aria-pressed="!isDisplayWide ? isBenchtopOptionBarOpenInNarrowDisplay : undefined"
-                @click="handleToggleBenchtopOptionBar"
-            >
-                <DPULogoIcon class="size-6" />
-            </IconActionContent>
+        <div class="group fixed top-0 left-0 z-40 flex h-13.75 w-16 flex-col items-center justify-center">
+            <button class="group outline-none">
+                <IconActionContent
+                    :aria-label="benchtopOptionBarToggleAriaLabel"
+                    :aria-pressed="!isDisplayWide ? isBenchtopOptionBarOpenInNarrowDisplay : undefined"
+                    @click="handleToggleBenchtopOptionBar"
+                >
+                    <DPULogoIcon class="size-6" />
+                </IconActionContent>
+            </button>
         </div>
 
         <!-- Assistant toggle fixed in top right corner above workbench body, always visible -->

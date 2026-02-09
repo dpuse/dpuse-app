@@ -6,15 +6,11 @@ import { LayoutDashboardIcon } from 'lucide-vue-next';
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // Workbench components
+import IconActionContent from '@/components/base/IconActionContent.vue';
 import OptionAccountAction from './OptionAccountAction.vue';
-import IconActionContent from '../../base/IconActionContent.vue';
 
 // Properties
 defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
-
-// Constants
-const CLASSES =
-    'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 flex h-10 w-10 flex-none items-center justify-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:focus-visible:outline-red-500';
 
 // Active localised benchtop configuration
 const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
@@ -26,15 +22,22 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
         <div class="bg-separator mx-3 h-px" />
 
         <!-- Benchtop options scroller -->
-        <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-3">
-            <div class="flex w-full flex-1 flex-col items-center">
-                <RouterLink :aria-label="activeBenchtopConfig.label" :class="CLASSES" :to="{ name: activeBenchtopConfig.id }" @click="onSelect">
+        <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-6">
+            <div class="flex w-full flex-1 flex-col items-center gap-y-2">
+                <RouterLink :aria-label="activeBenchtopConfig.label" class="group outline-none" :to="{ name: activeBenchtopConfig.id }" @click="onSelect">
                     <IconActionContent>
                         <LayoutDashboardIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
                     </IconActionContent>
                 </RouterLink>
 
-                <RouterLink v-for="config of activeBenchtopConfig.options" :key="config.id" :aria-label="config.label" :class="CLASSES" :to="{ name: config.id }" @click="onSelect">
+                <RouterLink
+                    v-for="config of activeBenchtopConfig.options"
+                    :key="config.id"
+                    :aria-label="config.label"
+                    class="group outline-none"
+                    :to="{ name: config.id }"
+                    @click="onSelect"
+                >
                     <IconActionContent>
                         <div aria-hidden="true" class="size-6" :style="{ color: `${config.color}` }" v-html="config.icon" />
                     </IconActionContent>
