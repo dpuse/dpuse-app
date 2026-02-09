@@ -1,4 +1,8 @@
 <script setup lang="ts">
+// Vendor Dependencies
+import { useRouter } from 'vue-router';
+import { ref, watch } from 'vue';
+
 // Workbench core
 import { t } from '@/locales';
 import TRANSLATIONS from '@/locales/Account.json';
@@ -11,9 +15,10 @@ import Header from '@/components/block/header/Header.vue';
 import TextActionContent from '@/components/base/TextActionContent.vue';
 
 // Properties
-defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isDisplayWide: boolean }>();
+const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isDisplayWide: boolean }>();
 
 // Global state
+const router = useRouter();
 const sessionState = useSessionStore();
 
 const optionConfigs = [
@@ -31,9 +36,17 @@ const optionConfigs = [
     { id: 'generateToken', icon: '', label: { en: 'API token' } }
 ];
 
+const activePanelId = ref<'index' | 'detail'>('index');
+
+watch(
+    () => properties.isDisplayWide,
+    () => {}
+);
+
 // Sign out
 async function handleSignOut(): Promise<void> {
     await sessionState.signOut();
+    router.replace({ name: 'workflow' });
 }
 </script>
 
@@ -42,7 +55,7 @@ async function handleSignOut(): Promise<void> {
         <Header :title="t(TRANSLATIONS, 'account')" :is-display-wide="isDisplayWide" />
 
         <div class="flex flex-1 overflow-y-hidden">
-            <BenchtopScroller class="border-border flex flex-none flex-col border-r px-4 pt-4 pb-6">
+            <BenchtopScroller v-if="isDisplayWide || activePanelId === 'index'" class="border-border flex flex-none flex-col border-r px-4 pt-4 pb-6">
                 <div class="divide-separator flex flex-1 flex-col gap-y-2">
                     <button class="group outline-none">
                         <TextActionContent variant="warning" @click="handleSignOut">{{ t(TRANSLATIONS, 'signOut') }}</TextActionContent>
@@ -51,7 +64,7 @@ async function handleSignOut(): Promise<void> {
                     <div class="flex flex-1 flex-col gap-y-2">
                         <template v-for="optionConfig of optionConfigs" :key="optionConfig.id">
                             <div v-if="optionConfig.type === 'label'" class="text-foreground-secondary mt-2 text-xs font-medium">{{ optionConfig.label.en }}</div>
-                            <RouterLink v-else class="group outline-none" :to="{ name: optionConfig.id }">
+                            <RouterLink v-else class="group outline-none" :to="{ name: optionConfig.id }" @click="activePanelId = 'detail'">
                                 <TextActionContent>
                                     {{ optionConfig.label.en }}
                                 </TextActionContent>
@@ -68,7 +81,8 @@ async function handleSignOut(): Promise<void> {
                 </div>
             </BenchtopScroller>
 
-            <div class="flex-1">
+            <div v-if="isDisplayWide || activePanelId === 'detail'" class="flex-1">
+                <button @click="activePanelId = 'index'">Back</button>
                 <RouterView />
             </div>
         </div>
