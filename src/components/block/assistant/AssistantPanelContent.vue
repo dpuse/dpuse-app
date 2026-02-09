@@ -8,34 +8,34 @@ import IconButton from '@/components/base/IconButton.vue';
 // Properties
 type AssistantMessage = { id: number; text: string };
 type Properties = { messages: AssistantMessage[]; onRunTest: () => void; isPanelWide?: boolean; onTogglePanelWidth?: () => void; onRequestClose?: () => void };
-const properties = defineProps<Properties>();
+defineProps<Properties>();
 </script>
 
 <template>
     <div class="flex h-full flex-1 flex-col">
         <div class="flex h-14 flex-none px-4">
-            <div :class="['border-separator flex w-full items-center border-b', properties.onTogglePanelWidth ? 'pr-10' : '']">
+            <div :class="['border-separator flex w-full items-center border-b', onTogglePanelWidth ? 'pr-10' : '']">
                 <div class="flex h-full flex-1 items-center text-lg font-light">Assistant</div>
 
                 <div class="flex items-center gap-x-2">
                     <IconButton
-                        v-if="properties.onTogglePanelWidth"
-                        :aria-label="properties.isPanelWide ? 'Set assistant panel to compact width' : 'Set assistant panel to wide width'"
+                        v-if="onTogglePanelWidth"
+                        :aria-label="isPanelWide ? 'Set assistant panel to compact width' : 'Set assistant panel to wide width'"
                         class="flex-none cursor-pointer items-center justify-center rounded-full"
                         size="icon-lg"
                         variant="ghost"
-                        @click="properties.onTogglePanelWidth?.()"
+                        @click="onTogglePanelWidth?.()"
                     >
-                        <ArrowBigLeftDashIcon class="dpu-panel-width-icon size-6" :class="{ 'dpu-panel-width-icon-rotated': properties.isPanelWide }" :stroke-width="1.25" />
+                        <ArrowBigLeftDashIcon class="dpu-panel-width-icon size-6" :class="{ 'dpu-panel-width-icon-rotated': isPanelWide }" :stroke-width="1.25" />
                     </IconButton>
 
                     <IconButton
-                        v-if="properties.onRequestClose"
+                        v-if="onRequestClose"
                         aria-label="Close assistant panel"
                         class="flex-none cursor-pointer items-center justify-center rounded-full"
                         size="icon-lg"
                         variant="ghost"
-                        @click="properties.onRequestClose?.()"
+                        @click="onRequestClose?.()"
                     >
                         <XIcon class="size-5" :stroke-width="1.25" />
                     </IconButton>
@@ -45,7 +45,7 @@ const properties = defineProps<Properties>();
 
         <div class="flex flex-1 flex-col overflow-y-hidden px-4">
             <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">
-                <div v-for="message of properties.messages" :key="message.id">
+                <div v-for="message of messages" :key="message.id">
                     {{ message.text }}
                 </div>
             </div>
@@ -71,7 +71,7 @@ const properties = defineProps<Properties>();
                 </div>
 
                 <div class="flex justify-end pr-1 pb-1">
-                    <IconButton size="icon-sm" variant="ghost" @click="properties.onRunTest">
+                    <IconButton size="icon-sm" variant="ghost" @click="onRunTest">
                         <MessageCircleMoreIcon class="size-5" stroke-width="1.25" />
                     </IconButton>
                     <IconButton size="icon-sm" variant="ghost">

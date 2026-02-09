@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // Workbench core
+import TRANSLATIONS from '@/locales/Workflow.json';
 import { useKnowledge } from '@/composables/useKnowledge';
 import { localeId, t } from '@/locales';
 
@@ -10,9 +11,6 @@ import Header from '@/components/block/header/Header.vue';
 
 // Properties
 const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isDisplayWide: boolean }>();
-
-// Constants
-const TRANSLATIONS = { step: { en: 'Step', es: 'Paso' }, workflow: { en: 'Workflow', es: 'Flujo de trabajo' } };
 
 // Workflow step configurations sourced from knowledge store
 const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeId.value).options;
