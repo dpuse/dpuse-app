@@ -1,7 +1,11 @@
 <template>
     <button
         type="button"
-        class="hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 flex h-10 w-10 items-center justify-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:focus-visible:outline-indigo-500"
+        :class="[
+            'inline-flex items-center justify-center rounded-md p-2 focus-visible:outline-2 focus-visible:outline-offset-2',
+            'hover:text-accent-foreground hover:bg-zinc-200 focus-visible:outline-zinc-600',
+            'dark:hover:bg-zinc-600 dark:focus-visible:outline-zinc-500'
+        ]"
     >
         <slot />
     </button>

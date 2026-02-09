@@ -12,6 +12,6 @@ const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isDisp
     <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="properties.isDisplayWide">
         <Header title="Build Data Apps" :is-display-wide="properties.isDisplayWide" />
 
-        <BenchtopScroller></BenchtopScroller>
+        <BenchtopScroller class="flex-1"></BenchtopScroller>
     </BenchtopShell>
 </template>

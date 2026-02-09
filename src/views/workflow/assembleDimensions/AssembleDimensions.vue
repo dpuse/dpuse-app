@@ -20,6 +20,6 @@ onMounted(() => {
     <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="properties.isDisplayWide">
         <Header title="Assemble Dimensions" :is-display-wide="properties.isDisplayWide" />
 
-        <BenchtopScroller></BenchtopScroller>
+        <BenchtopScroller class="flex-1"></BenchtopScroller>
     </BenchtopShell>
 </template>

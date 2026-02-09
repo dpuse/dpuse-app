@@ -10,17 +10,17 @@ import BenchtopShell from '@/components/block/benchtop/BenchtopShell.vue';
 import Header from '@/components/block/header/Header.vue';
 
 // Properties
-const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isDisplayWide: boolean }>();
+defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isDisplayWide: boolean }>();
 
 // Workflow step configurations sourced from knowledge store
 const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeId.value).options;
 </script>
 
 <template>
-    <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="properties.isDisplayWide">
-        <Header :title="t(TRANSLATIONS, 'workflow')" data-testid="header" :is-display-wide="properties.isDisplayWide" />
+    <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="isDisplayWide">
+        <Header :title="t(TRANSLATIONS, 'workflow')" data-testid="header" :is-display-wide="isDisplayWide" />
 
-        <BenchtopScroller>
+        <BenchtopScroller class="flex-1">
             <div class="grid grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-4 p-4">
                 <RouterLink
                     v-for="config of workflowStepConfigs"
