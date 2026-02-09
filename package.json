@@ -1,6 +1,6 @@
 {
     "name": "datapos-workbench",
-    "version": "0.0.286",
+    "version": "0.0.287",
     "private": true,
     "type": "module",
     "engines": {
@@ -70,7 +70,7 @@
         "index:knowledge": "op run --env-file=.env -- node ./scripts/indexKnowledge.mjs",
         "test:knowledge": "op run --env-file=.env -- node ./scripts/testKnowledge.mjs",
         "check": "node -e \"import('@datapos/datapos-development').then(m => m.checkDependencies())\"",
-        "generate-pwa-assets": "pwa-assets-generator",
+        "generate-pwa-assets": "pwa-assets-generator --config pwa.assets.config.ts",
         "release": "npm run build && npm run sync && wrangler deploy",
         "sync": "node -e \"import('@datapos/datapos-development').then(m => m.syncProjectWithGitHub())\""
     }

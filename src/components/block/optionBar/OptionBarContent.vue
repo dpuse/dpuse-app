@@ -7,7 +7,6 @@ import { useKnowledge } from '@/composables/useKnowledge';
 
 // Workbench components
 import OptionAccountAction from './OptionAccountAction.vue';
-import { UserCogIcon } from 'lucide-vue-next';
 
 // Properties
 defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
@@ -38,10 +37,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
             </div>
 
             <!-- Account option -->
-            <!-- <OptionAccountAction :session-is-authenticated="sessionIsAuthenticated" :on-select="onSelect" /> -->
-            <RouterLink :class="CLASSES" :to="{ name: 'account' }" @click="onSelect">
-                <UserCogIcon class="size-6" :stroke-width="1.25" />
-            </RouterLink>
+            <OptionAccountAction :session-is-authenticated="sessionIsAuthenticated" :on-select="onSelect" />
         </div>
     </div>
 </template>

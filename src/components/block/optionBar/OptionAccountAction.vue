@@ -14,10 +14,10 @@ const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () 
 const CLASSES =
     'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 flex h-10 w-10 flex-none items-center justify-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:focus-visible:outline-indigo-500';
 
-const authIconState = ref<boolean | undefined>(properties.sessionIsAuthenticated);
+const authIconState = ref<boolean | undefined>(undefined);
 
 const optionComponent = computed(() => (properties.sessionIsAuthenticated ? RouterLink : 'button'));
-const optionAttributes = computed(() => (properties.sessionIsAuthenticated ? { to: { name: 'account' } } : { type: 'button' }));
+const optionAttributes = computed(() => (properties.sessionIsAuthenticated ? { to: { name: 'managePersonalDetails' } } : { type: 'button' }));
 
 watch(
     () => properties.sessionIsAuthenticated,
@@ -38,7 +38,7 @@ function handleSelect() {
 </script>
 
 <template>
-    <!-- <component :is="optionComponent" aria-label="Manage personal details" :class="CLASSES" v-bind="optionAttributes" @click="handleSelect">
+    <component :is="optionComponent" aria-label="Manage personal details" :class="CLASSES" v-bind="optionAttributes" @click="handleSelect">
         <div aria-hidden="true" class="relative size-6">
             <TransitionGroup name="fade">
                 <UserCogIcon v-if="authIconState === true" key="user" class="absolute inset-0 size-6" :stroke-width="1.25" />
@@ -46,10 +46,7 @@ function handleSelect() {
                 <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute inset-0 size-6 animate-spin text-neutral-300" />
             </TransitionGroup>
         </div>
-    </component> -->
-    <RouterLink :class="CLASSES" :to="{ name: 'account' }" @click="onSelect">
-        <UserCogIcon class="size-6" :stroke-width="1.25" />
-    </RouterLink>
+    </component>
 </template>
 
 <style scoped>
