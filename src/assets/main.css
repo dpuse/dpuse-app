@@ -2,9 +2,14 @@
 @import 'tw-animate-css';
 
 html {
-    font-size: clamp(1rem, 0.5vw + 0.875rem, 1.125rem);
+    overscroll-behavior-y: none;
+    font-size: 1rem; /* 16px on desktop */
 }
-html,
+@media (max-width: 768px) {
+    html {
+        font-size: 1.125rem; /* 18px on mobile */
+    }
+}
 body {
     overscroll-behavior-y: none;
 }
