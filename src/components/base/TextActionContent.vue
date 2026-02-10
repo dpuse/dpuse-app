@@ -3,7 +3,7 @@
 import { computed } from 'vue';
 
 // Properties
-const properties = defineProps<{ variant?: 'danger' | 'warning' | 'success' }>();
+const properties = defineProps<{ isActive?: boolean; variant?: 'danger' | 'warning' | 'success' }>();
 
 // Variant themes
 const theme = computed(() => {
@@ -16,7 +16,7 @@ const theme = computed(() => {
         case 'success':
             return `${base} bg-green-50 hover:bg-green-100 dark:bg-green-500/20 dark:hover:bg-green-500/25 text-green-700 dark:text-green-500 group-focus-visible:outline-green-400 dark:group-focus-visible:outline-green-500`;
         default:
-            return `${base} bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-500/20 dark:hover:bg-zinc-500/40 group-focus-visible:outline-zinc-500 dark:group-focus-visible:outline-zinc-400`;
+            return `${base} ${properties.isActive ? 'bg-zinc-200 dark:bg-zinc-500/50' : 'group-focus-visible:outline-zinc-500 dark:group-focus-visible:outline-zinc-400'} bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-500/20 dark:hover:bg-zinc-500/40`;
     }
 });
 </script>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Vendor Dependencies
-import { useRouter } from 'vue-router';
 import { ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 // Workbench core
 import { t } from '@/locales';
@@ -18,6 +18,7 @@ import TextActionContent from '@/components/base/TextActionContent.vue';
 const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isDisplayWide: boolean }>();
 
 // Global state
+const route = useRoute();
 const router = useRouter();
 const sessionState = useSessionStore();
 
@@ -55,7 +56,7 @@ async function handleSignOut(): Promise<void> {
         <Header :title="t(TRANSLATIONS, 'account')" :is-display-wide="isDisplayWide" />
 
         <div class="flex flex-1 overflow-y-hidden">
-            <BenchtopScroller v-if="isDisplayWide || activePanelId === 'index'" class="border-border flex flex-none flex-col border-r px-4 pt-4 pb-6">
+            <BenchtopScroller v-if="isDisplayWide || activePanelId === 'index'" class="border-border flex flex-1 flex-col border-r px-4 pt-4 pb-6 md:flex-none">
                 <div class="divide-separator flex flex-1 flex-col gap-y-2">
                     <button class="group outline-none">
                         <TextActionContent variant="warning" @click="handleSignOut">{{ t(TRANSLATIONS, 'signOut') }}</TextActionContent>
@@ -65,7 +66,7 @@ async function handleSignOut(): Promise<void> {
                         <template v-for="optionConfig of optionConfigs" :key="optionConfig.id">
                             <div v-if="optionConfig.type === 'label'" class="text-foreground-secondary mt-2 text-xs font-medium">{{ optionConfig.label.en }}</div>
                             <RouterLink v-else class="group outline-none" :to="{ name: optionConfig.id }" @click="activePanelId = 'detail'">
-                                <TextActionContent>
+                                <TextActionContent :is-active="route.name === optionConfig.id">
                                     {{ optionConfig.label.en }}
                                 </TextActionContent>
                             </RouterLink>
