@@ -6,7 +6,7 @@ import { ref } from 'vue';
 import AssistantPanelContent from './AssistantPanelContent.vue';
 
 // Properties
-defineProps<{ isOpenInWideDisplay: boolean; isOpenInNarrowDisplay: boolean }>();
+defineProps<{ isOpenInWideDisplay: boolean; isOpenInNarrowDisplay: boolean; isWideDisplay: boolean }>();
 
 // Emits
 const emit = defineEmits<{ (event: 'close'): void }>();
@@ -48,7 +48,13 @@ function runTest(): void {
         class="hidden flex-none flex-col transition-[width,opacity] duration-300 md:flex"
         :class="isOpenInWideDisplay ? ['border-l-0', isPanelWide ? 'w-150' : 'w-100'] : ['w-0', 'border-l-0', 'border-transparent', 'pointer-events-none', 'opacity-0']"
     >
-        <AssistantPanelContent :messages="messages" :on-run-test="runTest" :is-panel-wide="isPanelWide" :on-toggle-panel-width="handleTogglePanelWidth" />
+        <AssistantPanelContent
+            :messages="messages"
+            :on-run-test="runTest"
+            :is-wide-display="isWideDisplay"
+            :is-panel-wide="isPanelWide"
+            :on-toggle-panel-width="handleTogglePanelWidth"
+        />
     </div>
 
     <Transition name="assistant-overlay" appear>
@@ -60,7 +66,7 @@ function runTest(): void {
                 open
                 @cancel.prevent="requestClose"
             >
-                <AssistantPanelContent :messages="messages" :on-run-test="runTest" :on-request-close="requestClose" />
+                <AssistantPanelContent :messages="messages" :is-wide-display="isWideDisplay" :on-run-test="runTest" :on-request-close="requestClose" />
             </dialog>
         </div>
     </Transition>

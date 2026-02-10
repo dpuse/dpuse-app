@@ -24,12 +24,12 @@ const route = useRoute();
 const sessionState = useSessionStore();
 
 // Display narrow/wide state
-const isDisplayWide = useMediaQuery('(min-width: 768px)');
+const isWideDisplay = useMediaQuery('(min-width: 768px)');
 
 // Option bar states
 const isOptionBarOpenInNarrowDisplay = ref(false);
 const optionBarToggleAriaLabel = computed(() => {
-    if (isDisplayWide.value) return 'DPU logo';
+    if (isWideDisplay.value) return 'DPU logo';
     return isOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
@@ -37,7 +37,7 @@ const optionBarToggleAriaLabel = computed(() => {
 const isAssistPanelOpenInNarrowDisplay = ref(false);
 const isAssistPanelOpenInWideDisplay = ref(false);
 const assistPanelToggleAriaLabel = computed(() => {
-    const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
+    const isPanelVisible = isWideDisplay.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
     return isPanelVisible ? 'Hide assistant panel' : 'Show assistant panel';
 });
 
@@ -48,7 +48,7 @@ const authDialogIsVisible = computed(() => route.query.dialog === 'auth');
 onMounted(() => useSessionStore().initialiseServices());
 
 // Hide narrow versions of option bar and assistant panels when display width transitions from narrow to wide
-watch(isDisplayWide, (newIsDisplayWide) => {
+watch(isWideDisplay, (newIsDisplayWide) => {
     if (newIsDisplayWide) {
         isAssistPanelOpenInNarrowDisplay.value = false;
         isOptionBarOpenInNarrowDisplay.value = false;
@@ -58,12 +58,12 @@ watch(isDisplayWide, (newIsDisplayWide) => {
 // UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleToggleOptionBar(): void {
-    if (isDisplayWide.value) return;
+    if (isWideDisplay.value) return;
     isOptionBarOpenInNarrowDisplay.value = !isOptionBarOpenInNarrowDisplay.value;
 }
 
 function handleToggleAssistPanel(): void {
-    if (isDisplayWide.value) {
+    if (isWideDisplay.value) {
         isAssistPanelOpenInWideDisplay.value = !isAssistPanelOpenInWideDisplay.value;
         return;
     }
@@ -78,7 +78,7 @@ function handleToggleAssistPanel(): void {
             <button class="group outline-none">
                 <IconActionContent
                     :aria-label="optionBarToggleAriaLabel"
-                    :aria-pressed="!isDisplayWide ? isOptionBarOpenInNarrowDisplay : undefined"
+                    :aria-pressed="!isWideDisplay ? isOptionBarOpenInNarrowDisplay : undefined"
                     @click="handleToggleOptionBar"
                 >
                     <DPULogoIcon class="size-6" />
@@ -104,7 +104,7 @@ function handleToggleAssistPanel(): void {
             <OptionBar
                 class="flex-none"
                 :is-open-in-narrow-display="isOptionBarOpenInNarrowDisplay"
-                :is-wide-display="isDisplayWide"
+                :is-wide-display="isWideDisplay"
                 :session-is-authenticated="sessionState.isAuthenticated"
                 @select="isOptionBarOpenInNarrowDisplay = false"
             />
@@ -112,7 +112,7 @@ function handleToggleAssistPanel(): void {
             <!-- Column filling workbench body between option bar and assistant panel -->
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
-                    <component :is="Component" :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="isDisplayWide" />
+                    <component :is="Component" :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-wide-display="isWideDisplay" />
                 </RouterView>
             </div>
 
@@ -120,6 +120,7 @@ function handleToggleAssistPanel(): void {
             <AssistantPanel
                 :is-open-in-wide-display="isAssistPanelOpenInWideDisplay"
                 :is-open-in-narrow-display="isAssistPanelOpenInNarrowDisplay"
+                :is-wide-display="isWideDisplay"
                 @close="isAssistPanelOpenInNarrowDisplay = false"
             />
         </div>

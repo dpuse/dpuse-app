@@ -3,12 +3,12 @@
 import { computed } from 'vue';
 
 // Properties
-const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isDisplayWide: boolean; title: string }>();
+const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isWideDisplay: boolean; title: string }>();
 
 // Title indented on left when screen is compact to allow for brand logo
 // Title indented on right when screen is wide and assistant panel is not open to allow for assistant icon
 const titlePadding = computed(() => ({
-    paddingLeft: properties.isDisplayWide ? undefined : '2.5rem',
+    paddingLeft: properties.isWideDisplay ? undefined : '2.5rem',
     paddingRight: properties.isAssistPanelOpenInWideDisplay ? undefined : '3.5rem'
 }));
 </script>

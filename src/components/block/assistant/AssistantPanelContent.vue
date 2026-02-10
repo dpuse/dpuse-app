@@ -3,18 +3,28 @@
 import { ArrowBigLeftDashIcon, MessageCircleMoreIcon, SearchIcon, XIcon } from 'lucide-vue-next';
 
 // Workbench components
+import AssistantIcon from '@/components/icon/AssistantIcon.vue';
 import IconActionContent from '@/components/base/IconActionContent.vue';
 
 // Properties
 type AssistantMessage = { id: number; text: string };
-type Properties = { messages: AssistantMessage[]; onRunTest: () => void; isPanelWide?: boolean; onTogglePanelWidth?: () => void; onRequestClose?: () => void };
+type Properties = {
+    messages: AssistantMessage[];
+    onRunTest: () => void;
+    isPanelWide?: boolean;
+    isWideDisplay: boolean;
+    onTogglePanelWidth?: () => void;
+    onRequestClose?: () => void;
+};
 defineProps<Properties>();
 </script>
 
 <template>
     <div class="flex h-full flex-1 flex-col">
         <div class="flex h-14 flex-none px-4">
-            <div :class="['border-separator flex w-full items-center border-b', onTogglePanelWidth ? 'pr-10' : '']">
+            <div :class="['border-separator flex w-full items-center gap-x-2 border-b', onTogglePanelWidth ? 'pr-10' : '']">
+                <AssistantIcon v-if="!isWideDisplay" class="size-6" :stroke-width="1.25" />
+
                 <div class="flex h-full flex-1 items-center text-lg font-light">Assistant</div>
 
                 <div class="flex items-center gap-x-2">

@@ -43,10 +43,10 @@ export const appRoutes = [
                 ]
             },
             {
+                name: 'account',
                 path: 'account',
                 component: (): Promise<Component> => import('@/views/account/Account.vue'),
                 children: [
-                    { path: '', redirect: { name: 'managePersonalDetails' } },
                     { name: 'managePersonalDetails', path: 'managePersonalDetails', component: (): Promise<Component> => import('@/views/account/ManagePersonalDetails.vue') },
                     { name: 'manageSubscription', path: 'manageSubscription', component: (): Promise<Component> => import('@/views/account/ManageSubscription.vue') },
                     { name: 'managePreferences', path: 'managePreferences', component: (): Promise<Component> => import('@/views/account/ManagePreferences.vue') },
