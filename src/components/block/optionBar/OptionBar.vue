@@ -16,7 +16,7 @@ function handleSelect(): void {
 </script>
 
 <template>
-    <div>
+    <div class="bg-background-secondary">
         <OptionBarContent class="hidden w-16 flex-col pt-13.75 md:flex" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
 
         <Transition name="option-bar-overlay" appear>

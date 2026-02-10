@@ -45,7 +45,7 @@ function runTest(): void {
 
 <template>
     <div
-        class="hidden flex-none flex-col transition-[width,opacity] duration-300 md:flex"
+        class="bg-background-secondary hidden flex-none flex-col transition-[width,opacity] duration-300 md:flex"
         :class="isOpenInWideDisplay ? ['border-l-0', isPanelWide ? 'w-150' : 'w-100'] : ['w-0', 'border-l-0', 'border-transparent', 'pointer-events-none', 'opacity-0']"
     >
         <AssistantPanelContent
