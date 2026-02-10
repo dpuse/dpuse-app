@@ -3,13 +3,16 @@
 import OptionBarContent from './OptionBarContent.vue';
 
 // Properties
-defineProps<{ isWideDisplay: boolean; isFloatingOpen: boolean; sessionIsAuthenticated?: boolean }>();
+defineProps<{ isOpenInNarrowDisplay: boolean; isWideDisplay: boolean; sessionIsAuthenticated?: boolean }>();
 
 // Emits
 const emit = defineEmits<{ (event: 'select'): void }>();
 
-// Helpers
-const handleSelect = () => emit('select');
+// UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function handleSelect(): void {
+    emit('select');
+}
 </script>
 
 <template>
@@ -17,7 +20,7 @@ const handleSelect = () => emit('select');
         <OptionBarContent class="hidden w-16 flex-col pt-13.75 md:flex" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
 
         <Transition name="option-bar-overlay" appear>
-            <div v-if="isFloatingOpen && !isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
+            <div v-if="isOpenInNarrowDisplay && !isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
                 <div class="bg-background-primary/70 absolute inset-0" @click="handleSelect"></div>
 
                 <dialog

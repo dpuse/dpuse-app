@@ -10,9 +10,9 @@ import { useSessionStore } from '@/stores/sessionStore';
 // Workbench components
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
 import AssistantPanel from '@/components/block/assistant/AssistantPanel.vue';
-import BenchtopOptionBar from '@/components/block/optionBar/OptionBar.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import IconActionContent from '@/components/base/IconActionContent.vue';
+import OptionBar from '@/components/block/optionBar/OptionBar.vue';
 
 // Workbench components (Lazy load)
 // TODO: const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
@@ -23,19 +23,19 @@ useColorMode();
 const route = useRoute();
 const sessionState = useSessionStore();
 
-// Display wide width state
+// Display narrow/wide state
 const isDisplayWide = useMediaQuery('(min-width: 768px)');
 
-// Benchtop option bar states
-const isBenchtopOptionBarOpenInNarrowDisplay = ref(false);
-const benchtopOptionBarToggleAriaLabel = computed(() => {
+// Option bar states
+const isOptionBarOpenInNarrowDisplay = ref(false);
+const optionBarToggleAriaLabel = computed(() => {
     if (isDisplayWide.value) return 'DPU logo';
-    return isBenchtopOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
+    return isOptionBarOpenInNarrowDisplay.value ? 'Hide navigation bar' : 'Show navigation bar';
 });
 
 // Assistant panel states
-const isAssistPanelOpenInWideDisplay = ref(false);
 const isAssistPanelOpenInNarrowDisplay = ref(false);
+const isAssistPanelOpenInWideDisplay = ref(false);
 const assistPanelToggleAriaLabel = computed(() => {
     const isPanelVisible = isDisplayWide.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
     return isPanelVisible ? 'Hide assistant panel' : 'Show assistant panel';
@@ -51,18 +51,18 @@ onMounted(() => useSessionStore().initialiseServices());
 watch(isDisplayWide, (newIsDisplayWide) => {
     if (newIsDisplayWide) {
         isAssistPanelOpenInNarrowDisplay.value = false;
-        isBenchtopOptionBarOpenInNarrowDisplay.value = false;
+        isOptionBarOpenInNarrowDisplay.value = false;
     }
 });
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function handleToggleBenchtopOptionBar() {
+function handleToggleOptionBar(): void {
     if (isDisplayWide.value) return;
-    isBenchtopOptionBarOpenInNarrowDisplay.value = !isBenchtopOptionBarOpenInNarrowDisplay.value;
+    isOptionBarOpenInNarrowDisplay.value = !isOptionBarOpenInNarrowDisplay.value;
 }
 
-function handleToggleAssistPanel() {
+function handleToggleAssistPanel(): void {
     if (isDisplayWide.value) {
         isAssistPanelOpenInWideDisplay.value = !isAssistPanelOpenInWideDisplay.value;
         return;
@@ -72,15 +72,14 @@ function handleToggleAssistPanel() {
 </script>
 
 <template>
-    <!-- Workbench shell -->
     <div class="bg-background-secondary text-foreground-primary fixed inset-0">
         <!-- Brand anchor & logo fixed in top left corner above workbench body, always visible -->
         <div class="group fixed top-0 left-0 z-40 flex h-13.75 w-16 flex-col items-center justify-center">
             <button class="group outline-none">
                 <IconActionContent
-                    :aria-label="benchtopOptionBarToggleAriaLabel"
-                    :aria-pressed="!isDisplayWide ? isBenchtopOptionBarOpenInNarrowDisplay : undefined"
-                    @click="handleToggleBenchtopOptionBar"
+                    :aria-label="optionBarToggleAriaLabel"
+                    :aria-pressed="!isDisplayWide ? isOptionBarOpenInNarrowDisplay : undefined"
+                    @click="handleToggleOptionBar"
                 >
                     <DPULogoIcon class="size-6" />
                 </IconActionContent>
@@ -99,26 +98,30 @@ function handleToggleAssistPanel() {
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
         <AuthDialog v-if="authDialogIsVisible" />
 
-        <!-- Body -->
+        <!-- Workbench body -->
         <div class="z-10 flex h-full">
-            <!-- Column fixed to left side of browser window -->
-            <BenchtopOptionBar
+            <!-- Column for option bar fixed to left side of browser window -->
+            <OptionBar
                 class="flex-none"
+                :is-open-in-narrow-display="isOptionBarOpenInNarrowDisplay"
                 :is-wide-display="isDisplayWide"
-                :is-floating-open="isBenchtopOptionBarOpenInNarrowDisplay"
                 :session-is-authenticated="sessionState.isAuthenticated"
-                @select="isBenchtopOptionBarOpenInNarrowDisplay = false"
+                @select="isOptionBarOpenInNarrowDisplay = false"
             />
 
-            <!-- Column filling workbench body between benchtop option bar and assistant panel -->
+            <!-- Column filling workbench body between option bar and assistant panel -->
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
                     <component :is="Component" :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="isDisplayWide" />
                 </RouterView>
             </div>
 
-            <!-- Column fixed to right side of browser window -->
-            <AssistantPanel :is-open="isAssistPanelOpenInWideDisplay" :is-floating-open="isAssistPanelOpenInNarrowDisplay" @close="isAssistPanelOpenInNarrowDisplay = false" />
+            <!-- Column for assistant panel fixed to right side of browser window -->
+            <AssistantPanel
+                :is-open-in-wide-display="isAssistPanelOpenInWideDisplay"
+                :is-open-in-narrow-display="isAssistPanelOpenInNarrowDisplay"
+                @close="isAssistPanelOpenInNarrowDisplay = false"
+            />
         </div>
     </div>
 </template>

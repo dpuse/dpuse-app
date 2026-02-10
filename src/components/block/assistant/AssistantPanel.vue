@@ -6,7 +6,7 @@ import { ref } from 'vue';
 import AssistantPanelContent from './AssistantPanelContent.vue';
 
 // Properties
-defineProps<{ isOpen: boolean; isFloatingOpen: boolean }>();
+defineProps<{ isOpenInWideDisplay: boolean; isOpenInNarrowDisplay: boolean }>();
 
 // Emits
 const emit = defineEmits<{ (event: 'close'): void }>();
@@ -14,17 +14,18 @@ const emit = defineEmits<{ (event: 'close'): void }>();
 // ...
 const isPanelWide = ref(false);
 
-//
-function handleTogglePanelWidth() {
+// UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function handleTogglePanelWidth(): void {
     isPanelWide.value = !isPanelWide.value;
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const messages = ref<{ id: number; text: string }[]>([]);
-const requestClose = () => emit('close');
+const requestClose = (): void => emit('close');
 
-function runTest() {
+function runTest(): void {
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
     const raw = JSON.stringify({ message: 'Can I show the current state of all modules?' });
@@ -45,13 +46,13 @@ function runTest() {
 <template>
     <div
         class="hidden flex-none flex-col transition-[width,opacity] duration-300 md:flex"
-        :class="isOpen ? ['border-l-0', isPanelWide ? 'w-150' : 'w-100'] : ['w-0', 'border-l-0', 'border-transparent', 'pointer-events-none', 'opacity-0']"
+        :class="isOpenInWideDisplay ? ['border-l-0', isPanelWide ? 'w-150' : 'w-100'] : ['w-0', 'border-l-0', 'border-transparent', 'pointer-events-none', 'opacity-0']"
     >
         <AssistantPanelContent :messages="messages" :on-run-test="runTest" :is-panel-wide="isPanelWide" :on-toggle-panel-width="handleTogglePanelWidth" />
     </div>
 
     <Transition name="assistant-overlay" appear>
-        <div v-if="isFloatingOpen" class="fixed inset-0 z-40 flex md:hidden">
+        <div v-if="isOpenInNarrowDisplay" class="fixed inset-0 z-40 flex md:hidden">
             <div class="bg-background-primary/70 absolute inset-0" @click="requestClose"></div>
 
             <dialog

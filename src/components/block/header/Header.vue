@@ -3,18 +3,19 @@
 import { computed } from 'vue';
 
 // Properties
-const properties = defineProps<{ isDisplayWide: boolean; title: string }>();
+const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isDisplayWide: boolean; title: string }>();
 
-// Header offsets
-const headerOffsets = computed(() => ({
+// Title indented on left when screen is compact to allow for brand logo
+// Title indented on right when screen is wide and assistant panel is not open to allow for assistant icon
+const titlePadding = computed(() => ({
     paddingLeft: properties.isDisplayWide ? undefined : '2.5rem',
-    paddingRight: properties.isDisplayWide ? '2.5rem' : '2.5rem'
+    paddingRight: properties.isAssistPanelOpenInWideDisplay ? undefined : '3.5rem'
 }));
 </script>
 
 <template>
     <div class="flex-none px-4">
-        <div class="border-separator flex h-14 items-center border-b text-lg font-light" :style="headerOffsets">
+        <div class="border-separator flex h-14 items-center border-b text-lg font-light" :style="titlePadding">
             <div class="truncate">
                 {{ title }}
             </div>

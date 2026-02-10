@@ -53,7 +53,7 @@ async function handleSignOut(): Promise<void> {
 
 <template>
     <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="isDisplayWide">
-        <Header :title="t(TRANSLATIONS, 'account')" :is-display-wide="isDisplayWide" />
+        <Header :title="t(TRANSLATIONS, 'account')" :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-display-wide="isDisplayWide" />
 
         <div class="flex flex-1 overflow-y-hidden">
             <BenchtopScroller v-if="isDisplayWide || activePanelId === 'index'" class="border-border flex flex-1 flex-col border-r px-4 pt-4 pb-6 md:flex-none">
@@ -66,7 +66,7 @@ async function handleSignOut(): Promise<void> {
                         <template v-for="optionConfig of optionConfigs" :key="optionConfig.id">
                             <div v-if="optionConfig.type === 'label'" class="text-foreground-secondary mt-2 text-xs font-medium">{{ optionConfig.label.en }}</div>
                             <RouterLink v-else class="group outline-none" :to="{ name: optionConfig.id }" @click="activePanelId = 'detail'">
-                                <TextActionContent :is-active="route.name === optionConfig.id">
+                                <TextActionContent :is-active="route.name === optionConfig.id && isDisplayWide">
                                     {{ optionConfig.label.en }}
                                 </TextActionContent>
                             </RouterLink>
