@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Vendor dependencies
+// External dependencies
 import { useColorMode } from '@vueuse/core';
 import { type HTMLAttributes, ref } from 'vue';
 

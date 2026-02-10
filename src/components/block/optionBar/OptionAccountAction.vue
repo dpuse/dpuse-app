@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Vendor dependencies
+// External dependencies
 import { computed, ref, watch } from 'vue';
 import { LoaderCircleIcon, LogInIcon, UserCogIcon } from 'lucide-vue-next';
 import { RouterLink, useRouter } from 'vue-router';

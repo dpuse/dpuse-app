@@ -1,4 +1,4 @@
-// Vendor dependencies
+// External dependencies
 import { globalIgnores } from 'eslint/config';
 import pluginImport from 'eslint-plugin-import';
 import pluginPlaywright from 'eslint-plugin-playwright';
@@ -36,8 +36,16 @@ export default defineConfigWithVueTs(
 
     {
         rules: {
-            'vue/multi-word-component-names': 'off',
-            'vue/no-v-html': 'off',
+            'no-empty': 'warn',
+            'prefer-const': 'warn',
+
+            '@typescript-eslint/consistent-type-imports': 'warn',
+            '@typescript-eslint/explicit-function-return-type': 'warn',
+            '@typescript-eslint/no-explicit-any': 'warn',
+            '@typescript-eslint/no-import-type-side-effects': 'warn',
+            '@typescript-eslint/no-unused-vars': 'warn',
+            '@typescript-eslint/restrict-template-expressions': ['warn', { allowNumber: true }],
+            '@typescript-eslint/strict-boolean-expressions': 'warn',
 
             'import/no-duplicates': 'warn',
             'sort-imports': ['warn', { allowSeparatedGroups: true, ignoreCase: true, memberSyntaxSortOrder: ['none', 'all', 'single', 'multiple'] }],
@@ -54,7 +62,9 @@ export default defineConfigWithVueTs(
             'unicorn/prevent-abbreviations': ['error', { ignore: ['env.d.ts'] }],
             'unicorn/switch-case-braces': 'off',
 
-            'vue/no-bare-strings-in-template': ['warn']
+            'vue/multi-word-component-names': 'off',
+            'vue/no-bare-strings-in-template': ['warn'],
+            'vue/no-v-html': 'off'
         }
     }
 );

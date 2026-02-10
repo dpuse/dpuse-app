@@ -1,4 +1,4 @@
-// Vendor dependencies
+// External dependencies
 import { ref } from 'vue';
 
 export type LocaleId = 'en' | 'es';

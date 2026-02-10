@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Vendor dependencies
+// External dependencies
 import { ArrowBigLeftDashIcon, MessageCircleMoreIcon, SearchIcon, XIcon } from 'lucide-vue-next';
 
 // Workbench components

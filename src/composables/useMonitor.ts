@@ -1,4 +1,4 @@
-// Vendor dependencies
+// External dependencies
 import 'posthog-js/dist/web-vitals';
 import posthog, { type CaptureOptions, type Properties } from 'posthog-js/dist/module.no-external';
 

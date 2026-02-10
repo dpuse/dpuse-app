@@ -1,4 +1,4 @@
-// Vendor dependencies
+// External dependencies
 import { createRouter, createWebHistory, type RouterScrollBehavior } from 'vue-router';
 
 // Workbench components

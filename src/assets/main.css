@@ -36,7 +36,7 @@ body {
     --foreground-primary: var(--color-zinc-800);
     --foreground-secondary: var(--color-zinc-500);
     --foreground-muted: var(--color-zinc-300);
-    --ring: oklch(0.708 0 0);
+    /* --ring: oklch(0.708 0 0); */
     --separator: color-mix(in srgb, var(--color-zinc-200) 75%, transparent);
 }
 
@@ -48,7 +48,7 @@ body {
     --foreground-primary: var(--color-zinc-300);
     --foreground-secondary: var(--color-zinc-400);
     --foreground-muted: var(--color-zinc-500);
-    --ring: oklch(0.556 0 0);
+    /* --ring: oklch(0.556 0 0); */
     --separator: color-mix(in srgb, var(--color-white) 10%, transparent);
 }
 

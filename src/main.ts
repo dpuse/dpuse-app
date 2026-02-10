@@ -1,4 +1,4 @@
-// Vendor dependencies
+// External dependencies
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
@@ -6,9 +6,9 @@ import { createPinia } from 'pinia';
 import '@/assets/main.css';
 import App from '@/App.vue';
 import router from '@/router';
-import { type Exception, monitorInstance, pendingExceptions, useSessionStore } from '@/stores/sessionStore';
+import { type Exception, monitorInstance, pendingExceptions } from '@/stores/sessionStore';
 
-// Window error handlers
+// Browser error handlers
 globalThis.addEventListener('error', (event) => reportException({ typeId: 'unhandledRuntime', payload: event }));
 globalThis.addEventListener('unhandledrejection', (event) => reportException({ typeId: 'unhandledPromise', payload: event }));
 
@@ -19,15 +19,13 @@ try {
     app.use(createPinia());
     app.use(router);
     app.mount('#app');
-
-    useSessionStore().initialiseServices();
 } catch (error) {
     reportErrorSafely(error);
 }
 
 // Error helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function reportException(exception: Exception) {
+function reportException(exception: Exception): void {
     if (monitorInstance) {
         monitorInstance.logException(exception);
     } else {
@@ -54,4 +52,6 @@ function reportErrorSafely(error: unknown): void {
     // TODO: Attempt to send to error tracker...
     try {
     } catch {}
+
+    // TODO: Check pending exceptions for any entries, display on page and attempt to send to error tracker...
 }

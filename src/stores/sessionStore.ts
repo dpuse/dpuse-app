@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/consistent-function-scoping */
 
-// Vendor dependencies
+// External dependencies
 import { defineStore } from 'pinia';
 import { useIdle } from '@vueuse/core';
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
