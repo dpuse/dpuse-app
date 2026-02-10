@@ -22,7 +22,7 @@ const theme = computed(() => {
 </script>
 
 <template>
-    <div class="inline-flex w-full items-center rounded-md px-2.5 py-1.5 text-sm" :class="theme">
+    <div class="inline-flex w-full items-center rounded-md px-2.5 py-2 text-sm" :class="theme">
         <slot />
     </div>
 </template>

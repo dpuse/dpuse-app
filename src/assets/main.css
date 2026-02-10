@@ -1,6 +1,9 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+html {
+    font-size: clamp(1rem, 0.5vw + 0.875rem, 1.125rem);
+}
 html,
 body {
     overscroll-behavior-y: none;
