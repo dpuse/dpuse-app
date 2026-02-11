@@ -21,21 +21,23 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeI
         <Header :title="t(TRANSLATIONS, 'workflow')" data-testid="header" :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-wide-display="isWideDisplay" />
 
         <BenchtopScroller class="flex-1">
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 p-4">
-                <RouterLink
-                    v-for="config of workflowStepConfigs"
-                    :key="config.id"
-                    class="bg-background-card outline-border overflow-hidden font-light outline -outline-offset-1 sm:rounded-lg"
-                    :to="{ name: config.id }"
-                >
-                    <div class="flex flex-col gap-y-4 p-4">
-                        <div aria-hidden="true" class="size-8" :style="{ color: `${config.color}` }" v-html="config.icon" />
-                        <div>
-                            <div class="text-foreground-secondary text-xs font-normal uppercase">{{ t(TRANSLATIONS, 'step') }} {{ config.step }}</div>
-                            {{ config.label }}
+            <div class="ml-[clamp(0px,calc(100%-56rem),10rem)] max-w-4xl">
+                <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 p-4">
+                    <RouterLink
+                        v-for="config of workflowStepConfigs"
+                        :key="config.id"
+                        class="bg-background-card outline-border overflow-hidden font-light outline -outline-offset-1 sm:rounded-lg"
+                        :to="{ name: config.id }"
+                    >
+                        <div class="flex flex-col gap-y-4 p-4">
+                            <div aria-hidden="true" class="size-8" :style="{ color: `${config.color}` }" v-html="config.icon" />
+                            <div>
+                                <div class="text-foreground-secondary text-xs font-normal uppercase">{{ t(TRANSLATIONS, 'step') }} {{ config.step }}</div>
+                                {{ config.label }}
+                            </div>
                         </div>
-                    </div>
-                </RouterLink>
+                    </RouterLink>
+                </div>
             </div>
         </BenchtopScroller>
     </BenchtopShell>
