@@ -21,7 +21,7 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeI
         <Header :title="t(TRANSLATIONS, 'workflow')" data-testid="header" :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-wide-display="isWideDisplay" />
 
         <BenchtopScroller class="flex-1">
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-4 p-4">
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 p-4">
                 <RouterLink
                     v-for="config of workflowStepConfigs"
                     :key="config.id"
