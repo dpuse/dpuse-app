@@ -11,6 +11,9 @@ import type { ConnectionConfig } from '@datapos/datapos-shared/component/connect
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 
+// Workbench core
+import type { Monitor } from '@/composables/useMonitor';
+
 // Exception declarations
 type HandledException = { typeId: 'handled'; payload: { error?: unknown; locator: string } };
 type UnhandledVueException = { typeId: 'unhandledVue'; payload: { error?: unknown; instance: ComponentPublicInstance | null; info?: string } };
@@ -27,13 +30,13 @@ const SESSION_IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 // Long-lived module-scoped Hanko instance reused across multiple authentication sessions
 let hankoInstance: Hanko | undefined;
 
-// Cleanup callback for the active Hanko flow
+// Short lived session scoped cleanup callback for the active Hanko flow
 let hankoFlowCleanupFunction: (() => void) | undefined;
 
 // Long-lived app-scoped monitor instance
-export let monitorInstance: ReturnType<typeof import('@/composables/useMonitor').useMonitor> | undefined;
+export let monitorInstance: Monitor | undefined;
 
-// Temporary app-scoped pending exceptions array
+// Short lived app-scoped startup pending exceptions array
 export const pendingExceptions: Exception[] = [];
 
 // Long-lived authenticated-session-scoped expiry timer
@@ -112,7 +115,7 @@ export const useSessionStore = defineStore('session', () => {
         toolConfigs
     };
 
-    // Session helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Establish session helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     function establishSession(claims?: Claims, isLoading = false): void {
         if (claims) {
@@ -149,13 +152,13 @@ export const useSessionStore = defineStore('session', () => {
         }
     }
 
-    // Expiry timer helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Session expiry timer helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     function startSessionExpiryTimer(runQuickly: boolean = false): void {
         clearSessionExpiryTimer();
         expiryTimer = globalThis.setInterval(
             () => {
-                expiresIn.value = Math.max(0, (expiresAt.value || 0) - Date.now());
+                expiresIn.value = Math.max(0, (expiresAt.value ?? 0) - Date.now());
                 if (expiresIn.value <= 0) clearSessionExpiryTimer();
             },
             runQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW

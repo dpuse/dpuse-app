@@ -26,7 +26,7 @@ defineProps<Properties>();
                 <AssistantIcon v-if="!isWideDisplay" class="size-6" :stroke-width="1.25" />
 
                 <div class="flex h-full flex-1 items-center text-lg font-light">Assistant</div>
-
+                <!--
                 <div class="flex items-center gap-x-2">
                     <IconActionContent
                         v-if="onTogglePanelWidth"
@@ -49,7 +49,7 @@ defineProps<Properties>();
                     >
                         <XIcon class="size-5" :stroke-width="1.25" />
                     </IconActionContent>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -94,12 +94,12 @@ defineProps<Properties>();
 </template>
 
 <style scoped>
-.dpu-panel-width-icon {
+/* .dpu-panel-width-icon {
     transition: transform 220ms ease-in-out;
     transform-origin: center;
 }
 
 .dpu-panel-width-icon-rotated {
     transform: rotate(180deg);
-}
+} */
 </style>

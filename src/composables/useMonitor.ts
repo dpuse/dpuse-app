@@ -12,7 +12,7 @@ const POSTHOG_URL = 'https://eu.i.posthog.com';
 const TIMEOUT_DELAY = 5000;
 
 // Types
-interface Monitor {
+export interface Monitor {
     captureEvent: (name: string, properties: Properties, options: CaptureOptions) => void;
     identifyUser: (userId: string, authSessionId: string, emailAddress?: string) => void;
     logException: (exception: Exception) => void;

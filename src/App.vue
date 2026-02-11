@@ -14,7 +14,7 @@ import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import IconActionContent from '@/components/base/IconActionContent.vue';
 import OptionBar from '@/components/block/optionBar/OptionBar.vue';
 
-// Workbench components (Lazy load)
+// Workbench components (Lazy loaded)
 // TODO: const AssistantPanel = defineAsyncComponent(() => import('@/components/block/assistant/AssistantPanel.vue'));
 const AuthDialog = defineAsyncComponent(() => import('@/components/block/account/AuthDialog.vue'));
 
@@ -36,6 +36,8 @@ const optionBarToggleAriaLabel = computed(() => {
 // Assistant panel states
 const isAssistPanelOpenInNarrowDisplay = ref(false);
 const isAssistPanelOpenInWideDisplay = ref(false);
+const assistPanelWidth = ref(400);
+const isDraggingSplitter = ref(false);
 const assistPanelToggleAriaLabel = computed(() => {
     const isPanelVisible = isWideDisplay.value ? isAssistPanelOpenInWideDisplay.value : isAssistPanelOpenInNarrowDisplay.value;
     return isPanelVisible ? 'Hide assistant panel' : 'Show assistant panel';
@@ -69,10 +71,25 @@ function handleToggleAssistPanel(): void {
     }
     isAssistPanelOpenInNarrowDisplay.value = !isAssistPanelOpenInNarrowDisplay.value;
 }
+
+function handleSplitterPointerDown(event: PointerEvent): void {
+    isDraggingSplitter.value = true;
+    (event.target as HTMLElement).setPointerCapture(event.pointerId);
+}
+
+function handleSplitterPointerMove(event: PointerEvent): void {
+    if (!isDraggingSplitter.value) return;
+    const newWidth = window.innerWidth - event.clientX;
+    assistPanelWidth.value = Math.min(Math.max(newWidth, 250), 800);
+}
+
+function handleSplitterPointerUp(): void {
+    isDraggingSplitter.value = false;
+}
 </script>
 
 <template>
-    <div class="bg-background-primary text-foreground-primary fixed inset-0">
+    <div class="bg-background-primary text-foreground-primary fixed inset-0" :class="{ 'select-none': isDraggingSplitter }">
         <!-- Brand anchor & logo fixed in top left corner above workbench body, always visible -->
         <div class="group fixed top-0 left-0 z-40 flex h-13.75 w-16 flex-col items-center justify-center">
             <button class="group outline-none">
@@ -89,7 +106,7 @@ function handleToggleAssistPanel(): void {
         <!-- Assistant toggle fixed in top right corner above workbench body, always visible -->
         <IconActionContent
             :aria-label="assistPanelToggleAriaLabel"
-            class="fixed top-1.75 right-4 z-20 flex cursor-pointer items-center justify-center rounded-full"
+            class="fixed top-1.75 right-3 z-20 flex cursor-pointer items-center justify-center rounded-full"
             @click="handleToggleAssistPanel"
         >
             <AssistantIcon class="size-6" :stroke-width="1.25" />
@@ -108,7 +125,6 @@ function handleToggleAssistPanel(): void {
                 :session-is-authenticated="sessionState.isAuthenticated"
                 @select="isOptionBarOpenInNarrowDisplay = false"
             />
-
             <!-- Column filling workbench body between option bar and assistant panel -->
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
@@ -116,12 +132,34 @@ function handleToggleAssistPanel(): void {
                 </RouterView>
             </div>
 
+            <!-- Vertical splitter for resizing assistant panel -->
+            <div
+                v-if="isAssistPanelOpenInWideDisplay && isWideDisplay"
+                class="group hidden w-1.5 flex-none cursor-col-resize items-center justify-center md:flex"
+                @pointerdown="handleSplitterPointerDown"
+                @pointermove="handleSplitterPointerMove"
+                @pointerup="handleSplitterPointerUp"
+            >
+                <div class="bg-separator/50 group-hover:bg-separator group-active:bg-separator h-full w-px transition-colors" />
+            </div>
+
             <!-- Column for assistant panel fixed to right side of browser window -->
             <AssistantPanel
                 :is-open-in-wide-display="isAssistPanelOpenInWideDisplay"
                 :is-open-in-narrow-display="isAssistPanelOpenInNarrowDisplay"
                 :is-wide-display="isWideDisplay"
+                :panel-width="assistPanelWidth"
+                :is-dragging="isDraggingSplitter"
                 @close="isAssistPanelOpenInNarrowDisplay = false"
+                @update:panel-width="assistPanelWidth = $event"
+            />
+
+            <OptionBar
+                class="flex-none"
+                :is-open-in-narrow-display="isOptionBarOpenInNarrowDisplay"
+                :is-wide-display="isWideDisplay"
+                :session-is-authenticated="sessionState.isAuthenticated"
+                @select="isOptionBarOpenInNarrowDisplay = false"
             />
         </div>
     </div>

@@ -4,18 +4,20 @@ import { createPinia } from 'pinia';
 
 // Workbench core
 import '@/assets/main.css';
-import App from '@/App.vue';
 import router from '@/router';
 import { type Exception, monitorInstance, pendingExceptions } from '@/stores/sessionStore';
 
+// Workbench components
+import App from '@/App.vue';
+
 // Browser error handlers
-globalThis.addEventListener('error', (event) => reportException({ typeId: 'unhandledRuntime', payload: event }));
-globalThis.addEventListener('unhandledrejection', (event) => reportException({ typeId: 'unhandledPromise', payload: event }));
+globalThis.addEventListener('error', (event): void => reportError({ typeId: 'unhandledRuntime', payload: event }));
+globalThis.addEventListener('unhandledrejection', (event): void => reportError({ typeId: 'unhandledPromise', payload: event }));
 
 // Bootstrap workbench application
 try {
     const app = createApp(App);
-    app.config.errorHandler = (error, instance, info) => reportException({ typeId: 'unhandledVue', payload: { error, instance, info } });
+    app.config.errorHandler = (error, instance, info): void => reportError({ typeId: 'unhandledVue', payload: { error, instance, info } });
     app.use(createPinia());
     app.use(router);
     app.mount('#app');
@@ -23,9 +25,9 @@ try {
     reportErrorSafely(error);
 }
 
-// Error helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Report error helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function reportException(exception: Exception): void {
+function reportError(exception: Exception): void {
     if (monitorInstance) {
         monitorInstance.logException(exception);
     } else {
