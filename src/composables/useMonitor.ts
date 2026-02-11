@@ -11,11 +11,20 @@ const POSTHOG_DEFAULTS = '2025-11-30';
 const POSTHOG_URL = 'https://eu.i.posthog.com';
 const TIMEOUT_DELAY = 5000;
 
+// Types
+interface Monitor {
+    captureEvent: (name: string, properties: Properties, options: CaptureOptions) => void;
+    identifyUser: (userId: string, authSessionId: string, emailAddress?: string) => void;
+    logException: (exception: Exception) => void;
+    resetUser: () => void;
+    shutdown: () => void;
+}
+
 // Long-lived session-scoped module states WebSocket
 let moduleStatesWebSocket: WebSocket | undefined;
 
 // Composable
-export function useMonitor(userId?: string, authSessionId?: string, emailAddress?: string) {
+export function useMonitor(userId?: string, authSessionId?: string, emailAddress?: string): Monitor {
     posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, {
         api_host: POSTHOG_URL,
         defaults: POSTHOG_DEFAULTS,
@@ -28,13 +37,15 @@ export function useMonitor(userId?: string, authSessionId?: string, emailAddress
         person_profiles: 'identified_only'
     });
 
-    if (userId && authSessionId) identifyUser(userId, authSessionId, emailAddress);
+    if (userId != null && authSessionId != null) identifyUser(userId, authSessionId, emailAddress);
 
     for (const exception of pendingExceptions) logException(exception);
     pendingExceptions.length = 0;
 
-    if (moduleStatesWebSocket && (moduleStatesWebSocket.readyState === WebSocket.CONNECTING || moduleStatesWebSocket.readyState === WebSocket.OPEN)) return;
-    moduleStatesWebSocket = connectToModuleStatesWebSocket();
+    if (!(moduleStatesWebSocket && (moduleStatesWebSocket.readyState === WebSocket.CONNECTING || moduleStatesWebSocket.readyState === WebSocket.OPEN))) {
+        moduleStatesWebSocket = connectToModuleStatesWebSocket();
+    }
+
     return { captureEvent, identifyUser, logException, resetUser, shutdown };
 }
 
@@ -50,7 +61,7 @@ function resetUser(): void {
     posthog.reset();
 }
 
-function captureEvent(name: string, properties: Properties, options: CaptureOptions) {
+function captureEvent(name: string, properties: Properties, options: CaptureOptions): void {
     posthog.capture(name, properties, options);
 }
 
@@ -102,7 +113,7 @@ function logException(exception: Exception): void {
         }
     }
     const result = posthog.captureException(exceptionError, exceptionProperties);
-    console.log('EXCEPTION', exceptionError, exceptionProperties, result);
+    console.error(`[dpu] ❌ App: Error:`, exceptionError, exceptionProperties, result);
 }
 
 function shutdown(): void {
@@ -120,7 +131,7 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
         let statesWebSocket: WebSocket | undefined = new WebSocket(wsURL);
 
         statesWebSocket.addEventListener('open', () => {
-            console.info('[datapos] ✅ App: WebSocket connection established.');
+            console.info('[dpu] ✅ App: WebSocket connection established.');
         });
 
         statesWebSocket.addEventListener('message', (event) => {
@@ -135,25 +146,25 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
                         return self.postMessage({ typeId: 'modulesUnregistered', payload: [eventData.module] });
                 }
             } catch (error) {
-                console.info(`[datapos] ❌ App: Module registration error: ${error}`);
+                console.info(`[dpu] ❌ App: Module registration error: ${String(error)}`);
             }
         });
 
         statesWebSocket.addEventListener('close', (event) => {
-            console.info(`[datapos] ⚠️ App: WebSocket close event '${event.code}' received.`);
+            console.info(`[dpu] ⚠️ App: WebSocket close event '${event.code}' received.`);
             statesWebSocket = undefined;
             setTimeout(connectToModuleStatesWebSocket, TIMEOUT_DELAY);
         });
 
         statesWebSocket.addEventListener('error', (error) => {
             // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.
-            console.info(`[datapos] ❌ App: WebSocket operational error: ${error}`);
+            console.info(`[dpu] ❌ App: WebSocket operational error: ${String(error)}`);
         });
 
         return statesWebSocket;
     } catch (error) {
         // TODO: Try and recreate a limited number of times. If no success then display message requesting refresh.
-        console.info(`[datapos] ❌ App: WebSocket creation error: ${error}`);
+        console.info(`[dpu] ❌ App: WebSocket creation error: ${String(error)}`);
         return undefined;
     }
 }

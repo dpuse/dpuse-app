@@ -16,7 +16,7 @@ const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () 
 const authIconState = ref<boolean | undefined>(undefined);
 
 const optionComponent = computed(() => (properties.sessionIsAuthenticated ? RouterLink : 'button'));
-const optionAttributes = computed(() => (properties.sessionIsAuthenticated ? { to: { name: 'managePersonalDetails' } } : { type: 'button' }));
+const optionAttributes = computed(() => (properties.sessionIsAuthenticated ? { to: { name: 'account' } } : { type: 'button' }));
 
 watch(
     () => properties.sessionIsAuthenticated,
@@ -30,7 +30,7 @@ watch(
     { immediate: true }
 );
 
-function handleSelect() {
+function handleSelect(): void {
     if (!properties.sessionIsAuthenticated) router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });
     properties.onSelect();
 }

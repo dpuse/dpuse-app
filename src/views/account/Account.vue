@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Vendor Dependencies
-import { ref, watch } from 'vue';
+import { shallowRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // Workbench core
@@ -14,6 +14,9 @@ import BenchtopShell from '@/components/block/benchtop/BenchtopShell.vue';
 import Header from '@/components/block/header/Header.vue';
 import TextActionContent from '@/components/base/TextActionContent.vue';
 
+// Types
+type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string };
+
 // Properties
 const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isWideDisplay: boolean }>();
 
@@ -22,37 +25,54 @@ const route = useRoute();
 const router = useRouter();
 const sessionState = useSessionStore();
 
-const optionConfigs = [
-    { id: 'profile', type: 'label', label: { en: 'Profile' } },
-    { id: 'managePersonalDetails', icon: '', label: { en: 'Personal details' } },
-    { id: 'manageSubscription', icon: '', label: { en: 'Subscription & billing' } },
-    { id: 'managePreferences', icon: '', label: { en: 'Preferences' } },
-    { id: 'security', type: 'label', label: { en: 'Security' } },
-    { id: 'manageAccess', icon: '', label: { en: 'Access' } },
-    { id: 'manageSessions', icon: '', label: { en: 'Active sessions' } },
-    { id: 'reviewActivity', icon: '', label: { en: 'Recent activity' } },
-    { id: 'integrations', type: 'label', label: { en: 'Integrations' } },
-    { id: 'manageDataServiceTokens', icon: '', label: { en: 'Data service tokens' } },
-    { id: 'development', type: 'label', label: { en: 'Development' } },
-    { id: 'generateToken', icon: '', label: { en: 'API token' } }
+const optionConfigs: OptionLocalisedConfig[] = [
+    { id: 'profile', type: 'label', label: 'Profile' },
+    { id: 'managePersonalDetails', icon: '', label: 'Personal details', title: 'Manage Personal Details' },
+    { id: 'manageSubscription', icon: '', label: 'Subscription & billing' },
+    { id: 'managePreferences', icon: '', label: 'Preferences' },
+    { id: 'security', type: 'label', label: 'Security' },
+    { id: 'manageAccess', icon: '', label: 'Access' },
+    { id: 'manageSessions', icon: '', label: 'Active sessions' },
+    { id: 'reviewActivity', icon: '', label: 'Recent activity' },
+    { id: 'integrations', type: 'label', label: 'Integrations' },
+    { id: 'manageDataServiceTokens', icon: '', label: 'Data service tokens' },
+    { id: 'development', type: 'label', label: 'Development' },
+    { id: 'generateToken', icon: '', label: 'API token' }
 ];
 
-const activePanelId = ref<'index' | 'detail'>('index');
+const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
 
-watch(
-    () => properties.isWideDisplay,
-    () => {}
-);
+// UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function handleBack() {
+function handleBack(): void {
     router.replace({ name: 'account' });
-    activePanelId.value = 'index';
+    activeOptionConfig.value = undefined;
 }
 
-// Sign out
 async function handleSignOut(): Promise<void> {
     await sessionState.signOut();
     router.replace({ name: 'workflow' });
+}
+
+function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
+    const routeName = route.name;
+    if (routeName === 'account') {
+        if (properties.isWideDisplay) {
+            router.replace({ name: 'managePersonalDetails' });
+            return optionConfigs[1];
+        }
+        return;
+    } else {
+        const activeOptionConfig = optionConfigs.find((config) => config.id === route.name);
+        if (!activeOptionConfig) {
+            if (properties.isWideDisplay) {
+                router.replace({ name: 'managePersonalDetails' });
+                return optionConfigs[1];
+            }
+            return;
+        }
+        return activeOptionConfig;
+    }
 }
 </script>
 
@@ -61,18 +81,21 @@ async function handleSignOut(): Promise<void> {
         <Header :title="t(TRANSLATIONS, 'account')" :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-wide-display="isWideDisplay" />
 
         <div class="flex flex-1 overflow-y-hidden">
-            <BenchtopScroller v-if="isWideDisplay || activePanelId === 'index'" class="border-border flex flex-1 flex-col border-r px-4 pt-4 pb-6 md:flex-none">
+            <BenchtopScroller v-if="isWideDisplay || !activeOptionConfig" class="border-border flex flex-1 flex-col border-r px-4 pt-4 pb-6 md:flex-none">
                 <div class="divide-separator flex flex-1 flex-col gap-y-2">
                     <button class="group min-w-50 outline-none">
                         <TextActionContent variant="warning" @click="handleSignOut">{{ t(TRANSLATIONS, 'signOut') }}</TextActionContent>
                     </button>
 
+                    <!-- Separator -->
+                    <div class="bg-separator mt-2 h-px" />
+
                     <div class="flex flex-1 flex-col gap-y-2">
                         <template v-for="optionConfig of optionConfigs" :key="optionConfig.id">
-                            <div v-if="optionConfig.type === 'label'" class="text-foreground-secondary mt-2 text-xs font-medium">{{ optionConfig.label.en }}</div>
-                            <RouterLink v-else class="group min-w-50 outline-none" :to="{ name: optionConfig.id }" @click="activePanelId = 'detail'">
+                            <div v-if="optionConfig.type === 'label'" class="text-foreground-secondary mt-2 text-xs font-medium">{{ optionConfig.label }}</div>
+                            <RouterLink v-else class="group min-w-50 outline-none" :to="{ name: optionConfig.id }" @click="activeOptionConfig = optionConfig">
                                 <TextActionContent :is-active="route.name === optionConfig.id && isWideDisplay">
-                                    {{ optionConfig.label.en }}
+                                    {{ optionConfig.label }}
                                 </TextActionContent>
                             </RouterLink>
                         </template>
@@ -80,16 +103,22 @@ async function handleSignOut(): Promise<void> {
                 </div>
 
                 <div class="flex flex-none flex-col gap-y-2 pt-2">
-                    <div class="text-foreground-secondary mt-2 text-xs font-medium">{{ t(TRANSLATIONS, 'advancedSettings') }}</div>
+                    <div class="text-foreground-secondary mt-2 text-xs font-medium">{{ t(TRANSLATIONS, 'criticalActions') }}</div>
                     <RouterLink class="group min-w-50 outline-none" :to="{ name: 'deleteAccount' }">
                         <TextActionContent variant="danger">{{ t(TRANSLATIONS, 'deleteAccount') }}</TextActionContent>
                     </RouterLink>
                 </div>
             </BenchtopScroller>
 
-            <div v-if="isWideDisplay || activePanelId === 'detail'" class="flex-1">
-                <button v-if="!isWideDisplay" @click="handleBack">Back</button>
-                <RouterView />
+            <div v-if="isWideDisplay || activeOptionConfig" class="flex flex-1 flex-col">
+                <div class="border-separator mx-4 flex h-12 flex-none items-center border-b">
+                    <button v-if="!isWideDisplay" @click="handleBack">Back</button>
+                    {{ activeOptionConfig!.title }}
+                </div>
+
+                <div class="flex-1">
+                    <RouterView />
+                </div>
             </div>
         </div>
     </BenchtopShell>

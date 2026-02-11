@@ -30,7 +30,7 @@ export async function useEngineWorker(): Promise<EngineWorkerInterface> {
         console.error(errorEvent, 'engineWorker@useEngineWorker.1');
     });
     await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: useSessionStore().toolConfigs || [] });
-    console.log(`[datapos] ℹ️ App: Engine v${engineVersion} loaded.`);
+    console.log(`[dpu] ℹ️ App: Engine v${engineVersion} loaded.`);
 
     /*****/
     // async function streamCsvToConsole(): Promise<void> {
