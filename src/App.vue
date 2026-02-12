@@ -11,6 +11,7 @@ import { useSessionStore } from '@/stores/sessionStore';
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
 import AssistantPanel from '@/components/block/assistant/AssistantPanel.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
+import FloatingPill from '@/components/block/floatingPill/FloatingPill.vue';
 import IconActionContent from '@/components/base/IconActionContent.vue';
 import KnowledgeOptionBar from '@/components/block/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import OptionBar from '@/components/block/optionBar/OptionBar.vue';
@@ -164,6 +165,9 @@ function handleSplitterPointerUp(): void {
                 <AssistantIcon class="size-6" />
             </IconActionContent>
         </button>
+
+        <!-- Floating pill (shared controls: fullscreen, appearance, account) -->
+        <FloatingPill />
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
         <AuthDialog v-if="authDialogIsVisible" />
