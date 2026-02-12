@@ -6,25 +6,11 @@ import { ref } from 'vue';
 import AssistantPanelContent from './AssistantPanelContent.vue';
 
 // Properties
-const properties = defineProps<{ isOpenInWideDisplay: boolean; isOpenInNarrowDisplay: boolean; isWideDisplay: boolean; panelWidth: number; isDragging: boolean }>();
-
-// Emits
-const emit = defineEmits<{ (event: 'close'): void; (event: 'update:panel-width', width: number): void }>();
-
-// ...
-const isPanelWide = ref(false);
-
-// UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function handleTogglePanelWidth(): void {
-    isPanelWide.value = !isPanelWide.value;
-    emit('update:panel-width', isPanelWide.value ? 600 : 400);
-}
+defineProps<{ isWideDisplay: boolean }>();
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const messages = ref<{ id: number; text: string }[]>([]);
-const requestClose = (): void => emit('close');
 
 function runTest(): void {
     const myHeaders = new Headers();
@@ -45,53 +31,11 @@ function runTest(): void {
 </script>
 
 <template>
-    <div
-        class="bg-background-primary flex flex-none flex-col"
-        :class="[
-            isOpenInWideDisplay ? 'border-l-0' : ['w-0', 'border-l-0', 'border-transparent', 'pointer-events-none', 'opacity-0'],
-            !properties.isDragging && 'transition-[width,opacity] duration-300'
-        ]"
-        :style="isOpenInWideDisplay ? { width: properties.panelWidth + 'px' } : undefined"
-    >
+    <div class="bg-background-primary flex flex-1 flex-col">
         <AssistantPanelContent
             :messages="messages"
             :on-run-test="runTest"
             :is-wide-display="isWideDisplay"
-            :is-panel-wide="isPanelWide"
-            :on-toggle-panel-width="handleTogglePanelWidth"
         />
     </div>
-    <!--
-    <Transition name="assistant-overlay" appear>
-        <div v-if="isOpenInNarrowDisplay" class="fixed inset-0 z-40 flex md:hidden">
-            <div class="bg-background-primary/70 absolute inset-0" @click="requestClose"></div>
-
-            <dialog
-                class="dpu-assistant-panel bg-background-secondary border-separator relative ml-auto flex h-full w-full max-w-100 flex-col border-l shadow-xl"
-                open
-                @cancel.prevent="requestClose"
-            >
-                <AssistantPanelContent :messages="messages" :is-wide-display="isWideDisplay" :on-run-test="runTest" :on-request-close="requestClose" />
-            </dialog>
-        </div>
-    </Transition> -->
 </template>
-
-<style scoped>
-/* .assistant-overlay-enter-active,
-.assistant-overlay-leave-active {
-    transition: opacity 220ms ease-in-out;
-}
-.assistant-overlay-enter-from,
-.assistant-overlay-leave-to {
-    opacity: 0;
-}
-.assistant-overlay-enter-active .dpu-assistant-panel,
-.assistant-overlay-leave-active .dpu-assistant-panel {
-    transition: transform 260ms ease-in-out;
-}
-.assistant-overlay-enter-from .dpu-assistant-panel,
-.assistant-overlay-leave-to .dpu-assistant-panel {
-    transform: translateX(100%);
-} */
-</style>

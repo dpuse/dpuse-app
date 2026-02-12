@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Workbench components
-import OptionBarContent from './OptionBarContent.vue';
+import OptionBarContent from './KnowledgeOptionBarContent.vue';
 
 // Properties
 defineProps<{ isOpenInNarrowDisplay: boolean; isWideDisplay: boolean; sessionIsAuthenticated?: boolean }>();
@@ -17,7 +17,7 @@ function handleSelect(): void {
 
 <template>
     <div class="bg-background-secondary">
-        <OptionBarContent class="border-separator hidden w-16 flex-col border-r pt-13.75 md:flex" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
+        <OptionBarContent class="border-separator hidden w-16 flex-col border-l pt-13.75 md:flex" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
 
         <Transition name="option-bar-overlay" appear>
             <div v-if="isOpenInNarrowDisplay && !isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">

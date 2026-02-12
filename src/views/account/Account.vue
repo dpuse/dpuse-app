@@ -78,7 +78,12 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 
 <template>
     <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-wide-display="isWideDisplay">
-        <Header :title="t(TRANSLATIONS, 'account')" :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-wide-display="isWideDisplay" />
+        <Header
+            :breadcrumbs="[{ id: 'benchtop', label: 'Benchtop' }]"
+            :title="t(TRANSLATIONS, 'account')"
+            :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay"
+            :is-wide-display="isWideDisplay"
+        />
 
         <div class="flex flex-1 overflow-y-hidden">
             <BenchtopScroller v-if="isWideDisplay || !activeOptionConfig" class="border-border flex flex-1 flex-col border-r px-4 pt-4 pb-6 md:flex-none">

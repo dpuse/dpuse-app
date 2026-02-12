@@ -4,6 +4,7 @@ import { ArrowBigLeftDashIcon, MessageCircleMoreIcon, SearchIcon, XIcon } from '
 
 // Workbench components
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
+import Header from '@/components/block/header/Header.vue';
 import IconActionContent from '@/components/base/IconActionContent.vue';
 
 // Properties
@@ -25,7 +26,7 @@ defineProps<Properties>();
             <div :class="['border-separator flex w-full items-center gap-x-2 border-b', onTogglePanelWidth ? 'pr-10' : '']">
                 <AssistantIcon v-if="!isWideDisplay" class="size-6" :stroke-width="1.25" />
 
-                <div class="flex h-full flex-1 items-center text-lg font-light">Assistant</div>
+                <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" title="Assistant" :is-assist-panel-open-in-wide-display="false" :is-wide-display="isWideDisplay" />
                 <!--
                 <div class="flex items-center gap-x-2">
                     <IconActionContent
