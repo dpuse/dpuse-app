@@ -11,9 +11,9 @@ import { useSessionStore } from '@/stores/sessionStore';
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
 import AssistantPanel from '@/components/block/assistant/AssistantPanel.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
-import FloatingPill from '@/components/block/floatingPill/FloatingPill.vue';
 import IconActionContent from '@/components/base/IconActionContent.vue';
 import KnowledgeOptionBar from '@/components/block/knowledgeOptionBar/KnowledgeOptionBar.vue';
+import OptionAccountAction from '@/components/block/optionBar/OptionAccountAction.vue';
 import OptionBar from '@/components/block/optionBar/OptionBar.vue';
 
 // Workbench components (Lazy loaded)
@@ -166,8 +166,7 @@ function handleSplitterPointerUp(): void {
             </IconActionContent>
         </button>
 
-        <!-- Floating pill (shared controls: fullscreen, appearance, account) -->
-        <FloatingPill />
+        <OptionAccountAction class="fixed bottom-4.5 left-3 z-40" :session-is-authenticated="sessionState.isAuthenticated" :on-select="() => undefined" />
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
         <AuthDialog v-if="authDialogIsVisible" />
@@ -199,7 +198,7 @@ function handleSplitterPointerUp(): void {
 
         <!-- Right pane: Assistant (assistant body + option bar) -->
         <div :class="rightPaneClasses">
-            <AssistantPanel :is-wide-display="isWideDisplay" />
+            <AssistantPanel class="flex-1" :is-wide-display="isWideDisplay" />
             <KnowledgeOptionBar
                 class="flex-none"
                 :is-open-in-narrow-display="narrowOptionBarOpen === 'assistant'"

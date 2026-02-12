@@ -7,7 +7,7 @@ html {
 }
 @media (max-width: 768px) {
     html {
-        font-size: 1.125rem; /* 18px on mobile */
+        font-size: 1rem; /* 18px on mobile */
     }
 }
 body {
