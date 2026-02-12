@@ -38,7 +38,7 @@ function handleSelect(): void {
 
 <template>
     <component :is="optionComponent" aria-label="Manage personal details" class="group outline-none" v-bind="optionAttributes" @click="handleSelect">
-        <IconActionContent aria-hidden="true" class="relative h-10 w-10">
+        <IconActionContent aria-hidden="true" class="relative h-10 w-10 bg-zinc-200/50">
             <TransitionGroup name="fade">
                 <UserCogIcon v-if="authIconState === true" key="user" class="absolute top-2 left-2 size-6" :stroke-width="1.25" />
                 <LogInIcon v-if="authIconState === false" key="login" class="absolute top-2 left-2 size-6" :stroke-width="1.25" />

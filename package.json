@@ -1,6 +1,6 @@
 {
     "name": "datapos-workbench",
-    "version": "0.0.318",
+    "version": "0.0.319",
     "private": true,
     "type": "module",
     "engines": {
@@ -11,6 +11,9 @@
         "@datapos/datapos-shared": "^0.3.531",
         "@directus/vue-split-panel": "^0.8.4",
         "@tailwindcss/vite": "^4.1.18",
+        "@tanstack/ai": "^0.5.0",
+        "@tanstack/ai-client": "^0.4.4",
+        "@tanstack/ai-openai": "^0.5.0",
         "@tanstack/vue-virtual": "^3.13.18",
         "@teamhanko/hanko-frontend-sdk": "^2.4.0",
         "@vueuse/core": "^14.2.0",
