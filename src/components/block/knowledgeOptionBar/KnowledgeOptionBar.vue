@@ -24,7 +24,7 @@ function handleSelect(): void {
                 <div class="bg-background-primary/70 absolute inset-0" @click="handleSelect"></div>
 
                 <dialog
-                    class="dpu-option-bar-panel bg-background-secondary border-separator relative mr-auto flex h-full w-16 flex-col border-r shadow-xl"
+                    class="dpu-option-bar-panel bg-background-secondary border-separator relative ml-auto flex h-full w-16 flex-col border-l shadow-xl"
                     open
                     @cancel.prevent="handleSelect"
                 >
@@ -50,6 +50,6 @@ function handleSelect(): void {
 }
 .option-bar-overlay-enter-from .dpu-option-bar-panel,
 .option-bar-overlay-leave-to .dpu-option-bar-panel {
-    transform: translateX(-100%);
+    transform: translateX(100%);
 }
 </style>

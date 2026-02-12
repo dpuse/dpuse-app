@@ -61,7 +61,7 @@ defineProps<Properties>();
                 </div>
             </div>
 
-            <div class="flex-none">
+            <div class="flex-none pb-6">
                 <!-- <Textarea
                     id="assistant-input"
                     name="assistant-input"
@@ -80,7 +80,7 @@ defineProps<Properties>();
                         />
                     </div>
                 </div>
-
+                <!--
                 <div class="flex justify-end pr-1 pb-1">
                     <IconActionContent size="icon-sm" variant="ghost" @click="onRunTest">
                         <MessageCircleMoreIcon class="size-5" stroke-width="1.25" />
@@ -88,7 +88,7 @@ defineProps<Properties>();
                     <IconActionContent size="icon-sm" variant="ghost">
                         <SearchIcon class="size-5" stroke-width="1.25" />
                     </IconActionContent>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
