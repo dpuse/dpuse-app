@@ -7,11 +7,11 @@ import { RouterLink, useRouter } from 'vue-router';
 // Workbench components
 import IconActionContent from '../../base/IconActionContent.vue';
 
-// Global state
-const router = useRouter();
-
 // Properties
 const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
+
+// Global state
+const router = useRouter();
 
 const authIconState = ref<boolean | undefined>(undefined);
 
@@ -29,6 +29,8 @@ watch(
     },
     { immediate: true }
 );
+
+// UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleSelect(): void {
     if (!properties.sessionIsAuthenticated) router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });

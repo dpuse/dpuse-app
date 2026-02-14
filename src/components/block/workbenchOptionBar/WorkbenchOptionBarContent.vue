@@ -7,8 +7,8 @@ import { HomeIcon } from '@heroicons/vue/24/outline';
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // Workbench components
+import AccountAction from '@/components/block/account/AccountAction.vue';
 import IconActionContent from '@/components/base/IconActionContent.vue';
-import OptionAccountAction from './OptionAccountAction.vue';
 
 // Properties
 defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
@@ -18,16 +18,16 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
 </script>
 
 <template>
-    <div class="flex h-full flex-col">
+    <div class="pt-13.75">
         <!-- Separator -->
         <div class="bg-separator mx-3 h-px" />
 
         <!-- Benchtop options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-6">
-            <div class="flex w-full flex-1 flex-col items-center gap-y-2">
+            <div class="flex flex-1 flex-col items-center gap-y-2">
                 <RouterLink :aria-label="activeBenchtopConfig.label" class="group outline-none" :to="{ name: activeBenchtopConfig.id }" @click="onSelect">
                     <IconActionContent>
-                        <HomeIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
+                        <HomeIcon aria-hidden="true" class="size-6 [&>path]:stroke-[1.25]" />
                     </IconActionContent>
                 </RouterLink>
 
@@ -46,7 +46,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
             </div>
 
             <!-- Account option -->
-            <OptionAccountAction :session-is-authenticated="sessionIsAuthenticated" :on-select="onSelect" />
+            <AccountAction :session-is-authenticated="sessionIsAuthenticated" :on-select="onSelect" />
         </div>
     </div>
 </template>

@@ -10,42 +10,42 @@ import IconActionContent from '@/components/base/IconActionContent.vue';
 // Properties
 const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
 
-// Navigation
+// Global state
 const route = useRoute();
 const router = useRouter();
 
-function navigateKnowledge(view: string): void {
+// UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function handleNavigateTo(view: string): void {
     router.push({ path: route.path, query: { ...route.query, knowledge: view } });
     properties.onSelect();
 }
 </script>
 
 <template>
-    <div class="flex h-full flex-col pt-13.75">
+    <div class="pt-13.75">
         <!-- Separator -->
         <div class="bg-separator mx-3 h-px" />
 
-        <!-- Benchtop options scroller -->
+        <!-- Options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-6">
-            <div class="flex w-full flex-1 flex-col items-center gap-y-2">
-                <button class="group outline-none" @click="navigateKnowledge('welcome')">
-                    <IconActionContent>
-                        <HomeIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
-                    </IconActionContent>
-                </button>
+            <button class="group outline-none" @click="handleNavigateTo('welcome')">
+                <IconActionContent>
+                    <HomeIcon aria-hidden="true" class="size-6 [&>path]:stroke-[1.25]" />
+                </IconActionContent>
+            </button>
 
-                <button class="group outline-none" @click="navigateKnowledge('search')">
-                    <IconActionContent>
-                        <SearchIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
-                    </IconActionContent>
-                </button>
+            <button class="group outline-none" @click="handleNavigateTo('search')">
+                <IconActionContent>
+                    <SearchIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
+                </IconActionContent>
+            </button>
 
-                <button class="group outline-none" @click="navigateKnowledge('chat')">
-                    <IconActionContent>
-                        <MessageCircleMoreIcon aria-hidden="true" class="size-5.5" :stroke-width="1.25" />
-                    </IconActionContent>
-                </button>
-            </div>
+            <button class="group outline-none" @click="handleNavigateTo('chat')">
+                <IconActionContent>
+                    <MessageCircleMoreIcon aria-hidden="true" class="size-5.5" :stroke-width="1.25" />
+                </IconActionContent>
+            </button>
         </div>
     </div>
 </template>

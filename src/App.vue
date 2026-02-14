@@ -13,7 +13,7 @@ import IconActionContent from '@/components/base/IconActionContent.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/block/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import KnowledgePanel from '@/components/block/knowledge/KnowledgePanel.vue';
-import OptionBar from '@/components/block/optionBar/OptionBar.vue';
+import WorkbenchOptionBar from '@/components/block/workbenchOptionBar/WorkbenchOptionBar.vue';
 
 // Workbench components (lazy loaded)
 const AuthDialog = defineAsyncComponent(() => import('@/components/block/account/AuthDialog.vue'));
@@ -170,7 +170,7 @@ function handleSplitterPointerUp(): void {
 
         <!-- Left pane: Benchtop (option bar + workbench body) -->
         <div :class="leftPaneClasses" :style="leftPaneStyle">
-            <OptionBar
+            <WorkbenchOptionBar
                 class="flex-none"
                 :is-open-in-narrow-display="narrowOptionBarOpen === 'benchtop'"
                 :is-wide-display="isWideDisplay"
