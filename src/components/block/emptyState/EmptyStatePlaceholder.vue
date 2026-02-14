@@ -22,7 +22,7 @@ defineProps<{ messageItemLabel: string; descriptionItemLabel: string; actionItem
         <div class="mt-6">
             <button
                 type="button"
-                class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
+                class="inline-flex items-center rounded-md bg-green-100 px-3 py-2 text-sm font-semibold text-green-700 shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-green-500/20 dark:text-green-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
             >
                 <PlusIcon class="mr-1.5 -ml-0.5 size-5" aria-hidden="true" />
                 New {{ actionItemLabel }}
