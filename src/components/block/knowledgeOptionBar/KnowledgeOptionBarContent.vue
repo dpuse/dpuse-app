@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // External dependencies
-import { HomeIcon, MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
+import { HomeIcon } from '@heroicons/vue/24/outline';
+import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
 // Workbench components

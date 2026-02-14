@@ -13,7 +13,6 @@ import IconActionContent from '@/components/base/IconActionContent.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/block/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import KnowledgePanel from '@/components/block/knowledge/KnowledgePanel.vue';
-import OptionAccountAction from '@/components/block/optionBar/OptionAccountAction.vue';
 import OptionBar from '@/components/block/optionBar/OptionBar.vue';
 
 // Workbench components (lazy loaded)
@@ -165,8 +164,6 @@ function handleSplitterPointerUp(): void {
                 <KnowledgeIcon class="size-6" />
             </IconActionContent>
         </button>
-
-        <OptionAccountAction class="fixed bottom-4.5 left-3 z-40" :session-is-authenticated="sessionState.isAuthenticated" :on-select="() => undefined" />
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
         <AuthDialog v-if="authDialogIsVisible" />

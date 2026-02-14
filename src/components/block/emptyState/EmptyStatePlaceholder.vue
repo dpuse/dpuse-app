@@ -1,0 +1,32 @@
+<script setup lang="ts">
+// External dependencies
+import { PlusIcon } from '@heroicons/vue/20/solid';
+
+// Properties
+defineProps<{ messageItemLabel: string; descriptionItemLabel: string; actionItemLabel: string }>();
+</script>
+
+<template>
+    <div class="mt-[7.5vh] text-center">
+        <svg class="mx-auto size-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path
+                vector-effect="non-scaling-stroke"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+            />
+        </svg>
+        <h3 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white">No {{ messageItemLabel }}</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating a new {{ descriptionItemLabel }}.</p>
+        <div class="mt-6">
+            <button
+                type="button"
+                class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
+            >
+                <PlusIcon class="mr-1.5 -ml-0.5 size-5" aria-hidden="true" />
+                New {{ actionItemLabel }}
+            </button>
+        </div>
+    </div>
+</template>

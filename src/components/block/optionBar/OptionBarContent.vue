@@ -1,13 +1,14 @@
 <script setup lang="ts">
 // External dependencies
-import { HomeIcon } from 'lucide-vue-next';
+// import { HomeIcon } from 'lucide-vue-next';
+import { HomeIcon } from '@heroicons/vue/24/outline';
 
 // Workbench core
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // Workbench components
 import IconActionContent from '@/components/base/IconActionContent.vue';
-// import OptionAccountAction from './OptionAccountAction.vue';
+import OptionAccountAction from './OptionAccountAction.vue';
 
 // Properties
 defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
@@ -45,7 +46,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
             </div>
 
             <!-- Account option -->
-            <!-- <OptionAccountAction :session-is-authenticated="sessionIsAuthenticated" :on-select="onSelect" /> -->
+            <OptionAccountAction :session-is-authenticated="sessionIsAuthenticated" :on-select="onSelect" />
         </div>
     </div>
 </template>
