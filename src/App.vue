@@ -9,14 +9,14 @@ import { useSessionStore } from '@/stores/sessionStore';
 
 // Workbench components
 import AssistantIcon from '@/components/icon/AssistantIcon.vue';
-import AssistantPanel from '@/components/block/assistant/AssistantPanel.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import IconActionContent from '@/components/base/IconActionContent.vue';
 import KnowledgeOptionBar from '@/components/block/knowledgeOptionBar/KnowledgeOptionBar.vue';
+import KnowledgePanel from '@/components/block/knowledge/KnowledgePanel.vue';
 import OptionAccountAction from '@/components/block/optionBar/OptionAccountAction.vue';
 import OptionBar from '@/components/block/optionBar/OptionBar.vue';
 
-// Workbench components (Lazy loaded)
+// Workbench components (lazy loaded)
 const AuthDialog = defineAsyncComponent(() => import('@/components/block/account/AuthDialog.vue'));
 
 // Global state
@@ -198,7 +198,7 @@ function handleSplitterPointerUp(): void {
 
         <!-- Right pane: Assistant (assistant body + option bar) -->
         <div :class="rightPaneClasses">
-            <AssistantPanel class="flex-1" :is-wide-display="isWideDisplay" />
+            <KnowledgePanel class="flex-1" :is-wide-display="isWideDisplay" />
             <KnowledgeOptionBar
                 class="flex-none"
                 :is-open-in-narrow-display="narrowOptionBarOpen === 'assistant'"

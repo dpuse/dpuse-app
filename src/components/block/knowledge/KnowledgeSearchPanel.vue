@@ -25,36 +25,24 @@ const client = new ChatClient({
                 if (message.role === 'user') {
                     if (part.type === 'text') {
                         userText.value = part.content;
-                    } else {
-                        console.log('USER?', part.type);
                     }
                 } else if (message.role === 'assistant') {
                     if (part.type === 'thinking') {
                         assistantThinking.value = part.content;
                     } else if (part.type === 'text') {
                         assistantText.value = micromark(part.content);
-                    } else {
-                        console.log('ASSISTANT?', part.type);
                     }
-                } else {
-                    console.log('ROLE?', message.role);
                 }
             }
         }
     },
-    onResponse: (response): void => {
-        console.log('RESPONSE', response);
-    },
-    onChunk: (chunk): void => {
-        // console.log('CHUNK', chunk);
-    },
-    onFinish: (message): void => {
-        console.log('FINISHED', message);
-    }
+    onResponse: (response): void => {},
+    onChunk: (chunk): void => {},
     // onToolCall: async ({ toolName, input }) => {
     //     // Handle client tool execution
     //     return { result: '...' };
-    // }
+    // },
+    onFinish: (message): void => {}
 });
 
 async function runTest(): Promise<void> {
@@ -65,32 +53,29 @@ async function runTest(): Promise<void> {
 </script>
 
 <template>
-    <div class="flex h-full flex-1 flex-col">
-        <div class="flex flex-1 flex-col overflow-y-hidden px-4">
-            <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">
-                <div>{{ userText }}</div>
-                <div>{{ assistantThinking }}</div>
-                <!-- <div>{{ assistantText }}</div> -->
-                <div v-html="assistantText" />
+    <div class="flex flex-1 flex-col overflow-y-hidden px-4">
+        <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">
+            <div>{{ userText }}</div>
+            <div>{{ assistantThinking }}</div>
+            <div v-html="assistantText" />
+        </div>
+
+        <div class="flex-none pb-6">
+            <div>
+                <div class="mt-2">
+                    <textarea
+                        id="comment"
+                        name="comment"
+                        class="bg-background-primary block max-h-48 w-full resize-none rounded-md border-0 px-3 py-1.5 text-base outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                        rows="4"
+                    />
+                </div>
             </div>
 
-            <div class="flex-none pb-6">
-                <div>
-                    <div class="mt-2">
-                        <textarea
-                            id="comment"
-                            name="comment"
-                            class="bg-background-primary block max-h-48 w-full resize-none rounded-md border-0 px-3 py-1.5 text-base outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-                            rows="4"
-                        />
-                    </div>
-                </div>
-
-                <div class="flex justify-end pr-1 pb-1">
-                    <IconActionContent size="icon-sm" variant="ghost" @click="runTest">
-                        <SendHorizonalIcon class="size-5" stroke-width="1.25" />
-                    </IconActionContent>
-                </div>
+            <div class="flex justify-end pr-1 pb-1">
+                <IconActionContent size="icon-sm" variant="ghost" @click="runTest">
+                    <SendHorizonalIcon class="size-5" stroke-width="1.25" />
+                </IconActionContent>
             </div>
         </div>
     </div>
@@ -101,26 +86,22 @@ async function runTest(): Promise<void> {
     font-weight: 500;
     margin-top: 12px;
 }
-
 :deep(ul) {
     list-style-type: disc;
     margin-top: 4px;
     margin-bottom: 4px;
     padding-left: 20px;
 }
-
 :deep(ol) {
     list-style-type: decimal;
     margin-top: 4px;
     margin-bottom: 4px;
     padding-left: 20px;
 }
-
 :deep(li) {
     margin-top: 2px;
     margin-bottom: 2px;
 }
-
 :deep(p) {
     margin-top: 12px;
 }

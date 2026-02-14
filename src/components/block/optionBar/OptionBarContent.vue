@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External dependencies
-import { LayoutDashboardIcon } from 'lucide-vue-next';
+import { HomeIcon } from 'lucide-vue-next';
 
 // Workbench core
 import { useKnowledge } from '@/composables/useKnowledge';
@@ -26,7 +26,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
             <div class="flex w-full flex-1 flex-col items-center gap-y-2">
                 <RouterLink :aria-label="activeBenchtopConfig.label" class="group outline-none" :to="{ name: activeBenchtopConfig.id }" @click="onSelect">
                     <IconActionContent>
-                        <LayoutDashboardIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
+                        <HomeIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
                     </IconActionContent>
                 </RouterLink>
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External dependencies
-import { LayoutDashboardIcon, MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
+import { HomeIcon, MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
 // Workbench components
@@ -27,9 +27,9 @@ function navigateAssistant(view: string): void {
         <!-- Benchtop options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-6">
             <div class="flex w-full flex-1 flex-col items-center gap-y-2">
-                <a class="group outline-none" @click="navigateAssistant('home')">
+                <a class="group outline-none" @click="navigateAssistant('welcome')">
                     <IconActionContent>
-                        <LayoutDashboardIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
+                        <HomeIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
                     </IconActionContent>
                 </a>
 

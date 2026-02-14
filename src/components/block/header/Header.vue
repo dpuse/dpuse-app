@@ -23,7 +23,7 @@ const titlePadding = computed(() => ({
                 </div>
             </div>
 
-            <div class="truncate">{{ title }} {{ title }} {{ title }} {{ title }} {{ title }} {{ title }}</div>
+            <div class="truncate">{{ title }}</div>
         </div>
     </div>
 </template>
