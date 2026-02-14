@@ -65,32 +65,30 @@ function getScreenSpan(): [ScreenSpanId, ScreenWidthId] {
 </script>
 
 <template>
-    <ClientOnly>
-        <!-- Scrolling Wrapper - Height set to available screen height. -->
-        <div ref="gridScrollerReference" class="w-full flex-1 overflow-y-auto overscroll-y-none pb-(--dp-app-bottom-gutter)">
-            <!-- Content Wrapper - Height set to sum of all row heights. -->
-            <div class="relative w-full" :style="{ height: `${totalSizeRows}px` }">
-                <!-- Row Loop -->
-                <template v-for="virtualRow in virtualRows" :key="virtualRow.index">
-                    <!-- Column Loop -->
-                    <div
-                        v-for="virtualColumn in columnVirtualizer.getVirtualItems()"
-                        :key="virtualColumn.index"
-                        class="absolute top-0 left-0"
-                        :style="{
-                            height: `${virtualRow.size}px`,
-                            transform: `translateX(${virtualColumn.start}px) translateY(${virtualRow.start}px)`,
-                            width: `${virtualColumn.size}px`
-                        }"
-                    >
-                        <!-- Item Wrapper -->
-                        <div class="h-full pt-5 pl-5">
-                            <!-- Item -->
-                            <slot :item="getItemConfig(virtualRow.index, virtualColumn.index)" />
-                        </div>
+    <!-- Scrolling Wrapper - Height set to available screen height. -->
+    <div ref="gridScrollerReference" class="w-full flex-1 overflow-y-auto overscroll-y-none pb-(--dp-app-bottom-gutter)">
+        <!-- Content Wrapper - Height set to sum of all row heights. -->
+        <div class="relative w-full" :style="{ height: `${totalSizeRows}px` }">
+            <!-- Row Loop -->
+            <template v-for="virtualRow in virtualRows" :key="virtualRow.index">
+                <!-- Column Loop -->
+                <div
+                    v-for="virtualColumn in columnVirtualizer.getVirtualItems()"
+                    :key="virtualColumn.index"
+                    class="absolute top-0 left-0"
+                    :style="{
+                        height: `${virtualRow.size}px`,
+                        transform: `translateX(${virtualColumn.start}px) translateY(${virtualRow.start}px)`,
+                        width: `${virtualColumn.size}px`
+                    }"
+                >
+                    <!-- Item Wrapper -->
+                    <div class="h-full pt-4 pl-4">
+                        <!-- Item -->
+                        <slot :item="getItemConfig(virtualRow.index, virtualColumn.index)" />
                     </div>
-                </template>
-            </div>
+                </div>
+            </template>
         </div>
-    </ClientOnly>
+    </div>
 </template>
