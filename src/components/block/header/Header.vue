@@ -6,7 +6,7 @@ import { computed } from 'vue';
 const properties = defineProps<{ breadcrumbs?: { id: string; label: string }[]; isAssistPanelOpenInWideDisplay: boolean; isWideDisplay: boolean; title: string }>();
 
 // Title indented from left when screen is compact, to allow for brand logo
-// Title indented from right when screen is wide and assistant panel is not open, to allow for assistant icon
+// Title indented from right when screen is wide and knowledge panel is not open, to allow for knowledge icon
 const titlePadding = computed(() => ({
     paddingLeft: properties.isWideDisplay ? undefined : '2.5rem',
     paddingRight: properties.isAssistPanelOpenInWideDisplay ? undefined : '3.5rem'

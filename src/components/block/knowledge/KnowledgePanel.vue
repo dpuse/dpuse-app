@@ -24,7 +24,7 @@ const knowledgePanels: Record<'welcome' | 'search' | 'chat', { component: Compon
 };
 
 const activeView = computed(() => {
-    const parameter = route.query.assistant as 'welcome' | 'search' | 'chat' | undefined;
+    const parameter = route.query.knowledge as 'welcome' | 'search' | 'chat' | undefined;
     return knowledgePanels[parameter ?? 'welcome'] ?? knowledgePanels.welcome;
 });
 </script>

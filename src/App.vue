@@ -8,9 +8,9 @@ import { useColorMode, useMediaQuery } from '@vueuse/core';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Workbench components
-import AssistantIcon from '@/components/icon/AssistantIcon.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import IconActionContent from '@/components/base/IconActionContent.vue';
+import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/block/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import KnowledgePanel from '@/components/block/knowledge/KnowledgePanel.vue';
 import OptionAccountAction from '@/components/block/optionBar/OptionAccountAction.vue';
@@ -28,12 +28,12 @@ const sessionState = useSessionStore();
 const isWideDisplay = useMediaQuery('(min-width: 768px)');
 
 // Panel state
-const activePanel = ref<'benchtop' | 'assistant'>('benchtop');
+const activePanel = ref<'benchtop' | 'knowledge'>('benchtop');
 const isBenchtopToggledClosed = ref(false);
-const isAssistantToggledClosed = ref(false);
+const isKnowledgeToggledClosed = ref(false);
 
 // Option bar overlay state (narrow mode only)
-const narrowOptionBarOpen = ref<'none' | 'benchtop' | 'assistant'>('none');
+const narrowOptionBarOpen = ref<'none' | 'benchtop' | 'knowledge'>('none');
 
 // Split pane state
 const splitPercent = ref(50);
@@ -48,13 +48,13 @@ const isBenchtopVisible = computed(() => {
     return activePanel.value === 'benchtop';
 });
 
-const isAssistantVisible = computed(() => {
-    if (isWideDisplay.value) return !isAssistantToggledClosed.value;
-    return activePanel.value === 'assistant';
+const isKnowledgeVisible = computed(() => {
+    if (isWideDisplay.value) return !isKnowledgeToggledClosed.value;
+    return activePanel.value === 'knowledge';
 });
 
 const isSplitterVisible = computed(() => {
-    return isWideDisplay.value && isBenchtopVisible.value && isAssistantVisible.value;
+    return isWideDisplay.value && isBenchtopVisible.value && isKnowledgeVisible.value;
 });
 
 // Pane layout classes and styles
@@ -69,16 +69,16 @@ const leftPaneClasses = computed(() => {
 
 const leftPaneStyle = computed(() => {
     if (!isWideDisplay.value || isBenchtopToggledClosed.value) return {};
-    if (isAssistantToggledClosed.value) return { flex: '1' };
+    if (isKnowledgeToggledClosed.value) return { flex: '1' };
     return { width: splitPercent.value + '%' };
 });
 
 const rightPaneClasses = computed(() => {
     if (isWideDisplay.value) {
-        if (isAssistantToggledClosed.value) return 'hidden';
+        if (isKnowledgeToggledClosed.value) return 'hidden';
         return 'flex h-full min-w-0 flex-1';
     }
-    return activePanel.value === 'assistant' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
+    return activePanel.value === 'knowledge' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
 });
 
 // Toggle button aria labels
@@ -87,9 +87,9 @@ const benchtopToggleAriaLabel = computed(() => {
     return isBenchtopToggledClosed.value ? 'Show benchtop' : 'Hide benchtop';
 });
 
-const assistantToggleAriaLabel = computed(() => {
-    if (!isWideDisplay.value) return narrowOptionBarOpen.value === 'assistant' ? 'Hide knowledge bar' : 'Show knowledge bar';
-    return isAssistantToggledClosed.value ? 'Show assistant' : 'Hide assistant';
+const knowledgeToggleAriaLabel = computed(() => {
+    if (!isWideDisplay.value) return narrowOptionBarOpen.value === 'knowledge' ? 'Hide knowledge bar' : 'Show knowledge bar';
+    return isKnowledgeToggledClosed.value ? 'Show knowledge' : 'Hide knowledge';
 });
 
 // Lifecycle event handlers
@@ -105,22 +105,22 @@ watch(isWideDisplay, () => {
 function handleBenchtopToggle(): void {
     if (isWideDisplay.value) {
         // Don't close if it's the only open panel
-        if (!isBenchtopToggledClosed.value && isAssistantToggledClosed.value) return;
+        if (!isBenchtopToggledClosed.value && isKnowledgeToggledClosed.value) return;
         isBenchtopToggledClosed.value = !isBenchtopToggledClosed.value;
-        activePanel.value = isBenchtopToggledClosed.value ? 'assistant' : 'benchtop';
+        activePanel.value = isBenchtopToggledClosed.value ? 'knowledge' : 'benchtop';
     } else {
         narrowOptionBarOpen.value = narrowOptionBarOpen.value === 'benchtop' ? 'none' : 'benchtop';
     }
 }
 
-function handleAssistantToggle(): void {
+function handleKnowledgeToggle(): void {
     if (isWideDisplay.value) {
         // Don't close if it's the only open panel
-        if (!isAssistantToggledClosed.value && isBenchtopToggledClosed.value) return;
-        isAssistantToggledClosed.value = !isAssistantToggledClosed.value;
-        activePanel.value = isAssistantToggledClosed.value ? 'benchtop' : 'assistant';
+        if (!isKnowledgeToggledClosed.value && isBenchtopToggledClosed.value) return;
+        isKnowledgeToggledClosed.value = !isKnowledgeToggledClosed.value;
+        activePanel.value = isKnowledgeToggledClosed.value ? 'benchtop' : 'knowledge';
     } else {
-        narrowOptionBarOpen.value = narrowOptionBarOpen.value === 'assistant' ? 'none' : 'assistant';
+        narrowOptionBarOpen.value = narrowOptionBarOpen.value === 'knowledge' ? 'none' : 'knowledge';
     }
 }
 
@@ -129,9 +129,9 @@ function handleBenchtopOptionSelect(): void {
     activePanel.value = 'benchtop';
 }
 
-function handleAssistantOptionSelect(): void {
+function handleKnowledgeOptionSelect(): void {
     narrowOptionBarOpen.value = 'none';
-    activePanel.value = 'assistant';
+    activePanel.value = 'knowledge';
 }
 
 function handleSplitterPointerDown(event: PointerEvent): void {
@@ -159,10 +159,10 @@ function handleSplitterPointerUp(): void {
             </IconActionContent>
         </button>
 
-        <!-- Assistant toggle fixed in top right corner, always visible -->
-        <button class="group fixed top-1.75 right-3 z-40 outline-none" @click="handleAssistantToggle">
-            <IconActionContent :aria-label="assistantToggleAriaLabel">
-                <AssistantIcon class="size-6" />
+        <!-- Knowledge toggle fixed in top right corner, always visible -->
+        <button class="group fixed top-1.75 right-3 z-40 outline-none" @click="handleKnowledgeToggle">
+            <IconActionContent :aria-label="knowledgeToggleAriaLabel">
+                <KnowledgeIcon class="size-6" />
             </IconActionContent>
         </button>
 
@@ -196,15 +196,15 @@ function handleSplitterPointerUp(): void {
             @pointerup="handleSplitterPointerUp"
         />
 
-        <!-- Right pane: Assistant (assistant body + option bar) -->
+        <!-- Right pane: Knowledge (knowledge body + option bar) -->
         <div :class="rightPaneClasses">
             <KnowledgePanel class="flex-1" :is-wide-display="isWideDisplay" />
             <KnowledgeOptionBar
                 class="flex-none"
-                :is-open-in-narrow-display="narrowOptionBarOpen === 'assistant'"
+                :is-open-in-narrow-display="narrowOptionBarOpen === 'knowledge'"
                 :is-wide-display="isWideDisplay"
                 :session-is-authenticated="sessionState.isAuthenticated"
-                @select="handleAssistantOptionSelect"
+                @select="handleKnowledgeOptionSelect"
             />
         </div>
     </div>
