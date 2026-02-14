@@ -24,7 +24,7 @@ function handleSelect(): void {
                 <div class="bg-background-primary/70 absolute inset-0" @click="handleSelect"></div>
 
                 <dialog
-                    class="dpu-option-bar-panel bg-background-secondary border-separator relative ml-auto flex h-full w-16 flex-col border-l shadow-xl"
+                    class="dpu-option-bar-panel bg-background-secondary border-separator relative ml-auto flex h-full w-16 flex-col border-l shadow-md"
                     open
                     @cancel.prevent="handleSelect"
                 >

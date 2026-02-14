@@ -28,23 +28,23 @@ function navigateKnowledge(view: string): void {
         <!-- Benchtop options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-6">
             <div class="flex w-full flex-1 flex-col items-center gap-y-2">
-                <a class="group outline-none" @click="navigateKnowledge('welcome')">
+                <button class="group outline-none" @click="navigateKnowledge('welcome')">
                     <IconActionContent>
                         <HomeIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
                     </IconActionContent>
-                </a>
+                </button>
 
-                <a class="group outline-none" @click="navigateKnowledge('search')">
+                <button class="group outline-none" @click="navigateKnowledge('search')">
                     <IconActionContent>
                         <SearchIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
                     </IconActionContent>
-                </a>
+                </button>
 
-                <a class="group outline-none" @click="navigateKnowledge('chat')">
+                <button class="group outline-none" @click="navigateKnowledge('chat')">
                     <IconActionContent>
                         <MessageCircleMoreIcon aria-hidden="true" class="size-5.5" :stroke-width="1.25" />
                     </IconActionContent>
-                </a>
+                </button>
             </div>
         </div>
     </div>
