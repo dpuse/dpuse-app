@@ -27,12 +27,12 @@ const sessionState = useSessionStore();
 const isWideDisplay = useMediaQuery('(min-width: 768px)');
 
 // Panel state
-const activePanel = ref<'benchtop' | 'knowledge'>('benchtop');
+const activePanel = ref<'workbench' | 'knowledge'>('workbench');
 const isBenchtopToggledClosed = ref(false);
 const isKnowledgeToggledClosed = ref(false);
 
 // Option bar overlay state (narrow mode only)
-const narrowOptionBarOpen = ref<'none' | 'benchtop' | 'knowledge'>('none');
+const narrowOptionBarOpen = ref<'none' | 'workbench' | 'knowledge'>('none');
 
 // Split pane state
 const splitPercent = ref(50);
@@ -44,7 +44,7 @@ const authDialogIsVisible = computed(() => route.query.dialog === 'auth');
 // Panel visibility
 const isBenchtopVisible = computed(() => {
     if (isWideDisplay.value) return !isBenchtopToggledClosed.value;
-    return activePanel.value === 'benchtop';
+    return activePanel.value === 'workbench';
 });
 
 const isKnowledgeVisible = computed(() => {
@@ -63,7 +63,7 @@ const leftPaneClasses = computed(() => {
         return 'flex h-full min-w-0';
     }
     // Narrow mode: use w-0 overflow-hidden for inactive pane so option bar overlays remain functional
-    return activePanel.value === 'benchtop' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
+    return activePanel.value === 'workbench' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
 });
 
 const leftPaneStyle = computed(() => {
@@ -81,9 +81,9 @@ const rightPaneClasses = computed(() => {
 });
 
 // Toggle button aria labels
-const benchtopToggleAriaLabel = computed(() => {
-    if (!isWideDisplay.value) return narrowOptionBarOpen.value === 'benchtop' ? 'Hide navigation bar' : 'Show navigation bar';
-    return isBenchtopToggledClosed.value ? 'Show benchtop' : 'Hide benchtop';
+const workbenchToggleAriaLabel = computed(() => {
+    if (!isWideDisplay.value) return narrowOptionBarOpen.value === 'workbench' ? 'Hide navigation bar' : 'Show navigation bar';
+    return isBenchtopToggledClosed.value ? 'Show workbench' : 'Hide workbench';
 });
 
 const knowledgeToggleAriaLabel = computed(() => {
@@ -106,9 +106,9 @@ function handleBenchtopToggle(): void {
         // Don't close if it's the only open panel
         if (!isBenchtopToggledClosed.value && isKnowledgeToggledClosed.value) return;
         isBenchtopToggledClosed.value = !isBenchtopToggledClosed.value;
-        activePanel.value = isBenchtopToggledClosed.value ? 'knowledge' : 'benchtop';
+        activePanel.value = isBenchtopToggledClosed.value ? 'knowledge' : 'workbench';
     } else {
-        narrowOptionBarOpen.value = narrowOptionBarOpen.value === 'benchtop' ? 'none' : 'benchtop';
+        narrowOptionBarOpen.value = narrowOptionBarOpen.value === 'workbench' ? 'none' : 'workbench';
     }
 }
 
@@ -117,7 +117,7 @@ function handleKnowledgeToggle(): void {
         // Don't close if it's the only open panel
         if (!isKnowledgeToggledClosed.value && isBenchtopToggledClosed.value) return;
         isKnowledgeToggledClosed.value = !isKnowledgeToggledClosed.value;
-        activePanel.value = isKnowledgeToggledClosed.value ? 'benchtop' : 'knowledge';
+        activePanel.value = isKnowledgeToggledClosed.value ? 'workbench' : 'knowledge';
     } else {
         narrowOptionBarOpen.value = narrowOptionBarOpen.value === 'knowledge' ? 'none' : 'knowledge';
     }
@@ -125,7 +125,7 @@ function handleKnowledgeToggle(): void {
 
 function handleBenchtopOptionSelect(): void {
     narrowOptionBarOpen.value = 'none';
-    activePanel.value = 'benchtop';
+    activePanel.value = 'workbench';
 }
 
 function handleKnowledgeOptionSelect(): void {
@@ -153,7 +153,7 @@ function handleSplitterPointerUp(): void {
     <div class="bg-background-primary text-foreground-primary fixed inset-0 flex" :class="{ 'select-none': isDraggingSplitter }">
         <!-- Benchtop toggle fixed in top left corner, always visible -->
         <button class="group fixed top-1.75 left-3 z-40 outline-none" @click="handleBenchtopToggle">
-            <IconActionContent :aria-label="benchtopToggleAriaLabel">
+            <IconActionContent :aria-label="workbenchToggleAriaLabel">
                 <DPULogoIcon class="size-6" />
             </IconActionContent>
         </button>
@@ -172,7 +172,7 @@ function handleSplitterPointerUp(): void {
         <div :class="leftPaneClasses" :style="leftPaneStyle">
             <WorkbenchOptionBar
                 class="flex-none"
-                :is-open-in-narrow-display="narrowOptionBarOpen === 'benchtop'"
+                :is-open-in-narrow-display="narrowOptionBarOpen === 'workbench'"
                 :is-wide-display="isWideDisplay"
                 :session-is-authenticated="sessionState.isAuthenticated"
                 @select="handleBenchtopOptionSelect"
