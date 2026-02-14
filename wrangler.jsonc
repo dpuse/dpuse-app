@@ -8,6 +8,16 @@
         "directory": "./dist/client",
         "not_found_handling": "single-page-application"
     },
+    "routes": [
+        {
+            "pattern": "www.datapos.app",
+            "zone_name": "datapos.app",
+            "custom_domain": true
+        }
+    ],
+    "placement": {
+        "mode": "smart"
+    },
     "observability": {
         "enabled": true
     }
