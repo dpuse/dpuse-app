@@ -37,7 +37,7 @@ const configs = [
             :is-wide-display="properties.isWideDisplay"
         />
 
-        <GridScroller v-if="configs.length > 0" class="flex-1" :items="configs" :row-height="200" :target-column-width="350">
+        <GridScroller v-if="configs.length > 0" class="flex-1" :items="configs" :row-height="150" :target-column-width="250">
             <template #default="{ item }">
                 <div
                     v-if="item"
