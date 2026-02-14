@@ -41,7 +41,7 @@ const configs = [
             <template #default="{ item }">
                 <div
                     v-if="item"
-                    class="bg-background-card outline-border relative flex h-full w-full cursor-pointer flex-col overflow-hidden px-5 pt-4 pb-4 font-light outline -outline-offset-1 sm:rounded-lg"
+                    class="bg-background-card outline-border relative flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-lg px-5 pt-4 pb-4 font-light outline -outline-offset-1"
                 >
                     {{ item.label }}
                 </div>

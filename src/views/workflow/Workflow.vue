@@ -33,7 +33,7 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeI
                     <RouterLink
                         v-for="config of workflowStepConfigs"
                         :key="config.id"
-                        class="bg-background-card outline-border overflow-hidden font-light outline -outline-offset-1 sm:rounded-lg"
+                        class="bg-background-card outline-border overflow-hidden rounded-lg font-light outline -outline-offset-1"
                         :to="{ name: config.id }"
                     >
                         <div class="flex flex-col gap-y-4 p-4">
