@@ -21,7 +21,7 @@ function navigateKnowledge(view: string): void {
 </script>
 
 <template>
-    <div class="flex h-full flex-col">
+    <div class="flex h-full flex-col pt-13.75">
         <!-- Separator -->
         <div class="bg-separator mx-3 h-px" />
 

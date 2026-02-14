@@ -17,18 +17,18 @@ function handleSelect(): void {
 
 <template>
     <div class="bg-background-secondary">
-        <OptionBarContent class="border-separator hidden w-16 flex-col border-l pt-13.75 md:flex" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
+        <OptionBarContent class="border-separator hidden w-16 flex-col border-l md:flex" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
 
         <Transition name="option-bar-overlay" appear>
             <div v-if="isOpenInNarrowDisplay && !isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
                 <div class="bg-background-primary/70 absolute inset-0" @click="handleSelect"></div>
 
                 <dialog
-                    class="dpu-option-bar-panel bg-background-secondary border-separator relative ml-auto flex h-full w-16 flex-col border-l shadow-md"
+                    class="dpu-option-bar-panel bg-background-secondary border-separator relative ml-auto flex h-full w-16 flex-col border-l shadow-lg"
                     open
                     @cancel.prevent="handleSelect"
                 >
-                    <OptionBarContent class="pt-13.75" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
+                    <OptionBarContent :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
                 </dialog>
             </div>
         </Transition>
