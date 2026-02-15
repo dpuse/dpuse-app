@@ -41,7 +41,7 @@ const configs = [
 
 <template>
     <BenchtopShell>
-        <Header :breadcrumbs="[{ id: 'workflow', label: 'Workflow Benchtop' }]" :title="t(T, 'contextualiseData')" :is-wide-display="isWideDisplay" />
+        <Header :breadcrumbs="[{ id: 'workflow', label: 'Workflow Benchtop' }]" :title="t(T, 'title')" :is-wide-display="isWideDisplay" />
 
         <GridScroller v-if="configs.length > 0" class="flex-1" :items="configs" :row-height="150" :target-column-width="350">
             <template #default="{ item }">

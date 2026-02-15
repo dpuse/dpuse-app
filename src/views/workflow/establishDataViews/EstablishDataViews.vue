@@ -2,6 +2,10 @@
 // External dependencies
 import { defineAsyncComponent } from 'vue';
 
+// Workbench core
+import { t } from '@/locales';
+import T from '@/locales/views/workflow/establishDataViews/EstablishDataViews.json';
+
 // Workbench components
 import BenchtopScroller from '@/components/block/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/block/benchtop/BenchtopShell.vue';
@@ -17,7 +21,7 @@ defineProps<Properties>();
 
 <template>
     <BenchtopShell>
-        <Header :breadcrumbs="[{ id: 'workflow', label: 'Workflow Benchtop' }]" title="Establish Data Views" :is-wide-display="isWideDisplay" />
+        <Header :breadcrumbs="[{ id: 'workflow', label: 'Workflow Benchtop' }]" :title="t(T, 'title')" :is-wide-display="isWideDisplay" />
 
         <BenchtopScroller class="flex-1">
             <EmptyStatePlaceholder message-item-label="data views" description-item-label="data view" action-item-label="Data View" />

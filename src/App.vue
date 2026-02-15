@@ -5,6 +5,7 @@ import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // Workbench core
+import type { BenchtopOptionLocalisedConfig } from './types/workbench';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Workbench components
@@ -14,7 +15,6 @@ import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/block/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import KnowledgePanel from '@/components/block/knowledgePanel/KnowledgePanel.vue';
 import WorkbenchOptionBar from '@/components/block/workbenchOptionBar/WorkbenchOptionBar.vue';
-import type { BenchtopOptionLocalisedConfig } from './types/workbench';
 
 // Workbench components (lazy loaded)
 const AuthDialog = defineAsyncComponent(() => import('@/components/block/account/AuthDialog.vue'));

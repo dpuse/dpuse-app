@@ -80,7 +80,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
     <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-wide-display="isWideDisplay">
         <Header
             :breadcrumbs="[{ id: 'benchtop', label: 'Benchtop' }]"
-            :title="t(T, 'account')"
+            :title="t(T, 'title')"
             :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay"
             :is-wide-display="isWideDisplay"
         />

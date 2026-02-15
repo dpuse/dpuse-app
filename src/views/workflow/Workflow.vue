@@ -14,6 +14,8 @@ import Header from '@/components/block/header/Header.vue';
 type Properties = { isWideDisplay: boolean };
 defineProps<Properties>();
 
+// Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 // Workflow step configurations sourced from knowledge store
 const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeId.value).options;
 </script>
