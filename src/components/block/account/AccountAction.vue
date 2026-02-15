@@ -4,11 +4,14 @@ import { computed, ref, watch } from 'vue';
 import { LoaderCircleIcon, LogInIcon, UserCogIcon } from 'lucide-vue-next';
 import { RouterLink, useRouter } from 'vue-router';
 
+// Workbench core
+import type { BenchtopOptionLocalisedConfig } from '~/src/types/workbench';
+
 // Workbench components
 import IconActionContent from '../../base/IconActionContent.vue';
 
 // Properties
-const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
+const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: (config?: BenchtopOptionLocalisedConfig) => void }>();
 
 // Global state
 const router = useRouter();

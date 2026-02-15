@@ -11,7 +11,7 @@ import Card from '@/components/base/Card.vue';
 import Header from '@/components/block/header/Header.vue';
 
 // Properties
-type Properties = { isAssistPanelOpenInWideDisplay: boolean; isWideDisplay: boolean };
+type Properties = { isWideDisplay: boolean };
 defineProps<Properties>();
 
 // Workflow step configurations sourced from knowledge store
@@ -19,13 +19,12 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeI
 </script>
 
 <template>
-    <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-wide-display="isWideDisplay">
+    <BenchtopShell>
         <Header
             :breadcrumbs="[{ id: 'workbench', label: 'Workbench' }]"
             class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] w-full max-w-4xl"
             :title="`${t(T, 'workflow')} Benchtop`"
             data-testid="header"
-            :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay"
             :is-wide-display="isWideDisplay"
         />
 

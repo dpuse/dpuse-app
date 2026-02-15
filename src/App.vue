@@ -14,6 +14,7 @@ import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/block/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import KnowledgePanel from '@/components/block/knowledgePanel/KnowledgePanel.vue';
 import WorkbenchOptionBar from '@/components/block/workbenchOptionBar/WorkbenchOptionBar.vue';
+import type { BenchtopOptionLocalisedConfig } from './types/workbench';
 
 // Workbench components (lazy loaded)
 const AuthDialog = defineAsyncComponent(() => import('@/components/block/account/AuthDialog.vue'));
@@ -27,6 +28,7 @@ const sessionState = useSessionStore();
 
 // Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+const activeBenchtopOptionConfig = ref<BenchtopOptionLocalisedConfig | undefined>();
 const activeOptionBarId = ref<'none' | 'workbench' | 'knowledge'>('none');
 const activePaneId = ref<'workbench' | 'knowledge'>('workbench');
 const workbenchPaneIsHidden = ref(false);
@@ -110,7 +112,8 @@ function handleWorkbenchToggle(): void {
     }
 }
 
-function handleWorkbenchOptionSelect(): void {
+function handleWorkbenchOptionSelect(config?: BenchtopOptionLocalisedConfig): void {
+    activeBenchtopOptionConfig.value = config;
     activeOptionBarId.value = 'none';
     activePaneId.value = 'workbench';
 }
@@ -181,7 +184,12 @@ function handleKnowledgeOptionSelect(): void {
             />
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
-                    <component :is="Component" :is-assist-panel-open-in-wide-display="true" :is-wide-display="displayIsWide" />
+                    <component
+                        :is="Component"
+                        :active-benchtop-option-config="activeBenchtopOptionConfig"
+                        :is-assist-panel-open-in-wide-display="true"
+                        :is-wide-display="displayIsWide"
+                    />
                 </RouterView>
             </div>
         </div>

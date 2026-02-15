@@ -4,6 +4,7 @@
 import { HomeIcon } from '@heroicons/vue/24/outline';
 
 // Workbench core
+import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // Workbench components
@@ -11,7 +12,7 @@ import AccountAction from '@/components/block/account/AccountAction.vue';
 import IconActionContent from '@/components/base/IconActionContent.vue';
 
 // Properties
-defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
+defineProps<{ sessionIsAuthenticated?: boolean; onSelect: (config?: BenchtopOptionLocalisedConfig) => void }>();
 
 // Active localised benchtop configuration
 const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
@@ -25,7 +26,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
         <!-- Benchtop options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-6">
             <div class="flex flex-1 flex-col items-center gap-y-2">
-                <RouterLink :aria-label="activeBenchtopConfig.label" class="group outline-none" :to="{ name: activeBenchtopConfig.id }" @click="onSelect">
+                <RouterLink :aria-label="activeBenchtopConfig.label" class="group outline-none" :to="{ name: activeBenchtopConfig.id }" @click="onSelect()">
                     <IconActionContent>
                         <HomeIcon aria-hidden="true" class="size-6 [&>path]:stroke-[1.25]" />
                     </IconActionContent>
@@ -37,7 +38,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
                     :aria-label="config.label"
                     class="group outline-none"
                     :to="{ name: config.id }"
-                    @click="onSelect"
+                    @click="onSelect(config)"
                 >
                     <IconActionContent>
                         <div aria-hidden="true" class="size-6" :style="{ color: `${config.color}` }" v-html="config.icon" />

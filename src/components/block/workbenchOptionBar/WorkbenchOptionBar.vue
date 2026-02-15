@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// Workbench core
+import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
+
 // Workbench components
 import WorkbenchOptionBarContent from './WorkbenchOptionBarContent.vue';
 
@@ -6,12 +9,12 @@ import WorkbenchOptionBarContent from './WorkbenchOptionBarContent.vue';
 defineProps<{ isOpenInNarrowDisplay: boolean; isWideDisplay: boolean; sessionIsAuthenticated?: boolean }>();
 
 // Emits
-const emit = defineEmits<{ (event: 'select'): void }>();
+const emit = defineEmits<{ (event: 'select', config?: BenchtopOptionLocalisedConfig): void }>();
 
 // UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function handleSelect(): void {
-    emit('select');
+function handleSelect(config?: BenchtopOptionLocalisedConfig): void {
+    emit('select', config);
 }
 </script>
 
@@ -25,7 +28,7 @@ function handleSelect(): void {
 
         <Transition name="option-bar-overlay" appear>
             <div v-if="isOpenInNarrowDisplay && !isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
-                <div class="bg-background-primary/70 absolute inset-0" @click="handleSelect"></div>
+                <div class="bg-background-primary/70 absolute inset-0" @click="(event, config?: BenchtopOptionLocalisedConfig) => handleSelect(config)"></div>
 
                 <WorkbenchOptionBarContent
                     class="dpu-option-bar-panel bg-background-secondary border-separator relative mr-auto flex h-full w-16 flex-col border-r shadow-lg"

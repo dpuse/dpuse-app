@@ -3,7 +3,8 @@
 import { computed } from 'vue';
 
 // Properties
-const properties = defineProps<{ breadcrumbs?: { id: string; label: string }[]; isWideDisplay: boolean; title: string }>();
+type Properties = { breadcrumbs?: { id: string; label: string }[]; isWideDisplay: boolean; title: string };
+const properties = defineProps<Properties>();
 
 // Title indented from left when screen is compact, to allow for brand logo
 // Title indented from right when screen is wide and knowledge panel is not open, to allow for knowledge icon
