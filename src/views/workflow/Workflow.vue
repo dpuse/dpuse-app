@@ -1,16 +1,18 @@
 <script setup lang="ts">
 // Workbench core
-import TRANSLATIONS from '@/locales/Workflow.json';
+import T from '@/locales/views/workflow/Workflow.json';
 import { useKnowledge } from '@/composables/useKnowledge';
 import { localeId, t } from '@/locales';
 
 // Workbench components
 import BenchtopScroller from '@/components/block/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/block/benchtop/BenchtopShell.vue';
+import Card from '@/components/base/Card.vue';
 import Header from '@/components/block/header/Header.vue';
 
 // Properties
-defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isWideDisplay: boolean }>();
+type Properties = { isAssistPanelOpenInWideDisplay: boolean; isWideDisplay: boolean };
+defineProps<Properties>();
 
 // Workflow step configurations sourced from knowledge store
 const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeId.value).options;
@@ -21,7 +23,7 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeI
         <Header
             :breadcrumbs="[{ id: 'workbench', label: 'Workbench' }]"
             class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] w-full max-w-4xl"
-            :title="`${t(TRANSLATIONS, 'workflow')} Benchtop`"
+            :title="`${t(T, 'workflow')} Benchtop`"
             data-testid="header"
             :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay"
             :is-wide-display="isWideDisplay"
@@ -36,13 +38,7 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeI
                         class="bg-background-card outline-border overflow-hidden rounded-lg font-light outline -outline-offset-1"
                         :to="{ name: config.id }"
                     >
-                        <div class="flex flex-col gap-y-4 p-4">
-                            <div aria-hidden="true" class="size-8" :style="{ color: `${config.color}` }" v-html="config.icon" />
-                            <div>
-                                <div class="text-foreground-secondary text-xs font-normal uppercase">{{ t(TRANSLATIONS, 'step') }} {{ config.step }}</div>
-                                {{ config.label }}
-                            </div>
-                        </div>
+                        <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'step', { number: config.step })" />
                     </RouterLink>
                 </div>
             </div>

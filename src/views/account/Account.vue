@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 // Workbench core
 import { t } from '@/locales';
-import TRANSLATIONS from '@/locales/Account.json';
+import T from '@/locales/views/account/Account.json';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Workbench components
@@ -80,7 +80,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
     <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-wide-display="isWideDisplay">
         <Header
             :breadcrumbs="[{ id: 'benchtop', label: 'Benchtop' }]"
-            :title="t(TRANSLATIONS, 'account')"
+            :title="t(T, 'account')"
             :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay"
             :is-wide-display="isWideDisplay"
         />
@@ -89,7 +89,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
             <BenchtopScroller v-if="isWideDisplay || !activeOptionConfig" class="border-border flex flex-1 flex-col border-r px-4 pt-4 pb-6 md:flex-none">
                 <div class="divide-separator flex flex-1 flex-col gap-y-2">
                     <button class="group min-w-50 outline-none">
-                        <TextActionContent variant="warning" @click="handleSignOut">{{ t(TRANSLATIONS, 'signOut') }}</TextActionContent>
+                        <TextActionContent variant="warning" @click="handleSignOut">{{ t(T, 'signOut') }}</TextActionContent>
                     </button>
 
                     <!-- Separator -->
@@ -108,9 +108,9 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                 </div>
 
                 <div class="flex flex-none flex-col gap-y-2 pt-2">
-                    <div class="text-foreground-secondary mt-2 text-xs font-medium">{{ t(TRANSLATIONS, 'criticalActions') }}</div>
+                    <div class="text-foreground-secondary mt-2 text-xs font-medium">{{ t(T, 'criticalActions') }}</div>
                     <RouterLink class="group min-w-50 outline-none" :to="{ name: 'deleteAccount' }">
-                        <TextActionContent variant="danger">{{ t(TRANSLATIONS, 'deleteAccount') }}</TextActionContent>
+                        <TextActionContent variant="danger">{{ t(T, 'deleteAccount') }}</TextActionContent>
                     </RouterLink>
                 </div>
             </BenchtopScroller>

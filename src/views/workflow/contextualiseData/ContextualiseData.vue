@@ -2,9 +2,14 @@
 // External dependencies
 import { defineAsyncComponent } from 'vue';
 
+// Workbench core
+import { t } from '@/locales';
+import T from '@/locales/views/workflow/contextualiseData/ContextualiseData.json';
+
 // Workbench components
 import BenchtopScroller from '@/components/block/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/block/benchtop/BenchtopShell.vue';
+import Card from '@/components/base/Card.vue';
 import GridScroller from '@/components/block/gridScroller/GridScroller.vue';
 import Header from '@/components/block/header/Header.vue';
 
@@ -32,29 +37,14 @@ const configs = [
     <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-wide-display="properties.isWideDisplay">
         <Header
             :breadcrumbs="[{ id: 'workflow', label: 'Workflow Benchtop' }]"
-            title="Contextualise Data"
+            :title="t(T, 'contextualiseData')"
             :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay"
             :is-wide-display="properties.isWideDisplay"
         />
 
         <GridScroller v-if="configs.length > 0" class="flex-1" :items="configs" :row-height="150" :target-column-width="250">
             <template #default="{ item }">
-                <div
-                    v-if="item"
-                    class="bg-background-card outline-border relative flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-lg px-5 pt-4 pb-4 font-light outline -outline-offset-1"
-                >
-                    {{ item.label }}
-                </div>
-                <!-- <DPCard
-                        v-if="item"
-                        v-bind="item"
-                        :badges="[
-                            { id: 'status', color: item.status?.color ?? 'other', label: item.status?.label || '' },
-                            { id: 'category', color: 'other', label: item.categoryId }
-                        ]"
-                        color="source"
-                        :icon="item.icon"
-                    /> -->
+                <Card v-if="item" :label="item.label" />
             </template>
         </GridScroller>
 

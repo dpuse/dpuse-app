@@ -5,7 +5,7 @@ import { type Component, computed, defineAsyncComponent } from 'vue';
 
 // Workbench components
 import Header from '@/components/block/header/Header.vue';
-import KnowledgeOverviewPanel from './KnowledgeHomePanel.vue';
+import KnowledgeOverviewPanel from './KnowledgeOverviewPanel.vue';
 
 // Workbench components (lazy loaded)
 const KnowledgeChatPanel = defineAsyncComponent(() => import('./KnowledgeChatPanel.vue'));

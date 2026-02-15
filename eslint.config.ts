@@ -64,7 +64,8 @@ export default defineConfigWithVueTs(
 
             'vue/multi-word-component-names': 'off',
             'vue/no-bare-strings-in-template': ['warn'],
-            'vue/no-v-html': 'off'
+            'vue/no-v-html': 'off',
+            'vue/require-default-prop': 'off'
         }
     }
 );
