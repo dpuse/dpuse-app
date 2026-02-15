@@ -23,9 +23,9 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeI
 <template>
     <BenchtopShell>
         <Header
-            :breadcrumbs="[{ id: 'workbench', label: 'Workbench' }]"
+            :breadcrumbs="[{ id: 'workbench', label: t(T, 'overline') }]"
             class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] w-full max-w-4xl"
-            :title="`${t(T, 'workflow')} Benchtop`"
+            :title="t(T, 'title')"
             data-testid="header"
             :is-wide-display="isWideDisplay"
         />

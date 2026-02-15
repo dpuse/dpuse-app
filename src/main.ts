@@ -10,11 +10,13 @@ import { type Exception, monitorInstance, pendingExceptions } from '@/stores/ses
 // Workbench components
 import App from '@/App.vue';
 
-// Browser error handlers
+// Bootstrap application ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// Add global error handlers
 globalThis.addEventListener('error', (event): void => reportError({ typeId: 'unhandledRuntime', payload: event }));
 globalThis.addEventListener('unhandledrejection', (event): void => reportError({ typeId: 'unhandledPromise', payload: event }));
 
-// Bootstrap workbench application
+// Create and mount application
 try {
     const app = createApp(App);
     app.config.errorHandler = (error, instance, info): void => reportError({ typeId: 'unhandledVue', payload: { error, instance, info } });
