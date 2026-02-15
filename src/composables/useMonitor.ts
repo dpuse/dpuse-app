@@ -28,7 +28,7 @@ export function useMonitor(userId?: string, authSessionId?: string, emailAddress
     posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, {
         api_host: POSTHOG_URL,
         defaults: POSTHOG_DEFAULTS,
-        // advanced_disable_flags: true,
+        advanced_disable_flags: false,
         capture_pageview: 'history_change',
         disable_session_recording: true,
         disable_surveys: true,
