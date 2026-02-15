@@ -2,11 +2,19 @@
 import 'posthog-js/dist/web-vitals';
 import posthog, { type CaptureOptions, type Properties } from 'posthog-js/dist/module.no-external';
 
+// DPU framework
+import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/component/connector';
+import type { EngineConfig } from '@datapos/datapos-shared/engine';
+import type { ModuleConfig } from '@datapos/datapos-shared/component';
+import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
+import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
+
 // Workbench core
-import { type Exception, pendingExceptions } from '@/stores/sessionStore';
+import { type Exception, pendingExceptions, useSessionStore } from '@/stores/sessionStore';
 
 // Constants
 const DPU_API_HOST = 'api.datapos.app';
+const LOCAL_META_NODE_CONNECTOR_ID = 'datapos-connector-dexie-js';
 const POSTHOG_DEFAULTS = '2025-11-30';
 const POSTHOG_URL = 'https://eu.i.posthog.com';
 const TIMEOUT_DELAY = 5000;
@@ -22,6 +30,7 @@ export interface Monitor {
 
 // Long-lived session-scoped module states WebSocket
 let moduleStatesWebSocket: WebSocket | undefined;
+let localMetaNodeConnectorConfig: ConnectorConfig | undefined;
 
 // Composable
 export function useMonitor(userId?: string, authSessionId?: string, emailAddress?: string): Monitor {
@@ -139,11 +148,11 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
                 const eventData = JSON.parse(event.data);
                 switch (eventData.typeId) {
                     case 'init':
-                        return self.postMessage({ typeId: 'modulesRegistered', payload: eventData.modules });
+                        return registerModules(eventData.modules);
                     case 'deploy':
-                        return self.postMessage({ typeId: 'modulesRegistered', payload: [eventData.module] });
+                        return registerModules([eventData.module]);
                     case 'delete':
-                        return self.postMessage({ typeId: 'modulesUnregistered', payload: [eventData.module] });
+                        return unregisterModules([eventData.module]);
                 }
             } catch (error) {
                 console.info(`[dpu] ❌ App: Module registration error: ${String(error)}`);
@@ -167,4 +176,127 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
         console.info(`[dpu] ❌ App: WebSocket creation error: ${String(error)}`);
         return undefined;
     }
+}
+
+function registerModules(moduleConfigs: ModuleConfig[]): void {
+    const sessionState = useSessionStore();
+
+    let connectorRegistered = false;
+    let presenterRegistered = false;
+    let toolRegistered = false;
+    const connectorConfigs = [...(sessionState.connectorConfigs ?? [])];
+    const presenterConfigs = [...(sessionState.presenterConfigs ?? [])];
+    const toolConfigs = [...(sessionState.toolConfigs ?? [])];
+
+    for (const moduleConfig of moduleConfigs) {
+        // TODO: Only register if new added or new version. Can we import in parallel for efficiency?
+        switch (moduleConfig.typeId) {
+            case 'app': {
+                console.info(`[dpu] ℹ️ App: Workbench '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                break;
+            }
+            case 'engine': {
+                sessionState.engineConfig = moduleConfig as EngineConfig;
+                console.info(`[dpu] ℹ️ App: Engine '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+
+                break;
+            }
+            case 'connector': {
+                connectorRegistered = true;
+                const index = connectorConfigs.findIndex((connectorConfig) => connectorConfig.id === moduleConfig.id);
+                if (index === -1) {
+                    connectorConfigs.push(moduleConfig as ConnectorConfig);
+                } else {
+                    connectorConfigs[index] = moduleConfig as ConnectorConfig;
+                }
+                console.info(`[dpu] ℹ️ App: Connector '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+
+                break;
+            }
+            case 'context': {
+                sessionState.contextConfig = moduleConfig as ContextConfig; // Trigger shallow reference change for context.
+                console.info(`[dpu] ℹ️ App: Context '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+
+                break;
+            }
+            case 'presenter': {
+                presenterRegistered = true;
+                const index = presenterConfigs.findIndex((presenterConfig) => presenterConfig.id === moduleConfig.id);
+                if (index === -1) {
+                    presenterConfigs.push(moduleConfig as PresenterConfig);
+                } else {
+                    presenterConfigs[index] = moduleConfig as PresenterConfig;
+                }
+                console.info(`[dpu] ℹ️ App: Presenter '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+
+                break;
+            }
+            case 'tool': {
+                toolRegistered = true;
+                const index = toolConfigs.findIndex((toolConfig) => toolConfig.id === moduleConfig.id);
+                if (index === -1) {
+                    toolConfigs.push(moduleConfig as ToolConfig);
+                } else {
+                    toolConfigs[index] = moduleConfig as ToolConfig;
+                }
+                console.info(`[dpu] ℹ️ App: Tool '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+
+                break;
+            }
+        }
+        if (connectorRegistered) {
+            sessionState.connectorConfigs = [...connectorConfigs]; // Trigger shallow reference change for connectors.
+            if (sessionState.connectorConfigs.length > 0) {
+                localMetaNodeConnectorConfig = sessionState.connectorConfigs.find((connectorConfig) => connectorConfig.id === LOCAL_META_NODE_CONNECTOR_ID);
+                if (localMetaNodeConnectorConfig) {
+                    sessionState.localMetaNodeConnectionConfig = constructConnectionConfig(localMetaNodeConnectorConfig);
+                }
+                constructDefaultConnectionConfigs();
+            }
+        }
+
+        if (presenterRegistered || !sessionState.presenterConfigs) sessionState.presenterConfigs = [...presenterConfigs]; // Trigger shallow reference change for presenters.
+
+        if (toolRegistered || !sessionState.toolConfigs) sessionState.toolConfigs = [...toolConfigs]; // Trigger shallow reference change for tools.
+    }
+}
+
+function unregisterModules(moduleConfigs: ModuleConfig[]): void {
+    const sessionState = useSessionStore();
+    for (const moduleConfig of moduleConfigs) {
+        if (moduleConfig.typeId === 'connector') {
+            const index = sessionState.connectorConfigs?.findIndex((connectorConfig) => connectorConfig.id === moduleConfig.id) ?? -1;
+            if (index === -1) continue;
+            sessionState.connectorConfigs?.splice(index, 1);
+        }
+    }
+}
+
+function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
+    return {
+        id: connectorConfig.id,
+        description: {},
+        authorisation: {},
+        connectorConfig,
+        icon: connectorConfig.icon,
+        iconDark: null,
+        lastVerifiedAt: 0,
+        lastUpdatedAt: null,
+        label: connectorConfig.label,
+        notation: undefined,
+        status: null,
+        statusId: connectorConfig.statusId,
+        typeId: 'connectorConnection'
+    };
+}
+
+function constructDefaultConnectionConfigs(): void {
+    const sessionState = useSessionStore();
+    const pendingConnectionConfigs: ConnectionConfig[] = [];
+    for (const connectorConfig of sessionState.connectorConfigs!) {
+        // if (connectorConfig.id === 'datapos-connector-file-store-emulator') {
+        pendingConnectionConfigs.push(constructConnectionConfig(connectorConfig));
+        // }
+    }
+    sessionState.connectionConfigs = pendingConnectionConfigs;
 }

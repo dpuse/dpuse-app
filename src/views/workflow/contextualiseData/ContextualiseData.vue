@@ -3,7 +3,7 @@
 import { defineAsyncComponent } from 'vue';
 
 // Workbench core
-import type { BenchtopOptionLocalisedConfig } from '~/src/types/workbench';
+import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { t } from '@/locales';
 import T from '@/locales/views/workflow/contextualiseData/ContextualiseData.json';
 

@@ -5,7 +5,7 @@ import { LoaderCircleIcon, LogInIcon, UserCogIcon } from 'lucide-vue-next';
 import { RouterLink, useRouter } from 'vue-router';
 
 // Workbench core
-import type { BenchtopOptionLocalisedConfig } from '~/src/types/workbench';
+import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 
 // Workbench components
 import IconActionContent from '../../base/IconActionContent.vue';
