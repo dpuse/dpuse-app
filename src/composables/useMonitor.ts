@@ -30,7 +30,7 @@ export function useMonitor(userId?: string, authSessionId?: string, emailAddress
         defaults: POSTHOG_DEFAULTS,
         advanced_disable_flags: true,
         capture_pageview: 'history_change',
-        // // disable_session_recording: true,
+        // disable_session_recording: true,
         disable_surveys: true,
         // enable_recording_console_log: false,
         enable_heatmaps: false,
