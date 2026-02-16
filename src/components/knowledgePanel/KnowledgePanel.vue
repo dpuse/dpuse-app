@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
 // Workbench components
-import Header from '@/components/block/header/Header.vue';
+import Header from '@/components/header/Header.vue';
 import KnowledgeOverviewPanel from './KnowledgeOverviewPanel.vue';
 
 // Workbench components (lazy loaded)

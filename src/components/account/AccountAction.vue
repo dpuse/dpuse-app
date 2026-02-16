@@ -8,7 +8,7 @@ import { RouterLink, useRouter } from 'vue-router';
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 
 // Workbench components
-import IconActionContent from '../../base/IconActionContent.vue';
+import IconActionContent from '@/components/action/IconActionContent.vue';
 
 // Properties
 const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: (config?: BenchtopOptionLocalisedConfig) => void }>();

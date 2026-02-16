@@ -8,9 +8,9 @@ import { type ComponentPublicInstance, ref, shallowRef } from 'vue';
 
 // DPU framework
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
-import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/component/connector';
+import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
 
 // Workbench core
 import type { Monitor } from '@/composables/useMonitor';
@@ -135,7 +135,7 @@ export const useSessionStore = defineStore('session', () => {
                 emailIsPrimary.value = undefined;
                 emailIsVerified.value = undefined;
             }
-            const establishedAt = claims.issued_at ? Date.parse(claims?.issued_at) : 0;
+            const establishedAt = claims.issued_at == null ? 0 : Date.parse(claims?.issued_at);
             expiresAt.value = claims.expiration ? Date.parse(claims.expiration) : 0;
             expiresIn.value = Math.max(0, (expiresAt.value || 0) - Date.now());
             isAuthenticated.value = true;
@@ -143,7 +143,7 @@ export const useSessionStore = defineStore('session', () => {
             sessionId.value = claims.session_id;
             userId.value = claims.subject;
             startSessionExpiryTimer();
-            if (!isLoading) monitorInstance?.identifyUser(claims.subject, claims.session_id, claims.email?.address || emailAddress.value); // Fails silently in no monitor instance
+            if (!isLoading) monitorInstance?.identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value); // Fails silently in no monitor instance
         } else {
             clearSessionExpiryTimer();
             emailAddress.value = undefined;

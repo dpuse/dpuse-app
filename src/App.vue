@@ -10,14 +10,14 @@ import { useSessionStore } from '@/stores/sessionStore';
 
 // Workbench components
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
-import IconActionContent from '@/components/base/IconActionContent.vue';
+import IconActionContent from '@/components/action/IconActionContent.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
-import KnowledgeOptionBar from '@/components/block/knowledgeOptionBar/KnowledgeOptionBar.vue';
-import KnowledgePanel from '@/components/block/knowledgePanel/KnowledgePanel.vue';
-import WorkbenchOptionBar from '@/components/block/workbenchOptionBar/WorkbenchOptionBar.vue';
+import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionBar.vue';
+import KnowledgePanel from '@/components/knowledgePanel/KnowledgePanel.vue';
+import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
 
 // Workbench components (lazy loaded)
-const AuthDialog = defineAsyncComponent(() => import('@/components/block/account/AuthDialog.vue'));
+const AuthDialog = defineAsyncComponent(() => import('@/components/account/AuthDialog.vue'));
 
 // Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

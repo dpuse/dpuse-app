@@ -7,12 +7,12 @@ import { t } from '@/locales';
 import T from '@/locales/views/workflow/assembleDimensions/AssembleDimensions.json';
 
 // Workbench components
-import BenchtopScroller from '@/components/block/benchtop/BenchtopScroller.vue';
-import BenchtopShell from '@/components/block/benchtop/BenchtopShell.vue';
-import Header from '@/components/block/header/Header.vue';
+import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
+import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
+import Header from '@/components/header/Header.vue';
 
 // Workbench components (lazy loaded)
-const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/block/emptyState/EmptyStatePlaceholder.vue'));
+const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
 
 // Properties
 type Properties = { isWideDisplay: boolean };

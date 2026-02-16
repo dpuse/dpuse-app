@@ -3,8 +3,8 @@ import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State 
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import LoginForm from '@/components/block/account/LoginForm.vue';
-import PasswordForm from '@/components/block/account/PasswordForm.vue';
+import LoginForm from '@/components/account/LoginForm.vue';
+import PasswordForm from '@/components/account/PasswordForm.vue';
 
 import { useSessionStore } from '@/stores/sessionStore';
 

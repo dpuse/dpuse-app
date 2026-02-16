@@ -5,10 +5,10 @@ import { useKnowledge } from '@/composables/useKnowledge';
 import { localeId, t } from '@/locales';
 
 // Workbench components
-import BenchtopScroller from '@/components/block/benchtop/BenchtopScroller.vue';
-import BenchtopShell from '@/components/block/benchtop/BenchtopShell.vue';
-import Card from '@/components/base/Card.vue';
-import Header from '@/components/block/header/Header.vue';
+import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
+import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
+import Card from '~/src/components/card/Card.vue';
+import Header from '@/components/header/Header.vue';
 
 // Properties
 type Properties = { isWideDisplay: boolean };

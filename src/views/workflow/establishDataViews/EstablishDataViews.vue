@@ -3,21 +3,29 @@
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
 // DPU framework
-import type { ConnectionConfig, RetrieveRecordsOptions, RetrieveRecordsSummary } from '@datapos/datapos-shared/component/connector';
+import type { EngineCallbackData } from '@datapos/datapos-shared/engine';
+import type {
+    ConnectionConfig,
+    CreateObjectOptions,
+    FindObjectOptions,
+    FindObjectResult,
+    RetrieveRecordsOptions,
+    RetrieveRecordsSummary
+} from '@datapos/datapos-shared/component/connector';
 
 // Workbench core
 import { t } from '@/locales';
 import T from '@/locales/views/workflow/establishDataViews/EstablishDataViews.json';
 import { useEngineWorker } from '@/composables/useEngineWorker';
-
-// Workbench components
-import BenchtopScroller from '@/components/block/benchtop/BenchtopScroller.vue';
-import BenchtopShell from '@/components/block/benchtop/BenchtopShell.vue';
-import Header from '@/components/block/header/Header.vue';
 import { useSessionStore } from '@/stores/sessionStore';
 
+// Workbench components
+import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
+import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
+import Header from '@/components/header/Header.vue';
+
 // Workbench components (lazy loaded)
-const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/block/emptyState/EmptyStatePlaceholder.vue'));
+const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
 
 // Properties
 type Properties = { isWideDisplay: boolean };
@@ -46,6 +54,16 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 
         const { processRequest } = await useEngineWorker();
 
+        console.log(1111);
+        const findObjectOptions: FindObjectOptions = { containerId: 'datapos-system-node', nodeId: 'data-views' };
+        const findObjectResult = (await processRequest('findObject', connectionConfig, findObjectOptions)) as FindObjectResult;
+        console.log(2222, findObjectResult.folderPath);
+        if (findObjectResult.folderPath != null) {
+            const createObjectOptions: CreateObjectOptions = { path: '/datapos-system-node/data-views', structure: 'id' };
+            const xxxx = await processRequest('createObject', connectionConfig, createObjectOptions);
+            console.log(5678, xxxx);
+        }
+
         // const startTime = performance.now();
         // // const response = await fetch('https://sample-data-eu.datapos.app/fileStore/ENGAGEMENT_START_EVENTS_202405121858.csv');
         // const response = await fetch('https://sample-data-eu.datapos.app/WDI_Data.csv');
@@ -66,8 +84,11 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         //     await processRequest('createObject', connectionConfig, createSettings);
         // }
 
-        // const retrieveSettings: RetrieveRecordsOptions = { encodingId: '', path: '/datapos-system-node/data-views', valueDelimiterId: '' }; // TODO: Implement paging.
-        // const retrieveResult = (await processRequest('retrieveRecords', connectionConfig, retrieveSettings)) as RetrieveRecordsSummary;
+        // const retrieveOptions: RetrieveRecordsOptions = { encodingId: '', path: '/datapos-system-node/data-views', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
+        // console.log(2222, connectionConfig, retrieveOptions);
+        // const retrieveResult = (await processRequest('retrieveRecords', connectionConfig, retrieveOptions, (data: EngineCallbackData) => {
+        //     console.log(9999, data);
+        // })) as RetrieveRecordsSummary;
         // console.log(retrieveResult);
         // sessionState.dataViewConfigs = (retrieveResult.records as unknown as DataViewConfig[]).map((dataViewConfig) => {
         //     const localisedConfig = localiseModuleConfig(selectedLocale.value, dataViewConfig);

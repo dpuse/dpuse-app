@@ -8,12 +8,12 @@ import { cn } from '@/lib/utils';
 
 // Workbench components
 import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
-import { Button } from '@/components/base/button';
+import { Button } from '@/components/button';
 import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';
 import GoogleLogoIcon from '@/components/icon/logos/GoogleLogoIcon.vue';
-import { Input } from '@/components/base/input';
+import { Input } from '@/components/input';
 import MicrosoftLogoIcon from '@/components/icon/logos/MicrosoftLogoIcon.vue';
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/base/field';
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from '@/components/field';
 
 // Properties
 type Properties = { class?: HTMLAttributes['class']; onTrigger: (identifier: string) => Promise<void> };

@@ -9,10 +9,10 @@ import T from '@/locales/views/account/Account.json';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Workbench components
-import BenchtopScroller from '@/components/block/benchtop/BenchtopScroller.vue';
-import BenchtopShell from '@/components/block/benchtop/BenchtopShell.vue';
-import Header from '@/components/block/header/Header.vue';
-import TextActionContent from '@/components/base/TextActionContent.vue';
+import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
+import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
+import Header from '@/components/header/Header.vue';
+import TextActionContent from '@/components/action/TextActionContent.vue';
 
 // Types
 type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string };

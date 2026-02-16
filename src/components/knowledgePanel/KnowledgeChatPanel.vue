@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 
 // Workbench components
-import IconActionContent from '@/components/base/IconActionContent.vue';
+import IconActionContent from '@/components/action/IconActionContent.vue';
 
 // Properties
 defineProps<{ isWideDisplay: boolean }>();

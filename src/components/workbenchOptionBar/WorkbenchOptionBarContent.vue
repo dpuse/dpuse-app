@@ -8,8 +8,8 @@ import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // Workbench components
-import AccountAction from '@/components/block/account/AccountAction.vue';
-import IconActionContent from '@/components/base/IconActionContent.vue';
+import AccountAction from '@/components/account/AccountAction.vue';
+import IconActionContent from '@/components/action/IconActionContent.vue';
 
 // Properties
 defineProps<{ sessionIsAuthenticated?: boolean; onSelect: (config?: BenchtopOptionLocalisedConfig) => void }>();

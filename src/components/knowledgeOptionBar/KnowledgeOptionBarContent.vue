@@ -5,7 +5,7 @@ import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
 // Workbench components
-import IconActionContent from '@/components/base/IconActionContent.vue';
+import IconActionContent from '@/components/action/IconActionContent.vue';
 
 // Properties
 const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
