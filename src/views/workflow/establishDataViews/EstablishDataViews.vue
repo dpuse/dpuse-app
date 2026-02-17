@@ -23,6 +23,7 @@ import { useSessionStore } from '@/stores/sessionStore';
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Header from '@/components/header/Header.vue';
+import { logErrorToConsole } from '~/src/composables/useMonitor';
 
 // Workbench components (lazy loaded)
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
@@ -54,13 +55,23 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 
         const { processRequest } = await useEngineWorker();
 
-        const findObjectOptions: FindObjectOptions = { containerId: 'datapos-system-node', nodeId: 'data-views' };
+        const findObjectOptions: FindObjectOptions = { storeId: 'dpu-meta-store', nodeId: 'data-views' };
         const findObjectResult = (await processRequest('findObject', connectionConfig, findObjectOptions)) as FindObjectResult;
-        console.log('findObjectResult', findObjectResult);
-        if (findObjectResult.folderPath != null) {
-            const createObjectOptions: CreateObjectOptions = { path: '/datapos-system-node/data-views', structure: 'id' };
-            const xxxx = await processRequest('createObject', connectionConfig, createObjectOptions);
+        if (findObjectResult.path == null) {
+            const createObjectOptions: CreateObjectOptions = { path: '/dpu-meta-store/data-views', structure: 'id' };
+            await processRequest('createObject', connectionConfig, createObjectOptions);
         }
+
+        const retrieveOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpu-meta-store2/data-views', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
+        // console.log(2222, connectionConfig, retrieveOptions);
+        const retrieveResult = (await processRequest('retrieveRecords', connectionConfig, retrieveOptions, (data: EngineCallbackData) => {
+            console.log(9999, data);
+        })) as RetrieveRecordsSummary;
+        console.log(8888, retrieveResult);
+        // sessionState.dataViewConfigs = (retrieveResult.records as unknown as DataViewConfig[]).map((dataViewConfig) => {
+        //     const localisedConfig = localiseModuleConfig(selectedLocale.value, dataViewConfig);
+        //     return { ...dataViewConfig, label: localisedConfig.label, description: localisedConfig.description };
+        // });
 
         // const startTime = performance.now();
         // // const response = await fetch('https://sample-data-eu.datapos.app/fileStore/ENGAGEMENT_START_EVENTS_202405121858.csv');
@@ -109,7 +120,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 
         // areDataViewsRetrieved.value = true;
     } catch (error) {
-        console.log('Failed to complete retrieve data views operation.', 'datapos-app|establishDataViews|retrieveDataViews', { cause: error });
+        logErrorToConsole(error);
     } finally {
         isRetrievingMessageVisible.value = false;
     }

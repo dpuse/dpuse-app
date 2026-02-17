@@ -1,31 +1,31 @@
 {
     "name": "datapos-workbench",
-    "version": "0.0.348",
+    "version": "0.0.349",
     "private": true,
     "type": "module",
     "engines": {
         "node": "^20.19.0 || >=22.12.0"
     },
     "dependencies": {
-        "@datapos/datapos-shared": "^0.3.536",
+        "@datapos/datapos-shared": "^0.3.570",
         "@heroicons/vue": "^2.2.0",
         "@tailwindcss/vite": "^4.1.18",
-        "@tanstack/ai-client": "^0.4.4",
+        "@tanstack/ai-client": "^0.4.5",
         "@tanstack/vue-virtual": "^3.13.18",
         "@teamhanko/hanko-frontend-sdk": "^2.4.0",
         "@vueuse/core": "^14.2.1",
-        "lucide-vue-next": "^0.564.0",
+        "lucide-vue-next": "^0.574.0",
         "micromark": "^4.0.2",
         "pinia": "^3.0.4",
-        "posthog-js": "^1.347.2",
+        "posthog-js": "^1.350.0",
         "tailwindcss": "^4.1.18",
         "vue": "^3.5.28",
         "vue-router": "^5.0.2"
     },
     "devDependencies": {
-        "@cloudflare/vite-plugin": "^1.25.0",
-        "@cloudflare/workers-types": "^4.20260214.0",
-        "@datapos/datapos-development": "^0.3.447",
+        "@cloudflare/vite-plugin": "^1.25.1",
+        "@cloudflare/workers-types": "^4.20260217.0",
+        "@datapos/datapos-development": "^0.3.448",
         "@playwright/test": "^1.58.2",
         "@tsconfig/node24": "^24.0.4",
         "@types/eslint-plugin-security": "^3.0.1",
@@ -35,7 +35,7 @@
         "@vitejs/plugin-vue": "^6.0.4",
         "@vitest/eslint-plugin": "^1.6.9",
         "@vue/eslint-config-prettier": "^10.2.0",
-        "@vue/eslint-config-typescript": "^14.6.0",
+        "@vue/eslint-config-typescript": "^14.7.0",
         "@vue/test-utils": "^2.4.6",
         "@vue/tsconfig": "^0.8.1",
         "eslint": "^9.39.2",
@@ -57,7 +57,7 @@
         "vite-plugin-vue-devtools": "^8.0.6",
         "vitest": "^4.0.18",
         "vue-tsc": "^3.2.4",
-        "wrangler": "^4.65.0"
+        "wrangler": "^4.66.0"
     },
     "scripts": {
         "dev": "vite",

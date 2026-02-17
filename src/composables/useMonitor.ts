@@ -3,6 +3,7 @@ import 'posthog-js/dist/web-vitals';
 import posthog, { type CaptureOptions, type Properties } from 'posthog-js/dist/module.no-external';
 
 // DPU framework
+import type { DPUError } from '@datapos/datapos-shared/errors';
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
 import type { ModuleConfig } from '@datapos/datapos-shared/component';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
@@ -31,6 +32,28 @@ export interface Monitor {
 // Long-lived session-scoped module states WebSocket
 let moduleStatesWebSocket: WebSocket | undefined;
 let localMetaNodeConnectorConfig: ConnectorConfig | undefined;
+
+export function logErrorToConsole(error: unknown): void {
+    let message = '';
+    let prefix = '';
+    let cause: unknown = error;
+    while (cause != null) {
+        if (cause instanceof Error) {
+            const stackOnly = cause.stack?.replace(/^.*\n/, '') ?? '';
+            if ('locator' in cause) {
+                const error_ = cause as DPUError;
+                message += `${prefix}${error_.name}: ${error_.message}${error_.locator ? `\n    in ${error_.locator}` : ''}\n${stackOnly}\n`;
+            } else {
+                message += `${prefix}${cause.name}: ${cause.message}\n${stackOnly}\n`;
+            }
+        } else {
+            message += `${prefix}${String(cause)}\n`;
+        }
+        prefix = 'Caused by: ';
+        cause = cause instanceof Error ? cause.cause : undefined;
+    }
+    console.info('[dpu:wkb] ❌', message);
+}
 
 // Composable
 export function useMonitor(userId?: string, authSessionId?: string, emailAddress?: string): Monitor {
@@ -122,7 +145,7 @@ function logException(exception: Exception): void {
         }
     }
     const result = posthog.captureException(exceptionError, exceptionProperties);
-    console.error(`[dpu:wkb] ❌ Error:`, exceptionError, exceptionProperties, result);
+    console.info('[dpu:wkb] ❌', exceptionError, exceptionProperties, result);
 }
 
 function shutdown(): void {
@@ -155,25 +178,25 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
                         return unregisterModules([eventData.module]);
                 }
             } catch (error) {
-                console.error(`[dpu:wkb] ❌ Module registration error: ${String(error)}`);
+                console.info(`[dpu:wkb] ❌ Module registration error: ${String(error)}`, error);
             }
         });
 
         statesWebSocket.addEventListener('close', (event) => {
-            console.warn(`[dpu:wkb] ⚠️ WebSocket close event '${event.code}' received.`);
+            console.info(`[dpu:wkb] ⚠️ WebSocket close event '${event.code}' received.`);
             statesWebSocket = undefined;
             setTimeout(connectToModuleStatesWebSocket, TIMEOUT_DELAY);
         });
 
         statesWebSocket.addEventListener('error', (error) => {
             // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.
-            console.error(`[dpu:wkb] ❌ WebSocket operational error: ${String(error)}`);
+            console.info(`[dpu:wkb] ❌ WebSocket operational error: ${String(error)}`, error);
         });
 
         return statesWebSocket;
     } catch (error) {
         // TODO: Try and recreate a limited number of times. If no success then display message requesting refresh.
-        console.error(`[dpu:wkb] ❌ WebSocket creation error: ${String(error)}`);
+        console.info(`[dpu:wkb] ❌ WebSocket creation error: ${String(error)}`, error);
         return undefined;
     }
 }
