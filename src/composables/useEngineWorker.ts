@@ -19,7 +19,6 @@ let engineWorker: EngineWorkerInterface | undefined;
 export async function useEngineWorker(): Promise<EngineWorkerInterface> {
     // "useEngineWorker" is not invoked until all modules have been registered in session "defineStore". So "engineConfig" will be populated.
     const engineVersion = useSessionStore().engineConfig!.version as string;
-    console.log('useEngine', engineVersion);
 
     // Return current value if previously imported and a new version has not been published.
     if (engineWorker && activeEngineVersion === engineVersion) return engineWorker;
@@ -31,7 +30,7 @@ export async function useEngineWorker(): Promise<EngineWorkerInterface> {
         console.error(errorEvent, 'engineWorker@useEngineWorker.1');
     });
     await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: useSessionStore().toolConfigs || [] });
-    console.log(`[dpu] ℹ️ App: Engine v${engineVersion} loaded.`);
+    console.info(`[dpu:wkb] ✅ Engine 'datapos-engine' v${engineVersion} loaded.`);
 
     /*****/
     async function streamCsvToConsole(): Promise<void> {

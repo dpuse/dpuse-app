@@ -54,14 +54,12 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 
         const { processRequest } = await useEngineWorker();
 
-        console.log(1111);
         const findObjectOptions: FindObjectOptions = { containerId: 'datapos-system-node', nodeId: 'data-views' };
         const findObjectResult = (await processRequest('findObject', connectionConfig, findObjectOptions)) as FindObjectResult;
-        console.log(2222, findObjectResult.folderPath);
+        console.log('findObjectResult', findObjectResult);
         if (findObjectResult.folderPath != null) {
             const createObjectOptions: CreateObjectOptions = { path: '/datapos-system-node/data-views', structure: 'id' };
             const xxxx = await processRequest('createObject', connectionConfig, createObjectOptions);
-            console.log(5678, xxxx);
         }
 
         // const startTime = performance.now();

@@ -3,10 +3,10 @@ import 'posthog-js/dist/web-vitals';
 import posthog, { type CaptureOptions, type Properties } from 'posthog-js/dist/module.no-external';
 
 // DPU framework
-import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/component/connector';
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
 import type { ModuleConfig } from '@datapos/datapos-shared/component';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
+import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/component/connector';
 import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
 
 // Workbench core
@@ -122,7 +122,7 @@ function logException(exception: Exception): void {
         }
     }
     const result = posthog.captureException(exceptionError, exceptionProperties);
-    console.error(`[dpu] ❌ App: Error:`, exceptionError, exceptionProperties, result);
+    console.error(`[dpu:wkb] ❌ Error:`, exceptionError, exceptionProperties, result);
 }
 
 function shutdown(): void {
@@ -140,7 +140,7 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
         let statesWebSocket: WebSocket | undefined = new WebSocket(wsURL);
 
         statesWebSocket.addEventListener('open', () => {
-            console.info('[dpu] ✅ App: WebSocket connection established.');
+            console.info('[dpu:wkb] ✅ WebSocket connection established.');
         });
 
         statesWebSocket.addEventListener('message', (event) => {
@@ -155,25 +155,25 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
                         return unregisterModules([eventData.module]);
                 }
             } catch (error) {
-                console.info(`[dpu] ❌ App: Module registration error: ${String(error)}`);
+                console.error(`[dpu:wkb] ❌ Module registration error: ${String(error)}`);
             }
         });
 
         statesWebSocket.addEventListener('close', (event) => {
-            console.info(`[dpu] ⚠️ App: WebSocket close event '${event.code}' received.`);
+            console.warn(`[dpu:wkb] ⚠️ WebSocket close event '${event.code}' received.`);
             statesWebSocket = undefined;
             setTimeout(connectToModuleStatesWebSocket, TIMEOUT_DELAY);
         });
 
         statesWebSocket.addEventListener('error', (error) => {
             // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.
-            console.info(`[dpu] ❌ App: WebSocket operational error: ${String(error)}`);
+            console.error(`[dpu:wkb] ❌ WebSocket operational error: ${String(error)}`);
         });
 
         return statesWebSocket;
     } catch (error) {
         // TODO: Try and recreate a limited number of times. If no success then display message requesting refresh.
-        console.info(`[dpu] ❌ App: WebSocket creation error: ${String(error)}`);
+        console.error(`[dpu:wkb] ❌ WebSocket creation error: ${String(error)}`);
         return undefined;
     }
 }
@@ -192,13 +192,12 @@ function registerModules(moduleConfigs: ModuleConfig[]): void {
         // TODO: Only register if new added or new version. Can we import in parallel for efficiency?
         switch (moduleConfig.typeId) {
             case 'app': {
-                console.info(`[dpu] ℹ️ App: Workbench '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                console.info(`[dpu:wkb] ✅ Workbench '${moduleConfig.id}' v${moduleConfig.version} loaded.`);
                 break;
             }
             case 'engine': {
                 sessionState.engineConfig = moduleConfig as EngineConfig;
-                console.info(`[dpu] ℹ️ App: Engine '${moduleConfig.id}' v${moduleConfig.version} registered.`);
-
+                console.info(`[dpu:wkb] ℹ️ Engine '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'connector': {
@@ -209,14 +208,12 @@ function registerModules(moduleConfigs: ModuleConfig[]): void {
                 } else {
                     connectorConfigs[index] = moduleConfig as ConnectorConfig;
                 }
-                console.info(`[dpu] ℹ️ App: Connector '${moduleConfig.id}' v${moduleConfig.version} registered.`);
-
+                console.info(`[dpu:wkb] ℹ️ Connector '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'context': {
                 sessionState.contextConfig = moduleConfig as ContextConfig; // Trigger shallow reference change for context.
-                console.info(`[dpu] ℹ️ App: Context '${moduleConfig.id}' v${moduleConfig.version} registered.`);
-
+                console.info(`[dpu:wkb] ℹ️ Context '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'presenter': {
@@ -227,8 +224,7 @@ function registerModules(moduleConfigs: ModuleConfig[]): void {
                 } else {
                     presenterConfigs[index] = moduleConfig as PresenterConfig;
                 }
-                console.info(`[dpu] ℹ️ App: Presenter '${moduleConfig.id}' v${moduleConfig.version} registered.`);
-
+                console.info(`[dpu:wkb] ℹ️ Presenter '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'tool': {
@@ -239,8 +235,7 @@ function registerModules(moduleConfigs: ModuleConfig[]): void {
                 } else {
                     toolConfigs[index] = moduleConfig as ToolConfig;
                 }
-                console.info(`[dpu] ℹ️ App: Tool '${moduleConfig.id}' v${moduleConfig.version} registered.`);
-
+                console.info(`[dpu:wkb] ℹ️ Tool '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
         }
