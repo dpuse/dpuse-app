@@ -71,7 +71,7 @@ async function handleLoginFlowInitState(state: State<'login_init'>): Promise<voi
     const action = state.actions.continue_with_login_identifier as Action<ContinueWithLoginIdentifierInputs>;
     const input = (action.inputs.email || action.inputs.identifier) as Input<string>;
     uiStateId.value = 'enterId';
-    handleIdEntered.value = async (identifier: string) => {
+    handleIdEntered.value = async (identifier: string): Promise<void> => {
         const result = await action.run({ [input.name]: identifier });
         if (result.error) console.log(result.error, result);
 
@@ -90,7 +90,7 @@ async function handleLoginFlowMethodChooserState(state: State<'login_method_choo
 async function handleLoginFlowPasswordState(state: State<'login_password'>): Promise<void> {
     const action = state.actions.password_login;
     uiStateId.value = 'enterPassword';
-    handlePasswordEntered.value = async (password: string) => {
+    handlePasswordEntered.value = async (password: string): Promise<void> => {
         const result = await action.run({ password });
         if (result.error) console.log(result.error, result);
     };
@@ -115,7 +115,7 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
             <button
                 @click="closeDialog"
                 aria-label="Close"
-                class="focus:ring-primary absolute top-3 right-3 rounded-full p-1 text-gray-500 hover:text-gray-900 focus:ring-2 focus:outline-none"
+                class="focus:ring-primary absolute top-3 right-30 rounded-full p-1 text-gray-500 hover:text-gray-900 focus:ring-2 focus:outline-none"
             >
                 <span aria-hidden="true">&times;</span>
             </button>
