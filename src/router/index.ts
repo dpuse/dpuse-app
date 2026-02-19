@@ -23,7 +23,14 @@ export const appRoutes = [
                         name: 'establishDataViews',
                         path: 'establishDataViews',
                         component: (): Promise<Component> => import('@/views/workflow/establishDataViews/EstablishDataViews.vue'),
-                        children: [{ name: '', path: '', component: (): Promise<Component> => import('@/views/workflow/establishDataViews/SelectConnection.vue') }]
+                        children: [
+                            { path: '', component: (): Promise<Component> => import('@/views/workflow/establishDataViews/DataViewList.vue') },
+                            {
+                                name: 'connectionSelector',
+                                path: 'connectionSelector',
+                                component: (): Promise<Component> => import('@/views/workflow/establishDataViews/ConnectionSelector.vue')
+                            }
+                        ]
                     },
                     {
                         name: 'assembleDimensions',
@@ -73,11 +80,9 @@ const scrollBehavior: RouterScrollBehavior = (to, from, savedPosition) => {
 };
 
 // Application router with web history and scroll position restoration
-const createAppRouter = (): Router =>
+export const createAppRouter = (): Router =>
     createRouter({
         history: createWebHistory(import.meta.env.BASE_URL),
         routes: appRoutes,
         scrollBehavior
     });
-
-export default createAppRouter();

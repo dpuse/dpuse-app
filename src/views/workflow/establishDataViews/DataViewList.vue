@@ -18,25 +18,17 @@ import type {
 
 // App core
 import { logErrorToConsole } from '@/composables/useMonitor';
-import { t } from '@/locales';
-import T from '@/locales/views/workflow/establishDataViews/EstablishDataViews.json';
 import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App components
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
-import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
-import Header from '@/components/header/Header.vue';
 import IconActionContent from '@/components/action/IconActionContent.vue';
 
 // App components (lazy loaded)
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
-
-// Properties
-type Properties = { isWideDisplay: boolean };
-defineProps<Properties>();
 
 // Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -130,9 +122,35 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 </script>
 
 <template>
-    <BenchtopShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'overline') }]" :title="t(T, 'title')" :is-wide-display="isWideDisplay" />
+    <div class="border-separator mx-4 flex flex-none border-b py-1">
+        <div class="flex-1"></div>
+        <button class="group outline-none" @click="router.push({ name: 'connectionSelector', query: router.currentRoute.value.query })">
+            <IconActionContent size="sm">
+                <PlusIcon stroke-width="1.25" />
+            </IconActionContent>
+        </button>
+    </div>
 
-        <RouterView />
-    </BenchtopShell>
+    <GridScroller
+        v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
+        class="flex-1 pb-6"
+        :items="dataViewConfigs"
+        :row-height="150"
+        :target-column-width="350"
+    >
+        <template #default="{ item }">
+            <!-- <Card
+                    v-if="item"
+                    :badges="item.badges"
+                    :icon="activeBenchtopOptionConfig ? activeBenchtopOptionConfig.icon : undefined"
+                    :icon-color="activeBenchtopOptionConfig ? activeBenchtopOptionConfig.color : undefined"
+                    :label="item.label"
+                /> -->
+            <Card v-if="item" :label="item.label" />
+        </template>
+    </GridScroller>
+
+    <BenchtopScroller v-else-if="dataViewRetrievalIsActive" class="flex-1">
+        <EmptyStatePlaceholder message-item-label="data views" description-item-label="data view" action-item-label="Data View" />
+    </BenchtopScroller>
 </template>

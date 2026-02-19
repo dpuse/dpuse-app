@@ -4,7 +4,7 @@ import { createPinia } from 'pinia';
 
 // App core
 import '@/assets/main.css';
-import router from '@/router';
+import { createAppRouter } from '@/router';
 import { type Exception, monitorInstance, pendingExceptions } from '@/stores/sessionStore';
 
 // App components
@@ -21,7 +21,7 @@ try {
     const app = createApp(App);
     app.config.errorHandler = (error, instance, info): void => reportError({ typeId: 'unhandledVue', payload: { error, instance, info } });
     app.use(createPinia());
-    app.use(router);
+    app.use(createAppRouter());
     app.mount('#app');
 } catch (error) {
     reportErrorSafely(error);

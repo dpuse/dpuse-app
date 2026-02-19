@@ -21,7 +21,6 @@ type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label:
 const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isWideDisplay: boolean }>();
 
 // Global state
-const route = useRoute();
 const router = useRouter();
 const sessionState = useSessionStore();
 
@@ -45,28 +44,28 @@ const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initial
 // UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleBack(): void {
-    router.replace({ name: 'account' });
+    router.replace({ name: 'account', query: router.currentRoute.value.query });
     activeOptionConfig.value = undefined;
 }
 
 async function handleSignOut(): Promise<void> {
     await sessionState.signOut();
-    router.replace({ name: 'workflow' });
+    router.replace({ name: 'workflow', query: router.currentRoute.value.query });
 }
 
 function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
-    const routeName = route.name;
+    const routeName = router.currentRoute.value.name;
     if (routeName === 'account') {
         if (properties.isWideDisplay) {
-            router.replace({ name: 'managePersonalDetails' });
+            router.replace({ name: 'managePersonalDetails', query: router.currentRoute.value.query });
             return optionConfigs[1];
         }
         return;
     } else {
-        const activeOptionConfig = optionConfigs.find((config) => config.id === route.name);
+        const activeOptionConfig = optionConfigs.find((config) => config.id === router.currentRoute.value.name);
         if (!activeOptionConfig) {
             if (properties.isWideDisplay) {
-                router.replace({ name: 'managePersonalDetails' });
+                router.replace({ name: 'managePersonalDetails', query: router.currentRoute.value.query });
                 return optionConfigs[1];
             }
             return;
@@ -98,8 +97,13 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                     <div class="flex flex-1 flex-col gap-y-2">
                         <template v-for="optionConfig of optionConfigs" :key="optionConfig.id">
                             <div v-if="optionConfig.type === 'label'" class="text-foreground-secondary mt-2 text-xs font-medium">{{ optionConfig.label }}</div>
-                            <RouterLink v-else class="group min-w-50 outline-none" :to="{ name: optionConfig.id }" @click="activeOptionConfig = optionConfig">
-                                <TextActionContent :is-active="route.name === optionConfig.id && isWideDisplay">
+                            <RouterLink
+                                v-else
+                                class="group min-w-50 outline-none"
+                                :to="{ name: optionConfig.id, query: router.currentRoute.value.query }"
+                                @click="activeOptionConfig = optionConfig"
+                            >
+                                <TextActionContent :is-active="router.currentRoute.value.name === optionConfig.id && isWideDisplay">
                                     {{ optionConfig.label }}
                                 </TextActionContent>
                             </RouterLink>
@@ -109,7 +113,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 
                 <div class="flex flex-none flex-col gap-y-2 pt-2">
                     <div class="text-foreground-secondary mt-2 text-xs font-medium">{{ t(T, 'criticalActions') }}</div>
-                    <RouterLink class="group min-w-50 outline-none" :to="{ name: 'deleteAccount' }">
+                    <RouterLink class="group min-w-50 outline-none" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }">
                         <TextActionContent variant="danger">{{ t(T, 'deleteAccount') }}</TextActionContent>
                     </RouterLink>
                 </div>

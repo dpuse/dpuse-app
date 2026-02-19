@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// External dependencies
+import { useRoute } from 'vue-router';
+
 // App core
 import T from '@/locales/views/workflow/Workflow.json';
 import { useKnowledge } from '@/composables/useKnowledge';
@@ -16,6 +19,9 @@ defineProps<Properties>();
 
 // Workflow step configurations sourced from knowledge store
 const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeId.value).options; // TODO: Does this update if locale changes
+
+// Local route state
+const route = useRoute();
 </script>
 
 <template>
@@ -35,7 +41,7 @@ const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeI
                         v-for="config of workflowStepConfigs"
                         :key="config.id"
                         class="bg-background-card outline-border overflow-hidden rounded-lg font-light outline -outline-offset-1"
-                        :to="{ name: config.id }"
+                        :to="{ name: config.id, query: route.query }"
                     >
                         <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'step', { number: config.step })" />
                     </RouterLink>

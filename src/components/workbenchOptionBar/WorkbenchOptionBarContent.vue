@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External dependencies
-// import { HomeIcon } from 'lucide-vue-next';
 import { HomeIcon } from '@heroicons/vue/24/outline';
+import { useRoute } from 'vue-router';
 
 // App core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
@@ -16,6 +16,9 @@ defineProps<{ sessionIsAuthenticated?: boolean; onSelect: (config?: BenchtopOpti
 
 // Active localised benchtop configuration
 const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
+
+// Local route state
+const route = useRoute();
 </script>
 
 <template>
@@ -26,7 +29,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
         <!-- Benchtop options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-6">
             <div class="flex flex-1 flex-col items-center gap-y-2">
-                <RouterLink :aria-label="activeBenchtopConfig.label" class="group outline-none" :to="{ name: activeBenchtopConfig.id }" @click="onSelect()">
+                <RouterLink :aria-label="activeBenchtopConfig.label" class="group outline-none" :to="{ name: activeBenchtopConfig.id, query: route.query }" @click="onSelect()">
                     <IconActionContent>
                         <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
                     </IconActionContent>
@@ -37,7 +40,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
                     :key="config.id"
                     :aria-label="config.label"
                     class="group outline-none"
-                    :to="{ name: config.id }"
+                    :to="{ name: config.id, query: route.query }"
                     @click="onSelect(config)"
                 >
                     <IconActionContent>
