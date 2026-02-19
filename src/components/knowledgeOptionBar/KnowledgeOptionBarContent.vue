@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // External dependencies
 import { HomeIcon } from '@heroicons/vue/24/outline';
+import { useRouter } from 'vue-router';
 import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
-import { useRoute, useRouter } from 'vue-router';
 
 // App components
 import IconActionContent from '@/components/action/IconActionContent.vue';
@@ -11,13 +11,12 @@ import IconActionContent from '@/components/action/IconActionContent.vue';
 const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
 
 // Global state
-const route = useRoute();
 const router = useRouter();
 
 // UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleNavigateTo(view: string): void {
-    router.push({ path: route.path, query: { ...route.query, knowledge: view } });
+    router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: view } });
     properties.onSelect();
 }
 </script>

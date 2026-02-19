@@ -1,39 +1,47 @@
 <script setup lang="ts">
+// External dependencies
+import { useRouter } from 'vue-router';
 import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 
+// App core
+import { useSessionStore } from '@/stores/sessionStore';
+
+// App components
 import LoginForm from '@/components/account/LoginForm.vue';
 import PasswordForm from '@/components/account/PasswordForm.vue';
 
-import { useSessionStore } from '@/stores/sessionStore';
+// Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const route = useRoute();
 const router = useRouter();
 const sessionState = useSessionStore();
 
-const show = computed(() => route.query.dialog === 'auth');
+// Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const handleIdEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 const uiStateId = ref<'enterId' | 'enterPassword' | 'done'>('enterId');
-onMounted(async () => {
-    // if (sessionState.isAuthenticated) return;
-    sessionState.constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state));
-});
+
+const show = computed(() => router.currentRoute.value.query.dialog === 'auth');
+
+// Lifecycle event handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+onMounted(async () => sessionState.constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state)));
 onUnmounted(() => sessionState.destroyFlow());
 
-function closeDialog() {
-    const rest = { ...route.query };
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function closeDialog(): void {
+    const rest = { ...router.currentRoute.value.query };
     delete rest.dialog;
     router.push({ query: { ...rest } });
 }
 
 // Handle login flow state change.
-function handleLoginFlowStateChange(state: AnyState) {
+function handleLoginFlowStateChange(state: AnyState): Promise<void> {
     switch (state.name) {
         case 'preflight':
-            return;
+            return Promise.resolve();
         case 'login_init':
             return handleLoginFlowInitState(state);
         case 'login_method_chooser':
@@ -48,18 +56,18 @@ function handleLoginFlowStateChange(state: AnyState) {
             handleIdEntered.value = undefined;
             handlePasswordEntered.value = undefined;
             sessionState.destroyFlow();
-            return;
+            return Promise.resolve();
         case 'error':
             console.log('STATE', 'error', state.error, state);
-            return;
+            return Promise.resolve();
         default:
             console.log('UNEXPECTED STATE', state.name, state);
-            return;
+            return Promise.resolve();
     }
 }
 
 // Handle login flow initialisation state. User identifier (email address) input is required.
-async function handleLoginFlowInitState(state: State<'login_init'>) {
+async function handleLoginFlowInitState(state: State<'login_init'>): Promise<void> {
     const action = state.actions.continue_with_login_identifier as Action<ContinueWithLoginIdentifierInputs>;
     const input = (action.inputs.email || action.inputs.identifier) as Input<string>;
     uiStateId.value = 'enterId';
@@ -72,14 +80,14 @@ async function handleLoginFlowInitState(state: State<'login_init'>) {
 }
 
 // Handle login flow method chooser state. Only password logins are support.
-async function handleLoginFlowMethodChooserState(state: State<'login_method_chooser'>) {
+async function handleLoginFlowMethodChooserState(state: State<'login_method_chooser'>): Promise<void> {
     const action = state.actions.continue_to_password_login!;
     const result = await action.run();
     if (result.error) console.log(result.error, result);
 }
 
 // Handle login flow password state. Password input is required.
-async function handleLoginFlowPasswordState(state: State<'login_password'>) {
+async function handleLoginFlowPasswordState(state: State<'login_password'>): Promise<void> {
     const action = state.actions.password_login;
     uiStateId.value = 'enterPassword';
     handlePasswordEntered.value = async (password: string) => {
@@ -89,7 +97,7 @@ async function handleLoginFlowPasswordState(state: State<'login_password'>) {
 }
 
 // Handle login flow onboarding create passkey state. Creation of passkeys is disabled.
-async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboarding_create_passkey'>) {
+async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboarding_create_passkey'>): Promise<void> {
     const action = state.actions.skip!;
     const result = await action.run();
     if (result.error) console.log(result.error, result);
