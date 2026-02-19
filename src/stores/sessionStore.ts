@@ -12,7 +12,7 @@ import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/component/connector';
 import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
 
-// Workbench core
+// App core
 import type { Monitor } from '@/composables/useMonitor';
 
 // Exception declarations
@@ -49,6 +49,7 @@ export const useSessionStore = defineStore('session', () => {
     const connectionConfigs = shallowRef<ConnectionConfig[]>([]);
     const connectorConfigs = shallowRef<ConnectorConfig[] | undefined>();
     const contextConfig = shallowRef<ContextConfig | undefined>();
+    const dataViewConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
     const emailAddress = ref<string | undefined>();
     const emailIsPrimary = ref<boolean | undefined>();
     const emailIsVerified = ref<boolean | undefined>();
@@ -57,7 +58,7 @@ export const useSessionStore = defineStore('session', () => {
     const expiresIn = ref<number | undefined>();
     const isAuthenticated = ref<boolean | undefined>(); // undefined if Hanko validate session pending; false if signed OUT; true if signed IN
     const lifetime = ref<number | undefined>();
-    const localMetaNodeConnectionConfig = shallowRef<ConnectionConfig | undefined>();
+    const localMetaStoreConnectionConfig = shallowRef<ConnectionConfig | undefined>();
     const presenterConfigs = shallowRef<PresenterConfig[] | undefined>();
     const sessionId = ref<string | undefined>();
     const toolConfigs = shallowRef<ToolConfig[] | undefined>();
@@ -106,6 +107,7 @@ export const useSessionStore = defineStore('session', () => {
         connectorConfigs,
         contextConfig,
         constructFlow,
+        dataViewConfigs,
         destroyFlow,
         emailAddress,
         engineConfig,
@@ -116,7 +118,7 @@ export const useSessionStore = defineStore('session', () => {
         isAuthenticated,
         lastActive,
         lifetime,
-        localMetaNodeConnectionConfig,
+        localMetaStoreConnectionConfig,
         presenterConfigs,
         signOut,
         toolConfigs

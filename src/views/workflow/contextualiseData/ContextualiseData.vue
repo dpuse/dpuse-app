@@ -2,19 +2,19 @@
 // External dependencies
 import { defineAsyncComponent } from 'vue';
 
-// Workbench core
+// App core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { t } from '@/locales';
 import T from '@/locales/views/workflow/contextualiseData/ContextualiseData.json';
 
-// Workbench components
+// App components
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
-import Card from '~/src/components/card/Card.vue';
+import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
 import Header from '@/components/header/Header.vue';
 
-// Workbench components (lazy loaded)
+// App components (lazy loaded)
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
 
 // Properties

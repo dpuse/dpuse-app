@@ -3,7 +3,7 @@
 // import { useColorMode } from '@vueuse/core';
 import { type HTMLAttributes, ref } from 'vue';
 
-// Workbench components
+// App components
 // import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
 // import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';
 // import GoogleLogoIcon from '@/components/icon/logos/GoogleLogoIcon.vue';

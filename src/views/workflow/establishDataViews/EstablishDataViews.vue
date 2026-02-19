@@ -1,8 +1,11 @@
 <script setup lang="ts">
 // External dependencies
+import { PlusIcon } from 'lucide-vue-next';
+import { useRouter } from 'vue-router';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
 // DPU framework
+import { AppError } from '@datapos/datapos-shared/errors';
 import type { EngineCallbackData } from '@datapos/datapos-shared/engine';
 import type {
     ConnectionConfig,
@@ -10,22 +13,25 @@ import type {
     FindObjectOptions,
     FindObjectResult,
     RetrieveRecordsOptions,
-    RetrieveRecordsSummary
+    UpsertRecordsOptions
 } from '@datapos/datapos-shared/component/connector';
 
-// Workbench core
+// App core
+import { logErrorToConsole } from '@/composables/useMonitor';
 import { t } from '@/locales';
 import T from '@/locales/views/workflow/establishDataViews/EstablishDataViews.json';
 import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// Workbench components
+// App components
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
+import Card from '@/components/card/Card.vue';
+import GridScroller from '@/components/gridScroller/GridScroller.vue';
 import Header from '@/components/header/Header.vue';
-import { logErrorToConsole } from '~/src/composables/useMonitor';
+import IconActionContent from '@/components/action/IconActionContent.vue';
 
-// Workbench components (lazy loaded)
+// App components (lazy loaded)
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
 
 // Properties
@@ -34,16 +40,21 @@ defineProps<Properties>();
 
 // Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+const router = useRouter();
 const sessionState = useSessionStore();
 
 // Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const isRetrievingMessageVisible = ref(false);
+const dataViewRetrievalIsActive = ref(false);
 
-// Local meta node computed properties ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local meta store connection configuration state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const localMetaNodeConnectionConfig = computed(() => sessionState.localMetaNodeConnectionConfig);
-watch(localMetaNodeConnectionConfig, (newConnectionConfig) => retrieveDataViews(newConnectionConfig), { immediate: true });
+const localMetaStoreConnectionConfig = computed(() => sessionState.localMetaStoreConnectionConfig);
+watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDataViews(newConnectionConfig), { immediate: true });
+
+// Local data view configurations state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const dataViewConfigs = computed(() => sessionState.dataViewConfigs);
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -51,58 +62,38 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
     try {
         if (!connectionConfig) return;
 
-        // const testConnectionConfig = useSessionStore().connectionConfigs[1];
-
         const { processRequest } = await useEngineWorker();
-
-        const findObjectOptions: FindObjectOptions = { storeId: 'dpu-meta-store', nodeId: 'data-views' };
+        const findObjectOptions: FindObjectOptions = { storeId: 'dpuMetaStore', nodeId: 'dataViews' };
         const findObjectResult = (await processRequest('findObject', connectionConfig, findObjectOptions)) as FindObjectResult;
         if (findObjectResult.path == null) {
-            const createObjectOptions: CreateObjectOptions = { path: '/dpu-meta-store/data-views', structure: 'id' };
+            const createObjectOptions: CreateObjectOptions = { path: '/dpuMetaStore/dataViews', structure: 'id' };
             await processRequest('createObject', connectionConfig, createObjectOptions);
         }
 
-        const retrieveOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpu-meta-store2/data-views', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
-        // console.log(2222, connectionConfig, retrieveOptions);
-        const retrieveResult = (await processRequest('retrieveRecords', connectionConfig, retrieveOptions, (data: EngineCallbackData) => {
-            console.log(9999, data);
-        })) as RetrieveRecordsSummary;
-        console.log(8888, retrieveResult);
-        // sessionState.dataViewConfigs = (retrieveResult.records as unknown as DataViewConfig[]).map((dataViewConfig) => {
-        //     const localisedConfig = localiseModuleConfig(selectedLocale.value, dataViewConfig);
-        //     return { ...dataViewConfig, label: localisedConfig.label, description: localisedConfig.description };
-        // });
+        const options: UpsertRecordsOptions = {
+            path: '/dpuMetaStore/dataViews',
+            records: [
+                { id: '1', label: 'One' },
+                { id: '2', label: 'Two' },
+                { id: '3', label: 'Three' },
+                { id: '4', label: 'Four' }
+            ]
+        };
+        await processRequest('upsertRecords', connectionConfig, options, (data: EngineCallbackData) => {
+            console.log('UPSERT RECORDS', data);
+        });
 
-        // const startTime = performance.now();
-        // // const response = await fetch('https://sample-data-eu.datapos.app/fileStore/ENGAGEMENT_START_EVENTS_202405121858.csv');
-        // const response = await fetch('https://sample-data-eu.datapos.app/WDI_Data.csv');
-
-        // const auditObjectContentSettings: AuditContentSettings = { encodingId: 'utf-8', path: '/WDI_Data.csv', valueDelimiterId: ',' };
-        // const auditObjectContentResult = (await processRequest('auditObjectContent', testConnectionConfig!, auditObjectContentSettings)) as AuditContentResult;
-        // const elapsedMs = performance.now() - startTime;
-        // console.log('auditObjectContentResult', elapsedMs, auditObjectContentResult);
-
-        // retrievingTimer = setTimeout(() => (isRetrievingMessageVisible.value = true), 300);
-
-        // const { processRequest } = await useEngineWorker();
-
-        // const findSettings: FindSettings = { containerName: 'datapos-system-node', objectName: 'data-views' };
-        // const findResult = (await processRequest('findObject', connectionConfig, findSettings)) as FindResult;
-        // if (!findResult.folderPath) {
-        //     const createSettings: CreateSettings = { path: '/datapos-system-node/data-views', structure: 'id' };
-        //     await processRequest('createObject', connectionConfig, createSettings);
-        // }
-
-        // const retrieveOptions: RetrieveRecordsOptions = { encodingId: '', path: '/datapos-system-node/data-views', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
-        // console.log(2222, connectionConfig, retrieveOptions);
-        // const retrieveResult = (await processRequest('retrieveRecords', connectionConfig, retrieveOptions, (data: EngineCallbackData) => {
-        //     console.log(9999, data);
-        // })) as RetrieveRecordsSummary;
-        // console.log(retrieveResult);
-        // sessionState.dataViewConfigs = (retrieveResult.records as unknown as DataViewConfig[]).map((dataViewConfig) => {
-        //     const localisedConfig = localiseModuleConfig(selectedLocale.value, dataViewConfig);
-        //     return { ...dataViewConfig, label: localisedConfig.label, description: localisedConfig.description };
-        // });
+        const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dataViews', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
+        await processRequest('retrieveRecords', connectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
+            if (data.typeId === 'chunk') {
+                sessionState.dataViewConfigs = (data.properties.records as { id: string; label: string }[]).map((record) => {
+                    const localisedConfig = record;
+                    return localisedConfig;
+                });
+            } else {
+                dataViewRetrievalIsActive.value = true;
+            }
+        });
 
         // // TODO: Temporary code.
         // if (!sessionState.dataViewConfigs.length) {
@@ -118,11 +109,22 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         //         });
         // }
 
-        // areDataViewsRetrieved.value = true;
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        // const startTime = performance.now();
+        // // const response = await fetch('https://sample-data-eu.datapos.app/fileStore/ENGAGEMENT_START_EVENTS_202405121858.csv');
+        // const response = await fetch('https://sample-data-eu.datapos.app/WDI_Data.csv');
+
+        // const auditObjectContentSettings: AuditContentSettings = { encodingId: 'utf-8', path: '/WDI_Data.csv', valueDelimiterId: ',' };
+        // const auditObjectContentResult = (await processRequest('auditObjectContent', testConnectionConfig!, auditObjectContentSettings)) as AuditContentResult;
+        // const elapsedMs = performance.now() - startTime;
+        // console.log('auditObjectContentResult', elapsedMs, auditObjectContentResult);
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     } catch (error) {
-        logErrorToConsole(error);
+        logErrorToConsole(new AppError('Failed to retrieve data views.', 'dpu-appRoutes.EstablishDataViews.retrieveDataViews', { cause: error }));
     } finally {
-        isRetrievingMessageVisible.value = false;
+        // Pending...
     }
 }
 </script>
@@ -131,7 +133,35 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
     <BenchtopShell>
         <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'overline') }]" :title="t(T, 'title')" :is-wide-display="isWideDisplay" />
 
-        <BenchtopScroller class="flex-1">
+        <div class="border-separator mx-4 flex flex-none border-b py-1">
+            <div class="flex-1"></div>
+            <button class="group outline-none" @click="router.push({ name: '' })">
+                <IconActionContent size="sm">
+                    <PlusIcon stroke-width="1.25" />
+                </IconActionContent>
+            </button>
+        </div>
+
+        <GridScroller
+            v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
+            class="flex-1 pb-6"
+            :items="dataViewConfigs"
+            :row-height="150"
+            :target-column-width="350"
+        >
+            <template #default="{ item }">
+                <!-- <Card
+                    v-if="item"
+                    :badges="item.badges"
+                    :icon="activeBenchtopOptionConfig ? activeBenchtopOptionConfig.icon : undefined"
+                    :icon-color="activeBenchtopOptionConfig ? activeBenchtopOptionConfig.color : undefined"
+                    :label="item.label"
+                /> -->
+                <Card v-if="item" :label="item.label" />
+            </template>
+        </GridScroller>
+
+        <BenchtopScroller v-else-if="dataViewRetrievalIsActive" class="flex-1">
             <EmptyStatePlaceholder message-item-label="data views" description-item-label="data view" action-item-label="Data View" />
         </BenchtopScroller>
     </BenchtopShell>

@@ -2,7 +2,7 @@
 import type { Component } from 'vue';
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior } from 'vue-router';
 
-// Workbench components
+// App components
 import Workflow from '@/views/workflow/Workflow.vue';
 
 // Not exported by Vue router, duplicated here to address eslint function return type rule
@@ -22,7 +22,8 @@ export const appRoutes = [
                     {
                         name: 'establishDataViews',
                         path: 'establishDataViews',
-                        component: (): Promise<Component> => import('@/views/workflow/establishDataViews/EstablishDataViews.vue')
+                        component: (): Promise<Component> => import('@/views/workflow/establishDataViews/EstablishDataViews.vue'),
+                        children: [{ name: '', path: '', component: (): Promise<Component> => import('@/views/workflow/establishDataViews/SelectConnection.vue') }]
                     },
                     {
                         name: 'assembleDimensions',
@@ -72,7 +73,7 @@ const scrollBehavior: RouterScrollBehavior = (to, from, savedPosition) => {
 };
 
 // Application router with web history and scroll position restoration
-export const createAppRouter = (): Router =>
+const createAppRouter = (): Router =>
     createRouter({
         history: createWebHistory(import.meta.env.BASE_URL),
         routes: appRoutes,

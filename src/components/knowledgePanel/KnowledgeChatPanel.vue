@@ -3,7 +3,7 @@
 import { ref } from 'vue';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 
-// Workbench components
+// App components
 import IconActionContent from '@/components/action/IconActionContent.vue';
 
 // Properties
@@ -54,8 +54,8 @@ function runTest(): void {
             </div>
 
             <div class="flex justify-end pr-1 pb-1">
-                <IconActionContent size="icon-sm" variant="ghost" @click="runTest">
-                    <SendHorizonalIcon class="size-5" stroke-width="1.25" />
+                <IconActionContent icon-size="sm" @click="runTest">
+                    <SendHorizonalIcon stroke-width="1.25" />
                 </IconActionContent>
             </div>
         </div>

@@ -4,11 +4,11 @@ import { useRoute } from 'vue-router';
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
-// Workbench core
+// App core
 import type { BenchtopOptionLocalisedConfig } from './types/workbench';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// Workbench components
+// App components
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import IconActionContent from '@/components/action/IconActionContent.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
@@ -16,31 +16,35 @@ import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionB
 import KnowledgePanel from '@/components/knowledgePanel/KnowledgePanel.vue';
 import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
 
-// Workbench components (lazy loaded)
+// App components (lazy loaded)
 const AuthDialog = defineAsyncComponent(() => import('@/components/account/AuthDialog.vue'));
 
 // Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 useColorMode();
-const displayIsWide = useMediaQuery('(min-width: 768px)');
-const route = useRoute();
 const sessionState = useSessionStore();
 
 // Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeBenchtopOptionConfig = ref<BenchtopOptionLocalisedConfig | undefined>();
-const activeOptionBarId = ref<'none' | 'workbench' | 'knowledge'>('none');
+const activeOptionBarId = ref<'none' | 'workbench' | 'knowledge'>('none'); // TODO: Can these be combined; should we have 'both' for wide display
 const activePaneId = ref<'workbench' | 'knowledge'>('workbench');
 const workbenchPaneIsHidden = ref(false);
 const paneSplitterIsDragging = ref(false);
 const paneSplitterPercent = ref(50);
 const knowledgePaneIsHidden = ref(false);
 
-// Authentication dialog computed properties ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local display state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+const displayIsWide = useMediaQuery('(min-width: 768px)');
+watch(displayIsWide, () => (activeOptionBarId.value = 'none'));
+
+// Local route state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const route = useRoute();
 const authDialogIsVisible = computed(() => route.query.dialog === 'auth');
 
-// Workbench pane computed properties ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local workbench pane state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const workbenchPaneIsVisible = computed(() => {
     if (displayIsWide.value) return !workbenchPaneIsHidden.value;
@@ -67,11 +71,11 @@ const workbenchPaneToggleAriaLabel = computed(() => {
     return workbenchPaneIsHidden.value ? 'Show workbench' : 'Hide workbench';
 });
 
-// Pane splitter computed properties ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local pane splitter state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const paneSplitterIsVisible = computed(() => displayIsWide.value && workbenchPaneIsVisible.value && isKnowledgeVisible.value);
 
-// Knowledge pane computed properties ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local knowledge pane state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const isKnowledgeVisible = computed(() => {
     if (displayIsWide.value) return !knowledgePaneIsHidden.value;
@@ -91,15 +95,11 @@ const knowledgePaneToggleAriaLabel = computed(() => {
     return knowledgePaneIsHidden.value ? 'Show knowledge' : 'Hide knowledge';
 });
 
-// Watchers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-watch(displayIsWide, () => (activeOptionBarId.value = 'none'));
-
 // Lifecycle event handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 onMounted(() => useSessionStore().initialiseServices());
 
-// Workbench UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Workbench pane UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleWorkbenchToggle(): void {
     if (displayIsWide.value) {
@@ -118,7 +118,7 @@ function handleWorkbenchOptionSelect(config?: BenchtopOptionLocalisedConfig): vo
     activePaneId.value = 'workbench';
 }
 
-// Splitter UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Pane splitter UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleSplitterPointerDown(event: PointerEvent): void {
     paneSplitterIsDragging.value = true;
@@ -135,7 +135,7 @@ function handleSplitterPointerUp(): void {
     paneSplitterIsDragging.value = false;
 }
 
-// Knowledge UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Knowledge pane UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleKnowledgeToggle(): void {
     if (displayIsWide.value) {
@@ -159,14 +159,14 @@ function handleKnowledgeOptionSelect(): void {
         <!-- Workbench toggle fixed in top left corner, always visible -->
         <button class="group fixed top-1.75 left-3 z-40 outline-none" @click="handleWorkbenchToggle">
             <IconActionContent :aria-label="workbenchPaneToggleAriaLabel">
-                <DPULogoIcon class="size-6" />
+                <DPULogoIcon />
             </IconActionContent>
         </button>
 
         <!-- Knowledge toggle fixed in top right corner, always visible -->
         <button class="group fixed top-1.75 right-3 z-40 outline-none" @click="handleKnowledgeToggle">
             <IconActionContent :aria-label="knowledgePaneToggleAriaLabel">
-                <KnowledgeIcon class="size-6" />
+                <KnowledgeIcon />
             </IconActionContent>
         </button>
 

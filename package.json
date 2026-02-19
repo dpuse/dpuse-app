@@ -1,13 +1,13 @@
 {
     "name": "datapos-workbench",
-    "version": "0.0.349",
+    "version": "0.0.350",
     "private": true,
     "type": "module",
     "engines": {
         "node": "^20.19.0 || >=22.12.0"
     },
     "dependencies": {
-        "@datapos/datapos-shared": "^0.3.570",
+        "@datapos/datapos-shared": "^0.3.573",
         "@heroicons/vue": "^2.2.0",
         "@tailwindcss/vite": "^4.1.18",
         "@tanstack/ai-client": "^0.4.5",
@@ -24,7 +24,7 @@
     },
     "devDependencies": {
         "@cloudflare/vite-plugin": "^1.25.1",
-        "@cloudflare/workers-types": "^4.20260217.0",
+        "@cloudflare/workers-types": "^4.20260218.0",
         "@datapos/datapos-development": "^0.3.448",
         "@playwright/test": "^1.58.2",
         "@tsconfig/node24": "^24.0.4",
@@ -41,7 +41,7 @@
         "eslint": "^9.39.2",
         "eslint-import-resolver-typescript": "^4.4.4",
         "eslint-plugin-import": "^2.32.0",
-        "eslint-plugin-playwright": "^2.5.1",
+        "eslint-plugin-playwright": "^2.6.0",
         "eslint-plugin-security": "^3.0.1",
         "eslint-plugin-unicorn": "^62.0.0",
         "eslint-plugin-vue": "~10.8.0",

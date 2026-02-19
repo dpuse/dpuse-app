@@ -2,16 +2,16 @@
 // External dependencies
 import { defineAsyncComponent } from 'vue';
 
-// Workbench core
+// App core
 import { t } from '@/locales';
 import T from '@/locales/views/workflow/assembleDimensions/AssembleDimensions.json';
 
-// Workbench components
+// App components
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Header from '@/components/header/Header.vue';
 
-// Workbench components (lazy loaded)
+// App components (lazy loaded)
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
 
 // Properties

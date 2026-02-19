@@ -2,12 +2,12 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
-// Workbench core
+// App core
 import '@/assets/main.css';
 import router from '@/router';
 import { type Exception, monitorInstance, pendingExceptions } from '@/stores/sessionStore';
 
-// Workbench components
+// App components
 import App from '@/App.vue';
 
 // Bootstrap application ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

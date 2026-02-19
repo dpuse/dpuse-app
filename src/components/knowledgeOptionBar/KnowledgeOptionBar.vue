@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Workbench components
+// App components
 import KnowledgeOptionBarContent from './KnowledgeOptionBarContent.vue';
 
 // Properties

@@ -1,23 +1,21 @@
 <script setup lang="ts">
-// Workbench core
+// App core
 import T from '@/locales/views/workflow/Workflow.json';
 import { useKnowledge } from '@/composables/useKnowledge';
 import { localeId, t } from '@/locales';
 
-// Workbench components
+// App components
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
-import Card from '~/src/components/card/Card.vue';
+import Card from '@/components/card/Card.vue';
 import Header from '@/components/header/Header.vue';
 
 // Properties
 type Properties = { isWideDisplay: boolean };
 defineProps<Properties>();
 
-// Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 // Workflow step configurations sourced from knowledge store
-const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeId.value).options;
+const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeId.value).options; // TODO: Does this update if locale changes
 </script>
 
 <template>

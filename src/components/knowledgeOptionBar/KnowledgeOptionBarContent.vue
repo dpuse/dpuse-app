@@ -4,7 +4,7 @@ import { HomeIcon } from '@heroicons/vue/24/outline';
 import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
-// Workbench components
+// App components
 import IconActionContent from '@/components/action/IconActionContent.vue';
 
 // Properties
@@ -31,19 +31,19 @@ function handleNavigateTo(view: string): void {
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-6">
             <button class="group outline-none" @click="handleNavigateTo('welcome')">
                 <IconActionContent>
-                    <HomeIcon aria-hidden="true" class="size-6 [&>path]:stroke-[1.25]" />
+                    <HomeIcon aria-hidden="true" class="&>path]:stroke-[1.25]" />
                 </IconActionContent>
             </button>
 
             <button class="group outline-none" @click="handleNavigateTo('search')">
                 <IconActionContent>
-                    <SearchIcon aria-hidden="true" class="size-6" :stroke-width="1.25" />
+                    <SearchIcon aria-hidden="true" :stroke-width="1.25" />
                 </IconActionContent>
             </button>
 
             <button class="group outline-none" @click="handleNavigateTo('chat')">
                 <IconActionContent>
-                    <MessageCircleMoreIcon aria-hidden="true" class="size-5.5" :stroke-width="1.25" />
+                    <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
                 </IconActionContent>
             </button>
         </div>

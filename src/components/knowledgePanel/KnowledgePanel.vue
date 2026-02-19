@@ -3,11 +3,11 @@
 import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
-// Workbench components
+// App components
 import Header from '@/components/header/Header.vue';
 import KnowledgeOverviewPanel from './KnowledgeOverviewPanel.vue';
 
-// Workbench components (lazy loaded)
+// App components (lazy loaded)
 const KnowledgeChatPanel = defineAsyncComponent(() => import('./KnowledgeChatPanel.vue'));
 const KnowledgeSearchPanel = defineAsyncComponent(() => import('./KnowledgeSearchPanel.vue'));
 

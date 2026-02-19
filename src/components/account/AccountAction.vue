@@ -4,10 +4,10 @@ import { computed, ref, watch } from 'vue';
 import { LoaderCircleIcon, LogInIcon, UserCogIcon } from 'lucide-vue-next';
 import { RouterLink, useRouter } from 'vue-router';
 
-// Workbench core
+// App core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 
-// Workbench components
+// App components
 import IconActionContent from '@/components/action/IconActionContent.vue';
 
 // Properties
@@ -45,9 +45,9 @@ function handleSelect(): void {
     <component :is="optionComponent" aria-label="Manage personal details" class="group outline-none" v-bind="optionAttributes" @click="handleSelect">
         <IconActionContent aria-hidden="true" class="relative h-10 w-10">
             <TransitionGroup name="fade">
-                <UserCogIcon v-if="authIconState === true" key="user" class="absolute top-2 left-2 size-6" :stroke-width="1.25" />
-                <LogInIcon v-if="authIconState === false" key="login" class="absolute top-2 left-2 size-6" :stroke-width="1.25" />
-                <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute top-2 left-2 size-6 animate-spin text-neutral-300" />
+                <UserCogIcon v-if="authIconState === true" key="user" class="absolute top-2 left-2" :stroke-width="1.25" />
+                <LogInIcon v-if="authIconState === false" key="login" class="absolute top-2 left-2" :stroke-width="1.25" />
+                <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute top-2 left-2 animate-spin text-neutral-300" />
             </TransitionGroup>
         </IconActionContent>
     </component>

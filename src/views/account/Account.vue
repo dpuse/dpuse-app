@@ -3,12 +3,12 @@
 import { shallowRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-// Workbench core
+// App core
 import { t } from '@/locales';
 import T from '@/locales/views/account/Account.json';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// Workbench components
+// App components
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Header from '@/components/header/Header.vue';

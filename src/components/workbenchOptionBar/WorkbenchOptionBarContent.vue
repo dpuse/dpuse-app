@@ -3,11 +3,11 @@
 // import { HomeIcon } from 'lucide-vue-next';
 import { HomeIcon } from '@heroicons/vue/24/outline';
 
-// Workbench core
+// App core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { useKnowledge } from '@/composables/useKnowledge';
 
-// Workbench components
+// App components
 import AccountAction from '@/components/account/AccountAction.vue';
 import IconActionContent from '@/components/action/IconActionContent.vue';
 
@@ -28,7 +28,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
             <div class="flex flex-1 flex-col items-center gap-y-2">
                 <RouterLink :aria-label="activeBenchtopConfig.label" class="group outline-none" :to="{ name: activeBenchtopConfig.id }" @click="onSelect()">
                     <IconActionContent>
-                        <HomeIcon aria-hidden="true" class="size-6 [&>path]:stroke-[1.25]" />
+                        <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
                     </IconActionContent>
                 </RouterLink>
 
@@ -41,7 +41,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
                     @click="onSelect(config)"
                 >
                     <IconActionContent>
-                        <div aria-hidden="true" class="size-6" :style="{ color: `${config.color}` }" v-html="config.icon" />
+                        <div aria-hidden="true" :style="{ color: `${config.color}` }" v-html="config.icon" />
                     </IconActionContent>
                 </RouterLink>
             </div>

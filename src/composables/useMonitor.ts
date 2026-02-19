@@ -10,7 +10,7 @@ import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/component/connector';
 import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
 
-// Workbench core
+// App core
 import { type Exception, pendingExceptions, useSessionStore } from '@/stores/sessionStore';
 
 // Constants
@@ -20,23 +20,15 @@ const POSTHOG_DEFAULTS = '2025-11-30';
 const POSTHOG_URL = 'https://eu.i.posthog.com';
 const TIMEOUT_DELAY = 5000;
 
-// Types
-export interface Monitor {
-    captureEvent: (name: string, properties: Properties, options: CaptureOptions) => void;
-    identifyUser: (userId: string, authSessionId: string, emailAddress?: string) => void;
-    logException: (exception: Exception) => void;
-    resetUser: () => void;
-    shutdown: () => void;
-}
-
 // Long-lived session-scoped module states WebSocket
 let moduleStatesWebSocket: WebSocket | undefined;
 let localMetaNodeConnectorConfig: ConnectorConfig | undefined;
 
+//
 export function logErrorToConsole(error: unknown): void {
     let message = '';
     let prefix = '';
-    let cause: unknown = error;
+    let cause = error;
     while (cause != null) {
         if (cause instanceof Error) {
             const stackOnly = cause.stack?.replace(/^.*\n/, '') ?? '';
@@ -55,7 +47,14 @@ export function logErrorToConsole(error: unknown): void {
     console.info('[dpu:wkb] ❌', message);
 }
 
-// Composable
+// Composable that encapsulates PostHog interface and module state websocket
+export interface Monitor {
+    captureEvent: (name: string, properties: Properties, options: CaptureOptions) => void;
+    identifyUser: (userId: string, authSessionId: string, emailAddress?: string) => void;
+    logException: (exception: Exception) => void;
+    resetUser: () => void;
+    shutdown: () => void;
+}
 export function useMonitor(userId?: string, authSessionId?: string, emailAddress?: string): Monitor {
     posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, {
         api_host: POSTHOG_URL,
@@ -81,7 +80,7 @@ export function useMonitor(userId?: string, authSessionId?: string, emailAddress
     return { captureEvent, identifyUser, logException, resetUser, shutdown };
 }
 
-// Composable operations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PostHog helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function identifyUser(userId: string, authSessionId: string, emailAddress?: string): void {
     posthog.register_for_session({ dpu_auth_session_id: authSessionId });
@@ -215,7 +214,7 @@ function registerModules(moduleConfigs: ModuleConfig[]): void {
         // TODO: Only register if new added or new version. Can we import in parallel for efficiency?
         switch (moduleConfig.typeId) {
             case 'app': {
-                console.info(`[dpu:wkb] ✅ Workbench '${moduleConfig.id}' v${moduleConfig.version} loaded.`);
+                console.info(`[dpu:wkb] ℹ️ Workbench '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'engine': {
@@ -267,7 +266,7 @@ function registerModules(moduleConfigs: ModuleConfig[]): void {
             if (sessionState.connectorConfigs.length > 0) {
                 localMetaNodeConnectorConfig = sessionState.connectorConfigs.find((connectorConfig) => connectorConfig.id === LOCAL_META_NODE_CONNECTOR_ID);
                 if (localMetaNodeConnectorConfig) {
-                    sessionState.localMetaNodeConnectionConfig = constructConnectionConfig(localMetaNodeConnectorConfig);
+                    sessionState.localMetaStoreConnectionConfig = constructConnectionConfig(localMetaNodeConnectorConfig);
                 }
                 constructDefaultConnectionConfigs();
             }
