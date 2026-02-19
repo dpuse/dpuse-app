@@ -33,7 +33,7 @@ async function handleSubmit() {
     ```
   -->
     <div class="flex min-h-full flex-1">
-        <div class="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
+        <div class="flex w-md max-w-full flex-1 flex-col justify-center py-12 lg:flex-none">
             <div class="mx-auto w-full max-w-sm lg:w-96">
                 <div>
                     <!-- <img class="h-10 w-auto dark:hidden" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company" />

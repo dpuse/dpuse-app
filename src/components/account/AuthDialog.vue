@@ -110,7 +110,7 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true"></div>
 
         <!-- Modal Dialog -->
-        <div class="bg-background relative z-10 rounded-lg p-6 shadow-lg md:p-10" role="dialog" aria-modal="true" tabindex="-1">
+        <div class="bg-background-primary relative z-10 rounded-lg shadow-lg" role="dialog" aria-modal="true" tabindex="-1">
             <!-- Close Button -->
             <button
                 @click="closeDialog"
@@ -121,11 +121,11 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
             </button>
 
             <div v-if="uiStateId === 'enterId' && handleIdEntered">
-                <LoginForm class="max-w-sm min-w-sm" :on-trigger="handleIdEntered" />
+                <LoginForm :on-trigger="handleIdEntered" />
             </div>
 
             <div v-if="uiStateId === 'enterPassword' && handlePasswordEntered">
-                <PasswordForm class="max-w-sm min-w-sm" :on-trigger="handlePasswordEntered" />
+                <PasswordForm :on-trigger="handlePasswordEntered" />
             </div>
         </div>
     </div>
