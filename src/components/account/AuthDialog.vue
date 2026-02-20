@@ -116,11 +116,15 @@ function handleCloseDialog(): void {
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true"></div>
 
         <!-- Modal Dialog -->
-        <dialog open class="bg-background-primary relative z-10 h-full w-full max-w-full sm:h-auto sm:w-sm sm:rounded-lg" aria-modal="true" tabindex="-1">
+        <dialog open class="relative z-10 h-full w-full max-w-full bg-transparent sm:h-auto sm:w-sm" aria-modal="true" tabindex="-1">
             <!-- Close Button -->
             <ActionButton class="absolute top-3 right-3 outline-none" @click="handleCloseDialog"><XIcon stroke-width="1.25" /></ActionButton>
 
-            <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" :on-trigger="handleIdEntered" />
+            <div v-if="uiStateId === 'enterId' && handleIdEntered">
+                <LoginForm class="bg-background-primary sm:rounded-lg" :on-trigger="handleIdEntered" />
+
+                <div class="bg-background-primary mt-6 px-8 py-4 text-center sm:rounded-lg">Don't have an account? Sign up</div>
+            </div>
 
             <PasswordForm v-if="uiStateId === 'enterPassword' && handlePasswordEntered" :on-trigger="handlePasswordEntered" />
         </dialog>
