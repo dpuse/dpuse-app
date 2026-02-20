@@ -20,11 +20,14 @@ export const appRoutes = [
                 children: [
                     { name: 'workflow', path: '', component: Workflow },
                     {
-                        name: 'establishDataViews',
                         path: 'establishDataViews',
                         component: (): Promise<Component> => import('@/views/workflow/establishDataViews/EstablishDataViews.vue'),
                         children: [
-                            { path: '', component: (): Promise<Component> => import('@/views/workflow/establishDataViews/DataViewList.vue') },
+                            {
+                                name: 'establishDataViews',
+                                path: '',
+                                component: (): Promise<Component> => import('@/views/workflow/establishDataViews/DataViewList.vue')
+                            },
                             {
                                 name: 'connectionSelector',
                                 path: 'connectionSelector',

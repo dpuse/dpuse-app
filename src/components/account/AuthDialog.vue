@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // External dependencies
 import { useRouter } from 'vue-router';
+import { XIcon } from 'lucide-vue-next';
 import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
@@ -8,6 +9,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App components
+import ActionButton from '@/components/action/ActionButton.vue';
 import LoginForm from '@/components/account/LoginForm.vue';
 import PasswordForm from '@/components/account/PasswordForm.vue';
 
@@ -29,13 +31,7 @@ const show = computed(() => router.currentRoute.value.query.dialog === 'auth');
 onMounted(async () => sessionState.constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state)));
 onUnmounted(() => sessionState.destroyFlow());
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function closeDialog(): void {
-    const rest = { ...router.currentRoute.value.query };
-    delete rest.dialog;
-    router.push({ query: { ...rest } });
-}
+// Login flow helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 // Handle login flow state change.
 function handleLoginFlowStateChange(state: AnyState): Promise<void> {
@@ -56,6 +52,8 @@ function handleLoginFlowStateChange(state: AnyState): Promise<void> {
             handleIdEntered.value = undefined;
             handlePasswordEntered.value = undefined;
             sessionState.destroyFlow();
+            handleCloseDialog();
+
             return Promise.resolve();
         case 'error':
             console.log('STATE', 'error', state.error, state);
@@ -102,6 +100,14 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
     const result = await action.run();
     if (result.error) console.log(result.error, result);
 }
+
+// UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function handleCloseDialog(): void {
+    const rest = { ...router.currentRoute.value.query };
+    delete rest.dialog;
+    router.push({ query: { ...rest } });
+}
 </script>
 
 <template>
@@ -110,23 +116,13 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true"></div>
 
         <!-- Modal Dialog -->
-        <div class="bg-background-primary relative z-10 rounded-lg shadow-lg" role="dialog" aria-modal="true" tabindex="-1">
+        <dialog open class="bg-background-primary relative z-10 h-full w-full max-w-full sm:h-auto sm:w-sm sm:rounded-lg" aria-modal="true" tabindex="-1">
             <!-- Close Button -->
-            <button
-                @click="closeDialog"
-                aria-label="Close"
-                class="focus:ring-primary absolute top-3 right-30 rounded-full p-1 text-gray-500 hover:text-gray-900 focus:ring-2 focus:outline-none"
-            >
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <ActionButton class="absolute top-3 right-3 outline-none" @click="handleCloseDialog"><XIcon stroke-width="1.25" /></ActionButton>
 
-            <div v-if="uiStateId === 'enterId' && handleIdEntered">
-                <LoginForm :on-trigger="handleIdEntered" />
-            </div>
+            <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" :on-trigger="handleIdEntered" />
 
-            <div v-if="uiStateId === 'enterPassword' && handlePasswordEntered">
-                <PasswordForm :on-trigger="handlePasswordEntered" />
-            </div>
-        </div>
+            <PasswordForm v-if="uiStateId === 'enterPassword' && handlePasswordEntered" :on-trigger="handlePasswordEntered" />
+        </dialog>
     </div>
 </template>

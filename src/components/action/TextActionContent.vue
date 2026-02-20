@@ -6,7 +6,7 @@ import { computed } from 'vue';
 const properties = defineProps<{ isActive?: boolean; variant?: 'danger' | 'warning' | 'success' }>();
 
 // Variant themes
-const theme = computed(() => {
+const themeClasses = computed(() => {
     const base = 'transition-[background-color] duration-150 group-focus-visible:outline group-focus-visible:outline-2 group-focus-visible:outline-offset-2';
     switch (properties.variant) {
         case 'danger':
@@ -22,7 +22,7 @@ const theme = computed(() => {
 </script>
 
 <template>
-    <div class="inline-flex w-full items-center rounded-md px-2.5 py-2 text-sm" :class="theme">
+    <div class="inline-flex w-full items-center rounded-md px-2.5 py-2 text-sm" :class="themeClasses">
         <slot />
     </div>
 </template>
