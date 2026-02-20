@@ -120,11 +120,7 @@ function handleCloseDialog(): void {
             <!-- Close Button -->
             <ActionButton class="absolute top-3 right-3 outline-none" @click="handleCloseDialog"><XIcon stroke-width="1.25" /></ActionButton>
 
-            <div v-if="uiStateId === 'enterId' && handleIdEntered">
-                <LoginForm class="bg-background-primary sm:rounded-lg" :on-trigger="handleIdEntered" />
-
-                <div class="bg-background-primary mt-6 px-8 py-4 text-center sm:rounded-lg">Don't have an account? Sign up</div>
-            </div>
+            <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" class="bg-background-primary sm:rounded-lg" :on-trigger="handleIdEntered" />
 
             <PasswordForm v-if="uiStateId === 'enterPassword' && handlePasswordEntered" :on-trigger="handlePasswordEntered" />
         </dialog>

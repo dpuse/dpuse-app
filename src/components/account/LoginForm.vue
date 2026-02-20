@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External dependencies
+import { ref } from 'vue';
 import { UserRoundKeyIcon } from 'lucide-vue-next';
-import { type HTMLAttributes, ref } from 'vue';
 
 // App core
 import T from '@/locales/components/account/LoginForm.json';
@@ -17,7 +17,7 @@ import MicrosoftLogoIcon from '@/components/icon/logos/MicrosoftLogoIcon.vue';
 
 // Properties
 type Properties = { onTrigger: (identifier: string) => Promise<void> };
-const properties = defineProps<Properties>();
+const { onTrigger } = defineProps<Properties>();
 
 // ??? ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -26,7 +26,7 @@ const identifier = ref('terrell.jm@icloud.com');
 // UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async function handleSubmit(): Promise<void> {
-    await properties.onTrigger(identifier.value);
+    await onTrigger(identifier.value);
 }
 </script>
 
@@ -54,7 +54,7 @@ async function handleSubmit(): Promise<void> {
             <div class="absolute inset-0 flex items-center" aria-hidden="true">
                 <div class="w-full border-t border-gray-200 dark:border-gray-700"></div>
             </div>
-            <div class="relative flex justify-center text-sm/6 font-medium">
+            <div class="relative flex justify-center font-light">
                 <span class="bg-white px-6 text-gray-900 dark:bg-gray-900 dark:text-gray-300">{{ t(T, 'or') }}</span>
             </div>
         </div>
@@ -66,5 +66,9 @@ async function handleSubmit(): Promise<void> {
             <ActionButton class="justify-start" variant="outline"><GitHubLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_GitHub') }}</ActionButton>
             <ActionButton class="justify-start" variant="outline"><MicrosoftLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_Microsoft') }}</ActionButton>
         </div>
+
+        <div class="bg-separator mt-3 mb-2 h-px"></div>
+
+        <div class="text-center font-light">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
     </div>
 </template>
