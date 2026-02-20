@@ -43,7 +43,7 @@ async function handleSubmit(): Promise<void> {
                 class="mt-1 block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
             />
 
-            <ActionButton @click="handleSubmit">Continue</ActionButton>
+            <ActionButton variant="outline" @click="handleSubmit">Continue</ActionButton>
         </form>
 
         <div class="relative">
@@ -56,11 +56,11 @@ async function handleSubmit(): Promise<void> {
         </div>
 
         <div class="flex flex-col gap-y-3">
-            <ActionButton class="justify-start"><UserRoundKeyIcon class="size-5" />With a passkey</ActionButton>
-            <ActionButton class="justify-start"><AppleLogoIcon class="size-5" />Sign in with Apple</ActionButton>
-            <ActionButton class="justify-start"><GoogleLogoIcon class="size-5" />Sign in with Google</ActionButton>
-            <ActionButton class="justify-start"><GitHubLogoIcon class="size-5" />Sign in with GitHub</ActionButton>
-            <ActionButton class="justify-start"><MicrosoftLogoIcon class="size-5" />Sign in with Microsoft</ActionButton>
+            <ActionButton class="justify-start" variant="outline"><UserRoundKeyIcon class="size-5" />With a passkey</ActionButton>
+            <ActionButton class="justify-start" variant="outline"><AppleLogoIcon class="size-5" />Sign in with Apple</ActionButton>
+            <ActionButton class="justify-start" variant="outline"><GoogleLogoIcon class="size-5" />Sign in with Google</ActionButton>
+            <ActionButton class="justify-start" variant="outline"><GitHubLogoIcon class="size-5" />Sign in with GitHub</ActionButton>
+            <ActionButton class="justify-start" variant="outline"><MicrosoftLogoIcon class="size-5" />Sign in with Microsoft</ActionButton>
         </div>
     </div>
 </template>
