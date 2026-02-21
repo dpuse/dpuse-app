@@ -115,13 +115,15 @@ function handleCloseDialog(): void {
         <!-- Backdrop -->
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true"></div>
 
-        <!-- Modal Dialog -->
-        <dialog open class="relative z-10 h-full w-full max-w-full bg-transparent sm:h-auto sm:w-sm" aria-modal="true" tabindex="-1">
+        <!-- Authentication dialog -->
+        <dialog aria-modal="true" class="bg-surface relative z-10 max-h-full max-w-full overflow-y-auto overscroll-y-none sm:h-auto sm:w-sm sm:rounded-lg" open tabindex="-1">
             <!-- Close Button -->
-            <ActionButton class="absolute top-3 right-3 outline-none" @click="handleCloseDialog"><XIcon stroke-width="1.25" /></ActionButton>
+            <ActionButton class="absolute top-3 right-3" @click="handleCloseDialog"><XIcon stroke-width="1.25" /></ActionButton>
 
-            <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" class="bg-background-primary sm:rounded-lg" :on-trigger="handleIdEntered" />
+            <!-- Login form -->
+            <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" class="" :on-trigger="handleIdEntered" />
 
+            <!-- Password form -->
             <PasswordForm v-if="uiStateId === 'enterPassword' && handlePasswordEntered" :on-trigger="handlePasswordEntered" />
         </dialog>
     </div>

@@ -40,7 +40,7 @@ const route = useRoute();
                     <RouterLink
                         v-for="config of workflowStepConfigs"
                         :key="config.id"
-                        class="bg-background-card outline-border overflow-hidden rounded-lg font-light outline -outline-offset-1"
+                        class="bg-card outline-boundary overflow-hidden rounded-lg font-light outline -outline-offset-1"
                         :to="{ name: config.id, query: route.query }"
                     >
                         <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'step', { number: config.step })" />

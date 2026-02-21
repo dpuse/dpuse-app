@@ -85,7 +85,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
         />
 
         <div class="flex flex-1 overflow-y-hidden">
-            <BenchtopScroller v-if="isWideDisplay || !activeOptionConfig" class="border-border flex flex-1 flex-col border-r px-4 pt-4 pb-6 md:flex-none">
+            <BenchtopScroller v-if="isWideDisplay || !activeOptionConfig" class="border-boundary flex flex-1 flex-col border-r px-4 pt-4 pb-6 md:flex-none">
                 <div class="divide-separator flex flex-1 flex-col gap-y-2">
                     <button class="group min-w-50 outline-none">
                         <TextActionContent variant="warning" @click="handleSignOut">{{ t(T, 'signOut') }}</TextActionContent>
@@ -96,7 +96,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 
                     <div class="flex flex-1 flex-col gap-y-2">
                         <template v-for="optionConfig of optionConfigs" :key="optionConfig.id">
-                            <div v-if="optionConfig.type === 'label'" class="text-foreground-secondary mt-2 text-xs font-medium">{{ optionConfig.label }}</div>
+                            <div v-if="optionConfig.type === 'label'" class="text-muted mt-2 text-xs font-medium">{{ optionConfig.label }}</div>
                             <RouterLink
                                 v-else
                                 class="group min-w-50 outline-none"
@@ -112,7 +112,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                 </div>
 
                 <div class="flex flex-none flex-col gap-y-2 pt-2">
-                    <div class="text-foreground-secondary mt-2 text-xs font-medium">{{ t(T, 'criticalActions') }}</div>
+                    <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'criticalActions') }}</div>
                     <RouterLink class="group min-w-50 outline-none" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }">
                         <TextActionContent variant="danger">{{ t(T, 'deleteAccount') }}</TextActionContent>
                     </RouterLink>

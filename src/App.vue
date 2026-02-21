@@ -155,7 +155,7 @@ function handleKnowledgeOptionSelect(): void {
 </script>
 
 <template>
-    <div class="bg-background-primary text-foreground-primary fixed inset-0 flex" :class="{ 'select-none': paneSplitterIsDragging }">
+    <div class="bg-surface text-content fixed inset-0 flex" :class="{ 'select-none': paneSplitterIsDragging }">
         <!-- Workbench toggle fixed in top left corner, always visible -->
         <button class="group fixed top-1.75 left-3 z-40 outline-none" @click="handleWorkbenchToggle">
             <IconActionContent :aria-label="workbenchPaneToggleAriaLabel">
@@ -197,7 +197,7 @@ function handleKnowledgeOptionSelect(): void {
         <!-- Vertical splitter for resizing panes -->
         <div
             v-if="paneSplitterIsVisible"
-            class="border-border hover:bg-separator active:bg-separator h-full w-1 flex-none cursor-col-resize border-x transition-colors"
+            class="border-boundary hover:bg-separator active:bg-separator h-full w-1 flex-none cursor-col-resize border-x transition-colors"
             @pointerdown="handleSplitterPointerDown"
             @pointermove="handleSplitterPointerMove"
             @pointerup="handleSplitterPointerUp"

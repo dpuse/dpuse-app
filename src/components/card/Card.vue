@@ -8,7 +8,7 @@ const { badges = [], icon, iconColor, label, overline } = defineProps<Properties
 </script>
 
 <template>
-    <div class="bg-background-card outline-border relative flex h-full w-full cursor-pointer flex-col gap-y-4 overflow-hidden rounded-lg p-4 font-light outline -outline-offset-1">
+    <div class="bg-card outline-boundary relative flex h-full w-full cursor-pointer flex-col gap-y-4 overflow-hidden rounded-lg p-4 font-light outline -outline-offset-1">
         <div v-if="badges.length > 0" class="absolute top-0 right-0 flex gap-x-1 pt-1.5 pr-1.5">
             <template v-for="badge of badges" :key="badge.id">
                 <span
@@ -27,7 +27,7 @@ const { badges = [], icon, iconColor, label, overline } = defineProps<Properties
         <div v-if="icon" aria-hidden="true" style="height: 32px; width: 32px" :style="iconColor ? { color: iconColor } : undefined" v-html="icon" />
 
         <div class="flex flex-col">
-            <div v-if="overline" class="text-foreground-secondary text-xs font-normal">{{ overline }}</div>
+            <div v-if="overline" class="text-muted text-xs font-normal">{{ overline }}</div>
             <div>{{ label }}</div>
         </div>
     </div>

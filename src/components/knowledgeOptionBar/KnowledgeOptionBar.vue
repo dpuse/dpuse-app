@@ -16,7 +16,7 @@ function handleSelect(): void {
 </script>
 
 <template>
-    <div class="bg-background-secondary">
+    <div class="bg-backdrop">
         <KnowledgeOptionBarContent
             class="border-separator hidden h-full w-16 flex-col border-l md:flex"
             :on-select="handleSelect"
@@ -25,10 +25,10 @@ function handleSelect(): void {
 
         <Transition name="option-bar-overlay" appear>
             <div v-if="isOpenInNarrowDisplay && !isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
-                <div class="bg-background-primary/70 absolute inset-0" @click="handleSelect"></div>
+                <div class="bg-surface/70 absolute inset-0" @click="handleSelect"></div>
 
                 <KnowledgeOptionBarContent
-                    class="dpu-option-bar-panel bg-background-secondary border-separator relative ml-auto flex h-full w-16 flex-col border-l shadow-lg"
+                    class="dpu-option-bar-panel bg-backdrop border-separator relative ml-auto flex h-full w-16 flex-col border-l shadow-lg"
                     :on-select="handleSelect"
                     :session-is-authenticated="sessionIsAuthenticated"
                 />

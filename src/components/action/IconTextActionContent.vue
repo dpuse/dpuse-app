@@ -5,10 +5,7 @@ const themeClasses =
 </script>
 
 <template>
-    <div
-        class="bg-background-primary inline-flex items-center justify-center gap-x-1 rounded-md px-3.5 py-2 text-sm inset-ring inset-ring-gray-300 hover:bg-gray-50"
-        :class="themeClasses"
-    >
+    <div class="bg-surface inline-flex items-center justify-center gap-x-1 rounded-md px-3.5 py-2 text-sm inset-ring inset-ring-gray-300 hover:bg-gray-50" :class="themeClasses">
         <slot name="icon" />
         <slot name="text" />
     </div>

@@ -19,7 +19,7 @@ function handleSelect(config?: BenchtopOptionLocalisedConfig): void {
 </script>
 
 <template>
-    <div class="bg-background-secondary">
+    <div class="bg-backdrop">
         <WorkbenchOptionBarContent
             class="border-separator hidden h-full w-16 flex-col border-r md:flex"
             :on-select="handleSelect"
@@ -28,10 +28,10 @@ function handleSelect(config?: BenchtopOptionLocalisedConfig): void {
 
         <Transition name="option-bar-overlay" appear>
             <div v-if="isOpenInNarrowDisplay && !isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
-                <div class="bg-background-primary/70 absolute inset-0" @click="(event, config?: BenchtopOptionLocalisedConfig) => handleSelect(config)"></div>
+                <div class="bg-surface/70 absolute inset-0" @click="(event, config?: BenchtopOptionLocalisedConfig) => handleSelect(config)"></div>
 
                 <WorkbenchOptionBarContent
-                    class="dpu-option-bar-panel bg-background-secondary border-separator relative mr-auto flex h-full w-16 flex-col border-r shadow-lg"
+                    class="dpu-option-bar-panel bg-backdrop border-separator relative mr-auto flex h-full w-16 flex-col border-r shadow-lg"
                     :on-select="handleSelect"
                     :session-is-authenticated="sessionIsAuthenticated"
                 />

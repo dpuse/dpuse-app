@@ -3,11 +3,11 @@
 
 html {
     overscroll-behavior-y: none;
-    font-size: 1rem; /* 16px on desktop */
+    font-size: 1rem; /* 16px is default */
 }
 @media (max-width: 768px) {
     html {
-        font-size: 1.125rem; /* 18px on mobile */
+        font-size: 1.125rem; /* 18px on small devices */
     }
 }
 body {
@@ -17,39 +17,33 @@ body {
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --color-background-primary: var(--background-primary);
-    --color-background-secondary: var(--background-secondary);
-    --color-background-card: var(--background-card);
-    --color-border: var(--border);
-    --color-foreground-primary: var(--foreground-primary);
-    --color-foreground-secondary: var(--foreground-secondary);
-    --color-foreground-muted: var(--foreground-muted);
-    --color-ring: var(--ring);
-    --color-separator: var(--separator);
+    --color-backdrop: var(--backdrop); /* Sidebar (secondary) background */
+    --color-surface: var(--surface); /* Content (primary) background */
+    --color-card: var(--card); /* Card background */
+    --color-boundary: var(--boundary); /* Border/outline */
+    --color-separator: var(--separator); /* Divider/separator */
+    --color-content: var(--content); /* Text (primary) */
+    --color-muted: var(--muted); /* Text (secondary) */
 }
 
 :root {
-    --background-primary: var(--color-white);
-    --background-secondary: #fdfdfd;
-    --background-card: #fcfcfc;
-    --border: color-mix(in srgb, var(--color-zinc-200) 50%, transparent);
-    --foreground-primary: var(--color-zinc-800);
-    --foreground-secondary: var(--color-zinc-500);
-    --foreground-muted: var(--color-zinc-300);
-    /* --ring: oklch(0.708 0 0); */
+    --backdrop: #fdfdfd;
+    --surface: var(--color-white);
+    --card: #fcfcfc;
+    --boundary: color-mix(in srgb, var(--color-zinc-200) 50%, transparent);
     --separator: color-mix(in srgb, var(--color-zinc-200) 75%, transparent);
+    --content: var(--color-zinc-800);
+    --muted: var(--color-zinc-500);
 }
 
 .dark {
-    --background-primary: var(--color-zinc-950);
-    --background-secondary: var(--color-zinc-900);
-    --background-card: var(--color-zinc-900);
-    --border: color-mix(in srgb, var(--color-white) 10%, transparent);
-    --foreground-primary: var(--color-zinc-300);
-    --foreground-secondary: var(--color-zinc-400);
-    --foreground-muted: var(--color-zinc-500);
-    /* --ring: oklch(0.556 0 0); */
+    --backdrop: var(--color-zinc-900);
+    --surface: var(--color-zinc-950);
+    --card: var(--color-zinc-900);
+    --boundary: color-mix(in srgb, var(--color-white) 10%, transparent);
     --separator: color-mix(in srgb, var(--color-white) 10%, transparent);
+    --content: var(--color-zinc-300);
+    --muted: var(--color-zinc-400);
 }
 
 @layer base {
@@ -57,7 +51,4 @@ body {
     [role='button']:not(:disabled) {
         cursor: pointer;
     }
-    /* .dpu-action {
-        @apply rounded-md outline-offset-2 outline-zinc-400 focus:outline-2 dark:outline-zinc-500;
-    } */
 }
