@@ -11,7 +11,7 @@ const paddingClasses = computed(() => (variant === 'iconSmall' ? 'p-1.25' : vari
 const variantClasses = computed(() => {
     switch (variant) {
         case 'commit':
-            return 'bg-zinc-600 text-zinc-100 hover:bg-zinc-700 focus-visible:outline-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-600 dark:focus-visible:outline-zinc-500';
+            return 'bg-zinc-600 text-zinc-200 hover:bg-zinc-700 focus-visible:outline-zinc-600 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600 dark:focus-visible:outline-zinc-500';
         case 'danger':
             return 'bg-red-50 hover:bg-red-100 dark:bg-red-500/20 dark:hover:bg-red-500/25 text-red-700 dark:text-red-500 focus-visible:outline-red-400 dark:focus-visible:outline-red-500';
         case 'ghost':
@@ -23,7 +23,7 @@ const variantClasses = computed(() => {
         case 'item':
             return `${isActive ? 'bg-zinc-200 dark:bg-zinc-500/50' : 'focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400'} bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-500/20 dark:hover:bg-zinc-500/40`;
         case 'outline':
-            return 'inset-ring inset-ring-gray-300 focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
+            return 'inset-ring inset-ring-separator focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
         case 'success':
             return 'bg-green-50 hover:bg-green-100 dark:bg-green-500/20 dark:hover:bg-green-500/25 text-green-700 dark:text-green-500 focus-visible:outline-green-400 dark:focus-visible:outline-green-500';
         case 'warning':

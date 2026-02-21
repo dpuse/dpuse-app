@@ -22,7 +22,7 @@ const route = useRoute();
 </script>
 
 <template>
-    <div class="bg-backdrop border-separator h-full w-16 flex-col border-r pt-13.75">
+    <div class="bg-backdrop border-boundary h-full w-16 flex-col border-r pt-13.75">
         <!-- Separator -->
         <div class="bg-separator mx-3 h-px" />
 

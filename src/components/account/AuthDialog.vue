@@ -11,6 +11,7 @@ import { useSessionStore } from '@/stores/sessionStore';
 // App components
 import ActionButton from '@/components/action/ActionButton.vue';
 import LoginForm from '@/components/account/LoginForm.vue';
+import Mask from '@/components/mask/Mask.vue';
 import PasswordForm from '@/components/account/PasswordForm.vue';
 
 // Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -112,12 +113,12 @@ function handleCloseDialog(): void {
 <template>
     <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center">
         <!-- Backdrop -->
-        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true"></div>
+        <Mask />
 
         <!-- Authentication dialog -->
         <dialog
             aria-modal="true"
-            class="bg-surface relative z-10 h-full max-h-full w-full max-w-full overflow-y-auto overscroll-y-none sm:h-auto sm:w-sm sm:rounded-lg"
+            class="bg-surface text-content relative z-10 h-full max-h-full w-full max-w-full overflow-y-auto overscroll-y-none sm:h-auto sm:w-sm sm:rounded-lg"
             open
             tabindex="-1"
         >

@@ -197,7 +197,7 @@ function handleKnowledgeOptionSelect(): void {
         <!-- Vertical splitter for resizing panes -->
         <div
             v-if="paneSplitterIsVisible"
-            class="border-boundary hover:bg-separator active:bg-separator h-full w-1 flex-none cursor-col-resize border-x transition-colors"
+            class="border-boundary hover:bg-separator h-full w-1 flex-none cursor-col-resize border-x transition-colors"
             @pointerdown="handleSplitterPointerDown"
             @pointermove="handleSplitterPointerMove"
             @pointerup="handleSplitterPointerUp"

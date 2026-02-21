@@ -30,18 +30,22 @@ body {
     --backdrop: #fdfdfd;
     --surface: var(--color-white);
     --card: #fcfcfc;
-    --boundary: color-mix(in srgb, var(--color-zinc-200) 50%, transparent);
-    --separator: color-mix(in srgb, var(--color-zinc-200) 75%, transparent);
+    /* --boundary: color-mix(in srgb, var(--color-zinc-200) 50%, transparent); */
+    /* --separator: color-mix(in srgb, var(--color-zinc-200) 75%, transparent); */
+    --boundary: var(--color-zinc-100);
+    --separator: var(--color-zinc-200);
     --content: var(--color-zinc-800);
-    --muted: var(--color-zinc-500);
+    --muted: var(--color-zinc-400);
 }
 
 .dark {
     --backdrop: var(--color-zinc-900);
     --surface: var(--color-zinc-950);
     --card: var(--color-zinc-900);
-    --boundary: color-mix(in srgb, var(--color-white) 10%, transparent);
-    --separator: color-mix(in srgb, var(--color-white) 10%, transparent);
+    /* --boundary: color-mix(in srgb, var(--color-white) 10%, transparent); */
+    /* --separator: color-mix(in srgb, var(--color-white) 10%, transparent); */
+    --boundary: var(--color-zinc-700);
+    --separator: var(--color-zinc-700);
     --content: var(--color-zinc-300);
     --muted: var(--color-zinc-400);
 }

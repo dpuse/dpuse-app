@@ -13,6 +13,7 @@ import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';
 import GoogleLogoIcon from '@/components/icon/logos/GoogleLogoIcon.vue';
+import Input from '@/components/input/Input.vue';
 import MicrosoftLogoIcon from '@/components/icon/logos/MicrosoftLogoIcon.vue';
 import Separator from '@/components/separator/Separator.vue';
 
@@ -38,16 +39,7 @@ async function handleSubmit(): Promise<void> {
         <h2 class="text-2xl font-normal">{{ t(T, 'Sign_in') }}</h2>
 
         <form class="mt-2 flex flex-col gap-y-3">
-            <input
-                id="email"
-                name="email"
-                autocomplete="email"
-                :placeholder="t(T, 'Email_address')"
-                required="true"
-                type="email"
-                class="block rounded-md px-3 py-2 text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-            />
-
+            <Input name="email" autocomplete="email" :placeholder="t(T, 'Email_address')" :required="true" type="email" />
             <ActionButton variant="commit" @click="handleSubmit">{{ t(T, 'Continue') }}</ActionButton>
         </form>
 
@@ -63,6 +55,6 @@ async function handleSubmit(): Promise<void> {
 
         <Separator class="mt-3 mb-2" />
 
-        <div class="text-center font-light">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
+        <div class="text-muted text-center">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
     </div>
 </template>
