@@ -115,7 +115,12 @@ function handleCloseDialog(): void {
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true"></div>
 
         <!-- Authentication dialog -->
-        <dialog aria-modal="true" class="bg-surface relative z-10 max-h-full max-w-full overflow-y-auto overscroll-y-none sm:h-auto sm:w-sm sm:rounded-lg" open tabindex="-1">
+        <dialog
+            aria-modal="true"
+            class="bg-surface relative z-10 h-full max-h-full w-full max-w-full overflow-y-auto overscroll-y-none sm:h-auto sm:w-sm sm:rounded-lg"
+            open
+            tabindex="-1"
+        >
             <!-- Close Button -->
             <ActionButton class="absolute top-3 right-3" variant="iconLarge" @click="handleCloseDialog">
                 <XIcon stroke-width="1.25" />

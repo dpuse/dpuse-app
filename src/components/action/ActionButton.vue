@@ -7,7 +7,7 @@ type Properties = { isActive?: boolean; variant?: 'commit' | 'danger' | 'ghost' 
 const { isActive = false, variant = 'ghost' } = defineProps<Properties>();
 
 // Classes
-const paddingClasses = computed(() => (variant === 'iconSmall' ? 'p-1.25' : variant === 'iconLarge' ? 'p-2' : 'px-3.5 py-2'));
+const paddingClasses = computed(() => (variant === 'iconSmall' ? 'p-1.25' : variant === 'iconLarge' ? 'p-2' : 'px-3 py-2'));
 const variantClasses = computed(() => {
     switch (variant) {
         case 'commit':
@@ -36,7 +36,7 @@ const variantClasses = computed(() => {
 
 <template>
     <button
-        class="inline-flex items-center justify-center gap-x-2 rounded-md font-light transition-[background-color] duration-150 focus-visible:outline-2 focus-visible:outline-offset-2"
+        class="inline-flex items-center justify-center gap-x-2 rounded-md transition-[background-color] duration-150 focus-visible:outline-2 focus-visible:outline-offset-2"
         :class="[paddingClasses, variantClasses]"
         type="button"
     >
