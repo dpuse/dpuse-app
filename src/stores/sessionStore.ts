@@ -144,10 +144,13 @@ export const useSessionStore = defineStore('session', () => {
             lifetime.value = expiresAt.value - establishedAt;
             sessionId.value = claims.session_id;
             userId.value = claims.subject;
+            console.log('[dpu:app] ℹ️ Authenticated session.');
             startSessionExpiryTimer();
             if (!isLoading) monitorInstance?.identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value); // Fails silently in no monitor instance
         } else {
+            monitorInstance?.resetUser(); // Fails silently in no monitor instance
             clearSessionExpiryTimer();
+            console.log('[dpu:app] ℹ️ Unauthenticated session.');
             emailAddress.value = undefined;
             emailIsPrimary.value = undefined;
             emailIsVerified.value = undefined;
@@ -157,7 +160,6 @@ export const useSessionStore = defineStore('session', () => {
             lifetime.value = undefined;
             userId.value = undefined;
             sessionId.value = undefined;
-            monitorInstance?.resetUser(); // Fails silently in no monitor instance
         }
     }
 
