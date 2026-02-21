@@ -22,8 +22,8 @@ body {
     --color-card: var(--card); /* Card background */
     --color-boundary: var(--boundary); /* Border/outline */
     --color-separator: var(--separator); /* Divider/separator */
-    --color-content: var(--content); /* Text (primary) */
-    --color-muted: var(--muted); /* Text (secondary) */
+    --color-content: var(--content); /* Text/icons (default/primary) */
+    --color-muted: var(--muted); /* Text/icons (light/secondary) */
 }
 
 :root {

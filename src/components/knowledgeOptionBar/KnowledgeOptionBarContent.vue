@@ -22,7 +22,7 @@ function handleNavigateTo(view: string): void {
 </script>
 
 <template>
-    <div class="pt-13.75">
+    <div class="bg-backdrop border-separator h-full w-16 flex-col border-l pt-13.75">
         <!-- Separator -->
         <div class="bg-separator mx-3 h-px" />
 

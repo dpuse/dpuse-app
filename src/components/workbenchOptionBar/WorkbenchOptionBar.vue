@@ -19,19 +19,15 @@ function handleSelect(config?: BenchtopOptionLocalisedConfig): void {
 </script>
 
 <template>
-    <div class="bg-backdrop">
-        <WorkbenchOptionBarContent
-            class="border-separator hidden h-full w-16 flex-col border-r md:flex"
-            :on-select="handleSelect"
-            :session-is-authenticated="sessionIsAuthenticated"
-        />
+    <div>
+        <WorkbenchOptionBarContent class="hidden md:flex" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
 
         <Transition name="option-bar-overlay" appear>
             <div v-if="isOpenInNarrowDisplay && !isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
                 <div class="bg-surface/70 absolute inset-0" @click="(event, config?: BenchtopOptionLocalisedConfig) => handleSelect(config)"></div>
 
                 <WorkbenchOptionBarContent
-                    class="dpu-option-bar-panel bg-backdrop border-separator relative mr-auto flex h-full w-16 flex-col border-r shadow-lg"
+                    class="dpu-floating-option-bar-panel relative mr-auto flex shadow-lg"
                     :on-select="handleSelect"
                     :session-is-authenticated="sessionIsAuthenticated"
                 />
@@ -49,12 +45,12 @@ function handleSelect(config?: BenchtopOptionLocalisedConfig): void {
 .option-bar-overlay-leave-to {
     opacity: 0;
 }
-.option-bar-overlay-enter-active .dpu-option-bar-panel,
-.option-bar-overlay-leave-active .dpu-option-bar-panel {
+.option-bar-overlay-enter-active .dpu-floating-option-bar-panel,
+.option-bar-overlay-leave-active .dpu-floating-option-bar-panel {
     transition: transform 260ms ease-in-out;
 }
-.option-bar-overlay-enter-from .dpu-option-bar-panel,
-.option-bar-overlay-leave-to .dpu-option-bar-panel {
+.option-bar-overlay-enter-from .dpu-floating-option-bar-panel,
+.option-bar-overlay-leave-to .dpu-floating-option-bar-panel {
     transform: translateX(-100%);
 }
 </style>
