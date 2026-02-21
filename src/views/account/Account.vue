@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Vendor Dependencies
 import { shallowRef } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 // App core
 import { t } from '@/locales';

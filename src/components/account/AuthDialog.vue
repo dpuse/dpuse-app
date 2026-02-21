@@ -33,7 +33,6 @@ onUnmounted(() => sessionState.destroyFlow());
 
 // Login flow helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Handle login flow state change.
 function handleLoginFlowStateChange(state: AnyState): Promise<void> {
     switch (state.name) {
         case 'preflight':
@@ -64,7 +63,7 @@ function handleLoginFlowStateChange(state: AnyState): Promise<void> {
     }
 }
 
-// Handle login flow initialisation state. User identifier (email address) input is required.
+// Handle login flow initialisation state; user identifier (email address) input is required
 async function handleLoginFlowInitState(state: State<'login_init'>): Promise<void> {
     const action = state.actions.continue_with_login_identifier as Action<ContinueWithLoginIdentifierInputs>;
     const input = (action.inputs.email || action.inputs.identifier) as Input<string>;
@@ -77,14 +76,14 @@ async function handleLoginFlowInitState(state: State<'login_init'>): Promise<voi
     };
 }
 
-// Handle login flow method chooser state. Only password logins are support.
+// Handle login flow method chooser state; only password logins are currently support
 async function handleLoginFlowMethodChooserState(state: State<'login_method_chooser'>): Promise<void> {
     const action = state.actions.continue_to_password_login!;
     const result = await action.run();
     if (result.error) console.log(result.error, result);
 }
 
-// Handle login flow password state. Password input is required.
+// Handle login flow password state; password input is required
 async function handleLoginFlowPasswordState(state: State<'login_password'>): Promise<void> {
     const action = state.actions.password_login;
     uiStateId.value = 'enterPassword';
@@ -94,7 +93,7 @@ async function handleLoginFlowPasswordState(state: State<'login_password'>): Pro
     };
 }
 
-// Handle login flow onboarding create passkey state. Creation of passkeys is disabled.
+// Handle login flow onboarding create passkey state; creation of passkeys is currently disabled
 async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboarding_create_passkey'>): Promise<void> {
     const action = state.actions.skip!;
     const result = await action.run();
@@ -118,10 +117,12 @@ function handleCloseDialog(): void {
         <!-- Authentication dialog -->
         <dialog aria-modal="true" class="bg-surface relative z-10 max-h-full max-w-full overflow-y-auto overscroll-y-none sm:h-auto sm:w-sm sm:rounded-lg" open tabindex="-1">
             <!-- Close Button -->
-            <ActionButton class="absolute top-3 right-3" @click="handleCloseDialog"><XIcon stroke-width="1.25" /></ActionButton>
+            <ActionButton class="absolute top-3 right-3" variant="iconLarge" @click="handleCloseDialog">
+                <XIcon stroke-width="1.25" />
+            </ActionButton>
 
             <!-- Login form -->
-            <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" class="" :on-trigger="handleIdEntered" />
+            <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" :on-trigger="handleIdEntered" />
 
             <!-- Password form -->
             <PasswordForm v-if="uiStateId === 'enterPassword' && handlePasswordEntered" :on-trigger="handlePasswordEntered" />
