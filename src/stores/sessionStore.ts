@@ -69,12 +69,12 @@ export const useSessionStore = defineStore('session', () => {
     function initialiseServices(): void {
         import('@teamhanko/hanko-frontend-sdk').then(({ Hanko }) => {
             hankoInstance = new Hanko(HANKO_API_URL);
-            hankoInstance.onSessionCreated((sessionDetails) => establishSession(sessionDetails.claims));
-            hankoInstance.onSessionExpired(() => establishSession());
-            hankoInstance.onUserDeleted(() => establishSession());
-            hankoInstance.onUserLoggedOut(() => establishSession());
+            hankoInstance.onSessionCreated((sessionDetails) => establishSession(1, sessionDetails.claims));
+            hankoInstance.onSessionExpired(() => establishSession(2));
+            hankoInstance.onUserDeleted(() => establishSession(3));
+            hankoInstance.onUserLoggedOut(() => establishSession(4));
             hankoInstance.validateSession().then((result) => {
-                establishSession(result.is_valid ? result.claims : undefined, true);
+                establishSession(5, result.is_valid ? result.claims : undefined, true);
                 import('@/composables/useMonitor').then((module) => {
                     monitorInstance = module.useMonitor(userId.value, sessionId.value, emailAddress.value);
                     window.addEventListener('beforeunload', (event) => {
@@ -126,7 +126,8 @@ export const useSessionStore = defineStore('session', () => {
 
     // Establish session helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    function establishSession(claims?: Claims, isLoading = false): void {
+    function establishSession(sessionTypeId: number, claims?: Claims, isLoading = false): void {
+        console.log(sessionTypeId);
         if (claims) {
             if (claims.email) {
                 emailAddress.value = claims.email.address;
@@ -144,13 +145,12 @@ export const useSessionStore = defineStore('session', () => {
             lifetime.value = expiresAt.value - establishedAt;
             sessionId.value = claims.session_id;
             userId.value = claims.subject;
-            console.log('[dpu:app] ℹ️ Authenticated session.');
+            console.log('[dpu:app] ℹ️ Authenticated session established.');
             startSessionExpiryTimer();
             if (!isLoading) monitorInstance?.identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value); // Fails silently in no monitor instance
         } else {
             monitorInstance?.resetUser(); // Fails silently in no monitor instance
             clearSessionExpiryTimer();
-            console.log('[dpu:app] ℹ️ Unauthenticated session.');
             emailAddress.value = undefined;
             emailIsPrimary.value = undefined;
             emailIsVerified.value = undefined;
@@ -160,6 +160,7 @@ export const useSessionStore = defineStore('session', () => {
             lifetime.value = undefined;
             userId.value = undefined;
             sessionId.value = undefined;
+            console.log('[dpu:app] ℹ️ Unauthenticated session established.');
         }
     }
 
