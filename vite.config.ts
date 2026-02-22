@@ -23,12 +23,14 @@ export default defineConfig({
             'Content-Security-Policy':
                 "default-src 'none';" +
                 " base-uri 'self';" +
-                " connect-src 'self' http://localhost:5173 ws://localhost:5173 https://www.datapos.app wss://www.datapos.app data: https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://sample-data-eu.datapos.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io https://eu.i.posthog.com https://eu-assets.i.posthog.com;" +
+                // " connect-src 'self' http://localhost:5173 ws://localhost:5173 https://www.datapos.app wss://www.datapos.app data: https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://sample-data-eu.datapos.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io https://eu.i.posthog.com https://eu-assets.i.posthog.com;" +
+                " connect-src https://sr-client-cfg.eu.amplitude.com https://cdn.amplitude.com https://api.eu.amplitude.com https://api-sr.eu.amplitude.com 'self' http://localhost:5173 ws://localhost:5173 https://www.datapos.app wss://www.datapos.app data: https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://sample-data-eu.datapos.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io https://eu.i.posthog.com https://eu-assets.i.posthog.com;" +
                 " form-action 'none';" +
                 " frame-ancestors 'none';" +
                 " img-src 'self';" +
                 " manifest-src 'self';" +
-                " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' data: 'sha256-zB6mwYmmKIlxJrDq5yysgDwDqL4RFTYqD9cEDekVWCA=';" +
+                // " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' data: 'sha256-zB6mwYmmKIlxJrDq5yysgDwDqL4RFTYqD9cEDekVWCA=';" +
+                " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' data: 'unsafe-inline' https://cdn.amplitude.com https://cdn.eu.amplitude.com;" +
                 // " require-trusted-types-for 'script';" + // TODO: Can not get this to work with import of Engine Web Worker.
                 " style-src 'self' 'unsafe-inline';" + // TODO: SimpleTable set styles, need to change. See chat GDP answers.
                 " worker-src 'self' blob:;",
