@@ -1,6 +1,6 @@
 // External dependencies
-import 'posthog-js/dist/web-vitals';
-import posthog, { type CaptureOptions, type Properties } from 'posthog-js/dist/module.no-external';
+// import 'posthog-js/dist/web-vitals';
+// import posthog, { type CaptureOptions, type Properties } from 'posthog-js/dist/module.no-external';
 
 // DPU framework
 import type { DPUError } from '@datapos/datapos-shared/errors';
@@ -16,8 +16,8 @@ import { type Exception, pendingExceptions, useSessionStore } from '@/stores/ses
 // Constants
 const DPU_API_HOST = 'api.datapos.app';
 const LOCAL_META_NODE_CONNECTOR_ID = 'datapos-connector-dexie-js';
-const POSTHOG_DEFAULTS = '2025-11-30';
-const POSTHOG_URL = 'https://eu.i.posthog.com';
+// const POSTHOG_DEFAULTS = '2025-11-30';
+// const POSTHOG_URL = 'https://eu.i.posthog.com';
 const TIMEOUT_DELAY = 5000;
 
 // Long-lived session-scoped module states WebSocket
@@ -49,24 +49,24 @@ export function logErrorToConsole(error: unknown): void {
 
 // Composable that encapsulates PostHog interface and module state websocket
 export interface Monitor {
-    captureEvent: (name: string, properties: Properties, options: CaptureOptions) => void;
+    // captureEvent: (name: string, properties: Properties, options: CaptureOptions) => void;
     identifyUser: (userId: string, authSessionId: string, emailAddress?: string) => void;
     logException: (exception: Exception) => void;
     resetUser: () => void;
     shutdown: () => void;
 }
 export function useMonitor(userId?: string, authSessionId?: string, emailAddress?: string): Monitor {
-    posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, {
-        api_host: POSTHOG_URL,
-        defaults: POSTHOG_DEFAULTS,
-        advanced_disable_flags: false,
-        capture_pageview: 'history_change',
-        disable_session_recording: true,
-        disable_surveys: true,
-        enable_recording_console_log: false,
-        enable_heatmaps: false,
-        person_profiles: 'identified_only'
-    });
+    // posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, {
+    //     api_host: POSTHOG_URL,
+    //     defaults: POSTHOG_DEFAULTS,
+    //     advanced_disable_flags: false,
+    //     capture_pageview: 'history_change',
+    //     disable_session_recording: true,
+    //     disable_surveys: true,
+    //     enable_recording_console_log: false,
+    //     enable_heatmaps: false,
+    //     person_profiles: 'identified_only'
+    // });
 
     if (userId != null && authSessionId != null) identifyUser(userId, authSessionId, emailAddress);
 
@@ -77,24 +77,24 @@ export function useMonitor(userId?: string, authSessionId?: string, emailAddress
         moduleStatesWebSocket = connectToModuleStatesWebSocket();
     }
 
-    return { captureEvent, identifyUser, logException, resetUser, shutdown };
+    return { /*captureEvent,*/ identifyUser, logException, resetUser, shutdown };
 }
 
 // PostHog helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function identifyUser(userId: string, authSessionId: string, emailAddress?: string): void {
-    posthog.register_for_session({ dpu_auth_session_id: authSessionId });
-    posthog.identify(userId, { dpu_user_id: userId, dpu_email_address: emailAddress });
+    // posthog.register_for_session({ dpu_auth_session_id: authSessionId });
+    // posthog.identify(userId, { dpu_user_id: userId, dpu_email_address: emailAddress });
 }
 
 function resetUser(): void {
-    posthog.unregister_for_session('dpu_auth_session_id');
-    posthog.reset();
+    // posthog.unregister_for_session('dpu_auth_session_id');
+    // posthog.reset();
 }
 
-function captureEvent(name: string, properties: Properties, options: CaptureOptions): void {
-    posthog.capture(name, properties, options);
-}
+// function captureEvent(name: string, properties: Properties, options: CaptureOptions): void {
+//     posthog.capture(name, properties, options);
+// }
 
 function logException(exception: Exception): void {
     let exceptionError;
@@ -143,8 +143,8 @@ function logException(exception: Exception): void {
             break;
         }
     }
-    const result = posthog.captureException(exceptionError, exceptionProperties);
-    console.info('[dpu:app] ❌', exceptionError, exceptionProperties, result);
+    // const result = posthog.captureException(exceptionError, exceptionProperties);
+    console.info('[dpu:app] ❌', exceptionError, exceptionProperties /*, result*/);
 }
 
 function shutdown(): void {

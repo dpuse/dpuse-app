@@ -54,6 +54,7 @@ const dataViewConfigs = computed(() => sessionState.dataViewConfigs);
 
 async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<void> {
     try {
+        console.log(1111, connectionConfig);
         if (!connectionConfig) return;
 
         const { processRequest } = await useEngineWorker();
@@ -116,7 +117,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     } catch (error) {
-        logErrorToConsole(new AppError('Failed to retrieve data views.', 'dpu-appRoutes.EstablishDataViews.retrieveDataViews', { cause: error }));
+        logErrorToConsole(new AppError('Failed to retrieve data views.', 'dpu-app.EstablishDataViews.retrieveDataViews', { cause: error }));
     } finally {
         // Pending...
     }

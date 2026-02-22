@@ -36,9 +36,15 @@ export const appRoutes = [
                         ]
                     },
                     {
-                        name: 'assembleDimensions',
                         path: 'assembleDimensions',
-                        component: (): Promise<Component> => import('@/views/workflow/assembleDimensions/AssembleDimensions.vue')
+                        component: (): Promise<Component> => import('@/views/workflow/assembleDimensions/AssembleDimensions.vue'),
+                        children: [
+                            {
+                                name: 'assembleDimensions',
+                                path: '',
+                                component: (): Promise<Component> => import('@/views/workflow/assembleDimensions/DimensionList.vue')
+                            }
+                        ]
                     },
                     {
                         name: 'contextualiseData',
