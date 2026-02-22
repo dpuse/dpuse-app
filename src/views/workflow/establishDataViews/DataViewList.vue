@@ -54,7 +54,6 @@ const dataViewConfigs = computed(() => sessionState.dataViewConfigs);
 
 async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<void> {
     try {
-        console.log(1111, connectionConfig);
         if (!connectionConfig) return;
 
         const { processRequest } = await useEngineWorker();
