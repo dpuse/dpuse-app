@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 
 // App components
-import IconActionContent from '@/components/action/IconActionContent.vue';
+import ActionButton from '../action/ActionButton.vue';
 
 // Properties
 defineProps<{ isWideDisplay: boolean }>();
@@ -54,9 +54,9 @@ function runTest(): void {
             </div>
 
             <div class="flex justify-end pr-1 pb-1">
-                <IconActionContent icon-size="sm" @click="runTest">
+                <ActionButton icon-size="sm" @click="runTest">
                     <SendHorizonalIcon stroke-width="1.25" />
-                </IconActionContent>
+                </ActionButton>
             </div>
         </div>
     </div>

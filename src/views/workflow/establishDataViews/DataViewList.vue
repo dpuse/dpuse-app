@@ -24,10 +24,10 @@ import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App components
+import ActionButton from '@/components/action/ActionButton.vue';
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
-import IconActionContent from '@/components/action/IconActionContent.vue';
 
 // App components (lazy loaded)
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
@@ -126,11 +126,10 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 <template>
     <div class="border-separator mx-4 flex flex-none border-b py-1">
         <div class="flex-1"></div>
-        <button class="group outline-none" @click="router.push({ name: 'connectionSelector', query: router.currentRoute.value.query })">
-            <IconActionContent size="sm">
-                <PlusIcon stroke-width="1.25" />
-            </IconActionContent>
-        </button>
+
+        <ActionButton @click="router.push({ name: 'connectionSelector', query: router.currentRoute.value.query })">
+            <PlusIcon stroke-width="1.25" />
+        </ActionButton>
     </div>
 
     <GridScroller

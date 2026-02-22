@@ -6,7 +6,7 @@ import { SendHorizonalIcon } from 'lucide-vue-next';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
 
 // App components
-import IconActionContent from '@/components/action/IconActionContent.vue';
+import ActionButton from '@/components/action/ActionButton.vue';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -73,9 +73,9 @@ async function runTest(): Promise<void> {
             </div>
 
             <div class="flex justify-end pr-1 pb-1">
-                <IconActionContent icon-size="sm" @click="runTest">
+                <ActionButton icon-size="sm" @click="runTest">
                     <SendHorizonalIcon stroke-width="1.25" />
-                </IconActionContent>
+                </ActionButton>
             </div>
         </div>
     </div>
