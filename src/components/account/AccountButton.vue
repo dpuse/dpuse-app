@@ -1,25 +1,29 @@
 <script setup lang="ts">
 // External dependencies
+import { useRouter } from 'vue-router';
 import { computed, ref, watch } from 'vue';
 import { LoaderCircleIcon, LogInIcon, UserCogIcon } from 'lucide-vue-next';
-import { RouterLink, useRouter } from 'vue-router';
 
 // App core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 
 // App components
-import IconActionContent from '@/components/action/IconActionContent.vue';
+import ActionButton from '@/components/action/ActionButton.vue';
+import ActionRouterLink from '@/components/action/ActionRouterLink.vue';
 
 // Properties
 const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: (config?: BenchtopOptionLocalisedConfig) => void }>();
 
-// Global state
+// Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const router = useRouter();
+
+// ??? ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const authIconState = ref<boolean | undefined>(undefined);
 
-const optionComponent = computed(() => (properties.sessionIsAuthenticated ? RouterLink : 'button'));
-const optionAttributes = computed(() => (properties.sessionIsAuthenticated ? { to: { name: 'account' } } : { type: 'button' }));
+const optionComponent = computed(() => (properties.sessionIsAuthenticated ? ActionRouterLink : ActionButton));
+const optionAttributes = computed(() => (properties.sessionIsAuthenticated ? { to: { name: 'account' } } : undefined));
 
 watch(
     () => properties.sessionIsAuthenticated,
@@ -42,14 +46,12 @@ function handleSelect(): void {
 </script>
 
 <template>
-    <component :is="optionComponent" aria-label="Manage personal details" class="group outline-none" v-bind="optionAttributes" @click="handleSelect">
-        <IconActionContent aria-hidden="true" class="relative h-10 w-10">
-            <TransitionGroup name="fade">
-                <UserCogIcon v-if="authIconState === true" key="user" class="absolute top-2 left-2" :stroke-width="1.25" />
-                <LogInIcon v-if="authIconState === false" key="login" class="absolute top-2 left-2" :stroke-width="1.25" />
-                <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute top-2 left-2 animate-spin text-neutral-300" />
-            </TransitionGroup>
-        </IconActionContent>
+    <component :is="optionComponent" aria-label="Manage personal details" class="relative h-10 w-10" v-bind="optionAttributes" @click="handleSelect">
+        <TransitionGroup name="fade">
+            <UserCogIcon v-if="authIconState === true" key="user" class="absolute top-2 left-2" :stroke-width="1.25" />
+            <LogInIcon v-if="authIconState === false" key="login" class="absolute top-2 left-2" :stroke-width="1.25" />
+            <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute top-2 left-2 animate-spin text-neutral-300" />
+        </TransitionGroup>
     </component>
 </template>
 

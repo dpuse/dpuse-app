@@ -9,8 +9,8 @@ import type { BenchtopOptionLocalisedConfig } from './types/workbench';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App components
+import ActionButton from '@/components/action/ActionButton.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
-import IconActionContent from '@/components/action/IconActionContent.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import KnowledgePanel from '@/components/knowledgePanel/KnowledgePanel.vue';
@@ -156,19 +156,15 @@ function handleKnowledgeOptionSelect(): void {
 
 <template>
     <div class="bg-surface text-content fixed inset-0 flex" :class="{ 'select-none': paneSplitterIsDragging }">
-        <!-- Workbench toggle fixed in top left corner, always visible -->
-        <button class="group fixed top-1.75 left-3 z-40 outline-none" @click="handleWorkbenchToggle">
-            <IconActionContent :aria-label="workbenchPaneToggleAriaLabel">
-                <DPULogoIcon />
-            </IconActionContent>
-        </button>
+        <!-- Workbench toggle fixed in top left corner; always visible -->
+        <ActionButton :aria-label="workbenchPaneToggleAriaLabel" class="fixed top-1.75 left-3 z-40" variant="iconLarge" @click="handleWorkbenchToggle">
+            <DPULogoIcon />
+        </ActionButton>
 
-        <!-- Knowledge toggle fixed in top right corner, always visible -->
-        <button class="group fixed top-1.75 right-3 z-40 outline-none" @click="handleKnowledgeToggle">
-            <IconActionContent :aria-label="knowledgePaneToggleAriaLabel">
-                <KnowledgeIcon />
-            </IconActionContent>
-        </button>
+        <!-- Knowledge toggle fixed in top right corner; always visible -->
+        <ActionButton :aria-label="knowledgePaneToggleAriaLabel" class="fixed top-1.75 right-3 z-40" variant="iconLarge" @click="handleKnowledgeToggle">
+            <KnowledgeIcon />
+        </ActionButton>
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
         <AuthDialog v-if="authDialogIsVisible" />

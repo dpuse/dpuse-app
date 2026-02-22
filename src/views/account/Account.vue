@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Vendor Dependencies
+// External dependencies
 import { ArrowBigLeftIcon } from 'lucide-vue-next';
 import { shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
@@ -20,7 +20,7 @@ import Separator from '@/components/separator/Separator.vue';
 // Properties
 const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isWideDisplay: boolean }>();
 
-// Global state
+// Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const router = useRouter();
 const sessionState = useSessionStore();
 

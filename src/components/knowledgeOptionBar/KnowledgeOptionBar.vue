@@ -3,7 +3,8 @@
 import KnowledgeOptionBarContent from './KnowledgeOptionBarContent.vue';
 
 // Properties
-defineProps<{ isOpenInNarrowDisplay: boolean; isWideDisplay: boolean; sessionIsAuthenticated?: boolean }>();
+type Properties = { isOpenInNarrowDisplay: boolean; isWideDisplay: boolean; sessionIsAuthenticated?: boolean };
+const { isOpenInNarrowDisplay, isWideDisplay, sessionIsAuthenticated } = defineProps<Properties>();
 
 // Emits
 const emit = defineEmits<{ (event: 'select'): void }>();

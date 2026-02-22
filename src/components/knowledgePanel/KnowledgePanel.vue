@@ -14,7 +14,7 @@ const KnowledgeSearchPanel = defineAsyncComponent(() => import('./KnowledgeSearc
 // Properties
 defineProps<{ isWideDisplay: boolean }>();
 
-// Global state
+// Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const route = useRoute();
 
 const knowledgePanels: Record<'welcome' | 'search' | 'chat', { component: Component; label: string }> = {
