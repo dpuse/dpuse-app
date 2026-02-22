@@ -15,7 +15,7 @@ defineProps<Properties>();
 
 <template>
     <BenchtopShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'overline') }]" :title="t(T, 'title')" :is-wide-display="isWideDisplay" />
+        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]" :title="t(T, 'Explore_Presentations')" :is-wide-display="isWideDisplay" />
 
         <BenchtopScroller class="flex-1"></BenchtopScroller>
     </BenchtopShell>

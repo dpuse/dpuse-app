@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // Vendor Dependencies
+import { ArrowBigLeftIcon } from 'lucide-vue-next';
 import { shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -9,13 +10,12 @@ import T from '@/locales/views/account/Account.json';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App components
+import ActionButton from '@/components/action/ActionButton.vue';
+import ActionRouterLink from '@/components/action/ActionRouterLink.vue';
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Header from '@/components/header/Header.vue';
-import TextActionContent from '@/components/action/TextActionContent.vue';
-
-// Types
-type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string };
+import Separator from '@/components/separator/Separator.vue';
 
 // Properties
 const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isWideDisplay: boolean }>();
@@ -24,6 +24,8 @@ const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isWide
 const router = useRouter();
 const sessionState = useSessionStore();
 
+// Account options
+type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string };
 const optionConfigs: OptionLocalisedConfig[] = [
     { id: 'profile', type: 'label', label: 'Profile' },
     { id: 'managePersonalDetails', icon: '', label: 'Personal details', title: 'Manage Personal Details' },
@@ -38,7 +40,6 @@ const optionConfigs: OptionLocalisedConfig[] = [
     { id: 'development', type: 'label', label: 'Development' },
     { id: 'generateToken', icon: '', label: 'API token' }
 ];
-
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
 
 // UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -78,8 +79,8 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 <template>
     <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-wide-display="isWideDisplay">
         <Header
-            :breadcrumbs="[{ id: 'benchtop', label: t(T, 'overline') }]"
-            :title="t(T, 'title')"
+            :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workbench') }]"
+            :title="t(T, 'Account')"
             :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay"
             :is-wide-display="isWideDisplay"
         />
@@ -87,41 +88,43 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
         <div class="flex flex-1 overflow-y-hidden">
             <BenchtopScroller v-if="isWideDisplay || !activeOptionConfig" class="border-boundary flex flex-1 flex-col border-r px-4 pt-4 pb-6 md:flex-none">
                 <div class="divide-separator flex flex-1 flex-col gap-y-2">
-                    <button class="group min-w-50 outline-none">
-                        <TextActionContent variant="warning" @click="handleSignOut">{{ t(T, 'signOut') }}</TextActionContent>
-                    </button>
+                    <ActionButton class="min-w-50 justify-start" variant="warning" @click="handleSignOut">{{ t(T, 'Sign_out') }}</ActionButton>
 
-                    <!-- Separator -->
-                    <div class="bg-separator mt-2 h-px" />
+                    <Separator class="mt-2" />
 
                     <div class="flex flex-1 flex-col gap-y-2">
                         <template v-for="optionConfig of optionConfigs" :key="optionConfig.id">
                             <div v-if="optionConfig.type === 'label'" class="text-muted mt-2 text-xs font-medium">{{ optionConfig.label }}</div>
-                            <RouterLink
+                            <ActionRouterLink
                                 v-else
-                                class="group min-w-50 outline-none"
+                                class="min-w-50 justify-start"
+                                :is-active="router.currentRoute.value.name === optionConfig.id && isWideDisplay"
                                 :to="{ name: optionConfig.id, query: router.currentRoute.value.query }"
+                                variant="item"
                                 @click="activeOptionConfig = optionConfig"
                             >
-                                <TextActionContent :is-active="router.currentRoute.value.name === optionConfig.id && isWideDisplay">
-                                    {{ optionConfig.label }}
-                                </TextActionContent>
-                            </RouterLink>
+                                {{ optionConfig.label }}
+                            </ActionRouterLink>
                         </template>
                     </div>
                 </div>
 
                 <div class="flex flex-none flex-col gap-y-2 pt-2">
-                    <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'criticalActions') }}</div>
-                    <RouterLink class="group min-w-50 outline-none" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }">
-                        <TextActionContent variant="danger">{{ t(T, 'deleteAccount') }}</TextActionContent>
-                    </RouterLink>
+                    <Separator class="mt-2" />
+
+                    <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div>
+
+                    <ActionRouterLink class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }" variant="danger">
+                        {{ t(T, 'Delete_account') }}
+                    </ActionRouterLink>
                 </div>
             </BenchtopScroller>
 
             <div v-if="isWideDisplay || activeOptionConfig" class="flex flex-1 flex-col">
-                <div class="border-separator mx-4 flex h-12 flex-none items-center border-b">
-                    <button v-if="!isWideDisplay" @click="handleBack">Back</button>
+                <div class="border-separator mx-4 flex h-12 flex-none items-center gap-x-1 border-b">
+                    <ActionButton v-if="!isWideDisplay" variant="iconSmall" @click="handleBack">
+                        <ArrowBigLeftIcon stroke-width="1.25" />
+                    </ActionButton>
                     {{ activeOptionConfig!.title }}
                 </div>
 

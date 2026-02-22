@@ -27,9 +27,9 @@ const route = useRoute();
 <template>
     <BenchtopShell>
         <Header
-            :breadcrumbs="[{ id: 'workbench', label: t(T, 'overline') }]"
+            :breadcrumbs="[{ id: 'workbench', label: t(T, 'Workbench') }]"
             class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] w-full max-w-4xl"
-            :title="t(T, 'title')"
+            :title="t(T, 'Workflow_Benchtop')"
             data-testid="header"
             :is-wide-display="isWideDisplay"
         />
@@ -43,7 +43,7 @@ const route = useRoute();
                         class="bg-card outline-boundary overflow-hidden rounded-lg font-light outline -outline-offset-1"
                         :to="{ name: config.id, query: route.query }"
                     >
-                        <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'step', { number: config.step })" />
+                        <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'Step', { number: config.step })" />
                     </RouterLink>
                 </div>
             </div>

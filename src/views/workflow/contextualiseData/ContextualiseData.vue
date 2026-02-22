@@ -21,7 +21,7 @@ const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/em
 type Properties = { activeBenchtopOptionConfig?: BenchtopOptionLocalisedConfig; isWideDisplay: boolean };
 defineProps<Properties>();
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ??? ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const configs = [
     { id: '1', label: 'Event Query 1', badges: [{ id: '1', label: 'undefined' }] },
@@ -41,7 +41,7 @@ const configs = [
 
 <template>
     <BenchtopShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'overline') }]" :title="t(T, 'title')" :is-wide-display="isWideDisplay" />
+        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]" :title="t(T, 'Contextualise_Data')" :is-wide-display="isWideDisplay" />
 
         <GridScroller v-if="configs.length > 0" class="flex-1" :items="configs" :row-height="150" :target-column-width="350">
             <template #default="{ item }">
@@ -56,7 +56,7 @@ const configs = [
         </GridScroller>
 
         <BenchtopScroller v-else class="flex-1">
-            <EmptyStatePlaceholder message-item-label="event queries" description-item-label="event query" action-item-label="Event Queries" />
+            <EmptyStatePlaceholder :message-item-label="t(T, 'event_queries')" :description-item-label="t(T, 'event_query')" :action-item-label="t(T, 'Event_Query')" />
         </BenchtopScroller>
     </BenchtopShell>
 </template>

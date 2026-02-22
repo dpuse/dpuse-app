@@ -21,10 +21,10 @@ defineProps<Properties>();
 
 <template>
     <BenchtopShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'overline') }]" :title="t(T, 'title')" :is-wide-display="isWideDisplay" />
+        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]" :title="t(T, 'Assemble_Dimensions')" :is-wide-display="isWideDisplay" />
 
         <BenchtopScroller class="flex-1">
-            <EmptyStatePlaceholder message-item-label="dimensions" description-item-label="dimension" action-item-label="Dimension" />
+            <EmptyStatePlaceholder :message-item-label="t(T, 'dimensions')" :description-item-label="t(T, 'dimension')" :action-item-label="t(T, 'Dimension')" />
         </BenchtopScroller>
     </BenchtopShell>
 </template>

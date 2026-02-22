@@ -14,7 +14,7 @@ const { isWideDisplay } = defineProps<Properties>();
 
 <template>
     <BenchtopShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'overline') }]" :title="t(T, 'title')" :is-wide-display="isWideDisplay" />
+        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]" :title="t(T, 'Establish_Data_Views')" :is-wide-display="isWideDisplay" />
 
         <RouterView />
     </BenchtopShell>

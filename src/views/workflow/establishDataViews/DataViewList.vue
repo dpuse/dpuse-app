@@ -18,6 +18,8 @@ import type {
 
 // App core
 import { logErrorToConsole } from '@/composables/useMonitor';
+import { t } from '@/locales';
+import T from '@/locales/views/workflow/establishDataViews/EstablishDataViews.json';
 import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
@@ -151,6 +153,6 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
     </GridScroller>
 
     <BenchtopScroller v-else-if="dataViewRetrievalIsActive" class="flex-1">
-        <EmptyStatePlaceholder message-item-label="data views" description-item-label="data view" action-item-label="Data View" />
+        <EmptyStatePlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
     </BenchtopScroller>
 </template>
