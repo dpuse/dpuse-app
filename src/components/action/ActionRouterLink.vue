@@ -18,9 +18,9 @@ const variantClasses = computed(() => {
         case 'ghost':
             return 'focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
         case 'iconLarge':
-            return 'focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
+            return 'dpu-lg focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
         case 'iconSmall':
-            return 'focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
+            return 'dpu-sm focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
         case 'item':
             return `${isActive ? 'bg-zinc-200 dark:bg-zinc-500/50' : 'focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400'} bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-500/20 dark:hover:bg-zinc-500/40`;
         case 'outline':
@@ -44,3 +44,14 @@ const variantClasses = computed(() => {
         <slot />
     </RouterLink>
 </template>
+
+<style scoped>
+a.dpu-sm :deep(svg) {
+    width: 20px;
+    height: 20px;
+}
+a.dpu-lg :deep(svg) {
+    width: 24px;
+    height: 24px;
+}
+</style>

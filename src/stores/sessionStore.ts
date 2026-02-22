@@ -75,15 +75,15 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.onUserLoggedOut(() => establishSession('terminated'));
             hankoInstance.validateSession().then((result) => {
                 establishSession('validated', result.is_valid ? result.claims : undefined, true);
-                import('@/composables/useMonitor').then((module) => {
-                    monitorInstance = module.useMonitor(userId.value, sessionId.value, emailAddress.value);
-                    window.addEventListener('beforeunload', (event) => {
-                        if (!areUpdatesPending.value) return;
-                        monitorInstance?.shutdown(); // Fails silently in no monitor instance
-                        event.preventDefault();
-                        event.returnValue = '';
-                    });
-                });
+                // import('@/composables/useMonitor').then((module) => {
+                //     monitorInstance = module.useMonitor(userId.value, sessionId.value, emailAddress.value);
+                //     window.addEventListener('beforeunload', (event) => {
+                //         if (!areUpdatesPending.value) return;
+                //         monitorInstance?.shutdown(); // Fails silently in no monitor instance
+                //         event.preventDefault();
+                //         event.returnValue = '';
+                //     });
+                // });
             });
         });
     }

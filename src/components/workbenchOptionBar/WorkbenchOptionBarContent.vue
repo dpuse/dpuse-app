@@ -8,8 +8,8 @@ import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // App components
-import AccountAction from '@/components/account/AccountAction.vue';
-import IconActionContent from '@/components/action/IconActionContent.vue';
+import AccountButton from '@/components/account/AccountButton.vue';
+import ActionRouterLink from '@/components/action/ActionRouterLink.vue';
 
 // Properties
 defineProps<{ sessionIsAuthenticated?: boolean; onSelect: (config?: BenchtopOptionLocalisedConfig) => void }>();
@@ -29,28 +29,25 @@ const route = useRoute();
         <!-- Benchtop options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-6">
             <div class="flex flex-1 flex-col items-center gap-y-2">
-                <RouterLink :aria-label="activeBenchtopConfig.label" class="group outline-none" :to="{ name: activeBenchtopConfig.id, query: route.query }" @click="onSelect()">
-                    <IconActionContent>
-                        <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
-                    </IconActionContent>
-                </RouterLink>
+                <ActionRouterLink :aria-label="activeBenchtopConfig.label" :to="{ name: activeBenchtopConfig.id, query: route.query }" variant="iconLarge" @click="onSelect()">
+                    <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
+                </ActionRouterLink>
 
-                <RouterLink
+                <ActionRouterLink
                     v-for="config of activeBenchtopConfig.options"
                     :key="config.id"
                     :aria-label="config.label"
                     class="group outline-none"
                     :to="{ name: config.id, query: route.query }"
+                    variant="iconLarge"
                     @click="onSelect(config)"
                 >
-                    <IconActionContent>
-                        <div aria-hidden="true" :style="{ color: `${config.color}` }" v-html="config.icon" />
-                    </IconActionContent>
-                </RouterLink>
+                    <div aria-hidden="true" :style="{ color: `${config.color}` }" v-html="config.icon" />
+                </ActionRouterLink>
             </div>
 
             <!-- Account option -->
-            <AccountAction :session-is-authenticated="sessionIsAuthenticated" :on-select="onSelect" />
+            <AccountButton :session-is-authenticated="sessionIsAuthenticated" :on-select="onSelect" />
         </div>
     </div>
 </template>

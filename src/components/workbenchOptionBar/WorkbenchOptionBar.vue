@@ -6,7 +6,8 @@ import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import WorkbenchOptionBarContent from './WorkbenchOptionBarContent.vue';
 
 // Properties
-defineProps<{ isOpenInNarrowDisplay: boolean; isWideDisplay: boolean; sessionIsAuthenticated?: boolean }>();
+type Properties = { isOpenInNarrowDisplay: boolean; isWideDisplay: boolean; sessionIsAuthenticated?: boolean };
+const { isOpenInNarrowDisplay, isWideDisplay, sessionIsAuthenticated } = defineProps<Properties>();
 
 // Emits
 const emit = defineEmits<{ (event: 'select', config?: BenchtopOptionLocalisedConfig): void }>();
