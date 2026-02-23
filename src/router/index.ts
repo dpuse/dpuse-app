@@ -47,16 +47,26 @@ export const appRoutes = [
                         ]
                     },
                     {
-                        name: 'contextualiseData',
                         path: 'contextualiseData',
-                        component: (): Promise<Component> => import('@/views/workflow/contextualiseData/ContextualiseData.vue')
+                        component: (): Promise<Component> => import('@/views/workflow/contextualiseData/ContextualiseData.vue'),
+                        children: [
+                            {
+                                name: 'contextualiseData',
+                                path: '',
+                                component: (): Promise<Component> => import('@/views/workflow/contextualiseData/EventQueryList.vue')
+                            }
+                        ]
                     },
                     {
                         name: 'explorePresentations',
                         path: 'explorePresentations',
                         component: (): Promise<Component> => import('@/views/workflow/explorePresentations/ExplorePresentations.vue')
                     },
-                    { name: 'buildDataApps', path: 'buildDataApps', component: (): Promise<Component> => import('@/views/workflow/buildDataApps/BuildDataApps.vue') }
+                    {
+                        name: 'buildDataApps',
+                        path: 'buildDataApps',
+                        component: (): Promise<Component> => import('@/views/workflow/buildDataApps/BuildDataApps.vue')
+                    }
                 ]
             },
             {

@@ -12,7 +12,7 @@ import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObje
 // App core
 import { logErrorToConsole } from '@/composables/useMonitor';
 import { t } from '@/locales';
-import T from '@/locales/views/workflow/assembleDimensions/AssembleDimensions.json';
+import T from '@/locales/views/workflow/contextualiseData/ContextualiseData.json';
 import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
@@ -32,44 +32,44 @@ const sessionState = useSessionStore();
 
 // Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const dimensionRetrievalIsActive = ref(false);
+const eventQueryRetrievalIsActive = ref(false);
 
 // Local meta store connection configuration state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const localMetaStoreConnectionConfig = computed(() => sessionState.localMetaStoreConnectionConfig);
-watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDimensions(newConnectionConfig), { immediate: true });
+watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveEventQueries(newConnectionConfig), { immediate: true });
 
-// Local dimensions configurations state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local event query configurations state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const dimensionConfigs = computed(() => sessionState.dimensionConfigs);
+const eventQueryConfigs = computed(() => sessionState.eventQueryConfigs);
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<void> {
+async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promise<void> {
     try {
         if (!connectionConfig) return;
 
         const { processRequest } = await useEngineWorker();
-        const findObjectOptions: FindObjectOptions = { storeId: 'dpuMetaStore', nodeId: 'dimensions' };
+        const findObjectOptions: FindObjectOptions = { storeId: 'dpuMetaStore', nodeId: 'eventQueries' };
         const findObjectResult = (await processRequest('findObject', connectionConfig, findObjectOptions)) as FindObjectResult;
         if (findObjectResult.path == null) {
-            const createObjectOptions: CreateObjectOptions = { path: '/dpuMetaStore/dimensions', structure: 'id' };
+            const createObjectOptions: CreateObjectOptions = { path: '/dpuMetaStore/eventQueries', structure: 'id' };
             await processRequest('createObject', connectionConfig, createObjectOptions);
         }
 
-        const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dimensions', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
+        const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/eventQueries', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
         await processRequest('retrieveRecords', connectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
             if (data.typeId === 'chunk') {
-                sessionState.dimensionConfigs = (data.properties.records as { id: string; label: string }[]).map((record) => {
+                sessionState.eventQueryConfigs = (data.properties.records as { id: string; label: string }[]).map((record) => {
                     const localisedConfig = record;
                     return localisedConfig;
                 });
             } else {
-                dimensionRetrievalIsActive.value = true;
+                eventQueryRetrievalIsActive.value = true;
             }
         });
     } catch (error) {
-        logErrorToConsole(new AppError('Failed to retrieve dimensions.', 'dpu-app.AssembleDimensions.retrieveDimensions', { cause: error }));
+        logErrorToConsole(new AppError('Failed to retrieve event queries.', 'dpu-app.EventQueryList.retrieveEventQueries', { cause: error }));
     } finally {
         // Pending...
     }
@@ -86,9 +86,9 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
     </div>
 
     <GridScroller
-        v-if="dimensionRetrievalIsActive && dimensionConfigs && dimensionConfigs.length > 0"
+        v-if="eventQueryRetrievalIsActive && eventQueryConfigs && eventQueryConfigs.length > 0"
         class="flex-1 pb-6"
-        :items="dimensionConfigs"
+        :items="eventQueryConfigs"
         :row-height="150"
         :target-column-width="350"
     >
@@ -97,7 +97,7 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
         </template>
     </GridScroller>
 
-    <BenchtopScroller v-else-if="dimensionRetrievalIsActive" class="flex-1">
-        <EmptyStatePlaceholder :message-item-label="t(T, 'dimensions')" :description-item-label="t(T, 'dimension')" :action-item-label="t(T, 'Dimension')" />
+    <BenchtopScroller v-else-if="eventQueryRetrievalIsActive" class="flex-1">
+        <EmptyStatePlaceholder :message-item-label="t(T, 'event_queries')" :description-item-label="t(T, 'event_query')" :action-item-label="t(T, 'Event_Query')" />
     </BenchtopScroller>
 </template>

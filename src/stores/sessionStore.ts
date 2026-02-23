@@ -4,7 +4,7 @@
 import { defineStore } from 'pinia';
 import { useIdle } from '@vueuse/core';
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
-import { type ComponentPublicInstance, ref, shallowRef } from 'vue';
+import { type ComponentPublicInstance, ref, shallowRef, watch } from 'vue';
 
 // DPU framework
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
@@ -50,12 +50,14 @@ export const useSessionStore = defineStore('session', () => {
     const connectorConfigs = shallowRef<ConnectorConfig[] | undefined>();
     const contextConfig = shallowRef<ContextConfig | undefined>();
     const dataViewConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
+    const dimensionConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
     const emailAddress = ref<string | undefined>();
     const emailIsPrimary = ref<boolean | undefined>();
     const emailIsVerified = ref<boolean | undefined>();
     const engineConfig = shallowRef<EngineConfig | undefined>();
     const expiresAt = ref<number | undefined>();
     const expiresIn = ref<number | undefined>();
+    const eventQueryConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
     const isAuthenticated = ref<boolean | undefined>(); // undefined if Hanko validate session pending; false if signed OUT; true if signed IN
     const lifetime = ref<number | undefined>();
     const localMetaStoreConnectionConfig = shallowRef<ConnectionConfig | undefined>();
@@ -65,6 +67,14 @@ export const useSessionStore = defineStore('session', () => {
     const userId = ref<string | undefined>();
 
     const { idle, lastActive } = useIdle(SESSION_IDLE_TIMEOUT);
+
+    watch(
+        localMetaStoreConnectionConfig,
+        (newConnectionConfig) => {
+            console.log(1111, newConnectionConfig);
+        },
+        { immediate: true }
+    );
 
     function initialiseServices(): void {
         import('@teamhanko/hanko-frontend-sdk').then(({ Hanko }) => {
@@ -109,10 +119,12 @@ export const useSessionStore = defineStore('session', () => {
         constructFlow,
         dataViewConfigs,
         destroyFlow,
+        dimensionConfigs,
         emailAddress,
         engineConfig,
         expiresAt,
         expiresIn,
+        eventQueryConfigs,
         idle,
         initialiseServices,
         isAuthenticated,
