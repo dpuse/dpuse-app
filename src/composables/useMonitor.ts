@@ -1,6 +1,7 @@
 // External dependencies
 // import 'posthog-js/dist/web-vitals';
 // import posthog, { type CaptureOptions, type Properties } from 'posthog-js/dist/module.no-external';
+import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // DPU framework
 import type { DPUError } from '@datapos/datapos-shared/errors';
@@ -20,9 +21,16 @@ const LOCAL_META_NODE_CONNECTOR_ID = 'datapos-connector-dexie-js';
 // const POSTHOG_URL = 'https://eu.i.posthog.com';
 const TIMEOUT_DELAY = 5000;
 
+// Session-scoped trace ID — all spans from this page load share one trace
+const TRACE_ID = crypto.randomUUID().replaceAll('-', '');
+
 // Long-lived session-scoped module states WebSocket
 let moduleStatesWebSocket: WebSocket | undefined;
 let localMetaNodeConnectorConfig: ConnectorConfig | undefined;
+
+// Tracked identity for event attribution
+let activeSessionId = '';
+let activeUserId = '';
 
 //
 export function logErrorToConsole(error: unknown): void {
@@ -47,15 +55,85 @@ export function logErrorToConsole(error: unknown): void {
     console.info('[dpu:app] ❌', message);
 }
 
+type OTLPAttribute = { key: string; value: { stringValue: string } | { intValue: number } | { doubleValue: number } | { boolValue: boolean } };
+type LogRecord = { timeUnixNano: string; observedTimeUnixNano: string; severityNumber: number; severityText: string; body: { stringValue: string }; attributes: OTLPAttribute[]; traceId: string; spanId: string };
+type Span = { traceId: string; spanId: string; name: string; startTimeUnixNano: string; attributes: OTLPAttribute[] };
+type EventTypeId = 'error' | 'pageView' | 'webVital';
+
+const pendingLogRecords: LogRecord[] = [];
+const pendingSpans: Span[] = [];
+function flush(): void {
+    const url = `https://${DPU_API_HOST}/events`;
+    if (pendingLogRecords.length > 0) {
+        const payload = {
+            resourceLogs: [{
+                resource: { attributes: [{ key: 'service.name', value: { stringValue: 'datapos-workbench' } }] },
+                scopeLogs: [{ scope: { name: 'web-vitals' }, logRecords: pendingLogRecords.splice(0) }]
+            }]
+        };
+        console.log(JSON.stringify(payload));
+        navigator.sendBeacon(url, JSON.stringify(payload));
+    }
+    if (pendingSpans.length > 0) {
+        console.log(JSON.stringify(pendingSpans));
+        navigator.sendBeacon(url, JSON.stringify(pendingSpans.splice(0)));
+    }
+}
+function buildAttributes(data: Record<string, unknown>): OTLPAttribute[] {
+    return Object.entries(data).map(([key, value]) => ({
+        key,
+        value:
+            typeof value === 'boolean'
+                ? { boolValue: value }
+                : typeof value === 'number'
+                  ? Number.isInteger(value)
+                      ? { intValue: value }
+                      : { doubleValue: value }
+                  : { stringValue: String(value ?? '') }
+    }));
+}
+function track(name: EventTypeId, data: Record<string, unknown>): void {
+    const attributes = buildAttributes({ 'session.id': activeSessionId, 'user.id': activeUserId, ...data });
+    if (name === 'webVital') {
+        const nowNano = String(Date.now() * 1_000_000);
+        pendingLogRecords.push({
+            timeUnixNano: nowNano,
+            observedTimeUnixNano: nowNano,
+            severityNumber: 9,
+            severityText: 'INFO',
+            body: { stringValue: 'webVital' },
+            attributes,
+            traceId: TRACE_ID,
+            spanId: crypto.randomUUID().replaceAll('-', '').slice(0, 16)
+        });
+    } else {
+        pendingSpans.push({
+            traceId: TRACE_ID,
+            spanId: crypto.randomUUID().replaceAll('-', '').slice(0, 16),
+            name,
+            startTimeUnixNano: String(Date.now() * 1_000_000),
+            attributes
+        });
+    }
+}
+function trackWebVitalMetric(metric: Metric): void {
+    track('webVital', { name: metric.name, delta: metric.delta, navigationType: metric.navigationType, rating: metric.rating, value: metric.value });
+}
+
+setInterval(flush, 5000);
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) flush();
+});
+
 // Composable that encapsulates PostHog interface and module state websocket
 export interface Monitor {
     // captureEvent: (name: string, properties: Properties, options: CaptureOptions) => void;
-    identifyUser: (userId: string, authSessionId: string, emailAddress?: string) => void;
+    identifyUser: (userId: string, sessionId: string, emailAddress?: string) => void;
     logException: (exception: Exception) => void;
     resetUser: () => void;
     shutdown: () => void;
 }
-export function useMonitor(userId?: string, authSessionId?: string, emailAddress?: string): Monitor {
+export function useMonitor(userId?: string, sessionId?: string, emailAddress?: string): Monitor {
     // posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, {
     //     api_host: POSTHOG_URL,
     //     defaults: POSTHOG_DEFAULTS,
@@ -68,7 +146,13 @@ export function useMonitor(userId?: string, authSessionId?: string, emailAddress
     //     person_profiles: 'identified_only'
     // });
 
-    if (userId != null && authSessionId != null) identifyUser(userId, authSessionId, emailAddress);
+    onLCP(trackWebVitalMetric);
+    onINP(trackWebVitalMetric);
+    onCLS(trackWebVitalMetric);
+    onFCP(trackWebVitalMetric);
+    onTTFB(trackWebVitalMetric);
+
+    if (userId != null && sessionId != null) identifyUser(userId, sessionId, emailAddress);
 
     for (const exception of pendingExceptions) logException(exception);
     pendingExceptions.length = 0;
@@ -82,12 +166,17 @@ export function useMonitor(userId?: string, authSessionId?: string, emailAddress
 
 // PostHog helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function identifyUser(userId: string, authSessionId: string, emailAddress?: string): void {
-    // posthog.register_for_session({ dpu_auth_session_id: authSessionId });
+function identifyUser(userId: string, sessionId: string, emailAddress?: string): void {
+    void emailAddress;
+    activeUserId = userId;
+    activeSessionId = sessionId;
+    // posthog.register_for_session({ dpu_auth_session_id: sessionId });
     // posthog.identify(userId, { dpu_user_id: userId, dpu_email_address: emailAddress });
 }
 
 function resetUser(): void {
+    activeUserId = '';
+    activeSessionId = '';
     // posthog.unregister_for_session('dpu_auth_session_id');
     // posthog.reset();
 }

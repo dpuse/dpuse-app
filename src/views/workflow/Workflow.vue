@@ -14,8 +14,7 @@ import Card from '@/components/card/Card.vue';
 import Header from '@/components/header/Header.vue';
 
 // Properties
-type Properties = { isWideDisplay: boolean };
-defineProps<Properties>();
+defineProps<{ isWideDisplay: boolean }>();
 
 // Workflow step configurations sourced from knowledge store
 const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeId.value).options; // TODO: Does this update if locale changes

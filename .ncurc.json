@@ -1,1 +1,12 @@
-{ "reject": ["eslint", "eslint-plugin-unicorn"] }
+{
+    "reject": [
+        "@types/eslint-plugin-security",
+        "eslint",
+        "eslint-import-resolver-typescript",
+        "eslint-plugin-import",
+        "eslint-plugin-prettier",
+        "eslint-plugin-security",
+        "eslint-plugin-sonarjs",
+        "eslint-plugin-unicorn"
+    ]
+}

@@ -8,8 +8,7 @@ import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Header from '@/components/header/Header.vue';
 
 // Properties
-type Properties = { isWideDisplay: boolean };
-const { isWideDisplay } = defineProps<Properties>();
+defineProps<{ isWideDisplay: boolean }>();
 </script>
 
 <template>
