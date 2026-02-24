@@ -1,6 +1,6 @@
 {
     "name": "datapos-workbench",
-    "version": "0.0.383",
+    "version": "0.0.384",
     "private": true,
     "type": "module",
     "engines": {
@@ -8,6 +8,7 @@
     },
     "dependencies": {
         "@datapos/datapos-shared": "^0.3.575",
+        "@headlessui/vue": "^1.7.23",
         "@heroicons/vue": "^2.2.0",
         "@tailwindcss/vite": "^4.2.1",
         "@tanstack/ai-client": "^0.4.5",
