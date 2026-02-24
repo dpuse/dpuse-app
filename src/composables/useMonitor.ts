@@ -21,18 +21,19 @@ const LOCAL_META_NODE_CONNECTOR_ID = 'datapos-connector-dexie-js';
 // const POSTHOG_URL = 'https://eu.i.posthog.com';
 const TIMEOUT_DELAY = 5000;
 
-// Session-scoped trace ID — all spans from this page load share one trace
-const TRACE_ID = crypto.randomUUID().replaceAll('-', '');
+// // Session-scoped trace ID — all spans from this page load share one trace
+// const TRACE_ID = crypto.randomUUID().replaceAll('-', '');
 
 // Long-lived session-scoped module states WebSocket
 let moduleStatesWebSocket: WebSocket | undefined;
+let moduleStatesWebSocketShutdown = false;
 let localMetaNodeConnectorConfig: ConnectorConfig | undefined;
 
 // Tracked identity for event attribution
 let activeSessionId = '';
 let activeUserId = '';
 
-//
+// ???
 export function logErrorToConsole(error: unknown): void {
     let message = '';
     let prefix = '';
@@ -55,74 +56,120 @@ export function logErrorToConsole(error: unknown): void {
     console.info('[dpu:app] ❌', message);
 }
 
-type OTLPAttribute = { key: string; value: { stringValue: string } | { intValue: number } | { doubleValue: number } | { boolValue: boolean } };
-type LogRecord = { timeUnixNano: string; observedTimeUnixNano: string; severityNumber: number; severityText: string; body: { stringValue: string }; attributes: OTLPAttribute[]; traceId: string; spanId: string };
-type Span = { traceId: string; spanId: string; name: string; startTimeUnixNano: string; attributes: OTLPAttribute[] };
-type EventTypeId = 'error' | 'pageView' | 'webVital';
+// type OTLPAttribute = { key: string; value: { stringValue: string } | { intValue: number } | { doubleValue: number } | { boolValue: boolean } };
+// type LogRecord = {
+//     timeUnixNano: string;
+//     observedTimeUnixNano: string;
+//     severityNumber: number;
+//     severityText: string;
+//     body: { stringValue: string };
+//     attributes: OTLPAttribute[];
+//     traceId: string;
+//     spanId: string | undefined;
+// };
+// type Span = { traceId: string; spanId: string; name: string; startTimeUnixNano: string; endTimeUnixNano: string; attributes: OTLPAttribute[] };
+// type EventTypeId = 'error' | 'identify' | 'pageView' | 'reset' | 'webVital';
 
-const pendingLogRecords: LogRecord[] = [];
-const pendingSpans: Span[] = [];
-function flush(): void {
-    const url = `https://${DPU_API_HOST}/events`;
-    if (pendingLogRecords.length > 0) {
-        const payload = {
-            resourceLogs: [{
-                resource: { attributes: [{ key: 'service.name', value: { stringValue: 'datapos-workbench' } }] },
-                scopeLogs: [{ scope: { name: 'web-vitals' }, logRecords: pendingLogRecords.splice(0) }]
-            }]
-        };
-        console.log(JSON.stringify(payload));
-        navigator.sendBeacon(url, JSON.stringify(payload));
-    }
-    if (pendingSpans.length > 0) {
-        console.log(JSON.stringify(pendingSpans));
-        navigator.sendBeacon(url, JSON.stringify(pendingSpans.splice(0)));
-    }
+// const pendingLogRecords: LogRecord[] = [];
+// const pendingSpans: Span[] = [];
+// function flush(): void {
+//     const url = `https://${DPU_API_HOST}/events`;
+//     if (pendingLogRecords.length > 0) {
+//         const payload = {
+//             resourceLogs: [
+//                 {
+//                     resource: { attributes: [{ key: 'service.name', value: { stringValue: 'datapos-workbench' } }] },
+//                     scopeLogs: [{ scope: { name: 'web-vitals' }, logRecords: pendingLogRecords.splice(0) }]
+//                 }
+//             ]
+//         };
+//         console.log(JSON.stringify(payload));
+//         navigator.sendBeacon(url, JSON.stringify(payload)); // Fails silently if browser cannot queue request
+//     }
+//     if (pendingSpans.length > 0) {
+//         const payload = {
+//             resourceSpans: [
+//                 {
+//                     resource: { attributes: [{ key: 'service.name', value: { stringValue: 'datapos-workbench' } }] },
+//                     scopeSpans: [{ scope: { name: 'useMonitor' }, spans: pendingSpans.splice(0) }]
+//                 }
+//             ]
+//         };
+//         console.log(JSON.stringify(payload));
+//         navigator.sendBeacon(url, JSON.stringify(payload)); // Fails silently if browser cannot queue request
+//     }
+// }
+// function buildAttributes(data: Record<string, unknown>): OTLPAttribute[] {
+//     return Object.entries(data).map(([key, value]) => ({
+//         key,
+//         value:
+//             typeof value === 'boolean'
+//                 ? { boolValue: value }
+//                 : typeof value === 'number'
+//                   ? Number.isInteger(value)
+//                       ? { intValue: value }
+//                       : { doubleValue: value }
+//                   : { stringValue: String(value ?? '') }
+//     }));
+// }
+// function track(name: EventTypeId, data: Record<string, unknown>): void {
+//     const attributes = buildAttributes({ 'session.id': activeSessionId, 'user.id': activeUserId, ...data });
+//     if (name === 'webVital') {
+//         const nowNano = Date.now().toString() + '000000';
+//         pendingLogRecords.push({
+//             timeUnixNano: nowNano,
+//             observedTimeUnixNano: nowNano,
+//             severityNumber: 9,
+//             severityText: 'INFO',
+//             body: { stringValue: 'webVital' },
+//             attributes,
+//             traceId: TRACE_ID,
+//             spanId: undefined
+//         });
+//     } else {
+//         const nowNano = Date.now().toString() + '000000';
+//         pendingSpans.push({
+//             traceId: TRACE_ID,
+//             spanId: crypto.randomUUID().replaceAll('-', '').slice(0, 16),
+//             name,
+//             startTimeUnixNano: nowNano,
+//             endTimeUnixNano: nowNano,
+//             attributes
+//         });
+//     }
+// }
+
+interface Event {
+    asAt: number;
+    sessionId: string | undefined;
+    spanId: string | undefined;
+    typeId: EventTypeId;
+    userId: string | undefined;
+    data: Record<string, unknown>;
 }
-function buildAttributes(data: Record<string, unknown>): OTLPAttribute[] {
-    return Object.entries(data).map(([key, value]) => ({
-        key,
-        value:
-            typeof value === 'boolean'
-                ? { boolValue: value }
-                : typeof value === 'number'
-                  ? Number.isInteger(value)
-                      ? { intValue: value }
-                      : { doubleValue: value }
-                  : { stringValue: String(value ?? '') }
-    }));
-}
-function track(name: EventTypeId, data: Record<string, unknown>): void {
-    const attributes = buildAttributes({ 'session.id': activeSessionId, 'user.id': activeUserId, ...data });
-    if (name === 'webVital') {
-        const nowNano = String(Date.now() * 1_000_000);
-        pendingLogRecords.push({
-            timeUnixNano: nowNano,
-            observedTimeUnixNano: nowNano,
-            severityNumber: 9,
-            severityText: 'INFO',
-            body: { stringValue: 'webVital' },
-            attributes,
-            traceId: TRACE_ID,
-            spanId: crypto.randomUUID().replaceAll('-', '').slice(0, 16)
-        });
-    } else {
-        pendingSpans.push({
-            traceId: TRACE_ID,
-            spanId: crypto.randomUUID().replaceAll('-', '').slice(0, 16),
-            name,
-            startTimeUnixNano: String(Date.now() * 1_000_000),
-            attributes
-        });
-    }
+type EventTypeId = 'error' | 'identify' | 'pageView' | 'reset' | 'webVital';
+const pendingEvents: Event[] = [];
+function trackEvent(typeId: EventTypeId, data: Record<string, unknown>): void {
+    pendingEvents.push({ typeId, asAt: Date.now(), sessionId: undefined, userId: undefined, spanId: undefined, data });
 }
 function trackWebVitalMetric(metric: Metric): void {
-    track('webVital', { name: metric.name, delta: metric.delta, navigationType: metric.navigationType, rating: metric.rating, value: metric.value });
+    trackEvent('webVital', { name: metric.name, delta: metric.delta, navigationType: metric.navigationType, rating: metric.rating, value: metric.value });
 }
-
-setInterval(flush, 5000);
+async function flushEvents(): Promise<void> {
+    if (pendingEvents.length === 0) return;
+    console.log('SEND', JSON.stringify(pendingEvents));
+    // navigator.sendBeacon(`https://${DPU_API_HOST}/events`, JSON.stringify(pendingEvents.splice(0))); // Fails silently if browser cannot queue request
+    const response = await fetch(`https://${DPU_API_HOST}/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userAgentString: navigator.userAgent, events: pendingEvents.splice(0) })
+    });
+    if (response.ok) console.log(await response.json());
+    else console.log(await response.text());
+}
+setInterval(flushEvents, 5000);
 document.addEventListener('visibilitychange', () => {
-    if (document.hidden) flush();
+    if (document.hidden) flushEvents();
 });
 
 // Composable that encapsulates PostHog interface and module state websocket
@@ -237,8 +284,10 @@ function logException(exception: Exception): void {
 }
 
 function shutdown(): void {
+    moduleStatesWebSocketShutdown = true;
+    flushEvents();
     if (moduleStatesWebSocket) {
-        moduleStatesWebSocket.close(); // TODO: Won't this just open again? Maybe check event.code?
+        moduleStatesWebSocket.close();
         moduleStatesWebSocket = undefined;
     }
 }
@@ -273,7 +322,7 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
         statesWebSocket.addEventListener('close', (event) => {
             console.info(`[dpu:app] ⚠️ WebSocket close event '${event.code}' received.`);
             statesWebSocket = undefined;
-            setTimeout(connectToModuleStatesWebSocket, TIMEOUT_DELAY);
+            if (!moduleStatesWebSocketShutdown) setTimeout(connectToModuleStatesWebSocket, TIMEOUT_DELAY);
         });
 
         statesWebSocket.addEventListener('error', (error) => {
@@ -350,31 +399,29 @@ function registerModules(moduleConfigs: ModuleConfig[]): void {
                 break;
             }
         }
-        if (connectorRegistered) {
-            sessionState.connectorConfigs = [...connectorConfigs]; // Trigger shallow reference change for connectors.
-            if (sessionState.connectorConfigs.length > 0) {
-                localMetaNodeConnectorConfig = sessionState.connectorConfigs.find((connectorConfig) => connectorConfig.id === LOCAL_META_NODE_CONNECTOR_ID);
-                if (localMetaNodeConnectorConfig) {
-                    sessionState.localMetaStoreConnectionConfig = constructConnectionConfig(localMetaNodeConnectorConfig);
-                }
-                constructDefaultConnectionConfigs();
-            }
-        }
-
-        if (presenterRegistered || !sessionState.presenterConfigs) sessionState.presenterConfigs = [...presenterConfigs]; // Trigger shallow reference change for presenters.
-
-        if (toolRegistered || !sessionState.toolConfigs) sessionState.toolConfigs = [...toolConfigs]; // Trigger shallow reference change for tools.
     }
+
+    if (connectorRegistered) {
+        sessionState.connectorConfigs = [...connectorConfigs];
+        if (sessionState.connectorConfigs.length > 0) {
+            localMetaNodeConnectorConfig = sessionState.connectorConfigs.find((connectorConfig) => connectorConfig.id === LOCAL_META_NODE_CONNECTOR_ID);
+            if (localMetaNodeConnectorConfig) {
+                sessionState.localMetaStoreConnectionConfig = constructConnectionConfig(localMetaNodeConnectorConfig);
+            }
+            constructDefaultConnectionConfigs();
+        }
+    }
+
+    if (presenterRegistered || !sessionState.presenterConfigs) sessionState.presenterConfigs = [...presenterConfigs];
+
+    if (toolRegistered || !sessionState.toolConfigs) sessionState.toolConfigs = [...toolConfigs];
 }
 
 function unregisterModules(moduleConfigs: ModuleConfig[]): void {
     const sessionState = useSessionStore();
-    for (const moduleConfig of moduleConfigs) {
-        if (moduleConfig.typeId === 'connector') {
-            const index = sessionState.connectorConfigs?.findIndex((connectorConfig) => connectorConfig.id === moduleConfig.id) ?? -1;
-            if (index === -1) continue;
-            sessionState.connectorConfigs?.splice(index, 1);
-        }
+    const idsToRemove = new Set(moduleConfigs.filter((m) => m.typeId === 'connector').map((m) => m.id));
+    if (idsToRemove.size > 0 && sessionState.connectorConfigs) {
+        sessionState.connectorConfigs = sessionState.connectorConfigs.filter((c) => !idsToRemove.has(c.id));
     }
 }
 
