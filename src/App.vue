@@ -15,6 +15,7 @@ import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import KnowledgePanel from '@/components/knowledgePanel/KnowledgePanel.vue';
 import Separator from '@/components/separator/Separator.vue';
+import SessionIcon from '@/components/icon/SessionIcon.vue';
 import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
 
 // App components (lazy loaded)
@@ -101,8 +102,23 @@ const knowledgePaneToggleAriaLabel = computed(() => {
 });
 
 // Lifecycle event handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const avatarUrl = ref('');
 
-onMounted(() => useSessionStore().initialiseServices());
+async function gravatarUrl(email: string, size: number): Promise<string> {
+    const normalized = email.trim().toLowerCase();
+
+    const data = new TextEncoder().encode(normalized);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+    const hashArray = [...new Uint8Array(hashBuffer)];
+    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+
+    return `https://gravatar.com/avatar/${hashHex}?s=${size}&d=mp`;
+}
+onMounted(async () => {
+    useSessionStore().initialiseServices();
+    avatarUrl.value = await gravatarUrl('terrell.jm@gmail.com', 40);
+});
 
 // Workbench pane UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -172,8 +188,8 @@ function handleKnowledgeOptionSelect(): void {
         </ActionButton>
 
         <!-- Account action -->
-        <div class="fixed right-3 bottom-6 z-40 flex flex-col items-end gap-y-1">
-            <div v-if="sessionPanelIsVisible" class="border-boundary bg-backdrop flex flex-col gap-y-1 border px-4 py-3 shadow-sm">
+        <div class="fixed right-3 bottom-6 z-40 flex flex-col items-end gap-y-1.5">
+            <div v-if="sessionPanelIsVisible" class="border-boundary bg-backdrop flex flex-col gap-y-1 rounded-md border px-4 py-3 shadow-sm">
                 <div class="text-muted text-sm font-medium">Appearance</div>
                 <div>Dark | Light | System</div>
                 <div class="text-muted text-sm font-medium">Full screen</div>
@@ -188,9 +204,13 @@ function handleKnowledgeOptionSelect(): void {
                 <div>Sign in/up/out</div>
             </div>
 
-            <ActionButton variant="iconLarge" @click="sessionPanelIsVisible = !sessionPanelIsVisible">
-                <DPULogoIcon />
+            <ActionButton class="p-0!" variant="avatar" @click="sessionPanelIsVisible = !sessionPanelIsVisible">
+                <img v-if="avatarUrl" :src="avatarUrl" />
             </ActionButton>
+
+            <!-- <ActionButton variant="iconLarge" @click="sessionPanelIsVisible = !sessionPanelIsVisible">
+                <SessionIcon />
+            </ActionButton> -->
         </div>
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->

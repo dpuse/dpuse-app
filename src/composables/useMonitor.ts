@@ -21,9 +21,6 @@ const LOCAL_META_NODE_CONNECTOR_ID = 'datapos-connector-dexie-js';
 // const POSTHOG_URL = 'https://eu.i.posthog.com';
 const TIMEOUT_DELAY = 5000;
 
-// // Session-scoped trace ID — all spans from this page load share one trace
-// const TRACE_ID = crypto.randomUUID().replaceAll('-', '');
-
 // Long-lived session-scoped module states WebSocket
 let moduleStatesWebSocket: WebSocket | undefined;
 let moduleStatesWebSocketShutdown = false;
@@ -56,116 +53,23 @@ export function logErrorToConsole(error: unknown): void {
     console.info('[dpu:app] ❌', message);
 }
 
-// type OTLPAttribute = { key: string; value: { stringValue: string } | { intValue: number } | { doubleValue: number } | { boolValue: boolean } };
-// type LogRecord = {
-//     timeUnixNano: string;
-//     observedTimeUnixNano: string;
-//     severityNumber: number;
-//     severityText: string;
-//     body: { stringValue: string };
-//     attributes: OTLPAttribute[];
-//     traceId: string;
-//     spanId: string | undefined;
-// };
-// type Span = { traceId: string; spanId: string; name: string; startTimeUnixNano: string; endTimeUnixNano: string; attributes: OTLPAttribute[] };
-// type EventTypeId = 'error' | 'identify' | 'pageView' | 'reset' | 'webVital';
-
-// const pendingLogRecords: LogRecord[] = [];
-// const pendingSpans: Span[] = [];
-// function flush(): void {
-//     const url = `https://${DPU_API_HOST}/events`;
-//     if (pendingLogRecords.length > 0) {
-//         const payload = {
-//             resourceLogs: [
-//                 {
-//                     resource: { attributes: [{ key: 'service.name', value: { stringValue: 'datapos-workbench' } }] },
-//                     scopeLogs: [{ scope: { name: 'web-vitals' }, logRecords: pendingLogRecords.splice(0) }]
-//                 }
-//             ]
-//         };
-//         console.log(JSON.stringify(payload));
-//         navigator.sendBeacon(url, JSON.stringify(payload)); // Fails silently if browser cannot queue request
-//     }
-//     if (pendingSpans.length > 0) {
-//         const payload = {
-//             resourceSpans: [
-//                 {
-//                     resource: { attributes: [{ key: 'service.name', value: { stringValue: 'datapos-workbench' } }] },
-//                     scopeSpans: [{ scope: { name: 'useMonitor' }, spans: pendingSpans.splice(0) }]
-//                 }
-//             ]
-//         };
-//         console.log(JSON.stringify(payload));
-//         navigator.sendBeacon(url, JSON.stringify(payload)); // Fails silently if browser cannot queue request
-//     }
-// }
-// function buildAttributes(data: Record<string, unknown>): OTLPAttribute[] {
-//     return Object.entries(data).map(([key, value]) => ({
-//         key,
-//         value:
-//             typeof value === 'boolean'
-//                 ? { boolValue: value }
-//                 : typeof value === 'number'
-//                   ? Number.isInteger(value)
-//                       ? { intValue: value }
-//                       : { doubleValue: value }
-//                   : { stringValue: String(value ?? '') }
-//     }));
-// }
-// function track(name: EventTypeId, data: Record<string, unknown>): void {
-//     const attributes = buildAttributes({ 'session.id': activeSessionId, 'user.id': activeUserId, ...data });
-//     if (name === 'webVital') {
-//         const nowNano = Date.now().toString() + '000000';
-//         pendingLogRecords.push({
-//             timeUnixNano: nowNano,
-//             observedTimeUnixNano: nowNano,
-//             severityNumber: 9,
-//             severityText: 'INFO',
-//             body: { stringValue: 'webVital' },
-//             attributes,
-//             traceId: TRACE_ID,
-//             spanId: undefined
-//         });
-//     } else {
-//         const nowNano = Date.now().toString() + '000000';
-//         pendingSpans.push({
-//             traceId: TRACE_ID,
-//             spanId: crypto.randomUUID().replaceAll('-', '').slice(0, 16),
-//             name,
-//             startTimeUnixNano: nowNano,
-//             endTimeUnixNano: nowNano,
-//             attributes
-//         });
-//     }
-// }
-
-interface Event {
-    asAt: number;
-    sessionId: string | undefined;
-    spanId: string | undefined;
-    typeId: EventTypeId;
-    userId: string | undefined;
-    data: Record<string, unknown>;
-}
 type EventTypeId = 'error' | 'identify' | 'pageView' | 'reset' | 'webVital';
-const pendingEvents: Event[] = [];
+const pendingEvents: Record<string, unknown>[] = [];
 function trackEvent(typeId: EventTypeId, data: Record<string, unknown>): void {
-    pendingEvents.push({ typeId, asAt: Date.now(), sessionId: undefined, userId: undefined, spanId: undefined, data });
+    pendingEvents.push({ typeId, asAt: Date.now(), sessionId: undefined, userId: undefined, spanId: undefined, ...data });
 }
 function trackWebVitalMetric(metric: Metric): void {
-    trackEvent('webVital', { name: metric.name, delta: metric.delta, navigationType: metric.navigationType, rating: metric.rating, value: metric.value });
+    trackEvent('webVital', {
+        webVitalName: metric.name,
+        webVitalDelta: metric.delta,
+        webVitalNavigationType: metric.navigationType,
+        webVitalRating: metric.rating,
+        webVitalValue: metric.value
+    });
 }
 async function flushEvents(): Promise<void> {
     if (pendingEvents.length === 0) return;
-    console.log('SEND', JSON.stringify(pendingEvents));
-    // navigator.sendBeacon(`https://${DPU_API_HOST}/events`, JSON.stringify(pendingEvents.splice(0))); // Fails silently if browser cannot queue request
-    const response = await fetch(`https://${DPU_API_HOST}/events`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userAgentString: navigator.userAgent, events: pendingEvents.splice(0) })
-    });
-    if (response.ok) console.log(await response.json());
-    else console.log(await response.text());
+    navigator.sendBeacon(`https://${DPU_API_HOST}/events`, JSON.stringify({ events: pendingEvents.splice(0), userAgentString: navigator.userAgent })); // Fails silently if browser cannot queue request
 }
 setInterval(flushEvents, 5000);
 document.addEventListener('visibilitychange', () => {
