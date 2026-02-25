@@ -14,6 +14,7 @@ import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import KnowledgePanel from '@/components/knowledgePanel/KnowledgePanel.vue';
+import Separator from '@/components/separator/Separator.vue';
 import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
 
 // App components (lazy loaded)
@@ -38,6 +39,10 @@ const knowledgePaneIsHidden = ref(false);
 
 const displayIsWide = useMediaQuery('(min-width: 768px)');
 watch(displayIsWide, () => (activeOptionBarId.value = 'none'));
+
+// Local session panel state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const sessionPanelIsVisible = ref(false);
 
 // Local route state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -165,6 +170,28 @@ function handleKnowledgeOptionSelect(): void {
         <ActionButton :aria-label="knowledgePaneToggleAriaLabel" class="fixed top-1.75 right-3 z-40" variant="iconLarge" @click="handleKnowledgeToggle">
             <KnowledgeIcon />
         </ActionButton>
+
+        <!-- Account action -->
+        <div class="fixed right-3 bottom-6 z-40 flex flex-col items-end gap-y-1">
+            <div v-if="sessionPanelIsVisible" class="border-boundary bg-backdrop flex flex-col gap-y-1 border px-4 py-3 shadow-sm">
+                <div class="text-muted text-sm font-medium">Appearance</div>
+                <div>Dark | Light | System</div>
+                <div class="text-muted text-sm font-medium">Full screen</div>
+                <div>Toggle...</div>
+                <div class="text-muted text-sm font-medium">Language</div>
+                <div>English | Español</div>
+                <div class="text-muted text-sm font-medium">Region</div>
+                <div>English | Español</div>
+                <Separator class="my-1" />
+                <div>Manage account...</div>
+                <Separator class="my-1" />
+                <div>Sign in/up/out</div>
+            </div>
+
+            <ActionButton variant="iconLarge" @click="sessionPanelIsVisible = !sessionPanelIsVisible">
+                <DPULogoIcon />
+            </ActionButton>
+        </div>
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
         <AuthDialog v-if="authDialogIsVisible" />
