@@ -4,9 +4,10 @@
     "compatibility_date": "2026-02-01", // Cloudflare recommends keeping this within ~30 days of today so you receive current runtime fixes and features for Workers and Durable Objects.
     "main": "server/index.ts",
     "assets": {
-        // "binding": "ASSETS",
+        "binding": "ASSETS",
         "directory": "./dist/client",
-        "not_found_handling": "single-page-application"
+        "not_found_handling": "single-page-application",
+        "run_worker_first": ["/", "!/assets/*", "!/favicon*", "!/manifest*", "!/robots*", "!/pwa*", "!/maskable*", "!/apple*"]
     },
     "routes": [
         {

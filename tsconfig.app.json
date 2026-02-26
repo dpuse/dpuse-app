@@ -1,6 +1,6 @@
 {
     "extends": "@vue/tsconfig/tsconfig.dom.json",
-    "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "e2e/landingPage.spec.ts"],
+    "include": ["env.d.ts", "server/**/*", "src/**/*", "src/**/*.vue", "e2e/landingPage.spec.ts"],
     "exclude": ["src/**/__tests__/*"],
     "compilerOptions": {
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",

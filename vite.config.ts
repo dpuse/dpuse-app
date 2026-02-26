@@ -35,8 +35,8 @@ export default defineConfig({
                 " worker-src 'self' blob:;",
             // 'Cross-Origin-Opener-Policy': 'same-origin',
             // 'Cross-Origin-Embedder-Policy': 'require-corp',
-            'Cross-Origin-Resource-Policy': 'cross-origin',
-            'Document-Policy': 'js-profiling'
+            'Cross-Origin-Resource-Policy': 'cross-origin'
+            // 'Document-Policy': 'js-profiling'
         }
     }
 });
