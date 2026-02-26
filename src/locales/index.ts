@@ -8,7 +8,7 @@ export type LocaleId = 'en' | 'es';
 export const localeId = ref<LocaleId>(establishLocaleId());
 
 export function n(value: number, key?: string): string {
-    console.log('n', value, key);
+    if (import.meta.env.DEV) console.log('n', value, key);
     return String(value);
 }
 

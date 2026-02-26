@@ -156,7 +156,7 @@ export const useSessionStore = defineStore('session', () => {
             lifetime.value = expiresAt.value - establishedAt;
             sessionId.value = claims.session_id;
             userId.value = claims.subject;
-            console.log(`[dpu:app] ℹ️ Authenticated session established (${reasonId}).`);
+            if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Authenticated session established (${reasonId}).`);
             startSessionExpiryTimer();
             if (!isLoading) monitorInstance?.identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value); // Fails silently in no monitor instance
         } else {
@@ -171,7 +171,7 @@ export const useSessionStore = defineStore('session', () => {
             lifetime.value = undefined;
             userId.value = undefined;
             sessionId.value = undefined;
-            console.log(`[dpu:app] ℹ️ Unauthenticated session established (${reasonId}).`);
+            if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Unauthenticated session established (${reasonId}).`);
         }
     }
 
