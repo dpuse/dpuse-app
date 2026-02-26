@@ -52,7 +52,8 @@ export default {
                     `script-src 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'`,
                     "style-src 'self' 'sha256-vUH6L8ih8gJc7zAGP15EpDqPYtrGDy1W2WZTdVKMVIE=' 'sha256-skqujXORqzxt1aE0NNXxujEanPTX6raoqSscTV/Ww/Y='",
                     "worker-src 'self' blob:"
-                ].join('; ')
+                ].join('; '),
+                'Content-Security-Policy-Report-Only': "require-trusted-types-for 'script'"
             }
         }) as unknown as CfResponse;
     }
