@@ -1,7 +1,6 @@
 /**
  * Shared types describing the knowledge-workbench JSON data.
  */
-
 interface WorkbenchConfig {
     id: string;
     label: Record<string, string>;
