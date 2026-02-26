@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External dependencies
-import { HomeIcon } from '@heroicons/vue/24/outline';
+// import { HomeIcon } from '@heroicons/vue/24/outline';
 import { useRouter } from 'vue-router';
 import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
 
@@ -33,11 +33,11 @@ function handleNavigateTo(view: string): void {
             </ActionButton>
 
             <ActionButton variant="iconLarge" @click="handleNavigateTo('search')">
-                <SearchIcon aria-hidden="true" :stroke-width="1.25" />
+                <!-- <SearchIcon aria-hidden="true" :stroke-width="1.25" /> -->
             </ActionButton>
 
             <ActionButton variant="iconLarge" @click="handleNavigateTo('chat')">
-                <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
+                <!-- <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" /> -->
             </ActionButton>
         </div>
     </div>

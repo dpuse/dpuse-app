@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External dependencies
-import { PlusIcon } from '@heroicons/vue/20/solid';
+// import { PlusIcon } from '@heroicons/vue/20/solid';
 
 // Properties
 defineProps<{ messageItemLabel: string; descriptionItemLabel: string; actionItemLabel: string }>();

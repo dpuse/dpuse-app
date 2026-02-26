@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External dependencies
-import { HomeIcon } from '@heroicons/vue/24/outline';
+// import { HomeIcon } from '@heroicons/vue/24/outline';
 import { useRoute } from 'vue-router';
 
 // App core
@@ -42,7 +42,7 @@ const route = useRoute();
                     variant="iconLarge"
                     @click="onSelect(config)"
                 >
-                    <div aria-hidden="true" :style="{ color: `${config.color}` }" v-html="config.icon" />
+                    <!-- <div aria-hidden="true" :style="{ color: `${config.color}` }" v-html="config.icon" /> -->
                 </ActionRouterLink>
             </div>
 
