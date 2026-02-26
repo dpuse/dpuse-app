@@ -69,7 +69,7 @@ function trackWebVitalMetric(metric: Metric): void {
 }
 async function flushEvents(): Promise<void> {
     if (pendingEvents.length === 0) return;
-    navigator.sendBeacon(`https://${DPU_API_HOST}/events`, JSON.stringify({ events: pendingEvents.splice(0), userAgentString: navigator.userAgent })); // Fails silently if browser cannot queue request
+    // navigator.sendBeacon(`https://${DPU_API_HOST}/events`, JSON.stringify({ events: pendingEvents.splice(0), userAgentString: navigator.userAgent })); // Fails silently if browser cannot queue request
 }
 setInterval(flushEvents, 5000);
 document.addEventListener('visibilitychange', () => {
