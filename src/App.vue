@@ -11,7 +11,7 @@ import { useSessionStore } from '@/stores/sessionStore';
 // App components
 import ActionButton from '@/components/action/ActionButton.vue';
 // import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
-// import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
+import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import KnowledgePanel from '@/components/knowledgePanel/KnowledgePanel.vue';
 import Separator from '@/components/separator/Separator.vue';
