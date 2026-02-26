@@ -5,6 +5,8 @@ This template should help get you started developing with Vue 3 in Vite.
 ## CSP Auditing
 
 https://developer.mozilla.org/en-US/observatory
+https://csp-evaluator.withgoogle.com
+https://securityheaders.com
 
 ## Recommended IDE Setup
 

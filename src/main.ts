@@ -12,6 +12,18 @@ import App from '@/App.vue';
 
 // Bootstrap application ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+// Define Trusted Types default policy to allow inline worker blob URLs created by Vite's `?worker&inline` transform.
+// Without this, `require-trusted-types-for 'script'` blocks `new Worker(blobUrl)` because the URL is a plain string.
+if ('trustedTypes' in globalThis) {
+    (globalThis as unknown as { trustedTypes: { createPolicy(name: string, rules: { createScriptURL?(url: string): string; createHTML?(html: string): string }): void } }).trustedTypes.createPolicy('default', {
+        // Allow blob: and same-origin URLs for Vite's `?worker&inline` worker factory.
+        createScriptURL: (url: string): string => {
+            if (url.startsWith('blob:') || url.startsWith('/') || url.startsWith(globalThis.location.origin)) return url;
+            throw new Error(`Blocked TrustedScriptURL: ${url}`);
+        }
+    });
+}
+
 // Add global error handlers
 globalThis.addEventListener('error', (event): void => reportError({ typeId: 'unhandledRuntime', payload: event }));
 globalThis.addEventListener('unhandledrejection', (event): void => reportError({ typeId: 'unhandledPromise', payload: event }));
