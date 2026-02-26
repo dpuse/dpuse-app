@@ -115,6 +115,7 @@ async function gravatarUrl(email: string, size: number): Promise<string> {
 
     return `https://gravatar.com/avatar/${hashHex}?s=${size}&d=mp`;
 }
+
 onMounted(async () => {
     useSessionStore().initialiseServices();
     avatarUrl.value = await gravatarUrl('terrell.jm@gmail.com', 40);
