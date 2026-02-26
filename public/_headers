@@ -2,5 +2,4 @@
 Access-Control-Allow-Origin: https://www.datapos.app
 Content-Security-Policy: default-src 'none'; base-uri 'self'; connect-src 'self' https://www.datapos.app wss://www.datapos.app data: https://auth.datapos.app https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://sample-data-eu.datapos.app https://eu.i.posthog.com https://eu-assets.i.posthog.com; form-action 'none'; frame-ancestors 'none'; img-src 'self' https://gravatar.com; manifest-src 'self'; object-src 'none'; script-src 'self' https://engine-eu.datapos.app https://static.cloudflareinsights.com 'wasm-unsafe-eval' 'sha256-zB6mwYmmKIlxJrDq5yysgDwDqL4RFTYqD9cEDekVWCA=' 'strict-dynamic'; style-src 'self' 'sha256-vUH6L8ih8gJc7zAGP15EpDqPYtrGDy1W2WZTdVKMVIE=' 'sha256-skqujXORqzxt1aE0NNXxujEanPTX6raoqSscTV/Ww/Y='; worker-src 'self' blob:;
 Cross-Origin-Resource-Policy: cross-origin
-Document-Policy: js-profiling=none;
 X-Content-Type-Options: nosniff
