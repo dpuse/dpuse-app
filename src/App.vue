@@ -10,8 +10,8 @@ import { useSessionStore } from '@/stores/sessionStore';
 
 // App components
 import ActionButton from '@/components/action/ActionButton.vue';
-import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
-import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
+// import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
+// import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import KnowledgePanel from '@/components/knowledgePanel/KnowledgePanel.vue';
 import Separator from '@/components/separator/Separator.vue';
@@ -23,6 +23,7 @@ const AuthDialog = defineAsyncComponent(() => import('@/components/account/AuthD
 
 // Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+// CSP requires hash for useColorMode's transition-disabling style; see error message for hash
 useColorMode();
 const sessionState = useSessionStore();
 
