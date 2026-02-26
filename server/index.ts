@@ -24,6 +24,7 @@ type Environment = {
 export default {
     async fetch(request: CfRequest, environment: Environment): Promise<CfResponse> {
         const url = new URL(request.url);
+        console.log('URL', url);
 
         if (url.pathname.startsWith('/api/')) {
             return Response.json({ name: 'Cloudflare' }) as unknown as CfResponse;
