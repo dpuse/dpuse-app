@@ -30,6 +30,10 @@ export default {
             return Response.json({ name: 'Cloudflare' }) as unknown as CfResponse;
         }
 
+        if (request.headers.get('Accept')?.includes('text/html') !== true) {
+            return environment.ASSETS.fetch(request) as unknown as CfResponse;
+        }
+
         const nonce = btoa(String.fromCodePoint(...crypto.getRandomValues(new Uint8Array(16))));
         const response = await environment.ASSETS.fetch(request);
         const html = await response.text();
