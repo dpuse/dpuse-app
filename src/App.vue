@@ -23,8 +23,7 @@ const AuthDialog = defineAsyncComponent(() => import('@/components/account/AuthD
 
 // Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// CSP requires hash for useColorMode's transition-disabling style; see error message for hash
-useColorMode();
+useColorMode(); // CSP requires hash for useColorMode's transition-disabling style; see error message for hash
 const sessionState = useSessionStore();
 
 // Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -28,9 +28,10 @@ export default defineConfig({
                 " frame-ancestors 'none';" +
                 " img-src 'self' https://gravatar.com;" +
                 " manifest-src 'self';" +
-                " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' data: 'sha256-zB6mwYmmKIlxJrDq5yysgDwDqL4RFTYqD9cEDekVWCA=';" +
+                " object-src 'self';" +
+                " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' 'sha256-zB6mwYmmKIlxJrDq5yysgDwDqL4RFTYqD9cEDekVWCA=';" +
                 // " require-trusted-types-for 'script';" + // TODO: Can not get this to work with import of Engine Web Worker.
-                " style-src 'self' 'unsafe-inline';" + // Dev only: Vite injects Tailwind CSS as inline <style> elements for HMR
+                " style-src 'self' 'unsafe-inline';" + // 'unsafe-inline' is required in dev mode as Vite injects Tailwind CSS as inline <style> elements for HMR
                 " worker-src 'self' blob:;",
             // 'Cross-Origin-Opener-Policy': 'same-origin',
             // 'Cross-Origin-Embedder-Policy': 'require-corp',
