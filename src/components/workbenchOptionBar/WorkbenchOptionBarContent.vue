@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External dependencies
-// import { HomeIcon } from '@heroicons/vue/24/outline';
+import { HomeIcon } from '@heroicons/vue/24/outline';
 import { useRoute } from 'vue-router';
 
 // App core
