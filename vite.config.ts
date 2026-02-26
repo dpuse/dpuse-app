@@ -33,10 +33,9 @@ export default defineConfig({
                 // " require-trusted-types-for 'script';" + // TODO: Can not get this to work with import of Engine Web Worker.
                 " style-src 'self' 'unsafe-inline';" + // 'unsafe-inline' is required in dev mode as Vite injects Tailwind CSS as inline <style> elements for HMR
                 " worker-src 'self' blob:;",
-            // 'Cross-Origin-Opener-Policy': 'same-origin',
-            // 'Cross-Origin-Embedder-Policy': 'require-corp',
-            'Cross-Origin-Resource-Policy': 'same-origin'
-            // 'Document-Policy': 'js-profiling'
+            'Cross-Origin-Resource-Policy': 'same-origin',
+            'Referrer-Policy': 'strict-origin-when-cross-origin',
+            'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self), clipboard-read=(self), clipboard-write=(self)'
         }
     }
 });

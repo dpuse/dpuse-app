@@ -3,3 +3,5 @@ Content-Security-Policy: default-src 'none'; base-uri 'self'; connect-src 'self'
 Cross-Origin-Resource-Policy: same-origin
 Referrer-Policy: strict-origin-when-cross-origin
 X-Content-Type-Options: nosniff
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self), clipboard-read=(self), clipboard-write=(self)
+
