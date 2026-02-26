@@ -42,7 +42,7 @@ const route = useRoute();
                     variant="iconLarge"
                     @click="onSelect(config)"
                 >
-                    <!-- <div aria-hidden="true" :style="{ color: `${config.color}` }" v-html="config.icon" /> -->
+                    <div aria-hidden="true" :style="{ color: `${config.color}` }" v-html="config.icon" />
                 </ActionRouterLink>
             </div>
 

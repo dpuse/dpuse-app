@@ -37,7 +37,7 @@ function handleNavigateTo(view: string): void {
             </ActionButton>
 
             <ActionButton variant="iconLarge" @click="handleNavigateTo('chat')">
-                <!-- <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" /> -->
+                <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
             </ActionButton>
         </div>
     </div>
