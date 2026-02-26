@@ -16,7 +16,7 @@ if (globalThis.trustedTypes != null) {
     globalThis.trustedTypes.createPolicy('default', {
         // Allow blob: and same-origin URLs for Vite's `?worker&inline` worker factory.
         createScriptURL: (url: string): string => {
-            if (url.startsWith('blob:') || url.startsWith('/') || url.startsWith(globalThis.location.origin)) return url;
+            if (url.startsWith('blob:')) return url;
             throw new Error(`Blocked TrustedScriptURL: ${url}`);
         }
     });
