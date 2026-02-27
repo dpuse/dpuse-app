@@ -1,10 +1,4 @@
-// External dependencies
-// import 'posthog-js/dist/web-vitals';
-// import posthog, { type CaptureOptions, type Properties } from 'posthog-js/dist/module.no-external';
-import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
-
 // DPU framework
-import type { DPUError } from '@datapos/datapos-shared/errors';
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
 import type { ModuleConfig } from '@datapos/datapos-shared/component';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
@@ -12,13 +6,11 @@ import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/
 import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
 
 // App core
-import { type Exception, pendingExceptions, useSessionStore } from '@/stores/sessionStore';
+import { useSessionStore } from '@/stores/sessionStore';
 
 // Constants
 const DPU_API_HOST = 'api.datapos.app';
 const LOCAL_META_NODE_CONNECTOR_ID = 'datapos-connector-dexie-js';
-// const POSTHOG_DEFAULTS = '2025-11-30';
-// const POSTHOG_URL = 'https://eu.i.posthog.com';
 const TIMEOUT_DELAY = 5000;
 
 // Long-lived session-scoped module states WebSocket
@@ -26,177 +18,31 @@ let moduleStatesWebSocket: WebSocket | undefined;
 let moduleStatesWebSocketShutdown = false;
 let localMetaNodeConnectorConfig: ConnectorConfig | undefined;
 
-// Tracked identity for event attribution
-let activeSessionId = '';
-let activeUserId = '';
+// Functions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// ???
-export function logErrorToConsole(error: unknown): void {
-    let message = '';
-    let prefix = '';
-    let cause = error;
-    while (cause != null) {
-        if (cause instanceof Error) {
-            const stackOnly = cause.stack?.replace(/^.*\n/, '') ?? '';
-            if ('locator' in cause) {
-                const error_ = cause as DPUError;
-                message += `${prefix}${error_.name}: ${error_.message}${error_.locator ? `\n    in ${error_.locator}` : ''}\n${stackOnly}\n`;
-            } else {
-                message += `${prefix}${cause.name}: ${cause.message}\n${stackOnly}\n`;
-            }
-        } else {
-            message += `${prefix}${String(cause)}\n`;
-        }
-        prefix = 'Caused by: ';
-        cause = cause instanceof Error ? cause.cause : undefined;
-    }
-    if (import.meta.env.DEV) console.info('[dpu:app] ❌', message);
-}
-
-type EventTypeId = 'error' | 'identify' | 'pageView' | 'reset' | 'webVital';
-const pendingEvents: Record<string, unknown>[] = [];
-function trackEvent(typeId: EventTypeId, data: Record<string, unknown>): void {
-    pendingEvents.push({ typeId, asAt: Date.now(), sessionId: undefined, userId: undefined, spanId: undefined, ...data });
-}
-function trackWebVitalMetric(metric: Metric): void {
-    trackEvent('webVital', {
-        webVitalName: metric.name,
-        webVitalDelta: metric.delta,
-        webVitalNavigationType: metric.navigationType,
-        webVitalRating: metric.rating,
-        webVitalValue: metric.value
-    });
-}
-async function flushEvents(): Promise<void> {
-    if (pendingEvents.length === 0) return;
-    // navigator.sendBeacon(`https://${DPU_API_HOST}/events`, JSON.stringify({ events: pendingEvents.splice(0), userAgentString: navigator.userAgent })); // Fails silently if browser cannot queue request
-}
-setInterval(flushEvents, 5000);
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) flushEvents();
-});
-
-// Composable that encapsulates PostHog interface and module state websocket
-export interface Monitor {
-    // captureEvent: (name: string, properties: Properties, options: CaptureOptions) => void;
-    identifyUser: (userId: string, sessionId: string, emailAddress?: string) => void;
-    logException: (exception: Exception) => void;
-    resetUser: () => void;
+export interface DeploymentMonitor {
+    initialise: () => void;
     shutdown: () => void;
 }
-export function useMonitor(userId?: string, sessionId?: string, emailAddress?: string): Monitor {
-    // posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_API_KEY, {
-    //     api_host: POSTHOG_URL,
-    //     defaults: POSTHOG_DEFAULTS,
-    //     advanced_disable_flags: false,
-    //     capture_pageview: 'history_change',
-    //     disable_session_recording: true,
-    //     disable_surveys: true,
-    //     enable_recording_console_log: false,
-    //     enable_heatmaps: false,
-    //     person_profiles: 'identified_only'
-    // });
+export function useMonitor(): DeploymentMonitor {
+    return { initialise, shutdown };
+}
 
-    onLCP(trackWebVitalMetric);
-    onINP(trackWebVitalMetric);
-    onCLS(trackWebVitalMetric);
-    onFCP(trackWebVitalMetric);
-    onTTFB(trackWebVitalMetric);
-
-    if (userId != null && sessionId != null) identifyUser(userId, sessionId, emailAddress);
-
-    for (const exception of pendingExceptions) logException(exception);
-    pendingExceptions.length = 0;
-
+export function initialise(): void {
     if (!(moduleStatesWebSocket && (moduleStatesWebSocket.readyState === WebSocket.CONNECTING || moduleStatesWebSocket.readyState === WebSocket.OPEN))) {
         moduleStatesWebSocket = connectToModuleStatesWebSocket();
     }
-
-    return { /*captureEvent,*/ identifyUser, logException, resetUser, shutdown };
 }
 
-// PostHog helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function identifyUser(userId: string, sessionId: string, emailAddress?: string): void {
-    void emailAddress;
-    activeUserId = userId;
-    activeSessionId = sessionId;
-    // posthog.register_for_session({ dpu_auth_session_id: sessionId });
-    // posthog.identify(userId, { dpu_user_id: userId, dpu_email_address: emailAddress });
-}
-
-function resetUser(): void {
-    activeUserId = '';
-    activeSessionId = '';
-    // posthog.unregister_for_session('dpu_auth_session_id');
-    // posthog.reset();
-}
-
-// function captureEvent(name: string, properties: Properties, options: CaptureOptions): void {
-//     posthog.capture(name, properties, options);
-// }
-
-function logException(exception: Exception): void {
-    let exceptionError;
-    let exceptionProperties;
-    switch (exception.typeId) {
-        case 'unhandledVue': {
-            const payload = exception.payload;
-            exceptionError = payload.error instanceof Error ? payload.error : new Error('Unknown Vue error.');
-            const options = payload.instance?.$options ?? {};
-            exceptionProperties = {
-                dpu_exception_type_id: exception.typeId,
-                dpu_exception_component_name: options.__name,
-                dpu_exception_info: payload.info
-            };
-            break;
-        }
-        case 'unhandledRuntime': {
-            const payload = exception.payload;
-            exceptionError = payload.error instanceof Error ? payload.error : new Error(payload.message || 'Unknown runtime error.');
-            exceptionProperties = {
-                dpu_exception_type_id: 'runtime',
-                dpu_exception_source_filename: payload.filename,
-                dpu_exception_source_lineno: payload.lineno,
-                dpu_exception_source_colno: payload.colno,
-                dpu_exception_original_message: payload.message,
-                dpu_exception_has_native_error: payload.error instanceof Error
-            };
-            break;
-        }
-        case 'unhandledPromise': {
-            const payload = exception.payload;
-            exceptionError = payload.reason instanceof Error ? payload.reason : new Error(`Unhandled promise rejection - ${String(payload.reason)}.`);
-            exceptionProperties = {
-                dpu_exception_type_id: exception.typeId,
-                dpu_exception_reason: payload.reason
-            };
-            break;
-        }
-        default: {
-            const payload = exception.payload;
-            exceptionError = payload.error instanceof Error ? payload.error : new Error('Unknown handled error.');
-            exceptionProperties = {
-                dpu_exception_type_id: exception.typeId,
-                dpu_exception_locator: payload.locator
-            };
-            break;
-        }
-    }
-    // const result = posthog.captureException(exceptionError, exceptionProperties);
-    if (import.meta.env.DEV) console.info('[dpu:app] ❌', exceptionError, exceptionProperties /*, result*/);
-}
-
-function shutdown(): void {
+export function shutdown(): void {
     moduleStatesWebSocketShutdown = true;
-    flushEvents();
     if (moduleStatesWebSocket) {
         moduleStatesWebSocket.close();
         moduleStatesWebSocket = undefined;
     }
 }
 
-// Module states WebSocket helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// WebSocket helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function connectToModuleStatesWebSocket(): WebSocket | undefined {
     try {
@@ -241,6 +87,8 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
         return undefined;
     }
 }
+
+// Module helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function registerModules(moduleConfigs: ModuleConfig[]): void {
     const sessionState = useSessionStore();
@@ -328,6 +176,8 @@ function unregisterModules(moduleConfigs: ModuleConfig[]): void {
         sessionState.connectorConfigs = sessionState.connectorConfigs.filter((c) => !idsToRemove.has(c.id));
     }
 }
+
+// Connection configuration helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
     return {

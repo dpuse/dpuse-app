@@ -1,4 +1,4 @@
-// Data dependencies.
+// App core
 import workbenchData from '~/knowledge/workbench.json';
 
 // Local type dependencies.

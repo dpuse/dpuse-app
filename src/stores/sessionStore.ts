@@ -4,7 +4,7 @@
 import { defineStore } from 'pinia';
 import { useIdle } from '@vueuse/core';
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
-import { type ComponentPublicInstance, ref, shallowRef, watch } from 'vue';
+import { ref, shallowRef, watch } from 'vue';
 
 // DPU framework
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
@@ -13,14 +13,8 @@ import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/
 import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
 
 // App core
-import type { Monitor } from '@/composables/useMonitor';
-
-// Exception declarations
-type HandledException = { typeId: 'handled'; payload: { error?: unknown; locator: string } };
-type UnhandledVueException = { typeId: 'unhandledVue'; payload: { error?: unknown; instance: ComponentPublicInstance | null; info?: string } };
-type UnhandledRuntimeException = { typeId: 'unhandledRuntime'; payload: ErrorEvent };
-type UnhandledPromiseRejectException = { typeId: 'unhandledPromise'; payload: PromiseRejectionEvent };
-export type Exception = HandledException | UnhandledRuntimeException | UnhandledPromiseRejectException | UnhandledVueException;
+import type { DeploymentMonitor } from '@/observability/deploymentMonitor';
+import { deidentifyUser, identifyUser } from '@/observability/eventTracking';
 
 // Constants
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
@@ -35,10 +29,7 @@ let hankoInstance: Hanko | undefined;
 let hankoFlowCleanupFunction: (() => void) | undefined;
 
 // Long-lived app-scoped monitor instance
-export let monitorInstance: Monitor | undefined;
-
-// Short lived app-scoped startup pending exceptions array
-export const pendingExceptions: Exception[] = [];
+export let deploymentMonitorInstance: DeploymentMonitor | undefined;
 
 // Long-lived authenticated-session-scoped expiry timer
 let expiryTimer: ReturnType<typeof setTimeout> | undefined;
@@ -84,12 +75,13 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.onUserDeleted(() => establishSession('deleted'));
             hankoInstance.onUserLoggedOut(() => establishSession('terminated'));
             hankoInstance.validateSession().then((result) => {
-                establishSession('validated', result.is_valid ? result.claims : undefined, true);
-                import('@/composables/useMonitor').then((module) => {
-                    monitorInstance = module.useMonitor(userId.value, sessionId.value, emailAddress.value);
+                establishSession('validated', result.is_valid ? result.claims : undefined);
+                import('@/observability/deploymentMonitor').then((module) => {
+                    deploymentMonitorInstance = module.useMonitor();
+                    deploymentMonitorInstance.initialise();
                     window.addEventListener('beforeunload', (event) => {
                         if (!areUpdatesPending.value) return;
-                        monitorInstance?.shutdown(); // Fails silently in no monitor instance
+                        deploymentMonitorInstance?.shutdown(); // Fails silently in no monitor instance
                         event.preventDefault();
                         event.returnValue = '';
                     });
@@ -138,7 +130,7 @@ export const useSessionStore = defineStore('session', () => {
 
     // Establish session helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    function establishSession(reasonId: string, claims?: Claims, isLoading = false): void {
+    function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'terminated' | 'validated', claims?: Claims): void {
         if (claims) {
             if (claims.email) {
                 emailAddress.value = claims.email.address;
@@ -156,11 +148,11 @@ export const useSessionStore = defineStore('session', () => {
             lifetime.value = expiresAt.value - establishedAt;
             sessionId.value = claims.session_id;
             userId.value = claims.subject;
-            if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Authenticated session established (${reasonId}).`);
+            if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Authenticated session established (${actionId}).`);
             startSessionExpiryTimer();
-            if (!isLoading) monitorInstance?.identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value); // Fails silently in no monitor instance
+            if (actionId !== 'validated') identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value); // Fails silently in no monitor instance
         } else {
-            monitorInstance?.resetUser(); // Fails silently in no monitor instance
+            if (actionId !== 'validated') deidentifyUser(); // Fails silently in no monitor instance
             clearSessionExpiryTimer();
             emailAddress.value = undefined;
             emailIsPrimary.value = undefined;
@@ -171,7 +163,7 @@ export const useSessionStore = defineStore('session', () => {
             lifetime.value = undefined;
             userId.value = undefined;
             sessionId.value = undefined;
-            if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Unauthenticated session established (${reasonId}).`);
+            if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Unauthenticated session established (${actionId}).`);
         }
     }
 
