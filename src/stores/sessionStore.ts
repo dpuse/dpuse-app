@@ -13,7 +13,6 @@ import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/
 import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
 
 // App core
-import type { DeploymentMonitor } from '@/observability/deploymentMonitor';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
 
 // Constants
@@ -27,9 +26,6 @@ let hankoInstance: Hanko | undefined;
 
 // Short lived session scoped cleanup callback for the active Hanko flow
 let hankoFlowCleanupFunction: (() => void) | undefined;
-
-// Long-lived app-scoped monitor instance
-export let deploymentMonitorInstance: DeploymentMonitor | undefined;
 
 // Long-lived authenticated-session-scoped expiry timer
 let expiryTimer: ReturnType<typeof setTimeout> | undefined;
@@ -59,6 +55,12 @@ export const useSessionStore = defineStore('session', () => {
 
     const { idle, lastActive } = useIdle(SESSION_IDLE_TIMEOUT);
 
+    globalThis.addEventListener('beforeunload', (event) => {
+        if (!areUpdatesPending.value) return;
+        event.preventDefault();
+        event.returnValue = '';
+    });
+
     watch(
         localMetaStoreConnectionConfig,
         (newConnectionConfig) => {
@@ -76,18 +78,10 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.onUserLoggedOut(() => establishSession('terminated'));
             hankoInstance.validateSession().then((result) => {
                 establishSession('validated', result.is_valid ? result.claims : undefined);
-                import('@/observability/deploymentMonitor').then((module) => {
-                    deploymentMonitorInstance = module.useMonitor();
-                    deploymentMonitorInstance.initialise();
-                    window.addEventListener('beforeunload', (event) => {
-                        if (!areUpdatesPending.value) return;
-                        deploymentMonitorInstance?.shutdown(); // Fails silently in no monitor instance
-                        event.preventDefault();
-                        event.returnValue = '';
-                    });
-                });
+                import('@/observability/performanceTracking').then((module) => module.initialise());
             });
         });
+        import('@/observability/deploymentMonitor').then((module) => module.initialise());
     }
 
     function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): void {

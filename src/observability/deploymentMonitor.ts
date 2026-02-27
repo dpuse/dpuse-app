@@ -20,25 +20,10 @@ let localMetaNodeConnectorConfig: ConnectorConfig | undefined;
 
 // Functions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export interface DeploymentMonitor {
-    initialise: () => void;
-    shutdown: () => void;
-}
-export function useMonitor(): DeploymentMonitor {
-    return { initialise, shutdown };
-}
-
-function initialise(): void {
+export function initialise(): void {
     if (!(moduleStatesWebSocket && (moduleStatesWebSocket.readyState === WebSocket.CONNECTING || moduleStatesWebSocket.readyState === WebSocket.OPEN))) {
         moduleStatesWebSocket = connectToModuleStatesWebSocket();
-    }
-}
-
-function shutdown(): void {
-    moduleStatesWebSocketShutdown = true;
-    if (moduleStatesWebSocket) {
-        moduleStatesWebSocket.close();
-        moduleStatesWebSocket = undefined;
+        window.addEventListener('beforeunload', () => shutdown());
     }
 }
 
@@ -85,6 +70,14 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
         // TODO: Try and recreate a limited number of times. If no success then display message requesting refresh.
         if (import.meta.env.DEV) console.info(`[dpu:app] ❌ WebSocket creation error: ${String(error)}`, error);
         return undefined;
+    }
+}
+
+function shutdown(): void {
+    moduleStatesWebSocketShutdown = true;
+    if (moduleStatesWebSocket) {
+        moduleStatesWebSocket.close();
+        moduleStatesWebSocket = undefined;
     }
 }
 
