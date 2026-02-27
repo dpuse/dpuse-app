@@ -5,7 +5,7 @@ import { createPinia } from 'pinia';
 // App core
 import '@/assets/main.css';
 import { createAppRouter } from '@/router';
-import { logException } from '@/observability/eventTracking';
+import { logException, showErrorSafely } from '@/observability/errorTracking';
 
 // App components
 import App from '@/App.vue';
@@ -36,30 +36,5 @@ try {
     app.use(createAppRouter());
     app.mount('#app');
 } catch (error) {
-    reportErrorSafely(error);
-}
-
-// Report error helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function reportErrorSafely(error: unknown): void {
-    // Insert error message into the body of the page
-    const errorDiv = globalThis.document.createElement('div');
-    errorDiv.textContent = `Application failed to load: ${error instanceof Error ? error.message : String(error)}`;
-    errorDiv.style.position = 'fixed';
-    errorDiv.style.top = '0';
-    errorDiv.style.left = '0';
-    errorDiv.style.width = '100vw';
-    errorDiv.style.background = '#b91c1c';
-    errorDiv.style.color = 'white';
-    errorDiv.style.padding = '1.5rem';
-    errorDiv.style.fontSize = '1.25rem';
-    errorDiv.style.zIndex = '9999';
-    errorDiv.style.fontFamily = 'monospace, monospace';
-    globalThis.document.body.append(errorDiv);
-
-    // TODO: Attempt to send to error tracker...
-    try {
-    } catch {}
-
-    // TODO: Check pending exceptions for any entries, display on page and attempt to send to error tracker...
+    showErrorSafely(error);
 }

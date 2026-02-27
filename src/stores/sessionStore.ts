@@ -14,7 +14,7 @@ import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
 
 // App core
 import type { DeploymentMonitor } from '@/observability/deploymentMonitor';
-import { deidentifyUser, identifyUser } from '@/observability/eventTracking';
+import { forgetUser, identifyUser } from '@/observability/eventTracking';
 
 // Constants
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
@@ -152,7 +152,7 @@ export const useSessionStore = defineStore('session', () => {
             startSessionExpiryTimer();
             if (actionId !== 'validated') identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value); // Fails silently in no monitor instance
         } else {
-            if (actionId !== 'validated') deidentifyUser(); // Fails silently in no monitor instance
+            if (actionId !== 'validated') forgetUser(); // Fails silently in no monitor instance
             clearSessionExpiryTimer();
             emailAddress.value = undefined;
             emailIsPrimary.value = undefined;

@@ -28,13 +28,13 @@ export function useMonitor(): DeploymentMonitor {
     return { initialise, shutdown };
 }
 
-export function initialise(): void {
+function initialise(): void {
     if (!(moduleStatesWebSocket && (moduleStatesWebSocket.readyState === WebSocket.CONNECTING || moduleStatesWebSocket.readyState === WebSocket.OPEN))) {
         moduleStatesWebSocket = connectToModuleStatesWebSocket();
     }
 }
 
-export function shutdown(): void {
+function shutdown(): void {
     moduleStatesWebSocketShutdown = true;
     if (moduleStatesWebSocket) {
         moduleStatesWebSocket.close();

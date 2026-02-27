@@ -10,7 +10,7 @@ import type { EngineCallbackData } from '@datapos/datapos-shared/engine';
 import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@datapos/datapos-shared/component/connector';
 
 // App core
-import { logErrorToConsole } from '@/composables/useMonitor';
+import { logErrorToConsole } from '@/observability/errorTracking';
 import { t } from '@/locales';
 import T from '@/locales/views/workflow/contextualiseData/ContextualiseData.json';
 import { useEngineWorker } from '@/composables/useEngineWorker';
