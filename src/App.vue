@@ -16,6 +16,7 @@ import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionB
 import KnowledgePanel from '@/components/knowledgePanel/KnowledgePanel.vue';
 import SessionMenu from './components/account/SessionMenu.vue';
 import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
+import Mask from './components/mask/Mask.vue';
 
 // App components (lazy loaded)
 const AuthDialog = defineAsyncComponent(() => import('@/components/account/AuthDialog.vue'));
@@ -196,7 +197,18 @@ function handleKnowledgeOptionSelect(): void {
         </div>
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
-        <AuthDialog v-if="authDialogIsVisible" />
+        <!-- <AuthDialog v-if="authDialogIsVisible" /> -->
+        <div v-if="authDialogIsVisible" class="fixed inset-0 z-50">
+            <Mask />
+            <Suspense>
+                <template #default>
+                    <div class="bg-surface relative z-10">Component</div>
+                </template>
+                <template #fallback>
+                    <div class="bg-surface relative z-10">Loading...</div>
+                </template>
+            </Suspense>
+        </div>
 
         <!-- Left pane: Workbench (option bar + workbench body) -->
         <div :class="workbenchPaneClasses" :style="workbenchPaneStyle">
