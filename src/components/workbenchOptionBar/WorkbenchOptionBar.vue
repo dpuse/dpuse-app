@@ -28,7 +28,7 @@ function handleSelect(config?: BenchtopOptionLocalisedConfig): void {
                 <div class="bg-surface/70 absolute inset-0" @click="(event, config?: BenchtopOptionLocalisedConfig) => handleSelect(config)"></div>
 
                 <WorkbenchOptionBarContent
-                    class="dpu-floating-option-bar-panel relative mr-auto flex shadow-lg"
+                    class="dpuse-floating-option-bar-panel relative mr-auto flex shadow-lg"
                     :on-select="handleSelect"
                     :session-is-authenticated="sessionIsAuthenticated"
                 />
@@ -46,12 +46,12 @@ function handleSelect(config?: BenchtopOptionLocalisedConfig): void {
 .option-bar-overlay-leave-to {
     opacity: 0;
 }
-.option-bar-overlay-enter-active .dpu-floating-option-bar-panel,
-.option-bar-overlay-leave-active .dpu-floating-option-bar-panel {
+.option-bar-overlay-enter-active .dpuse-floating-option-bar-panel,
+.option-bar-overlay-leave-active .dpuse-floating-option-bar-panel {
     transition: transform 260ms ease-in-out;
 }
-.option-bar-overlay-enter-from .dpu-floating-option-bar-panel,
-.option-bar-overlay-leave-to .dpu-floating-option-bar-panel {
+.option-bar-overlay-enter-from .dpuse-floating-option-bar-panel,
+.option-bar-overlay-leave-to .dpuse-floating-option-bar-panel {
     transform: translateX(-100%);
 }
 </style>

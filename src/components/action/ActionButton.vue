@@ -11,7 +11,7 @@ const paddingClasses = computed(() => (variant === 'avatar' ? 'p-0' : variant ==
 const variantClasses = computed(() => {
     switch (variant) {
         case 'avatar':
-            return 'dpu-avatar overflow-hidden rounded-full outline-2 outline-offset-2 outline-transparent focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:outline-zinc-300 dark:hover:outline-zinc-500/40';
+            return 'dpuse-avatar overflow-hidden rounded-full outline-2 outline-offset-2 outline-transparent focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:outline-zinc-300 dark:hover:outline-zinc-500/40';
         case 'commit':
             return 'rounded-md bg-zinc-600 text-zinc-200 hover:bg-zinc-700 focus-visible:outline-zinc-600 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600 dark:focus-visible:outline-zinc-500';
         case 'danger':
@@ -19,9 +19,9 @@ const variantClasses = computed(() => {
         case 'ghost':
             return 'rounded-md focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
         case 'iconLarge':
-            return 'dpu-lg rounded-md focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
+            return 'dpuse-lg rounded-md focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
         case 'iconSmall':
-            return 'dpu-sm rounded-md focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
+            return 'dpuse-sm rounded-md focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
         case 'item':
             return `${isActive ? 'bg-zinc-200 dark:bg-zinc-500/50' : 'focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400'} rounded-md bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-500/20 dark:hover:bg-zinc-500/40`;
         case 'outline':
@@ -47,15 +47,15 @@ const variantClasses = computed(() => {
 </template>
 
 <style scoped>
-button.dpu-sm > :deep(svg) {
+button.dpuse-sm > :deep(svg) {
     width: 20px;
     height: 20px;
 }
-button.dpu-lg > :deep(svg) {
+button.dpuse-lg > :deep(svg) {
     width: 24px;
     height: 24px;
 }
-button.dpu-avatar > :deep(img) {
+button.dpuse-avatar > :deep(img) {
     border-radius: 50%;
 }
 </style>

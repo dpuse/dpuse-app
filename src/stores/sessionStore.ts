@@ -6,13 +6,15 @@ import { useIdle } from '@vueuse/core';
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { ref, shallowRef, watch } from 'vue';
 
-// DPU framework
+// DPUse framework
+import { AppError } from '@datapos/datapos-shared/errors';
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/component/connector';
 import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
 
 // App core
+import { reportAppError } from '@/observability/errorTracking';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
 
 // Constants
@@ -76,17 +78,23 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.onSessionExpired(() => establishSession('expired'));
             hankoInstance.onUserDeleted(() => establishSession('deleted'));
             hankoInstance.onUserLoggedOut(() => establishSession('terminated'));
-            hankoInstance.validateSession().then((result) => {
-                establishSession('validated', result.is_valid ? result.claims : undefined);
-                import('@/observability/performanceTracking').then((module) => module.initialise());
-            });
+            hankoInstance
+                .validateSession()
+                .then((result) => {
+                    establishSession('validated', result.is_valid ? result.claims : undefined);
+                    import('@/observability/performanceTracking').then((module) => module.initialise());
+                })
+                .catch((error) => {
+                    reportAppError(new AppError('Session validation failed.', 'dpuse.sessionStore.useSessionStore.initialiseServices', { typeId: 'handled' }, { cause: error }));
+                    establishSession('validationFailure');
+                });
         });
         import('@/observability/deploymentMonitor').then((module) => module.initialise());
     }
 
-    function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): void {
+    async function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): Promise<void> {
         hankoFlowCleanupFunction = hankoInstance?.onAfterStateChange(stateHandler); // Fails silently in no Hanko instance
-        hankoInstance?.createState(name);
+        await hankoInstance?.createState(name);
     }
 
     function destroyFlow(): void {
@@ -124,7 +132,7 @@ export const useSessionStore = defineStore('session', () => {
 
     // Establish session helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'terminated' | 'validated', claims?: Claims): void {
+    function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'terminated' | 'validated' | 'validationFailure', claims?: Claims): void {
         if (claims) {
             if (claims.email) {
                 emailAddress.value = claims.email.address;
@@ -142,11 +150,11 @@ export const useSessionStore = defineStore('session', () => {
             lifetime.value = expiresAt.value - establishedAt;
             sessionId.value = claims.session_id;
             userId.value = claims.subject;
-            if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Authenticated session established (${actionId}).`);
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Authenticated session established (${actionId}).`);
             startSessionExpiryTimer();
-            if (actionId !== 'validated') identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value); // Fails silently in no monitor instance
+            identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value); // Fails silently in no monitor instance
         } else {
-            if (actionId !== 'validated') forgetUser(); // Fails silently in no monitor instance
+            forgetUser(); // Fails silently in no monitor instance
             clearSessionExpiryTimer();
             emailAddress.value = undefined;
             emailIsPrimary.value = undefined;
@@ -157,7 +165,8 @@ export const useSessionStore = defineStore('session', () => {
             lifetime.value = undefined;
             userId.value = undefined;
             sessionId.value = undefined;
-            if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Unauthenticated session established (${actionId}).`);
+            const icon = actionId === 'validationFailure' ? '⚠️' : 'ℹ️';
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ${icon} Unauthenticated session established (${actionId}).`);
         }
     }
 

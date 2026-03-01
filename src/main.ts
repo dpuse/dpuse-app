@@ -2,10 +2,13 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
+// DPUse framework
+import { AppError } from '@datapos/datapos-shared/errors';
+
 // App core
 import '@/assets/main.css';
 import { createAppRouter } from '@/router';
-import { logException, showErrorSafely } from '@/observability/errorTracking';
+import { reportAppError, reportFatalError } from '@/observability/errorTracking';
 
 // App components
 import App from '@/App.vue';
@@ -14,8 +17,17 @@ import App from '@/App.vue';
 
 try {
     // Add global error handlers
-    globalThis.addEventListener('error', (event): void => logException({ typeId: 'unhandledRuntime', payload: event }));
-    globalThis.addEventListener('unhandledrejection', (event): void => logException({ typeId: 'unhandledPromise', payload: event }));
+    globalThis.addEventListener('error', (event): void => {
+        const data = { colno: event.colno, filename: event.filename, lineno: event.lineno, originalMessage: event.message, typeId: 'unhandled' };
+        if (event.error instanceof Error) reportAppError(new AppError('Unhandled error.', 'dpuse.main', data, { cause: event.error }));
+        else reportAppError(new AppError('Unhandled error.', 'dpuse.main', data, { cause: new Error(event.message || 'Unknown error.') }));
+    });
+    globalThis.addEventListener('unhandledrejection', (event): void => {
+        const data = { typeId: 'unhandledPromiseRejection' };
+        if (event.reason instanceof Error) reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause: event.reason }));
+        else reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause: new Error(String(event.reason) || 'Unknown promise rejection error.') }));
+        event.preventDefault();
+    });
 
     // Define Trusted Types default policy to allow inline worker blob URLs created by Vite's `?worker&inline` transform.
     // Without this, `require-trusted-types-for 'script'` blocks `new Worker(blobUrl)` because the URL is a plain string.
@@ -31,10 +43,13 @@ try {
 
     // Create and mount application
     const app = createApp(App);
-    app.config.errorHandler = (error, instance, info): void => logException({ typeId: 'unhandledVue', payload: { error, instance, info } });
+    app.config.errorHandler = (error, instance, info): void => {
+        const data = { componentName: instance?.$options?.__name ?? undefined, info, typeId: 'unhandledVue' };
+        reportAppError(new AppError('Unhandled Vue error.', 'dpuse.main', data, { cause: error }));
+    };
     app.use(createPinia());
     app.use(createAppRouter());
     app.mount('#app');
 } catch (error) {
-    showErrorSafely(error);
+    reportFatalError(error);
 }

@@ -1,9 +1,3 @@
-// External dependencies
-import type { ComponentPublicInstance } from 'vue';
-
-// DPU framework
-import type { DPUError } from '@datapos/datapos-shared/errors';
-
 // App core
 import { version } from '~/package.json';
 

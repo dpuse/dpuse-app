@@ -32,7 +32,7 @@ export default defineConfig({
                 " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' 'sha256-zB6mwYmmKIlxJrDq5yysgDwDqL4RFTYqD9cEDekVWCA=';" +
                 " style-src 'self' 'unsafe-inline';" + // 'unsafe-inline' is required in dev mode as Vite injects Tailwind CSS as inline <style> elements for HMR
                 " worker-src 'self' blob:;" +
-                " trusted-types default vue;" +
+                ' trusted-types default vue;' +
                 " require-trusted-types-for 'script';",
             'Cross-Origin-Resource-Policy': 'same-origin',
             'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self), clipboard-read=(self), clipboard-write=(self)',

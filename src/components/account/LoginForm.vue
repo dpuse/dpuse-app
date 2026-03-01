@@ -10,7 +10,6 @@ import { t } from '@/locales';
 // App components
 import ActionButton from '@/components/action/ActionButton.vue';
 import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
-import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';
 import GoogleLogoIcon from '@/components/icon/logos/GoogleLogoIcon.vue';
 import Input from '@/components/input/Input.vue';
@@ -33,9 +32,7 @@ async function handleSubmit(): Promise<void> {
 </script>
 
 <template>
-    <div class="flex flex-col gap-y-3 p-8">
-        <DPULogoIcon class="size-12" />
-
+    <div class="flex flex-col gap-y-3">
         <h2 class="text-2xl font-normal">{{ t(T, 'Sign_in') }}</h2>
 
         <form class="mt-2 flex flex-col gap-y-3">
@@ -52,9 +49,5 @@ async function handleSubmit(): Promise<void> {
             <ActionButton class="justify-start" variant="outline"><GitHubLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_GitHub') }}</ActionButton>
             <ActionButton class="justify-start" variant="outline"><MicrosoftLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_Microsoft') }}</ActionButton>
         </div>
-
-        <Separator class="mt-3 mb-2" />
-
-        <div class="text-muted text-center">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
     </div>
 </template>

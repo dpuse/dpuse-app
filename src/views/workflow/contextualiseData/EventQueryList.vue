@@ -4,13 +4,13 @@ import { PlusIcon } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
-// DPU framework
+// DPUse framework
 import { AppError } from '@datapos/datapos-shared/errors';
 import type { EngineCallbackData } from '@datapos/datapos-shared/engine';
 import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@datapos/datapos-shared/component/connector';
 
 // App core
-import { logErrorToConsole } from '@/observability/errorTracking';
+import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/locales';
 import T from '@/locales/views/workflow/contextualiseData/ContextualiseData.json';
 import { useEngineWorker } from '@/composables/useEngineWorker';
@@ -69,7 +69,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
             }
         });
     } catch (error) {
-        logErrorToConsole(new AppError('Failed to retrieve event queries.', 'dpu-app.EventQueryList.retrieveEventQueries', { cause: error }));
+        reportAppError(new AppError('Failed to retrieve event queries.', 'dpuse-app.EventQueryList.retrieveEventQueries', { typeId: 'handled' }, { cause: error }));
     } finally {
         // Pending...
     }

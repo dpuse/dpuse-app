@@ -25,7 +25,7 @@ function handleSelect(): void {
                 <div class="bg-surface/70 absolute inset-0" @click="handleSelect"></div>
 
                 <KnowledgeOptionBarContent
-                    class="dpu-floating-option-bar-panel relative ml-auto flex shadow-lg"
+                    class="dpuse-floating-option-bar-panel relative ml-auto flex shadow-lg"
                     :on-select="handleSelect"
                     :session-is-authenticated="sessionIsAuthenticated"
                 />
@@ -43,12 +43,12 @@ function handleSelect(): void {
 .option-bar-overlay-leave-to {
     opacity: 0;
 }
-.option-bar-overlay-enter-active .dpu-floating-option-bar-panel,
-.option-bar-overlay-leave-active .dpu-floating-option-bar-panel {
+.option-bar-overlay-enter-active .dpuse-floating-option-bar-panel,
+.option-bar-overlay-leave-active .dpuse-floating-option-bar-panel {
     transition: transform 260ms ease-in-out;
 }
-.option-bar-overlay-enter-from .dpu-floating-option-bar-panel,
-.option-bar-overlay-leave-to .dpu-floating-option-bar-panel {
+.option-bar-overlay-enter-from .dpuse-floating-option-bar-panel,
+.option-bar-overlay-leave-to .dpuse-floating-option-bar-panel {
     transform: translateX(100%);
 }
 </style>

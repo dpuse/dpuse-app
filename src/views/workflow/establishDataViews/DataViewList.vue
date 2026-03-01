@@ -4,7 +4,7 @@ import { PlusIcon } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
-// DPU framework
+// DPUse framework
 import { AppError } from '@datapos/datapos-shared/errors';
 import type { EngineCallbackData } from '@datapos/datapos-shared/engine';
 import type {
@@ -17,7 +17,7 @@ import type {
 } from '@datapos/datapos-shared/component/connector';
 
 // App core
-import { logErrorToConsole } from '@/observability/errorTracking';
+import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/locales';
 import T from '@/locales/views/workflow/establishDataViews/EstablishDataViews.json';
 import { useEngineWorker } from '@/composables/useEngineWorker';
@@ -57,7 +57,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         if (!connectionConfig) return;
 
         const { processRequest } = await useEngineWorker();
-        const findObjectOptions: FindObjectOptions = { storeId: 'dpuMetaStore', nodeId: 'dataViews' };
+        const findObjectOptions: FindObjectOptions = { storeId: 'dpuMeta2Store', nodeId: 'dataViews' };
         const findObjectResult = (await processRequest('findObject', connectionConfig, findObjectOptions)) as FindObjectResult;
         if (findObjectResult.path == null) {
             const createObjectOptions: CreateObjectOptions = { path: '/dpuMetaStore/dataViews', structure: 'id' };
@@ -116,7 +116,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     } catch (error) {
-        logErrorToConsole(new AppError('Failed to retrieve data views.', 'dpu-app.EstablishDataViews.retrieveDataViews', { cause: error }));
+        reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.EstablishDataViews.retrieveDataViews', { typeId: 'handled' }, { cause: error }));
     } finally {
         // Pending...
     }

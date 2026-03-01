@@ -1,4 +1,4 @@
-// DPU framework
+// DPUse framework
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
 import type { ModuleConfig } from '@datapos/datapos-shared/component';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
@@ -35,7 +35,7 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
         let statesWebSocket: WebSocket | undefined = new WebSocket(wsURL);
 
         statesWebSocket.addEventListener('open', () => {
-            if (import.meta.env.DEV) console.info('[dpu:app] ✅ WebSocket connection established.');
+            if (import.meta.env.DEV) console.info('[dpuse:app] ✅ WebSocket connection established.');
         });
 
         statesWebSocket.addEventListener('message', (event) => {
@@ -50,25 +50,25 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
                         return unregisterModules([eventData.module]);
                 }
             } catch (error) {
-                if (import.meta.env.DEV) console.info(`[dpu:app] ❌ Module registration error: ${String(error)}`, error);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Module registration error: ${String(error)}`, error);
             }
         });
 
         statesWebSocket.addEventListener('close', (event) => {
-            if (import.meta.env.DEV) console.info(`[dpu:app] ⚠️ WebSocket close event '${event.code}' received.`);
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️ WebSocket close event '${event.code}' received.`);
             statesWebSocket = undefined;
             if (!moduleStatesWebSocketShutdown) setTimeout(connectToModuleStatesWebSocket, TIMEOUT_DELAY);
         });
 
         statesWebSocket.addEventListener('error', (error) => {
             // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.
-            if (import.meta.env.DEV) console.info(`[dpu:app] ❌ WebSocket operational error: ${String(error)}`, error);
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ WebSocket operational error: ${String(error)}`, error);
         });
 
         return statesWebSocket;
     } catch (error) {
         // TODO: Try and recreate a limited number of times. If no success then display message requesting refresh.
-        if (import.meta.env.DEV) console.info(`[dpu:app] ❌ WebSocket creation error: ${String(error)}`, error);
+        if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ WebSocket creation error: ${String(error)}`, error);
         return undefined;
     }
 }
@@ -97,12 +97,12 @@ function registerModules(moduleConfigs: ModuleConfig[]): void {
         // TODO: Only register if new added or new version. Can we import in parallel for efficiency?
         switch (moduleConfig.typeId) {
             case 'app': {
-                if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Workbench '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Workbench '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'engine': {
                 sessionState.engineConfig = moduleConfig as EngineConfig;
-                if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Engine '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Engine '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'connector': {
@@ -113,12 +113,12 @@ function registerModules(moduleConfigs: ModuleConfig[]): void {
                 } else {
                     connectorConfigs[index] = moduleConfig as ConnectorConfig;
                 }
-                if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Connector '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Connector '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'context': {
                 sessionState.contextConfig = moduleConfig as ContextConfig; // Trigger shallow reference change for context.
-                if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Context '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Context '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'presenter': {
@@ -129,7 +129,7 @@ function registerModules(moduleConfigs: ModuleConfig[]): void {
                 } else {
                     presenterConfigs[index] = moduleConfig as PresenterConfig;
                 }
-                if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Presenter '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Presenter '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'tool': {
@@ -140,7 +140,7 @@ function registerModules(moduleConfigs: ModuleConfig[]): void {
                 } else {
                     toolConfigs[index] = moduleConfig as ToolConfig;
                 }
-                if (import.meta.env.DEV) console.info(`[dpu:app] ℹ️ Tool '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Tool '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
         }
