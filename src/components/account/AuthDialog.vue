@@ -3,7 +3,7 @@
 import { useRouter } from 'vue-router';
 import { XIcon } from 'lucide-vue-next';
 import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref } from 'vue';
 
 // App core
 import { AppError } from '@datapos/datapos-shared/errors';
@@ -29,6 +29,8 @@ const sessionState = useSessionStore();
 
 const containerReference = ref<HTMLDivElement | null>(null);
 const flowConstructed = ref(false);
+const isClosing = ref(false);
+const rootReference = ref<HTMLElement | null>(null);
 const handleIdEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 const handlePasswordBack = ref<(() => Promise<void>) | undefined>(undefined);
 const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
@@ -136,7 +138,7 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
     if (result.error) console.log(result.error, result);
 }
 
-// Transition helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Transition helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function onBeforeLeave(): void {
     const container = containerReference.value;
@@ -164,7 +166,27 @@ function onAfterEnter(): void {
 
 // UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function handleCloseDialog(): void {
+async function handleCloseDialog(): Promise<void> {
+    isClosing.value = true;
+    // Wait for Vue to apply the is-closing class, then read the actual animation duration for the fallback.
+    await nextTick();
+    await new Promise<void>((resolve) => {
+        const element = rootReference.value;
+        if (!element) {
+            resolve();
+            return;
+        }
+        const durationSeconds = Number.parseFloat(globalThis.getComputedStyle(element).animationDuration) || 0.2;
+        const fallback = setTimeout(resolve, durationSeconds * 1000 + 100);
+        element.addEventListener(
+            'animationend',
+            () => {
+                clearTimeout(fallback);
+                resolve();
+            },
+            { once: true }
+        );
+    });
     const rest = { ...router.currentRoute.value.query };
     delete rest.dialog;
     router.push({ query: { ...rest } });
@@ -172,13 +194,13 @@ function handleCloseDialog(): void {
 </script>
 
 <template>
-    <div class="fixed inset-0 z-50">
+    <div ref="rootReference" class="dialog-root fixed inset-0 z-50" :class="{ 'dialog-root--closing': isClosing }">
         <Mask />
 
-        <dialog
+        <div
+            role="dialog"
             aria-modal="true"
-            class="text-content z-10 h-full max-h-full w-full max-w-full overflow-hidden overflow-y-auto overscroll-y-none sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-sm sm:-translate-x-1/2 sm:rounded-lg"
-            :open="flowConstructed"
+            class="bg-surface text-content z-10 h-full max-h-full w-full max-w-full overflow-hidden overflow-y-auto overscroll-y-none sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-sm sm:-translate-x-1/2 sm:rounded-lg"
             tabindex="-1"
         >
             <!-- Close Button -->
@@ -208,11 +230,39 @@ function handleCloseDialog(): void {
                 <Separator class="mt-3 mb-2" />
                 <div class="text-muted text-center">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
             </div>
-        </dialog>
+        </div>
     </div>
 </template>
 
 <style scoped>
+@keyframes dialog-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@keyframes dialog-fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+.dialog-root {
+    animation: dialog-fade-in 0.2s ease-in-out;
+}
+.dialog-root--closing {
+    animation: dialog-fade-out 0.15s ease-in-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+    .dialog-root,
+    .dialog-root--closing {
+        animation: none;
+    }
+}
 .fade-enter-active {
     transition: opacity 0.2s ease-in-out;
     will-change: opacity;
@@ -220,12 +270,6 @@ function handleCloseDialog(): void {
 .fade-leave-active {
     transition: opacity 0.15s ease-in-out;
     will-change: opacity;
-}
-@media (prefers-reduced-motion: reduce) {
-    .fade-enter-active,
-    .fade-leave-active {
-        transition: none;
-    }
 }
 .fade-enter-from,
 .fade-leave-to {

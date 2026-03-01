@@ -14,8 +14,7 @@ import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import KnowledgePanel from '@/components/knowledgePanel/KnowledgePanel.vue';
-import Separator from '@/components/separator/Separator.vue';
-// import SessionIcon from '@/components/icon/SessionIcon.vue';
+import SessionMenu from './components/account/SessionMenu.vue';
 import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
 
 // App components (lazy loaded)
@@ -190,28 +189,10 @@ function handleKnowledgeOptionSelect(): void {
 
         <!-- Account action -->
         <div class="fixed right-3 bottom-6 z-40 flex flex-col items-end gap-y-1.5">
-            <div v-if="sessionPanelIsVisible" class="border-boundary bg-backdrop flex flex-col gap-y-1 rounded-md border px-4 py-3 shadow-sm">
-                <div class="text-muted text-sm font-medium">Appearance</div>
-                <div>Dark | Light | System</div>
-                <div class="text-muted text-sm font-medium">Full screen</div>
-                <div>Toggle...</div>
-                <div class="text-muted text-sm font-medium">Language</div>
-                <div>English | Español</div>
-                <div class="text-muted text-sm font-medium">Region</div>
-                <div>English | Español</div>
-                <Separator class="my-1" />
-                <div>Manage account...</div>
-                <Separator class="my-1" />
-                <div>Sign in/up/out</div>
-            </div>
-
+            <SessionMenu v-if="sessionPanelIsVisible" />
             <ActionButton class="p-0!" variant="avatar" @click="sessionPanelIsVisible = !sessionPanelIsVisible">
                 <img v-if="avatarUrl" :src="avatarUrl" />
             </ActionButton>
-
-            <!-- <ActionButton variant="iconLarge" @click="sessionPanelIsVisible = !sessionPanelIsVisible">
-                <SessionIcon />
-            </ActionButton> -->
         </div>
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
