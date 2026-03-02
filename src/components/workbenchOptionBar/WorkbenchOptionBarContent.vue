@@ -22,12 +22,12 @@ const route = useRoute();
 </script>
 
 <template>
-    <div class="bg-backdrop border-boundary h-full w-16 flex-col border-r pt-13.75">
+    <div class="border-boundary h-full w-16 flex-col border-r pt-13.75">
         <!-- Separator -->
         <div class="bg-separator mx-3 h-px" />
 
         <!-- Benchtop options scroller -->
-        <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-6">
+        <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-0 pt-2 pb-6">
             <div class="flex flex-1 flex-col items-center gap-y-2">
                 <ActionRouterLink :aria-label="activeBenchtopConfig.label" :to="{ name: activeBenchtopConfig.id, query: route.query }" variant="iconLarge" @click="onSelect()">
                     <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
@@ -47,7 +47,8 @@ const route = useRoute();
             </div>
 
             <!-- Account option -->
-            <AccountButton :session-is-authenticated="sessionIsAuthenticated" :on-select="onSelect" />
+            <!-- <AccountButton :session-is-authenticated="sessionIsAuthenticated" class="w-8" :on-select="onSelect" /> -->
+            <div class="h-10 w-10 bg-red-200" />
         </div>
     </div>
 </template>
