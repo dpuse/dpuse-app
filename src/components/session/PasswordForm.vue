@@ -3,7 +3,7 @@
 import { ref } from 'vue';
 
 // App core
-import T from '@/locales/components/account/PasswordForm.json';
+import T from '@/locales/components/session/PasswordForm.json';
 import { t } from '@/locales';
 
 // App components

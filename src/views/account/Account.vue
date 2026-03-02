@@ -86,7 +86,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
         />
 
         <div class="flex flex-1 overflow-y-hidden">
-            <BenchtopScroller v-if="isWideDisplay || !activeOptionConfig" class="border-boundary flex flex-1 flex-col border-r px-4 pt-4 pb-6 md:flex-none">
+            <BenchtopScroller v-if="isWideDisplay || !activeOptionConfig" class="border-boundary flex flex-1 flex-col border-r px-4 pt-4 pb-7 md:flex-none">
                 <div class="divide-separator flex flex-1 flex-col gap-y-2">
                     <ActionButton class="min-w-50 justify-start" variant="warning" @click="handleSignOut">{{ t(T, 'Sign_out') }}</ActionButton>
 

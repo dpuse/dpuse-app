@@ -8,16 +8,16 @@ import { nextTick, onMounted, onUnmounted, ref } from 'vue';
 // App core
 import { AppError } from '@datapos/datapos-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
-import T from '@/locales/components/account/LoginForm.json';
+import T from '@/locales/components/session/LoginForm.json';
 import { t } from '@/locales';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App components
 import ActionButton from '@/components/action/ActionButton.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
-import LoginForm from '@/components/account/LoginForm.vue';
+import LoginForm from '@/components/session/LoginForm.vue';
 import Mask from '@/components/mask/Mask.vue';
-import PasswordForm from '@/components/account/PasswordForm.vue';
+import PasswordForm from '@/components/session/PasswordForm.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

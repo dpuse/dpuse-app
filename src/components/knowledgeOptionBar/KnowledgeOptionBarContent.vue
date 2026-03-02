@@ -6,6 +6,7 @@ import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
 
 // App components
 import ActionButton from '@/components/action/ActionButton.vue';
+import Separator from '@/components/separator/Separator.vue';
 
 // Properties
 const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
@@ -22,12 +23,12 @@ function handleNavigateTo(view: string): void {
 </script>
 
 <template>
-    <div class="bg-backdrop border-boundary h-full w-16 flex-col border-l pt-13.75">
+    <div class="bg-backdrop border-boundary h-full w-16.25 flex-col border-l pt-13.75">
         <!-- Separator -->
-        <div class="bg-separator mx-3 h-px" />
+        <Separator class="mx-3" />
 
         <!-- Options scroller -->
-        <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none px-3 pt-2 pb-6">
+        <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none pt-2 pb-6">
             <ActionButton variant="iconLarge" @click="handleNavigateTo('welcome')">
                 <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
             </ActionButton>

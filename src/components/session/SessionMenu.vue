@@ -4,7 +4,7 @@ import Separator from '@/components/separator/Separator.vue';
 </script>
 
 <template>
-    <div class="border-boundary bg-backdrop mb-1 flex flex-col gap-y-1 rounded-md border px-4 py-3 shadow-sm">
+    <div class="border-boundary bg-backdrop flex flex-col gap-y-1 rounded-md border px-4 py-3 shadow-sm">
         <div class="text-muted text-sm font-medium">Appearance</div>
         <div>Dark | Light | System</div>
         <div class="text-muted text-sm font-medium">Full screen</div>

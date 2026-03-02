@@ -7,7 +7,7 @@ type Properties = { isActive?: boolean; variant?: 'avatar' | 'commit' | 'danger'
 const { isActive = false, variant = 'ghost' } = defineProps<Properties>();
 
 // Classes
-const paddingClasses = computed(() => (variant === 'avatar' ? 'p-0' : variant === 'iconSmall' ? 'p-1.25' : variant === 'iconLarge' ? 'p-2' : 'px-3 py-2'));
+const paddingClasses = computed(() => (variant === 'avatar' ? 'p-0' : variant === 'iconSmall' ? 'p-1.25' : variant === 'iconLarge' ? 'p-1.75' : 'px-3 py-2'));
 const variantClasses = computed(() => {
     switch (variant) {
         case 'avatar':
@@ -52,8 +52,8 @@ button.dpuse-sm > :deep(svg) {
     height: 20px;
 }
 button.dpuse-lg > :deep(svg) {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
 }
 button.dpuse-avatar > :deep(img) {
     border-radius: 50%;

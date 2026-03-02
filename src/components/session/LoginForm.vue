@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { UserRoundKeyIcon } from 'lucide-vue-next';
 
 // App core
-import T from '@/locales/components/account/LoginForm.json';
+import T from '@/locales/components/session/LoginForm.json';
 import { t } from '@/locales';
 
 // App components

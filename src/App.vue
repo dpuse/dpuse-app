@@ -16,15 +16,15 @@ import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import KnowledgePanel from '@/components/knowledgePanel/KnowledgePanel.vue';
 import Mask from './components/mask/Mask.vue';
-import SessionMenu from './components/account/SessionMenu.vue';
+import Separator from './components/separator/Separator.vue';
 import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
 
 // App components (lazy loaded)
-// const AuthDialog1 = defineAsyncComponent(() => import('@/components/account/AuthDialog.vue'));
-const AuthDialog = defineAsyncComponent({
-    loader: () => import('@/components/account/AuthDialog.vue'),
-    delay: 2000
+const AuthDialog = defineAsyncComponent(async () => {
+    await new Promise((response) => setTimeout(response, 2000));
+    return import('@/components/session/AuthDialog.vue');
 });
+const SessionAction = defineAsyncComponent(() => import('@/components/session/SessionAction.vue'));
 
 // Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -141,6 +141,7 @@ function handleWorkbenchToggle(): void {
 }
 
 function handleWorkbenchOptionSelect(config?: BenchtopOptionLocalisedConfig): void {
+    sessionPanelIsVisible.value = !sessionPanelIsVisible.value;
     activeBenchtopOptionConfig.value = config;
     activeOptionBarId.value = 'none';
     activePaneId.value = 'workbench';
@@ -194,16 +195,10 @@ function handleKnowledgeOptionSelect(): void {
             <KnowledgeIcon />
         </ActionButton>
 
-        <!-- Account action -->
-        <div class="fixed right-3 bottom-6 z-40 flex flex-col items-end gap-y-1.5">
-            <SessionMenu v-if="sessionPanelIsVisible" />
-            <ActionButton class="p-0!" variant="avatar" @click="sessionPanelIsVisible = !sessionPanelIsVisible">
-                <img v-if="avatarUrl" :src="avatarUrl" />
-            </ActionButton>
-        </div>
+        <!-- Session action -->
+        <SessionAction class="fixed bottom-7 left-3 z-40" :session-is-authenticated="sessionState.isAuthenticated" :on-select="handleWorkbenchOptionSelect" />
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
-        <!-- <AuthDialog v-if="authDialogIsVisible" /> -->
         <div v-if="authDialogIsVisible" class="fixed inset-0 z-50 flex items-center justify-center">
             <Mask />
             <Suspense>
