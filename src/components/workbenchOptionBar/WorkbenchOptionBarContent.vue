@@ -47,7 +47,7 @@ const route = useRoute();
             </div>
 
             <!-- Account option -->
-            <!-- <AccountButton :session-is-authenticated="sessionIsAuthenticated" :on-select="onSelect" /> -->
+            <AccountButton :session-is-authenticated="sessionIsAuthenticated" :on-select="onSelect" />
         </div>
     </div>
 </template>
