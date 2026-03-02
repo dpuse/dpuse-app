@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // External dependencies
+import { LoaderCircleIcon } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
@@ -14,12 +15,16 @@ import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import KnowledgePanel from '@/components/knowledgePanel/KnowledgePanel.vue';
+import Mask from './components/mask/Mask.vue';
 import SessionMenu from './components/account/SessionMenu.vue';
 import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
-import Mask from './components/mask/Mask.vue';
 
 // App components (lazy loaded)
-const AuthDialog = defineAsyncComponent(() => import('@/components/account/AuthDialog.vue'));
+// const AuthDialog1 = defineAsyncComponent(() => import('@/components/account/AuthDialog.vue'));
+const AuthDialog = defineAsyncComponent({
+    loader: () => import('@/components/account/AuthDialog.vue'),
+    delay: 2000
+});
 
 // Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -102,6 +107,7 @@ const knowledgePaneToggleAriaLabel = computed(() => {
 });
 
 // Lifecycle event handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const avatarUrl = ref('');
 
 async function gravatarUrl(email: string, size: number): Promise<string> {
@@ -198,14 +204,18 @@ function handleKnowledgeOptionSelect(): void {
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
         <!-- <AuthDialog v-if="authDialogIsVisible" /> -->
-        <div v-if="authDialogIsVisible" class="fixed inset-0 z-50">
+        <div v-if="authDialogIsVisible" class="fixed inset-0 z-50 flex items-center justify-center">
             <Mask />
             <Suspense>
                 <template #default>
-                    <div class="bg-surface relative z-10">Component</div>
+                    <AuthDialog />
                 </template>
                 <template #fallback>
-                    <div class="bg-surface relative z-10">Loading...</div>
+                    <div
+                        class="bg-surface z-10 flex h-full max-h-full w-full max-w-full gap-x-1 overflow-hidden overflow-y-auto overscroll-y-none text-zinc-500 sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-sm sm:-translate-x-1/2 sm:rounded-lg"
+                    >
+                        <LoaderCircleIcon class="animate-spin" />Loading component...
+                    </div>
                 </template>
             </Suspense>
         </div>
