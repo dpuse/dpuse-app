@@ -1,12 +1,12 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { ref } from 'vue';
 
-// App core
+// App Core
 import T from '@/locales/components/session/PasswordForm.json';
 import { t } from '@/locales';
 
-// App components
+// App Components
 import ActionButton from '@/components/action/ActionButton.vue';
 import Input from '@/components/input/Input.vue';
 

@@ -1,15 +1,15 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { ArrowBigLeftIcon } from 'lucide-vue-next';
 import { shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
 
-// App core
+// App Core
 import { t } from '@/locales';
 import T from '@/locales/views/account/Account.json';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App components
+// App Components
 import ActionButton from '@/components/action/ActionButton.vue';
 import ActionRouterLink from '@/components/action/ActionRouterLink.vue';
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
@@ -20,7 +20,7 @@ import Separator from '@/components/separator/Separator.vue';
 // Properties
 const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isWideDisplay: boolean }>();
 
-// Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const router = useRouter();
 const sessionState = useSessionStore();
 

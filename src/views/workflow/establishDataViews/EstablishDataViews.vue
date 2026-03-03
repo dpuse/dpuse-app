@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// App core
+// App Core
 import { t } from '@/locales';
 import T from '@/locales/views/workflow/establishDataViews/EstablishDataViews.json';
 
-// App components
+// App Components
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Header from '@/components/header/Header.vue';
 

@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends { id: string }">
-// External dependencies
+// External Dependencies
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 // Properties

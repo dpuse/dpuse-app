@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends { id: string; label: string }">
-// External dependencies
+// External Dependencies
 import { computed, onMounted, ref, watchEffect } from 'vue';
 import { useBreakpoints, useResizeObserver } from '@vueuse/core';
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';

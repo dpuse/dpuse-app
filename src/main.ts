@@ -1,31 +1,37 @@
-// External dependencies
+// External Dependencies
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
-// DPUse framework
+// DPUse Framework
 import { AppError } from '@datapos/datapos-shared/errors';
 
-// App core
+// App Core
 import '@/assets/main.css';
 import { createAppRouter } from '@/router';
 import { reportAppError, reportFatalError } from '@/observability/errorTracking';
 
-// App components
+// App Components
 import App from '@/App.vue';
 
-// Bootstrap application ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Bootstrap App ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 try {
-    // Add global error handlers
+    // Add global error handlers.
     globalThis.addEventListener('error', (event): void => {
-        const data = { colno: event.colno, filename: event.filename, lineno: event.lineno, originalMessage: event.message, typeId: 'unhandled' };
-        if (event.error instanceof Error) reportAppError(new AppError('Unhandled error.', 'dpuse.main', data, { cause: event.error }));
-        else reportAppError(new AppError('Unhandled error.', 'dpuse.main', data, { cause: new Error(event.message || 'Unknown error.') }));
+        if (event.error instanceof Error) {
+            const data = { colno: event.colno, filename: event.filename, lineno: event.lineno, originalMessage: event.message, typeId: 'unhandledRuntime' };
+            reportAppError(new AppError('Unhandled error.', 'dpuse.main', data, { cause: event.error }));
+        } else {
+            reportAppError(new AppError('Unhandled error.', 'dpuse.main', { typeId: 'unhandledRuntime' }, { cause: new Error(event.message || 'Unknown error.') }));
+        }
     });
     globalThis.addEventListener('unhandledrejection', (event): void => {
         const data = { typeId: 'unhandledPromiseRejection' };
-        if (event.reason instanceof Error) reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause: event.reason }));
-        else reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause: new Error(String(event.reason) || 'Unknown promise rejection error.') }));
+        if (event.reason instanceof Error) {
+            reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause: event.reason }));
+        } else {
+            reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause: new Error(String(event.reason) || 'Unknown promise rejection error.') }));
+        }
         event.preventDefault();
     });
 
@@ -41,10 +47,10 @@ try {
         });
     }
 
-    // Create and mount application
+    // Create and mount application.
     const app = createApp(App);
     app.config.errorHandler = (error, instance, info): void => {
-        const data = { componentName: instance?.$options?.__name ?? undefined, info, typeId: 'unhandledVue' };
+        const data = { componentName: instance?.$options?.__name ?? undefined, info, typeId: 'unhandledVueRuntime' };
         reportAppError(new AppError('Unhandled Vue error.', 'dpuse.main', data, { cause: error }));
     };
     app.use(createPinia());

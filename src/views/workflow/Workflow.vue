@@ -1,13 +1,13 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { useRoute } from 'vue-router';
 
-// App core
+// App Core
 import T from '@/locales/views/workflow/Workflow.json';
 import { useKnowledge } from '@/composables/useKnowledge';
 import { localeId, t } from '@/locales';
 
-// App components
+// App Components
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Card from '@/components/card/Card.vue';

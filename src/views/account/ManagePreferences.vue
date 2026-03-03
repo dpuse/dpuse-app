@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// App core
+// App Core
 import { localeId } from '@/locales';
 
-// App components
+// App Components
 import ActionButton from '@/components/action/ActionButton.vue';
 </script>
 

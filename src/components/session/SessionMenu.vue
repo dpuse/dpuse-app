@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// App components
+// App Components
 import Separator from '@/components/separator/Separator.vue';
 </script>
 

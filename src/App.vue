@@ -1,15 +1,15 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { LoaderCircleIcon } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
-// App core
+// App Core
 import type { BenchtopOptionLocalisedConfig } from './types/workbench';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App components
+// App Components
 import ActionButton from '@/components/action/ActionButton.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
@@ -19,19 +19,19 @@ import Mask from './components/mask/Mask.vue';
 import Separator from './components/separator/Separator.vue';
 import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
 
-// App components (lazy loaded)
+// App Components (lazy loaded)
 const AuthDialog = defineAsyncComponent(async () => {
     await new Promise((response) => setTimeout(response, 2000));
     return import('@/components/session/AuthDialog.vue');
 });
 const SessionAction = defineAsyncComponent(() => import('@/components/session/SessionAction.vue'));
 
-// Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 useColorMode(); // CSP requires hash for useColorMode's transition-disabling style; see error message for hash
 const sessionState = useSessionStore();
 
-// Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeBenchtopOptionConfig = ref<BenchtopOptionLocalisedConfig | undefined>();
 const activeOptionBarId = ref<'none' | 'workbench' | 'knowledge'>('none'); // TODO: Can these be combined; should we have 'both' for wide display
@@ -106,7 +106,7 @@ const knowledgePaneToggleAriaLabel = computed(() => {
     return knowledgePaneIsHidden.value ? 'Show knowledge' : 'Hide knowledge';
 });
 
-// Lifecycle event handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Lifecycle Event Handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const avatarUrl = ref('');
 
@@ -185,12 +185,12 @@ function handleKnowledgeOptionSelect(): void {
 
 <template>
     <div class="bg-surface text-content fixed inset-0 flex" :class="{ 'select-none': paneSplitterIsDragging }">
-        <!-- Workbench toggle fixed in top left corner; always visible -->
+        <!-- Workbench toggle fixed in top left corner. Always visible .-->
         <ActionButton :aria-label="workbenchPaneToggleAriaLabel" class="fixed top-1.75 left-3 z-40" variant="iconLarge" @click="handleWorkbenchToggle">
             <DPULogoIcon />
         </ActionButton>
 
-        <!-- Knowledge toggle fixed in top right corner; always visible -->
+        <!-- Knowledge toggle fixed in top right corner. Always visible -->
         <ActionButton :aria-label="knowledgePaneToggleAriaLabel" class="fixed top-1.75 right-3 z-40" variant="iconLarge" @click="handleKnowledgeToggle">
             <KnowledgeIcon />
         </ActionButton>
@@ -198,7 +198,7 @@ function handleKnowledgeOptionSelect(): void {
         <!-- Session action -->
         <SessionAction class="fixed bottom-7 left-3 z-40" :session-is-authenticated="sessionState.isAuthenticated" :on-select="handleWorkbenchOptionSelect" />
 
-        <!-- Authentication dialog activated using url parameter 'dialog=auth' -->
+        <!-- Authentication dialog activated using url parameter 'dialog=auth'. -->
         <div v-if="authDialogIsVisible" class="fixed inset-0 z-50 flex items-center justify-center">
             <Mask />
             <Suspense>
@@ -215,7 +215,7 @@ function handleKnowledgeOptionSelect(): void {
             </Suspense>
         </div>
 
-        <!-- Left pane: Workbench (option bar + workbench body) -->
+        <!-- Left pane: Workbench (option bar + workbench body). -->
         <div :class="workbenchPaneClasses" :style="workbenchPaneStyle">
             <WorkbenchOptionBar
                 class="flex-none"
@@ -236,7 +236,7 @@ function handleKnowledgeOptionSelect(): void {
             </div>
         </div>
 
-        <!-- Vertical splitter for resizing panes -->
+        <!-- Vertical splitter for resizing panes. -->
         <div
             v-if="paneSplitterIsVisible"
             class="border-boundary hover:bg-separator h-full w-1 flex-none cursor-col-resize border-x transition-colors"
@@ -245,7 +245,7 @@ function handleKnowledgeOptionSelect(): void {
             @pointerup="handleSplitterPointerUp"
         />
 
-        <!-- Right pane: Knowledge (knowledge body + option bar) -->
+        <!-- Right pane: Knowledge (knowledge body + option bar). -->
         <div :class="knowledgePaneClasses">
             <KnowledgePanel class="flex-1" :is-wide-display="displayIsWide" />
             <KnowledgeOptionBar

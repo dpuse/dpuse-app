@@ -1,11 +1,11 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { micromark } from 'micromark';
 import { ref } from 'vue';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
 
-// App components
+// App Components
 import ActionButton from '@/components/action/ActionButton.vue';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

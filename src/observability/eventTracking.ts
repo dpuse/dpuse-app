@@ -1,4 +1,4 @@
-// App core
+// App Core
 import { version } from '~/package.json';
 
 // Constants

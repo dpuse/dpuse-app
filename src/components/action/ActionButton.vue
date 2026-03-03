@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { computed } from 'vue';
 
 // Properties

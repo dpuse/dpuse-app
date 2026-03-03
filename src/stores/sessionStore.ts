@@ -1,19 +1,19 @@
 /* eslint-disable unicorn/consistent-function-scoping */
 
-// External dependencies
+// External Dependencies
 import { defineStore } from 'pinia';
 import { useIdle } from '@vueuse/core';
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { ref, shallowRef, watch } from 'vue';
 
-// DPUse framework
+// DPUse Framework
 import { AppError } from '@datapos/datapos-shared/errors';
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/component/connector';
 import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
 
-// App core
+// App Core
 import { reportAppError } from '@/observability/errorTracking';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
 
@@ -21,15 +21,15 @@ import { forgetUser, identifyUser } from '@/observability/eventTracking';
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
-const SESSION_IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+const SESSION_IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes.
 
-// Long-lived module-scoped Hanko instance reused across multiple authentication sessions
+// Long-lived module-scoped Hanko instance reused across multiple authentication sessions.
 let hankoInstance: Hanko | undefined;
 
-// Short lived session scoped cleanup callback for the active Hanko flow
+// Short lived session scoped cleanup callback for the active Hanko flow.
 let hankoFlowCleanupFunction: (() => void) | undefined;
 
-// Long-lived authenticated-session-scoped expiry timer
+// Long-lived authenticated-session-scoped expiry timer.
 let expiryTimer: ReturnType<typeof setTimeout> | undefined;
 
 // Pina store for session state
@@ -47,7 +47,7 @@ export const useSessionStore = defineStore('session', () => {
     const expiresAt = ref<number | undefined>();
     const expiresIn = ref<number | undefined>();
     const eventQueryConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
-    const isAuthenticated = ref<boolean | undefined>(); // undefined if Hanko validate session pending; false if signed OUT; true if signed IN
+    const isAuthenticated = ref<boolean | undefined>(); // Undefined if Hanko session validation pending; false if signed OUT; true if signed IN.
     const lifetime = ref<number | undefined>();
     const localMetaStoreConnectionConfig = shallowRef<ConnectionConfig | undefined>();
     const presenterConfigs = shallowRef<PresenterConfig[] | undefined>();
@@ -93,17 +93,17 @@ export const useSessionStore = defineStore('session', () => {
     }
 
     async function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): Promise<void> {
-        hankoFlowCleanupFunction = hankoInstance?.onAfterStateChange(stateHandler); // Fails silently in no Hanko instance
+        hankoFlowCleanupFunction = hankoInstance?.onAfterStateChange(stateHandler); // Fails silently in no Hanko instance.
         await hankoInstance?.createState(name);
     }
 
     function destroyFlow(): void {
-        hankoFlowCleanupFunction?.(); // Fails silently in no Hanko flow cleanup function
+        hankoFlowCleanupFunction?.(); // Fails silently in no Hanko flow cleanup function.
         hankoFlowCleanupFunction = undefined;
     }
 
     async function signOut(): Promise<void> {
-        await hankoInstance?.logout(); // Fails silently in no Hanko instance
+        await hankoInstance?.logout(); // Fails silently in no Hanko instance.
     }
 
     return {
@@ -130,7 +130,7 @@ export const useSessionStore = defineStore('session', () => {
         toolConfigs
     };
 
-    // Establish session helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'terminated' | 'validated' | 'validationFailure', claims?: Claims): void {
         if (claims) {
@@ -152,9 +152,9 @@ export const useSessionStore = defineStore('session', () => {
             userId.value = claims.subject;
             if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Authenticated session established (${actionId}).`);
             startSessionExpiryTimer();
-            identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value); // Fails silently in no monitor instance
+            identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value);
         } else {
-            forgetUser(); // Fails silently in no monitor instance
+            forgetUser();
             clearSessionExpiryTimer();
             emailAddress.value = undefined;
             emailIsPrimary.value = undefined;
@@ -169,8 +169,6 @@ export const useSessionStore = defineStore('session', () => {
             if (import.meta.env.DEV) console.info(`[dpuse:app] ${icon} Unauthenticated session established (${actionId}).`);
         }
     }
-
-    // Session expiry timer helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     function startSessionExpiryTimer(runQuickly: boolean = false): void {
         clearSessionExpiryTimer();

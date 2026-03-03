@@ -1,4 +1,4 @@
-// External dependencies
+// External Dependencies
 import { globalIgnores } from 'eslint/config';
 import pluginImport from 'eslint-plugin-import';
 import pluginPlaywright from 'eslint-plugin-playwright';

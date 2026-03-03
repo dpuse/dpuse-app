@@ -1,11 +1,11 @@
-// DPUse framework
+// DPUse Framework
 import type { EngineConfig } from '@datapos/datapos-shared/engine';
 import type { ModuleConfig } from '@datapos/datapos-shared/component';
 import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
 import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/component/connector';
 import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
 
-// App core
+// App Core
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Constants

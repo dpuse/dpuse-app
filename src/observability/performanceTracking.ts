@@ -1,7 +1,7 @@
-// External dependencies
+// External Dependencies
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
-// App core
+// App Core
 import { trackEvent } from '@/observability/eventTracking';
 
 // Functions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

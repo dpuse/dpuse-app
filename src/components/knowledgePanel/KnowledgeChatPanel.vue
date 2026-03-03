@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { ref } from 'vue';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 
-// App components
+// App Components
 import ActionButton from '@/components/action/ActionButton.vue';
 
 // Properties

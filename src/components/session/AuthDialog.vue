@@ -1,18 +1,18 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { useRouter } from 'vue-router';
 import { XIcon } from 'lucide-vue-next';
 import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
 import { nextTick, onMounted, onUnmounted, ref } from 'vue';
 
-// App core
+// App Core
 import { AppError } from '@datapos/datapos-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
 import T from '@/locales/components/session/LoginForm.json';
 import { t } from '@/locales';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App components
+// App Components
 import ActionButton from '@/components/action/ActionButton.vue';
 import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
 import LoginForm from '@/components/session/LoginForm.vue';
@@ -20,12 +20,12 @@ import Mask from '@/components/mask/Mask.vue';
 import PasswordForm from '@/components/session/PasswordForm.vue';
 import Separator from '@/components/separator/Separator.vue';
 
-// Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const router = useRouter();
 const sessionState = useSessionStore();
 
-// Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const containerReference = ref<HTMLDivElement | null>(null);
 const flowConstructed = ref(false);
@@ -36,7 +36,7 @@ const handlePasswordBack = ref<(() => Promise<void>) | undefined>(undefined);
 const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 const uiStateId = ref<'enterId' | 'selectSignInMethod' | 'enterPasscode' | 'enterPassword' | undefined>(undefined);
 
-// Lifecycle event handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Lifecycle Event Handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 onMounted(() => {
     sessionState

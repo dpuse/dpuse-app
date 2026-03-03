@@ -2,7 +2,7 @@
  * Playwright configuration.
  */
 
-// External dependencies.
+// External Dependencies.
 import { expect, test } from '@playwright/test';
 
 // Configure the Playwright Test timeout to 210 seconds,

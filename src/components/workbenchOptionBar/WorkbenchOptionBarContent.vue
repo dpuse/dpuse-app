@@ -1,13 +1,13 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { HomeIcon } from '@heroicons/vue/24/outline';
 import { useRoute } from 'vue-router';
 
-// App core
+// App Core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { useKnowledge } from '@/composables/useKnowledge';
 
-// App components
+// App Components
 import ActionRouterLink from '@/components/action/ActionRouterLink.vue';
 
 // Properties

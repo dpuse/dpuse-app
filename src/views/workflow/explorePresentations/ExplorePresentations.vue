@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// App core
+// App Core
 import { t } from '@/locales';
 import T from '@/locales/views/workflow/explorePresentations/ExplorePresentations.json';
 
-// App components
+// App Components
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Header from '@/components/header/Header.vue';

@@ -1,17 +1,17 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { HomeIcon } from '@heroicons/vue/24/outline';
 import { useRouter } from 'vue-router';
 import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
 
-// App components
+// App Components
 import ActionButton from '@/components/action/ActionButton.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties
 const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
 
-// Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const router = useRouter();
 
 // UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

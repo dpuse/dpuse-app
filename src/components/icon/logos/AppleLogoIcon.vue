@@ -1,10 +1,10 @@
 <script setup lang="ts">
 // Sourced from Hanko social connections settings panel
 
-// External dependencies
+// External Dependencies
 import { useColorMode } from '@vueuse/core';
 
-// Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const colorMode = useColorMode();
 </script>

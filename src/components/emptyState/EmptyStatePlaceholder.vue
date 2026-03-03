@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { PlusIcon } from '@heroicons/vue/20/solid';
 
 // Properties

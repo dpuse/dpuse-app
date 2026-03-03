@@ -1,36 +1,36 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { PlusIcon } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
-// DPUse framework
+// DPUse Framework
 import { AppError } from '@datapos/datapos-shared/errors';
 import type { EngineCallbackData } from '@datapos/datapos-shared/engine';
 import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@datapos/datapos-shared/component/connector';
 
-// App core
+// App Core
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/locales';
 import T from '@/locales/views/workflow/contextualiseData/ContextualiseData.json';
 import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App components
+// App Components
 import ActionButton from '@/components/action/ActionButton.vue';
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
 
-// App components (lazy loaded)
+// App Components (lazy loaded)
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
 
-// Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const router = useRouter();
 const sessionState = useSessionStore();
 
-// Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const eventQueryRetrievalIsActive = ref(false);
 

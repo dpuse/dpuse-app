@@ -1,20 +1,20 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
-// App components
+// App Components
 import Header from '@/components/header/Header.vue';
 import KnowledgeOverviewPanel from './KnowledgeOverviewPanel.vue';
 
-// App components (lazy loaded)
+// App Components (lazy loaded)
 const KnowledgeChatPanel = defineAsyncComponent(() => import('./KnowledgeChatPanel.vue'));
 const KnowledgeSearchPanel = defineAsyncComponent(() => import('./KnowledgeSearchPanel.vue'));
 
 // Properties
 defineProps<{ isWideDisplay: boolean }>();
 
-// Global state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const route = useRoute();
 
 const knowledgePanels: Record<'welcome' | 'search' | 'chat', { component: Component; label: string }> = {

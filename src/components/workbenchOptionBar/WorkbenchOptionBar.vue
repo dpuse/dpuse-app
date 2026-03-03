@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// App core
+// App Core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 
-// App components
+// App Components
 import WorkbenchOptionBarContent from './WorkbenchOptionBarContent.vue';
 
 // Properties

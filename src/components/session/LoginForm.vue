@@ -1,13 +1,13 @@
 <script setup lang="ts">
-// External dependencies
+// External Dependencies
 import { ref } from 'vue';
 import { UserRoundKeyIcon } from 'lucide-vue-next';
 
-// App core
+// App Core
 import T from '@/locales/components/session/LoginForm.json';
 import { t } from '@/locales';
 
-// App components
+// App Components
 import ActionButton from '@/components/action/ActionButton.vue';
 import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
 import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';

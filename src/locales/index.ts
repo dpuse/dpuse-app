@@ -1,4 +1,4 @@
-// External dependencies
+// External Dependencies
 import { ref } from 'vue';
 
 // Constants

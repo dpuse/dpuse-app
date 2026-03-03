@@ -5,7 +5,7 @@
 // import type { EngineCallbackData, EngineRuntimeInterface, EngineWorkerInterface } from '@datapos/datapos-shared/engine';
 import type { EngineCallbackData, EngineRuntimeInterface, EngineWorkerInterface } from '@datapos/datapos-shared/engine';
 
-// App core
+// App Core
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Constants

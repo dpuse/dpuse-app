@@ -1,8 +1,8 @@
-// External dependencies
+// External Dependencies
 import type { Component } from 'vue';
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior } from 'vue-router';
 
-// App components
+// App Components
 import Workflow from '@/views/workflow/Workflow.vue';
 
 // Not exported by Vue router, duplicated here to address eslint function return type rule
