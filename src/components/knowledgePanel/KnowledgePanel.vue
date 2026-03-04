@@ -12,9 +12,10 @@ const KnowledgeChatPanel = defineAsyncComponent(() => import('./KnowledgeChatPan
 const KnowledgeSearchPanel = defineAsyncComponent(() => import('./KnowledgeSearchPanel.vue'));
 
 // Properties
-defineProps<{ isWideDisplay: boolean }>();
+const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const route = useRoute();
 
 const knowledgePanels: Record<'welcome' | 'search' | 'chat', { component: Component; label: string }> = {
@@ -31,8 +32,8 @@ const activeView = computed(() => {
 
 <template>
     <div class="flex h-full min-w-0 flex-1 flex-col">
-        <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="activeView.label" :is-assist-panel-open-in-wide-display="false" :is-wide-display="isWideDisplay" />
+        <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="activeView.label" :display-is-wide="displayIsWide" />
 
-        <component :is="activeView.component" :is-wide-display="isWideDisplay" />
+        <component :is="activeView.component" :display-is-wide="displayIsWide" />
     </div>
 </template>

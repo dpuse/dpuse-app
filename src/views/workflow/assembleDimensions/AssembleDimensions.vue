@@ -8,12 +8,12 @@ import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Header from '@/components/header/Header.vue';
 
 // Properties
-defineProps<{ isWideDisplay: boolean }>();
+const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 </script>
 
 <template>
     <BenchtopShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]" :title="t(T, 'Assemble_Dimensions')" :is-wide-display="isWideDisplay" />
+        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]" :title="t(T, 'Assemble_Dimensions')" :display-is-wide="displayIsWide" />
 
         <RouterView />
     </BenchtopShell>

@@ -5,7 +5,6 @@ import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { LoaderCircleIcon, LogInIcon } from 'lucide-vue-next';
 
 // App Core
-import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
@@ -17,7 +16,10 @@ import Separator from '@/components/separator/Separator.vue';
 const SessionMenu = defineAsyncComponent(() => import('@/components/session/SessionMenu.vue'));
 
 // Properties
-const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: (config?: BenchtopOptionLocalisedConfig) => void }>();
+const { sessionIsAuthenticated } = defineProps<{ sessionIsAuthenticated?: boolean }>();
+
+// Emits
+const emit = defineEmits<{ (event: 'click'): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -27,14 +29,14 @@ const router = useRouter();
 
 const authIconState = ref<boolean | undefined>(undefined);
 
-const optionComponent = computed(() => (properties.sessionIsAuthenticated ? ActionRouterLink : ActionButton));
-const optionAttributes = computed(() => (properties.sessionIsAuthenticated ? { to: { name: 'account' } } : undefined));
+const optionComponent = computed(() => (sessionIsAuthenticated ? ActionRouterLink : ActionButton));
+const optionAttributes = computed(() => (sessionIsAuthenticated ? { to: { name: 'account' } } : undefined));
 
 const sessionPanelIsVisible = ref(false);
 
 const error = ref(false);
 watch(
-    () => properties.sessionIsAuthenticated,
+    () => sessionIsAuthenticated,
     (newSessionIsAuthenticatedValue, oldSessionIsAuthenticatedValue) => {
         if (oldSessionIsAuthenticatedValue === undefined) {
             setTimeout(() => (authIconState.value = newSessionIsAuthenticatedValue), 200);
@@ -63,14 +65,14 @@ async function gravatarUrl(email: string, size: number): Promise<string> {
 
 onMounted(async () => {
     useSessionStore().initialiseServices();
-    avatarUrl.value = await gravatarUrl('terrell.jm2@gmail.com', 40);
+    avatarUrl.value = await gravatarUrl('terrell.jm@gmail.com', 40);
 });
 
 // UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleSelect(): void {
-    if (!properties.sessionIsAuthenticated) router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });
-    properties.onSelect();
+    if (!sessionIsAuthenticated) router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });
+    emit('click');
 }
 </script>
 

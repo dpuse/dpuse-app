@@ -3,8 +3,8 @@
 import KnowledgeOptionBarContent from './KnowledgeOptionBarContent.vue';
 
 // Properties
-type Properties = { isOpenInNarrowDisplay: boolean; isWideDisplay: boolean; sessionIsAuthenticated?: boolean };
-const { isOpenInNarrowDisplay, isWideDisplay, sessionIsAuthenticated } = defineProps<Properties>();
+type Properties = { isOpenInNarrowDisplay: boolean; displayIsWide: boolean; sessionIsAuthenticated?: boolean };
+const { isOpenInNarrowDisplay, displayIsWide, sessionIsAuthenticated } = defineProps<Properties>();
 
 // Emits
 const emit = defineEmits<{ (event: 'select'): void }>();
@@ -21,7 +21,7 @@ function handleSelect(): void {
         <KnowledgeOptionBarContent class="hidden md:flex" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
 
         <Transition name="option-bar-overlay" appear>
-            <div v-if="isOpenInNarrowDisplay && !isWideDisplay" class="fixed inset-0 z-30 flex md:hidden">
+            <div v-if="isOpenInNarrowDisplay && !displayIsWide" class="fixed inset-0 z-30 flex md:hidden">
                 <div class="bg-surface/70 absolute inset-0" @click="handleSelect"></div>
 
                 <KnowledgeOptionBarContent

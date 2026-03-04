@@ -9,13 +9,12 @@ import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Header from '@/components/header/Header.vue';
 
 // Properties
-type Properties = { isWideDisplay: boolean };
-defineProps<Properties>();
+const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 </script>
 
 <template>
     <BenchtopShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]" :title="t(T, 'Explore_Presentations')" :is-wide-display="isWideDisplay" />
+        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]" :title="t(T, 'Explore_Presentations')" :display-is-wide="displayIsWide" />
 
         <BenchtopScroller class="flex-1"></BenchtopScroller>
     </BenchtopShell>

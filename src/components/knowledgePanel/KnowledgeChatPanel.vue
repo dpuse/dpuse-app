@@ -7,7 +7,7 @@ import { SendHorizonalIcon } from 'lucide-vue-next';
 import ActionButton from '@/components/action/ActionButton.vue';
 
 // Properties
-defineProps<{ isWideDisplay: boolean }>();
+defineProps<{ displayIsWide: boolean }>();
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

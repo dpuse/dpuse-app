@@ -18,9 +18,9 @@ import Header from '@/components/header/Header.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties
-const properties = defineProps<{ isAssistPanelOpenInWideDisplay: boolean; isWideDisplay: boolean }>();
+const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const router = useRouter();
 const sessionState = useSessionStore();
 
@@ -57,7 +57,7 @@ async function handleSignOut(): Promise<void> {
 function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
     const routeName = router.currentRoute.value.name;
     if (routeName === 'account') {
-        if (properties.isWideDisplay) {
+        if (displayIsWide) {
             router.replace({ name: 'managePersonalDetails', query: router.currentRoute.value.query });
             return optionConfigs[1];
         }
@@ -65,7 +65,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
     } else {
         const activeOptionConfig = optionConfigs.find((config) => config.id === router.currentRoute.value.name);
         if (!activeOptionConfig) {
-            if (properties.isWideDisplay) {
+            if (displayIsWide) {
                 router.replace({ name: 'managePersonalDetails', query: router.currentRoute.value.query });
                 return optionConfigs[1];
             }
@@ -77,16 +77,11 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 </script>
 
 <template>
-    <BenchtopShell :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay" :is-wide-display="isWideDisplay">
-        <Header
-            :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workbench') }]"
-            :title="t(T, 'Account')"
-            :is-assist-panel-open-in-wide-display="isAssistPanelOpenInWideDisplay"
-            :is-wide-display="isWideDisplay"
-        />
+    <BenchtopShell>
+        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workbench') }]" :title="t(T, 'Account')" :display-is-wide="displayIsWide" />
 
         <div class="flex flex-1 overflow-y-hidden">
-            <BenchtopScroller v-if="isWideDisplay || !activeOptionConfig" class="border-boundary flex flex-1 flex-col border-r px-4 pt-4 pb-7 md:flex-none">
+            <BenchtopScroller v-if="displayIsWide || !activeOptionConfig" class="border-boundary flex flex-1 flex-col border-r px-4 pt-4 pb-7 md:flex-none">
                 <div class="divide-separator flex flex-1 flex-col gap-y-2">
                     <ActionButton class="min-w-50 justify-start" variant="warning" @click="handleSignOut">{{ t(T, 'Sign_out') }}</ActionButton>
 
@@ -98,7 +93,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                             <ActionRouterLink
                                 v-else
                                 class="min-w-50 justify-start"
-                                :is-active="router.currentRoute.value.name === optionConfig.id && isWideDisplay"
+                                :is-active="router.currentRoute.value.name === optionConfig.id && displayIsWide"
                                 :to="{ name: optionConfig.id, query: router.currentRoute.value.query }"
                                 variant="item"
                                 @click="activeOptionConfig = optionConfig"
@@ -120,9 +115,9 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                 </div>
             </BenchtopScroller>
 
-            <div v-if="isWideDisplay || activeOptionConfig" class="flex flex-1 flex-col">
+            <div v-if="displayIsWide || activeOptionConfig" class="flex flex-1 flex-col">
                 <div class="border-separator mx-4 flex h-12 flex-none items-center gap-x-1 border-b">
-                    <ActionButton v-if="!isWideDisplay" variant="iconSmall" @click="handleBack">
+                    <ActionButton v-if="!displayIsWide" variant="iconSmall" @click="handleBack">
                         <ArrowBigLeftIcon stroke-width="1.25" />
                     </ActionButton>
                     {{ activeOptionConfig!.title }}

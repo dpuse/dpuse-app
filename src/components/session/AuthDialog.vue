@@ -14,9 +14,8 @@ import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
 import ActionButton from '@/components/action/ActionButton.vue';
-import DPULogoIcon from '@/components/icon/logos/DPULogoIcon.vue';
+import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
 import LoginForm from '@/components/session/LoginForm.vue';
-import Mask from '@/components/mask/Mask.vue';
 import PasswordForm from '@/components/session/PasswordForm.vue';
 import Separator from '@/components/separator/Separator.vue';
 
@@ -195,8 +194,6 @@ async function handleCloseDialog(): Promise<void> {
 
 <template>
     <div ref="rootReference" class="dialog-root fixed inset-0 z-50" :class="{ 'dialog-root--closing': isClosing }">
-        <Mask />
-
         <div
             role="dialog"
             aria-modal="true"
@@ -209,7 +206,7 @@ async function handleCloseDialog(): Promise<void> {
             </ActionButton>
 
             <div class="flex flex-col gap-y-3 p-8">
-                <DPULogoIcon class="size-12" />
+                <DPUseLogoIcon class="size-12" />
 
                 <div ref="containerRef">
                     <Transition name="fade" mode="out-in" @before-leave="onBeforeLeave" @enter="onEnter" @after-enter="onAfterEnter">

@@ -25,8 +25,9 @@
         <link rel="icon" href="/favicon.ico" sizes="48x48" />
         <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
+        <!-- <link rel="shortcut icon" href="/favicon.ico" /> -->
 
-        <!-- CSP requires style-src hash in production for content of following style block; see error message for hash -->
+        <!-- CSP requires style-src hash in production for content of following style block. See console error message for required hash. -->
         <style>
             html {
                 background-color: #09090b; /* zinc-950 */
@@ -41,7 +42,7 @@
             }
         </style>
 
-        <!-- CSP requires script-src hash in production for content of following script block; see error message for hash -->
+        <!-- CSP requires script-src hash in production for content of following script block. See console error message for required hash. -->
         <script>
             (function () {
                 try {

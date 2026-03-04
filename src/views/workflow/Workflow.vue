@@ -14,7 +14,7 @@ import Card from '@/components/card/Card.vue';
 import Header from '@/components/header/Header.vue';
 
 // Properties
-defineProps<{ isWideDisplay: boolean }>();
+const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 
 // Workflow step configurations sourced from knowledge store
 const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeId.value).options; // TODO: Does this update if locale changes
@@ -30,7 +30,7 @@ const route = useRoute();
             class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] w-full max-w-4xl"
             :title="t(T, 'Workflow_Benchtop')"
             data-testid="header"
-            :is-wide-display="isWideDisplay"
+            :display-is-wide="displayIsWide"
         />
 
         <BenchtopScroller class="flex-1">
