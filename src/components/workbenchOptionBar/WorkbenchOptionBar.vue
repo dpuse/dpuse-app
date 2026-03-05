@@ -12,7 +12,7 @@ const { isOpenInNarrowDisplay, displayIsWide, sessionIsAuthenticated } = defineP
 // Emits
 const emit = defineEmits<{ (event: 'select', config?: BenchtopOptionLocalisedConfig): void }>();
 
-// UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleSelect(config?: BenchtopOptionLocalisedConfig): void {
     emit('select', config);

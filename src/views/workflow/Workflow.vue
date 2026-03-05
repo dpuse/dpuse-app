@@ -33,7 +33,7 @@ const route = useRoute();
             :display-is-wide="displayIsWide"
         />
 
-        <BenchtopScroller class="flex-1">
+        <BenchtopScroller class="flex-1 pb-3">
             <div class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] max-w-4xl">
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 p-4">
                     <RouterLink

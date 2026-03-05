@@ -18,9 +18,9 @@ import KnowledgePanel from '@/components/knowledgePanel/KnowledgePanel.vue';
 import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
 
 // App Components (lazy loaded)
-const AcctMgtDialog = defineAsyncComponent(async () => {
+const AcctMgmtDialog = defineAsyncComponent(async () => {
     await new Promise((response) => setTimeout(response, 2000));
-    return import('@/components/account/AcctMgtDialog.vue');
+    return import('@/components/account/AcctMgmtDialog.vue');
 });
 const AuthDialog = defineAsyncComponent(async () => {
     await new Promise((response) => setTimeout(response, 2000));
@@ -47,7 +47,7 @@ watch(displayIsWide, () => (activeOptionBarId.value = 'none'));
 
 // Local State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const acctMgtDialogIsVisible = computed(() => route.query.dialog === 'acctMgt');
+const AcctMgmtDialogIsVisible = computed(() => route.query.dialog === 'acctMgmt');
 const authDialogIsVisible = computed(() => route.query.dialog === 'auth');
 
 // Local State - Workbench Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -177,9 +177,9 @@ function handleKnowledgeOptionSelect(): void {
             <AuthDialog />
         </DialogWrapper>
 
-        <!-- Account Management dialog activated using url parameter 'dialog=acctMgt'. -->
-        <DialogWrapper v-if="acctMgtDialogIsVisible">
-            <AcctMgtDialog :display-is-wide="displayIsWide" />
+        <!-- Account Management dialog activated using url parameter 'dialog=acctMgmt'. -->
+        <DialogWrapper v-if="AcctMgmtDialogIsVisible">
+            <AcctMgmtDialog :display-is-wide="displayIsWide" />
         </DialogWrapper>
 
         <!-- Left pane: Workbench (option bar + workbench body). -->

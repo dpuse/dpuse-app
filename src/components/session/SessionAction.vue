@@ -2,14 +2,14 @@
 // External Dependencies
 import { useRouter } from 'vue-router';
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
-import { LoaderCircleIcon, LogInIcon } from 'lucide-vue-next';
+import { LoaderCircleIcon, UserCogIcon } from 'lucide-vue-next';
 
 // App Core
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
 import ActionButton from '@/components/action/ActionButton.vue';
-import ActionRouterLink from '@/components/action/ActionRouterLink.vue';
+// import ActionRouterLink from '@/components/action/ActionRouterLink.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // App Components (lazy loaded)
@@ -29,8 +29,8 @@ const router = useRouter();
 
 const authIconState = ref<boolean | undefined>(undefined);
 
-const optionComponent = computed(() => (sessionIsAuthenticated ? ActionRouterLink : ActionButton));
-const optionAttributes = computed(() => (sessionIsAuthenticated ? { to: { name: 'account' } } : undefined));
+const optionComponent = computed(() => (sessionIsAuthenticated ? ActionButton : ActionButton));
+// const optionAttributes = computed(() => (sessionIsAuthenticated ? { to: { name: 'account' } } : undefined));
 
 const sessionPanelIsVisible = ref(false);
 
@@ -68,7 +68,7 @@ onMounted(async () => {
     avatarUrl.value = await gravatarUrl('terrell.jm@gmail.com', 40);
 });
 
-// UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleSelect(): void {
     if (!sessionIsAuthenticated) router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });
@@ -80,7 +80,7 @@ function handleSelect(): void {
     <div class="flex flex-col gap-y-3">
         <SessionMenu v-if="sessionPanelIsVisible" class="fixed bottom-19.25 left-3" />
         <Separator />
-        <component :is="optionComponent" aria-label="Manage personal details" class="relative h-10 w-10" variant="avatar" v-bind="optionAttributes" @click="handleSelect">
+        <component :is="optionComponent" aria-label="Manage personal details" class="relative h-10 w-10" variant="avatar" @click="handleSelect">
             <TransitionGroup name="fade">
                 <div v-if="authIconState === true" class="absolute top-0.5 left-0.5 rounded-full" @click="sessionPanelIsVisible = !sessionPanelIsVisible">
                     <img v-if="!error" class="size-9 rounded-full" :src="avatarUrl" @error="error = true" />
@@ -92,7 +92,7 @@ function handleSelect(): void {
                         />
                     </svg>
                 </div>
-                <LogInIcon v-if="authIconState === false" key="login" class="absolute top-2 left-2" :stroke-width="1.25" />
+                <UserCogIcon v-if="authIconState === false" key="login" class="absolute top-2 left-2" :stroke-width="1.25" />
                 <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute top-2 left-2 animate-spin text-neutral-300" />
             </TransitionGroup>
         </component>

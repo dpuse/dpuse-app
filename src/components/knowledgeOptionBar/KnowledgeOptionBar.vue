@@ -9,7 +9,7 @@ const { isOpenInNarrowDisplay, displayIsWide, sessionIsAuthenticated } = defineP
 // Emits
 const emit = defineEmits<{ (event: 'select'): void }>();
 
-// UI helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleSelect(): void {
     emit('select');
