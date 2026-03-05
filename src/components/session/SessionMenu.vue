@@ -27,7 +27,7 @@ async function handleSignOut(): Promise<void> {
 </script>
 
 <template>
-    <div class="border-boundary bg-backdrop flex flex-col gap-y-2 rounded-md border px-4 py-3 shadow-sm">
+    <div class="border-boundary bg-backdrop flex flex-col gap-y-2 overflow-y-auto overscroll-y-none rounded-md border px-4 py-3 shadow-sm">
         <div class="flex flex-col gap-y-0.5">
             <div class="text-sm text-zinc-500">Appearance</div>
             <div class="flex gap-x-1.5">
