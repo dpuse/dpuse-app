@@ -9,7 +9,6 @@ import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
 import ActionButton from '@/components/action/ActionButton.vue';
-// import ActionRouterLink from '@/components/action/ActionRouterLink.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // App Components (lazy loaded)
@@ -78,7 +77,7 @@ function handleSelect(): void {
 
 <template>
     <div class="flex flex-col gap-y-3">
-        <SessionMenu v-if="sessionPanelIsVisible" class="fixed top-4 bottom-19.25 left-3" />
+        <SessionMenu v-if="sessionPanelIsVisible" class="fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto" />
         <Separator />
         <component :is="optionComponent" aria-label="Manage personal details" class="relative h-10 w-10" variant="avatar" @click="handleSelect">
             <TransitionGroup name="fade">

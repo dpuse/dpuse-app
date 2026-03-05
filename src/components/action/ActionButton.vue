@@ -3,8 +3,10 @@
 import { computed } from 'vue';
 
 // Properties
-type Properties = { isActive?: boolean; variant?: 'avatar' | 'commit' | 'danger' | 'ghost' | 'iconLarge' | 'iconSmall' | 'item' | 'outline' | 'success' | 'warning' };
+type Properties = { isActive?: boolean; variant?: 'avatar' | 'commit' | 'danger' | 'default' | 'ghost' | 'iconLarge' | 'iconSmall' | 'item' | 'outline' | 'success' | 'warning' };
 const { isActive = false, variant = 'ghost' } = defineProps<Properties>();
+
+const theme1 = 'border text-[15px] rounded-md dark:text-white';
 
 // Classes
 const paddingClasses = computed(() => (variant === 'avatar' ? 'p-0' : variant === 'iconSmall' ? 'p-1.25' : variant === 'iconLarge' ? 'p-1.75' : 'px-3 py-2'));
@@ -13,9 +15,15 @@ const variantClasses = computed(() => {
         case 'avatar':
             return 'dpuse-avatar overflow-hidden rounded-full outline-2 outline-offset-2 outline-transparent focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:outline-zinc-300 dark:hover:outline-zinc-500/40';
         case 'commit':
-            return 'rounded-md bg-blue-100 border-blue-200 text-[15px] border text-zinc-600 hover:bg-zinc-700 focus-visible:outline-zinc-600 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600 dark:focus-visible:outline-zinc-500';
+            return (
+                theme1 +
+                ' bg-blue-50 border-blue-100 hover:bg-blue-200 text-blue-900 focus-visible:outline-zinc-600 dark:bg-blue-300/20 dark:border-blue-300/15 dark:hover:bg-blue-300/30 dark:focus-visible:outline-zinc-500'
+            );
         case 'danger':
-            return 'rounded-md bg-red-50 hover:bg-red-100 dark:bg-red-500/20 dark:hover:bg-red-500/25 text-red-700 dark:text-red-500 focus-visible:outline-red-400 dark:focus-visible:outline-red-500';
+            return (
+                theme1 +
+                ' bg-red-100 border-red-200 hover:bg-red-200 text-red-900 dark:bg-red-400/20 dark:border-red-400/15 dark:hover:bg-red-400/30 focus-visible:outline-red-400 dark:focus-visible:outline-red-500'
+            );
         case 'ghost':
             return 'rounded-md focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
         case 'iconLarge':
@@ -27,11 +35,20 @@ const variantClasses = computed(() => {
         case 'outline':
             return 'rounded-md inset-ring inset-ring-separator focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
         case 'success':
-            return 'rounded-md bg-green-50 hover:bg-green-100 dark:bg-green-500/20 dark:hover:bg-green-500/25 text-green-700 dark:text-green-500 focus-visible:outline-green-400 dark:focus-visible:outline-green-500';
+            return (
+                theme1 +
+                ' bg-green-100 border-green-200 hover:bg-green-200 text-green-900 dark:bg-green-300/20 dark:border-green-300/15 dark:hover:bg-green-300/30 focus-visible:outline-green-400 dark:focus-visible:outline-green-500'
+            );
         case 'warning':
-            return 'rounded-md bg-orange-100 text-[15px] border-orange-200 border hover:bg-amber-100 dark:bg-amber-500/20 dark:hover:bg-amber-500/25 text-zinc-600 dark:text-amber-500 focus-visible:outline-amber-500 dark:focus-visible:outline-amber-500';
+            return (
+                theme1 +
+                ' bg-orange-100 border-orange-200 hover:bg-orange-200 text-orange-900 dark:bg-amber-300/20 dark:border-amber-300/15 dark:hover:bg-amber-300/30 focus-visible:outline-amber-500 dark:focus-visible:outline-amber-500'
+            );
         default:
-            return 'focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-500/20 dark:hover:bg-zinc-500/40';
+            return (
+                theme1 +
+                ' bg-zinc-100 border-zinc-200 hover:bg-zinc-200 text-zinc-900 dark:bg-zinc-300/20 dark:border-zinc-300/15 dark:hover:bg-zinc-300/30 focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-500'
+            );
     }
 });
 </script>

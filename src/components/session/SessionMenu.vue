@@ -91,10 +91,12 @@ async function handleSignOut(): Promise<void> {
         </div>
 
         <Separator class="my-1" />
-        <ActionButton class="min-w-50 justify-start" variant="item" @click="handleManageAccount">Manage Account</ActionButton>
+        <ActionButton class="min-w-50 justify-start" variant="default" @click="handleManageAccount">Manage Account</ActionButton>
 
         <Separator class="my-1" />
-        <ActionButton class="min-w-50 justify-start" variant="commit" @click="handleSignOut">Sign In / Register</ActionButton>
+        <ActionButton class="min-w-50 justify-start" variant="success" @click="handleSignOut">All is ok</ActionButton>
+        <ActionButton class="min-w-50 justify-start" variant="commit" @click="handleSignOut">Sign in / Register</ActionButton>
         <ActionButton class="min-w-50 justify-start" variant="warning" @click="handleSignOut">{{ t(T, 'Sign_out') }}</ActionButton>
+        <ActionButton class="min-w-50 justify-start" variant="danger" @click="handleSignOut">Delete account</ActionButton>
     </div>
 </template>
