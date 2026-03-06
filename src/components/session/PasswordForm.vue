@@ -38,7 +38,7 @@ async function handleSubmit(): Promise<void> {
             <!-- Following required to help browsers and assistive tech recognize the form as a login or password form -->
             <input id="username" type="text" autocomplete="username" placeholder="Username" style="display: none" tabindex="-1" aria-hidden="true" />
             <Input name="password" autocomplete="current-password" :placeholder="t(T, 'Password')" :required="true" type="password" />
-            <ActionButton variant="commit" @click="handleSubmit">{{ t(T, 'Continue') }}</ActionButton>
+            <ActionButton variant="primary" @click="handleSubmit">{{ t(T, 'Continue') }}</ActionButton>
         </form>
 
         <div class="flex justify-between">

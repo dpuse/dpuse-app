@@ -101,7 +101,7 @@ async function handleCloseDialog(): Promise<void> {
             <div class="flex flex-1 overflow-y-auto overscroll-y-none">
                 <!-- <BenchtopScroller v-if="displayIsWide || !activeOptionConfig" class="border-boundary flex flex-1 flex-col border-r px-4 pt-2 pb-7 md:flex-none"> -->
                 <div class="divide-separator flex flex-1 flex-col gap-y-2 overflow-y-auto overscroll-y-none">
-                    <!-- <ActionButton class="min-w-50 justify-start" variant="warning" @click="handleSignOut">{{ t(T, 'Sign_out') }}</ActionButton>
+                    <!-- <ActionButton class="min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</ActionButton>
 
                         <Separator class="mt-2" /> -->
 
@@ -113,7 +113,7 @@ async function handleCloseDialog(): Promise<void> {
                                 class="min-w-50 justify-start"
                                 :is-active="router.currentRoute.value.name === optionConfig.id && displayIsWide"
                                 :to="{ name: optionConfig.id, query: router.currentRoute.value.query }"
-                                variant="item"
+                                variant="listItem"
                                 @click="activeOptionConfig = optionConfig"
                             >
                                 {{ optionConfig.label }}
@@ -123,7 +123,7 @@ async function handleCloseDialog(): Promise<void> {
 
                     <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div>
 
-                    <ActionButton class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }" variant="danger">
+                    <ActionButton class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }" variant="destructive">
                         {{ t(T, 'Delete_account') }}
                     </ActionButton>
                 </div>
@@ -133,7 +133,7 @@ async function handleCloseDialog(): Promise<void> {
 
                     <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div>
 
-                    <ActionButton class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }" variant="danger">
+                    <ActionButton class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }" variant="destructive">
                         {{ t(T, 'Delete_account') }}
                     </ActionButton>
                 </div> -->

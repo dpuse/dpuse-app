@@ -83,7 +83,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
         <div class="flex flex-1 overflow-y-hidden">
             <BenchtopScroller v-if="displayIsWide || !activeOptionConfig" class="border-boundary flex flex-1 flex-col border-r px-4 pt-4 pb-7 md:flex-none">
                 <div class="divide-separator flex flex-1 flex-col gap-y-2">
-                    <ActionButton class="min-w-50 justify-start" variant="warning" @click="handleSignOut">{{ t(T, 'Sign_out') }}</ActionButton>
+                    <ActionButton class="min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</ActionButton>
 
                     <Separator class="mt-2" />
 
@@ -95,7 +95,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                                 class="min-w-50 justify-start"
                                 :is-active="router.currentRoute.value.name === optionConfig.id && displayIsWide"
                                 :to="{ name: optionConfig.id, query: router.currentRoute.value.query }"
-                                variant="item"
+                                variant="listItem"
                                 @click="activeOptionConfig = optionConfig"
                             >
                                 {{ optionConfig.label }}
@@ -109,7 +109,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 
                     <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div>
 
-                    <ActionRouterLink class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }" variant="danger">
+                    <ActionRouterLink class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }" variant="destructive">
                         {{ t(T, 'Delete_account') }}
                     </ActionRouterLink>
                 </div>

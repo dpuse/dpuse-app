@@ -27,7 +27,7 @@ async function handleSignOut(): Promise<void> {
 </script>
 
 <template>
-    <div class="border-boundary bg-backdrop flex flex-col gap-y-2 overflow-y-auto overscroll-y-none rounded-md border px-4 py-3 shadow-sm">
+    <div class="border-boundary bg-surface flex flex-col gap-y-2 overflow-y-auto overscroll-y-none rounded-md border px-4 py-3 shadow-md">
         <div class="flex flex-col gap-y-0.5">
             <div class="text-sm text-zinc-500">Appearance</div>
             <div class="flex gap-x-1.5">
@@ -51,7 +51,7 @@ async function handleSignOut(): Promise<void> {
             <div class="text-sm text-zinc-500">Language</div>
             <!-- <div>English | Español</div> -->
             <div class="flex flex-col items-start">
-                <ActionButton class="flex w-full items-center justify-between" variant="item">
+                <ActionButton class="flex w-full items-center justify-between" variant="listItem">
                     <div class="flex w-full items-center justify-between text-sm">
                         <div class="flex items-center gap-x-2">
                             <AU class="size-4.5" />
@@ -60,7 +60,7 @@ async function handleSignOut(): Promise<void> {
                         en-AU
                     </div>
                 </ActionButton>
-                <ActionButton class="flex w-full items-center justify-between text-sm" variant="item">
+                <ActionButton class="flex w-full items-center justify-between text-sm" variant="listItem">
                     <div class="flex w-full items-center justify-between">
                         <div class="flex items-center gap-x-2">
                             <ES class="size-4.5" />
@@ -69,7 +69,7 @@ async function handleSignOut(): Promise<void> {
                         es-ES
                     </div>
                 </ActionButton>
-                <ActionButton class="flex w-full items-center justify-between text-sm" variant="item">
+                <ActionButton class="flex w-full items-center justify-between text-sm" variant="listItem">
                     <div class="flex w-full items-center justify-between">
                         <div class="flex items-center gap-x-2">
                             <GB class="size-4.5" />
@@ -78,7 +78,7 @@ async function handleSignOut(): Promise<void> {
                         en-GB
                     </div>
                 </ActionButton>
-                <ActionButton class="flex w-full items-center justify-between text-sm" variant="item">
+                <ActionButton class="flex w-full items-center justify-between text-sm" variant="listItem">
                     <div class="flex w-full items-center justify-between">
                         <div class="flex items-center gap-x-2">
                             <US class="size-4.5" />
@@ -91,12 +91,14 @@ async function handleSignOut(): Promise<void> {
         </div>
 
         <Separator class="my-1" />
-        <ActionButton class="min-w-50 justify-start" variant="default" @click="handleManageAccount">Manage Account</ActionButton>
+        <ActionButton class="min-w-50 justify-start" @click="handleManageAccount">Manage Account</ActionButton>
 
         <Separator class="my-1" />
-        <ActionButton class="min-w-50 justify-start" variant="success" @click="handleSignOut">All is ok</ActionButton>
-        <ActionButton class="min-w-50 justify-start" variant="commit" @click="handleSignOut">Sign in / Register</ActionButton>
-        <ActionButton class="min-w-50 justify-start" variant="warning" @click="handleSignOut">{{ t(T, 'Sign_out') }}</ActionButton>
-        <ActionButton class="min-w-50 justify-start" variant="danger" @click="handleSignOut">Delete account</ActionButton>
+        <ActionButton class="min-w-50 justify-start" variant="outline" @click="handleSignOut">Outline</ActionButton>
+        <ActionButton class="min-w-50 justify-start" variant="ghost" @click="handleSignOut">Ghost</ActionButton>
+        <ActionButton class="min-w-50 justify-start" variant="positive" @click="handleSignOut">All is ok</ActionButton>
+        <ActionButton class="min-w-50 justify-start" variant="primary" @click="handleSignOut">Sign in / Register</ActionButton>
+        <ActionButton class="min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</ActionButton>
+        <ActionButton class="min-w-50 justify-start" variant="destructive" @click="handleSignOut">Delete account</ActionButton>
     </div>
 </template>

@@ -37,7 +37,7 @@ async function handleSubmit(): Promise<void> {
 
         <form class="mt-2 flex flex-col gap-y-3">
             <Input name="email" autocomplete="email" :placeholder="t(T, 'Email_address')" :required="true" type="email" />
-            <ActionButton variant="commit" @click="handleSubmit">{{ t(T, 'Continue') }}</ActionButton>
+            <ActionButton variant="primary" @click="handleSubmit">{{ t(T, 'Continue') }}</ActionButton>
         </form>
 
         <Separator :text="t(T, 'or')" />
