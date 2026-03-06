@@ -8,7 +8,7 @@ type Properties = {
     isActive?: boolean;
     to: RouteLocationRaw;
     // variant?: 'avatar' | 'commit' | 'danger' | 'ghost' | 'iconLarge' | 'iconSmall' | 'item' | 'outline' | 'success' | 'warning';
-    variant?: 'destructive' | 'iconLarge' | 'item' | 'outline' | 'guarded';
+    variant?: 'destructive' | 'iconLarge' | 'listItem' | 'outline' | 'guarded';
 };
 // const { isActive = false, to, variant = 'ghost' } = defineProps<Properties>();
 const { isActive = false, to, variant = 'iconLarge' } = defineProps<Properties>();
@@ -30,7 +30,7 @@ const variantClasses = computed(() => {
             return 'dpuse-lg rounded-md focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
         // case 'iconSmall':
         //     return 'dpuse-sm rounded-md focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';
-        case 'item':
+        case 'listItem':
             return `${isActive ? 'bg-zinc-200 dark:bg-zinc-500/50' : 'focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400'} rounded-md bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-500/20 dark:hover:bg-zinc-500/40`;
         case 'outline':
             return 'rounded-md inset-ring inset-ring-separator focus-visible:outline-zinc-500 dark:focus-visible:outline-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-500/40';

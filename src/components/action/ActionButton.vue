@@ -40,19 +40,19 @@ const variantClasses = computed(() => {
                 'dark:bg-red-400/20 dark:hover:bg-red-400/30 dark:focus-visible:outline-red-500'
             ];
         case 'ghost':
-            return [baseType1Classes, 'bg-transparent ', 'hover:bg-zinc-100 focus-visible:outline-zinc-300', 'dark:hover:bg-zinc-300/30 dark:focus-visible:outline-zinc-500'];
+            return [baseType1Classes, 'bg-transparent ', 'hover:bg-zinc-100 focus-visible:outline-zinc-300', 'dark:hover:bg-zinc-300/20 dark:focus-visible:outline-zinc-500'];
         case 'outline':
             return [
                 baseType1Classes,
                 'bg-transparent inset-ring inset-ring-separator dark:inset-ring-separator',
                 'hover:bg-zinc-100 focus-visible:outline-zinc-300',
-                'dark:hover:bg-zinc-300/30 dark:focus-visible:outline-zinc-500'
+                'dark:hover:bg-zinc-300/20 dark:focus-visible:outline-zinc-500'
             ];
         case 'listItem':
             return [
                 'rounded-md bg-transparent',
                 'hover:bg-zinc-100 focus-visible:outline-zinc-300',
-                'dark:hover:bg-zinc-300/30 dark:focus-visible:outline-zinc-400',
+                'dark:hover:bg-zinc-300/20 dark:focus-visible:outline-zinc-400',
                 isActive ? 'bg-zinc-100  dark:hover:bg-zinc-300/30' : undefined
             ];
         case 'avatar':
@@ -62,9 +62,9 @@ const variantClasses = computed(() => {
                 'dark:hover:outline-zinc-300 dark:focus-visible:outline-zinc-500'
             ];
         case 'iconLarge':
-            return ['dpuse-lg rounded-md', 'hover:bg-zinc-100 focus-visible:outline-zinc-300 dark:hover:bg-zinc-300/30 dark:focus-visible:outline-zinc-500'];
+            return ['dpuse-lg rounded-md', 'hover:bg-zinc-100 focus-visible:outline-zinc-300 dark:hover:bg-zinc-300/20 dark:focus-visible:outline-zinc-500'];
         case 'iconSmall':
-            return ['dpuse-sm rounded-md', 'hover:bg-zinc-100 focus-visible:outline-zinc-300 dark:hover:bg-zinc-300/30 dark:focus-visible:outline-zinc-500'];
+            return ['dpuse-sm rounded-md', 'hover:bg-zinc-100 focus-visible:outline-zinc-300 dark:hover:bg-zinc-300/20 dark:focus-visible:outline-zinc-500'];
         default:
             return [
                 baseType1Classes,
