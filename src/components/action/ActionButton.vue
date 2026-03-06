@@ -89,23 +89,9 @@ const variantClasses = computed(() => {
 button:active {
     background: rgba(79, 140, 255, 0.1); /* subtle color on press */
     transform: scale(0.97); /* visual “press” */
+    outline: 2px solid #7aa2ff;
+    outline-offset: 2px;
 }
-button {
-    /* padding: 12px 16px;
-    border-radius: 10px; */
-    /* background: #4f8cff; */
-    /* color: white; */
-    /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); */
-    /* transition:
-        transform 0.08s ease,
-        box-shadow 0.08s ease; */
-}
-
-button:active {
-    /* transform: scale(0.97);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); */
-}
-
 button:focus-visible {
     outline: 2px solid #7aa2ff;
     outline-offset: 2px;
