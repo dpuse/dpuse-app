@@ -87,10 +87,7 @@ const variantClasses = computed(() => {
 
 <style scoped>
 button:active {
-    background: rgba(79, 140, 255, 0.1); /* subtle color on press */
-    transform: scale(0.97); /* visual “press” */
-    outline: 2px solid #7aa2ff;
-    outline-offset: 2px;
+    background: rgba(79, 140, 255, 0.1);
 }
 button:focus-visible {
     outline: 2px solid #7aa2ff;
