@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
-import { useRouter } from 'vue-router';
+import { LoaderCircleIcon } from 'lucide-vue-next';
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
-import { LoaderCircleIcon, UserCogIcon } from 'lucide-vue-next';
 
 // App Core
 import { useSessionStore } from '@/stores/sessionStore';
@@ -20,16 +19,11 @@ const { sessionIsAuthenticated } = defineProps<{ sessionIsAuthenticated?: boolea
 // Emits
 const emit = defineEmits<{ (event: 'click'): void }>();
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const router = useRouter();
-
 // ??? ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const authIconState = ref<boolean | undefined>(undefined);
 
 const optionComponent = computed(() => (sessionIsAuthenticated ? ActionButton : ActionButton));
-// const optionAttributes = computed(() => (sessionIsAuthenticated ? { to: { name: 'account' } } : undefined));
 
 const sessionPanelIsVisible = ref(false);
 
@@ -50,6 +44,12 @@ watch(
 
 const avatarUrl = ref('');
 
+const initials = computed(() => {
+    const local = 'terrell.jm@gmail.com'.split('@')[0] ?? '';
+    const parts = local.split(/[._-]/);
+    return (parts[1] == null ? '?' : (parts[0]!.charAt(0) + parts[1].charAt(0)).toUpperCase()) ?? local.slice(0, 2).toUpperCase();
+});
+
 async function gravatarUrl(email: string, size: number): Promise<string> {
     const normalized = email.trim().toLowerCase();
 
@@ -69,29 +69,34 @@ onMounted(async () => {
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function handleSelect(): void {
-    if (!sessionIsAuthenticated) router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });
+function handleClose(): void {
+    sessionPanelIsVisible.value = false;
     emit('click');
 }
 </script>
 
 <template>
     <div class="flex flex-col gap-y-3">
-        <SessionMenu v-if="sessionPanelIsVisible" class="fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto" />
+        <SessionMenu
+            v-if="sessionPanelIsVisible"
+            class="fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto"
+            :session-is-authenticated="sessionIsAuthenticated"
+            @close="handleClose"
+        />
         <Separator />
-        <component :is="optionComponent" aria-label="Manage personal details" class="relative h-10 w-10" variant="avatar" @click="handleSelect">
+        <component :is="optionComponent" aria-label="Manage personal details" class="relative h-10 w-10" variant="avatar" @click="sessionPanelIsVisible = true">
             <TransitionGroup name="fade">
-                <div v-if="authIconState === true" class="absolute top-0.5 left-0.5 rounded-full" @click="sessionPanelIsVisible = !sessionPanelIsVisible">
+                <div v-if="authIconState === true" class="absolute inset-0 flex items-center justify-center rounded-full" @click="sessionPanelIsVisible = !sessionPanelIsVisible">
                     <img v-if="!error" class="size-9 rounded-full" :src="avatarUrl" @error="error = true" />
-                    <svg v-else viewBox="0 0 24 24" fill="currentColor" class="size-9 rounded-full text-zinc-400/60">
-                        <path
-                            fill-rule="evenodd"
-                            d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
-                            clip-rule="evenodd"
-                        />
-                    </svg>
+                    <div v-else class="text-xl">{{ initials }}</div>
                 </div>
-                <UserCogIcon v-if="authIconState === false" key="login" class="absolute top-2 left-2" :stroke-width="1.25" />
+                <svg v-if="authIconState === false" viewBox="0 0 24 24" fill="currentColor" class="size-9 rounded-full text-zinc-400/60">
+                    <path
+                        fill-rule="evenodd"
+                        d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
+                        clip-rule="evenodd"
+                    />
+                </svg>
                 <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute top-2 left-2 animate-spin text-neutral-300" />
             </TransitionGroup>
         </component>
