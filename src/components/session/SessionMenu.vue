@@ -6,12 +6,10 @@ import { useRouter } from 'vue-router';
 import { useSessionStore } from '@/stores/sessionStore';
 import { type BasicColorSchema, useColorMode, useFullscreen } from '@vueuse/core';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from 'lucide-vue-next';
-import { type LocaleId, localeId, t } from '@/locales';
+import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
 
 // App Components
 import ActionButton from '@/components/action/ActionButton.vue';
-import ES from '@/components/icon/flags/ES.vue';
-import GB from '@/components/icon/flags/GB.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits
@@ -62,43 +60,34 @@ function toggleWindowExpansion(): void {
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Appearance') }}</div>
         <div class="flex gap-x-2">
             <ActionButton class="flex flex-col items-center text-xs" variant="iconSmall" @click="handleSetAppearance('dark')">
-                <MoonIcon class="size-4.5!" />
-                <span>{{ t(T, 'Dark') }}</span>
+                <MoonIcon class="size-4.5!" />{{ t(T, 'Dark') }}
             </ActionButton>
 
             <ActionButton class="flex flex-col items-center text-xs" variant="iconSmall" @click="handleSetAppearance('light')">
-                <SunIcon class="size-4.5!" />
-                <span>{{ t(T, 'Light') }}</span>
+                <SunIcon class="size-4.5!" />{{ t(T, 'Light') }}
             </ActionButton>
 
             <ActionButton class="flex flex-col items-center text-xs" variant="iconSmall" @click="handleSetAppearance('auto')">
-                <MonitorIcon class="size-4.5!" />
-                <span>{{ t(T, 'System') }}</span>
+                <MonitorIcon class="size-4.5!" />{{ t(T, 'System') }}
             </ActionButton>
         </div>
 
         <Separator v-if="fullScreenIsSupported" class="my-2" />
-        <ActionButton v-if="fullScreenIsSupported" class="flex gap-x-2" variant="listItem" @click="toggleWindowExpansion">
-            <template v-if="isFullscreen">
-                <ShrinkIcon class="size-4.5!" />
-                <span class="text-sm">{{ t(T, 'Collapse_window') }}</span>
-            </template>
-
-            <template v-else>
-                <ExpandIcon class="size-4.5!" />
-                <span class="text-sm">{{ t(T, 'Expand_window') }}</span>
-            </template>
+        <ActionButton v-if="fullScreenIsSupported" class="flex gap-x-2 text-sm" variant="listItem" @click="toggleWindowExpansion">
+            <template v-if="isFullscreen"><ShrinkIcon class="size-4.5!" />{{ t(T, 'Collapse_window') }}</template>
+            <template v-else><ExpandIcon class="size-4.5!" />{{ t(T, 'Expand_window') }}</template>
         </ActionButton>
 
         <Separator class="my-2" />
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Language') }}</div>
-        <ActionButton class="mt-1 flex w-full items-center gap-x-2 text-sm" variant="listItem" @click="handleSetLanguage('en')">
-            <GB class="size-4.5" />
-            <span>English</span>
-        </ActionButton>
-        <ActionButton class="mt-1 flex w-full items-center gap-x-2 text-sm" variant="listItem" @click="handleSetLanguage('es')">
-            <ES class="size-4.5" />
-            <span>Español</span>
+        <ActionButton
+            v-for="lang in SUPPORTED_LANGUAGES"
+            :key="lang.id"
+            class="mt-1 flex w-full items-center gap-x-2 text-sm"
+            variant="listItem"
+            @click="handleSetLanguage(lang.id)"
+        >
+            <img :src="`https://flagcdn.com/${lang.flag}.svg`" class="h-3.5 w-5 object-cover" :alt="lang.label" />{{ lang.label }}
         </ActionButton>
 
         <Separator class="my-2" />

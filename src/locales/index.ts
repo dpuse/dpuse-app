@@ -2,10 +2,15 @@
 import { ref } from 'vue';
 
 // Constants
-const SUPPORTED_LANGUAGE_IDS = new Set(['en', 'es']);
+export const SUPPORTED_LANGUAGES: { id: LocaleId; flag: string; label: string }[] = [
+    { id: 'en', flag: 'gb', label: 'English' },
+    { id: 'es', flag: 'es', label: 'Español' }
+];
 
 export type LocaleId = 'en' | 'es';
 export const localeId = ref<LocaleId>(establishLocaleId());
+
+// Functions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export function n(value: number, key?: string): string {
     if (import.meta.env.DEV) console.log('n', value, key);
@@ -25,13 +30,13 @@ function establishLocaleId(): LocaleId {
     // Check for exact language match.
     for (const languageId of globalThis.navigator.languages) {
         const transformedLanguageId = languageId.toLowerCase() as LocaleId;
-        if (SUPPORTED_LANGUAGE_IDS.has(transformedLanguageId)) return transformedLanguageId;
+        if (SUPPORTED_LANGUAGES.some((lang) => lang.id === transformedLanguageId)) return transformedLanguageId;
     }
 
     // Check for neutral language match.
     for (const languageId of globalThis.navigator.languages) {
         const transformedLanguageId = (languageId.split('-')[0]?.toLowerCase() as LocaleId) ?? undefined;
-        if (transformedLanguageId && SUPPORTED_LANGUAGE_IDS.has(transformedLanguageId)) return transformedLanguageId;
+        if (transformedLanguageId && SUPPORTED_LANGUAGES.some((lang) => lang.id === transformedLanguageId)) return transformedLanguageId;
     }
 
     return 'en'; // Default to English.

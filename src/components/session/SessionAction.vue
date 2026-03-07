@@ -86,18 +86,24 @@ function handleClose(): void {
         <Separator />
         <component :is="optionComponent" aria-label="Manage personal details" class="relative h-10 w-10" variant="avatar" @click="sessionPanelIsVisible = true">
             <TransitionGroup name="fade">
-                <div v-if="authIconState === true" class="absolute inset-0 flex items-center justify-center rounded-full" @click="sessionPanelIsVisible = !sessionPanelIsVisible">
+                <div v-if="authIconState === true" class="absolute inset-0 flex items-center justify-center" @click="sessionPanelIsVisible = !sessionPanelIsVisible">
                     <img v-if="!error" class="size-9 rounded-full" :src="avatarUrl" @error="error = true" />
-                    <div v-else class="text-xl">{{ initials }}</div>
+                    <div v-else class="rounded-full text-xl">{{ initials }}</div>
                 </div>
-                <svg v-if="authIconState === false" viewBox="0 0 24 24" fill="currentColor" class="size-9 rounded-full text-zinc-400/60">
-                    <path
-                        fill-rule="evenodd"
-                        d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
-                        clip-rule="evenodd"
-                    />
-                </svg>
-                <LoaderCircleIcon v-if="authIconState === undefined" key="loader" class="absolute top-2 left-2 animate-spin text-neutral-300" />
+
+                <div v-else-if="authIconState === false" class="absolute inset-0 flex items-center justify-center rounded-full">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="size-8 text-zinc-400/60">
+                        <path
+                            fill-rule="evenodd"
+                            d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                </div>
+
+                <div v-else class="absolute inset-0 flex items-center justify-center rounded-full">
+                    <LoaderCircleIcon key="loader" class="size-7 animate-spin text-neutral-300" />
+                </div>
             </TransitionGroup>
         </component>
     </div>
