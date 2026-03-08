@@ -5,9 +5,9 @@ import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 // App Components
 import WorkbenchOptionBarContent from './WorkbenchOptionBarContent.vue';
 
-// Properties
-type Properties = { isOpenInNarrowDisplay: boolean; displayIsWide: boolean; sessionIsAuthenticated?: boolean };
-const { isOpenInNarrowDisplay, displayIsWide, sessionIsAuthenticated } = defineProps<Properties>();
+// Properties & Emits
+type Properties = { isOpenInNarrowDisplay: boolean; displayIsWide: boolean };
+const { isOpenInNarrowDisplay, displayIsWide } = defineProps<Properties>();
 
 // Emits
 const emit = defineEmits<{ (event: 'select', config?: BenchtopOptionLocalisedConfig): void }>();
@@ -21,17 +21,13 @@ function handleSelect(config?: BenchtopOptionLocalisedConfig): void {
 
 <template>
     <div>
-        <WorkbenchOptionBarContent class="hidden md:flex" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
+        <WorkbenchOptionBarContent class="hidden md:flex" :on-select="handleSelect" />
 
-        <Transition name="option-bar-overlay" appear>
+        <Transition name="option-bar-overlay">
             <div v-if="isOpenInNarrowDisplay && !displayIsWide" class="fixed inset-0 z-30 flex md:hidden">
                 <div class="bg-surface/70 absolute inset-0" @click="(event, config?: BenchtopOptionLocalisedConfig) => handleSelect(config)"></div>
 
-                <WorkbenchOptionBarContent
-                    class="dpuse-floating-option-bar-panel relative mr-auto flex shadow-lg"
-                    :on-select="handleSelect"
-                    :session-is-authenticated="sessionIsAuthenticated"
-                />
+                <WorkbenchOptionBarContent class="dpuse-floating-option-bar-panel relative mr-auto flex shadow-lg" :on-select="handleSelect" />
             </div>
         </Transition>
     </div>

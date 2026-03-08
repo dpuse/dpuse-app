@@ -15,7 +15,7 @@ import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import Header from '@/components/header/Header.vue';
 import Separator from '@/components/separator/Separator.vue';
 
-// Properties
+// Properties & Emits
 const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

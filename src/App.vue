@@ -26,7 +26,7 @@ const AuthDialog = defineAsyncComponent(async () => {
     await new Promise((response) => setTimeout(response, 2000));
     return import('@/components/session/AuthDialog.vue');
 });
-const SessionAction = defineAsyncComponent(() => import('@/components/session/SessionAction.vue'));
+const SessionButton = defineAsyncComponent(() => import('@/components/session/SessionButton.vue'));
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -170,7 +170,7 @@ function handleKnowledgeOptionSelect(): void {
         </ActionButton>
 
         <!-- Session action -->
-        <SessionAction class="fixed bottom-7 left-3 z-40" :session-is-authenticated="sessionState.isAuthenticated" @click="handleWorkbenchOptionSelect" />
+        <SessionButton v-if="displayIsWide || activeOptionBarId === 'workbench'" class="fixed bottom-7 left-3 z-40" @close="handleWorkbenchOptionSelect" />
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth'. -->
         <DialogWrapper v-if="authDialogIsVisible">
@@ -188,7 +188,6 @@ function handleKnowledgeOptionSelect(): void {
                 class="flex-none"
                 :is-open-in-narrow-display="activeOptionBarId === 'workbench'"
                 :display-is-wide="displayIsWide"
-                :session-is-authenticated="sessionState.isAuthenticated"
                 @select="handleWorkbenchOptionSelect"
             />
             <div class="flex-1 overflow-y-hidden">
@@ -214,7 +213,6 @@ function handleKnowledgeOptionSelect(): void {
                 class="flex-none"
                 :is-open-in-narrow-display="activeOptionBarId === 'knowledge'"
                 :display-is-wide="displayIsWide"
-                :session-is-authenticated="sessionState.isAuthenticated"
                 @select="handleKnowledgeOptionSelect"
             />
         </div>

@@ -16,7 +16,7 @@ import Input from '@/components/input/Input.vue';
 import MicrosoftLogoIcon from '@/components/icon/logos/MicrosoftLogoIcon.vue';
 import Separator from '@/components/separator/Separator.vue';
 
-// Properties
+// Properties & Emits
 type Properties = { onTrigger: (identifier: string) => Promise<void> };
 const { onTrigger } = defineProps<Properties>();
 

@@ -2,7 +2,7 @@
 // External Dependencies
 import { PlusIcon } from '@heroicons/vue/20/solid';
 
-// Properties
+// Properties & Emits
 defineProps<{ messageItemLabel: string; descriptionItemLabel: string; actionItemLabel: string }>();
 </script>
 

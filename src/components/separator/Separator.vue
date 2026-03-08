@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Properties
+// Properties & Emits
 type Properties = { text?: string };
 const { text } = defineProps<Properties>();
 </script>

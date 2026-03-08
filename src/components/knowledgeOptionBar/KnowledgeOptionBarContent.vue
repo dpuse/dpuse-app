@@ -8,8 +8,8 @@ import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
 import ActionButton from '@/components/action/ActionButton.vue';
 import Separator from '@/components/separator/Separator.vue';
 
-// Properties
-const properties = defineProps<{ sessionIsAuthenticated?: boolean; onSelect: () => void }>();
+// Properties & Emits
+const properties = defineProps<{ onSelect: () => void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const router = useRouter();

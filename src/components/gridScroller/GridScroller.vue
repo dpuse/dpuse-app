@@ -4,7 +4,7 @@ import { computed, onMounted, ref, watchEffect } from 'vue';
 import { useBreakpoints, useResizeObserver } from '@vueuse/core';
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 
-// Properties
+// Properties & Emits
 type Properties = { items?: T[]; rowHeight?: number; targetColumnWidth?: number };
 const { targetColumnWidth = 200, items = [], rowHeight = 35 } = defineProps<Properties>();
 

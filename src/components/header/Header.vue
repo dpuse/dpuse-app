@@ -2,7 +2,7 @@
 // External Dependencies
 import { computed } from 'vue';
 
-// Properties
+// Properties & Emits
 const { breadcrumbs, displayIsWide } = defineProps<{ breadcrumbs?: { id: string; label: string }[]; displayIsWide: boolean; title: string }>();
 
 // Local States

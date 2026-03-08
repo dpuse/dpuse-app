@@ -7,7 +7,7 @@ import T from '@/locales/views/workflow/establishDataViews/EstablishDataViews.js
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Header from '@/components/header/Header.vue';
 
-// Properties
+// Properties & Emits
 const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 </script>
 

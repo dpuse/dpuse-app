@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Properties
+// Properties & Emits
 type Properties = { autoComplete?: 'email' | 'current-password' | 'new-password'; name: string; placeholder?: string; required?: boolean; type?: 'email' | 'password' | 'text' };
 const { autoComplete, placeholder, required = false, type = 'text' } = defineProps<Properties>();
 </script>

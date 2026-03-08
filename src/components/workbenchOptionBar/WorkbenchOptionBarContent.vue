@@ -10,8 +10,8 @@ import { useKnowledge } from '@/composables/useKnowledge';
 // App Components
 import ActionRouterLink from '@/components/action/ActionRouterLink.vue';
 
-// Properties
-defineProps<{ sessionIsAuthenticated?: boolean; onSelect: (config?: BenchtopOptionLocalisedConfig) => void }>();
+// Properties & Emits
+defineProps<{ onSelect: (config?: BenchtopOptionLocalisedConfig) => void }>();
 
 // Active localised benchtop configuration
 const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');

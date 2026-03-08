@@ -2,51 +2,47 @@
 import { ref } from 'vue';
 
 // Constants
-export const SUPPORTED_LANGUAGES: { id: LocaleId; flag: string; label: string }[] = [
+export type FlagId = 'es' | 'gb';
+export type LocaleId = 'en' | 'es';
+export const SUPPORTED_LANGUAGES: { id: LocaleId; flag: FlagId; label: string }[] = [
     { id: 'en', flag: 'gb', label: 'English' },
     { id: 'es', flag: 'es', label: 'Español' }
 ];
 
-export type LocaleId = 'en' | 'es';
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 export const localeId = ref<LocaleId>(establishLocaleId());
 
 // Functions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export function n(value: number, key?: string): string {
-    if (import.meta.env.DEV) console.log('n', value, key);
-    return String(value);
+export function n(value: number, options?: Intl.NumberFormatOptions): string {
+    return new Intl.NumberFormat(localeId.value, options).format(value);
 }
 
 type Translations = Record<string, Record<LocaleId, string>>;
 export function t(translations: Translations, id: keyof Translations, parameters?: Record<string, number | string>): string {
-    const text = translations[id]?.[localeId.value] ?? id;
-    if (parameters) return text ? interpolateParameters(text, parameters) : `??:${id}`;
-    return text || `??:${id}`;
+    const text = translations[id]?.[localeId.value] ?? translations[id]?.['en'] ?? id;
+    if (parameters) return interpolateParameters(text, parameters);
+    return text;
 }
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function establishLocaleId(): LocaleId {
-    // Check for exact language match.
-    for (const languageId of globalThis.navigator.languages) {
-        const transformedLanguageId = languageId.toLowerCase() as LocaleId;
-        if (SUPPORTED_LANGUAGES.some((lang) => lang.id === transformedLanguageId)) return transformedLanguageId;
+    for (const languageId of globalThis.navigator?.languages ?? []) {
+        const lower = languageId.toLowerCase();
+        if (SUPPORTED_LANGUAGES.some((lang) => lang.id === lower)) return lower as LocaleId;
+        const prefix = lower.split('-')[0] as LocaleId;
+        if (prefix && SUPPORTED_LANGUAGES.some((lang) => lang.id === prefix)) return prefix;
     }
-
-    // Check for neutral language match.
-    for (const languageId of globalThis.navigator.languages) {
-        const transformedLanguageId = (languageId.split('-')[0]?.toLowerCase() as LocaleId) ?? undefined;
-        if (transformedLanguageId && SUPPORTED_LANGUAGES.some((lang) => lang.id === transformedLanguageId)) return transformedLanguageId;
-    }
-
     return 'en'; // Default to English.
 }
 
-function interpolateParameters(text: string, parameters?: Record<string, number | string>): string {
+function interpolateParameters(text: string, parameters: Record<string, number | string>): string {
     return text.replaceAll(/\{(\w+)\}|\{('.*?')\}/gu, (match, parameterId, fixedString): string => {
         if (fixedString != null) {
             return fixedString.slice(1, -1); // Remove surrounding quotes and return fixed string.
         }
-        return parameters && parameterId in parameters ? String(parameters[parameterId]) : parameterId; // Return parameter value or parameter identifier if not found.
+        return parameterId in parameters ? String(parameters[parameterId]) : parameterId; // Return parameter value or parameter identifier if not found.
     });
 }

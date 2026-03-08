@@ -3,7 +3,7 @@
 import { computed } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 
-// Properties
+// Properties & Emits
 type Properties = {
     isActive?: boolean;
     to: RouteLocationRaw;

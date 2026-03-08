@@ -1,10 +1,10 @@
 <script setup lang="ts">
 // App Core
-import { nextTick } from 'vue';
 import T from '@/locales/components/session/SessionMenu.json';
 import { useRouter } from 'vue-router';
 import { useSessionStore } from '@/stores/sessionStore';
 import { type BasicColorSchema, useColorMode, useFullscreen } from '@vueuse/core';
+import { computed, nextTick } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from 'lucide-vue-next';
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
 
@@ -13,7 +13,6 @@ import ActionButton from '@/components/action/ActionButton.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits
-const { sessionIsAuthenticated } = defineProps<{ sessionIsAuthenticated?: boolean }>();
 const emit = defineEmits<{ (event: 'close'): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -22,6 +21,10 @@ const colorMode = useColorMode(); // CSP requires hash for useColorMode's transi
 const { isFullscreen, toggle: toggleFullscreen, isSupported: fullScreenIsSupported } = useFullscreen();
 const sessionState = useSessionStore();
 const router = useRouter();
+
+// Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const sessionIsAuthenticated = computed(() => sessionState.isAuthenticated);
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -72,13 +75,13 @@ function toggleWindowExpansion(): void {
             </ActionButton>
         </div>
 
-        <Separator v-if="fullScreenIsSupported" class="my-2" />
+        <Separator v-if="fullScreenIsSupported" class="my-2.5" />
         <ActionButton v-if="fullScreenIsSupported" class="flex gap-x-2 text-sm" variant="listItem" @click="toggleWindowExpansion">
             <template v-if="isFullscreen"><ShrinkIcon class="size-4.5!" />{{ t(T, 'Collapse_window') }}</template>
             <template v-else><ExpandIcon class="size-4.5!" />{{ t(T, 'Expand_window') }}</template>
         </ActionButton>
 
-        <Separator class="my-2" />
+        <Separator class="my-2.5" />
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Language') }}</div>
         <ActionButton
             v-for="lang in SUPPORTED_LANGUAGES"
@@ -90,10 +93,10 @@ function toggleWindowExpansion(): void {
             <img :src="`https://flagcdn.com/${lang.flag}.svg`" class="h-3.5 w-5 object-cover" :alt="lang.label" />{{ lang.label }}
         </ActionButton>
 
-        <Separator class="my-2" />
+        <Separator class="my-2.5" />
         <ActionButton class="min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</ActionButton>
 
-        <Separator class="my-2" />
+        <Separator class="my-2.5" />
         <ActionButton v-if="sessionIsAuthenticated" class="min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</ActionButton>
         <ActionButton v-else class="min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</ActionButton>
     </div>

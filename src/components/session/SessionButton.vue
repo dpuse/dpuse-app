@@ -1,0 +1,132 @@
+<script setup lang="ts">
+// External Dependencies
+import { LoaderCircleIcon } from 'lucide-vue-next';
+import { onClickOutside } from '@vueuse/core';
+import { type ComponentPublicInstance, computed, defineAsyncComponent, onMounted, ref } from 'vue';
+
+// App Core
+import { useSessionStore } from '@/stores/sessionStore';
+
+// App Components
+import ActionButton from '@/components/action/ActionButton.vue';
+import Separator from '@/components/separator/Separator.vue';
+
+// App Components (lazy loaded)
+const SessionMenu = defineAsyncComponent(() => import('@/components/session/SessionMenu.vue'));
+
+// Properties & Emits
+const emit = defineEmits<{ (event: 'close'): void }>();
+
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const sessionState = useSessionStore();
+
+// Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const sessionMenuIsVisible = ref(false);
+const sessionIsAuthenticated = computed(() => sessionState.isAuthenticated);
+
+// ??? Avatar ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const avatarUrl = ref('');
+const emailAddress = 'terrell.jm@gmail.com';
+const error = ref(false);
+
+const initials = computed(() => {
+    const local = emailAddress.split('@')[0] ?? '';
+    const parts = local.split(/[._-]/);
+    return (parts[1] == null ? '?' : (parts[0]!.charAt(0) + parts[1].charAt(0)).toUpperCase()) ?? local.slice(0, 2).toUpperCase();
+});
+
+async function gravatarUrl(email: string, size: number): Promise<string> {
+    const normalized = email.trim().toLowerCase();
+
+    const data = new TextEncoder().encode(normalized);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+    const hashArray = [...new Uint8Array(hashBuffer)];
+    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+
+    return `https://gravatar.com/avatar/${hashHex}?s=${size}&d=404`;
+}
+
+// Lifecycle Event Handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+onMounted(async () => {
+    sessionState.initialiseServices();
+    avatarUrl.value = await gravatarUrl(emailAddress, 36);
+});
+
+// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const sessionMenuReference = ref<ComponentPublicInstance | null>(null);
+onClickOutside(sessionMenuReference, () => handleClose(), { ignore: ['.dpuse-outsideClickIgnore'] });
+
+function handleClose(): void {
+    sessionMenuIsVisible.value = false;
+    emit('close');
+}
+</script>
+
+<template>
+    <div class="flex flex-col">
+        <SessionMenu
+            v-if="sessionMenuIsVisible"
+            ref="sessionMenuReference"
+            class="fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto overscroll-y-none"
+            @close="handleClose"
+        />
+
+        <Separator class="dpuse-outsideClickIgnore mb-3" />
+        <ActionButton class="dpuse-outsideClickIgnore relative h-10 w-10" variant="avatar">
+            <Transition name="fade">
+                <!-- Session is authenticated. Show photo or initials. -->
+                <div v-if="sessionIsAuthenticated === true" class="absolute inset-0 flex items-center justify-center" @click="sessionMenuIsVisible = !sessionMenuIsVisible">
+                    <img v-if="!error" class="size-9 rounded-full" :src="avatarUrl" @error="error = true" />
+                    <div v-else class="rounded-full text-xl">{{ initials }}</div>
+                </div>
+
+                <!-- Session is NOT authenticated. Show user silhouette. -->
+                <div
+                    v-else-if="sessionIsAuthenticated === false"
+                    class="absolute inset-0 flex items-center justify-center rounded-full"
+                    @click="sessionMenuIsVisible = !sessionMenuIsVisible"
+                >
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="size-8 text-zinc-400/60">
+                        <path
+                            fill-rule="evenodd"
+                            d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                </div>
+
+                <!-- Session authentication is pending. Show waiting icon. -->
+                <div v-else class="absolute inset-0 flex items-center justify-center rounded-full">
+                    <LoaderCircleIcon key="loader" class="size-7 animate-spin text-neutral-300" />
+                </div>
+            </Transition>
+        </ActionButton>
+    </div>
+</template>
+
+<style scoped>
+.fade-enter-active {
+    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1) 0.25s;
+    will-change: opacity;
+}
+.fade-leave-active {
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 1, 1);
+    will-change: opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: none;
+    }
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+</style>

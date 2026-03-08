@@ -2,11 +2,8 @@
 // App Components
 import KnowledgeOptionBarContent from './KnowledgeOptionBarContent.vue';
 
-// Properties
-type Properties = { isOpenInNarrowDisplay: boolean; displayIsWide: boolean; sessionIsAuthenticated?: boolean };
-const { isOpenInNarrowDisplay, displayIsWide, sessionIsAuthenticated } = defineProps<Properties>();
-
-// Emits
+// Properties & Emits
+const { isOpenInNarrowDisplay, displayIsWide } = defineProps<{ isOpenInNarrowDisplay: boolean; displayIsWide: boolean }>();
 const emit = defineEmits<{ (event: 'select'): void }>();
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -18,17 +15,13 @@ function handleSelect(): void {
 
 <template>
     <div>
-        <KnowledgeOptionBarContent class="hidden md:flex" :on-select="handleSelect" :session-is-authenticated="sessionIsAuthenticated" />
+        <KnowledgeOptionBarContent class="hidden md:flex" :on-select="handleSelect" />
 
         <Transition name="option-bar-overlay" appear>
             <div v-if="isOpenInNarrowDisplay && !displayIsWide" class="fixed inset-0 z-30 flex md:hidden">
                 <div class="bg-surface/70 absolute inset-0" @click="handleSelect"></div>
 
-                <KnowledgeOptionBarContent
-                    class="dpuse-floating-option-bar-panel relative ml-auto flex shadow-lg"
-                    :on-select="handleSelect"
-                    :session-is-authenticated="sessionIsAuthenticated"
-                />
+                <KnowledgeOptionBarContent class="dpuse-floating-option-bar-panel relative ml-auto flex shadow-lg" :on-select="handleSelect" />
             </div>
         </Transition>
     </div>

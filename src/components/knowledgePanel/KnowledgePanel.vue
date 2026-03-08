@@ -11,7 +11,7 @@ import KnowledgeOverviewPanel from './KnowledgeOverviewPanel.vue';
 const KnowledgeChatPanel = defineAsyncComponent(() => import('./KnowledgeChatPanel.vue'));
 const KnowledgeSearchPanel = defineAsyncComponent(() => import('./KnowledgeSearchPanel.vue'));
 
-// Properties
+// Properties & Emits
 const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

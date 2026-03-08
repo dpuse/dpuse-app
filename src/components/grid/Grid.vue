@@ -2,7 +2,7 @@
 // External Dependencies
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
-// Properties
+// Properties & Emits
 type Properties = {
     items?: T[];
     maxWidth?: 'max-w-4xl' | 'max-w-5xl' | 'max-w-6xl' | 'max-w-7xl' | 'max-w-full'; // 56rem (896px), 64rem (1,024px), 72rem (1,152px). 80rem (1,280px), 100%.

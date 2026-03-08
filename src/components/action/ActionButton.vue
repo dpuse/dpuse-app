@@ -2,7 +2,7 @@
 // External Dependencies
 import { computed } from 'vue';
 
-// Properties
+// Properties & Emits
 type Properties = {
     isActive?: boolean;
     variant?: 'primary' | 'neutral' | 'positive' | 'guarded' | 'destructive' | 'ghost' | 'outline' | 'listItem' | 'avatar' | 'iconLarge' | 'iconSmall';
