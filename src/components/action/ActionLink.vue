@@ -1,1 +1,3 @@
-<template>Pending...</template>
+<template>
+    <span></span>
+</template>
