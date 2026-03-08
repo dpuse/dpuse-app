@@ -2,7 +2,7 @@
 // External Dependencies
 import { useRouter } from 'vue-router';
 import { ArrowBigLeftIcon, XIcon } from 'lucide-vue-next';
-import { type Component, defineAsyncComponent, shallowRef } from 'vue';
+import { type Component, defineAsyncComponent, shallowRef, watch } from 'vue';
 
 // App Core
 import { t } from '@/locales';
@@ -53,6 +53,11 @@ const router = useRouter();
 
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
 
+watch(
+    () => displayIsWide,
+    (isWide) => { if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1]; }
+);
+
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleBack(): void {
@@ -96,7 +101,6 @@ async function handleCloseDialog(): Promise<void> {
             tabindex="-1"
         >
             <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light">{{ t(T, 'Manage_Account') }}</div>
-
             <!-- Close Button -->
             <Button class="absolute top-3 right-3" variant="iconLarge" @click="handleCloseDialog">
                 <XIcon stroke-width="1.25" />
