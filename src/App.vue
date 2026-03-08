@@ -192,7 +192,9 @@ function handleKnowledgeOptionSelect(): void {
             />
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
-                    <component :is="Component" :active-benchtop-option-config="activeBenchtopOptionConfig" :display-is-wide="displayIsWide" />
+                    <Transition name="fade" mode="out-in">
+                        <component :is="Component" :key="$route.path" :active-benchtop-option-config="activeBenchtopOptionConfig" :display-is-wide="displayIsWide" />
+                    </Transition>
                 </RouterView>
             </div>
         </div>
@@ -218,3 +220,15 @@ function handleKnowledgeOptionSelect(): void {
         </div>
     </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+</style>
