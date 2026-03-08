@@ -7,13 +7,9 @@ import { ArrowBigLeftIcon, XIcon } from 'lucide-vue-next';
 // App Core
 import { t } from '@/locales';
 import T from '@/locales/views/account/Account.json';
-import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
 import ActionButton from '@/components/action/ActionButton.vue';
-import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
-import Header from '@/components/header/Header.vue';
-import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits
 const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
@@ -21,9 +17,9 @@ const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const router = useRouter();
-const sessionState = useSessionStore();
 
-// Account options
+// Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string };
 const optionConfigs: OptionLocalisedConfig[] = [
     { id: 'profile', type: 'label', label: 'Profile' },
@@ -46,11 +42,6 @@ const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initial
 function handleBack(): void {
     // router.replace({ name: 'account', query: router.currentRoute.value.query });
     activeOptionConfig.value = undefined;
-}
-
-async function handleSignOut(): Promise<void> {
-    await sessionState.signOut();
-    // router.replace({ name: 'workflow', query: router.currentRoute.value.query });
 }
 
 function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
@@ -88,23 +79,18 @@ async function handleCloseDialog(): Promise<void> {
         <div
             role="dialog"
             aria-modal="true"
-            class="bg-surface text-content z-10 flex h-full max-h-full w-full max-w-full flex-col sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-3xl sm:-translate-x-1/2 sm:rounded-lg"
+            class="bg-surface text-content z-10 flex h-full max-h-full w-full max-w-full flex-col sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-3xl sm:max-w-[calc(100vw-2rem)] sm:-translate-x-1/2 sm:rounded-lg"
             tabindex="-1"
         >
-            <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light">Manage Account</div>
+            <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light">{{ t(T, 'Manage_Account') }}</div>
 
             <!-- Close Button -->
             <ActionButton class="absolute top-3 right-3" variant="iconLarge" @click="handleCloseDialog">
                 <XIcon stroke-width="1.25" />
             </ActionButton>
 
-            <div class="flex flex-1 overflow-y-auto overscroll-y-none">
-                <!-- <BenchtopScroller v-if="displayIsWide || !activeOptionConfig" class="border-boundary flex flex-1 flex-col border-r px-4 pt-2 pb-7 md:flex-none"> -->
-                <div class="divide-separator flex flex-1 flex-col gap-y-2 overflow-y-auto overscroll-y-none">
-                    <!-- <ActionButton class="min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</ActionButton>
-
-                        <Separator class="mt-2" /> -->
-
+            <div class="flex flex-1 overflow-hidden">
+                <div class="divide-separator flex flex-1 flex-col gap-y-2 overflow-y-auto overscroll-y-none px-4 pb-6">
                     <div class="flex flex-1 flex-col gap-y-2">
                         <template v-for="optionConfig of optionConfigs" :key="optionConfig.id">
                             <div v-if="optionConfig.type === 'label'" class="text-muted mt-2 text-xs font-medium">{{ optionConfig.label }}</div>
@@ -128,17 +114,6 @@ async function handleCloseDialog(): Promise<void> {
                     </ActionButton>
                 </div>
 
-                <!-- <div class="flex flex-none flex-col gap-y-2 pt-2">
-                    <! -- <Separator class="mt-2" /> -- >
-
-                    <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div>
-
-                    <ActionButton class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }" variant="destructive">
-                        {{ t(T, 'Delete_account') }}
-                    </ActionButton>
-                </div> -->
-                <!-- </BenchtopScroller> -->
-
                 <div v-if="displayIsWide || activeOptionConfig" class="flex flex-1 flex-col">
                     <div class="border-separator mx-4 flex h-12 flex-none items-center gap-x-1 border-b">
                         <ActionButton v-if="!displayIsWide" variant="iconSmall" @click="handleBack">
@@ -147,9 +122,7 @@ async function handleCloseDialog(): Promise<void> {
                         {{ activeOptionConfig!.title }}
                     </div>
 
-                    <div class="flex-1">
-                        <!-- <RouterView /> -->
-                    </div>
+                    <div class="flex-1"></div>
                 </div>
             </div>
         </div>
