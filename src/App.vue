@@ -19,11 +19,11 @@ import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionB
 
 // App Components (lazy loaded)
 const AcctMgmtDialog = defineAsyncComponent(async () => {
-    await new Promise((response) => setTimeout(response, 2000));
+    await new Promise((response) => setTimeout(response, 0));
     return import('@/components/account/AcctMgmtDialog.vue');
 });
 const AuthDialog = defineAsyncComponent(async () => {
-    await new Promise((response) => setTimeout(response, 2000));
+    await new Promise((response) => setTimeout(response, 0));
     return import('@/components/session/AuthDialog.vue');
 });
 const SessionButton = defineAsyncComponent(() => import('@/components/session/SessionButton.vue'));
@@ -115,7 +115,7 @@ function handleWorkbenchToggle(): void {
     }
 }
 
-function handleWorkbenchOptionSelect(config?: BenchtopOptionLocalisedConfig): void {
+function handleWorkbenchOptionComplete(config?: BenchtopOptionLocalisedConfig): void {
     activeBenchtopOptionConfig.value = config;
     activeOptionBarId.value = 'none';
     activePaneId.value = 'workbench';
@@ -151,7 +151,7 @@ function handleKnowledgeToggle(): void {
     }
 }
 
-function handleKnowledgeOptionSelect(): void {
+function handleKnowledgeOptionComplete(): void {
     activeOptionBarId.value = 'none';
     activePaneId.value = 'knowledge';
 }
@@ -170,7 +170,7 @@ function handleKnowledgeOptionSelect(): void {
         </ActionButton>
 
         <!-- Session action -->
-        <SessionButton v-if="displayIsWide || activeOptionBarId === 'workbench'" class="fixed bottom-7 left-3 z-40" @close="handleWorkbenchOptionSelect" />
+        <SessionButton v-if="displayIsWide || activeOptionBarId === 'workbench'" class="fixed bottom-7 left-3 z-40" @complete="handleWorkbenchOptionComplete" />
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth'. -->
         <DialogWrapper v-if="authDialogIsVisible">
@@ -188,7 +188,7 @@ function handleKnowledgeOptionSelect(): void {
                 class="flex-none"
                 :is-open-in-narrow-display="activeOptionBarId === 'workbench'"
                 :display-is-wide="displayIsWide"
-                @select="handleWorkbenchOptionSelect"
+                @complete="handleWorkbenchOptionComplete"
             />
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
@@ -215,7 +215,7 @@ function handleKnowledgeOptionSelect(): void {
                 class="flex-none"
                 :is-open-in-narrow-display="activeOptionBarId === 'knowledge'"
                 :display-is-wide="displayIsWide"
-                @select="handleKnowledgeOptionSelect"
+                @complete="handleKnowledgeOptionComplete"
             />
         </div>
     </div>

@@ -13,7 +13,7 @@ import ActionButton from '@/components/action/ActionButton.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits
-const emit = defineEmits<{ (event: 'close'): void }>();
+const emit = defineEmits<{ (event: 'complete'): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -30,31 +30,31 @@ const sessionIsAuthenticated = computed(() => sessionState.isAuthenticated);
 
 function handleManageAccount(): void {
     router.replace({ query: { ...router.currentRoute.value.query, dialog: 'acctMgmt' } });
-    emit('close');
+    emit('complete');
 }
 
 function handleSetAppearance(mode: BasicColorSchema): void {
     colorMode.value = mode;
-    nextTick().then(() => emit('close'));
+    nextTick().then(() => emit('complete'));
 }
 
 function handleSetLanguage(id: LocaleId): void {
     localeId.value = id;
-    emit('close');
+    emit('complete');
 }
 
 function handleSignInRegister(): void {
     router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });
-    emit('close');
+    emit('complete');
 }
 
 function handleSignOut(): void {
-    sessionState.signOut().then(() => emit('close'));
+    sessionState.signOut().then(() => emit('complete'));
 }
 
 function toggleWindowExpansion(): void {
     toggleFullscreen();
-    emit('close');
+    emit('complete');
 }
 </script>
 

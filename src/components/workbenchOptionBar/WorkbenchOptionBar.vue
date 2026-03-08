@@ -10,12 +10,12 @@ type Properties = { isOpenInNarrowDisplay: boolean; displayIsWide: boolean };
 const { isOpenInNarrowDisplay, displayIsWide } = defineProps<Properties>();
 
 // Emits
-const emit = defineEmits<{ (event: 'select', config?: BenchtopOptionLocalisedConfig): void }>();
+const emit = defineEmits<{ (event: 'complete', config?: BenchtopOptionLocalisedConfig): void }>();
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleSelect(config?: BenchtopOptionLocalisedConfig): void {
-    emit('select', config);
+    emit('complete', config);
 }
 </script>
 

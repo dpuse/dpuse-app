@@ -4,12 +4,12 @@ import KnowledgeOptionBarContent from './KnowledgeOptionBarContent.vue';
 
 // Properties & Emits
 const { isOpenInNarrowDisplay, displayIsWide } = defineProps<{ isOpenInNarrowDisplay: boolean; displayIsWide: boolean }>();
-const emit = defineEmits<{ (event: 'select'): void }>();
+const emit = defineEmits<{ (event: 'complete'): void }>();
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleSelect(): void {
-    emit('select');
+    emit('complete');
 }
 </script>
 

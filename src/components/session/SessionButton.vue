@@ -15,7 +15,7 @@ import Separator from '@/components/separator/Separator.vue';
 const SessionMenu = defineAsyncComponent(() => import('@/components/session/SessionMenu.vue'));
 
 // Properties & Emits
-const emit = defineEmits<{ (event: 'close'): void }>();
+const emit = defineEmits<{ (event: 'complete'): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -64,7 +64,7 @@ onClickOutside(sessionMenuReference, () => handleClose(), { ignore: ['.dpuse-out
 
 function handleClose(): void {
     sessionMenuIsVisible.value = false;
-    emit('close');
+    emit('complete');
 }
 </script>
 
@@ -74,7 +74,7 @@ function handleClose(): void {
             v-if="sessionMenuIsVisible"
             ref="sessionMenuReference"
             class="fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto overscroll-y-none"
-            @close="handleClose"
+            @complete="handleClose"
         />
 
         <Separator class="dpuse-outsideClickIgnore mb-3" />
