@@ -8,7 +8,7 @@ import T from '@/locales/components/session/LoginForm.json';
 import { t } from '@/locales';
 
 // App Components
-import ActionButton from '@/components/action/ActionButton.vue';
+import Button from '@/components/action/Button.vue';
 import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
 import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';
 import GoogleLogoIcon from '@/components/icon/logos/GoogleLogoIcon.vue';
@@ -37,17 +37,17 @@ async function handleSubmit(): Promise<void> {
 
         <form class="mt-2 flex flex-col gap-y-3">
             <Input name="email" autocomplete="email" :placeholder="t(T, 'Email_address')" :required="true" type="email" />
-            <ActionButton variant="primary" @click="handleSubmit">{{ t(T, 'Continue') }}</ActionButton>
+            <Button variant="primary" @click="handleSubmit">{{ t(T, 'Continue') }}</Button>
         </form>
 
         <Separator :text="t(T, 'or')" />
 
         <div class="flex flex-col gap-y-3">
-            <ActionButton class="justify-start" variant="outline"><UserRoundKeyIcon class="size-5" />{{ t(T, 'Sign_in_with_a_passkey') }}</ActionButton>
-            <ActionButton class="justify-start" variant="outline"><AppleLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_Apple') }}</ActionButton>
-            <ActionButton class="justify-start" variant="outline"><GoogleLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_Google') }}</ActionButton>
-            <ActionButton class="justify-start" variant="outline"><GitHubLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_GitHub') }}</ActionButton>
-            <ActionButton class="justify-start" variant="outline"><MicrosoftLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_Microsoft') }}</ActionButton>
+            <Button class="justify-start" variant="outline"><UserRoundKeyIcon class="size-5" />{{ t(T, 'Sign_in_with_a_passkey') }}</Button>
+            <Button class="justify-start" variant="outline"><AppleLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_Apple') }}</Button>
+            <Button class="justify-start" variant="outline"><GoogleLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_Google') }}</Button>
+            <Button class="justify-start" variant="outline"><GitHubLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_GitHub') }}</Button>
+            <Button class="justify-start" variant="outline"><MicrosoftLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_Microsoft') }}</Button>
         </div>
     </div>
 </template>

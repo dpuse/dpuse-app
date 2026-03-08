@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router';
 import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
 
 // App Components
-import ActionButton from '@/components/action/ActionButton.vue';
+import Button from '@/components/action/Button.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits
@@ -29,17 +29,17 @@ function handleNavigateTo(view: string): void {
 
         <!-- Options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none pt-2 pb-6">
-            <ActionButton variant="iconLarge" @click="handleNavigateTo('welcome')">
+            <Button variant="iconLarge" @click="handleNavigateTo('welcome')">
                 <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
-            </ActionButton>
+            </Button>
 
-            <ActionButton variant="iconLarge" @click="handleNavigateTo('search')">
+            <Button variant="iconLarge" @click="handleNavigateTo('search')">
                 <SearchIcon aria-hidden="true" :stroke-width="1.25" />
-            </ActionButton>
+            </Button>
 
-            <ActionButton variant="iconLarge" @click="handleNavigateTo('chat')">
+            <Button variant="iconLarge" @click="handleNavigateTo('chat')">
                 <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
-            </ActionButton>
+            </Button>
         </div>
     </div>
 </template>

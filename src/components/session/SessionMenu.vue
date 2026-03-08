@@ -9,7 +9,7 @@ import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from 'lucide-v
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
 
 // App Components
-import ActionButton from '@/components/action/ActionButton.vue';
+import Button from '@/components/action/Button.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits
@@ -22,7 +22,7 @@ const { isFullscreen, toggle: toggleFullscreen, isSupported: fullScreenIsSupport
 const sessionState = useSessionStore();
 const router = useRouter();
 
-// Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const sessionIsAuthenticated = computed(() => sessionState.isAuthenticated);
 
@@ -62,42 +62,32 @@ function toggleWindowExpansion(): void {
     <div class="border-boundary bg-surface flex flex-col overflow-y-auto overscroll-y-none rounded-md border px-4 py-3 shadow-md">
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Appearance') }}</div>
         <div class="flex gap-x-2">
-            <ActionButton class="flex flex-col items-center text-xs" variant="iconSmall" @click="handleSetAppearance('dark')">
-                <MoonIcon class="size-4.5!" />{{ t(T, 'Dark') }}
-            </ActionButton>
+            <Button class="flex flex-col items-center text-xs" variant="iconSmall" @click="handleSetAppearance('dark')"> <MoonIcon class="size-4.5!" />{{ t(T, 'Dark') }} </Button>
 
-            <ActionButton class="flex flex-col items-center text-xs" variant="iconSmall" @click="handleSetAppearance('light')">
-                <SunIcon class="size-4.5!" />{{ t(T, 'Light') }}
-            </ActionButton>
+            <Button class="flex flex-col items-center text-xs" variant="iconSmall" @click="handleSetAppearance('light')"> <SunIcon class="size-4.5!" />{{ t(T, 'Light') }} </Button>
 
-            <ActionButton class="flex flex-col items-center text-xs" variant="iconSmall" @click="handleSetAppearance('auto')">
+            <Button class="flex flex-col items-center text-xs" variant="iconSmall" @click="handleSetAppearance('auto')">
                 <MonitorIcon class="size-4.5!" />{{ t(T, 'System') }}
-            </ActionButton>
+            </Button>
         </div>
 
         <Separator v-if="fullScreenIsSupported" class="my-2.5" />
-        <ActionButton v-if="fullScreenIsSupported" class="flex gap-x-2 text-sm" variant="listItem" @click="toggleWindowExpansion">
+        <Button v-if="fullScreenIsSupported" class="flex gap-x-2 text-sm" variant="listItem" @click="toggleWindowExpansion">
             <template v-if="isFullscreen"><ShrinkIcon class="size-4.5!" />{{ t(T, 'Collapse_window') }}</template>
             <template v-else><ExpandIcon class="size-4.5!" />{{ t(T, 'Expand_window') }}</template>
-        </ActionButton>
+        </Button>
 
         <Separator class="my-2.5" />
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Language') }}</div>
-        <ActionButton
-            v-for="lang in SUPPORTED_LANGUAGES"
-            :key="lang.id"
-            class="mt-1 flex w-full items-center gap-x-2 text-sm"
-            variant="listItem"
-            @click="handleSetLanguage(lang.id)"
-        >
+        <Button v-for="lang in SUPPORTED_LANGUAGES" :key="lang.id" class="mt-1 flex w-full items-center gap-x-2 text-sm" variant="listItem" @click="handleSetLanguage(lang.id)">
             <img :src="`https://flagcdn.com/${lang.flag}.svg`" class="h-3.5 w-5 object-cover" :alt="lang.label" />{{ lang.label }}
-        </ActionButton>
+        </Button>
+
+        <Separator v-if="sessionIsAuthenticated" class="my-2.5" />
+        <Button v-if="sessionIsAuthenticated" class="min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>
 
         <Separator class="my-2.5" />
-        <ActionButton class="min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</ActionButton>
-
-        <Separator class="my-2.5" />
-        <ActionButton v-if="sessionIsAuthenticated" class="min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</ActionButton>
-        <ActionButton v-else class="min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</ActionButton>
+        <Button v-if="sessionIsAuthenticated" class="min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</Button>
+        <Button v-else class="min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</Button>
     </div>
 </template>

@@ -24,7 +24,7 @@ import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
-import ActionButton from '@/components/action/ActionButton.vue';
+import Button from '@/components/action/Button.vue';
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
@@ -37,7 +37,7 @@ const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/em
 const router = useRouter();
 const sessionState = useSessionStore();
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const dataViewRetrievalIsActive = ref(false);
 
@@ -127,9 +127,9 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
     <div class="border-separator mx-4 flex flex-none border-b py-1">
         <div class="flex-1"></div>
 
-        <ActionButton @click="router.push({ name: 'connectionSelector', query: router.currentRoute.value.query })">
+        <Button @click="router.push({ name: 'connectionSelector', query: router.currentRoute.value.query })">
             <PlusIcon stroke-width="1.25" />
-        </ActionButton>
+        </Button>
     </div>
 
     <GridScroller

@@ -8,7 +8,7 @@ import { type ComponentPublicInstance, computed, defineAsyncComponent, onMounted
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
-import ActionButton from '@/components/action/ActionButton.vue';
+import Button from '@/components/action/Button.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // App Components (lazy loaded)
@@ -78,7 +78,7 @@ function handleClose(): void {
         />
 
         <Separator class="dpuse-outsideClickIgnore mb-3" />
-        <ActionButton class="dpuse-outsideClickIgnore relative h-10 w-10" variant="avatar">
+        <Button class="dpuse-outsideClickIgnore relative h-10 w-10" variant="avatar">
             <Transition name="fade">
                 <!-- Session is authenticated. Show photo or initials. -->
                 <div v-if="sessionIsAuthenticated === true" class="absolute inset-0 flex items-center justify-center" @click="sessionMenuIsVisible = !sessionMenuIsVisible">
@@ -106,7 +106,7 @@ function handleClose(): void {
                     <LoaderCircleIcon key="loader" class="size-7 animate-spin text-neutral-300" />
                 </div>
             </Transition>
-        </ActionButton>
+        </Button>
     </div>
 </template>
 

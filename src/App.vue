@@ -9,7 +9,7 @@ import type { BenchtopOptionLocalisedConfig } from './types/workbench';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
-import ActionButton from '@/components/action/ActionButton.vue';
+import Button from '@/components/action/Button.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
@@ -34,7 +34,7 @@ useColorMode(); // CSP requires hash for useColorMode's transition-disabling sty
 const route = useRoute();
 const sessionState = useSessionStore();
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeBenchtopOptionConfig = ref<BenchtopOptionLocalisedConfig | undefined>();
 const activeOptionBarId = ref<'none' | 'workbench' | 'knowledge'>('none'); // TODO: Can these be combined. Should we have 'both' for wide display.
@@ -160,14 +160,14 @@ function handleKnowledgeOptionComplete(): void {
 <template>
     <div class="bg-surface text-content fixed inset-0 flex" :class="{ 'select-none': paneSplitterIsDragging }">
         <!-- Workbench toggle fixed in top left corner. Always visible .-->
-        <ActionButton :aria-label="workbenchPaneToggleAriaLabel" class="fixed top-1.75 left-3 z-40" variant="iconLarge" @click="handleWorkbenchToggle">
+        <Button :aria-label="workbenchPaneToggleAriaLabel" class="fixed top-1.75 left-3 z-40" variant="iconLarge" @click="handleWorkbenchToggle">
             <DPUseLogoIcon />
-        </ActionButton>
+        </Button>
 
         <!-- Knowledge toggle fixed in top right corner. Always visible -->
-        <ActionButton :aria-label="knowledgePaneToggleAriaLabel" class="fixed top-1.75 right-3 z-40" variant="iconLarge" @click="handleKnowledgeToggle">
+        <Button :aria-label="knowledgePaneToggleAriaLabel" class="fixed top-1.75 right-3 z-40" variant="iconLarge" @click="handleKnowledgeToggle">
             <KnowledgeIcon />
-        </ActionButton>
+        </Button>
 
         <!-- Session action -->
         <SessionButton v-if="displayIsWide || activeOptionBarId === 'workbench'" class="fixed bottom-7 left-3 z-40" @complete="handleWorkbenchOptionComplete" />

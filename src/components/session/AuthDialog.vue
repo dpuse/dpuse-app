@@ -13,7 +13,7 @@ import { t } from '@/locales';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
-import ActionButton from '@/components/action/ActionButton.vue';
+import Button from '@/components/action/Button.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
 import LoginForm from '@/components/session/LoginForm.vue';
 import PasswordForm from '@/components/session/PasswordForm.vue';
@@ -24,7 +24,7 @@ import Separator from '@/components/separator/Separator.vue';
 const router = useRouter();
 const sessionState = useSessionStore();
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const containerReference = ref<HTMLDivElement | null>(null);
 const flowConstructed = ref(false);
@@ -201,9 +201,9 @@ async function handleCloseDialog(): Promise<void> {
             tabindex="-1"
         >
             <!-- Close Button -->
-            <ActionButton class="absolute top-3 right-3" variant="iconLarge" @click="handleCloseDialog">
+            <Button class="absolute top-3 right-3" variant="iconLarge" @click="handleCloseDialog">
                 <XIcon stroke-width="1.25" />
-            </ActionButton>
+            </Button>
 
             <div class="flex flex-col gap-y-3 p-8">
                 <DPUseLogoIcon class="size-12" />

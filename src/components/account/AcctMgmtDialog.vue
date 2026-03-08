@@ -1,27 +1,23 @@
 <script setup lang="ts">
 // External Dependencies
-import { shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
 import { ArrowBigLeftIcon, XIcon } from 'lucide-vue-next';
+import { type Component, defineAsyncComponent, shallowRef } from 'vue';
 
 // App Core
 import { t } from '@/locales';
 import T from '@/locales/views/account/Account.json';
 
 // App Components
-import ActionButton from '@/components/action/ActionButton.vue';
+import Button from '@/components/action/Button.vue';
 
 // Properties & Emits
 const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const router = useRouter();
-
-// Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string };
-const optionConfigs: OptionLocalisedConfig[] = [
+const OPTION_CONFIGS: OptionLocalisedConfig[] = [
     { id: 'profile', type: 'label', label: 'Profile' },
     { id: 'managePersonalDetails', icon: '', label: 'Personal details', title: 'Manage Personal Details' },
     { id: 'manageSubscription', icon: '', label: 'Subscription & billing' },
@@ -33,14 +29,33 @@ const optionConfigs: OptionLocalisedConfig[] = [
     { id: 'integrations', type: 'label', label: 'Integrations' },
     { id: 'manageDataServiceTokens', icon: '', label: 'Data service tokens' },
     { id: 'development', type: 'label', label: 'Development' },
-    { id: 'generateToken', icon: '', label: 'API token' }
+    { id: 'generateToken', icon: '', label: 'API token' },
+    { id: 'criticalActions', type: 'label', label: 'Critical Actions' },
+    { id: 'deleteAccount', icon: '', label: 'Delete account' }
 ];
+const OPTION_COMPONENT_MAP: Record<string, Component> = {
+    managePersonalDetails: defineAsyncComponent(() => import('./ManagePersonalDetails.vue')),
+    manageSubscription: defineAsyncComponent(() => import('./ManageSubscription.vue')),
+    managePreferences: defineAsyncComponent(() => import('./ManagePreferences.vue')),
+    manageAccess: defineAsyncComponent(() => import('./ManageAccess.vue')),
+    manageSessions: defineAsyncComponent(() => import('./ManageSessions.vue')),
+    reviewActivity: defineAsyncComponent(() => import('./ReviewActivity.vue')),
+    manageDataServiceTokens: defineAsyncComponent(() => import('./ManageDataServiceTokens.vue')),
+    generateToken: defineAsyncComponent(() => import('./GenerateToken.vue')),
+    deleteAccount: defineAsyncComponent(() => import('./DeleteAccount.vue'))
+};
+
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const router = useRouter();
+
+// Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleBack(): void {
-    // router.replace({ name: 'account', query: router.currentRoute.value.query });
     activeOptionConfig.value = undefined;
 }
 
@@ -48,16 +63,14 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
     const routeName = router.currentRoute.value.name;
     if (routeName === 'account') {
         if (displayIsWide) {
-            // router.replace({ name: 'managePersonalDetails', query: router.currentRoute.value.query });
-            return optionConfigs[1];
+            return OPTION_CONFIGS[1];
         }
         return;
     } else {
-        const activeOptionConfig = optionConfigs.find((config) => config.id === router.currentRoute.value.name);
+        const activeOptionConfig = OPTION_CONFIGS.find((config) => config.id === router.currentRoute.value.name);
         if (!activeOptionConfig) {
             if (displayIsWide) {
-                // router.replace({ name: 'managePersonalDetails', query: router.currentRoute.value.query });
-                return optionConfigs[1];
+                return OPTION_CONFIGS[1];
             }
             return;
         }
@@ -85,44 +98,43 @@ async function handleCloseDialog(): Promise<void> {
             <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light">{{ t(T, 'Manage_Account') }}</div>
 
             <!-- Close Button -->
-            <ActionButton class="absolute top-3 right-3" variant="iconLarge" @click="handleCloseDialog">
+            <Button class="absolute top-3 right-3" variant="iconLarge" @click="handleCloseDialog">
                 <XIcon stroke-width="1.25" />
-            </ActionButton>
+            </Button>
 
             <div class="flex flex-1 overflow-hidden">
-                <div class="divide-separator flex flex-1 flex-col gap-y-2 overflow-y-auto overscroll-y-none px-4 pb-6">
+                <div class="mx-4 flex flex-1 flex-col gap-y-2 overflow-y-auto overscroll-y-none pb-6">
                     <div class="flex flex-1 flex-col gap-y-2">
-                        <template v-for="optionConfig of optionConfigs" :key="optionConfig.id">
+                        <template v-for="optionConfig of OPTION_CONFIGS" :key="optionConfig.id">
                             <div v-if="optionConfig.type === 'label'" class="text-muted mt-2 text-xs font-medium">{{ optionConfig.label }}</div>
-                            <ActionButton
+                            <Button
                                 v-else
-                                class="min-w-50 justify-start"
+                                class="inline-flex min-w-50 justify-start"
                                 :is-active="router.currentRoute.value.name === optionConfig.id && displayIsWide"
-                                :to="{ name: optionConfig.id, query: router.currentRoute.value.query }"
                                 variant="listItem"
                                 @click="activeOptionConfig = optionConfig"
                             >
                                 {{ optionConfig.label }}
-                            </ActionButton>
+                            </Button>
                         </template>
                     </div>
 
-                    <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div>
+                    <!-- <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div> -->
 
-                    <ActionButton class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }" variant="destructive">
+                    <!-- <Button class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }" variant="destructive">
                         {{ t(T, 'Delete_account') }}
-                    </ActionButton>
+                    </Button> -->
                 </div>
 
                 <div v-if="displayIsWide || activeOptionConfig" class="flex flex-1 flex-col">
                     <div class="border-separator mx-4 flex h-12 flex-none items-center gap-x-1 border-b">
-                        <ActionButton v-if="!displayIsWide" variant="iconSmall" @click="handleBack">
+                        <Button v-if="!displayIsWide" variant="iconSmall" @click="handleBack">
                             <ArrowBigLeftIcon stroke-width="1.25" />
-                        </ActionButton>
+                        </Button>
                         {{ activeOptionConfig!.title }}
                     </div>
 
-                    <div class="flex-1"></div>
+                    <component :is="OPTION_COMPONENT_MAP[activeOptionConfig?.id ?? '']" class="flex-1" />
                 </div>
             </div>
         </div>

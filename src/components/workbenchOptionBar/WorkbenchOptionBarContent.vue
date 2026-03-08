@@ -7,17 +7,16 @@ import { useRoute } from 'vue-router';
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { useKnowledge } from '@/composables/useKnowledge';
 
-// App Components
-import ActionRouterLink from '@/components/action/ActionRouterLink.vue';
-
 // Properties & Emits
 defineProps<{ onSelect: (config?: BenchtopOptionLocalisedConfig) => void }>();
 
-// Active localised benchtop configuration
-const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Local route state
 const route = useRoute();
+
+// Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
 </script>
 
 <template>
@@ -28,22 +27,35 @@ const route = useRoute();
         <!-- Benchtop options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none py-2">
             <div class="flex flex-1 flex-col items-center gap-y-2">
-                <ActionRouterLink :aria-label="activeBenchtopConfig.label" :to="{ name: activeBenchtopConfig.id, query: route.query }" variant="iconLarge" @click="onSelect()">
+                <RouterLink
+                    :aria-label="activeBenchtopConfig.label"
+                    class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"
+                    :to="{ name: activeBenchtopConfig.id, query: route.query }"
+                    variant="iconLarge"
+                    @click="onSelect()"
+                >
                     <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
-                </ActionRouterLink>
+                </RouterLink>
 
-                <ActionRouterLink
+                <RouterLink
                     v-for="config of activeBenchtopConfig.options"
                     :key="config.id"
                     :aria-label="config.label"
-                    class="group outline-none"
+                    class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"
                     :to="{ name: config.id, query: route.query }"
                     variant="iconLarge"
                     @click="onSelect(config)"
                 >
                     <div aria-hidden="true" :style="{ color: `${config.color}` }" v-html="config.icon" />
-                </ActionRouterLink>
+                </RouterLink>
             </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+a.dpuse-lg :deep(svg) {
+    width: 26px;
+    height: 26px;
+}
+</style>

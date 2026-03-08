@@ -56,8 +56,8 @@ const variantClasses = computed(() => {
             ];
         case 'listItem':
             return [
-                'rounded-md bg-zinc-50 focus-visible:ring-2',
-                'hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300',
+                baseType1Classes,
+                'bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300',
                 'dark:bg-zinc-300/20 dark:hover:bg-zinc-300/30 dark:active:bg-zinc-300/40 dark:focus-visible:ring-zinc-500',
                 isActive ? 'bg-zinc-100 dark:hover:bg-zinc-300/30' : undefined
             ];
