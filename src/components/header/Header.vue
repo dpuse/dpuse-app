@@ -17,15 +17,14 @@ const titlePadding = computed(() => ({
 
 <template>
     <div class="flex-none px-4">
-        <div class="border-separator flex h-14 flex-col justify-center border-b text-lg font-light" :class="{ 'items-center': !displayIsWide }" :style="titlePadding">
-            <div v-if="breadcrumbs" class="truncate text-xs">
-                <div v-for="(breadcrumb, index) of breadcrumbs" :key="breadcrumb.id" class="flex gap-x-1">
-                    <div v-if="index > 0">&gt;</div>
-                    <div>{{ breadcrumb.label }}</div>
-                </div>
+        <div class="border-separator flex h-14 flex-col justify-center border-b bg-red-100 text-lg font-light" :class="{ 'items-center': !displayIsWide }" :style="titlePadding">
+            <div v-if="breadcrumbs" class="w-full truncate bg-blue-100 text-xs">
+                <span v-for="(breadcrumb, index) of breadcrumbs" :key="breadcrumb.id">
+                    <span v-if="index > 0" class="mx-1">&gt;</span>{{ breadcrumb.label }}
+                </span>
             </div>
 
-            <div class="truncate">{{ title }}</div>
+            <div class="w-full truncate bg-green-100">{{ title }}</div>
         </div>
     </div>
 </template>
