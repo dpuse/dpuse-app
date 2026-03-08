@@ -103,10 +103,10 @@ async function handleCloseDialog(): Promise<void> {
             </Button>
 
             <div class="flex flex-1 overflow-hidden">
-                <div class="mx-4 flex flex-1 flex-col gap-y-2 overflow-y-auto overscroll-y-none pb-6">
-                    <div class="flex flex-1 flex-col gap-y-2">
+                <div v-if="displayIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 overflow-y-auto overscroll-y-none px-4 pb-6">
+                    <div class="flex flex-1 flex-col gap-y-1">
                         <template v-for="optionConfig of OPTION_CONFIGS" :key="optionConfig.id">
-                            <div v-if="optionConfig.type === 'label'" class="text-muted mt-2 text-xs font-medium">{{ optionConfig.label }}</div>
+                            <div v-if="optionConfig.type === 'label'" class="text-muted mt-3 text-xs font-medium">{{ optionConfig.label }}</div>
                             <Button
                                 v-else
                                 class="inline-flex min-w-50 justify-start"
@@ -127,7 +127,7 @@ async function handleCloseDialog(): Promise<void> {
                 </div>
 
                 <div v-if="displayIsWide || activeOptionConfig" class="flex flex-1 flex-col">
-                    <div class="border-separator mx-4 flex h-12 flex-none items-center gap-x-1 border-b">
+                    <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b px-4">
                         <Button v-if="!displayIsWide" variant="iconSmall" @click="handleBack">
                             <ArrowBigLeftIcon stroke-width="1.25" />
                         </Button>
