@@ -13,7 +13,7 @@ import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionBar.vue';
-// import SessionButton from '@/components/session/SessionButton.vue';
+import SessionButton from '@/components/session/SessionButton.vue';
 import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
 
 // App Components (lazy loaded)
@@ -26,7 +26,6 @@ const AuthDialog = defineAsyncComponent(async () => {
     return import('@/components/session/AuthDialog.vue');
 });
 const KnowledgePanel = defineAsyncComponent(() => import('@/components/knowledgePanel/KnowledgePanel.vue'));
-const SessionButton = defineAsyncComponent(() => import('@/components/session/SessionButton.vue'));
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
