@@ -9,14 +9,14 @@ import { t } from '@/locales';
 import T from '@/locales/views/account/Account.json';
 
 // App Components
-import Button from '@/components/button/Button.vue';
+import Button, { type VariantTypeId } from '@/components/button/Button.vue';
 
 // Properties & Emits
 const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string };
+type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string; variant?: VariantTypeId };
 const OPTION_CONFIGS: OptionLocalisedConfig[] = [
     { id: 'profile', type: 'label', label: 'Profile' },
     { id: 'managePersonalDetails', icon: '', label: 'Personal details', title: 'Manage Personal Details' },
@@ -31,7 +31,7 @@ const OPTION_CONFIGS: OptionLocalisedConfig[] = [
     { id: 'development', type: 'label', label: 'Development' },
     { id: 'generateToken', icon: '', label: 'API token' },
     { id: 'criticalActions', type: 'label', label: 'Critical Actions' },
-    { id: 'deleteAccount', icon: '', label: 'Delete account' }
+    { id: 'deleteAccount', icon: '', label: 'Delete account', variant: 'listitemDestructive' }
 ];
 const OPTION_COMPONENT_MAP: Record<string, Component> = {
     managePersonalDetails: defineAsyncComponent(() => import('./ManagePersonalDetails.vue')),
@@ -117,7 +117,7 @@ async function handleCloseDialog(): Promise<void> {
                                 v-else
                                 class="inline-flex min-w-50 justify-start"
                                 :is-active="router.currentRoute.value.name === optionConfig.id && displayIsWide"
-                                variant="listItem"
+                                :variant="optionConfig.variant ? optionConfig.variant : 'listItem'"
                                 @click="activeOptionConfig = optionConfig"
                             >
                                 {{ optionConfig.label }}
