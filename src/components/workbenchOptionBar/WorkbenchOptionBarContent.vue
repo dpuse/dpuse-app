@@ -36,7 +36,7 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
                 <RouterLink
                     :aria-label="activeBenchtopConfig.label"
                     class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"
-                    :to="{ name: activeBenchtopConfig.id, query: route.query }"
+                    :to="{ name: 'workflow', query: route.query }"
                     variant="iconLarge"
                     @click="handleComplete()"
                 >
