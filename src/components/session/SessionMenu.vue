@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router';
 import { useSessionStore } from '@/stores/sessionStore';
 import { type BasicColorSchema, useColorMode, useFullscreen } from '@vueuse/core';
 import { computed, nextTick } from 'vue';
-import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from 'lucide-vue-next';
+import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'lucide-vue-next';
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
 
 // App Components
@@ -13,6 +13,7 @@ import Button from '@/components/button/Button.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits
+const props = defineProps<{ sheet?: boolean }>();
 const emit = defineEmits<{ (event: 'complete'): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -60,6 +61,9 @@ function toggleWindowExpansion(): void {
 
 <template>
     <div class="border-boundary bg-surface flex flex-col overflow-y-auto overscroll-y-none rounded-md border px-4 py-3 shadow-md">
+        <div v-if="props.sheet" class="mb-2 flex items-center justify-end">
+            <Button variant="iconSmall" @click="emit('complete')"><XIcon class="size-4.5!" /></Button>
+        </div>
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Appearance') }}</div>
         <div class="flex gap-x-2">
             <Button class="flex flex-col items-center text-xs" variant="iconSmall" @click="handleSetAppearance('dark')"> <MoonIcon class="size-4.5!" />{{ t(T, 'Dark') }} </Button>

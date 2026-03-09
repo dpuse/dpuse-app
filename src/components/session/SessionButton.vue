@@ -1,14 +1,15 @@
 <script setup lang="ts">
 // External Dependencies
 import { LoaderCircleIcon } from 'lucide-vue-next';
-import { onClickOutside } from '@vueuse/core';
 import { type ComponentPublicInstance, computed, defineAsyncComponent, onMounted, ref } from 'vue';
+import { onClickOutside, useMediaQuery } from '@vueuse/core';
 
 // App Core
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
 import Button from '@/components/button/Button.vue';
+import Mask from '@/components/mask/Mask.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // App Components (lazy loaded)
@@ -23,6 +24,7 @@ const sessionState = useSessionStore();
 
 // Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+const displayIsWide = useMediaQuery('(min-width: 768px)');
 const sessionMenuIsVisible = ref(false);
 const sessionIsAuthenticated = computed(() => sessionState.isAuthenticated);
 
@@ -70,11 +72,20 @@ function handleClose(): void {
 
 <template>
     <div class="flex flex-col">
-        <Transition name="dpuse-slide-up">
+        <Transition name="dpuse-mask">
+            <Mask v-if="sessionMenuIsVisible && !displayIsWide" class="z-40" />
+        </Transition>
+
+        <Transition :name="displayIsWide ? 'dpuse-slide-up' : 'dpuse-sheet'">
             <SessionMenu
                 v-if="sessionMenuIsVisible"
                 ref="sessionMenuReference"
-                class="fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto overscroll-y-none"
+                :class="
+                    displayIsWide
+                        ? 'fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto overscroll-y-none'
+                        : 'fixed bottom-0 left-0 right-0 z-50 max-h-[80vh] overflow-y-auto overscroll-y-none rounded-t-2xl'
+                "
+                :sheet="!displayIsWide"
                 @complete="handleClose"
             />
         </Transition>
@@ -132,6 +143,7 @@ function handleClose(): void {
     opacity: 0;
 }
 
+/* Desktop popover */
 .dpuse-slide-up-enter-active,
 .dpuse-slide-up-leave-active {
     transform-origin: bottom;
@@ -148,14 +160,53 @@ function handleClose(): void {
 }
 .dpuse-slide-up-enter-from,
 .dpuse-slide-up-leave-to {
-    /* transform: scaleY(0); */
     transform: scaleY(0.75) translateY(6px);
     opacity: 0;
 }
-
 .dpuse-slide-up-enter-to,
 .dpuse-slide-up-leave-from {
     transform: scaleY(1);
     opacity: 1;
+}
+
+/* Mobile bottom sheet */
+.dpuse-sheet-enter-active,
+.dpuse-sheet-leave-active {
+    will-change: transform, opacity;
+    transition:
+        transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+        opacity 0.2s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+    .dpuse-sheet-enter-active,
+    .dpuse-sheet-leave-active {
+        transition: none;
+    }
+}
+.dpuse-sheet-enter-from,
+.dpuse-sheet-leave-to {
+    transform: translateY(100%);
+    opacity: 0;
+}
+.dpuse-sheet-enter-to,
+.dpuse-sheet-leave-from {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Mask fade */
+.dpuse-mask-enter-active,
+.dpuse-mask-leave-active {
+    transition: opacity 0.2s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+    .dpuse-mask-enter-active,
+    .dpuse-mask-leave-active {
+        transition: none;
+    }
+}
+.dpuse-mask-enter-from,
+.dpuse-mask-leave-to {
+    opacity: 0;
 }
 </style>
