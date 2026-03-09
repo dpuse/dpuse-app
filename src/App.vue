@@ -105,8 +105,7 @@ onMounted(() => sessionState.initialiseServices());
 // UI Helpers - Workbench Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleWorkbenchOptionComplete(config?: BenchtopOptionLocalisedConfig): void {
-    console.log(1111, config);
-    activeBenchtopOptionConfig.value = config;
+    activeBenchtopOptionConfig.value = config; // TODO: This will be set to undefined when mask is clicked. Ok, if dashboard options is selected, but maybe need null return for not action click.
     activeOptionBarId.value = 'none';
     activePaneId.value = 'workbench';
 }
@@ -171,7 +170,7 @@ function handleKnowledgeOptionComplete(): void {
         </Button>
 
         <!-- Session action -->
-        <Transition appear name="horizontal-slide">
+        <Transition appear name="horizontal-slide-ltr">
             <div v-if="displayIsWide || activeOptionBarId === 'workbench'" class="fixed bottom-7 left-3 z-40">
                 <SessionButton class="dpuse-horizontal-slide-ltr-element" @complete="handleWorkbenchOptionComplete" />
             </div>

@@ -15,13 +15,13 @@ function handleComplete(): void {
 
 <template>
     <div>
-        <KnowledgeOptionBarContent class="hidden md:flex" @click="handleComplete" />
+        <KnowledgeOptionBarContent class="hidden md:flex" @complete="handleComplete" />
 
         <Transition appear name="horizontal-slide-rtl">
             <div v-if="isOpenInNarrowDisplay && !displayIsWide" class="fixed inset-0 z-30 flex md:hidden">
                 <div class="bg-surface/70 absolute inset-0" @click="handleComplete()"></div>
 
-                <KnowledgeOptionBarContent class="dpuse-horizontal-slide-rtl-element relative ml-auto flex shadow-lg" @click="handleComplete" />
+                <KnowledgeOptionBarContent class="dpuse-horizontal-slide-rtl-element relative ml-auto flex shadow-lg" @complete="handleComplete" />
             </div>
         </Transition>
     </div>

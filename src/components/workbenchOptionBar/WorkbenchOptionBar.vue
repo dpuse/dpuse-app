@@ -20,7 +20,7 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
     <div>
         <WorkbenchOptionBarContent class="hidden md:flex" @complete="handleComplete" />
 
-        <Transition name="horizontal-slide">
+        <Transition name="horizontal-slide-ltr">
             <div v-if="isOpenInNarrowDisplay && !displayIsWide" class="fixed inset-0 z-30 flex md:hidden">
                 <div class="bg-surface/70 absolute inset-0" @click="handleComplete()"></div>
 
