@@ -78,6 +78,7 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.onSessionExpired(() => establishSession('expired'));
             hankoInstance.onUserDeleted(() => establishSession('deleted'));
             hankoInstance.onUserLoggedOut(() => establishSession('terminated'));
+            console.log('VALIDATE');
             hankoInstance
                 .validateSession()
                 .then((result) => {
