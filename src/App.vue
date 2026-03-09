@@ -9,12 +9,12 @@ import type { BenchtopOptionLocalisedConfig } from './types/workbench';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
-import Button from '@/components/action/Button.vue';
+import Button from '@/components/button/Button.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionBar.vue';
-import KnowledgePanel from '@/components/knowledgePanel/KnowledgePanel.vue';
+import SessionButton from '@/components/session/SessionButton.vue';
 import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
 
 // App Components (lazy loaded)
@@ -26,7 +26,7 @@ const AuthDialog = defineAsyncComponent(async () => {
     await new Promise((response) => setTimeout(response, 0));
     return import('@/components/session/AuthDialog.vue');
 });
-const SessionButton = defineAsyncComponent(() => import('@/components/session/SessionButton.vue'));
+const KnowledgePanel = defineAsyncComponent(() => import('@/components/knowledgePanel/KnowledgePanel.vue'));
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

@@ -7,7 +7,7 @@ import T from '@/locales/components/session/PasswordForm.json';
 import { t } from '@/locales';
 
 // App Components
-import Button from '@/components/action/Button.vue';
+import Button from '@/components/button/Button.vue';
 import Input from '@/components/input/Input.vue';
 
 // Properties & Emits

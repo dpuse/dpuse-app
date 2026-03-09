@@ -2,10 +2,7 @@
 import type { Component } from 'vue';
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior } from 'vue-router';
 
-// App Components
-import Workflow from '@/views/workflow/Workflow.vue';
-
-// Not exported by Vue router, duplicated here to address eslint function return type rule
+// TODO: Not exported by Vue router, duplicated here to address eslint function return type rule
 // type ScrollPositionCoordinates = { behavior?: ScrollOptions['behavior']; left?: number; top?: number };
 
 export const appRoutes = [
@@ -18,7 +15,7 @@ export const appRoutes = [
             {
                 path: 'workflow',
                 children: [
-                    { name: 'workflow', path: '', component: Workflow },
+                    { name: 'workflow', path: '', component: import('@/views/workflow/Workflow.vue') },
                     {
                         path: 'establishDataViews',
                         component: (): Promise<Component> => import('@/views/workflow/establishDataViews/EstablishDataViews.vue'),
@@ -69,26 +66,6 @@ export const appRoutes = [
                     }
                 ]
             }
-            // {
-            //     name: 'account',
-            //     path: 'account',
-            //     component: (): Promise<Component> => import('@/views/account/Account.vue'),
-            //     children: [
-            //         { name: 'managePersonalDetails', path: 'managePersonalDetails', component: (): Promise<Component> => import('@/views/account/ManagePersonalDetails.vue') },
-            //         { name: 'manageSubscription', path: 'manageSubscription', component: (): Promise<Component> => import('@/views/account/ManageSubscription.vue') },
-            //         { name: 'managePreferences', path: 'managePreferences', component: (): Promise<Component> => import('@/views/account/ManagePreferences.vue') },
-            //         { name: 'manageAccess', path: 'manageAccess', component: (): Promise<Component> => import('@/views/account/ManageAccess.vue') },
-            //         { name: 'manageSessions', path: 'manageSessions', component: (): Promise<Component> => import('@/views/account/ManageSessions.vue') },
-            //         { name: 'reviewActivity', path: 'reviewActivity', component: (): Promise<Component> => import('@/views/account/ReviewActivity.vue') },
-            //         {
-            //             name: 'manageDataServiceTokens',
-            //             path: 'manageDataServiceTokens',
-            //             component: (): Promise<Component> => import('@/views/account/ManageDataServiceTokens.vue')
-            //         },
-            //         { name: 'generateToken', path: 'generateToken', component: (): Promise<Component> => import('@/views/account/GenerateToken.vue') },
-            //         { name: 'deleteAccount', path: 'deleteAccount', component: (): Promise<Component> => import('@/views/account/DeleteAccount.vue') }
-            //     ]
-            // }
         ]
     },
     { path: '/:catchAll(.*)', redirect: '/workflow' }

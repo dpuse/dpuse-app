@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 
 // App Components
-import Button from '@/components/action/Button.vue';
+import Button from '@/components/button/Button.vue';
 
 // Properties & Emits
 defineProps<{ displayIsWide: boolean }>();

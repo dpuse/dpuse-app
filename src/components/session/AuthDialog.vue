@@ -13,7 +13,7 @@ import { t } from '@/locales';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
-import Button from '@/components/action/Button.vue';
+import Button from '@/components/button/Button.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
 import LoginForm from '@/components/session/LoginForm.vue';
 import PasswordForm from '@/components/session/PasswordForm.vue';

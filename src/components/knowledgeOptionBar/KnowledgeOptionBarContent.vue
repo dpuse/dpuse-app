@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router';
 import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
 
 // App Components
-import Button from '@/components/action/Button.vue';
+import Button from '@/components/button/Button.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits

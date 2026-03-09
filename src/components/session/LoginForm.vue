@@ -8,7 +8,7 @@ import T from '@/locales/components/session/LoginForm.json';
 import { t } from '@/locales';
 
 // App Components
-import Button from '@/components/action/Button.vue';
+import Button from '@/components/button/Button.vue';
 import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
 import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';
 import GoogleLogoIcon from '@/components/icon/logos/GoogleLogoIcon.vue';

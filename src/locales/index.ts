@@ -1,7 +1,8 @@
 // External Dependencies
 import { ref } from 'vue';
 
-// Constants
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 export type FlagId = 'es' | 'gb';
 export type LocaleId = 'en' | 'es';
 export const SUPPORTED_LANGUAGES: { id: LocaleId; flag: FlagId; label: string }[] = [

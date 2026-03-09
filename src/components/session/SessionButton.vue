@@ -8,7 +8,7 @@ import { type ComponentPublicInstance, computed, defineAsyncComponent, onMounted
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
-import Button from '@/components/action/Button.vue';
+import Button from '@/components/button/Button.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // App Components (lazy loaded)

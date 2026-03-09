@@ -9,7 +9,7 @@ import { t } from '@/locales';
 import T from '@/locales/views/account/Account.json';
 
 // App Components
-import Button from '@/components/action/Button.vue';
+import Button from '@/components/button/Button.vue';
 
 // Properties & Emits
 const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
@@ -55,7 +55,9 @@ const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initial
 
 watch(
     () => displayIsWide,
-    (isWide) => { if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1]; }
+    (isWide) => {
+        if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1];
+    }
 );
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -130,8 +132,8 @@ async function handleCloseDialog(): Promise<void> {
                     </Button> -->
                 </div>
 
-                <div v-if="displayIsWide || activeOptionConfig" class="flex flex-1 flex-col">
-                    <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b px-4">
+                <div v-if="displayIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
+                    <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b">
                         <Button v-if="!displayIsWide" variant="iconSmall" @click="handleBack">
                             <ArrowBigLeftIcon stroke-width="1.25" />
                         </Button>

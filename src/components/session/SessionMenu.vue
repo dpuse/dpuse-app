@@ -9,7 +9,7 @@ import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from 'lucide-v
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
 
 // App Components
-import Button from '@/components/action/Button.vue';
+import Button from '@/components/button/Button.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits
