@@ -104,6 +104,13 @@ onMounted(() => sessionState.initialiseServices());
 
 // UI Helpers - Workbench Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+function handleWorkbenchOptionComplete(config?: BenchtopOptionLocalisedConfig): void {
+    console.log(1111, config);
+    activeBenchtopOptionConfig.value = config;
+    activeOptionBarId.value = 'none';
+    activePaneId.value = 'workbench';
+}
+
 function handleWorkbenchToggle(): void {
     if (displayIsWide.value) {
         // Don't close if it's the only open panel
@@ -113,12 +120,6 @@ function handleWorkbenchToggle(): void {
     } else {
         activeOptionBarId.value = activeOptionBarId.value === 'workbench' ? 'none' : 'workbench';
     }
-}
-
-function handleWorkbenchOptionComplete(config?: BenchtopOptionLocalisedConfig): void {
-    activeBenchtopOptionConfig.value = config;
-    activeOptionBarId.value = 'none';
-    activePaneId.value = 'workbench';
 }
 
 // UI Helpers - Pane Splitter ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -170,7 +171,11 @@ function handleKnowledgeOptionComplete(): void {
         </Button>
 
         <!-- Session action -->
-        <SessionButton v-if="displayIsWide || activeOptionBarId === 'workbench'" class="fixed bottom-7 left-3 z-40" @complete="handleWorkbenchOptionComplete" />
+        <Transition appear name="horizontal-slide">
+            <div v-if="displayIsWide || activeOptionBarId === 'workbench'" class="fixed bottom-7 left-3 z-40">
+                <SessionButton class="dpuse-horizontal-slide-ltr-element" @complete="handleWorkbenchOptionComplete" />
+            </div>
+        </Transition>
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth'. -->
         <DialogWrapper v-if="authDialogIsVisible">

@@ -9,16 +9,17 @@ import Button from '@/components/action/Button.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits
-const properties = defineProps<{ onSelect: () => void }>();
+const emit = defineEmits<{ (event: 'complete'): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const router = useRouter();
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function handleNavigateTo(view: string): void {
+function handleOptionClick(view: string): void {
     router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: view } });
-    properties.onSelect();
+    emit('complete');
 }
 </script>
 
@@ -29,15 +30,15 @@ function handleNavigateTo(view: string): void {
 
         <!-- Options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none pt-2 pb-6">
-            <Button variant="iconLarge" @click="handleNavigateTo('welcome')">
+            <Button variant="iconLarge" @click="handleOptionClick('welcome')">
                 <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
             </Button>
 
-            <Button variant="iconLarge" @click="handleNavigateTo('search')">
+            <Button variant="iconLarge" @click="handleOptionClick('search')">
                 <SearchIcon aria-hidden="true" :stroke-width="1.25" />
             </Button>
 
-            <Button variant="iconLarge" @click="handleNavigateTo('chat')">
+            <Button variant="iconLarge" @click="handleOptionClick('chat')">
                 <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
             </Button>
         </div>

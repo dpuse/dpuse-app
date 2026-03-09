@@ -8,7 +8,7 @@ import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // Properties & Emits
-defineProps<{ onSelect: (config?: BenchtopOptionLocalisedConfig) => void }>();
+const emit = defineEmits<{ (event: 'complete', config?: BenchtopOptionLocalisedConfig): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -17,6 +17,12 @@ const route = useRoute();
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
+
+// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
+    emit('complete', config);
+}
 </script>
 
 <template>
@@ -32,7 +38,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
                     class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"
                     :to="{ name: activeBenchtopConfig.id, query: route.query }"
                     variant="iconLarge"
-                    @click="onSelect()"
+                    @click="handleComplete()"
                 >
                     <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
                 </RouterLink>
@@ -44,7 +50,7 @@ const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
                     class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"
                     :to="{ name: config.id, query: route.query }"
                     variant="iconLarge"
-                    @click="onSelect(config)"
+                    @click="handleComplete(config)"
                 >
                     <div aria-hidden="true" :style="{ color: `${config.color}` }" v-html="config.icon" />
                 </RouterLink>
