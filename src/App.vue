@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { useRoute } from 'vue-router';
-import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // App Core
@@ -14,7 +14,7 @@ import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionBar.vue';
-import SessionButton from '@/components/session/SessionButton.vue';
+// import SessionButton from '@/components/session/SessionButton.vue';
 import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
 
 // App Components (lazy loaded)
@@ -27,6 +27,7 @@ const AuthDialog = defineAsyncComponent(async () => {
     return import('@/components/session/AuthDialog.vue');
 });
 const KnowledgePanel = defineAsyncComponent(() => import('@/components/knowledgePanel/KnowledgePanel.vue'));
+const SessionButton = defineAsyncComponent(() => import('@/components/session/SessionButton.vue'));
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -97,10 +98,6 @@ const knowledgePaneToggleAriaLabel = computed(() => {
     if (!displayIsWide.value) return activeOptionBarId.value === 'knowledge' ? 'Hide knowledge bar' : 'Show knowledge bar';
     return knowledgePaneIsHidden.value ? 'Show knowledge' : 'Hide knowledge';
 });
-
-// Lifecycle Event Handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-// onMounted(() => sessionState.initialiseServices());
 
 // UI Helpers - Workbench Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
