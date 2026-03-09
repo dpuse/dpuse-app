@@ -6,7 +6,6 @@ import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // App Core
 import type { BenchtopOptionLocalisedConfig } from './types/workbench';
-import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
 import Button from '@/components/button/Button.vue';
@@ -33,7 +32,6 @@ const SessionButton = defineAsyncComponent(() => import('@/components/session/Se
 
 useColorMode(); // CSP requires hash for useColorMode's transition-disabling style. See console error message for required hash.
 const route = useRoute();
-const sessionState = useSessionStore();
 
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
