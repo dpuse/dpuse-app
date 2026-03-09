@@ -2,10 +2,7 @@
 import type { Component } from 'vue';
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior } from 'vue-router';
 
-// App Components
-import Workflow from '@/views/workflow/Workflow.vue';
-
-// Not exported by Vue router, duplicated here to address eslint function return type rule
+// TODO: Not exported by Vue router, duplicated here to address eslint function return type rule
 // type ScrollPositionCoordinates = { behavior?: ScrollOptions['behavior']; left?: number; top?: number };
 
 export const appRoutes = [
@@ -18,7 +15,7 @@ export const appRoutes = [
             {
                 path: 'workflow',
                 children: [
-                    { name: 'workflow', path: '', component: Workflow },
+                    { name: 'workflow', path: '', component: (): Promise<Component> => import('@/views/workflow/Workflow.vue') },
                     {
                         path: 'establishDataViews',
                         component: (): Promise<Component> => import('@/views/workflow/establishDataViews/EstablishDataViews.vue'),
