@@ -54,7 +54,7 @@ async function gravatarUrl(email: string, size: number): Promise<string> {
 
 onMounted(async () => {
     sessionState.initialiseServices();
-    avatarUrl.value = await gravatarUrl(emailAddress, 36);
+    avatarUrl.value = await gravatarUrl(emailAddress, 38);
 });
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -70,19 +70,21 @@ function handleClose(): void {
 
 <template>
     <div class="flex flex-col">
-        <SessionMenu
-            v-if="sessionMenuIsVisible"
-            ref="sessionMenuReference"
-            class="fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto overscroll-y-none"
-            @complete="handleClose"
-        />
+        <Transition name="dpuse-slide-up">
+            <SessionMenu
+                v-if="sessionMenuIsVisible"
+                ref="sessionMenuReference"
+                class="fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto overscroll-y-none"
+                @complete="handleClose"
+            />
+        </Transition>
 
         <Separator class="dpuse-outsideClickIgnore mb-3" />
         <Button class="dpuse-outsideClickIgnore relative h-10 w-10" variant="avatar">
             <Transition name="fade">
                 <!-- Session is authenticated. Show photo or initials. -->
                 <div v-if="sessionIsAuthenticated === true" class="absolute inset-0 flex items-center justify-center" @click="sessionMenuIsVisible = !sessionMenuIsVisible">
-                    <img v-if="!error" class="size-9 rounded-full" :src="avatarUrl" @error="error = true" />
+                    <img v-if="!error" class="size-9.5 rounded-full" :src="avatarUrl" @error="error = true" />
                     <div v-else class="rounded-full text-xl">{{ initials }}</div>
                 </div>
 
@@ -128,5 +130,32 @@ function handleClose(): void {
 .fade-enter-from,
 .fade-leave-to {
     opacity: 0;
+}
+
+.dpuse-slide-up-enter-active,
+.dpuse-slide-up-leave-active {
+    transform-origin: bottom;
+    will-change: transform, opacity;
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+    .dpuse-slide-up-enter-active,
+    .dpuse-slide-up-leave-active {
+        transition: none;
+    }
+}
+.dpuse-slide-up-enter-from,
+.dpuse-slide-up-leave-to {
+    /* transform: scaleY(0); */
+    transform: scaleY(0.75) translateY(6px);
+    opacity: 0;
+}
+
+.dpuse-slide-up-enter-to,
+.dpuse-slide-up-leave-from {
+    transform: scaleY(1);
+    opacity: 1;
 }
 </style>
