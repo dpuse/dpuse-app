@@ -38,14 +38,7 @@ function isPWA(): boolean {
 watchEffect(() => {
     const isDark = colorMode.value === 'dark';
     const color = isDark ? '#09090b' : '#ffffff';
-    let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (!meta) {
-        meta = document.createElement('meta');
-        meta.name = 'theme-color';
-        document.head.append(meta);
-    }
-    meta.content = color;
-    // For Safari 26 (reads body background-color)
+    document.documentElement.style.backgroundColor = color;
     document.body.style.backgroundColor = color;
 });
 
