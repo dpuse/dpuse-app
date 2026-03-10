@@ -32,7 +32,15 @@ const KnowledgePanel = defineAsyncComponent(() => import('@/components/knowledge
 const colorMode = useColorMode(); // CSP requires hash for useColorMode's transition-disabling style. See console error message for required hash.
 watch(colorMode, (newColorMode, oldColorMode) => {
     console.log('COLOR MODE:', oldColorMode, newColorMode);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', newColorMode === 'dark' ? '#09090b' : '#ffffff');
+    const isDark = newColorMode === 'dark';
+    const themeColor = isDark ? '#09090b' : '#ffffff';
+
+    document.querySelectorAll('meta[name="theme-color"]').forEach((element) => element.remove());
+
+    const meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    meta.content = themeColor;
+    document.head.append(meta);
 });
 const route = useRoute();
 
