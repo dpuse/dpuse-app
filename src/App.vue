@@ -30,18 +30,43 @@ const KnowledgePanel = defineAsyncComponent(() => import('@/components/knowledge
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const colorMode = useColorMode(); // CSP requires hash for useColorMode's transition-disabling style. See console error message for required hash.
+
+function isPWA(): boolean {
+    return globalThis.matchMedia('(display-mode: standalone)').matches || globalThis.matchMedia('(display-mode: fullscreen)').matches;
+}
+
 watch(colorMode, (newColorMode, oldColorMode) => {
-    console.log('COLOR MODE:', oldColorMode, newColorMode);
+    const isPWA_ = isPWA();
+    console.log('COLOR MODE:', isPWA_, oldColorMode, newColorMode);
+
     const isDark = newColorMode === 'dark';
     const themeColor = isDark ? '#09090b' : '#ffffff';
 
+    // For PWA mode, remove all existing theme-color meta tags
+    // eslint-disable-next-line unicorn/no-array-for-each
     document.querySelectorAll('meta[name="theme-color"]').forEach((element) => element.remove());
 
+    // Add new theme color without media queries (PWA context).
     const meta = document.createElement('meta');
     meta.name = 'theme-color';
     meta.content = themeColor;
     document.head.append(meta);
+
+    // Update apple-mobile-web-app-status-bar-style.
+    const statusBarMeta: HTMLMetaElement | null = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+    if (statusBarMeta) {
+        statusBarMeta.content = isDark ? 'black-translucent' : 'default';
+    }
+
+    // Force viewport refresh to trigger Safari update.
+    const viewport: HTMLMetaElement | null = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+        const originalContent = viewport.content;
+        viewport.content = originalContent + ', minimal-ui';
+        setTimeout(() => (viewport.content = originalContent), 50);
+    }
 });
+
 const route = useRoute();
 
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
