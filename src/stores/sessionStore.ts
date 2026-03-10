@@ -66,7 +66,7 @@ export const useSessionStore = defineStore('session', () => {
     watch(
         localMetaStoreConnectionConfig,
         (newConnectionConfig) => {
-            console.log(1111, newConnectionConfig);
+            // console.log(1111, newConnectionConfig);
         },
         { immediate: true }
     );
@@ -78,7 +78,6 @@ export const useSessionStore = defineStore('session', () => {
             hankoInstance.onSessionExpired(() => establishSession('expired'));
             hankoInstance.onUserDeleted(() => establishSession('deleted'));
             hankoInstance.onUserLoggedOut(() => establishSession('terminated'));
-            console.log('VALIDATE');
             hankoInstance
                 .validateSession()
                 .then((result) => {

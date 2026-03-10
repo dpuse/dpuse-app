@@ -13,7 +13,7 @@ import Button from '@/components/button/Button.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits
-const props = defineProps<{ sheet?: boolean }>();
+const { sheet } = defineProps<{ sheet?: boolean }>();
 const emit = defineEmits<{ (event: 'complete'): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -61,7 +61,7 @@ function toggleWindowExpansion(): void {
 
 <template>
     <div class="border-boundary bg-surface flex flex-col overflow-y-auto overscroll-y-none rounded-md border px-4 py-3 shadow-md">
-        <div v-if="props.sheet" class="mb-2 flex items-center justify-end">
+        <div v-if="sheet" class="mb-2 flex items-center justify-end">
             <Button variant="iconSmall" @click="emit('complete')"><XIcon class="size-4.5!" /></Button>
         </div>
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Appearance') }}</div>

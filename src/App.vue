@@ -29,7 +29,11 @@ const KnowledgePanel = defineAsyncComponent(() => import('@/components/knowledge
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-useColorMode(); // CSP requires hash for useColorMode's transition-disabling style. See console error message for required hash.
+const colorMode = useColorMode(); // CSP requires hash for useColorMode's transition-disabling style. See console error message for required hash.
+watch(colorMode, (newColorMode, oldColorMode) => {
+    console.log('COLOR MODE:', oldColorMode, newColorMode);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', newColorMode === 'dark' ? '#09090b' : '#ffffff');
+});
 const route = useRoute();
 
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
