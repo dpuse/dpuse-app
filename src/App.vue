@@ -36,10 +36,10 @@ function isPWA(): boolean {
 }
 
 watchEffect(() => {
-    const isDark = colorMode.value === 'dark';
-    const color = isDark ? '#09090b' : '#ffffff';
-    document.documentElement.style.backgroundColor = color;
-    document.body.style.backgroundColor = color;
+    // const isDark = colorMode.value === 'dark';
+    // const color = isDark ? '#09090b' : '#ffffff';
+    // document.documentElement.style.backgroundColor = color;
+    // document.body.style.backgroundColor = color;
 });
 
 const route = useRoute();
