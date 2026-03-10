@@ -55,12 +55,15 @@ watch(colorMode, (newColorMode, oldColorMode) => {
     // Update apple-mobile-web-app-status-bar-style.
     const statusBarMeta: HTMLMetaElement | null = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
     if (statusBarMeta) {
-        statusBarMeta.content = isDark ? 'black-translucent' : 'default';
+        // statusBarMeta.content = isDark ? 'black-translucent' : 'default';
+        console.log(1111);
+        statusBarMeta.content = isDark ? 'default' : 'default';
     }
 
     // Force viewport refresh to trigger Safari update.
     const viewport: HTMLMetaElement | null = document.querySelector('meta[name="viewport"]');
     if (viewport) {
+        console.log(2222);
         const originalContent = viewport.content;
         viewport.content = originalContent + ', minimal-ui';
         setTimeout(() => (viewport.content = originalContent), 50);
