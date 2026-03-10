@@ -35,39 +35,27 @@ function isPWA(): boolean {
     return globalThis.matchMedia('(display-mode: standalone)').matches || globalThis.matchMedia('(display-mode: fullscreen)').matches;
 }
 
+function updateThemeColor(isDark: boolean): void {
+    const darkMeta = document.querySelector<HTMLMetaElement>('#theme-dark');
+    const lightMeta = document.querySelector<HTMLMetaElement>('#theme-light');
+
+    if (!darkMeta || !lightMeta) return;
+
+    if (isDark) {
+        darkMeta.media = 'all';
+        lightMeta.media = 'not all';
+    } else {
+        darkMeta.media = 'not all';
+        lightMeta.media = 'all';
+    }
+}
+
 watch(colorMode, (newColorMode, oldColorMode) => {
     const isPWA_ = isPWA();
     console.log('COLOR MODE:', isPWA_, oldColorMode, newColorMode);
 
     const isDark = newColorMode === 'dark';
-    const themeColor = isDark ? '#09090b' : '#ffffff';
-
-    // For PWA mode, remove all existing theme-color meta tags
-    // eslint-disable-next-line unicorn/no-array-for-each
-    document.querySelectorAll('meta[name="theme-color"]').forEach((element) => element.remove());
-
-    // Add new theme color without media queries (PWA context).
-    const meta = document.createElement('meta');
-    meta.name = 'theme-color';
-    meta.content = themeColor;
-    document.head.append(meta);
-
-    // Update apple-mobile-web-app-status-bar-style.
-    const statusBarMeta: HTMLMetaElement | null = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-    if (statusBarMeta) {
-        // statusBarMeta.content = isDark ? 'black-translucent' : 'default';
-        console.log(1111);
-        statusBarMeta.content = isDark ? 'default' : 'default';
-    }
-
-    // Force viewport refresh to trigger Safari update.
-    const viewport: HTMLMetaElement | null = document.querySelector('meta[name="viewport"]');
-    if (viewport) {
-        console.log(2222);
-        const originalContent = viewport.content;
-        viewport.content = originalContent + ', minimal-ui';
-        setTimeout(() => (viewport.content = originalContent), 50);
-    }
+    updateThemeColor(isDark);
 });
 
 const route = useRoute();
