@@ -35,39 +35,18 @@ function isPWA(): boolean {
     return globalThis.matchMedia('(display-mode: standalone)').matches || globalThis.matchMedia('(display-mode: fullscreen)').matches;
 }
 
-function updateThemeColor(isDark: boolean): void {
-    const darkMeta = document.querySelector<HTMLMetaElement>('#theme-dark');
-    const lightMeta = document.querySelector<HTMLMetaElement>('#theme-light');
-
-    if (!darkMeta || !lightMeta) return;
-
-    if (isDark) {
-        darkMeta.media = 'all';
-        lightMeta.media = 'not all';
-    } else {
-        darkMeta.media = 'not all';
-        lightMeta.media = 'all';
-    }
-}
-
-// watch(colorMode, (newColorMode, oldColorMode) => {
-//     const isPWA_ = isPWA();
-//     console.log('COLOR MODE:', isPWA_, oldColorMode, newColorMode);
-
-//     const isDark = newColorMode === 'dark';
-//     updateThemeColor(isDark);
-// });
-// const mode = useColorMode()
-
 watchEffect(() => {
     const isDark = colorMode.value === 'dark';
+    const color = isDark ? '#09090b' : '#ffffff';
     let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (!meta) {
         meta = document.createElement('meta');
         meta.name = 'theme-color';
         document.head.append(meta);
     }
-    meta.content = isDark ? '#09090b' : '#ffffff';
+    meta.content = color;
+    // For Safari 26 (reads body background-color)
+    document.body.style.backgroundColor = color;
 });
 
 const route = useRoute();
