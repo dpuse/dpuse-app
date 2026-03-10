@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { useRoute } from 'vue-router';
-import { computed, defineAsyncComponent, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, ref, watch, watchEffect } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // App Core
@@ -50,12 +50,24 @@ function updateThemeColor(isDark: boolean): void {
     }
 }
 
-watch(colorMode, (newColorMode, oldColorMode) => {
-    const isPWA_ = isPWA();
-    console.log('COLOR MODE:', isPWA_, oldColorMode, newColorMode);
+// watch(colorMode, (newColorMode, oldColorMode) => {
+//     const isPWA_ = isPWA();
+//     console.log('COLOR MODE:', isPWA_, oldColorMode, newColorMode);
 
-    const isDark = newColorMode === 'dark';
-    updateThemeColor(isDark);
+//     const isDark = newColorMode === 'dark';
+//     updateThemeColor(isDark);
+// });
+// const mode = useColorMode()
+
+watchEffect(() => {
+    const isDark = colorMode.value === 'dark';
+    let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (!meta) {
+        meta = document.createElement('meta');
+        meta.name = 'theme-color';
+        document.head.append(meta);
+    }
+    meta.content = isDark ? '#09090b' : '#ffffff';
 });
 
 const route = useRoute();
