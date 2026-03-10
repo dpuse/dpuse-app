@@ -2,9 +2,11 @@
 // External Dependencies
 import { HomeIcon } from '@heroicons/vue/24/outline';
 import { useRoute } from 'vue-router';
+import { ref, watch } from 'vue';
 
 // App Core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
+import { localeId } from '~/src/locales';
 import { useKnowledge } from '@/composables/useKnowledge';
 
 // Properties & Emits
@@ -16,7 +18,15 @@ const route = useRoute();
 
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const activeBenchtopConfig = useKnowledge().getBenchtopConfig('workflow', 'en');
+const activeBenchtopConfig = ref();
+watch(
+    localeId,
+    (newLocaleId) =>
+        useKnowledge()
+            .getBenchtopConfig('workflow', newLocaleId)
+            .then((response) => (activeBenchtopConfig.value = response)),
+    { immediate: true }
+);
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -38,7 +48,7 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
                     class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"
                     :to="{ name: 'workflow', query: route.query }"
                     variant="iconLarge"
-                    @click="handleComplete()"
+                    @click="handleComplete({ id: 'home', label: activeBenchtopConfig.label, color: '', description: '', icon: '', step: 0, tasks: [] })"
                 >
                     <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
                 </RouterLink>

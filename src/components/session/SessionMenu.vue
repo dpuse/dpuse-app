@@ -16,6 +16,10 @@ import Separator from '@/components/separator/Separator.vue';
 const { sheet } = defineProps<{ sheet?: boolean }>();
 const emit = defineEmits<{ (event: 'complete'): void }>();
 
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const IS_PWA = globalThis.matchMedia('(display-mode: standalone)').matches || globalThis.matchMedia('(display-mode: fullscreen)').matches;
+
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const colorMode = useColorMode(); // CSP requires hash for useColorMode's transition-disabling style. See console error message for required hash.
@@ -32,6 +36,10 @@ const sessionIsAuthenticated = computed(() => sessionState.isAuthenticated);
 function handleManageAccount(): void {
     router.replace({ query: { ...router.currentRoute.value.query, dialog: 'acctMgmt' } });
     emit('complete');
+}
+
+function handleReloadApplication(): void {
+    globalThis.location.reload();
 }
 
 function handleSetAppearance(mode: BasicColorSchema): void {
@@ -53,7 +61,7 @@ function handleSignOut(): void {
     sessionState.signOut().then(() => emit('complete'));
 }
 
-function toggleWindowExpansion(): void {
+function handleToggleWindowExpansion(): void {
     toggleFullscreen();
     emit('complete');
 }
@@ -76,7 +84,7 @@ function toggleWindowExpansion(): void {
         </div>
 
         <Separator v-if="fullScreenIsSupported" class="my-2.5" />
-        <Button v-if="fullScreenIsSupported" class="flex gap-x-2 text-sm" variant="listItem" @click="toggleWindowExpansion">
+        <Button v-if="fullScreenIsSupported" class="flex gap-x-2 text-sm" variant="listItem" @click="handleToggleWindowExpansion">
             <template v-if="isFullscreen"><ShrinkIcon class="size-4.5!" />{{ t(T, 'Collapse_window') }}</template>
             <template v-else><ExpandIcon class="size-4.5!" />{{ t(T, 'Expand_window') }}</template>
         </Button>
@@ -86,6 +94,9 @@ function toggleWindowExpansion(): void {
         <Button v-for="lang in SUPPORTED_LANGUAGES" :key="lang.id" class="mt-1 flex w-full items-center gap-x-2 text-sm" variant="listItem" @click="handleSetLanguage(lang.id)">
             <img :src="`https://flagcdn.com/${lang.flag}.svg`" class="h-3.5 w-5 object-cover" :alt="lang.label" />{{ lang.label }}
         </Button>
+
+        <Separator v-if="IS_PWA" class="my-2.5" />
+        <Button v-if="IS_PWA" class="min-w-50 justify-start" @click="handleReloadApplication">{{ t(T, 'Reload_application') }}</Button>
 
         <Separator v-if="sessionIsAuthenticated" class="my-2.5" />
         <Button v-if="sessionIsAuthenticated" class="min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { useRoute } from 'vue-router';
-import { computed, defineAsyncComponent, ref, watch, watchEffect } from 'vue';
+import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import { useColorMode, useMediaQuery } from '@vueuse/core';
 
 // App Core
@@ -12,9 +12,7 @@ import Button from '@/components/button/Button.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
-import KnowledgeOptionBar from '@/components/knowledgeOptionBar/KnowledgeOptionBar.vue';
 import SessionButton from '@/components/session/SessionButton.vue';
-import WorkbenchOptionBar from '@/components/workbenchOptionBar/WorkbenchOptionBar.vue';
 
 // App Components (lazy loaded)
 const AcctMgmtDialog = defineAsyncComponent(async () => {
@@ -25,22 +23,13 @@ const AuthDialog = defineAsyncComponent(async () => {
     await new Promise((response) => setTimeout(response, 0));
     return import('@/components/session/AuthDialog.vue');
 });
+const KnowledgeOptionBar = defineAsyncComponent(() => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue'));
 const KnowledgePanel = defineAsyncComponent(() => import('@/components/knowledgePanel/KnowledgePanel.vue'));
+const WorkbenchOptionBar = defineAsyncComponent(() => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'));
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const colorMode = useColorMode(); // CSP requires hash for useColorMode's transition-disabling style. See console error message for required hash.
-
-function isPWA(): boolean {
-    return globalThis.matchMedia('(display-mode: standalone)').matches || globalThis.matchMedia('(display-mode: fullscreen)').matches;
-}
-
-watchEffect(() => {
-    // const isDark = colorMode.value === 'dark';
-    // const color = isDark ? '#09090b' : '#ffffff';
-    // document.documentElement.style.backgroundColor = color;
-    // document.body.style.backgroundColor = color;
-});
+useColorMode(); // CSP requires hash for useColorMode's transition-disabling style. See console error message for required hash.
 
 const route = useRoute();
 
@@ -57,7 +46,7 @@ watch(displayIsWide, () => (activeOptionBarId.value = 'none'));
 
 // Local State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const AcctMgmtDialogIsVisible = computed(() => route.query.dialog === 'acctMgmt');
+const acctMgmtDialogIsVisible = computed(() => route.query.dialog === 'acctMgmt');
 const authDialogIsVisible = computed(() => route.query.dialog === 'auth');
 
 // Local State - Workbench Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -188,7 +177,7 @@ function handleKnowledgeOptionComplete(): void {
         </DialogWrapper>
 
         <!-- Account Management dialog activated using url parameter 'dialog=acctMgmt'. -->
-        <DialogWrapper v-if="AcctMgmtDialogIsVisible">
+        <DialogWrapper v-if="acctMgmtDialogIsVisible">
             <AcctMgmtDialog :display-is-wide="displayIsWide" />
         </DialogWrapper>
 
@@ -203,7 +192,7 @@ function handleKnowledgeOptionComplete(): void {
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">
-                        <component :is="Component" :key="$route.path" :active-benchtop-option-config="activeBenchtopOptionConfig" :display-is-wide="displayIsWide" />
+                        <component :is="Component" :key="$route.path" :benchtop-option-config="activeBenchtopOptionConfig" :display-is-wide="displayIsWide" />
                     </Transition>
                 </RouterView>
             </div>

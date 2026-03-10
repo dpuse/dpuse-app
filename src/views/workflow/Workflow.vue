@@ -1,8 +1,10 @@
 <script setup lang="ts">
 // External Dependencies
 import { useRoute } from 'vue-router';
+import { ref, watch } from 'vue';
 
 // App Core
+import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import T from '@/locales/views/workflow/Workflow.json';
 import { useKnowledge } from '@/composables/useKnowledge';
 import { localeId, t } from '@/locales';
@@ -14,10 +16,20 @@ import Card from '@/components/card/Card.vue';
 import Header from '@/components/header/Header.vue';
 
 // Properties & Emits
-const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
+const { benchtopOptionConfig, displayIsWide } = defineProps<{ benchtopOptionConfig?: BenchtopOptionLocalisedConfig; displayIsWide: boolean }>();
+const knowledge = useKnowledge();
 
 // Workflow step configurations sourced from knowledge store
-const workflowStepConfigs = useKnowledge().getBenchtopConfig('workflow', localeId.value).options; // TODO: Does this update if locale changes
+const workflowStepConfigs = ref();
+watch(
+    localeId,
+    (newLocaleId) => {
+        knowledge.getBenchtopConfig('workflow', newLocaleId).then((response) => {
+            workflowStepConfigs.value = response.options;
+        });
+    },
+    { immediate: true }
+);
 
 // Local route state
 const route = useRoute();

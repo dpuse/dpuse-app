@@ -54,9 +54,9 @@ async function gravatarUrl(email: string, size: number): Promise<string> {
 
 // Lifecycle Event Handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-onMounted(async () => {
+onMounted(() => {
     sessionState.initialiseServices();
-    avatarUrl.value = await gravatarUrl(emailAddress, 38);
+    gravatarUrl(emailAddress, 38).then((response) => (avatarUrl.value = response));
 });
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -83,7 +83,7 @@ function handleClose(): void {
                 :class="
                     displayIsWide
                         ? 'fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto overscroll-y-none'
-                        : 'fixed bottom-0 left-0 right-0 z-50 max-h-[80vh] overflow-y-auto overscroll-y-none rounded-t-2xl'
+                        : 'fixed right-0 bottom-0 left-0 z-50 max-h-[80vh] overflow-y-auto overscroll-y-none rounded-t-2xl'
                 "
                 :sheet="!displayIsWide"
                 @complete="handleClose"

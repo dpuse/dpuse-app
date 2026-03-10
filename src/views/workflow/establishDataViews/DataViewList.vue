@@ -24,8 +24,8 @@ import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components
-import Button from '@/components/button/Button.vue';
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
+import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
 
