@@ -1,13 +1,12 @@
 <script setup lang="ts">
 // External Dependencies
 import { useRoute } from 'vue-router';
-import { ref, watch } from 'vue';
+import { shallowRef, watch } from 'vue';
 
 // App Core
-import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import T from '@/locales/views/workflow/Workflow.json';
-import { useKnowledge } from '@/composables/useKnowledge';
-import { localeId, t } from '@/locales';
+import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
+import { localeId, localiseConfigs, t } from '@/locales';
 
 // App Components
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
@@ -16,31 +15,22 @@ import Card from '@/components/card/Card.vue';
 import Header from '@/components/header/Header.vue';
 
 // Properties & Emits
-const { benchtopOptionConfig, displayIsWide } = defineProps<{ benchtopOptionConfig?: BenchtopOptionLocalisedConfig; displayIsWide: boolean }>();
-const knowledge = useKnowledge();
+const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 
-// Workflow step configurations sourced from knowledge store
-const workflowStepConfigs = ref();
-watch(
-    localeId,
-    (newLocaleId) => {
-        knowledge.getBenchtopConfig('workflow', newLocaleId).then((response) => {
-            workflowStepConfigs.value = response.options;
-        });
-    },
-    { immediate: true }
-);
+// States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Local route state
 const route = useRoute();
+
+const workflowStepConfigs = shallowRef();
+watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(workflowStepData, newLocaleId)), { immediate: true });
 </script>
 
 <template>
     <BenchtopShell>
         <Header
-            :breadcrumbs="[{ id: 'workbench', label: t(T, 'Workbench') }]"
+            :breadcrumbs="[{ id: 'workbench', label: t(T, 'wb.label') }]"
             class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] w-full max-w-4xl"
-            :title="t(T, 'Workflow_Benchtop')"
+            :title="t(T, 'wb.wf.label')"
             data-testid="header"
             :display-is-wide="displayIsWide"
         />
@@ -54,7 +44,7 @@ const route = useRoute();
                         class="bg-card outline-boundary overflow-hidden rounded-lg font-light outline -outline-offset-1"
                         :to="{ name: config.id, query: route.query }"
                     >
-                        <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'Step', { number: config.step })" />
+                        <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                     </RouterLink>
                 </div>
             </div>

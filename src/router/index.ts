@@ -10,59 +10,59 @@ export const appRoutes = [
         path: '/',
         children: [
             { path: '', redirect: { name: 'workflow' } },
-            { path: 'admin', children: [{ name: 'admin', path: '', component: (): Promise<Component> => import('@/views/admin/Admin.vue') }] },
-            { path: 'partner', children: [{ name: 'partner', path: '', component: (): Promise<Component> => import('@/views/partner/Partner.vue') }] },
+            { path: 'admin', children: [{ name: 'admin', path: '', component: (): Promise<Component> => import('@/views/workbench/admin/Admin.vue') }] },
+            { path: 'partner', children: [{ name: 'partner', path: '', component: (): Promise<Component> => import('@/views/workbench/partner/Partner.vue') }] },
             {
                 path: 'workflow',
                 children: [
-                    { name: 'workflow', path: '', component: (): Promise<Component> => import('@/views/workflow/Workflow.vue') },
+                    { name: 'workflow', path: '', component: (): Promise<Component> => import('@/views/workbench/workflow/Workflow.vue') },
                     {
                         path: 'establishDataViews',
-                        component: (): Promise<Component> => import('@/views/workflow/establishDataViews/EstablishDataViews.vue'),
+                        component: (): Promise<Component> => import('@/views/workbench/workflow/establishDataViews/EstablishDataViews.vue'),
                         children: [
                             {
                                 name: 'establishDataViews',
                                 path: '',
-                                component: (): Promise<Component> => import('@/views/workflow/establishDataViews/DataViewList.vue')
+                                component: (): Promise<Component> => import('@/views/workbench/workflow/establishDataViews/DataViewList.vue')
                             },
                             {
                                 name: 'connectionSelector',
                                 path: 'connectionSelector',
-                                component: (): Promise<Component> => import('@/views/workflow/establishDataViews/ConnectionSelector.vue')
+                                component: (): Promise<Component> => import('@/views/workbench/workflow/establishDataViews/ConnectionSelector.vue')
                             }
                         ]
                     },
                     {
                         path: 'assembleDimensions',
-                        component: (): Promise<Component> => import('@/views/workflow/assembleDimensions/AssembleDimensions.vue'),
+                        component: (): Promise<Component> => import('@/views/workbench/workflow/assembleDimensions/AssembleDimensions.vue'),
                         children: [
                             {
                                 name: 'assembleDimensions',
                                 path: '',
-                                component: (): Promise<Component> => import('@/views/workflow/assembleDimensions/DimensionList.vue')
+                                component: (): Promise<Component> => import('@/views/workbench/workflow/assembleDimensions/DimensionList.vue')
                             }
                         ]
                     },
                     {
                         path: 'contextualiseData',
-                        component: (): Promise<Component> => import('@/views/workflow/contextualiseData/ContextualiseData.vue'),
+                        component: (): Promise<Component> => import('@/views/workbench/workflow/contextualiseData/ContextualiseData.vue'),
                         children: [
                             {
                                 name: 'contextualiseData',
                                 path: '',
-                                component: (): Promise<Component> => import('@/views/workflow/contextualiseData/EventQueryList.vue')
+                                component: (): Promise<Component> => import('@/views/workbench/workflow/contextualiseData/EventQueryList.vue')
                             }
                         ]
                     },
                     {
                         name: 'explorePresentations',
                         path: 'explorePresentations',
-                        component: (): Promise<Component> => import('@/views/workflow/explorePresentations/ExplorePresentations.vue')
+                        component: (): Promise<Component> => import('@/views/workbench/workflow/explorePresentations/ExplorePresentations.vue')
                     },
                     {
                         name: 'buildDataApps',
                         path: 'buildDataApps',
-                        component: (): Promise<Component> => import('@/views/workflow/buildDataApps/BuildDataApps.vue')
+                        component: (): Promise<Component> => import('@/views/workbench/workflow/buildDataApps/BuildDataApps.vue')
                     }
                 ]
             }

@@ -21,7 +21,7 @@ export function useKnowledge(): { getBenchtopConfig: (id: string, localeCode: Lo
 
 // Retrieve benchtop localized configuration by id for the given locale, throwing when missing.
 async function getBenchtopConfig(id: string, localeCode: LocaleId): Promise<BenchtopLocalisedConfig> {
-    const { default: workbenchData } = await import('~/knowledge/workbench.json');
+    const { default: workbenchData } = await import('~/knowledge/workbench/workbench.json');
     const workbenchConfig = workbenchData as WorkbenchConfig;
     const workbenchLocalisedConfig = getWorkbenchLocalisedConfig(workbenchConfig, localeCode);
     const benchtopLocalisedConfig = workbenchLocalisedConfig.benchtops.find((benchtopConfig) => benchtopConfig.id === id);

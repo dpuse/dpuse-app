@@ -16,6 +16,13 @@ export const localeId = ref<LocaleId>(establishLocaleId());
 
 // Functions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+export function localiseConfigs(
+    workflowStepConfigs: { id: string; label: Record<LocaleId, string>; description: Record<LocaleId, string> }[],
+    localeId: LocaleId
+): Record<string, unknown>[] {
+    return workflowStepConfigs.map((config) => ({ ...config, label: config.label[localeId] ?? config.id, description: config.description[localeId] ?? config.id }));
+}
+
 export function n(value: number, options?: Intl.NumberFormatOptions): string {
     return new Intl.NumberFormat(localeId.value, options).format(value);
 }

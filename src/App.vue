@@ -35,7 +35,7 @@ const route = useRoute();
 
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const activeBenchtopOptionConfig = ref<BenchtopOptionLocalisedConfig | undefined>();
+const activeBenchtopOptionConfig = ref<BenchtopOptionLocalisedConfig>({ id: 'home', label: '', color: '', description: '', icon: '', step: 0, tasks: [] });
 const activeOptionBarId = ref<'none' | 'workbench' | 'knowledge'>('none'); // TODO: Can these be combined. Should we have 'both' for wide display.
 const activePaneId = ref<'workbench' | 'knowledge'>('workbench');
 
@@ -100,7 +100,7 @@ const knowledgePaneToggleAriaLabel = computed(() => {
 // UI Helpers - Workbench Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleWorkbenchOptionComplete(config?: BenchtopOptionLocalisedConfig): void {
-    activeBenchtopOptionConfig.value = config; // TODO: This will be set to undefined when mask is clicked. Ok, if dashboard options is selected, but maybe need null return for not action click.
+    if (config) activeBenchtopOptionConfig.value = config; // TODO: This will be set to undefined when mask is clicked. Ok, if dashboard options is selected, but maybe need null return for not action click.
     activeOptionBarId.value = 'none';
     activePaneId.value = 'workbench';
 }
