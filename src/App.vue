@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { useRoute } from 'vue-router';
-import { computed, defineAsyncComponent, ref, watch } from 'vue';
-import { useColorMode, useMediaQuery } from '@vueuse/core';
+import { computed, defineAsyncComponent, onUnmounted, ref, watch } from 'vue';
 
 // App Core
 import type { BenchtopOptionLocalisedConfig } from './types/workbench';
@@ -12,7 +11,6 @@ import Button from '@/components/button/Button.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
-import SessionButton from '@/components/session/SessionButton.vue';
 
 // App Components (lazy loaded)
 const AcctMgmtDialog = defineAsyncComponent(async () => {
@@ -26,10 +24,9 @@ const AuthDialog = defineAsyncComponent(async () => {
 const KnowledgeOptionBar = defineAsyncComponent(() => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue'));
 const KnowledgePanel = defineAsyncComponent(() => import('@/components/knowledgePanel/KnowledgePanel.vue'));
 const WorkbenchOptionBar = defineAsyncComponent(() => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'));
+const SessionButton = defineAsyncComponent(() => import('@/components/session/SessionButton.vue'));
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-useColorMode(); // CSP requires hash for useColorMode's transition-disabling style. See console error message for required hash.
+// States
 
 const route = useRoute();
 
@@ -41,7 +38,10 @@ const activePaneId = ref<'workbench' | 'knowledge'>('workbench');
 
 // Local State - Display ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const displayIsWide = useMediaQuery('(min-width: 768px)');
+const displayMediaQuery = globalThis.matchMedia('(min-width: 768px)');
+const displayIsWide = ref(displayMediaQuery.matches);
+const handleDisplayMediaQueryChange = (event: MediaQueryListEvent): void => void (displayIsWide.value = event.matches);
+displayMediaQuery.addEventListener('change', handleDisplayMediaQueryChange);
 watch(displayIsWide, () => (activeOptionBarId.value = 'none'));
 
 // Local State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -96,6 +96,8 @@ const knowledgePaneToggleAriaLabel = computed(() => {
     if (!displayIsWide.value) return activeOptionBarId.value === 'knowledge' ? 'Hide knowledge bar' : 'Show knowledge bar';
     return knowledgePaneIsHidden.value ? 'Show knowledge' : 'Hide knowledge';
 });
+
+onUnmounted(() => displayMediaQuery.removeEventListener('change', handleDisplayMediaQueryChange));
 
 // UI Helpers - Workbench Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -167,7 +169,7 @@ function handleKnowledgeOptionComplete(): void {
         <!-- Session action -->
         <Transition appear name="horizontal-slide-ltr">
             <div v-if="displayIsWide || activeOptionBarId === 'workbench'" class="fixed bottom-7 left-3 z-40">
-                <SessionButton class="dpuse-horizontal-slide-ltr-element" @complete="handleWorkbenchOptionComplete" />
+                <SessionButton class="dpuse-horizontal-slide-ltr-element" :display-is-wide="displayIsWide" @complete="handleWorkbenchOptionComplete" />
             </div>
         </Transition>
 

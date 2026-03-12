@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // External Dependencies
-import { HomeIcon } from '@heroicons/vue/24/outline';
+// import { HomeIcon } from '@heroicons/vue/24/outline';
 import { useRouter } from 'vue-router';
-import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
+import { HomeIcon, MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
 
 // App Components
 import Button from '@/components/button/Button.vue';

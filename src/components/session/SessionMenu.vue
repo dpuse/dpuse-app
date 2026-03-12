@@ -3,7 +3,7 @@
 import T from '@/locales/components/session/SessionMenu.json';
 import { useRouter } from 'vue-router';
 import { useSessionStore } from '@/stores/sessionStore';
-import { type BasicColorSchema, useColorMode, useFullscreen } from '@vueuse/core';
+import { useFullscreen } from '@vueuse/core';
 import { computed, nextTick } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'lucide-vue-next';
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
@@ -22,7 +22,6 @@ const IS_PWA = globalThis.matchMedia('(display-mode: standalone)').matches || gl
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const colorMode = useColorMode(); // CSP requires hash for useColorMode's transition-disabling style. See console error message for required hash.
 const { isFullscreen, toggle: toggleFullscreen, isSupported: fullScreenIsSupported } = useFullscreen();
 const sessionState = useSessionStore();
 const router = useRouter();
@@ -42,8 +41,11 @@ function handleReloadApplication(): void {
     globalThis.location.reload();
 }
 
-function handleSetAppearance(mode: BasicColorSchema): void {
-    colorMode.value = mode;
+function handleSetAppearance(mode: 'dark' | 'light' | 'auto'): void {
+    const prefersDark = globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = mode === 'dark' || (mode === 'auto' && prefersDark);
+    localStorage.setItem('dpuse-appearance', mode);
+    document.documentElement.classList.toggle('dark', isDark);
     nextTick().then(() => emit('complete'));
 }
 

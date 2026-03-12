@@ -69,7 +69,7 @@ function calcMinimumHeight(element: Element): void {
 
             <!-- Alert - Display if no items. -->
             <div v-else-if="items && items.length === 0" ref="contentRef" class="absolute inset-x-0 mx-auto max-w-prose">
-                <UAlert color="info" icon="i-heroicons-information-circle" title="No items." variant="soft" />
+                <!-- <UAlert color="info" icon="i-heroicons-information-circle" title="No items." variant="soft" /> -->
             </div>
 
             <!-- Items - Pass back each item and format using default slot. -->

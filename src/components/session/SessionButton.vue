@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // External Dependencies
 import { LoaderCircleIcon } from 'lucide-vue-next';
+import { onClickOutside } from '@vueuse/core';
 import { type ComponentPublicInstance, computed, defineAsyncComponent, onMounted, ref } from 'vue';
-import { onClickOutside, useMediaQuery } from '@vueuse/core';
 
 // App Core
 import { useSessionStore } from '@/stores/sessionStore';
@@ -16,6 +16,7 @@ import Separator from '@/components/separator/Separator.vue';
 const SessionMenu = defineAsyncComponent(() => import('@/components/session/SessionMenu.vue'));
 
 // Properties & Emits
+const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 const emit = defineEmits<{ (event: 'complete'): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -24,7 +25,6 @@ const sessionState = useSessionStore();
 
 // Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const displayIsWide = useMediaQuery('(min-width: 768px)');
 const sessionMenuIsVisible = ref(false);
 const sessionIsAuthenticated = computed(() => sessionState.isAuthenticated);
 

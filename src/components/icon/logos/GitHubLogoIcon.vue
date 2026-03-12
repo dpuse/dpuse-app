@@ -1,16 +1,12 @@
 <script setup lang="ts">
-// Sourced from Hanko social connections settings panel
+// Sourced from Hanko social connections settings panel.
 
-// External Dependencies
-import { useColorMode } from '@vueuse/core';
-
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const colorMode = useColorMode();
+// Properties & Emits
+const { isDark } = defineProps<{ isDark?: boolean }>();
 </script>
 
 <template>
-    <svg viewBox="0 0 17 17" :class="{ 'fill-white': colorMode === 'dark' }">
+    <svg viewBox="0 0 17 17" :class="{ 'fill-white': isDark }">
         <g clip-path="url(#clip0_2000_52709)">
             <path
                 fill-rule="evenodd"

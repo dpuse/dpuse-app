@@ -6,7 +6,7 @@ import vue from '@vitejs/plugin-vue';
 // import vueDevTools from 'vite-plugin-vue-devtools';
 import { fileURLToPath, URL } from 'node:url';
 
-// Vite configuration
+// Vite Configuration
 export default defineConfig({
     plugins: [vue(), /*vueDevTools(),*/ tailwindcss(), cloudflare()],
     resolve: {
@@ -29,7 +29,7 @@ export default defineConfig({
                 " img-src 'self' https://gravatar.com https://flagcdn.com;" +
                 " manifest-src 'self';" +
                 " object-src 'none';" +
-                " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' 'sha256-zB6mwYmmKIlxJrDq5yysgDwDqL4RFTYqD9cEDekVWCA=';" +
+                " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' 'sha256-KG2wj49jjwMy8lKXGdeUFXZ/WLdgASNCo7M8X7Jny6A=';" +
                 " style-src 'self' 'unsafe-inline';" + // 'unsafe-inline' is required in dev mode as Vite injects Tailwind CSS as inline <style> elements for HMR
                 " worker-src 'self' blob:;" +
                 ' trusted-types default vue;' +

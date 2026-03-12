@@ -2,7 +2,7 @@
 
 // External Dependencies
 import { defineStore } from 'pinia';
-import { useIdle } from '@vueuse/core';
+// import { useIdle } from '@vueuse/core'; // TODO: Adds 0.5kb gzipped.
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { ref, shallowRef, watch } from 'vue';
 
@@ -21,7 +21,7 @@ import { forgetUser, identifyUser } from '@/observability/eventTracking';
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
-const SESSION_IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes.
+// const SESSION_IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes.
 
 // Long-lived module-scoped Hanko instance reused across multiple authentication sessions.
 let hankoInstance: Hanko | undefined;
@@ -55,7 +55,7 @@ export const useSessionStore = defineStore('session', () => {
     const toolConfigs = shallowRef<ToolConfig[] | undefined>();
     const userId = ref<string | undefined>();
 
-    const { idle, lastActive } = useIdle(SESSION_IDLE_TIMEOUT);
+    // const { idle, lastActive } = useIdle(SESSION_IDLE_TIMEOUT);
 
     globalThis.addEventListener('beforeunload', (event) => {
         if (!areUpdatesPending.value) return;
@@ -119,10 +119,10 @@ export const useSessionStore = defineStore('session', () => {
         expiresAt,
         expiresIn,
         eventQueryConfigs,
-        idle,
+        // idle,
         initialiseServices,
         isAuthenticated,
-        lastActive,
+        // lastActive,
         lifetime,
         localMetaStoreConnectionConfig,
         presenterConfigs,

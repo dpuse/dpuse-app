@@ -1,32 +1,24 @@
 <script setup lang="ts">
 // External Dependencies
-import { HomeIcon } from '@heroicons/vue/24/outline';
+// import { HomeIcon } from '@heroicons/vue/24/outline';
+import { HomeIcon } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
-import { ref, watch } from 'vue';
+import { shallowRef, watch } from 'vue';
 
 // App Core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
-import { localeId } from '~/src/locales';
-import { useKnowledge } from '@/composables/useKnowledge';
+import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
+import { localeId, localiseConfigs } from '~/src/locales';
 
 // Properties & Emits
 const emit = defineEmits<{ (event: 'complete', config?: BenchtopOptionLocalisedConfig): void }>();
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const route = useRoute();
 
-// Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const activeBenchtopConfig = ref();
-watch(
-    localeId,
-    (newLocaleId) =>
-        useKnowledge()
-            .getBenchtopConfig('workflow', newLocaleId)
-            .then((response) => (activeBenchtopConfig.value = response)),
-    { immediate: true }
-);
+const workflowStepConfigs = shallowRef();
+watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(workflowStepData, newLocaleId)), { immediate: true });
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -42,9 +34,8 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
 
         <!-- Benchtop options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none py-2">
-            <div v-if="activeBenchtopConfig" class="flex flex-1 flex-col items-center gap-y-2">
+            <div class="flex flex-1 flex-col items-center gap-y-2">
                 <RouterLink
-                    :aria-label="activeBenchtopConfig.label"
                     class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"
                     :to="{ name: 'workflow', query: route.query }"
                     variant="iconLarge"
@@ -54,7 +45,7 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
                 </RouterLink>
 
                 <RouterLink
-                    v-for="config of activeBenchtopConfig.options"
+                    v-for="config of workflowStepConfigs"
                     :key="config.id"
                     :aria-label="config.label"
                     class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"
