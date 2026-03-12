@@ -1,6 +1,6 @@
 {
     "name": "datapos-workbench",
-    "version": "0.0.500",
+    "version": "0.0.501",
     "private": true,
     "type": "module",
     "engines": {
@@ -8,17 +8,13 @@
     },
     "dependencies": {
         "@datapos/datapos-shared": "^0.3.589",
-        "@heroicons/vue": "^2.2.0",
         "@tailwindcss/vite": "^4.2.1",
         "@tanstack/ai-client": "^0.5.1",
         "@tanstack/vue-virtual": "^3.13.19",
         "@teamhanko/hanko-frontend-sdk": "^2.4.0",
-        "@vueuse/core": "^14.2.1",
         "lucide-vue-next": "^0.575.0",
         "micromark": "^4.0.2",
         "pinia": "^3.0.4",
-        "posthog-js": "^1.356.1",
-        "quick-lru": "^7.3.0",
         "tailwindcss": "^4.2.1",
         "vue": "^3.5.29",
         "vue-router": "^5.0.3",

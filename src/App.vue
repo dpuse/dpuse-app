@@ -1,41 +1,35 @@
 <script setup lang="ts">
 // External Dependencies
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { computed, defineAsyncComponent, onUnmounted, ref, watch } from 'vue';
 
 // App Core
 import type { BenchtopOptionLocalisedConfig } from './types/workbench';
 
 // App Components
-import Button from '@/components/button/Button.vue';
-// import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
-// import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
+import Button from '@/components/button/Button.vue'; // Required workbench and knowledge toggle buttons which are always visible.
+import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
+import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
 
 // App Components (lazy loaded)
-const AcctMgmtDialog = defineAsyncComponent(async () => {
-    await new Promise((response) => setTimeout(response, 0));
-    return import('@/components/account/AcctMgmtDialog.vue');
-});
-const AuthDialog = defineAsyncComponent(async () => {
-    await new Promise((response) => setTimeout(response, 0));
-    return import('@/components/session/AuthDialog.vue');
-});
-const DPUseLogoIcon = defineAsyncComponent(() => import('@/components/icon/logos/DPUseLogoIcon.vue'));
-const KnowledgeIcon = defineAsyncComponent(() => import('@/components/icon/KnowledgeIcon.vue'));
+const AcctMgmtDialog = defineAsyncComponent(() => new Promise((r) => setTimeout(r, 0)).then(() => import('@/components/account/AcctMgmtDialog.vue')));
+const AuthDialog = defineAsyncComponent(() => new Promise((r) => setTimeout(r, 0)).then(() => import('@/components/session/AuthDialog.vue')));
 const DialogWrapper = defineAsyncComponent(() => import('@/components/dialog/DialogWrapper.vue'));
 const KnowledgeOptionBar = defineAsyncComponent(() => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue'));
 const KnowledgePanel = defineAsyncComponent(() => import('@/components/knowledgePanel/KnowledgePanel.vue'));
 const WorkbenchOptionBar = defineAsyncComponent(() => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'));
 const SessionButton = defineAsyncComponent(() => import('@/components/session/SessionButton.vue'));
 
-// States
+// States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const route = useRoute();
+const router = useRouter();
+const isHomePage = computed(() => route.path === '/' && route.query.knowledge === undefined);
 
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeBenchtopOptionConfig = ref<BenchtopOptionLocalisedConfig>({ id: 'home', label: '', color: '', description: '', icon: '', step: 0, tasks: [] });
-const activeOptionBarId = ref<'none' | 'workbench' | 'knowledge'>('none'); // TODO: Can these be combined. Should we have 'both' for wide display.
+const activeOptionBarId = ref<'none' | 'workbench' | 'knowledge'>('none');
 const activePaneId = ref<'workbench' | 'knowledge'>('workbench');
 
 // Local State - Display ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -54,6 +48,16 @@ const authDialogIsVisible = computed(() => route.query.dialog === 'auth');
 // Local State - Workbench Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const workbenchPaneIsHidden = ref(false);
+
+watch(
+    () => [route.path, route.query.knowledge] as const,
+    ([path, knowledge]) => {
+        const knowledgeOnly = path === '/' && knowledge !== undefined;
+        workbenchPaneIsHidden.value = knowledgeOnly;
+        knowledgePaneIsHidden.value = knowledgeOnly === false;
+    },
+    { immediate: true }
+);
 
 const workbenchPaneClasses = computed(() => {
     if (displayIsWide.value) {
@@ -110,9 +114,9 @@ function handleWorkbenchOptionComplete(config?: BenchtopOptionLocalisedConfig): 
 }
 
 function handleWorkbenchToggle(): void {
+    if (isHomePage.value) { router.push('/workflow'); return; }
     if (displayIsWide.value) {
-        // Don't close if it's the only open panel
-        if (!workbenchPaneIsHidden.value && knowledgePaneIsHidden.value) return;
+        if (!workbenchPaneIsHidden.value && knowledgePaneIsHidden.value) { router.push('/'); return; }
         workbenchPaneIsHidden.value = !workbenchPaneIsHidden.value;
         activePaneId.value = workbenchPaneIsHidden.value ? 'knowledge' : 'workbench'; // Pre-set narrow mode active pane for when display switches back.
     } else {
@@ -140,9 +144,9 @@ function handleSplitterPointerUp(): void {
 // UI Helpers - Knowledge Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleKnowledgeToggle(): void {
+    if (isHomePage.value) { router.push('/?knowledge=home'); return; }
     if (displayIsWide.value) {
-        // Don't close if it's the only open panel.
-        if (!knowledgePaneIsHidden.value && workbenchPaneIsHidden.value) return;
+        if (!knowledgePaneIsHidden.value && workbenchPaneIsHidden.value) { router.push('/'); return; }
         knowledgePaneIsHidden.value = !knowledgePaneIsHidden.value;
         activePaneId.value = knowledgePaneIsHidden.value ? 'workbench' : 'knowledge'; // Pre-set narrow mode active pane for when display switches back.
     } else {
@@ -170,7 +174,7 @@ function handleKnowledgeOptionComplete(): void {
 
         <!-- Session action -->
         <Transition appear name="horizontal-slide-ltr">
-            <div v-if="displayIsWide || activeOptionBarId === 'workbench'" class="fixed bottom-7 left-3 z-40">
+            <div v-if="!isHomePage && (displayIsWide || activeOptionBarId === 'workbench')" class="fixed bottom-7 left-3 z-40">
                 <SessionButton class="dpuse-horizontal-slide-ltr-element" :display-is-wide="displayIsWide" @complete="handleWorkbenchOptionComplete" />
             </div>
         </Transition>
@@ -188,6 +192,7 @@ function handleKnowledgeOptionComplete(): void {
         <!-- Left pane: Workbench (option bar + workbench body). -->
         <div :class="workbenchPaneClasses" :style="workbenchPaneStyle">
             <WorkbenchOptionBar
+                v-if="!isHomePage"
                 class="flex-none"
                 :is-open-in-narrow-display="activeOptionBarId === 'workbench'"
                 :display-is-wide="displayIsWide"
@@ -213,7 +218,7 @@ function handleKnowledgeOptionComplete(): void {
 
         <!-- Right pane: Knowledge (knowledge body + option bar). -->
         <div :class="knowledgePaneClasses">
-            <KnowledgePanel class="flex-1" :display-is-wide="displayIsWide" />
+            <KnowledgePanel class="flex-1" :display-is-wide="displayIsWide" :workbench-pane-is-hidden="workbenchPaneIsHidden" />
             <KnowledgeOptionBar
                 class="flex-none"
                 :is-open-in-narrow-display="activeOptionBarId === 'knowledge'"

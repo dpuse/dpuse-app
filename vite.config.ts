@@ -23,7 +23,7 @@ export default defineConfig({
             'Content-Security-Policy':
                 "default-src 'none';" +
                 " base-uri 'self';" +
-                " connect-src 'self' http://localhost:5173 ws://localhost:5173 data: https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://sample-data-eu.datapos.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io https://eu.i.posthog.com https://eu-assets.i.posthog.com;" +
+                " connect-src 'self' http://localhost:5173 ws://localhost:5173 data: https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://sample-data-eu.datapos.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io;" +
                 " form-action 'none';" +
                 " frame-ancestors 'none';" +
                 " img-src 'self' https://gravatar.com https://flagcdn.com;" +

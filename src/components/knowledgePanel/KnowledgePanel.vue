@@ -12,7 +12,7 @@ const KnowledgeSearchPanel = defineAsyncComponent(() => import('./KnowledgeSearc
 const KnowledgeOverviewPanel = defineAsyncComponent(() => import('./KnowledgeOverviewPanel.vue'));
 
 // Properties & Emits
-const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
+const { displayIsWide, workbenchPaneIsHidden } = defineProps<{ displayIsWide: boolean; workbenchPaneIsHidden: boolean }>();
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -37,7 +37,12 @@ const activePanel = computed(() => {
 
 <template>
     <div class="flex h-full min-w-0 flex-1 flex-col">
-        <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="activePanel.label" :display-is-wide="displayIsWide" />
+        <Header
+            :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]"
+            :display-is-wide="displayIsWide"
+            :title="activePanel.label"
+            :workbench-pane-is-hidden="workbenchPaneIsHidden"
+        />
 
         <component :is="activePanel.component" :display-is-wide="displayIsWide" />
     </div>
