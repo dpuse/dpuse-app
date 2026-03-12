@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { computed, defineAsyncComponent, onUnmounted, ref, watch } from 'vue';
 
 // App Core
@@ -23,8 +23,6 @@ const SessionButton = defineAsyncComponent(() => import('@/components/session/Se
 // States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const route = useRoute();
-const router = useRouter();
-const isHomePage = computed(() => route.path === '/' && route.query.knowledge === undefined);
 
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -49,21 +47,7 @@ const authDialogIsVisible = computed(() => route.query.dialog === 'auth');
 
 const workbenchPaneIsHidden = ref(false);
 
-const knowledgePaneIsHidden = ref(true);
-
-watch(
-    () => [route.path, route.query.knowledge] as const,
-    ([path, knowledge]) => {
-        if (path === '/') {
-            const knowledgeOnly = knowledge !== undefined;
-            workbenchPaneIsHidden.value = knowledgeOnly;
-            knowledgePaneIsHidden.value = !knowledgeOnly;
-        } else {
-            workbenchPaneIsHidden.value = false;
-        }
-    },
-    { immediate: true }
-);
+const knowledgePaneIsHidden = ref(false);
 
 const workbenchPaneClasses = computed(() => {
     if (displayIsWide.value) {
@@ -118,15 +102,8 @@ function handleWorkbenchOptionComplete(config?: BenchtopOptionLocalisedConfig): 
 }
 
 function handleWorkbenchToggle(): void {
-    if (isHomePage.value || (route.path === '/' && route.query.knowledge !== undefined)) {
-        router.push('/workflow');
-        return;
-    }
     if (displayIsWide.value) {
-        if (!workbenchPaneIsHidden.value && knowledgePaneIsHidden.value) {
-            router.push('/');
-            return;
-        }
+        if (!workbenchPaneIsHidden.value && knowledgePaneIsHidden.value) return;
         workbenchPaneIsHidden.value = !workbenchPaneIsHidden.value;
         activePaneId.value = workbenchPaneIsHidden.value ? 'knowledge' : 'workbench'; // Pre-set narrow mode active pane for when display switches back.
     } else {
@@ -154,15 +131,8 @@ function handleSplitterPointerUp(): void {
 // UI Helpers - Knowledge Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleKnowledgeToggle(): void {
-    if (isHomePage.value) {
-        router.push('/?knowledge=home');
-        return;
-    }
     if (displayIsWide.value) {
-        if (!knowledgePaneIsHidden.value && workbenchPaneIsHidden.value) {
-            router.push('/');
-            return;
-        }
+        if (!knowledgePaneIsHidden.value && workbenchPaneIsHidden.value) return;
         knowledgePaneIsHidden.value = !knowledgePaneIsHidden.value;
         activePaneId.value = knowledgePaneIsHidden.value ? 'workbench' : 'knowledge'; // Pre-set narrow mode active pane for when display switches back.
     } else {
@@ -190,7 +160,7 @@ function handleKnowledgeOptionComplete(): void {
 
         <!-- Session action -->
         <Transition appear name="horizontal-slide-ltr">
-            <div v-if="!isHomePage && (displayIsWide || activeOptionBarId === 'workbench')" class="fixed bottom-7 left-3 z-40">
+            <div v-if="displayIsWide || activeOptionBarId === 'workbench'" class="fixed bottom-7 left-3 z-40">
                 <SessionButton class="dpuse-horizontal-slide-ltr-element" :display-is-wide="displayIsWide" @complete="handleWorkbenchOptionComplete" />
             </div>
         </Transition>
@@ -208,7 +178,6 @@ function handleKnowledgeOptionComplete(): void {
         <!-- Left pane: Workbench (option bar + workbench body). -->
         <div :class="workbenchPaneClasses" :style="workbenchPaneStyle">
             <WorkbenchOptionBar
-                v-if="!isHomePage"
                 class="flex-none"
                 :is-open-in-narrow-display="activeOptionBarId === 'workbench'"
                 :display-is-wide="displayIsWide"

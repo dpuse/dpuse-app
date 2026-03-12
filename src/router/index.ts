@@ -9,7 +9,7 @@ export const appRoutes = [
     {
         path: '/',
         children: [
-            { path: '', name: 'home', component: (): Promise<Component> => import('@/views/home/HomeView.vue') },
+            { path: '', redirect: '/workflow' },
             { path: 'admin', children: [{ name: 'admin', path: '', component: (): Promise<Component> => import('@/views/workbench/admin/Admin.vue') }] },
             { path: 'partner', children: [{ name: 'partner', path: '', component: (): Promise<Component> => import('@/views/workbench/partner/Partner.vue') }] },
             {
