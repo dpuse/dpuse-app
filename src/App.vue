@@ -49,12 +49,18 @@ const authDialogIsVisible = computed(() => route.query.dialog === 'auth');
 
 const workbenchPaneIsHidden = ref(false);
 
+const knowledgePaneIsHidden = ref(true);
+
 watch(
     () => [route.path, route.query.knowledge] as const,
     ([path, knowledge]) => {
-        const knowledgeOnly = path === '/' && knowledge !== undefined;
-        workbenchPaneIsHidden.value = knowledgeOnly;
-        knowledgePaneIsHidden.value = knowledgeOnly === false;
+        if (path === '/') {
+            const knowledgeOnly = knowledge !== undefined;
+            workbenchPaneIsHidden.value = knowledgeOnly;
+            knowledgePaneIsHidden.value = !knowledgeOnly;
+        } else {
+            workbenchPaneIsHidden.value = false;
+        }
     },
     { immediate: true }
 );
@@ -88,8 +94,6 @@ const paneSplitterPercent = ref(50);
 
 // Local State - Knowledge Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const knowledgePaneIsHidden = ref(false);
-
 const knowledgePaneClasses = computed(() => {
     if (displayIsWide.value) {
         if (knowledgePaneIsHidden.value) return 'hidden';
@@ -114,9 +118,15 @@ function handleWorkbenchOptionComplete(config?: BenchtopOptionLocalisedConfig): 
 }
 
 function handleWorkbenchToggle(): void {
-    if (isHomePage.value) { router.push('/workflow'); return; }
+    if (isHomePage.value || (route.path === '/' && route.query.knowledge !== undefined)) {
+        router.push('/workflow');
+        return;
+    }
     if (displayIsWide.value) {
-        if (!workbenchPaneIsHidden.value && knowledgePaneIsHidden.value) { router.push('/'); return; }
+        if (!workbenchPaneIsHidden.value && knowledgePaneIsHidden.value) {
+            router.push('/');
+            return;
+        }
         workbenchPaneIsHidden.value = !workbenchPaneIsHidden.value;
         activePaneId.value = workbenchPaneIsHidden.value ? 'knowledge' : 'workbench'; // Pre-set narrow mode active pane for when display switches back.
     } else {
@@ -144,9 +154,15 @@ function handleSplitterPointerUp(): void {
 // UI Helpers - Knowledge Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleKnowledgeToggle(): void {
-    if (isHomePage.value) { router.push('/?knowledge=home'); return; }
+    if (isHomePage.value) {
+        router.push('/?knowledge=home');
+        return;
+    }
     if (displayIsWide.value) {
-        if (!knowledgePaneIsHidden.value && workbenchPaneIsHidden.value) { router.push('/'); return; }
+        if (!knowledgePaneIsHidden.value && workbenchPaneIsHidden.value) {
+            router.push('/');
+            return;
+        }
         knowledgePaneIsHidden.value = !knowledgePaneIsHidden.value;
         activePaneId.value = knowledgePaneIsHidden.value ? 'workbench' : 'knowledge'; // Pre-set narrow mode active pane for when display switches back.
     } else {

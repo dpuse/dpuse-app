@@ -26,7 +26,7 @@ export default defineConfig({
                 " connect-src 'self' http://localhost:5173 ws://localhost:5173 data: https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://sample-data-eu.datapos.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io;" +
                 " form-action 'none';" +
                 " frame-ancestors 'none';" +
-                " img-src 'self' https://gravatar.com https://flagcdn.com;" +
+                " img-src 'self' https://gravatar.com https://flagcdn.com https://tailwindcss.com;" +
                 " manifest-src 'self';" +
                 " object-src 'none';" +
                 " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' 'sha256-KG2wj49jjwMy8lKXGdeUFXZ/WLdgASNCo7M8X7Jny6A=';" +

@@ -30,9 +30,10 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
         <Header
             :breadcrumbs="[{ id: 'workbench', label: t(T, 'wb.label') }]"
             class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] w-full max-w-4xl"
-            :title="t(T, 'wb.wf.label')"
             data-testid="header"
             :display-is-wide="displayIsWide"
+            :title="t(T, 'wb.wf.label')"
+            :workbench-pane-is-hidden="false"
         />
 
         <BenchtopScroller class="flex-1 pb-3">

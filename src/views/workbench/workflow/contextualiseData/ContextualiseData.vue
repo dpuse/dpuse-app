@@ -13,7 +13,12 @@ const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 
 <template>
     <BenchtopShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]" :title="t(T, 'Contextualise_Data')" :display-is-wide="displayIsWide" />
+        <Header
+            :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]"
+            :display-is-wide="displayIsWide"
+            :title="t(T, 'Contextualise_Data')"
+            :workbench-pane-is-hidden="false"
+        />
 
         <RouterView />
     </BenchtopShell>

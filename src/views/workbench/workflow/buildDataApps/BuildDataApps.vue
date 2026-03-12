@@ -14,7 +14,12 @@ const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 
 <template>
     <BenchtopShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]" :title="t(T, 'Build_Data_Apps')" :display-is-wide="displayIsWide" />
+        <Header
+            :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]"
+            :display-is-wide="displayIsWide"
+            :title="t(T, 'Build_Data_Apps')"
+            :workbench-pane-is-hidden="false"
+        />
 
         <BenchtopScroller class="flex-1"></BenchtopScroller>
     </BenchtopShell>
