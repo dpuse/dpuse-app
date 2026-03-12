@@ -1,7 +1,6 @@
 <script setup lang="ts" generic="T extends { id: string; label: string }">
 // External Dependencies
-import { computed, onMounted, ref, watchEffect } from 'vue';
-import { useBreakpoints, useResizeObserver } from '@vueuse/core';
+import { computed, onMounted, onUnmounted, ref, watchEffect } from 'vue';
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 
 // Properties & Emits
@@ -11,33 +10,27 @@ const { targetColumnWidth = 200, items = [], rowHeight = 35 } = defineProps<Prop
 /** Reactive DOM References */
 const gridScrollerReference = ref<HTMLDivElement | null>(null);
 
-type ScreenSpanId = 's' | 'm' | 'l';
-type ScreenWidthId = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-const breakpoints = useBreakpoints({ sm: 640, md: 768, lg: 1024, xl: 1280, '2xl': 1536 });
-const screenSpan = computed(() => getScreenSpan());
-
 /** Reactive Variables & Watchers */
 const columnCount = ref(1);
+const gridWidth = ref(0);
 const columnVirtualizer = useVirtualizer({
     count: 0,
     horizontal: true,
     overscan: 5,
-    /* Subtract 20px below, app gutter of 1.25rem. */
-    estimateSize: () => (screenWidthId.value === 'xl' || screenWidthId.value === '2xl' ? targetColumnWidth : Math.floor((gridWidth.value - 16) / columnCount.value)),
+    /* Subtract 16px, app gutter of 1rem. */
+    estimateSize: () => (gridWidth.value >= 1280 ? targetColumnWidth : Math.floor((gridWidth.value - 16) / columnCount.value)),
     getScrollElement: () => gridScrollerReference.value
 });
-const gridWidth = ref(0);
 const rowVirtualizer = useVirtualizer({ count: 0, overscan: 5, estimateSize: () => rowHeight, getScrollElement: () => gridScrollerReference.value });
-const screenWidthId = computed(() => screenSpan.value[1]);
 const totalSizeRows = computed<number>((): number => rowVirtualizer.value.getTotalSize());
 const virtualRows = computed<VirtualItem[]>((): VirtualItem[] => rowVirtualizer.value.getVirtualItems());
 
-useResizeObserver(gridScrollerReference, (entries) => {
+const resizeObserver = new ResizeObserver((entries) => {
     gridWidth.value = entries[0]!.contentRect.width;
     columnCount.value = Math.max(Math.floor((gridWidth.value - 16) / targetColumnWidth), 1);
     columnVirtualizer.value.measure();
 });
-/** Reactive Variables & Watchers */
+
 watchEffect(() => {
     columnVirtualizer.value.setOptions({ ...columnVirtualizer.value.options, count: columnCount.value });
     rowVirtualizer.value.setOptions({ ...rowVirtualizer.value.options, count: Math.ceil(items.length / columnCount.value) });
@@ -45,22 +38,14 @@ watchEffect(() => {
 });
 
 /** Component Lifecycle Event Handlers */
-onMounted(() => {});
+onMounted(() => { if (gridScrollerReference.value) resizeObserver.observe(gridScrollerReference.value); });
+onUnmounted(() => resizeObserver.disconnect());
 
 // Utilities - Get item configuration.
 function getItemConfig(rowIndex: number, columnIndex: number): T | undefined {
     const index = rowIndex * columnCount.value + columnIndex;
     if (index < items.length) return items[index];
     return;
-}
-
-function getScreenSpan(): [ScreenSpanId, ScreenWidthId] {
-    if (breakpoints.smaller('sm').value) return ['s', 'xs']; // <640px.
-    if (breakpoints.between('sm', 'md').value) return ['s', 'sm']; // 640px - <768px.
-    if (breakpoints.between('md', 'lg').value) return ['m', 'md']; // 768px - <1024px.
-    if (breakpoints.between('lg', 'xl').value) return ['l', 'lg']; // 1024px - <1280px.
-    if (breakpoints.between('xl', '2xl').value) return ['l', 'xl']; // 1280px - <1536px.
-    return ['l', '2xl']; // >=1536px.
 }
 </script>
 

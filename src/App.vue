@@ -8,9 +8,8 @@ import type { BenchtopOptionLocalisedConfig } from './types/workbench';
 
 // App Components
 import Button from '@/components/button/Button.vue';
-import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
-import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
-import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
+// import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
+// import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue';
 
 // App Components (lazy loaded)
 const AcctMgmtDialog = defineAsyncComponent(async () => {
@@ -21,6 +20,9 @@ const AuthDialog = defineAsyncComponent(async () => {
     await new Promise((response) => setTimeout(response, 0));
     return import('@/components/session/AuthDialog.vue');
 });
+const DPUseLogoIcon = defineAsyncComponent(() => import('@/components/icon/logos/DPUseLogoIcon.vue'));
+const KnowledgeIcon = defineAsyncComponent(() => import('@/components/icon/KnowledgeIcon.vue'));
+const DialogWrapper = defineAsyncComponent(() => import('@/components/dialog/DialogWrapper.vue'));
 const KnowledgeOptionBar = defineAsyncComponent(() => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue'));
 const KnowledgePanel = defineAsyncComponent(() => import('@/components/knowledgePanel/KnowledgePanel.vue'));
 const WorkbenchOptionBar = defineAsyncComponent(() => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'));

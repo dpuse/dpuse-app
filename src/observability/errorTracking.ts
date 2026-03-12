@@ -1,5 +1,4 @@
 // DPUse Framework
-import { trackEvent } from '@/observability/eventTracking';
 import { type AppError, type SerialisedError, serialiseError } from '@datapos/datapos-shared/errors';
 
 // Functions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -30,7 +30,7 @@ export default defineConfig({
                 " manifest-src 'self';" +
                 " object-src 'none';" +
                 " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' 'sha256-KG2wj49jjwMy8lKXGdeUFXZ/WLdgASNCo7M8X7Jny6A=';" +
-                " style-src 'self' 'unsafe-inline';" + // 'unsafe-inline' is required in dev mode as Vite injects Tailwind CSS as inline <style> elements for HMR
+                " style-src 'self' 'unsafe-inline';" + // 'unsafe-inline' is required in dev mode as Vite injects Tailwind CSS as inline <style> elements for HMR. Hashes required in production are not required here because of 'unsafe-inline' setting.
                 " worker-src 'self' blob:;" +
                 ' trusted-types default vue;' +
                 " require-trusted-types-for 'script';",

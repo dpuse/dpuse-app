@@ -3,8 +3,7 @@
 import T from '@/locales/components/session/SessionMenu.json';
 import { useRouter } from 'vue-router';
 import { useSessionStore } from '@/stores/sessionStore';
-import { useFullscreen } from '@vueuse/core';
-import { computed, nextTick } from 'vue';
+import { computed, nextTick, onUnmounted, ref } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'lucide-vue-next';
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
 
@@ -22,7 +21,15 @@ const IS_PWA = globalThis.matchMedia('(display-mode: standalone)').matches || gl
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const { isFullscreen, toggle: toggleFullscreen, isSupported: fullScreenIsSupported } = useFullscreen();
+const fullScreenIsSupported = document.fullscreenEnabled;
+const isFullscreen = ref(!!document.fullscreenElement);
+const handleFullscreenChange = (): void => void (isFullscreen.value = !!document.fullscreenElement);
+document.addEventListener('fullscreenchange', handleFullscreenChange);
+onUnmounted(() => document.removeEventListener('fullscreenchange', handleFullscreenChange));
+
+async function toggleFullscreen(): Promise<void> {
+    await (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen());
+}
 const sessionState = useSessionStore();
 const router = useRouter();
 

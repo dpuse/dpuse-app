@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { LoaderCircleIcon } from 'lucide-vue-next';
-import { onClickOutside } from '@vueuse/core';
-import { type ComponentPublicInstance, computed, defineAsyncComponent, onMounted, ref } from 'vue';
+import { type ComponentPublicInstance, computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue';
 
 // App Core
 import { useSessionStore } from '@/stores/sessionStore';
@@ -62,7 +61,15 @@ onMounted(() => {
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const sessionMenuReference = ref<ComponentPublicInstance | null>(null);
-onClickOutside(sessionMenuReference, () => handleClose(), { ignore: ['.dpuse-outsideClickIgnore'] });
+const handleDocumentPointerDown = (event: PointerEvent): void => {
+    if (!sessionMenuIsVisible.value) return;
+    const target = event.target as Element;
+    if ((sessionMenuReference.value?.$el as Element | undefined)?.contains(target) === true) return;
+    if (target.closest('.dpuse-outsideClickIgnore')) return;
+    handleClose();
+};
+document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
+onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true }));
 
 function handleClose(): void {
     sessionMenuIsVisible.value = false;
