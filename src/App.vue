@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { computed, defineAsyncComponent, reactive, ref, watch } from 'vue';
 
 // App Core
@@ -19,37 +19,46 @@ const AuthDialog = defineAsyncComponent(() => new Promise((r) => setTimeout(r, 0
 const DialogWrapper = defineAsyncComponent(() => import('@/components/dialog/DialogWrapper.vue'));
 const KnowledgeOptionBar = defineAsyncComponent(() => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue'));
 const KnowledgePanel = defineAsyncComponent(() => import('@/components/knowledgePanel/KnowledgePanel.vue'));
-const WorkbenchOptionBar = defineAsyncComponent(() => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'));
+const PaneSplitter = defineAsyncComponent(() => import('@/components/paneSplitter/PaneSplitter.vue'));
 const SessionButton = defineAsyncComponent(() => import('@/components/session/SessionButton.vue'));
+const WorkbenchOptionBar = defineAsyncComponent(() => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'));
 
-// Composables ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const { displayIsWide } = useDisplayBreakpoint();
-const route = useRoute();
+const router = useRouter();
 
-// Local Reactive States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeOptionBarId = ref<'none' | 'workbench' | 'knowledge'>('none');
-const paneState = reactive({ workbenchIsHidden: false, knowledgeIsHidden: false, activePaneId: 'workbench' as 'workbench' | 'knowledge' });
+const paneSplitterPercent = ref(50);
+const paneState = reactive({ activePaneId: 'workbench' as 'workbench' | 'knowledge' });
 
-// Local Derived States - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const acctMgmtDialogIsVisible = computed(() => route.query.dialog === 'acctMgmt');
-const authDialogIsVisible = computed(() => route.query.dialog === 'auth');
+const acctMgmtDialogIsVisible = computed(() => router.currentRoute.value.query.dialog === 'acctMgmt');
+const authDialogIsVisible = computed(() => router.currentRoute.value.query.dialog === 'auth');
 
-// Local Derived State - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local Derived State - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const showWorkbench = computed(() => router.currentRoute.value.path !== '/');
+const showKnowledge = computed(() => 'knowledge' in router.currentRoute.value.query);
+
+const knowledgePaneClasses = computed(() => {
+    if (displayIsWide.value) return 'flex h-full min-w-0 flex-1';
+    return paneState.activePaneId === 'knowledge' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
+});
+
+const paneSplitterIsVisible = computed(() => displayIsWide.value && showWorkbench.value && showKnowledge.value);
 
 const workbenchPaneClasses = computed(() => {
-    if (displayIsWide.value) {
-        if (paneState.workbenchIsHidden) return 'hidden';
-        return 'flex h-full min-w-0';
-    }
+    if (displayIsWide.value) return 'flex h-full min-w-0';
     return paneState.activePaneId === 'workbench' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
 });
 
 const workbenchPaneStyle = computed(() => {
-    if (displayIsWide.value && !paneState.workbenchIsHidden) {
-        if (paneState.knowledgeIsHidden) return { flex: '1' };
+    if (displayIsWide.value) {
+        if (!showKnowledge.value) return { flex: '1' };
         return { width: paneSplitterPercent.value + '%' };
     }
     return {};
@@ -58,20 +67,6 @@ const workbenchPaneStyle = computed(() => {
 // Local Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 watch(displayIsWide, () => (activeOptionBarId.value = 'none'));
-
-// States - Pane Splitter ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const paneSplitterIsDragging = ref(false);
-const paneSplitterIsVisible = computed(() => displayIsWide.value && !paneState.workbenchIsHidden && !paneState.knowledgeIsHidden);
-const paneSplitterPercent = ref(50);
-
-const knowledgePaneClasses = computed(() => {
-    if (displayIsWide.value) {
-        if (paneState.knowledgeIsHidden) return 'hidden';
-        return 'flex h-full min-w-0 flex-1';
-    }
-    return paneState.activePaneId === 'knowledge' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
-});
 
 // UI Helpers - Options ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -84,7 +79,7 @@ function completeOptionInvocation(paneId: 'workbench' | 'knowledge'): void {
 
 function constructPaneToggleAriaLabel(pane: 'workbench' | 'knowledge'): string {
     if (displayIsWide.value) {
-        const isHidden = pane === 'workbench' ? paneState.workbenchIsHidden : paneState.knowledgeIsHidden;
+        const isHidden = pane === 'workbench' ? !showWorkbench.value : !showKnowledge.value;
         return t(T, isHidden ? `toggle.${pane}.wide.show` : `toggle.${pane}.wide.hide`);
     }
     const isOpen = activeOptionBarId.value === pane;
@@ -93,36 +88,37 @@ function constructPaneToggleAriaLabel(pane: 'workbench' | 'knowledge'): string {
 
 function togglePane(pane: 'workbench' | 'knowledge'): void {
     if (displayIsWide.value) {
-        const isHiddenKey = pane === 'workbench' ? 'workbenchIsHidden' : 'knowledgeIsHidden';
-        const otherIsHiddenKey = pane === 'workbench' ? 'knowledgeIsHidden' : 'workbenchIsHidden';
-        if (!paneState[isHiddenKey] && paneState[otherIsHiddenKey]) return;
-        paneState[isHiddenKey] = !paneState[isHiddenKey];
-        paneState.activePaneId = paneState[isHiddenKey] ? (pane === 'workbench' ? 'knowledge' : 'workbench') : pane; // Pre-set narrow mode active pane for when display switches back.
+        if (pane === 'workbench') {
+            if (showWorkbench.value) {
+                if (!showKnowledge.value) return; // Can't hide the only visible pane.
+                const { ...query } = router.currentRoute.value.query;
+                void router.push({ path: '/', query });
+            } else {
+                void router.push({ path: '/workflow', query: router.currentRoute.value.query });
+            }
+        } else {
+            if (showKnowledge.value) {
+                if (!showWorkbench.value) return; // Can't hide the only visible pane.
+                const query = Object.fromEntries(Object.entries(router.currentRoute.value.query).filter(([k]) => k !== 'knowledge'));
+                void router.push({ path: router.currentRoute.value.path, query });
+            } else {
+                void router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: 'welcome' } });
+            }
+        }
     } else {
-        activeOptionBarId.value = activeOptionBarId.value === pane ? 'none' : pane;
+        const paneIsShown = pane === 'workbench' ? showWorkbench.value : showKnowledge.value;
+        if (paneIsShown) {
+            activeOptionBarId.value = activeOptionBarId.value === pane ? 'none' : pane;
+        } else {
+            if (pane === 'workbench') void router.push({ path: '/workflow', query: router.currentRoute.value.query });
+            else void router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: 'welcome' } });
+        }
     }
-}
-
-// UI Helpers - Pane Splitter ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function handleSplitterPointerDown(event: PointerEvent): void {
-    paneSplitterIsDragging.value = true;
-    (event.target as HTMLElement).setPointerCapture(event.pointerId);
-}
-
-function handleSplitterPointerMove(event: PointerEvent): void {
-    if (!paneSplitterIsDragging.value) return;
-    const percent = (event.clientX / window.innerWidth) * 100;
-    paneSplitterPercent.value = Math.min(Math.max(percent, 20), 80);
-}
-
-function handleSplitterPointerUp(): void {
-    paneSplitterIsDragging.value = false;
 }
 </script>
 
 <template>
-    <div class="bg-surface text-content fixed inset-0 flex" :class="{ 'select-none': paneSplitterIsDragging }">
+    <div class="bg-surface text-content fixed inset-0 flex">
         <!-- Workbench toggle fixed in top left corner. Always visible .-->
         <Button :aria-label="constructPaneToggleAriaLabel('workbench')" class="fixed top-1.75 left-3 z-40" variant="iconLarge" @click="togglePane('workbench')">
             <DPUseLogoIcon />
@@ -151,7 +147,7 @@ function handleSplitterPointerUp(): void {
         </DialogWrapper>
 
         <!-- Left pane: Workbench (option bar + workbench body). -->
-        <div :class="workbenchPaneClasses" :style="workbenchPaneStyle">
+        <div v-if="showWorkbench" :class="workbenchPaneClasses" :style="workbenchPaneStyle">
             <WorkbenchOptionBar class="flex-none" :is-open-in-narrow-display="activeOptionBarId === 'workbench'" @continue="completeOptionInvocation('workbench')" />
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
@@ -163,17 +159,11 @@ function handleSplitterPointerUp(): void {
         </div>
 
         <!-- Vertical splitter for resizing panes. -->
-        <div
-            v-if="paneSplitterIsVisible"
-            class="border-boundary hover:bg-separator h-full w-1 flex-none cursor-col-resize border-x transition-colors"
-            @pointerdown="handleSplitterPointerDown"
-            @pointermove="handleSplitterPointerMove"
-            @pointerup="handleSplitterPointerUp"
-        />
+        <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
 
         <!-- Right pane: Knowledge (knowledge body + option bar). -->
-        <div :class="knowledgePaneClasses">
-            <KnowledgePanel class="flex-1" :workbench-pane-is-hidden="paneState.workbenchIsHidden" />
+        <div v-if="showKnowledge" :class="knowledgePaneClasses">
+            <KnowledgePanel class="flex-1" :workbench-pane-is-hidden="!showWorkbench" />
             <KnowledgeOptionBar class="flex-none" :is-open-in-narrow-display="activeOptionBarId === 'knowledge'" @continue="completeOptionInvocation('knowledge')" />
         </div>
     </div>

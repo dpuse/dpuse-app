@@ -9,7 +9,7 @@ export const appRoutes = [
     {
         path: '/',
         children: [
-            { path: '', redirect: '/workflow' },
+            { path: '', component: { render: (): null => null } }, // Matches exactly '/'. beforeEach handles the default redirect to knowledge home.
             { path: 'admin', children: [{ name: 'admin', path: '', component: (): Promise<Component> => import('@/views/workbench/admin/Admin.vue') }] },
             { path: 'partner', children: [{ name: 'partner', path: '', component: (): Promise<Component> => import('@/views/workbench/partner/Partner.vue') }] },
             {
@@ -68,7 +68,7 @@ export const appRoutes = [
             }
         ]
     },
-    { path: '/:catchAll(.*)', redirect: '/workflow' }
+    { path: '/:catchAll(.*)', redirect: '/' }
 ];
 
 const scrollBehavior: RouterScrollBehavior = (to, from, savedPosition) => {
@@ -76,9 +76,19 @@ const scrollBehavior: RouterScrollBehavior = (to, from, savedPosition) => {
 };
 
 // Application router with web history and scroll position restoration
-export const createAppRouter = (): Router =>
-    createRouter({
+export const createAppRouter = (): Router => {
+    const router = createRouter({
         history: createWebHistory(import.meta.env.BASE_URL),
         routes: appRoutes,
         scrollBehavior
     });
+
+    // Default to knowledge home when no workbench route or knowledge argument is present.
+    router.beforeEach((to) => {
+        if (to.path === '/' && !('knowledge' in to.query)) {
+            return { path: '/', query: { ...to.query, knowledge: 'welcome' } };
+        }
+    });
+
+    return router;
+};
