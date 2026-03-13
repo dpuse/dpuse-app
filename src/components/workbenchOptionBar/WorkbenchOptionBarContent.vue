@@ -7,15 +7,17 @@ import { shallowRef, watch } from 'vue';
 
 // App Core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
+import { useActiveBenchtop } from '@/composables/useActiveBenchtop';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
 import { localeId, localiseConfigs } from '~/src/locales';
 
 // Properties & Emits
-const emit = defineEmits<{ (event: 'complete', config?: BenchtopOptionLocalisedConfig): void }>();
+const emit = defineEmits<{ (event: 'continue'): void }>();
 
 // States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const route = useRoute();
+const { setActiveBenchtop } = useActiveBenchtop();
 
 const workflowStepConfigs = shallowRef();
 watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(workflowStepData, newLocaleId)), { immediate: true });
@@ -23,7 +25,8 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
-    emit('complete', config);
+    if (config) setActiveBenchtop(config);
+    emit('continue');
 }
 </script>
 

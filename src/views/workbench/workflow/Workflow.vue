@@ -14,9 +14,6 @@ import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Card from '@/components/card/Card.vue';
 import Header from '@/components/header/Header.vue';
 
-// Properties & Emits
-const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
-
 // States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const route = useRoute();
@@ -31,7 +28,6 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
             :breadcrumbs="[{ id: 'workbench', label: t(T, 'wb.label') }]"
             class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] w-full max-w-4xl"
             data-testid="header"
-            :display-is-wide="displayIsWide"
             :title="t(T, 'wb.wf.label')"
             :workbench-pane-is-hidden="false"
         />

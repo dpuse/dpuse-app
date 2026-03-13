@@ -9,7 +9,7 @@ import Button from '@/components/button/Button.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits
-const emit = defineEmits<{ (event: 'complete'): void }>();
+const emit = defineEmits<{ (event: 'continue'): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -19,7 +19,7 @@ const router = useRouter();
 
 function handleOptionClick(view: string): void {
     router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: view } });
-    emit('complete');
+    emit('continue');
 }
 </script>
 

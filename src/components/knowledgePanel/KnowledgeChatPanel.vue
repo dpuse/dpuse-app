@@ -6,9 +6,6 @@ import { SendHorizonalIcon } from 'lucide-vue-next';
 // App Components
 import Button from '@/components/button/Button.vue';
 
-// Properties & Emits
-defineProps<{ displayIsWide: boolean }>();
-
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 // Chat state (kept here so it persists across view switches)

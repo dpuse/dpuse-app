@@ -1,30 +1,32 @@
 <script setup lang="ts">
 // App Core
-import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
+import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
 // App Components
 import WorkbenchOptionBarContent from './WorkbenchOptionBarContent.vue';
 
 // Properties & Emits
-const { isOpenInNarrowDisplay, displayIsWide } = defineProps<{ isOpenInNarrowDisplay: boolean; displayIsWide: boolean }>();
-const emit = defineEmits<{ (event: 'complete', config?: BenchtopOptionLocalisedConfig): void }>();
+const { isOpenInNarrowDisplay } = defineProps<{ isOpenInNarrowDisplay: boolean }>();
+
+const { displayIsWide } = useDisplayBreakpoint();
+const emit = defineEmits<{ (event: 'continue'): void }>();
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
-    emit('complete', config);
+function handleComplete(): void {
+    emit('continue');
 }
 </script>
 
 <template>
     <div>
-        <WorkbenchOptionBarContent class="hidden md:flex" @complete="handleComplete" />
+        <WorkbenchOptionBarContent class="hidden md:flex" @continue="handleComplete" />
 
         <Transition name="horizontal-slide-ltr">
             <div v-if="isOpenInNarrowDisplay && !displayIsWide" class="fixed inset-0 z-30 flex md:hidden">
                 <div class="bg-surface/70 absolute inset-0" @click="handleComplete()"></div>
 
-                <WorkbenchOptionBarContent class="dpuse-horizontal-slide-ltr-element relative mr-auto flex shadow-lg" @complete="handleComplete" />
+                <WorkbenchOptionBarContent class="dpuse-horizontal-slide-ltr-element relative mr-auto flex shadow-lg" @continue="handleComplete" />
             </div>
         </Transition>
     </div>

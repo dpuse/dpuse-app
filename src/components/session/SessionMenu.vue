@@ -13,7 +13,7 @@ import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits
 const { sheet } = defineProps<{ sheet?: boolean }>();
-const emit = defineEmits<{ (event: 'complete'): void }>();
+const emit = defineEmits<{ (event: 'continue'): void }>();
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -41,7 +41,7 @@ const sessionIsAuthenticated = computed(() => sessionState.isAuthenticated);
 
 function handleManageAccount(): void {
     router.replace({ query: { ...router.currentRoute.value.query, dialog: 'acctMgmt' } });
-    emit('complete');
+    emit('continue');
 }
 
 function handleReloadApplication(): void {
@@ -53,33 +53,33 @@ function handleSetAppearance(mode: 'dark' | 'light' | 'auto'): void {
     const isDark = mode === 'dark' || (mode === 'auto' && prefersDark);
     localStorage.setItem('dpuse-appearance', mode);
     document.documentElement.classList.toggle('dark', isDark);
-    nextTick().then(() => emit('complete'));
+    nextTick().then(() => emit('continue'));
 }
 
 function handleSetLanguage(id: LocaleId): void {
     localeId.value = id;
-    emit('complete');
+    emit('continue');
 }
 
 function handleSignInRegister(): void {
     router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });
-    emit('complete');
+    emit('continue');
 }
 
 function handleSignOut(): void {
-    sessionState.signOut().then(() => emit('complete'));
+    sessionState.signOut().then(() => emit('continue'));
 }
 
 function handleToggleWindowExpansion(): void {
     toggleFullscreen();
-    emit('complete');
+    emit('continue');
 }
 </script>
 
 <template>
     <div class="border-boundary bg-surface flex flex-col overflow-y-auto overscroll-y-none rounded-md border px-4 py-3 shadow-md">
         <div v-if="sheet" class="mb-2 flex items-center justify-end">
-            <Button variant="iconSmall" @click="emit('complete')"><XIcon class="size-4.5!" /></Button>
+            <Button variant="iconSmall" @click="emit('continue')"><XIcon class="size-4.5!" /></Button>
         </div>
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Appearance') }}</div>
         <div class="flex gap-x-2">

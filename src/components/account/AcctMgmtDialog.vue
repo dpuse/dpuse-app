@@ -7,12 +7,12 @@ import { type Component, defineAsyncComponent, shallowRef, watch } from 'vue';
 // App Core
 import { t } from '@/locales';
 import T from '@/locales/views/account/Account.json';
+import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
 // App Components
 import Button, { type VariantTypeId } from '@/components/button/Button.vue';
 
-// Properties & Emits
-const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
+const { displayIsWide } = useDisplayBreakpoint();
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -54,7 +54,7 @@ const router = useRouter();
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
 
 watch(
-    () => displayIsWide,
+    displayIsWide,
     (isWide) => {
         if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1];
     }
@@ -69,14 +69,14 @@ function handleBack(): void {
 function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
     const routeName = router.currentRoute.value.name;
     if (routeName === 'account') {
-        if (displayIsWide) {
+        if (displayIsWide.value) {
             return OPTION_CONFIGS[1];
         }
         return;
     } else {
         const activeOptionConfig = OPTION_CONFIGS.find((config) => config.id === router.currentRoute.value.name);
         if (!activeOptionConfig) {
-            if (displayIsWide) {
+            if (displayIsWide.value) {
                 return OPTION_CONFIGS[1];
             }
             return;

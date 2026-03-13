@@ -1,11 +1,15 @@
 <script setup lang="ts">
+// App Core
+import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
+
 // Properties & Emits
-const { breadcrumbs, displayIsWide, title, workbenchPaneIsHidden } = defineProps<{
+const { breadcrumbs, title, workbenchPaneIsHidden } = defineProps<{
     breadcrumbs?: { id: string; label: string }[];
-    displayIsWide: boolean;
     title: string;
     workbenchPaneIsHidden: boolean;
 }>();
+
+const { displayIsWide } = useDisplayBreakpoint();
 </script>
 
 <template>

@@ -5,6 +5,7 @@ import { type ComponentPublicInstance, computed, defineAsyncComponent, onMounted
 
 // App Core
 import { useSessionStore } from '@/stores/sessionStore';
+import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
 // App Components
 import Button from '@/components/button/Button.vue';
@@ -15,8 +16,9 @@ import Separator from '@/components/separator/Separator.vue';
 const SessionMenu = defineAsyncComponent(() => import('@/components/session/SessionMenu.vue'));
 
 // Properties & Emits
-const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
-const emit = defineEmits<{ (event: 'complete'): void }>();
+const emit = defineEmits<{ (event: 'continue'): void }>();
+
+const { displayIsWide } = useDisplayBreakpoint();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -73,7 +75,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPoin
 
 function handleClose(): void {
     sessionMenuIsVisible.value = false;
-    emit('complete');
+    emit('continue');
 }
 </script>
 
@@ -93,7 +95,7 @@ function handleClose(): void {
                         : 'fixed right-0 bottom-0 left-0 z-50 max-h-[80vh] overflow-y-auto overscroll-y-none rounded-t-2xl'
                 "
                 :sheet="!displayIsWide"
-                @complete="handleClose"
+                @continue="handleClose"
             />
         </Transition>
 

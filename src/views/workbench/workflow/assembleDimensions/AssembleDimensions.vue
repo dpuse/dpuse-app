@@ -7,15 +7,12 @@ import T from '@/locales/views/workflow/assembleDimensions/AssembleDimensions.js
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Header from '@/components/header/Header.vue';
 
-// Properties & Emits
-const { displayIsWide } = defineProps<{ displayIsWide: boolean }>();
 </script>
 
 <template>
     <BenchtopShell>
         <Header
             :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]"
-            :display-is-wide="displayIsWide"
             :title="t(T, 'Assemble_Dimensions')"
             :workbench-pane-is-hidden="false"
         />

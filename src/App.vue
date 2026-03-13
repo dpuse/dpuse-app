@@ -1,13 +1,15 @@
 <script setup lang="ts">
 // External Dependencies
 import { useRoute } from 'vue-router';
-import { computed, defineAsyncComponent, onUnmounted, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, reactive, ref, watch } from 'vue';
 
 // App Core
-import type { BenchtopOptionLocalisedConfig } from './types/workbench';
+import T from '@/locales/App.json';
+import { t } from '@/locales';
+import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
 // App Components
-import Button from '@/components/button/Button.vue'; // Required workbench and knowledge toggle buttons which are always visible.
+import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
 
@@ -20,94 +22,84 @@ const KnowledgePanel = defineAsyncComponent(() => import('@/components/knowledge
 const WorkbenchOptionBar = defineAsyncComponent(() => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'));
 const SessionButton = defineAsyncComponent(() => import('@/components/session/SessionButton.vue'));
 
-// States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Composables ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+const { displayIsWide } = useDisplayBreakpoint();
 const route = useRoute();
 
-// Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local Reactive States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const activeBenchtopOptionConfig = ref<BenchtopOptionLocalisedConfig>({ id: 'home', label: '', color: '', description: '', icon: '', step: 0, tasks: [] });
 const activeOptionBarId = ref<'none' | 'workbench' | 'knowledge'>('none');
-const activePaneId = ref<'workbench' | 'knowledge'>('workbench');
+const paneState = reactive({ workbenchIsHidden: false, knowledgeIsHidden: false, activePaneId: 'workbench' as 'workbench' | 'knowledge' });
 
-// Local State - Display ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const displayMediaQuery = globalThis.matchMedia('(min-width: 768px)');
-const displayIsWide = ref(displayMediaQuery.matches);
-const handleDisplayMediaQueryChange = (event: MediaQueryListEvent): void => void (displayIsWide.value = event.matches);
-displayMediaQuery.addEventListener('change', handleDisplayMediaQueryChange);
-watch(displayIsWide, () => (activeOptionBarId.value = 'none'));
-
-// Local State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local Derived States - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const acctMgmtDialogIsVisible = computed(() => route.query.dialog === 'acctMgmt');
 const authDialogIsVisible = computed(() => route.query.dialog === 'auth');
 
-// Local State - Workbench Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const workbenchPaneIsHidden = ref(false);
-
-const knowledgePaneIsHidden = ref(false);
+// Local Derived State - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const workbenchPaneClasses = computed(() => {
     if (displayIsWide.value) {
-        if (workbenchPaneIsHidden.value) return 'hidden';
+        if (paneState.workbenchIsHidden) return 'hidden';
         return 'flex h-full min-w-0';
     }
-    return activePaneId.value === 'workbench' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
+    return paneState.activePaneId === 'workbench' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
 });
 
 const workbenchPaneStyle = computed(() => {
-    if (!displayIsWide.value || workbenchPaneIsHidden.value) return {};
-    if (knowledgePaneIsHidden.value) return { flex: '1' };
-    return { width: paneSplitterPercent.value + '%' };
+    if (displayIsWide.value && !paneState.workbenchIsHidden) {
+        if (paneState.knowledgeIsHidden) return { flex: '1' };
+        return { width: paneSplitterPercent.value + '%' };
+    }
+    return {};
 });
 
-const workbenchPaneToggleAriaLabel = computed(() => {
-    if (!displayIsWide.value) return activeOptionBarId.value === 'workbench' ? 'Hide navigation bar' : 'Show navigation bar';
-    return workbenchPaneIsHidden.value ? 'Show workbench' : 'Hide workbench';
-});
+// Local Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Local State - Pane Splitter ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+watch(displayIsWide, () => (activeOptionBarId.value = 'none'));
+
+// States - Pane Splitter ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const paneSplitterIsDragging = ref(false);
-
-const paneSplitterIsVisible = computed(() => displayIsWide.value && !workbenchPaneIsHidden.value && !knowledgePaneIsHidden.value);
-
+const paneSplitterIsVisible = computed(() => displayIsWide.value && !paneState.workbenchIsHidden && !paneState.knowledgeIsHidden);
 const paneSplitterPercent = ref(50);
-
-// Local State - Knowledge Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const knowledgePaneClasses = computed(() => {
     if (displayIsWide.value) {
-        if (knowledgePaneIsHidden.value) return 'hidden';
+        if (paneState.knowledgeIsHidden) return 'hidden';
         return 'flex h-full min-w-0 flex-1';
     }
-    return activePaneId.value === 'knowledge' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
+    return paneState.activePaneId === 'knowledge' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
 });
 
-const knowledgePaneToggleAriaLabel = computed(() => {
-    if (!displayIsWide.value) return activeOptionBarId.value === 'knowledge' ? 'Hide knowledge bar' : 'Show knowledge bar';
-    return knowledgePaneIsHidden.value ? 'Show knowledge' : 'Hide knowledge';
-});
+// UI Helpers - Options ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-onUnmounted(() => displayMediaQuery.removeEventListener('change', handleDisplayMediaQueryChange));
-
-// UI Helpers - Workbench Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function handleWorkbenchOptionComplete(config?: BenchtopOptionLocalisedConfig): void {
-    if (config) activeBenchtopOptionConfig.value = config; // TODO: This will be set to undefined when mask is clicked. Ok, if dashboard options is selected, but maybe need null return for not action click.
+function completeOptionInvocation(paneId: 'workbench' | 'knowledge'): void {
     activeOptionBarId.value = 'none';
-    activePaneId.value = 'workbench';
+    paneState.activePaneId = paneId;
 }
 
-function handleWorkbenchToggle(): void {
+// UI Helpers - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function constructPaneToggleAriaLabel(pane: 'workbench' | 'knowledge'): string {
     if (displayIsWide.value) {
-        if (!workbenchPaneIsHidden.value && knowledgePaneIsHidden.value) return;
-        workbenchPaneIsHidden.value = !workbenchPaneIsHidden.value;
-        activePaneId.value = workbenchPaneIsHidden.value ? 'knowledge' : 'workbench'; // Pre-set narrow mode active pane for when display switches back.
+        const isHidden = pane === 'workbench' ? paneState.workbenchIsHidden : paneState.knowledgeIsHidden;
+        return t(T, isHidden ? `toggle.${pane}.wide.show` : `toggle.${pane}.wide.hide`);
+    }
+    const isOpen = activeOptionBarId.value === pane;
+    return t(T, isOpen ? `toggle.${pane}.narrow.hide` : `toggle.${pane}.narrow.show`);
+}
+
+function togglePane(pane: 'workbench' | 'knowledge'): void {
+    if (displayIsWide.value) {
+        const isHiddenKey = pane === 'workbench' ? 'workbenchIsHidden' : 'knowledgeIsHidden';
+        const otherIsHiddenKey = pane === 'workbench' ? 'knowledgeIsHidden' : 'workbenchIsHidden';
+        if (!paneState[isHiddenKey] && paneState[otherIsHiddenKey]) return;
+        paneState[isHiddenKey] = !paneState[isHiddenKey];
+        paneState.activePaneId = paneState[isHiddenKey] ? (pane === 'workbench' ? 'knowledge' : 'workbench') : pane; // Pre-set narrow mode active pane for when display switches back.
     } else {
-        activeOptionBarId.value = activeOptionBarId.value === 'workbench' ? 'none' : 'workbench';
+        activeOptionBarId.value = activeOptionBarId.value === pane ? 'none' : pane;
     }
 }
 
@@ -127,41 +119,24 @@ function handleSplitterPointerMove(event: PointerEvent): void {
 function handleSplitterPointerUp(): void {
     paneSplitterIsDragging.value = false;
 }
-
-// UI Helpers - Knowledge Pane ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function handleKnowledgeToggle(): void {
-    if (displayIsWide.value) {
-        if (!knowledgePaneIsHidden.value && workbenchPaneIsHidden.value) return;
-        knowledgePaneIsHidden.value = !knowledgePaneIsHidden.value;
-        activePaneId.value = knowledgePaneIsHidden.value ? 'workbench' : 'knowledge'; // Pre-set narrow mode active pane for when display switches back.
-    } else {
-        activeOptionBarId.value = activeOptionBarId.value === 'knowledge' ? 'none' : 'knowledge';
-    }
-}
-
-function handleKnowledgeOptionComplete(): void {
-    activeOptionBarId.value = 'none';
-    activePaneId.value = 'knowledge';
-}
 </script>
 
 <template>
     <div class="bg-surface text-content fixed inset-0 flex" :class="{ 'select-none': paneSplitterIsDragging }">
         <!-- Workbench toggle fixed in top left corner. Always visible .-->
-        <Button :aria-label="workbenchPaneToggleAriaLabel" class="fixed top-1.75 left-3 z-40" variant="iconLarge" @click="handleWorkbenchToggle">
+        <Button :aria-label="constructPaneToggleAriaLabel('workbench')" class="fixed top-1.75 left-3 z-40" variant="iconLarge" @click="togglePane('workbench')">
             <DPUseLogoIcon />
         </Button>
 
         <!-- Knowledge toggle fixed in top right corner. Always visible -->
-        <Button :aria-label="knowledgePaneToggleAriaLabel" class="fixed top-1.75 right-3 z-40" variant="iconLarge" @click="handleKnowledgeToggle">
+        <Button :aria-label="constructPaneToggleAriaLabel('knowledge')" class="fixed top-1.75 right-3 z-40" variant="iconLarge" @click="togglePane('knowledge')">
             <KnowledgeIcon />
         </Button>
 
         <!-- Session action -->
         <Transition appear name="horizontal-slide-ltr">
             <div v-if="displayIsWide || activeOptionBarId === 'workbench'" class="fixed bottom-7 left-3 z-40">
-                <SessionButton class="dpuse-horizontal-slide-ltr-element" :display-is-wide="displayIsWide" @complete="handleWorkbenchOptionComplete" />
+                <SessionButton class="dpuse-horizontal-slide-ltr-element" @continue="completeOptionInvocation('workbench')" />
             </div>
         </Transition>
 
@@ -172,21 +147,16 @@ function handleKnowledgeOptionComplete(): void {
 
         <!-- Account Management dialog activated using url parameter 'dialog=acctMgmt'. -->
         <DialogWrapper v-if="acctMgmtDialogIsVisible">
-            <AcctMgmtDialog :display-is-wide="displayIsWide" />
+            <AcctMgmtDialog />
         </DialogWrapper>
 
         <!-- Left pane: Workbench (option bar + workbench body). -->
         <div :class="workbenchPaneClasses" :style="workbenchPaneStyle">
-            <WorkbenchOptionBar
-                class="flex-none"
-                :is-open-in-narrow-display="activeOptionBarId === 'workbench'"
-                :display-is-wide="displayIsWide"
-                @complete="handleWorkbenchOptionComplete"
-            />
+            <WorkbenchOptionBar class="flex-none" :is-open-in-narrow-display="activeOptionBarId === 'workbench'" @continue="completeOptionInvocation('workbench')" />
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">
-                        <component :is="Component" :key="$route.path" :benchtop-option-config="activeBenchtopOptionConfig" :display-is-wide="displayIsWide" />
+                        <component :is="Component" :key="$route.path" />
                     </Transition>
                 </RouterView>
             </div>
@@ -203,13 +173,8 @@ function handleKnowledgeOptionComplete(): void {
 
         <!-- Right pane: Knowledge (knowledge body + option bar). -->
         <div :class="knowledgePaneClasses">
-            <KnowledgePanel class="flex-1" :display-is-wide="displayIsWide" :workbench-pane-is-hidden="workbenchPaneIsHidden" />
-            <KnowledgeOptionBar
-                class="flex-none"
-                :is-open-in-narrow-display="activeOptionBarId === 'knowledge'"
-                :display-is-wide="displayIsWide"
-                @complete="handleKnowledgeOptionComplete"
-            />
+            <KnowledgePanel class="flex-1" :workbench-pane-is-hidden="paneState.workbenchIsHidden" />
+            <KnowledgeOptionBar class="flex-none" :is-open-in-narrow-display="activeOptionBarId === 'knowledge'" @continue="completeOptionInvocation('knowledge')" />
         </div>
     </div>
 </template>
