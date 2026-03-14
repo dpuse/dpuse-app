@@ -149,14 +149,18 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
         </Transition>
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth'. -->
-        <DialogWrapper v-if="authDialogIsVisible">
-            <AuthDialog />
-        </DialogWrapper>
+        <Transition name="dialog">
+            <DialogWrapper v-if="authDialogIsVisible">
+                <AuthDialog />
+            </DialogWrapper>
+        </Transition>
 
         <!-- Account Management dialog activated using url parameter 'dialog=acctMgmt'. -->
-        <DialogWrapper v-if="acctMgmtDialogIsVisible">
-            <AcctMgmtDialog />
-        </DialogWrapper>
+        <Transition name="dialog">
+            <DialogWrapper v-if="acctMgmtDialogIsVisible">
+                <AcctMgmtDialog />
+            </DialogWrapper>
+        </Transition>
 
         <!-- Left pane: Workbench (option bar + workbench body). -->
         <div v-if="showWorkbench" :class="workbenchPaneClasses" :style="workbenchPaneStyle">
@@ -182,6 +186,16 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 </template>
 
 <style scoped>
+.dialog-enter-active,
+.dialog-leave-active {
+    transition: opacity 0.15s ease;
+}
+
+.dialog-enter-from,
+.dialog-leave-to {
+    opacity: 0;
+}
+
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 0.15s ease;

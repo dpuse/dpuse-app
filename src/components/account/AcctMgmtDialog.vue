@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // External Dependencies
 import { useRouter } from 'vue-router';
-import { ArrowBigLeftIcon, XIcon } from 'lucide-vue-next';
-import { type Component, defineAsyncComponent, shallowRef, watch } from 'vue';
+import { ArrowBigLeftIcon, LoaderCircleIcon, XIcon } from 'lucide-vue-next';
+import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 
 // App Core
 import { t } from '@/locales';
@@ -11,6 +11,7 @@ import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
 // App Components - Statically imported so always available, even when offline.
 import Button, { type VariantTypeId } from '@/components/button/Button.vue';
+import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 
 const { displayIsWide } = useDisplayBreakpoint();
 
@@ -52,6 +53,12 @@ const router = useRouter();
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
+const subPanelError = ref<unknown>(null);
+
+onErrorCaptured((error) => {
+    subPanelError.value = error;
+    return false;
+});
 
 watch(displayIsWide, (isWide) => {
     if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1];
@@ -137,7 +144,17 @@ async function handleCloseDialog(): Promise<void> {
                         {{ activeOptionConfig!.title }}
                     </div>
 
-                    <component :is="OPTION_COMPONENT_MAP[activeOptionConfig?.id ?? '']" class="flex-1" />
+                    <ChunkLoadError v-if="subPanelError" :error="subPanelError" chunk-name="account panel" class="flex-1" />
+                    <Suspense v-else>
+                        <template #default>
+                            <component :is="OPTION_COMPONENT_MAP[activeOptionConfig?.id ?? '']" class="flex-1" />
+                        </template>
+                        <template #fallback>
+                            <div class="flex flex-1 items-center justify-center">
+                                <LoaderCircleIcon class="text-muted animate-spin" />
+                            </div>
+                        </template>
+                    </Suspense>
                 </div>
             </div>
         </div>
