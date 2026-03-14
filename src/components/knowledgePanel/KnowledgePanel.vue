@@ -3,10 +3,10 @@
 import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
-// App Components
+// App Components - Statically imported so always available, even when offline.
 import Header from '@/components/header/Header.vue';
 
-// App Components - Lazy Loaded
+// App Components - Lazy loaded as required.
 const KnowledgeChatPanel = defineAsyncComponent(() => import('./KnowledgeChatPanel.vue'));
 const KnowledgeSearchPanel = defineAsyncComponent(() => import('./KnowledgeSearchPanel.vue'));
 const KnowledgeOverviewPanel = defineAsyncComponent(() => import('./KnowledgeOverviewPanel.vue'));

@@ -7,12 +7,12 @@ import { type ComponentPublicInstance, computed, defineAsyncComponent, onMounted
 import { useSessionStore } from '@/stores/sessionStore';
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
-// App Components
+// App Components - Statically imported so always available, even when offline.
 import Button from '@/components/button/Button.vue';
 import Mask from '@/components/mask/Mask.vue';
 import Separator from '@/components/separator/Separator.vue';
 
-// App Components - Lazy Loaded
+// App Components - Lazy loaded as required.
 const SessionMenu = defineAsyncComponent(() => import('@/components/session/SessionMenu.vue'));
 
 // Properties & Emits

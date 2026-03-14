@@ -1,3 +1,5 @@
+// TESTING: Promise.reject(new Error('Simulated chunk failure')).catch((error) => handleLoadError('explorePresentations', error))
+
 // External Dependencies
 import type { Component } from 'vue';
 import { h } from 'vue';
@@ -6,8 +8,22 @@ import { createRouter, createWebHistory, type Router, type RouterScrollBehavior 
 // App Core
 import { completeNavigation, startNavigation } from '@/composables/useNavProgress';
 
-// App Components - Statically imported so they are always available, including when offline.
+// App Components - Statically imported so always available, even when offline.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
+
+// App Components - Lazy loaded as required.
+const Admin = lazyLoad('admin', () => import('@/views/workbench/admin/Admin.vue'));
+const Partner = lazyLoad('partner', () => import('@/views/workbench/partner/Partner.vue'));
+const Workflow = lazyLoad('workflow', () => import('@/views/workbench/workflow/Workflow.vue'));
+const EstablishDataViews = lazyLoad('establishDataViews', () => import('@/views/workbench/workflow/establishDataViews/EstablishDataViews.vue'));
+const DataViewList = lazyLoad('establishDataViews', () => import('@/views/workbench/workflow/establishDataViews/DataViewList.vue'));
+const ConnectionSelector = lazyLoad('connectionSelector', () => import('@/views/workbench/workflow/establishDataViews/ConnectionSelector.vue'));
+const AssembleDimensions = lazyLoad('assembleDimensions', () => import('@/views/workbench/workflow/assembleDimensions/AssembleDimensions.vue'));
+const DimensionList = lazyLoad('assembleDimensions', () => import('@/views/workbench/workflow/assembleDimensions/DimensionList.vue'));
+const ContextualiseData = lazyLoad('contextualiseData', () => import('@/views/workbench/workflow/contextualiseData/ContextualiseData.vue'));
+const EventQueryList = lazyLoad('contextualiseData', () => import('@/views/workbench/workflow/contextualiseData/EventQueryList.vue'));
+const ExplorePresentations = lazyLoad('explorePresentations', () => import('@/views/workbench/workflow/explorePresentations/ExplorePresentations.vue'));
+const BuildDataApps = lazyLoad('buildDataApps', () => import('@/views/workbench/workflow/buildDataApps/BuildDataApps.vue'));
 
 // Constants
 export const APP_ROUTES = [
@@ -15,77 +31,24 @@ export const APP_ROUTES = [
         path: '/',
         children: [
             { path: '', component: { render: (): null => null } }, // Matches exactly '/'. beforeEach handles the default redirect to knowledge home.
-            {
-                path: 'admin',
-                children: [{ name: 'admin', path: '', component: (): Promise<Component> => import('@/views/workbench/admin/Admin.vue').catch((error) => handleChunkLoadError('admin', error)) }]
-            },
-            {
-                path: 'partner',
-                children: [
-                    { name: 'partner', path: '', component: (): Promise<Component> => import('@/views/workbench/partner/Partner.vue').catch((error) => handleChunkLoadError('partner', error)) }
-                ]
-            },
+            { path: 'admin', children: [{ name: 'admin', path: '', component: Admin }] },
+            { path: 'partner', children: [{ name: 'partner', path: '', component: Partner }] },
             {
                 path: 'workflow',
                 children: [
-                    { name: 'workflow', path: '', component: (): Promise<Component> => import('@/views/workbench/workflow/Workflow.vue').catch((error) => handleChunkLoadError('workflow', error)) },
+                    { name: 'workflow', path: '', component: Workflow },
                     {
                         path: 'establishDataViews',
-                        component: (): Promise<Component> =>
-                            import('@/views/workbench/workflow/establishDataViews/EstablishDataViews.vue').catch((error) => handleChunkLoadError('establishDataViews', error)),
+                        component: EstablishDataViews,
                         children: [
-                            {
-                                name: 'establishDataViews',
-                                path: '',
-                                component: (): Promise<Component> =>
-                                    import('@/views/workbench/workflow/establishDataViews/DataViewList.vue').catch((error) => handleChunkLoadError('establishDataViews', error))
-                            },
-                            {
-                                name: 'connectionSelector',
-                                path: 'connectionSelector',
-                                component: (): Promise<Component> =>
-                                    import('@/views/workbench/workflow/establishDataViews/ConnectionSelector.vue').catch((error) => handleChunkLoadError('connectionSelector', error))
-                            }
+                            { name: 'establishDataViews', path: '', component: DataViewList },
+                            { name: 'connectionSelector', path: 'connectionSelector', component: ConnectionSelector }
                         ]
                     },
-                    {
-                        path: 'assembleDimensions',
-                        component: (): Promise<Component> =>
-                            import('@/views/workbench/workflow/assembleDimensions/AssembleDimensions.vue').catch((error) => handleChunkLoadError('assembleDimensions', error)),
-                        children: [
-                            {
-                                name: 'assembleDimensions',
-                                path: '',
-                                component: (): Promise<Component> =>
-                                    import('@/views/workbench/workflow/assembleDimensions/DimensionList.vue').catch((error) => handleChunkLoadError('assembleDimensions', error))
-                            }
-                        ]
-                    },
-                    {
-                        path: 'contextualiseData',
-                        component: (): Promise<Component> =>
-                            import('@/views/workbench/workflow/contextualiseData/ContextualiseData.vue').catch((error) => handleChunkLoadError('contextualiseData', error)),
-                        children: [
-                            {
-                                name: 'contextualiseData',
-                                path: '',
-                                component: (): Promise<Component> =>
-                                    import('@/views/workbench/workflow/contextualiseData/EventQueryList.vue').catch((error) => handleChunkLoadError('contextualiseData', error))
-                            }
-                        ]
-                    },
-                    {
-                        name: 'explorePresentations',
-                        path: 'explorePresentations',
-                        component: (): Promise<Component> =>
-                            import('@/views/workbench/workflow/explorePresentations/ExplorePresentations.vue').catch((error) => handleChunkLoadError('explorePresentations', error))
-                        // Promise.reject(new Error('Simulated chunk failure')).catch((error) => handleChunkLoadError('explorePresentations', error))
-                    },
-                    {
-                        name: 'buildDataApps',
-                        path: 'buildDataApps',
-                        component: (): Promise<Component> => import('@/views/workbench/workflow/buildDataApps/BuildDataApps.vue').catch((error) => handleChunkLoadError('buildDataApps', error))
-                    }
+                    { path: 'assembleDimensions', component: AssembleDimensions, children: [{ name: 'assembleDimensions', path: '', component: DimensionList }] },
+                    { path: 'contextualiseData', component: ContextualiseData, children: [{ name: 'contextualiseData', path: '', component: EventQueryList }] },
+                    { name: 'explorePresentations', path: 'explorePresentations', component: ExplorePresentations },
+                    { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataApps }
                 ]
             }
         ]
@@ -93,7 +56,7 @@ export const APP_ROUTES = [
     { path: '/:catchAll(.*)', redirect: '/' }
 ];
 
-// Application router with web history and scroll position restoration
+// Router Creation Function
 export const createAppRouter = (): Router => {
     const router = createRouter({
         history: createWebHistory(import.meta.env.BASE_URL),
@@ -103,10 +66,10 @@ export const createAppRouter = (): Router => {
 
     // Default to knowledge home when no workbench route or knowledge argument is present.
     router.beforeEach((to) => {
-        startNavigation();
         if (to.path === '/' && !('knowledge' in to.query)) {
             return { path: '/', query: { ...to.query, knowledge: 'welcome' } };
         }
+        startNavigation();
     });
 
     router.afterEach(() => completeNavigation());
@@ -117,15 +80,9 @@ export const createAppRouter = (): Router => {
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function handleChunkLoadError(chunkName: string, error: unknown): { render: () => ReturnType<typeof h> } {
+function handleLoadError(chunkName: string, error: unknown): { render: () => ReturnType<typeof h> } {
     return { render: (): ReturnType<typeof h> => h(ChunkLoadError, { chunkName, error }) };
 }
-
-// TODO: Following not exported by Vue router, duplicated here to address eslint function return type rule.
-// type ScrollPositionCoordinates = { behavior?: ScrollOptions['behavior']; left?: number; top?: number };
-// const scrollBehavior: RouterScrollBehavior = (to, from, savedPosition) => {
-//     return savedPosition ? { ...savedPosition, behavior: 'auto' } : { left: 0, top: 0 }; // NOTE: "behavior: 'auto'" required for Safari iOS v18.3.2.
-// };
 
 function handleScrollBehavior(
     _to: Parameters<RouterScrollBehavior>[0],
@@ -133,4 +90,10 @@ function handleScrollBehavior(
     savedPosition: Parameters<RouterScrollBehavior>[2]
 ): ReturnType<RouterScrollBehavior> {
     return savedPosition ? { ...savedPosition, behavior: 'auto' } : { left: 0, top: 0 }; // NOTE: "behavior: 'auto'" required for Safari iOS v18.3.2.
+}
+
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function lazyLoad(chunkName: string, importFunction: () => Promise<Component>): () => Promise<Component> {
+    return () => importFunction().catch((error) => handleLoadError(chunkName, error));
 }

@@ -8,7 +8,7 @@ import T from '@/locales/views/workflow/Workflow.json';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
 import { localeId, localiseConfigs, t } from '@/locales';
 
-// App Components
+// App Components - Statically imported so always available, even when offline.
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Card from '@/components/card/Card.vue';

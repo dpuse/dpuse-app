@@ -23,13 +23,13 @@ import T from '@/locales/views/workflow/establishDataViews/EstablishDataViews.js
 import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App Components
+// App Components - Statically imported so always available, even when offline.
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
 
-// App Components - Lazy Loaded
+// App Components - Lazy loaded as required.
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

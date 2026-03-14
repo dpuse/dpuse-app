@@ -3,7 +3,7 @@
 import { ref } from 'vue';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 
-// App Components
+// App Components - Statically imported so always available, even when offline.
 import Button from '@/components/button/Button.vue';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

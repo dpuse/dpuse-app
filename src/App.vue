@@ -8,21 +8,29 @@ import T from '@/locales/App.json';
 import { t } from '@/locales';
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
-// App Components
+// App Components - Statically imported so always available, even when offline.
 import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
+import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
+import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
-import NavProgressBar from '@/components/navProgressBar/NavProgressBar.vue'; // Always visible.
+import NavProgressBar from '@/components/navProgressBar/NavProgressBar.vue'; // Required when lazy loading is delayed.
 
-// App Components - Lazy Loaded
-const AcctMgmtDialog = defineAsyncComponent(() => new Promise((r) => setTimeout(r, 0)).then(() => import('@/components/account/AcctMgmtDialog.vue')));
-const AuthDialog = defineAsyncComponent(() => new Promise((r) => setTimeout(r, 0)).then(() => import('@/components/session/AuthDialog.vue')));
-const DialogWrapper = defineAsyncComponent(() => import('@/components/dialog/DialogWrapper.vue'));
-const KnowledgeOptionBar = defineAsyncComponent(() => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue'));
-const KnowledgePanel = defineAsyncComponent(() => import('@/components/knowledgePanel/KnowledgePanel.vue'));
-const PaneSplitter = defineAsyncComponent(() => import('@/components/paneSplitter/PaneSplitter.vue'));
-const SessionButton = defineAsyncComponent(() => import('@/components/session/SessionButton.vue'));
-const WorkbenchOptionBar = defineAsyncComponent(() => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'));
+// App Components - Lazy loaded as required.
+const AcctMgmtDialog = defineAsyncComponent({
+    loader: () => new Promise((r) => setTimeout(r, 2000)).then(() => import('@/components/account/AcctMgmtDialog.vue')),
+    errorComponent: ChunkLoadError
+});
+const AuthDialog = defineAsyncComponent({
+    loader: () => new Promise((r) => setTimeout(r, 2000)).then(() => import('@/components/session/AuthDialog.vue')),
+    errorComponent: ChunkLoadError
+});
+// const DialogWrapper = defineAsyncComponent({ loader: () => import('@/components/dialog/DialogWrapper.vue'), errorComponent: ChunkLoadError });
+const KnowledgeOptionBar = defineAsyncComponent({ loader: () => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue'), errorComponent: ChunkLoadError });
+const KnowledgePanel = defineAsyncComponent({ loader: () => import('@/components/knowledgePanel/KnowledgePanel.vue'), errorComponent: ChunkLoadError });
+const PaneSplitter = defineAsyncComponent({ loader: () => import('@/components/paneSplitter/PaneSplitter.vue'), errorComponent: ChunkLoadError });
+const SessionButton = defineAsyncComponent({ loader: () => import('@/components/session/SessionButton.vue'), errorComponent: ChunkLoadError });
+const WorkbenchOptionBar = defineAsyncComponent({ loader: () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), errorComponent: ChunkLoadError });
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

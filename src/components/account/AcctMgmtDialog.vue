@@ -9,7 +9,7 @@ import { t } from '@/locales';
 import T from '@/locales/views/account/Account.json';
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
-// App Components
+// App Components - Statically imported so always available, even when offline.
 import Button, { type VariantTypeId } from '@/components/button/Button.vue';
 
 const { displayIsWide } = useDisplayBreakpoint();
@@ -53,12 +53,9 @@ const router = useRouter();
 
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
 
-watch(
-    displayIsWide,
-    (isWide) => {
-        if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1];
-    }
-);
+watch(displayIsWide, (isWide) => {
+    if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1];
+});
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
