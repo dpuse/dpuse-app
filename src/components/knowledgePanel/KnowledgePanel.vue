@@ -6,7 +6,7 @@ import { type Component, computed, defineAsyncComponent } from 'vue';
 // App Components
 import Header from '@/components/header/Header.vue';
 
-// App Components (lazy loaded)
+// App Components - Lazy Loaded
 const KnowledgeChatPanel = defineAsyncComponent(() => import('./KnowledgeChatPanel.vue'));
 const KnowledgeSearchPanel = defineAsyncComponent(() => import('./KnowledgeSearchPanel.vue'));
 const KnowledgeOverviewPanel = defineAsyncComponent(() => import('./KnowledgeOverviewPanel.vue'));
@@ -37,11 +37,7 @@ const activePanel = computed(() => {
 
 <template>
     <div class="flex h-full min-w-0 flex-1 flex-col">
-        <Header
-            :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]"
-            :title="activePanel.label"
-            :workbench-pane-is-hidden="workbenchPaneIsHidden"
-        />
+        <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="activePanel.label" :workbench-pane-is-hidden="workbenchPaneIsHidden" />
 
         <component :is="activePanel.component" />
     </div>

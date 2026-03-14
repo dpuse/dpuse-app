@@ -22,7 +22,7 @@ import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
 
-// App Components (lazy loaded)
+// App Components - Lazy Loaded
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

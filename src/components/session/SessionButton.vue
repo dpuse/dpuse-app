@@ -12,7 +12,7 @@ import Button from '@/components/button/Button.vue';
 import Mask from '@/components/mask/Mask.vue';
 import Separator from '@/components/separator/Separator.vue';
 
-// App Components (lazy loaded)
+// App Components - Lazy Loaded
 const SessionMenu = defineAsyncComponent(() => import('@/components/session/SessionMenu.vue'));
 
 // Properties & Emits
@@ -57,7 +57,9 @@ async function gravatarUrl(email: string, size: number): Promise<string> {
 
 onMounted(() => {
     sessionState.initialiseServices();
-    gravatarUrl(emailAddress, 38).then((response) => (avatarUrl.value = response));
+    gravatarUrl(emailAddress, 38)
+        .then((response) => (avatarUrl.value = response))
+        .catch((error) => console.log(error));
 });
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

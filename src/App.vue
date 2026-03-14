@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { useRouter } from 'vue-router';
-import { computed, defineAsyncComponent, reactive, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
 // App Core
 import T from '@/locales/App.json';
@@ -12,8 +12,9 @@ import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
+import NavProgressBar from '@/components/navProgressBar/NavProgressBar.vue'; // Always visible.
 
-// App Components (lazy loaded)
+// App Components - Lazy Loaded
 const AcctMgmtDialog = defineAsyncComponent(() => new Promise((r) => setTimeout(r, 0)).then(() => import('@/components/account/AcctMgmtDialog.vue')));
 const AuthDialog = defineAsyncComponent(() => new Promise((r) => setTimeout(r, 0)).then(() => import('@/components/session/AuthDialog.vue')));
 const DialogWrapper = defineAsyncComponent(() => import('@/components/dialog/DialogWrapper.vue'));
@@ -30,9 +31,9 @@ const router = useRouter();
 
 // Local Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const activeOptionBarId = ref<'none' | 'workbench' | 'knowledge'>('none');
+const activeOptionBarId = ref<'workbench' | 'knowledge' | undefined>(undefined);
+const activePaneId = ref<'workbench' | 'knowledge'>(router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench');
 const paneSplitterPercent = ref(50);
-const paneState = reactive({ activePaneId: 'workbench' as 'workbench' | 'knowledge' });
 
 // Local Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -46,14 +47,14 @@ const showKnowledge = computed(() => 'knowledge' in router.currentRoute.value.qu
 
 const knowledgePaneClasses = computed(() => {
     if (displayIsWide.value) return 'flex h-full min-w-0 flex-1';
-    return paneState.activePaneId === 'knowledge' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
+    return activePaneId.value === 'knowledge' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
 });
 
 const paneSplitterIsVisible = computed(() => displayIsWide.value && showWorkbench.value && showKnowledge.value);
 
 const workbenchPaneClasses = computed(() => {
     if (displayIsWide.value) return 'flex h-full min-w-0';
-    return paneState.activePaneId === 'workbench' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
+    return activePaneId.value === 'workbench' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
 });
 
 const workbenchPaneStyle = computed(() => {
@@ -66,13 +67,13 @@ const workbenchPaneStyle = computed(() => {
 
 // Local Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-watch(displayIsWide, () => (activeOptionBarId.value = 'none'));
+watch(displayIsWide, () => (activeOptionBarId.value = undefined));
 
 // UI Helpers - Options ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function completeOptionInvocation(paneId: 'workbench' | 'knowledge'): void {
-    activeOptionBarId.value = 'none';
-    paneState.activePaneId = paneId;
+    activeOptionBarId.value = undefined;
+    activePaneId.value = paneId;
 }
 
 // UI Helpers - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -86,32 +87,32 @@ function constructPaneToggleAriaLabel(pane: 'workbench' | 'knowledge'): string {
     return t(T, isOpen ? `toggle.${pane}.narrow.hide` : `toggle.${pane}.narrow.show`);
 }
 
-function togglePane(pane: 'workbench' | 'knowledge'): void {
+async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
     if (displayIsWide.value) {
         if (pane === 'workbench') {
             if (showWorkbench.value) {
                 if (!showKnowledge.value) return; // Can't hide the only visible pane.
-                const { ...query } = router.currentRoute.value.query;
-                void router.push({ path: '/', query });
+                await router.push({ path: '/', query: { ...router.currentRoute.value.query } });
             } else {
-                void router.push({ path: '/workflow', query: router.currentRoute.value.query });
+                await router.push({ path: '/workflow', query: router.currentRoute.value.query });
             }
         } else {
             if (showKnowledge.value) {
                 if (!showWorkbench.value) return; // Can't hide the only visible pane.
                 const query = Object.fromEntries(Object.entries(router.currentRoute.value.query).filter(([k]) => k !== 'knowledge'));
-                void router.push({ path: router.currentRoute.value.path, query });
+                await router.push({ path: router.currentRoute.value.path, query });
             } else {
-                void router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: 'welcome' } });
+                await router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: 'welcome' } });
             }
         }
     } else {
         const paneIsShown = pane === 'workbench' ? showWorkbench.value : showKnowledge.value;
         if (paneIsShown) {
-            activeOptionBarId.value = activeOptionBarId.value === pane ? 'none' : pane;
+            activeOptionBarId.value = activeOptionBarId.value === pane ? undefined : pane;
         } else {
-            if (pane === 'workbench') void router.push({ path: '/workflow', query: router.currentRoute.value.query });
-            else void router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: 'welcome' } });
+            await (pane === 'workbench'
+                ? router.push({ path: '/workflow', query: router.currentRoute.value.query })
+                : router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: 'welcome' } }));
         }
     }
 }
@@ -119,6 +120,9 @@ function togglePane(pane: 'workbench' | 'knowledge'): void {
 
 <template>
     <div class="bg-surface text-content fixed inset-0 flex">
+        <!-- Navigation progress bar. Always visible. -->
+        <NavProgressBar />
+
         <!-- Workbench toggle fixed in top left corner. Always visible .-->
         <Button :aria-label="constructPaneToggleAriaLabel('workbench')" class="fixed top-1.75 left-3 z-40" variant="iconLarge" @click="togglePane('workbench')">
             <DPUseLogoIcon />

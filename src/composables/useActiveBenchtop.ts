@@ -1,15 +1,22 @@
+// External Dependencies
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
-import { readonly, shallowRef } from 'vue';
+import { type DeepReadonly, readonly, type ShallowRef, shallowRef } from 'vue';
 
-type ActiveBenchtopInterface = { activeBenchtopOptionConfig: typeof activeBenchtopOptionConfigReadonly; setActiveBenchtop: (config: BenchtopOptionLocalisedConfig) => void };
+// Composable
+type ActiveBenchtopInterface = {
+    activeBenchtopOptionConfig: DeepReadonly<ShallowRef<BenchtopOptionLocalisedConfig | undefined>>;
+    setActiveBenchtop: (config: BenchtopOptionLocalisedConfig) => void;
+};
+export function useActiveBenchtop(): ActiveBenchtopInterface {
+    return { activeBenchtopOptionConfig: readonly(activeBenchtopOptionConfig), setActiveBenchtop };
+}
+
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeBenchtopOptionConfig = shallowRef<BenchtopOptionLocalisedConfig | undefined>();
-const activeBenchtopOptionConfigReadonly = readonly(activeBenchtopOptionConfig);
+
+// Functions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function setActiveBenchtop(config: BenchtopOptionLocalisedConfig): void {
     activeBenchtopOptionConfig.value = config;
-}
-
-export function useActiveBenchtop(): ActiveBenchtopInterface {
-    return { activeBenchtopOptionConfig: activeBenchtopOptionConfigReadonly, setActiveBenchtop };
 }
