@@ -19,7 +19,7 @@ import LoginForm from '@/components/session/LoginForm.vue';
 import PasswordForm from '@/components/session/PasswordForm.vue';
 import Separator from '@/components/separator/Separator.vue';
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// External State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const router = useRouter();
 const sessionState = useSessionStore();

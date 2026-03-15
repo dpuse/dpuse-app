@@ -32,12 +32,12 @@ const PaneSplitter = defineAsyncComponent({ loader: () => import('@/components/p
 const SessionButton = defineAsyncComponent({ loader: () => import('@/components/session/SessionButton.vue'), errorComponent: ChunkLoadError });
 const WorkbenchOptionBar = defineAsyncComponent({ loader: () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), errorComponent: ChunkLoadError });
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// External State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const { displayIsWide } = useDisplayBreakpoint();
 const router = useRouter();
 
-// Local Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeOptionBarId = ref<'workbench' | 'knowledge' | undefined>(undefined);
 const activePaneId = ref<'workbench' | 'knowledge'>(router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench');
@@ -142,7 +142,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
             <KnowledgeIcon />
         </Button>
 
-        <!-- Session action -->
+        <!-- Session toggle -->
         <Transition appear name="horizontal-slide-ltr">
             <div v-if="displayIsWide || activeOptionBarId === 'workbench'" class="fixed bottom-7 left-3 z-40">
                 <SessionButton class="dpuse-horizontal-slide-ltr-element" @continue="completeOptionInvocation('workbench')" />

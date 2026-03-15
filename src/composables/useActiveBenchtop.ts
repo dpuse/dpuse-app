@@ -15,7 +15,7 @@ export function useActiveBenchtop(): ActiveBenchtopInterface {
 
 const activeBenchtopOptionConfig = shallowRef<BenchtopOptionLocalisedConfig | undefined>();
 
-// Functions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function setActiveBenchtop(config: BenchtopOptionLocalisedConfig): void {
     activeBenchtopOptionConfig.value = config;

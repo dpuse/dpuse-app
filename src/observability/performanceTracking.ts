@@ -4,7 +4,7 @@ import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 // App Core
 import { trackEvent } from '@/observability/eventTracking';
 
-// Functions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export function initialise(): void {
     onLCP(trackWebVitalMetric);
