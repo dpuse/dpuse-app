@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { LoaderCircleIcon } from 'lucide-vue-next';
-import { type ComponentPublicInstance, computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue';
+import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 
 // App Core
 import { useSessionStore } from '@/stores/sessionStore';
@@ -12,8 +12,8 @@ import Button from '@/components/button/Button.vue';
 import Mask from '@/components/mask/Mask.vue';
 import Separator from '@/components/separator/Separator.vue';
 
-// App Components - Lazy loaded as required.
-const SessionMenu = defineAsyncComponent(() => import('@/components/session/SessionMenu.vue'));
+// App Components - Statically imported to ensure enter transition fires on first open.
+import SessionMenu from '@/components/session/SessionMenu.vue';
 
 // Properties & Emits
 const emit = defineEmits<{ (event: 'continue'): void }>();
@@ -75,9 +75,22 @@ const handleDocumentPointerDown = (event: PointerEvent): void => {
 document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
 onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true }));
 
+const continueAfterLeave = ref(false);
+
 function handleClose(): void {
     sessionMenuIsVisible.value = false;
-    emit('continue');
+    if (displayIsWide.value) {
+        emit('continue');
+    } else {
+        continueAfterLeave.value = true;
+    }
+}
+
+function onMenuAfterLeave(): void {
+    if (continueAfterLeave.value) {
+        continueAfterLeave.value = false;
+        emit('continue');
+    }
 }
 </script>
 
@@ -87,7 +100,7 @@ function handleClose(): void {
             <Mask v-if="sessionMenuIsVisible && !displayIsWide" class="z-40" />
         </Transition>
 
-        <Transition :name="displayIsWide ? 'dpuse-slide-up' : 'dpuse-sheet'">
+        <Transition :name="displayIsWide ? 'dpuse-slide-up' : 'dpuse-sheet'" @after-leave="onMenuAfterLeave">
             <SessionMenu
                 v-if="sessionMenuIsVisible"
                 ref="sessionMenuReference"

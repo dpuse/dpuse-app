@@ -121,6 +121,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
             await (pane === 'workbench'
                 ? router.push({ path: '/workflow', query: router.currentRoute.value.query })
                 : router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: 'welcome' } }));
+            activeOptionBarId.value = pane;
         }
     }
 }
