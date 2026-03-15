@@ -4,27 +4,22 @@ import { LoaderCircleIcon } from 'lucide-vue-next';
 import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 
 // App Core
-import { useSessionStore } from '@/stores/sessionStore';
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
+import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components - Statically imported so always available, even when offline.
 import Button from '@/components/button/Button.vue';
 import Mask from '@/components/mask/Mask.vue';
-import Separator from '@/components/separator/Separator.vue';
 
 // App Components - Statically imported to ensure enter transition fires on first open.
 import SessionMenu from '@/components/session/SessionMenu.vue';
 
-// Properties & Emits
-const emit = defineEmits<{ (event: 'continue'): void }>();
-
-const { displayIsWide } = useDisplayBreakpoint();
-
 // External State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+const { displayIsWide } = useDisplayBreakpoint();
 const sessionState = useSessionStore();
 
-// Local state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const sessionMenuIsVisible = ref(false);
 const sessionIsAuthenticated = computed(() => sessionState.isAuthenticated);
@@ -68,29 +63,17 @@ const handleDocumentPointerDown = (event: PointerEvent): void => {
     if (!sessionMenuIsVisible.value) return;
     const target = event.target as Element;
     if ((sessionMenuReference.value?.$el as Element | undefined)?.contains(target) === true) return;
-    if (target.closest('.dpuse-outsideClickIgnore')) return;
+    if (target.closest('.dpuse-outside-click-ignore')) return;
     handleClose();
 };
 document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
 onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true }));
 
-const continueAfterLeave = ref(false);
-
 function handleClose(): void {
     sessionMenuIsVisible.value = false;
-    if (displayIsWide.value) {
-        emit('continue');
-    } else {
-        continueAfterLeave.value = true;
-    }
 }
 
-function onMenuAfterLeave(): void {
-    if (continueAfterLeave.value) {
-        continueAfterLeave.value = false;
-        emit('continue');
-    }
-}
+function onMenuAfterLeave(): void {}
 </script>
 
 <template>
@@ -113,8 +96,7 @@ function onMenuAfterLeave(): void {
             />
         </Transition>
 
-        <Separator class="dpuse-outsideClickIgnore mb-3" />
-        <Button class="dpuse-outsideClickIgnore relative h-10 w-10" variant="avatar">
+        <Button class="dpuse-outside-click-ignore relative h-10 w-10" variant="avatar">
             <Transition name="fade">
                 <!-- Session is authenticated. Show photo or initials. -->
                 <div v-if="sessionIsAuthenticated === true" class="absolute inset-0 flex items-center justify-center" @click="sessionMenuIsVisible = !sessionMenuIsVisible">

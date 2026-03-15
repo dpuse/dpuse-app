@@ -11,6 +11,8 @@ import { useActiveBenchtop } from '@/composables/useActiveBenchtop';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
 import { localeId, localiseConfigs } from '~/src/locales';
 
+import Separator from '@/components/separator/Separator.vue';
+
 // Properties & Emits
 const emit = defineEmits<{ (event: 'continue'): void }>();
 
@@ -31,6 +33,7 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
 </script>
 
 <template>
+    <!-- pb-20.25 reserves space at the bottom for the session button (fixed bottom-7, ~3.25rem tall + gap). -->
     <div class="border-boundary bg-backdrop h-full w-16.25 flex-col border-r pt-13.75 pb-20.25">
         <!-- Separator -->
         <div class="bg-separator mx-3 h-px" />
@@ -60,6 +63,8 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
                 </RouterLink>
             </div>
         </div>
+
+        <Separator class="mx-3" />
     </div>
 </template>
 

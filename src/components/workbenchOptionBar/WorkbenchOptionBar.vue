@@ -20,10 +20,10 @@ function handleComplete(): void {
 
 <template>
     <div>
-        <WorkbenchOptionBarContent class="hidden md:flex" @continue="handleComplete" />
+        <WorkbenchOptionBarContent v-if="displayIsWide" class="flex" @continue="handleComplete" />
 
-        <Transition name="horizontal-slide-ltr">
-            <div v-if="isOpenInNarrowDisplay && !displayIsWide" class="fixed inset-0 z-30 flex md:hidden">
+        <Transition appear name="horizontal-slide-ltr">
+            <div v-if="isOpenInNarrowDisplay && !displayIsWide" class="fixed inset-0 z-30 flex">
                 <div class="bg-surface/70 absolute inset-0" @click="handleComplete()"></div>
 
                 <WorkbenchOptionBarContent class="dpuse-horizontal-slide-ltr-element relative mr-auto flex shadow-lg" @continue="handleComplete" />

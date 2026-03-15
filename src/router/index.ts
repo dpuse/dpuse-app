@@ -64,10 +64,10 @@ export const createAppRouter = (): Router => {
         scrollBehavior: handleScrollBehavior
     });
 
-    // Default to knowledge home when no workbench route or knowledge argument is present.
+    // Default to /workflow when no workbench route or knowledge argument is present.
     router.beforeEach((to) => {
         if (to.path === '/' && !('knowledge' in to.query)) {
-            return { path: '/', query: { ...to.query, knowledge: 'welcome' } };
+            return { path: '/workflow', query: to.query };
         }
         startNavigation();
     });
