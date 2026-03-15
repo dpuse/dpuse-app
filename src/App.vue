@@ -19,11 +19,11 @@ import { useSessionStore } from './stores/sessionStore';
 
 // App Components - Lazy loaded as required.
 const AcctMgmtDialog = defineAsyncComponent({
-    loader: () => new Promise((r) => setTimeout(r, 2000)).then(() => import('@/components/account/AcctMgmtDialog.vue')),
+    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/components/account/AcctMgmtDialog.vue')),
     errorComponent: ChunkLoadError
 });
 const AuthDialog = defineAsyncComponent({
-    loader: () => new Promise((r) => setTimeout(r, 2000)).then(() => import('@/components/session/AuthDialog.vue')),
+    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/components/session/AuthDialog.vue')),
     errorComponent: ChunkLoadError
 });
 // const DialogWrapper = defineAsyncComponent({ loader: () => import('@/components/dialog/DialogWrapper.vue'), errorComponent: ChunkLoadError });
