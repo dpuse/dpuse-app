@@ -43,12 +43,12 @@ const activeOptionBarId = ref<'workbench' | 'knowledge' | undefined>(undefined);
 const activePaneId = ref<'workbench' | 'knowledge'>(router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench');
 const paneSplitterPercent = ref(50);
 
-// Local Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const acctMgmtDialogIsVisible = computed(() => router.currentRoute.value.query.dialog === 'acctMgmt');
 const authDialogIsVisible = computed(() => router.currentRoute.value.query.dialog === 'auth');
 
-// Local Derived State - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const showWorkbench = computed(() => router.currentRoute.value.path !== '/');
 const showKnowledge = computed(() => 'knowledge' in router.currentRoute.value.query);
@@ -73,12 +73,19 @@ const workbenchPaneStyle = computed(() => {
     return {};
 });
 
-// Local Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 watch(displayIsWide, (isWide) => {
     activeOptionBarId.value = undefined;
     if (!isWide) activePaneId.value = router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench';
 });
+
+watch(
+    () => router.currentRoute.value.path,
+    (path) => {
+        if (!displayIsWide.value) activePaneId.value = path === '/' ? 'knowledge' : 'workbench';
+    }
+);
 
 // UI Helpers - Options ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -166,7 +173,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
             </DialogWrapper>
         </Transition>
 
-        <!-- Left pane: Workbench (option bar + workbench body). -->
+        <!-- Left Pane - Workbench option bar and panel. -->
         <div v-if="showWorkbench" :class="workbenchPaneClasses" :style="workbenchPaneStyle">
             <WorkbenchOptionBar class="flex-none" :is-open-in-narrow-display="activeOptionBarId === 'workbench'" @continue="completeOptionInvocation('workbench')" />
             <div class="flex-1 overflow-y-hidden">
@@ -178,10 +185,10 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
             </div>
         </div>
 
-        <!-- Vertical splitter for resizing panes. -->
+        <!-- Vertical Splitter - Only visible if display is wide and both panes are visible. -->
         <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
 
-        <!-- Right pane: Knowledge (knowledge body + option bar). -->
+        <!-- Right Pane - Knowledge panel and option bar. -->
         <div v-if="showKnowledge" :class="knowledgePaneClasses">
             <KnowledgePanel class="flex-1" :workbench-pane-is-hidden="!showWorkbench" />
             <KnowledgeOptionBar class="flex-none" :is-open-in-narrow-display="activeOptionBarId === 'knowledge'" @continue="completeOptionInvocation('knowledge')" />
