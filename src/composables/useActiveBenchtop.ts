@@ -11,7 +11,7 @@ export function useActiveBenchtop(): ActiveBenchtopInterface {
     return { activeBenchtopOptionConfig: readonly(activeBenchtopOptionConfig), setActiveBenchtop };
 }
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeBenchtopOptionConfig = shallowRef<BenchtopOptionLocalisedConfig | undefined>();
 

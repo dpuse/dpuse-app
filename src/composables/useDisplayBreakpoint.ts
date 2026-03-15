@@ -7,7 +7,7 @@ export function useDisplayBreakpoint(): DisplayBreakpointInterface {
     return { displayIsWide: readonly(displayIsWide) };
 }
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const mediaQuery = globalThis.matchMedia('(min-width: 768px)');
 const displayIsWide = ref(mediaQuery.matches);
