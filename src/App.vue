@@ -139,14 +139,16 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
             }
         }
     } else {
-        const paneIsShown = pane === 'workbench' ? showWorkbench.value : showKnowledge.value;
-        if (paneIsShown) {
-            activeOptionBarId.value = activeOptionBarId.value === pane ? undefined : pane;
+        if (pane === 'workbench') {
+            // On narrow display, always just toggle the option bar; navigation happens via option bar links.
+            activeOptionBarId.value = activeOptionBarId.value === 'workbench' ? undefined : 'workbench';
         } else {
-            await (pane === 'workbench'
-                ? router.push({ path: '/workflow', query: router.currentRoute.value.query })
-                : router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: 'welcome' } }));
-            activeOptionBarId.value = pane;
+            if (showKnowledge.value) {
+                activeOptionBarId.value = activeOptionBarId.value === 'knowledge' ? undefined : 'knowledge';
+            } else {
+                await router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: 'welcome' } });
+                activeOptionBarId.value = 'knowledge';
+            }
         }
     }
 }
@@ -188,12 +190,19 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
             </DialogWrapper>
         </Transition>
 
-        <!-- Left Pane - Workbench option bar and panel. -->
+        <!-- Workbench option bar - narrow display overlay, rendered at top level so it's accessible regardless of whether the workbench pane is active. -->
+        <WorkbenchOptionBar
+            v-if="!displayIsWide && workbenchOptionBarMounted"
+            :is-open-in-narrow-display="activeOptionBarId === 'workbench'"
+            @continue="completeOptionInvocation('workbench')"
+        />
+
+        <!-- Left Pane - Workbench option bar (wide only) and panel. -->
         <div v-if="showWorkbench" :class="workbenchPaneClasses" :style="workbenchPaneStyle">
             <WorkbenchOptionBar
-                v-if="workbenchOptionBarMounted"
+                v-if="displayIsWide"
                 class="flex-none"
-                :is-open-in-narrow-display="activeOptionBarId === 'workbench'"
+                :is-open-in-narrow-display="false"
                 @continue="completeOptionInvocation('workbench')"
             />
             <div class="flex-1 overflow-y-hidden">
