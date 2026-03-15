@@ -56,7 +56,6 @@ async function gravatarUrl(email: string, size: number): Promise<string> {
 // Lifecycle Event Handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 onMounted(() => {
-    sessionState.initialiseServices();
     gravatarUrl(emailAddress, 38)
         .then((response) => (avatarUrl.value = response))
         .catch((error) => console.log(error));

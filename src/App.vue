@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { useRouter } from 'vue-router';
-import { computed, defineAsyncComponent, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 
 // App Core
 import T from '@/locales/App.json';
@@ -15,6 +15,7 @@ import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
 import NavProgressBar from '@/components/navProgressBar/NavProgressBar.vue'; // Required when lazy loading is delayed.
+import { useSessionStore } from './stores/sessionStore';
 
 // App Components - Lazy loaded as required.
 const AcctMgmtDialog = defineAsyncComponent({
@@ -76,6 +77,8 @@ const workbenchPaneStyle = computed(() => {
 });
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+onMounted(() => useSessionStore().initialiseServices());
 
 watch(displayIsWide, (isWide) => {
     activeOptionBarId.value = undefined;
@@ -187,7 +190,12 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 
         <!-- Left Pane - Workbench option bar and panel. -->
         <div v-if="showWorkbench" :class="workbenchPaneClasses" :style="workbenchPaneStyle">
-            <WorkbenchOptionBar v-if="workbenchOptionBarMounted" class="flex-none" :is-open-in-narrow-display="activeOptionBarId === 'workbench'" @continue="completeOptionInvocation('workbench')" />
+            <WorkbenchOptionBar
+                v-if="workbenchOptionBarMounted"
+                class="flex-none"
+                :is-open-in-narrow-display="activeOptionBarId === 'workbench'"
+                @continue="completeOptionInvocation('workbench')"
+            />
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">
@@ -203,7 +211,12 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
         <!-- Right Pane - Knowledge panel and option bar. -->
         <div v-if="showKnowledge" :class="knowledgePaneClasses">
             <KnowledgePanel class="flex-1" :workbench-pane-is-hidden="!showWorkbench" />
-            <KnowledgeOptionBar v-if="knowledgeOptionBarMounted" class="flex-none" :is-open-in-narrow-display="activeOptionBarId === 'knowledge'" @continue="completeOptionInvocation('knowledge')" />
+            <KnowledgeOptionBar
+                v-if="knowledgeOptionBarMounted"
+                class="flex-none"
+                :is-open-in-narrow-display="activeOptionBarId === 'knowledge'"
+                @continue="completeOptionInvocation('knowledge')"
+            />
         </div>
     </div>
 </template>
