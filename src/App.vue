@@ -42,6 +42,8 @@ const router = useRouter();
 const activeOptionBarId = ref<'workbench' | 'knowledge' | undefined>(undefined);
 const activePaneId = ref<'workbench' | 'knowledge'>(router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench');
 const paneSplitterPercent = ref(50);
+const workbenchOptionBarMounted = ref(displayIsWide.value);
+const knowledgeOptionBarMounted = ref(displayIsWide.value);
 
 // Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -77,7 +79,17 @@ const workbenchPaneStyle = computed(() => {
 
 watch(displayIsWide, (isWide) => {
     activeOptionBarId.value = undefined;
-    if (!isWide) activePaneId.value = router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench';
+    if (isWide) {
+        workbenchOptionBarMounted.value = true;
+        knowledgeOptionBarMounted.value = true;
+    } else {
+        activePaneId.value = router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench';
+    }
+});
+
+watch(activeOptionBarId, (id) => {
+    if (id === 'workbench') workbenchOptionBarMounted.value = true;
+    if (id === 'knowledge') knowledgeOptionBarMounted.value = true;
 });
 
 watch(
@@ -175,7 +187,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 
         <!-- Left Pane - Workbench option bar and panel. -->
         <div v-if="showWorkbench" :class="workbenchPaneClasses" :style="workbenchPaneStyle">
-            <WorkbenchOptionBar class="flex-none" :is-open-in-narrow-display="activeOptionBarId === 'workbench'" @continue="completeOptionInvocation('workbench')" />
+            <WorkbenchOptionBar v-if="workbenchOptionBarMounted" class="flex-none" :is-open-in-narrow-display="activeOptionBarId === 'workbench'" @continue="completeOptionInvocation('workbench')" />
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">
@@ -191,7 +203,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
         <!-- Right Pane - Knowledge panel and option bar. -->
         <div v-if="showKnowledge" :class="knowledgePaneClasses">
             <KnowledgePanel class="flex-1" :workbench-pane-is-hidden="!showWorkbench" />
-            <KnowledgeOptionBar class="flex-none" :is-open-in-narrow-display="activeOptionBarId === 'knowledge'" @continue="completeOptionInvocation('knowledge')" />
+            <KnowledgeOptionBar v-if="knowledgeOptionBarMounted" class="flex-none" :is-open-in-narrow-display="activeOptionBarId === 'knowledge'" @continue="completeOptionInvocation('knowledge')" />
         </div>
     </div>
 </template>
