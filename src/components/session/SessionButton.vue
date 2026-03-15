@@ -7,11 +7,9 @@ import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } f
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App Components - Statically imported so always available, even when offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import Mask from '@/components/mask/Mask.vue';
-
-// App Components - Statically imported to ensure enter transition fires on first open.
 import SessionMenu from '@/components/session/SessionMenu.vue';
 
 // External State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

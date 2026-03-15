@@ -3,7 +3,7 @@
 import { t } from '@/locales';
 import T from '@/locales/views/workflow/assembleDimensions/AssembleDimensions.json';
 
-// App Components - Statically imported so always available, even when offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Header from '@/components/header/Header.vue';
 </script>

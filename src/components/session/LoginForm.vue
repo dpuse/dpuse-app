@@ -7,7 +7,7 @@ import { onUnmounted, ref } from 'vue';
 import T from '@/locales/components/session/LoginForm.json';
 import { t } from '@/locales';
 
-// App Components - Statically imported so always available, even when offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
 import Button from '@/components/button/Button.vue';
 import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';

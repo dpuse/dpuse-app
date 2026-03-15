@@ -1,11 +1,11 @@
 <script setup lang="ts">
 // External Dependencies
-// import { HomeIcon } from '@heroicons/vue/24/outline';
 import { useRouter } from 'vue-router';
-import { HomeIcon, MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
+import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
 
-// App Components - Statically imported so always available, even when offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
+import HomeIcon from '@/components/icon/HomeIcon.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits

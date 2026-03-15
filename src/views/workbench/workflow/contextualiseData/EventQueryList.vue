@@ -16,7 +16,7 @@ import T from '@/locales/views/workflow/contextualiseData/ContextualiseData.json
 import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App Components - Statically imported so always available, even when offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import Card from '@/components/card/Card.vue';

@@ -6,7 +6,7 @@ import { ref } from 'vue';
 import T from '@/locales/components/session/PasswordForm.json';
 import { t } from '@/locales';
 
-// App Components - Statically imported so always available, even when offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import Input from '@/components/input/Input.vue';
 

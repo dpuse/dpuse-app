@@ -3,7 +3,7 @@
 import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
-// App Components - Statically imported so always available, even when offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Header from '@/components/header/Header.vue';
 
 // App Components - Lazy loaded as required.

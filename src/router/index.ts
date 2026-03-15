@@ -8,7 +8,7 @@ import { createRouter, createWebHistory, type Router, type RouterScrollBehavior 
 // App Core
 import { completeNavigation, startNavigation } from '@/composables/useNavProgress';
 
-// App Components - Statically imported so always available, even when offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 
 // App Components - Lazy loaded as required.

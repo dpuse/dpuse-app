@@ -1,7 +1,5 @@
 <script setup lang="ts">
 // External Dependencies
-// import { HomeIcon } from '@heroicons/vue/24/outline';
-import { HomeIcon } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
 import { shallowRef, watch } from 'vue';
 
@@ -11,6 +9,8 @@ import { useActiveBenchtop } from '@/composables/useActiveBenchtop';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
 import { localeId, localiseConfigs } from '~/src/locales';
 
+// App Components - Statically imported so always available, even after app goes offline.
+import HomeIcon from '@/components/icon/HomeIcon.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits

@@ -9,7 +9,7 @@ import { t } from '@/locales';
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App Components - Statically imported so always available, even when offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
