@@ -121,7 +121,7 @@ function onMenuAfterLeave(): void {}
 
                 <!-- Session authentication is pending. Show waiting icon. -->
                 <div v-else class="absolute inset-0 flex items-center justify-center rounded-full">
-                    <LoaderCircleIcon key="loader" class="size-7 animate-spin text-neutral-300" />
+                    <LoaderCircleIcon key="loader" class="size-6 animate-spin text-neutral-300" />
                 </div>
             </Transition>
         </Button>
