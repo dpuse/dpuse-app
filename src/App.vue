@@ -75,7 +75,10 @@ const workbenchPaneStyle = computed(() => {
 
 // Local Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-watch(displayIsWide, () => (activeOptionBarId.value = undefined));
+watch(displayIsWide, (isWide) => {
+    activeOptionBarId.value = undefined;
+    if (!isWide) activePaneId.value = router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench';
+});
 
 // UI Helpers - Options ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
