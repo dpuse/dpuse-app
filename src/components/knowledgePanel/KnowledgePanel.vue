@@ -3,9 +3,6 @@
 import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
-// App Components - Statically imported so always available, even after app goes offline.
-import Header from '@/components/header/Header.vue';
-
 // App Components - Lazy loaded as required.
 const KnowledgeChatPanel = defineAsyncComponent(() => import('./KnowledgeChatPanel.vue'));
 const KnowledgeSearchPanel = defineAsyncComponent(() => import('./KnowledgeSearchPanel.vue'));
@@ -37,8 +34,13 @@ const activePanel = computed(() => {
 
 <template>
     <div class="flex h-full min-w-0 flex-1 flex-col">
-        <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="activePanel.label" :workbench-pane-is-hidden="workbenchPaneIsHidden" />
+        <!-- <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="activePanel.label" :workbench-pane-is-hidden="workbenchPaneIsHidden" /> -->
 
-        <component :is="activePanel.component" />
+        <component
+            :is="activePanel.component"
+            :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]"
+            :title="activePanel.label"
+            :workbench-pane-is-hidden="workbenchPaneIsHidden"
+        />
     </div>
 </template>

@@ -7,6 +7,10 @@ import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
+import Header from '@/components/header/Header.vue';
+
+// Properties & Emits
+const { title, workbenchPaneIsHidden } = defineProps<{ title: string; workbenchPaneIsHidden: boolean }>();
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -53,6 +57,8 @@ async function runTest(): Promise<void> {
 </script>
 
 <template>
+    <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="title" :workbench-pane-is-hidden="workbenchPaneIsHidden" />
+
     <div class="flex flex-1 flex-col overflow-y-hidden px-4">
         <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">
             <div>{{ userText }}</div>

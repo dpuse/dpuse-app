@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
 import { useRoute } from 'vue-router';
-import { XIcon } from 'lucide-vue-next';
 import { shallowRef, watch } from 'vue';
 
 // App Core
@@ -12,8 +11,6 @@ import { localeId, localiseConfigs, t } from '@/locales';
 // App Components - Statically imported so always available, even after app goes offline.
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
-import Card from '@/components/card/Card.vue';
-import Header from '@/components/header/Header.vue';
 
 // States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -21,27 +18,6 @@ const route = useRoute();
 
 const workflowStepConfigs = shallowRef();
 watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(workflowStepData, newLocaleId)), { immediate: true });
-
-const features = [
-    {
-        name: 'Push to deploy',
-        description: 'Commodo nec sagittis tortor mauris sed. Turpis tortor quis scelerisque diam id accumsan nullam tempus. Pulvinar etiam lacus volutpat eu.',
-        href: '#',
-        icon: XIcon
-    },
-    {
-        name: 'SSL certificates',
-        description: 'Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.',
-        href: '#',
-        icon: XIcon
-    },
-    {
-        name: 'Simple queues',
-        description: 'Pellentesque sit elit congue ante nec amet. Dolor aenean curabitur viverra suspendisse iaculis eget. Nec mollis placerat ultricies euismod.',
-        href: '#',
-        icon: XIcon
-    }
-];
 </script>
 
 <template>
@@ -67,25 +43,26 @@ const features = [
                     </div>
                     <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
                         <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-                            <div v-for="config in workflowStepConfigs" :key="config.id" class="flex flex-col">
+                            <RouterLink v-for="config in workflowStepConfigs" :key="config.id" class="flex flex-col" :to="{ name: config.id, query: route.query }">
                                 <dt class="flex items-center gap-x-3 text-base/7 font-semibold text-gray-900">
                                     <!-- <component :is="feature.icon" class="size-5 flex-none text-indigo-600" aria-hidden="true" /> -->
+                                    <div aria-hidden="true" style="height: 32px; width: 32px" :style="config.color ? { color: config.color } : undefined" v-html="config.icon" />
                                     {{ config.label }}
                                 </dt>
                                 <dd class="mt-4 flex flex-auto flex-col text-base/7 text-gray-600">
-                                    <!-- <p class="flex-auto">{{ feature.description }}</p>
+                                    <p class="flex-auto">{{ config.description }}</p>
                                     <p class="mt-6">
-                                        <a :href="feature.href" class="text-sm/6 font-semibold text-indigo-600 hover:text-indigo-500"
+                                        <a :href="config.href" class="text-sm/6 font-semibold text-indigo-600 hover:text-indigo-500"
                                             >Learn more <span aria-hidden="true">→</span></a
                                         >
-                                    </p> -->
+                                    </p>
                                 </dd>
-                            </div>
+                            </RouterLink>
                         </dl>
                     </div>
                 </div>
             </div>
-            <div class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] max-w-4xl">
+            <!-- <div class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] max-w-4xl">
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 p-4">
                     <RouterLink
                         v-for="config of workflowStepConfigs"
@@ -96,7 +73,7 @@ const features = [
                         <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                     </RouterLink>
                 </div>
-            </div>
+            </div> -->
         </BenchtopScroller>
     </BenchtopShell>
 </template>

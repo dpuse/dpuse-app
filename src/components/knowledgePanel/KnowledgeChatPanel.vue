@@ -5,6 +5,10 @@ import { SendHorizonalIcon } from 'lucide-vue-next';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
+import Header from '@/components/header/Header.vue';
+
+// Properties & Emits
+const { title, workbenchPaneIsHidden } = defineProps<{ title: string; workbenchPaneIsHidden: boolean }>();
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -29,6 +33,8 @@ function runTest(): void {
 </script>
 
 <template>
+    <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="title" :workbench-pane-is-hidden="workbenchPaneIsHidden" />
+
     <div class="flex flex-1 flex-col overflow-y-hidden p-4">
         <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto pb-4 font-light wrap-break-word">
             <div v-for="message of messages" :key="message.id">
