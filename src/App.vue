@@ -146,7 +146,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 </script>
 
 <template>
-    <div class="bg-surface text-content fixed inset-0 flex">
+    <div class="bg-surface text-content fixed inset-0 top-[env(safe-area-inset-bottom)] bottom-[env(safe-area-inset-bottom)] flex">
         <!-- Navigation progress bar. Always visible. -->
         <NavProgressBar />
 
