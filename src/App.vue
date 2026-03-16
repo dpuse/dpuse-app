@@ -167,18 +167,18 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
         </div>
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth'. -->
-        <!-- <Transition name="dialog">
+        <Transition name="dialog">
             <DialogWrapper v-if="authDialogIsVisible">
                 <AuthDialog />
             </DialogWrapper>
-        </Transition> -->
+        </Transition>
 
         <!-- Account Management dialog activated using url parameter 'dialog=acctMgmt'. -->
-        <!-- <Transition name="dialog">
+        <Transition name="dialog">
             <DialogWrapper v-if="acctMgmtDialogIsVisible">
                 <AcctMgmtDialog />
             </DialogWrapper>
-        </Transition> -->
+        </Transition>
 
         <!-- Workbench option bar - narrow display overlay, rendered at top level so it's accessible regardless of whether the workbench pane is active. -->
         <WorkbenchOptionBar
