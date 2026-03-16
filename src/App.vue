@@ -78,14 +78,7 @@ const workbenchPaneStyle = computed(() => {
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-onMounted(() => {
-    const el = document.createElement('div');
-    el.style.height = 'env(safe-area-inset-bottom)';
-    document.body.appendChild(el);
-    console.log(el.offsetHeight);
-    document.body.removeChild(el);
-    useSessionStore().initialiseServices();
-});
+onMounted(() => useSessionStore().initialiseServices());
 
 watch(displayIsWide, (isWide) => {
     activeOptionBarId.value = undefined;
@@ -153,7 +146,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 </script>
 
 <template>
-    <div class="bg-surface text-content fixed inset-0 flex">
+    <div class="bg-surface text-content fixed inset-0 flex h-dvh min-h-[-webkit-fill-available]">
         <!-- Navigation progress bar. Always visible. -->
         <NavProgressBar />
 
