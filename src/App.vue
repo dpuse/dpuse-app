@@ -162,7 +162,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 
         <!-- Session button - always visible, independent of pane state -->
         <!-- <div class="fixed bottom-[calc(env(safe-area-inset-bottom))] left-3 z-40"> -->
-        <div class="fixed bottom-7 left-3 z-40">
+        <div class="fixed bottom-[calc(env(safe-area-inset-bottom)+16px)] left-3 z-40">
             <SessionButton />
         </div>
 
