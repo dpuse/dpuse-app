@@ -172,7 +172,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 
         <!-- Session button - always visible, independent of pane state -->
         <div class="fixed bottom-4 left-3 z-40">
-            <SessionButton />
+            <SessionButton :workbench-option-bar-is-visible="activeOptionBarId === 'workbench'" />
         </div>
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth'. -->

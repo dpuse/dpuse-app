@@ -12,6 +12,9 @@ import Button from '@/components/button/Button.vue';
 import Mask from '@/components/mask/Mask.vue';
 import SessionMenu from '@/components/session/SessionMenu.vue';
 
+// Properties & Emits
+const { workbenchOptionBarIsVisible } = defineProps<{ workbenchOptionBarIsVisible: boolean }>();
+
 // External State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const { displayIsWide } = useDisplayBreakpoint();
@@ -94,7 +97,7 @@ function onMenuAfterLeave(): void {}
             />
         </Transition>
 
-        <Button class="dpuse-outside-click-ignore relative h-10 w-10" variant="avatar">
+        <Button class="dpuse-outside-click-ignore relative h-10 w-10" :class="{ 'shadow-md': !displayIsWide && !workbenchOptionBarIsVisible }" variant="avatar">
             <Transition name="fade">
                 <!-- Session is authenticated. Show photo or initials. -->
                 <div v-if="sessionIsAuthenticated === true" class="absolute inset-0 flex items-center justify-center" @click="sessionMenuIsVisible = !sessionMenuIsVisible">
@@ -105,7 +108,7 @@ function onMenuAfterLeave(): void {}
                 <!-- Session is NOT authenticated. Show user silhouette. -->
                 <div
                     v-else-if="sessionIsAuthenticated === false"
-                    class="absolute inset-0 flex items-center justify-center rounded-full"
+                    class="bg-surface absolute inset-0 flex items-center justify-center rounded-full"
                     @click="sessionMenuIsVisible = !sessionMenuIsVisible"
                 >
                     <svg viewBox="0 0 24 24" fill="currentColor" class="size-8 text-zinc-400/60">
@@ -118,8 +121,8 @@ function onMenuAfterLeave(): void {}
                 </div>
 
                 <!-- Session authentication is pending. Show waiting icon. -->
-                <div v-else class="absolute inset-0 flex items-center justify-center rounded-full">
-                    <LoaderCircleIcon key="loader" class="size-6 animate-spin text-neutral-300" />
+                <div v-else class="bg-surface absolute inset-0 flex items-center justify-center rounded-full">
+                    <LoaderCircleIcon key="loader" class="size-5 animate-spin text-neutral-300" />
                 </div>
             </Transition>
         </Button>
