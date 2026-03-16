@@ -78,15 +78,7 @@ const workbenchPaneStyle = computed(() => {
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-onMounted(() => {
-    const el = document.createElement('div');
-    el.style.height = 'env(safe-area-inset-bottom)';
-    document.body.appendChild(el);
-    console.log(el.offsetHeight);
-    document.body.removeChild(el);
-
-    useSessionStore().initialiseServices();
-});
+onMounted(() => useSessionStore().initialiseServices());
 
 watch(displayIsWide, (isWide) => {
     activeOptionBarId.value = undefined;
@@ -154,7 +146,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 </script>
 
 <template>
-    <div class="bg-surface text-content fixed inset-0 flex">
+    <div class="bg-surface text-content fixed inset-0 flex pt-[env(safe-area-inset-top)]">
         <!-- Navigation progress bar. Always visible. -->
         <NavProgressBar />
 
@@ -170,7 +162,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 
         <!-- Session button - always visible, independent of pane state -->
         <!-- <div class="fixed bottom-[calc(env(safe-area-inset-bottom))] left-3 z-40"> -->
-        <div class="fixed bottom-[calc(env(safe-area-inset-bottom)+16px)] left-3 z-40">
+        <div class="fixed bottom-4 left-3 z-40">
             <SessionButton />
         </div>
 
