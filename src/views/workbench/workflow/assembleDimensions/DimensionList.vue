@@ -97,7 +97,7 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
         </template>
     </GridScroller>
 
-    <BenchtopScroller v-else-if="dimensionRetrievalIsActive" class="flex-1">
+    <BenchtopScroller v-else-if="dimensionRetrievalIsActive">
         <EmptyStatePlaceholder :message-item-label="t(T, 'dimensions')" :description-item-label="t(T, 'dimension')" :action-item-label="t(T, 'Dimension')" />
     </BenchtopScroller>
 </template>

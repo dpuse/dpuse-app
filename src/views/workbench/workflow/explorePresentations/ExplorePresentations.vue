@@ -13,6 +13,6 @@ import Header from '@/components/header/Header.vue';
     <BenchtopShell>
         <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]" :title="t(T, 'Explore_Presentations')" :workbench-pane-is-hidden="false" />
 
-        <BenchtopScroller class="flex-1"></BenchtopScroller>
+        <BenchtopScroller></BenchtopScroller>
     </BenchtopShell>
 </template>

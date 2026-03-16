@@ -134,7 +134,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 
     <GridScroller
         v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
-        class="flex-1 pb-6"
+        class="flex-1 pb-16"
         :items="dataViewConfigs"
         :row-height="150"
         :target-column-width="350"
@@ -151,7 +151,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         </template>
     </GridScroller>
 
-    <BenchtopScroller v-else-if="dataViewRetrievalIsActive" class="flex-1">
+    <BenchtopScroller v-else-if="dataViewRetrievalIsActive">
         <EmptyStatePlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
     </BenchtopScroller>
 </template>

@@ -97,7 +97,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
         </template>
     </GridScroller>
 
-    <BenchtopScroller v-else-if="eventQueryRetrievalIsActive" class="flex-1">
+    <BenchtopScroller v-else-if="eventQueryRetrievalIsActive">
         <EmptyStatePlaceholder :message-item-label="t(T, 'event_queries')" :description-item-label="t(T, 'event_query')" :action-item-label="t(T, 'Event_Query')" />
     </BenchtopScroller>
 </template>
