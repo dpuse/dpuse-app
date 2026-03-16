@@ -63,6 +63,9 @@ const knowledgePaneClasses = computed(() => {
 
 const paneSplitterIsVisible = computed(() => displayIsWide.value && showWorkbench.value && showKnowledge.value);
 
+const showWorkbenchOptionBar = computed(() => !displayIsWide.value || router.currentRoute.value.name !== 'workflow');
+const showKnowledgeOptionBar = computed(() => !displayIsWide.value || router.currentRoute.value.query.knowledge !== 'welcome');
+
 const workbenchPaneClasses = computed(() => {
     if (displayIsWide.value) return 'flex h-full min-w-0';
     return activePaneId.value === 'workbench' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
@@ -198,7 +201,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 
         <!-- Left Pane - Workbench option bar (wide only) and panel. -->
         <div v-if="showWorkbench" :class="workbenchPaneClasses" :style="workbenchPaneStyle">
-            <WorkbenchOptionBar v-if="displayIsWide" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation('workbench')" />
+            <WorkbenchOptionBar v-if="showWorkbenchOptionBar" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation('workbench')" />
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">
@@ -214,7 +217,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
         <!-- Right Pane - Knowledge panel and option bar (wide only). -->
         <div v-if="showKnowledge" :class="knowledgePaneClasses">
             <KnowledgePanel class="flex-1" :workbench-pane-is-hidden="!showWorkbench" />
-            <KnowledgeOptionBar v-if="displayIsWide" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation('knowledge')" />
+            <KnowledgeOptionBar v-if="showKnowledgeOptionBar" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation('knowledge')" />
         </div>
 
         <!-- Knowledge option bar - narrow display overlay, rendered at top level so it's accessible regardless of whether the knowledge pane is active. -->
