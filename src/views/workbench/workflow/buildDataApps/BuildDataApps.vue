@@ -11,7 +11,7 @@ import Header from '@/components/header/Header.vue';
 
 <template>
     <BenchtopShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'Workflow_Benchtop') }]" :title="t(T, 'Build_Data_Apps')" :workbench-pane-is-hidden="false" />
+        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label') }]" :title="t(T, 'Build_Data_Apps')" :workbench-pane-is-hidden="false" />
 
         <BenchtopScroller></BenchtopScroller>
     </BenchtopShell>

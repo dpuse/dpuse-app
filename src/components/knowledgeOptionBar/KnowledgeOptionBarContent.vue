@@ -24,7 +24,7 @@ function handleOptionClick(view: string): void {
 </script>
 
 <template>
-    <div class="bg-backdrop border-boundary h-full w-16.25 flex-col border-l pt-13.75">
+    <div class="bg-backdrop border-boundary h-full w-16.25 flex-col border-l pt-[calc(env(safe-area-inset-top)+55px)]">
         <!-- Separator -->
         <Separator class="mx-3" />
 

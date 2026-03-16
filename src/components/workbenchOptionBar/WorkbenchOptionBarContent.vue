@@ -34,7 +34,7 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
 
 <template>
     <!-- pb-20.25 reserves space at the bottom for the session button (fixed bottom-7, ~3.25rem tall + gap). -->
-    <div class="border-boundary bg-backdrop h-full w-16.25 flex-col border-r pt-13.75 pb-20.25">
+    <div class="border-boundary bg-backdrop h-full w-16.25 flex-col border-r pt-[calc(env(safe-area-inset-top)+55px)] pb-20.25">
         <!-- Separator -->
         <div class="bg-separator mx-3 h-px" />
 
