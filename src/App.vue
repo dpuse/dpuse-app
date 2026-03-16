@@ -146,7 +146,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 </script>
 
 <template>
-    <div class="bg-surface text-content fixed inset-0 flex h-dvh min-h-[-webkit-fill-available]">
+    <div class="bg-surface text-content fixed inset-0 flex h-screen min-h-[-webkit-fill-available]">
         <!-- Navigation progress bar. Always visible. -->
         <NavProgressBar />
 
@@ -162,23 +162,23 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 
         <!-- Session button - always visible, independent of pane state -->
         <!-- <div class="fixed bottom-[calc(env(safe-area-inset-bottom))] left-3 z-40"> -->
-        <div class="fixed bottom-7 left-3 z-40">
+        <!-- <div class="fixed bottom-7 left-3 z-40">
             <SessionButton />
-        </div>
+        </div> -->
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth'. -->
-        <Transition name="dialog">
+        <!-- <Transition name="dialog">
             <DialogWrapper v-if="authDialogIsVisible">
                 <AuthDialog />
             </DialogWrapper>
-        </Transition>
+        </Transition> -->
 
         <!-- Account Management dialog activated using url parameter 'dialog=acctMgmt'. -->
-        <Transition name="dialog">
+        <!-- <Transition name="dialog">
             <DialogWrapper v-if="acctMgmtDialogIsVisible">
                 <AcctMgmtDialog />
             </DialogWrapper>
-        </Transition>
+        </Transition> -->
 
         <!-- Workbench option bar - narrow display overlay, rendered at top level so it's accessible regardless of whether the workbench pane is active. -->
         <WorkbenchOptionBar
