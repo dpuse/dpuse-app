@@ -78,7 +78,14 @@ const workbenchPaneStyle = computed(() => {
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-onMounted(() => useSessionStore().initialiseServices());
+onMounted(() => {
+    const el = document.createElement('div');
+    el.style.height = 'env(safe-area-inset-bottom)';
+    document.body.appendChild(el);
+    console.log(el.offsetHeight);
+    document.body.removeChild(el);
+    useSessionStore().initialiseServices();
+});
 
 watch(displayIsWide, (isWide) => {
     activeOptionBarId.value = undefined;
