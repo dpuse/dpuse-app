@@ -151,12 +151,12 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
         <NavProgressBar />
 
         <!-- Workbench toggle fixed in top left corner. Always visible .-->
-        <Button :aria-label="constructPaneToggleAriaLabel('workbench')" class="fixed top-1.75 left-3 z-40" variant="iconLarge" @click="togglePane('workbench')">
+        <Button :aria-label="constructPaneToggleAriaLabel('workbench')" class="fixed top-[calc(env(safe-area-inset-top)+7px)] left-3 z-40" variant="iconLarge" @click="togglePane('workbench')">
             <DPUseLogoIcon />
         </Button>
 
         <!-- Knowledge toggle fixed in top right corner. Always visible -->
-        <Button :aria-label="constructPaneToggleAriaLabel('knowledge')" class="fixed top-1.75 right-3 z-40" variant="iconLarge" @click="togglePane('knowledge')">
+        <Button :aria-label="constructPaneToggleAriaLabel('knowledge')" class="fixed top-[calc(env(safe-area-inset-top)+7px)] right-3 z-40" variant="iconLarge" @click="togglePane('knowledge')">
             <KnowledgeIcon />
         </Button>
 
