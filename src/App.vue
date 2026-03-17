@@ -2,6 +2,7 @@
 // External Dependencies
 import { useRouter } from 'vue-router';
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
+import { LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next';
 
 // App Core
 import T from '@/locales/App.json';
@@ -63,9 +64,6 @@ const knowledgePaneClasses = computed(() => {
 
 const paneSplitterIsVisible = computed(() => displayIsWide.value && showWorkbench.value && showKnowledge.value);
 
-const showWorkbenchOptionBar = computed(() => !displayIsWide.value || router.currentRoute.value.name !== 'workflow');
-const showKnowledgeOptionBar = computed(() => !displayIsWide.value || router.currentRoute.value.query.knowledge !== 'welcome');
-
 const workbenchPaneClasses = computed(() => {
     if (displayIsWide.value) return 'flex h-full min-w-0';
     return activePaneId.value === 'workbench' ? 'flex h-full min-w-0 flex-1' : 'h-full w-0 overflow-hidden';
@@ -113,6 +111,10 @@ function completeOptionInvocation(paneId: 'workbench' | 'knowledge'): void {
 }
 
 // UI Helpers - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function handleOptionClick(view: string): void {
+    router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: view } });
+    // emit('continue');
+}
 
 function constructPaneToggleAriaLabel(pane: 'workbench' | 'knowledge'): string {
     if (displayIsWide.value) {
@@ -138,7 +140,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
                 const query = Object.fromEntries(Object.entries(router.currentRoute.value.query).filter(([k]) => k !== 'knowledge'));
                 await router.push({ path: router.currentRoute.value.path, query });
             } else {
-                await router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: 'welcome' } });
+                await router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: 'home' } });
             }
         }
     } else {
@@ -164,14 +166,19 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
         </Button>
 
         <!-- Knowledge toggle fixed in top right corner. Always visible -->
-        <Button
-            :aria-label="constructPaneToggleAriaLabel('knowledge')"
-            class="fixed top-[calc(env(safe-area-inset-top)+7px)] right-3 z-40"
-            variant="iconLarge"
-            @click="togglePane('knowledge')"
-        >
-            <KnowledgeIcon />
-        </Button>
+        <div class="fixed top-[calc(env(safe-area-inset-top)+7px)] right-3 z-40 flex">
+            <Button variant="iconLarge" @click="handleOptionClick('library')">
+                <LibraryBigIcon aria-hidden="true" :stroke-width="1.25" />
+            </Button>
+
+            <Button variant="iconLarge" @click="handleOptionClick('chat')">
+                <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
+            </Button>
+
+            <Button :aria-label="constructPaneToggleAriaLabel('knowledge')" variant="iconLarge" @click="togglePane('knowledge')">
+                <KnowledgeIcon />
+            </Button>
+        </div>
 
         <!-- Session button - always visible, independent of pane state -->
         <div class="fixed bottom-4 left-3 z-40">
@@ -201,7 +208,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 
         <!-- Left Pane - Workbench option bar (wide only) and panel. -->
         <div v-if="showWorkbench" :class="workbenchPaneClasses" :style="workbenchPaneStyle">
-            <WorkbenchOptionBar v-if="showWorkbenchOptionBar" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation('workbench')" />
+            <WorkbenchOptionBar v-if="displayIsWide" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation('workbench')" />
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">
@@ -217,15 +224,15 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
         <!-- Right Pane - Knowledge panel and option bar (wide only). -->
         <div v-if="showKnowledge" :class="knowledgePaneClasses">
             <KnowledgePanel class="flex-1" :workbench-pane-is-hidden="!showWorkbench" />
-            <KnowledgeOptionBar v-if="showKnowledgeOptionBar" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation('knowledge')" />
+            <!-- <KnowledgeOptionBar v-if="displayIsWide" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation('knowledge')" /> -->
         </div>
 
         <!-- Knowledge option bar - narrow display overlay, rendered at top level so it's accessible regardless of whether the knowledge pane is active. -->
-        <KnowledgeOptionBar
+        <!-- <KnowledgeOptionBar
             v-if="!displayIsWide && knowledgeOptionBarInitialised"
             :is-open-in-narrow-display="activeOptionBarId === 'knowledge'"
             @continue="completeOptionInvocation('knowledge')"
-        />
+        /> -->
     </div>
 </template>
 

@@ -30,11 +30,11 @@ function handleOptionClick(view: string): void {
 
         <!-- Options scroller -->
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none pt-2 pb-6">
-            <Button variant="iconLarge" @click="handleOptionClick('welcome')">
+            <Button variant="iconLarge" @click="handleOptionClick('home')">
                 <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
             </Button>
 
-            <Button variant="iconLarge" @click="handleOptionClick('search')">
+            <Button variant="iconLarge" @click="handleOptionClick('library')">
                 <SearchIcon aria-hidden="true" :stroke-width="1.25" />
             </Button>
 

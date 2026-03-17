@@ -13,10 +13,10 @@ const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-type PanelTypeId = 'welcome' | 'search' | 'chat';
+type PanelTypeId = 'home' | 'library' | 'chat';
 const knowledgePanels: Record<PanelTypeId, { component: Component; label: string }> = {
-    welcome: { component: KnowledgeOverviewPanel, label: 'Overview' },
-    search: { component: KnowledgeSearchPanel, label: 'Explore' },
+    home: { component: KnowledgeOverviewPanel, label: 'Overview' },
+    library: { component: KnowledgeSearchPanel, label: 'Library' },
     chat: { component: KnowledgeChatPanel, label: 'Chat' }
 };
 
@@ -28,7 +28,7 @@ const route = useRoute();
 
 const activePanel = computed(() => {
     const parameter = route.query.knowledge as PanelTypeId | undefined;
-    return knowledgePanels[parameter ?? 'welcome'] ?? knowledgePanels.welcome;
+    return knowledgePanels[parameter ?? 'home'] ?? knowledgePanels.home;
 });
 </script>
 
