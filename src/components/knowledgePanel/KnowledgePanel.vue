@@ -4,19 +4,19 @@ import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
 // App Components - Lazy loaded as required.
+const KnowledgeAboutPanel = defineAsyncComponent(() => import('./KnowledgeAboutPanel.vue'));
 const KnowledgeChatPanel = defineAsyncComponent(() => import('./KnowledgeChatPanel.vue'));
-const KnowledgeSearchPanel = defineAsyncComponent(() => import('./KnowledgeSearchPanel.vue'));
-const KnowledgeOverviewPanel = defineAsyncComponent(() => import('./KnowledgeOverviewPanel.vue'));
+const KnowledgeLibraryPanel = defineAsyncComponent(() => import('./KnowledgeLibraryPanel.vue'));
 
 // Properties & Emits
 const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }>();
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-type PanelTypeId = 'home' | 'library' | 'chat';
-const knowledgePanels: Record<PanelTypeId, { component: Component; label: string }> = {
-    home: { component: KnowledgeOverviewPanel, label: 'Overview' },
-    library: { component: KnowledgeSearchPanel, label: 'Library' },
+export type KnowledgePanelTypeId = 'about' | 'library' | 'chat';
+const knowledgePanels: Record<KnowledgePanelTypeId, { component: Component; label: string }> = {
+    about: { component: KnowledgeAboutPanel, label: 'About' },
+    library: { component: KnowledgeLibraryPanel, label: 'Library' },
     chat: { component: KnowledgeChatPanel, label: 'Chat' }
 };
 
@@ -27,8 +27,8 @@ const route = useRoute();
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activePanel = computed(() => {
-    const parameter = route.query.knowledge as PanelTypeId | undefined;
-    return knowledgePanels[parameter ?? 'home'] ?? knowledgePanels.home;
+    const parameter = route.query.knowledge as KnowledgePanelTypeId | undefined;
+    return knowledgePanels[parameter ?? 'about'] ?? knowledgePanels.about;
 });
 </script>
 

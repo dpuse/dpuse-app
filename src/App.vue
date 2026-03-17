@@ -2,7 +2,7 @@
 // External Dependencies
 import { useRouter } from 'vue-router';
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
-import { LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next';
+import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next';
 
 // App Core
 import T from '@/locales/App.json';
@@ -16,6 +16,7 @@ import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
+import type { KnowledgePanelTypeId } from '@/components/knowledgePanel/KnowledgePanel.vue';
 import NavProgressBar from '@/components/navProgressBar/NavProgressBar.vue'; // Required when lazy loading is delayed.
 import SessionButton from '@/components/session/SessionButton.vue'; // Always visible.
 
@@ -41,6 +42,7 @@ const router = useRouter();
 
 // Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+const activeKnowledgePanelId = ref<KnowledgePanelTypeId>((router.currentRoute.value.query.knowledge as KnowledgePanelTypeId) ?? 'about');
 const activeOptionBarId = ref<'workbench' | 'knowledge' | undefined>(undefined);
 const activePaneId = ref<'workbench' | 'knowledge'>(router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench');
 const paneSplitterPercent = ref(50);
@@ -111,9 +113,10 @@ function completeOptionInvocation(paneId: 'workbench' | 'knowledge'): void {
 }
 
 // UI Helpers - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function handleOptionClick(view: string): void {
+
+function handleOptionClick(view: KnowledgePanelTypeId): void {
+    activeKnowledgePanelId.value = view;
     router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: view } });
-    // emit('continue');
 }
 
 function constructPaneToggleAriaLabel(pane: 'workbench' | 'knowledge'): string {
@@ -140,7 +143,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
                 const query = Object.fromEntries(Object.entries(router.currentRoute.value.query).filter(([k]) => k !== 'knowledge'));
                 await router.push({ path: router.currentRoute.value.path, query });
             } else {
-                await router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: 'home' } });
+                await router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: activeKnowledgePanelId.value } });
             }
         }
     } else {
@@ -151,7 +154,7 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 </script>
 
 <template>
-    <div class="bg-surface text-content fixed inset-0 flex pt-[env(safe-area-inset-top)]">
+    <div class="bg-surface text-content fixed inset-0 flex">
         <!-- Navigation progress bar. Always visible. -->
         <NavProgressBar />
 
@@ -167,13 +170,19 @@ async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
 
         <!-- Knowledge toggle fixed in top right corner. Always visible -->
         <div class="fixed top-[calc(env(safe-area-inset-top)+7px)] right-3 z-40 flex">
-            <Button variant="iconLarge" @click="handleOptionClick('library')">
-                <LibraryBigIcon aria-hidden="true" :stroke-width="1.25" />
-            </Button>
+            <div v-if="showKnowledge">
+                <Button variant="iconLarge" @click="handleOptionClick('about')">
+                    <InfoIcon aria-hidden="true" :stroke-width="1.25" />
+                </Button>
 
-            <Button variant="iconLarge" @click="handleOptionClick('chat')">
-                <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
-            </Button>
+                <Button variant="iconLarge" @click="handleOptionClick('library')">
+                    <LibraryBigIcon aria-hidden="true" :stroke-width="1.25" />
+                </Button>
+
+                <Button variant="iconLarge" @click="handleOptionClick('chat')">
+                    <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
+                </Button>
+            </div>
 
             <Button :aria-label="constructPaneToggleAriaLabel('knowledge')" variant="iconLarge" @click="togglePane('knowledge')">
                 <KnowledgeIcon />

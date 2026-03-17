@@ -8,7 +8,7 @@ import { createRouter, createWebHistory, type Router, type RouterScrollBehavior 
 // App Core
 import { completeNavigation, startNavigation } from '@/composables/useNavProgress';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported so always available, even when offline.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 
 // App Components - Lazy loaded as required.
@@ -30,7 +30,7 @@ export const APP_ROUTES = [
     {
         path: '/',
         children: [
-            { path: '', component: { render: (): null => null } }, // Matches exactly '/'. beforeEach handles the default redirect to knowledge home.
+            { path: '', component: { render: (): null => null } }, // Matches exactly '/'. beforeEach handles the default redirect to knowledge about.
             { path: 'admin', children: [{ name: 'admin', path: '', component: Admin }] },
             { path: 'partner', children: [{ name: 'partner', path: '', component: Partner }] },
             {

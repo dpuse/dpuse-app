@@ -41,7 +41,7 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
             <div class="bg-white py-24 sm:py-32">
                 <div class="mx-auto max-w-7xl px-6 lg:px-8">
                     <div class="mx-auto max-w-2xl lg:text-center">
-                        <h2 class="text-base/7 font-semibold text-indigo-600">Deploy faster</h2>
+                        <h2 class="text-base/7 font-semibold text-indigo-600">From data to understanding - The workflow</h2>
                         <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl lg:text-balance">Everything you need to deploy your app</p>
                         <p class="mt-6 text-lg/8 text-gray-600">
                             Quis tellus eget adipiscing convallis sit sit eget aliquet quis. Suspendisse eget egestas a elementum pulvinar et feugiat blandit at. In mi viverra elit
