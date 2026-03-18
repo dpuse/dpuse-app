@@ -43,7 +43,7 @@ const router = useRouter();
 
 // Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const activeAppPaneId = ref<'workbench' | 'knowledge'>(router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench');
+const activeAppPaneId = ref<'workbench' | 'knowledge'>(router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench'); // TODO: Consider a param to remember.
 const activeKnowledgePanelId = ref<KnowledgePanelTypeId>((router.currentRoute.value.query.knowledge as KnowledgePanelTypeId) ?? 'about');
 
 const knowledgePaneActivated = ref(false);
@@ -93,8 +93,15 @@ const knowledgePaneInitialised = ref(showKnowledge.value);
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 router.isReady().then(() => {
-    knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = 'knowledge' in route.query;
-    workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = route.path !== '/';
+    if (displayIsWide.value) {
+        knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = 'knowledge' in route.query;
+        workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = route.path !== '/';
+    } else {
+        knowledgePaneActivated.value = knowledgePaneIsActive.value = 'knowledge' in route.query;
+        workbenchPaneActivated.value = workbenchPaneIsActive.value = route.path !== '/';
+        knowledgePaneIsVisible.value = knowledgePaneIsActive.value && activeAppPaneId.value === 'knowledge';
+        workbenchPaneIsVisible.value = workbenchPaneIsActive.value && activeAppPaneId.value === 'workbench';
+    }
 });
 
 onMounted(() => useSessionStore().initialiseServices());
