@@ -33,33 +33,35 @@ function runTest(): void {
 </script>
 
 <template>
-    <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="title" :workbench-pane-is-hidden="workbenchPaneIsHidden" />
+    <div>
+        <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="title" :workbench-pane-is-hidden="workbenchPaneIsHidden" />
 
-    <div class="flex flex-1 flex-col overflow-y-hidden p-4">
-        <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto pb-4 font-light wrap-break-word">
-            <div v-for="message of messages" :key="message.id">
-                {{ message.text }}
-            </div>
-        </div>
-
-        <div class="flex-none pb-6">
-            <div>
-                <label for="comment" class="block text-sm/6 font-medium text-gray-900 dark:text-white">A label...</label>
-                <div class="mt-2">
-                    <textarea
-                        id="comment"
-                        name="comment"
-                        class="bg-surface block max-h-48 w-full resize-none overflow-y-auto rounded-md border-0 px-3 py-1.5 text-base outline-1 -outline-offset-1 outline-gray-300 placeholder:text-sm placeholder:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus-visible:outline-indigo-500"
-                        rows="1"
-                        placeholder="Ask a question…"
-                    />
+        <div class="flex flex-1 flex-col overflow-y-hidden p-4">
+            <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto pb-4 font-light wrap-break-word">
+                <div v-for="message of messages" :key="message.id">
+                    {{ message.text }}
                 </div>
             </div>
 
-            <div class="flex justify-end pr-1 pb-1">
-                <Button icon-size="sm" @click="runTest">
-                    <SendHorizonalIcon stroke-width="1.25" />
-                </Button>
+            <div class="flex-none pb-6">
+                <div>
+                    <label for="comment" class="block text-sm/6 font-medium text-gray-900 dark:text-white">A label...</label>
+                    <div class="mt-2">
+                        <textarea
+                            id="comment"
+                            name="comment"
+                            class="bg-surface block max-h-48 w-full resize-none overflow-y-auto rounded-md border-0 px-3 py-1.5 text-base outline-1 -outline-offset-1 outline-gray-300 placeholder:text-sm placeholder:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus-visible:outline-indigo-500"
+                            rows="1"
+                            placeholder="Ask a question…"
+                        />
+                    </div>
+                </div>
+
+                <div class="flex justify-end pr-1 pb-1">
+                    <Button icon-size="sm" @click="runTest">
+                        <SendHorizonalIcon stroke-width="1.25" />
+                    </Button>
+                </div>
             </div>
         </div>
     </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
-// import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next';
+import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
@@ -43,8 +43,11 @@ const router = useRouter();
 
 // Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const activeAppPaneId = ref<'workbench' | 'knowledge'>(router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench'); // TODO: Consider a param to remember.
+type AppPaneId = 'workbench' | 'knowledge';
+const activeAppPaneId = ref<AppPaneId>(router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench'); // TODO: Consider a param to remember.
 const activeKnowledgePanelId = ref<KnowledgePanelTypeId>((router.currentRoute.value.query.knowledge as KnowledgePanelTypeId) ?? 'about');
+
+const knowledgeOptionBarIsVisible = ref(false);
 
 const knowledgePaneActivated = ref(false);
 const knowledgePaneIsActive = ref(false);
@@ -52,15 +55,11 @@ const knowledgePaneIsVisible = ref(false);
 
 const paneSplitterPercent = ref(50);
 
+const workbenchOptionBarIsVisible = ref(false);
+
 const workbenchPaneActivated = ref(false);
 const workbenchPaneIsActive = ref(false);
 const workbenchPaneIsVisible = ref(false);
-
-/////////
-
-const activeOptionBarId = ref<'workbench' | 'knowledge' | undefined>(undefined);
-const workbenchOptionBarInitialised = ref(displayIsWide.value);
-const knowledgeOptionBarInitialised = ref(displayIsWide.value);
 
 // Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -87,8 +86,6 @@ const workbenchPaneStyle = computed(() => {
 const showWorkbench = computed(() => router.currentRoute.value.path !== '/');
 const showKnowledge = computed(() => 'knowledge' in router.currentRoute.value.query);
 const showKnowledgeOptions = ref(false);
-const workbenchPaneInitialised = ref(showWorkbench.value);
-const knowledgePaneInitialised = ref(showKnowledge.value);
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -115,39 +112,10 @@ watch(displayIsWide, (newDisplayIsWide) => {
         workbenchPaneIsVisible.value = workbenchPaneIsActive.value && activeAppPaneId.value === 'workbench';
     }
 });
-// watch(displayIsWide, (isWide) => {
-//     activeOptionBarId.value = undefined;
-//     if (isWide) {
-//         workbenchOptionBarInitialised.value = true;
-//         knowledgeOptionBarInitialised.value = true;
-//     } else {
-//         activeAppPaneId.value = router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench';
-//     }
-// });
-
-watch(activeOptionBarId, (id) => {
-    if (id === 'workbench') workbenchOptionBarInitialised.value = true;
-    if (id === 'knowledge') knowledgeOptionBarInitialised.value = true;
-});
-
-watch(showWorkbench, (v) => {
-    if (v) workbenchPaneInitialised.value = true;
-});
-watch(showKnowledge, (v) => {
-    if (v) knowledgePaneInitialised.value = true;
-});
-
-// watch(
-//     () => router.currentRoute.value.path,
-//     (path) => {
-//         if (!displayIsWide.value) activeAppPaneId.value = path === '/' ? 'knowledge' : 'workbench';
-//     }
-// );
 
 // UI Helpers - Options ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function completeOptionInvocation(paneId: 'workbench' | 'knowledge'): void {
-    activeOptionBarId.value = undefined;
+function completeOptionInvocation(paneId: AppPaneId): void {
     if (!displayIsWide.value) activeAppPaneId.value = paneId;
 }
 
@@ -158,24 +126,28 @@ function handleOptionClick(view: KnowledgePanelTypeId): void {
     router.push({ path: '/', query: { ...router.currentRoute.value.query, knowledge: view } });
 }
 
-function constructPaneToggleAriaLabel(pane: 'workbench' | 'knowledge'): string {
+function toggleAppPane(id: AppPaneId): void {
     if (displayIsWide.value) {
-        const isHidden = pane === 'workbench' ? !showWorkbench.value : !showKnowledge.value;
-        return t(T, isHidden ? `toggle.${pane}.wide.show` : `toggle.${pane}.wide.hide`);
-    }
-    const isOpen = activeOptionBarId.value === pane;
-    return t(T, isOpen ? `toggle.${pane}.narrow.hide` : `toggle.${pane}.narrow.show`);
-}
-
-function togglePane(paneId: 'workbench' | 'knowledge'): void {
-    if (paneId === 'workbench') {
-        workbenchPaneIsVisible.value = !workbenchPaneIsVisible.value;
+        if (id === 'workbench') {
+            workbenchPaneIsVisible.value = !workbenchPaneIsVisible.value;
+        } else {
+            knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
+        }
+        activeAppPaneId.value = id;
     } else {
-        knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
+        if (workbenchPaneIsVisible.value && id === 'workbench') {
+            workbenchOptionBarIsVisible.value = !workbenchOptionBarIsVisible.value;
+        } else if (knowledgePaneIsVisible.value && id === 'knowledge') {
+            knowledgeOptionBarIsVisible.value = !knowledgeOptionBarIsVisible.value;
+        } else {
+            workbenchPaneIsVisible.value = !workbenchPaneIsVisible.value;
+            knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
+            activeAppPaneId.value = id;
+        }
     }
 }
 
-// async function togglePane(pane: 'workbench' | 'knowledge'): Promise<void> {
+// async function toggleAppPane(pane: AppPaneId): Promise<void> {
 //     if (displayIsWide.value) {
 //         if (pane === 'workbench') {
 //             if (showWorkbench.value) {
@@ -211,13 +183,7 @@ function togglePane(paneId: 'workbench' | 'knowledge'): void {
         <NavProgressBar />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
-        <Button
-            :aria-label="constructPaneToggleAriaLabel('workbench')"
-            class="fixed top-[calc(env(safe-area-inset-top)+7px)] left-3 z-40"
-            :disabled="!knowledgePaneIsVisible"
-            variant="iconLarge"
-            @click="togglePane('workbench')"
-        >
+        <Button class="fixed top-[calc(env(safe-area-inset-top)+7px)] left-3 z-40" variant="iconLarge" @click="toggleAppPane('workbench')">
             <DPUseLogoIcon />
         </Button>
 
@@ -237,14 +203,14 @@ function togglePane(paneId: 'workbench' | 'knowledge'): void {
                 </Button>
             </div>
 
-            <Button :aria-label="constructPaneToggleAriaLabel('knowledge')" :disabled="!workbenchPaneIsVisible" variant="iconLarge" @click="togglePane('knowledge')">
+            <Button :disabled="!workbenchPaneIsVisible" variant="iconLarge" @click="toggleAppPane('knowledge')">
                 <KnowledgeIcon />
             </Button>
         </div>
 
         <!-- Session button - always visible, independent of pane state -->
         <div class="fixed bottom-4 left-3 z-40">
-            <SessionButton :workbench-option-bar-is-visible="activeOptionBarId === 'workbench'" />
+            <SessionButton :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
         </div>
 
         <!-- Authentication dialog activated using url parameter 'dialog=auth'. -->
@@ -262,11 +228,7 @@ function togglePane(paneId: 'workbench' | 'knowledge'): void {
         </Transition>
 
         <!-- Workbench option bar - narrow display overlay, rendered at top level so it's accessible regardless of whether the workbench pane is active. -->
-        <WorkbenchOptionBar
-            v-if="!displayIsWide && workbenchOptionBarInitialised"
-            :is-open-in-narrow-display="activeOptionBarId === 'workbench'"
-            @continue="completeOptionInvocation('workbench')"
-        />
+        <WorkbenchOptionBar v-if="!displayIsWide" :is-open-in-narrow-display="workbenchOptionBarIsVisible" @continue="completeOptionInvocation('workbench')" />
 
         <!-- Left Pane - Workbench option bar (wide only) and panel. -->
         <div
@@ -299,14 +261,14 @@ function togglePane(paneId: 'workbench' | 'knowledge'): void {
             @pointerdown="activeAppPaneId = 'knowledge'"
             @scroll.capture="activeAppPaneId = 'knowledge'"
         >
-            <KnowledgePanel class="flex-1" :workbench-pane-is-hidden="!showWorkbench" />
+            <KnowledgePanel class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
             <!-- <KnowledgeOptionBar v-if="displayIsWide" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation('knowledge')" /> -->
         </div>
 
         <!-- Knowledge option bar - narrow display overlay, rendered at top level so it's accessible regardless of whether the knowledge pane is active. -->
         <!-- <KnowledgeOptionBar
             v-if="!displayIsWide && knowledgeOptionBarInitialised"
-            :is-open-in-narrow-display="activeOptionBarId === 'knowledge'"
+            :is-open-in-narrow-display="knowledgeOptionBarIsVisible"
             @continue="completeOptionInvocation('knowledge')"
         /> -->
     </div>

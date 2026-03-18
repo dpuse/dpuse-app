@@ -57,31 +57,33 @@ async function runTest(): Promise<void> {
 </script>
 
 <template>
-    <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="title" :workbench-pane-is-hidden="workbenchPaneIsHidden" />
+    <div>
+        <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="title" :workbench-pane-is-hidden="workbenchPaneIsHidden" />
 
-    <div class="flex flex-1 flex-col overflow-y-hidden px-4">
-        <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">
-            <div>{{ userText }}</div>
-            <div>{{ assistantThinking }}</div>
-            <div v-html="assistantText" />
-        </div>
-
-        <div class="flex-none pb-6">
-            <div>
-                <div class="mt-2">
-                    <textarea
-                        id="comment"
-                        name="comment"
-                        class="bg-surface block max-h-48 w-full resize-none rounded-md border-0 px-3 py-1.5 text-base outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-                        rows="4"
-                    />
-                </div>
+        <div class="flex flex-1 flex-col overflow-y-hidden px-4">
+            <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">
+                <div>{{ userText }}</div>
+                <div>{{ assistantThinking }}</div>
+                <div v-html="assistantText" />
             </div>
 
-            <div class="flex justify-end pr-1 pb-1">
-                <Button icon-size="sm" @click="runTest">
-                    <SendHorizonalIcon stroke-width="1.25" />
-                </Button>
+            <div class="flex-none pb-6">
+                <div>
+                    <div class="mt-2">
+                        <textarea
+                            id="comment"
+                            name="comment"
+                            class="bg-surface block max-h-48 w-full resize-none rounded-md border-0 px-3 py-1.5 text-base outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                            rows="4"
+                        />
+                    </div>
+                </div>
+
+                <div class="flex justify-end pr-1 pb-1">
+                    <Button icon-size="sm" @click="runTest">
+                        <SendHorizonalIcon stroke-width="1.25" />
+                    </Button>
+                </div>
             </div>
         </div>
     </div>
