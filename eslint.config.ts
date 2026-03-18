@@ -61,6 +61,7 @@ export default defineConfigWithVueTs(
             'unicorn/no-null': 'off',
             'unicorn/prevent-abbreviations': ['error', { ignore: ['env.d.ts'] }],
             'unicorn/switch-case-braces': 'off',
+            'unicorn/prefer-top-level-await': 'off',
 
             'vue/multi-word-component-names': 'off',
             'vue/no-bare-strings-in-template': ['warn'],
