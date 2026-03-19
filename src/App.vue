@@ -109,8 +109,11 @@ function handleOptionClick(knowledgePanelId: KnowledgePanelId): void {
 
 function toggleAppPane(appPaneId: AppPaneId): void {
     if (displayIsWide.value) {
-        if (appPaneId === 'workbench') toggleWorkbenchAppPane();
-        else toggleKnowledgeAppPane();
+        if (appPaneId === 'workbench') {
+            toggleWorkbenchAppPane();
+        } else {
+            toggleKnowledgeAppPane();
+        }
         if (workbenchPaneIsVisible.value && appPaneId === 'workbench') {
             activeAppPaneId.value = 'workbench';
         } else if (knowledgePaneIsVisible.value && appPaneId === 'knowledge') {
@@ -123,13 +126,18 @@ function toggleAppPane(appPaneId: AppPaneId): void {
             knowledgeOptionBarIsVisible.value = !knowledgeOptionBarIsVisible.value;
         } else {
             if (appPaneId === 'workbench') {
-                toggleWorkbenchAppPane();
-                knowledgePaneIsVisible.value = false; // !knowledgePaneIsVisible.value;
+                if (knowledgeOptionBarIsVisible.value) {
+                    knowledgeOptionBarIsVisible.value = false;
+                } else {
+                    toggleWorkbenchAppPane();
+                    knowledgePaneIsVisible.value = false;
+                }
             } else {
-                if (workbenchOptionBarIsVisible.value) workbenchOptionBarIsVisible.value = false;
-                else {
+                if (workbenchOptionBarIsVisible.value) {
+                    workbenchOptionBarIsVisible.value = false;
+                } else {
                     toggleKnowledgeAppPane();
-                    workbenchPaneIsVisible.value = false; // !workbenchPaneIsVisible.value;
+                    workbenchPaneIsVisible.value = false;
                 }
             }
             activeAppPaneId.value = appPaneId;
