@@ -13,21 +13,21 @@ const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export type KnowledgePanelTypeId = 'about' | 'library' | 'chat';
-const knowledgePanels: Record<KnowledgePanelTypeId, { component: Component; label: string }> = {
+export type KnowledgePanelId = 'about' | 'library' | 'chat';
+const knowledgePanels: Record<KnowledgePanelId, { component: Component; label: string }> = {
     about: { component: KnowledgeAboutPanel, label: 'About' },
     library: { component: KnowledgeLibraryPanel, label: 'Library' },
     chat: { component: KnowledgeChatPanel, label: 'Chat' }
 };
 
-// External State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const route = useRoute();
 
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activePanel = computed(() => {
-    const parameter = route.query.knowledge as KnowledgePanelTypeId | undefined;
+    const parameter = route.query.knowledge as KnowledgePanelId | undefined;
     return knowledgePanels[parameter ?? 'about'] ?? knowledgePanels.about;
 });
 </script>

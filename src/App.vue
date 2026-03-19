@@ -5,8 +5,6 @@ import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
-import T from '@/locales/App.json';
-import { t } from '@/locales';
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 import { useSessionStore } from '@/stores/sessionStore';
 
@@ -16,7 +14,7 @@ import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
-import type { KnowledgePanelTypeId } from '@/components/knowledgePanel/KnowledgePanel.vue';
+import type { KnowledgePanelId } from '@/components/knowledgePanel/KnowledgePanel.vue';
 import NavProgressBar from '@/components/navProgressBar/NavProgressBar.vue'; // Required when lazy loading is delayed.
 import SessionButton from '@/components/session/SessionButton.vue'; // Always visible.
 
@@ -35,7 +33,7 @@ const KnowledgePanel = defineAsyncComponent({ loader: () => import('@/components
 const PaneSplitter = defineAsyncComponent({ loader: () => import('@/components/paneSplitter/PaneSplitter.vue'), errorComponent: ChunkLoadError });
 const WorkbenchOptionBar = defineAsyncComponent({ loader: () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), errorComponent: ChunkLoadError });
 
-// External State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const { displayIsWide } = useDisplayBreakpoint();
 const route = useRoute();
@@ -44,11 +42,9 @@ const router = useRouter();
 // Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 type AppPaneId = 'workbench' | 'knowledge';
-const activeAppPaneId = ref<AppPaneId>(router.currentRoute.value.path === '/' ? 'knowledge' : 'workbench'); // TODO: Consider a param to remember.
-const activeKnowledgePanelId = ref<KnowledgePanelTypeId>((router.currentRoute.value.query.knowledge as KnowledgePanelTypeId) ?? 'about');
+const activeAppPaneId = ref<AppPaneId | undefined>(undefined); // TODO: Consider a param to remember.
 
 const knowledgeOptionBarIsVisible = ref(false);
-
 const knowledgePaneActivated = ref(false);
 const knowledgePaneIsActive = ref(false);
 const knowledgePaneIsVisible = ref(false);
@@ -56,10 +52,14 @@ const knowledgePaneIsVisible = ref(false);
 const paneSplitterPercent = ref(50);
 
 const workbenchOptionBarIsVisible = ref(false);
-
 const workbenchPaneActivated = ref(false);
 const workbenchPaneIsActive = ref(false);
 const workbenchPaneIsVisible = ref(false);
+
+/////////
+
+const activeKnowledgePanelId = ref<KnowledgePanelId>((router.currentRoute.value.query.knowledge as KnowledgePanelId) ?? 'about');
+const showKnowledgeOptions = ref(false);
 
 // Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -81,37 +81,18 @@ const workbenchPaneStyle = computed(() => {
     return { minWidth: '0', flex: '1' };
 });
 
-/////////
-
-const showWorkbench = computed(() => router.currentRoute.value.path !== '/');
-const showKnowledge = computed(() => 'knowledge' in router.currentRoute.value.query);
-const showKnowledgeOptions = ref(false);
-
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 router.isReady().then(() => {
-    if (displayIsWide.value) {
-        knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = 'knowledge' in route.query;
-        workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = route.path !== '/';
-    } else {
-        knowledgePaneActivated.value = knowledgePaneIsActive.value = 'knowledge' in route.query;
-        workbenchPaneActivated.value = workbenchPaneIsActive.value = route.path !== '/';
-        knowledgePaneIsVisible.value = knowledgePaneIsActive.value && activeAppPaneId.value === 'knowledge';
-        workbenchPaneIsVisible.value = workbenchPaneIsActive.value && activeAppPaneId.value === 'workbench';
-    }
+    workbenchPaneActivated.value = workbenchPaneIsActive.value = route.path !== '/';
+    knowledgePaneActivated.value = knowledgePaneIsActive.value = 'knowledge' in route.query;
+    activeAppPaneId.value = workbenchPaneActivated.value ? 'workbench' : 'knowledge';
+    establishActiveAppPanelId(displayIsWide.value);
 });
 
 onMounted(() => useSessionStore().initialiseServices());
 
-watch(displayIsWide, (newDisplayIsWide) => {
-    if (newDisplayIsWide) {
-        knowledgePaneIsVisible.value = knowledgePaneIsActive.value;
-        workbenchPaneIsVisible.value = workbenchPaneIsActive.value;
-    } else {
-        knowledgePaneIsVisible.value = knowledgePaneIsActive.value && activeAppPaneId.value === 'knowledge';
-        workbenchPaneIsVisible.value = workbenchPaneIsActive.value && activeAppPaneId.value === 'workbench';
-    }
-});
+watch(displayIsWide, (newDisplayIsWide) => establishActiveAppPanelId(newDisplayIsWide));
 
 // UI Helpers - Options ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -121,60 +102,65 @@ function completeOptionInvocation(paneId: AppPaneId): void {
 
 // UI Helpers - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function handleOptionClick(view: KnowledgePanelTypeId): void {
-    activeKnowledgePanelId.value = view;
-    router.push({ path: '/', query: { ...router.currentRoute.value.query, knowledge: view } });
+function handleOptionClick(knowledgePanelId: KnowledgePanelId): void {
+    activeKnowledgePanelId.value = knowledgePanelId;
+    router.replace({ query: { ...router.currentRoute.value.query, knowledge: knowledgePanelId } });
+    knowledgeOptionBarIsVisible.value = false;
 }
 
-function toggleAppPane(id: AppPaneId): void {
+function toggleAppPane(appPaneId: AppPaneId): void {
     if (displayIsWide.value) {
-        if (id === 'workbench') {
-            workbenchPaneIsVisible.value = !workbenchPaneIsVisible.value;
-        } else {
-            knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
-        }
-        activeAppPaneId.value = id;
+        if (appPaneId === 'workbench') toggleWorkbenchAppPane();
+        else toggleKnowledgeAppPane();
+        if (workbenchPaneIsVisible.value && appPaneId === 'workbench') activeAppPaneId.value = 'workbench';
+        else if (knowledgePaneIsVisible.value && appPaneId === 'knowledge') activeAppPaneId.value = 'knowledge';
     } else {
-        if (workbenchPaneIsVisible.value && id === 'workbench') {
+        if (workbenchPaneIsVisible.value && appPaneId === 'workbench') {
             workbenchOptionBarIsVisible.value = !workbenchOptionBarIsVisible.value;
-        } else if (knowledgePaneIsVisible.value && id === 'knowledge') {
+        } else if (knowledgePaneIsVisible.value && appPaneId === 'knowledge') {
             knowledgeOptionBarIsVisible.value = !knowledgeOptionBarIsVisible.value;
         } else {
-            workbenchPaneIsVisible.value = !workbenchPaneIsVisible.value;
-            knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
-            activeAppPaneId.value = id;
+            if (appPaneId === 'workbench') {
+                toggleWorkbenchAppPane();
+                knowledgePaneIsVisible.value = false; // !knowledgePaneIsVisible.value;
+            } else {
+                toggleKnowledgeAppPane();
+                workbenchPaneIsVisible.value = false; // !workbenchPaneIsVisible.value;
+            }
+            activeAppPaneId.value = appPaneId;
         }
     }
 }
 
-// async function toggleAppPane(pane: AppPaneId): Promise<void> {
-//     if (displayIsWide.value) {
-//         if (pane === 'workbench') {
-//             if (showWorkbench.value) {
-//                 if (!showKnowledge.value) return; // Can't hide the only visible pane.
-//                 await router.push({ path: '/', query: { ...router.currentRoute.value.query } });
-//             } else {
-//                 await router.push({ path: '/workflow', query: router.currentRoute.value.query });
-//             }
-//         } else {
-//             if (showKnowledge.value) {
-//                 if (!showWorkbench.value) return; // Can't hide the only visible pane.
-//                 const query = Object.fromEntries(Object.entries(router.currentRoute.value.query).filter(([k]) => k !== 'knowledge'));
-//                 await router.push({ path: router.currentRoute.value.path, query });
-//             } else {
-//                 await router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, knowledge: activeKnowledgePanelId.value } });
-//             }
-//         }
-//     } else {
-//         if (pane === 'workbench') {
-//             // On narrow display, always just toggle the option bar; navigation happens via option bar links.
-//             activeOptionBarId.value = activeOptionBarId.value === pane ? undefined : pane;
-//         } else {
-//             showKnowledgeOptions.value = !showKnowledgeOptions.value;
-//             activeOptionBarId.value = activeOptionBarId.value === pane ? undefined : pane;
-//         }
-//     }
-// }
+function toggleWorkbenchAppPane(): void {
+    if (route.path === '/') {
+        router.replace({ path: '/workflow', query: route.query });
+        workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = true;
+    } else {
+        workbenchPaneIsVisible.value = !workbenchPaneIsVisible.value;
+    }
+}
+
+function toggleKnowledgeAppPane(): void {
+    if ('knowledge' in route.query) {
+        knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
+    } else {
+        router.replace({ query: { ...route.query, knowledge: 'about' } });
+        knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = true;
+    }
+}
+
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function establishActiveAppPanelId(displayIsWide: boolean): void {
+    if (displayIsWide) {
+        workbenchPaneIsVisible.value = workbenchPaneIsActive.value;
+        knowledgePaneIsVisible.value = knowledgePaneIsActive.value;
+    } else {
+        workbenchPaneIsVisible.value = workbenchPaneIsActive.value && activeAppPaneId.value === 'workbench';
+        knowledgePaneIsVisible.value = knowledgePaneIsActive.value && activeAppPaneId.value === 'knowledge';
+    }
+}
 </script>
 
 <template>
@@ -189,7 +175,7 @@ function toggleAppPane(id: AppPaneId): void {
 
         <!-- Knowledge toggle fixed in top right corner. Always visible. -->
         <div class="fixed top-[calc(env(safe-area-inset-top)+7px)] right-3 z-40 flex">
-            <div v-if="showKnowledgeOptions">
+            <div v-if="displayIsWide || knowledgeOptionBarIsVisible">
                 <Button variant="iconLarge" @click="handleOptionClick('about')">
                     <InfoIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
@@ -203,7 +189,8 @@ function toggleAppPane(id: AppPaneId): void {
                 </Button>
             </div>
 
-            <Button :disabled="!workbenchPaneIsVisible" variant="iconLarge" @click="toggleAppPane('knowledge')">
+            <!-- <Button :disabled="!workbenchPaneIsVisible" variant="iconLarge" @click="toggleAppPane('knowledge')"> -->
+            <Button variant="iconLarge" @click="toggleAppPane('knowledge')">
                 <KnowledgeIcon />
             </Button>
         </div>

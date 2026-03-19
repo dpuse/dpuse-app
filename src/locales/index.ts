@@ -10,7 +10,7 @@ export const SUPPORTED_LANGUAGES: { id: LocaleId; flag: FlagId; label: string }[
     { id: 'es', flag: 'es', label: 'Español' }
 ];
 
-// External State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export const localeId = ref<LocaleId>(establishLocaleId());
 

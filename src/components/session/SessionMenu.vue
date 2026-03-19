@@ -19,7 +19,7 @@ const emit = defineEmits<{ (event: 'continue'): void }>();
 
 const isPWA = globalThis.matchMedia('(display-mode: standalone)').matches || globalThis.matchMedia('(display-mode: fullscreen)').matches;
 
-// External State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const fullScreenIsSupported = document.fullscreenEnabled;
 const isFullscreen = ref(!!document.fullscreenElement);
@@ -45,7 +45,7 @@ function handleManageAccount(): void {
 }
 
 function handleReloadApplication(): void {
-    globalThis.location.reload();
+    globalThis.location.reload(); // TODO: Should we "globalThis.location.href = '/your/path';" to also reset the url".
 }
 
 function handleSetAppearance(mode: 'dark' | 'light' | 'auto'): void {
