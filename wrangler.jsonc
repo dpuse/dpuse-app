@@ -12,7 +12,7 @@
     "observability": {
         "enabled": true
     },
-    "routes": [{ "custom_domain": true, "pattern": "www.datapos.app", "zone_name": "datapos.app" }],
+    "routes": [{ "custom_domain": true, "pattern": "www.dpuse.app", "zone_name": "dpuse.app" }],
     "placement": {
         "mode": "smart"
     },
