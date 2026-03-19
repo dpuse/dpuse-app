@@ -59,7 +59,6 @@ const workbenchPaneIsVisible = ref(false);
 /////////
 
 const activeKnowledgePanelId = ref<KnowledgePanelId>((router.currentRoute.value.query.knowledge as KnowledgePanelId) ?? 'about');
-const showKnowledgeOptions = ref(false);
 
 // Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -112,8 +111,11 @@ function toggleAppPane(appPaneId: AppPaneId): void {
     if (displayIsWide.value) {
         if (appPaneId === 'workbench') toggleWorkbenchAppPane();
         else toggleKnowledgeAppPane();
-        if (workbenchPaneIsVisible.value && appPaneId === 'workbench') activeAppPaneId.value = 'workbench';
-        else if (knowledgePaneIsVisible.value && appPaneId === 'knowledge') activeAppPaneId.value = 'knowledge';
+        if (workbenchPaneIsVisible.value && appPaneId === 'workbench') {
+            activeAppPaneId.value = 'workbench';
+        } else if (knowledgePaneIsVisible.value && appPaneId === 'knowledge') {
+            activeAppPaneId.value = 'knowledge';
+        }
     } else {
         if (workbenchPaneIsVisible.value && appPaneId === 'workbench') {
             workbenchOptionBarIsVisible.value = !workbenchOptionBarIsVisible.value;
@@ -124,8 +126,11 @@ function toggleAppPane(appPaneId: AppPaneId): void {
                 toggleWorkbenchAppPane();
                 knowledgePaneIsVisible.value = false; // !knowledgePaneIsVisible.value;
             } else {
-                toggleKnowledgeAppPane();
-                workbenchPaneIsVisible.value = false; // !workbenchPaneIsVisible.value;
+                if (workbenchOptionBarIsVisible.value) workbenchOptionBarIsVisible.value = false;
+                else {
+                    toggleKnowledgeAppPane();
+                    workbenchPaneIsVisible.value = false; // !workbenchPaneIsVisible.value;
+                }
             }
             activeAppPaneId.value = appPaneId;
         }
