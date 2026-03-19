@@ -1,6 +1,6 @@
 {
     "$schema": "node_modules/wrangler/config-schema.json",
-    "name": "datapos-workbench",
+    "name": "dpuse-app",
     "compatibility_date": "2026-02-01", // Cloudflare recommends keeping this within ~30 days of today so you receive current runtime fixes and features for Workers and Durable Objects.
     "main": "server/index.ts",
     "assets": {
