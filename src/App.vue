@@ -8,17 +8,17 @@ import { useRoute, useRouter } from 'vue-router';
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components & Views - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
-import type { KnowledgePanelId } from '@/components/knowledgePanel/KnowledgePanel.vue';
+import type { KnowledgeViewId } from '@/views/knowledge/Knowledge.vue';
 import NavProgressBar from '@/components/navProgressBar/NavProgressBar.vue'; // Required when lazy loading is delayed.
 import SessionButton from '@/components/session/SessionButton.vue'; // Always visible.
 
-// App Components - Lazy loaded as required.
+// App Components & Views - Lazy loaded as required.
 const AcctMgmtDialog = defineAsyncComponent({
     loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/components/account/AcctMgmtDialog.vue')),
     errorComponent: ChunkLoadError
@@ -29,7 +29,7 @@ const AuthDialog = defineAsyncComponent({
 });
 // const DialogWrapper = defineAsyncComponent({ loader: () => import('@/components/dialog/DialogWrapper.vue'), errorComponent: ChunkLoadError });
 const KnowledgeOptionBar = defineAsyncComponent({ loader: () => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue'), errorComponent: ChunkLoadError });
-const KnowledgePanel = defineAsyncComponent({ loader: () => import('@/components/knowledgePanel/KnowledgePanel.vue'), errorComponent: ChunkLoadError });
+const Knowledge = defineAsyncComponent({ loader: () => import('@/views/knowledge/Knowledge.vue'), errorComponent: ChunkLoadError });
 const PaneSplitter = defineAsyncComponent({ loader: () => import('@/components/paneSplitter/PaneSplitter.vue'), errorComponent: ChunkLoadError });
 const WorkbenchOptionBar = defineAsyncComponent({ loader: () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), errorComponent: ChunkLoadError });
 
@@ -58,7 +58,8 @@ const workbenchPaneIsVisible = ref(false);
 
 /////////
 
-const activeKnowledgePanelId = ref<KnowledgePanelId>((router.currentRoute.value.query.kPanel as KnowledgePanelId) ?? 'about');
+const activeWorkbenchViewId = ref<string | undefined>();
+const activeKnowledgeViewId = ref<KnowledgeViewId>((router.currentRoute.value.query.kPanel as KnowledgeViewId) ?? 'about');
 
 // Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -101,8 +102,8 @@ function completeOptionInvocation(paneId: AppPaneId): void {
 
 // UI Helpers - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function handleOptionClick(knowledgePanelId: KnowledgePanelId): void {
-    activeKnowledgePanelId.value = knowledgePanelId;
+function handleOptionClick(knowledgePanelId: KnowledgeViewId): void {
+    activeKnowledgeViewId.value = knowledgePanelId;
     router.replace({ query: { ...router.currentRoute.value.query, kPanel: knowledgePanelId } });
     knowledgeOptionBarIsVisible.value = false;
 }
@@ -266,7 +267,7 @@ function establishActiveAppPanelId(displayIsWide: boolean): void {
             @pointerdown="activeAppPaneId = 'knowledge'"
             @scroll.capture="activeAppPaneId = 'knowledge'"
         >
-            <KnowledgePanel class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
+            <Knowledge class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
             <!-- <KnowledgeOptionBar v-if="displayIsWide" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation('knowledge')" /> -->
         </div>
 

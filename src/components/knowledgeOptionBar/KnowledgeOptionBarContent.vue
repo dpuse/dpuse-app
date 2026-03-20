@@ -3,7 +3,7 @@
 import { useRouter } from 'vue-router';
 import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components & Views - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import HomeIcon from '@/components/icon/HomeIcon.vue';
 import Separator from '@/components/separator/Separator.vue';

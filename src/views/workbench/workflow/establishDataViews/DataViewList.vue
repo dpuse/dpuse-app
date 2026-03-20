@@ -23,13 +23,13 @@ import T from '@/locales/views/workflow/establishDataViews/EstablishDataViews.js
 import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components & Views - Statically imported so always available, even after app goes offline.
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
 
-// App Components - Lazy loaded as required.
+// App Components & Views - Lazy loaded as required.
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -127,9 +127,9 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
     <div class="border-separator mx-4 flex flex-none border-b py-1">
         <div class="flex-1"></div>
 
-        <Button @click="router.push({ name: 'connectionSelector', query: router.currentRoute.value.query })">
+        <RouterLink :to="{ name: 'connectionSelector', query: { ...router.currentRoute.value.query, wbView: 'connectionSelector' } }">
             <PlusIcon stroke-width="1.25" />
-        </Button>
+        </RouterLink>
     </div>
 
     <GridScroller

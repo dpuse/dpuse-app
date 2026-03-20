@@ -2,7 +2,7 @@
 // App Core
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components & Views - Statically imported so always available, even after app goes offline.
 import WorkbenchOptionBarContent from './WorkbenchOptionBarContent.vue';
 
 // Properties & Emits

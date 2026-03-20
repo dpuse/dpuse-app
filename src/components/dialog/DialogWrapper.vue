@@ -2,7 +2,7 @@
 // External Dependencies
 import { LoaderCircleIcon } from 'lucide-vue-next';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components & Views - Statically imported so always available, even after app goes offline.
 import Mask from '@/components/mask/Mask.vue';
 </script>
 

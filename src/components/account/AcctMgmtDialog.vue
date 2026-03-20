@@ -9,10 +9,10 @@ import { t } from '@/locales';
 import T from '@/locales/views/account/Account.json';
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components & Views - Statically imported so always available, even after app goes offline.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components & Views - Statically imported so always available, even after app goes offline.
 import Button, { type VariantTypeId } from '@/components/button/Button.vue';
 
 const { displayIsWide } = useDisplayBreakpoint();

@@ -8,7 +8,7 @@ import T from '@/locales/views/workflow/Workflow.json';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
 import { localeId, localiseConfigs, t } from '@/locales';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components & Views - Statically imported so always available, even after app goes offline.
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Card from '@/components/card/Card.vue';
@@ -39,7 +39,7 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
                         v-for="config of workflowStepConfigs"
                         :key="config.id"
                         class="bg-card outline-boundary overflow-hidden rounded-lg font-light outline -outline-offset-1"
-                        :to="{ name: config.id, query: route.query }"
+                        :to="{ name: config.id, query: { ...route.query, wbView: config.id } }"
                     >
                         <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                     </RouterLink>

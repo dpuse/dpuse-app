@@ -3,7 +3,7 @@
 import { t } from '@/locales';
 import T from '@/locales/views/workflow/explorePresentations/ExplorePresentations.json';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components & Views - Statically imported so always available, even after app goes offline.
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
 import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
 import Header from '@/components/header/Header.vue';

@@ -3,21 +3,21 @@
 import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
-// App Components - Lazy loaded as required.
-const KnowledgeAboutPanel = defineAsyncComponent(() => import('./KnowledgeAboutPanel.vue'));
-const KnowledgeChatPanel = defineAsyncComponent(() => import('./KnowledgeChatPanel.vue'));
-const KnowledgeLibraryPanel = defineAsyncComponent(() => import('./KnowledgeLibraryPanel.vue'));
+// App Components & Views - Lazy loaded as required.
+const About = defineAsyncComponent(() => import('./About.vue'));
+const Chat = defineAsyncComponent(() => import('./Chat.vue'));
+const Library = defineAsyncComponent(() => import('./Library.vue'));
 
 // Properties & Emits
 const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }>();
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export type KnowledgePanelId = 'about' | 'library' | 'chat';
-const knowledgePanels: Record<KnowledgePanelId, { component: Component; label: string }> = {
-    about: { component: KnowledgeAboutPanel, label: 'About' },
-    library: { component: KnowledgeLibraryPanel, label: 'Library' },
-    chat: { component: KnowledgeChatPanel, label: 'Chat' }
+export type KnowledgeViewId = 'about' | 'library' | 'chat';
+const knowledgePanels: Record<KnowledgeViewId, { component: Component; label: string }> = {
+    about: { component: About, label: 'About' },
+    library: { component: Library, label: 'Library' },
+    chat: { component: Chat, label: 'Chat' }
 };
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -27,7 +27,7 @@ const route = useRoute();
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activePanel = computed(() => {
-    const parameter = route.query.kPanel as KnowledgePanelId | undefined;
+    const parameter = route.query.kPanel as KnowledgeViewId | undefined;
     return knowledgePanels[parameter ?? 'about'] ?? knowledgePanels.about;
 });
 </script>
