@@ -18,7 +18,7 @@ const router = useRouter();
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleOptionClick(knowledgePanelId: string): void {
-    router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, kPanel: knowledgePanelId } });
+    router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, kView: knowledgePanelId } });
     emit('continue');
 }
 </script>

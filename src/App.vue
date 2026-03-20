@@ -59,7 +59,7 @@ const workbenchPaneIsVisible = ref(false);
 /////////
 
 const activeWorkbenchViewId = ref<string | undefined>();
-const activeKnowledgeViewId = ref<KnowledgeViewId>((router.currentRoute.value.query.kPanel as KnowledgeViewId) ?? 'about');
+const activeKnowledgeViewId = ref<KnowledgeViewId>((router.currentRoute.value.query.kView as KnowledgeViewId) ?? 'about');
 
 // Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -85,7 +85,7 @@ const workbenchPaneStyle = computed(() => {
 
 router.isReady().then(() => {
     workbenchPaneActivated.value = workbenchPaneIsActive.value = route.path !== '/';
-    knowledgePaneActivated.value = knowledgePaneIsActive.value = 'kPanel' in route.query;
+    knowledgePaneActivated.value = knowledgePaneIsActive.value = 'kView' in route.query;
     activeAppPaneId.value = workbenchPaneActivated.value ? 'workbench' : 'knowledge';
     establishActiveAppPanelId(displayIsWide.value);
 });
@@ -104,7 +104,7 @@ function completeOptionInvocation(paneId: AppPaneId): void {
 
 function handleOptionClick(knowledgePanelId: KnowledgeViewId): void {
     activeKnowledgeViewId.value = knowledgePanelId;
-    router.replace({ query: { ...router.currentRoute.value.query, kPanel: knowledgePanelId } });
+    router.replace({ query: { ...router.currentRoute.value.query, kView: knowledgePanelId } });
     knowledgeOptionBarIsVisible.value = false;
 }
 
@@ -160,12 +160,12 @@ function toggleWorkbenchAppPane(): void {
 }
 
 function toggleKnowledgeAppPane(): void {
-    if ('kPanel' in route.query) {
+    if ('kView' in route.query) {
         knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
         router.replace({ query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
     } else {
         knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = true;
-        router.replace({ query: { ...route.query, kPanel: 'about', wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
+        router.replace({ query: { ...route.query, kView: 'about', wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
     }
 }
 

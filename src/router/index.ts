@@ -70,11 +70,11 @@ export const createAppRouter = (): Router => {
             // Then the page is loading.
             if (!('wbState' in to.query) && to.path !== '/') {
                 //, we can clear the workbench part of the url if it was not visible. This defers loading components until required.
-                return { path: '/', query: { wbState: undefined, kPanel: to.query.kPanel ?? 'about', kState: 1 } };
-            } else if (to.path === '/' && (!('kPanel' in to.query) || !('kState' in to.query))) {
+                return { path: '/', query: { wbState: undefined, kView: to.query.kView ?? 'about', kState: 1 } };
+            } else if (to.path === '/' && (!('kView' in to.query) || !('kState' in to.query))) {
                 return { path: '/workflow', query: { wbState: 1 } };
             }
-            // } else if (to.path === '/' && (!('kPanel' in to.query) || !('kState' in to.query))) {
+            // } else if (to.path === '/' && (!('kView' in to.query) || !('kState' in to.query))) {
             //     return { path: '/workflow', query: to.query };
         }
         startNavigation();
