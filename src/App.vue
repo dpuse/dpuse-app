@@ -150,7 +150,7 @@ function toggleWorkbenchAppPane(): void {
     if (route.path === '/') {
         workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = true;
         router.replace({
-            path: '/workflow',
+            name: (route.query.wbView as string) ?? 'workflow',
             query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined }
         });
     } else {
