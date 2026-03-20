@@ -66,10 +66,13 @@ export const createAppRouter = (): Router => {
 
     // Default to /workflow when no workbench route or knowledge argument is present.
     router.beforeEach((to, from) => {
-        // if (from === START_LOCATION && !('wbState' in to.query) && to.path !== '/') {
-        //     return { path: '/', query: to.query };
-        // }
-        if (to.path === '/' && !('kPanel' in to.query)) {
+        if (from === START_LOCATION) {
+            if (!('wbState' in to.query) && (!('kPanel' in to.query) || !('kState' in to.query))) {
+                return { path: '/', query: { ...to.query, kPanel: 'about', kState: 1 } };
+            } else if (to.path === '/' && (!('kPanel' in to.query) || !('kState' in to.query))) {
+                return { path: '/workflow', query: to.query };
+            }
+        } else if (to.path === '/' && (!('kPanel' in to.query) || !('kState' in to.query))) {
             return { path: '/workflow', query: to.query };
         }
         startNavigation();
