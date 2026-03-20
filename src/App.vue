@@ -58,12 +58,12 @@ const workbenchPaneIsVisible = ref(false);
 
 /////////
 
-const activeKnowledgePanelId = ref<KnowledgePanelId>((router.currentRoute.value.query.knowledge as KnowledgePanelId) ?? 'about');
+const activeKnowledgePanelId = ref<KnowledgePanelId>((router.currentRoute.value.query.kPanel as KnowledgePanelId) ?? 'about');
 
 // Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const acctMgmtDialogIsVisible = computed(() => router.currentRoute.value.query.dialog === 'acctMgmt');
-const authDialogIsVisible = computed(() => router.currentRoute.value.query.dialog === 'auth');
+const acctMgmtDialogIsVisible = computed(() => router.currentRoute.value.query.dlg === 'acctMgmt');
+const authDialogIsVisible = computed(() => router.currentRoute.value.query.dlg === 'auth');
 
 // Derived State - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -84,7 +84,7 @@ const workbenchPaneStyle = computed(() => {
 
 router.isReady().then(() => {
     workbenchPaneActivated.value = workbenchPaneIsActive.value = route.path !== '/';
-    knowledgePaneActivated.value = knowledgePaneIsActive.value = 'knowledge' in route.query;
+    knowledgePaneActivated.value = knowledgePaneIsActive.value = 'kPanel' in route.query;
     activeAppPaneId.value = workbenchPaneActivated.value ? 'workbench' : 'knowledge';
     establishActiveAppPanelId(displayIsWide.value);
 });
@@ -103,7 +103,7 @@ function completeOptionInvocation(paneId: AppPaneId): void {
 
 function handleOptionClick(knowledgePanelId: KnowledgePanelId): void {
     activeKnowledgePanelId.value = knowledgePanelId;
-    router.replace({ query: { ...router.currentRoute.value.query, knowledge: knowledgePanelId } });
+    router.replace({ query: { ...router.currentRoute.value.query, kPanel: knowledgePanelId } });
     knowledgeOptionBarIsVisible.value = false;
 }
 
@@ -129,15 +129,15 @@ function toggleAppPane(appPaneId: AppPaneId): void {
                 if (knowledgeOptionBarIsVisible.value) {
                     knowledgeOptionBarIsVisible.value = false;
                 } else {
-                    toggleWorkbenchAppPane();
                     knowledgePaneIsVisible.value = false;
+                    toggleWorkbenchAppPane();
                 }
             } else {
                 if (workbenchOptionBarIsVisible.value) {
                     workbenchOptionBarIsVisible.value = false;
                 } else {
-                    toggleKnowledgeAppPane();
                     workbenchPaneIsVisible.value = false;
+                    toggleKnowledgeAppPane();
                 }
             }
             activeAppPaneId.value = appPaneId;
@@ -147,19 +147,24 @@ function toggleAppPane(appPaneId: AppPaneId): void {
 
 function toggleWorkbenchAppPane(): void {
     if (route.path === '/') {
-        router.replace({ path: '/workflow', query: route.query });
         workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = true;
+        router.replace({
+            path: '/workflow',
+            query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined }
+        });
     } else {
         workbenchPaneIsVisible.value = !workbenchPaneIsVisible.value;
+        router.replace({ query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
     }
 }
 
 function toggleKnowledgeAppPane(): void {
-    if ('knowledge' in route.query) {
+    if ('kPanel' in route.query) {
         knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
+        router.replace({ query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
     } else {
-        router.replace({ query: { ...route.query, knowledge: 'about' } });
         knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = true;
+        router.replace({ query: { ...route.query, kPanel: 'about', wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
     }
 }
 
@@ -213,14 +218,14 @@ function establishActiveAppPanelId(displayIsWide: boolean): void {
             <SessionButton :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
         </div>
 
-        <!-- Authentication dialog activated using url parameter 'dialog=auth'. -->
+        <!-- Authentication dialog activated using url parameter 'dlg=auth'. -->
         <Transition name="dialog">
             <DialogWrapper v-if="authDialogIsVisible">
                 <AuthDialog />
             </DialogWrapper>
         </Transition>
 
-        <!-- Account Management dialog activated using url parameter 'dialog=acctMgmt'. -->
+        <!-- Account Management dialog activated using url parameter 'dlg=acctMgmt'. -->
         <Transition name="dialog">
             <DialogWrapper v-if="acctMgmtDialogIsVisible">
                 <AcctMgmtDialog />

@@ -27,7 +27,7 @@ const route = useRoute();
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activePanel = computed(() => {
-    const parameter = route.query.knowledge as KnowledgePanelId | undefined;
+    const parameter = route.query.kPanel as KnowledgePanelId | undefined;
     return knowledgePanels[parameter ?? 'about'] ?? knowledgePanels.about;
 });
 </script>

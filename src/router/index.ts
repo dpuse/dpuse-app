@@ -3,7 +3,7 @@
 // External Dependencies
 import type { Component } from 'vue';
 import { h } from 'vue';
-import { createRouter, createWebHistory, type Router, type RouterScrollBehavior } from 'vue-router';
+import { createRouter, createWebHistory, type Router, type RouterScrollBehavior, START_LOCATION } from 'vue-router';
 
 // App Core
 import { completeNavigation, startNavigation } from '@/composables/useNavProgress';
@@ -65,8 +65,11 @@ export const createAppRouter = (): Router => {
     });
 
     // Default to /workflow when no workbench route or knowledge argument is present.
-    router.beforeEach((to) => {
-        if (to.path === '/' && !('knowledge' in to.query)) {
+    router.beforeEach((to, from) => {
+        if (from === START_LOCATION && !('wbState' in to.query) && to.path !== '/') {
+            return { path: '/', query: to.query };
+        }
+        if (to.path === '/' && !('kPanel' in to.query)) {
             return { path: '/workflow', query: to.query };
         }
         startNavigation();

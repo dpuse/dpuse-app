@@ -40,7 +40,7 @@ const sessionIsAuthenticated = computed(() => sessionState.isAuthenticated);
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleManageAccount(): void {
-    router.replace({ query: { ...router.currentRoute.value.query, dialog: 'acctMgmt' } });
+    router.replace({ query: { ...router.currentRoute.value.query, dlg: 'acctMgmt' } });
     emit('continue');
 }
 
@@ -62,7 +62,7 @@ function handleSetLanguage(id: LocaleId): void {
 }
 
 function handleSignInRegister(): void {
-    router.replace({ query: { ...router.currentRoute.value.query, dialog: 'auth' } });
+    router.replace({ query: { ...router.currentRoute.value.query, dlg: 'auth' } });
     emit('continue');
 }
 

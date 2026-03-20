@@ -187,7 +187,7 @@ async function handleCloseDialog(): Promise<void> {
         );
     });
     const rest = { ...router.currentRoute.value.query };
-    delete rest.dialog;
+    delete rest.dlg;
     router.push({ query: { ...rest } });
 }
 </script>
