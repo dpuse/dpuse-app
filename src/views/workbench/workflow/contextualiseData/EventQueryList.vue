@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // External Dependencies
 import { PlusIcon } from 'lucide-vue-next';
-import { useRouter } from 'vue-router';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
 import { AppError } from '@datapos/datapos-shared/errors';
@@ -17,8 +17,8 @@ import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
-import Button from '@/components/button/Button.vue';
 import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
+import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
 
@@ -27,6 +27,7 @@ const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/em
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+const route = useRoute();
 const router = useRouter();
 const sessionState = useSessionStore();
 
@@ -80,7 +81,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
     <div class="border-separator mx-4 flex flex-none border-b py-1">
         <div class="flex-1"></div>
 
-        <Button @click="router.push({ name: 'connectionSelector', query: router.currentRoute.value.query })">
+        <Button @click="router.push({ name: 'connectionSelector', query: route.query })">
             <PlusIcon stroke-width="1.25" />
         </Button>
     </div>

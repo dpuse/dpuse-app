@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // External Dependencies
-import { useRouter } from 'vue-router';
 import { ArrowBigLeftIcon, LoaderCircleIcon, XIcon } from 'lucide-vue-next';
 import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 // App Core
 import { t } from '@/locales';
@@ -50,6 +50,7 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+const route = useRoute();
 const router = useRouter();
 
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -73,14 +74,14 @@ function handleBack(): void {
 }
 
 function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
-    const routeName = router.currentRoute.value.name;
+    const routeName = route.name;
     if (routeName === 'account') {
         if (displayIsWide.value) {
             return OPTION_CONFIGS[1];
         }
         return;
     } else {
-        const activeOptionConfig = OPTION_CONFIGS.find((config) => config.id === router.currentRoute.value.name);
+        const activeOptionConfig = OPTION_CONFIGS.find((config) => config.id === route.name);
         if (!activeOptionConfig) {
             if (displayIsWide.value) {
                 return OPTION_CONFIGS[1];
@@ -94,7 +95,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async function handleCloseDialog(): Promise<void> {
-    const rest = { ...router.currentRoute.value.query };
+    const rest = { ...route.query };
     delete rest.dlg;
     router.push({ query: { ...rest } });
 }
@@ -122,7 +123,7 @@ async function handleCloseDialog(): Promise<void> {
                             <Button
                                 v-else
                                 class="inline-flex min-w-50 justify-start"
-                                :is-active="router.currentRoute.value.name === optionConfig.id && displayIsWide"
+                                :is-active="route.name === optionConfig.id && displayIsWide"
                                 :variant="optionConfig.variant ? optionConfig.variant : 'listItem'"
                                 @click="activeOptionConfig = optionConfig"
                             >
@@ -133,7 +134,7 @@ async function handleCloseDialog(): Promise<void> {
 
                     <!-- <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div> -->
 
-                    <!-- <Button class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: router.currentRoute.value.query }" variant="destructive">
+                    <!-- <Button class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: route.query }" variant="destructive">
                         {{ t(T, 'Delete_account') }}
                     </Button> -->
                 </div>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 // App Core
 import T from '@/locales/components/session/SessionMenu.json';
-import { useRouter } from 'vue-router';
 import { useSessionStore } from '@/stores/sessionStore';
 import { computed, nextTick, onUnmounted, ref } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'lucide-vue-next';
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
+import { useRoute, useRouter } from 'vue-router';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
@@ -31,6 +31,7 @@ async function toggleFullscreen(): Promise<void> {
     await (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen());
 }
 const sessionState = useSessionStore();
+const route = useRoute();
 const router = useRouter();
 
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -40,7 +41,7 @@ const sessionIsAuthenticated = computed(() => sessionState.isAuthenticated);
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleManageAccount(): void {
-    router.replace({ query: { ...router.currentRoute.value.query, dlg: 'acctMgmt' } });
+    router.replace({ query: { ...route.query, dlg: 'acctMgmt' } });
     emit('continue');
 }
 
@@ -62,7 +63,7 @@ function handleSetLanguage(id: LocaleId): void {
 }
 
 function handleSignInRegister(): void {
-    router.replace({ query: { ...router.currentRoute.value.query, dlg: 'auth' } });
+    router.replace({ query: { ...route.query, dlg: 'auth' } });
     emit('continue');
 }
 

@@ -59,12 +59,12 @@ const workbenchPaneIsVisible = ref(false);
 /////////
 
 const activeWorkbenchViewId = ref<string | undefined>();
-const activeKnowledgeViewId = ref<KnowledgeViewId>((router.currentRoute.value.query.kView as KnowledgeViewId) ?? 'about');
+const activeKnowledgeViewId = ref<KnowledgeViewId>((route.query.kView as KnowledgeViewId) ?? 'about');
 
 // Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const acctMgmtDialogIsVisible = computed(() => router.currentRoute.value.query.dlg === 'acctMgmt');
-const authDialogIsVisible = computed(() => router.currentRoute.value.query.dlg === 'auth');
+const acctMgmtDialogIsVisible = computed(() => route.query.dlg === 'acctMgmt');
+const authDialogIsVisible = computed(() => route.query.dlg === 'auth');
 
 // Derived State - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -85,7 +85,7 @@ const workbenchPaneStyle = computed(() => {
 
 router.isReady().then(() => {
     workbenchPaneActivated.value = workbenchPaneIsActive.value = route.path !== '/';
-    knowledgePaneActivated.value = knowledgePaneIsActive.value = 'kView' in route.query;
+    knowledgePaneActivated.value = knowledgePaneIsActive.value = route.query.kState === '1' && 'kView' in route.query;
     activeAppPaneId.value = workbenchPaneActivated.value ? 'workbench' : 'knowledge';
     establishActiveAppPanelId(displayIsWide.value);
 });
@@ -102,9 +102,10 @@ function completeOptionInvocation(paneId: AppPaneId): void {
 
 // UI Helpers - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function handleOptionClick(knowledgePanelId: KnowledgeViewId): void {
-    activeKnowledgeViewId.value = knowledgePanelId;
-    router.replace({ query: { ...router.currentRoute.value.query, kView: knowledgePanelId } });
+function handleOptionClick(knowledgeViewId: KnowledgeViewId): void {
+    knowledgePaneIsActive.value = knowledgePaneIsVisible.value = route.query.kView !== knowledgeViewId || knowledgePaneIsVisible.value !== true;
+    activeKnowledgeViewId.value = knowledgeViewId;
+    router.replace({ query: { ...route.query, kState: knowledgePaneIsVisible.value ? 1 : undefined, kView: knowledgeViewId } });
     knowledgeOptionBarIsVisible.value = false;
 }
 

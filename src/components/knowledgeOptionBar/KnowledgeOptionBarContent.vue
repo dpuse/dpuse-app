@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
-import { useRouter } from 'vue-router';
 import { MessageCircleMoreIcon, SearchIcon } from 'lucide-vue-next';
+import { useRoute, useRouter } from 'vue-router';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
@@ -13,12 +13,13 @@ const emit = defineEmits<{ (event: 'continue'): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+const route = useRoute();
 const router = useRouter();
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleOptionClick(knowledgePanelId: string): void {
-    router.push({ path: router.currentRoute.value.path, query: { ...router.currentRoute.value.query, kView: knowledgePanelId } });
+    router.push({ path: route.path, query: { ...route.query, kView: knowledgePanelId } });
     emit('continue');
 }
 </script>

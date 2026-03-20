@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // External Dependencies
-import { useRouter } from 'vue-router';
 import { XIcon } from 'lucide-vue-next';
 import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
 import { nextTick, onMounted, onUnmounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 // App Core
 import { AppError } from '@datapos/datapos-shared/errors';
@@ -21,6 +21,7 @@ import Separator from '@/components/separator/Separator.vue';
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+const route = useRoute();
 const router = useRouter();
 const sessionState = useSessionStore();
 
@@ -186,7 +187,7 @@ async function handleCloseDialog(): Promise<void> {
             { once: true }
         );
     });
-    const rest = { ...router.currentRoute.value.query };
+    const rest = { ...route.query };
     delete rest.dlg;
     router.push({ query: { ...rest } });
 }
