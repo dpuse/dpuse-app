@@ -104,6 +104,7 @@ function completeOptionInvocation(paneId: AppPaneId): void {
 
 function handleOptionClick(knowledgeViewId: KnowledgeViewId): void {
     knowledgePaneIsActive.value = knowledgePaneIsVisible.value = route.query.kView !== knowledgeViewId || knowledgePaneIsVisible.value !== true;
+    if (knowledgePaneIsActive.value) knowledgePaneActivated.value = true;
     activeKnowledgeViewId.value = knowledgeViewId;
     router.replace({ query: { ...route.query, kState: knowledgePaneIsVisible.value ? 1 : undefined, kView: knowledgeViewId } });
     knowledgeOptionBarIsVisible.value = false;
