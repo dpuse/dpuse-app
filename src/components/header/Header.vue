@@ -13,7 +13,7 @@ const { displayIsWide } = useDisplayBreakpoint();
 </script>
 
 <template>
-    <div class="flex-none px-4">
+    <div class="mt-[env(safe-area-inset-top)] flex-none px-4">
         <!-- Title indented from left and right when display is compact, to allow for logos. -->
         <div class="border-separator flex h-14 flex-col justify-center border-b text-lg font-light" :class="{ 'px-12': !displayIsWide || workbenchPaneIsHidden }">
             <div v-if="breadcrumbs" class="w-full truncate text-xs" :class="{ 'text-center': !displayIsWide }">
