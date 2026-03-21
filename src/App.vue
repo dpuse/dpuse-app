@@ -58,8 +58,8 @@ const workbenchPaneIsVisible = ref(false);
 
 /////////
 
-const activeWorkbenchViewId = ref<string | undefined>();
-const activeKnowledgeViewId = ref<KnowledgeViewId>((route.query.kView as KnowledgeViewId) ?? 'about');
+// const activeWorkbenchViewId = ref<string | undefined>();
+// const activeKnowledgeViewId = ref<KnowledgeViewId>((route.query.kView as KnowledgeViewId) ?? 'about');
 
 // Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -105,7 +105,7 @@ function completeOptionInvocation(paneId: AppPaneId): void {
 function handleOptionClick(knowledgeViewId: KnowledgeViewId): void {
     knowledgePaneIsActive.value = knowledgePaneIsVisible.value = route.query.kView !== knowledgeViewId || knowledgePaneIsVisible.value !== true;
     if (knowledgePaneIsActive.value) knowledgePaneActivated.value = true;
-    activeKnowledgeViewId.value = knowledgeViewId;
+    // activeKnowledgeViewId.value = knowledgeViewId;
     router.replace({ query: { ...route.query, kState: knowledgePaneIsVisible.value ? 1 : undefined, kView: knowledgeViewId } });
     knowledgeOptionBarIsVisible.value = false;
 }
