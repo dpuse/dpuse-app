@@ -184,7 +184,10 @@ function establishActiveAppPanelId(displayIsWide: boolean): void {
 </script>
 
 <template>
-    <div class="bg-surface text-content fixed inset-0 flex pt-[env(safe-area-inset-top)]">
+    <!-- <div class="bg-surface text-content fixed inset-0 flex pt-[env(safe-area-inset-top)]"> -->
+    <div class="bg-surface text-content fixed inset-0 flex">
+        <div class="fixed inset-x-0 top-0 h-[env(safe-area-inset-top)] bg-red-100" />
+
         <!-- Navigation progress bar. Always visible. -->
         <NavProgressBar />
 
@@ -216,7 +219,7 @@ function establishActiveAppPanelId(displayIsWide: boolean): void {
         </div>
 
         <!-- Session button - always visible, independent of pane state -->
-        <div class="fixed bottom-4 left-3 z-40">
+        <div class="fixed bottom-6 left-3 z-40">
             <SessionButton :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
         </div>
 
