@@ -155,14 +155,16 @@ function toggleWorkbenchAppPane(): void {
             query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined }
         });
     } else {
-        workbenchPaneIsVisible.value = !workbenchPaneIsVisible.value;
+        workbenchPaneIsActive.value = workbenchPaneIsVisible.value = !workbenchPaneIsVisible.value;
+        if (workbenchPaneIsActive.value) workbenchPaneActivated.value = true;
         router.replace({ query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
     }
 }
 
 function toggleKnowledgeAppPane(): void {
     if ('kView' in route.query) {
-        knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
+        knowledgePaneIsActive.value = knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
+        if (knowledgePaneIsActive.value) knowledgePaneActivated.value = true;
         router.replace({ query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
     } else {
         knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = true;
@@ -185,7 +187,7 @@ function establishActiveAppPanelId(displayIsWide: boolean): void {
 
 <template>
     <div class="bg-surface text-content fixed inset-0 flex">
-        <div class="bg-surface/50 fixed inset-x-0 top-0 h-[env(safe-area-inset-top)] backdrop-blur-[3px]" />
+        <div class="bg-surface/85 fixed inset-x-0 top-0 h-[env(safe-area-inset-top)] backdrop-blur-[3px]" />
 
         <!-- Navigation progress bar. Always visible. -->
         <NavProgressBar />

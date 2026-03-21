@@ -24,7 +24,7 @@ import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
-import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
+import ViewScroller from '@/components/view/ViewScroller.vue';
 import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
 
@@ -150,7 +150,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         </template>
     </GridScroller>
 
-    <BenchtopScroller v-else-if="dataViewRetrievalIsActive">
+    <ViewScroller v-else-if="dataViewRetrievalIsActive">
         <EmptyStatePlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
-    </BenchtopScroller>
+    </ViewScroller>
 </template>

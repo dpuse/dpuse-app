@@ -9,8 +9,8 @@ import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowS
 import { localeId, localiseConfigs, t } from '@/locales';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
-import BenchtopScroller from '@/components/benchtop/BenchtopScroller.vue';
-import BenchtopShell from '@/components/benchtop/BenchtopShell.vue';
+import ViewScroller from '@/components/view/ViewScroller.vue';
+import ViewShell from '@/components/view/ViewShell.vue';
 import Card from '@/components/card/Card.vue';
 import Header from '@/components/header/Header.vue';
 
@@ -23,7 +23,7 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
 </script>
 
 <template>
-    <BenchtopShell>
+    <ViewShell>
         <Header
             :breadcrumbs="[{ id: 'workbench', label: t(T, 'wb.label') }]"
             class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] w-full max-w-4xl"
@@ -32,7 +32,7 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
             :workbench-pane-is-hidden="false"
         />
 
-        <BenchtopScroller>
+        <ViewScroller>
             <div class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] max-w-4xl">
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 p-4">
                     <RouterLink
@@ -45,6 +45,6 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
                     </RouterLink>
                 </div>
             </div>
-        </BenchtopScroller>
-    </BenchtopShell>
+        </ViewScroller>
+    </ViewShell>
 </template>
