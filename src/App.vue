@@ -42,7 +42,7 @@ const router = useRouter();
 // Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 type AppPaneId = 'workbench' | 'knowledge';
-const activeAppPaneId = ref<AppPaneId | undefined>(undefined); // TODO: Consider a param to remember.
+const activeAppPaneId = ref<AppPaneId | undefined>(undefined);
 
 const knowledgeOptionBarIsVisible = ref(false);
 const knowledgePaneActivated = ref(false);
@@ -55,11 +55,6 @@ const workbenchOptionBarIsVisible = ref(false);
 const workbenchPaneActivated = ref(false);
 const workbenchPaneIsActive = ref(false);
 const workbenchPaneIsVisible = ref(false);
-
-/////////
-
-// const activeWorkbenchViewId = ref<string | undefined>();
-// const activeKnowledgeViewId = ref<KnowledgeViewId>((route.query.kView as KnowledgeViewId) ?? 'about');
 
 // Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -105,7 +100,6 @@ function completeOptionInvocation(paneId: AppPaneId): void {
 function handleOptionClick(knowledgeViewId: KnowledgeViewId): void {
     knowledgePaneIsActive.value = knowledgePaneIsVisible.value = route.query.kView !== knowledgeViewId || knowledgePaneIsVisible.value !== true;
     if (knowledgePaneIsActive.value) knowledgePaneActivated.value = true;
-    // activeKnowledgeViewId.value = knowledgeViewId;
     router.replace({ query: { ...route.query, kState: knowledgePaneIsVisible.value ? 1 : undefined, kView: knowledgeViewId } });
     knowledgeOptionBarIsVisible.value = false;
 }
