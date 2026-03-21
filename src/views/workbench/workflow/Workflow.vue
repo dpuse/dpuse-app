@@ -4,15 +4,15 @@ import { useRoute } from 'vue-router';
 import { shallowRef, watch } from 'vue';
 
 // App Core
-import T from '@/locales/views/workflow/Workflow.json';
+import T from '@/locales/views/workbench/workflow/Workflow.json';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
 import { localeId, localiseConfigs, t } from '@/locales';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
-import ViewScroller from '@/components/view/ViewScroller.vue';
-import ViewShell from '@/components/view/ViewShell.vue';
 import Card from '@/components/card/Card.vue';
 import Header from '@/components/header/Header.vue';
+import ViewScroller from '@/components/view/ViewScroller.vue';
+import ViewShell from '@/components/view/ViewShell.vue';
 
 // States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

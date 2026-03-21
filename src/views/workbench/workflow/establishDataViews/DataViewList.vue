@@ -19,14 +19,14 @@ import type {
 // App Core
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/locales';
-import T from '@/locales/views/workflow/establishDataViews/EstablishDataViews.json';
+import T from '@/locales/views/workbench/workflow/establishDataViews/EstablishDataViews.json';
 import { useEngineWorker } from '@/composables/useEngineWorker';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
-import ViewScroller from '@/components/view/ViewScroller.vue';
 import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
+import ViewScroller from '@/components/view/ViewScroller.vue';
 
 // App Components & Views - Lazy loaded as required.
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
