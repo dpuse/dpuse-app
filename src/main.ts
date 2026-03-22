@@ -3,7 +3,7 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
 // DPUse Framework
-import { AppError } from '@datapos/datapos-shared/errors';
+import { AppError } from '@dpuse/dpuse-shared/errors';
 
 // App Core
 import '@/assets/main.css';

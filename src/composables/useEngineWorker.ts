@@ -1,15 +1,15 @@
 // DPY framework
-// import type { DataViewConfig } from '@datapos/datapos-shared/component/dataView';
-// import type { ConnectionConfig, RetrieveRecordsOptions } from '@datapos/datapos-shared/component/connector';
-// import type { AuditObjectContentOptions, ConnectionConfig, PreviewObjectOptions, RetrieveRecordsOptions } from '@datapos/datapos-shared/component/connector';
-// import type { EngineCallbackData, EngineRuntimeInterface, EngineWorkerInterface } from '@datapos/datapos-shared/engine';
-import type { EngineCallbackData, EngineRuntimeInterface, EngineWorkerInterface } from '@datapos/datapos-shared/engine';
+// import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
+// import type { ConnectionConfig, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/connector';
+// import type { AuditObjectContentOptions, ConnectionConfig, PreviewObjectOptions, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/connector';
+// import type { EngineCallbackData, EngineRuntimeInterface, EngineWorkerInterface } from '@dpuse/dpuse-shared/engine';
+import type { EngineCallbackData, EngineRuntimeInterface, EngineWorkerInterface } from '@dpuse/dpuse-shared/engine';
 
 // App Core
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Constants
-const ENGINE_STORAGE_URL_PREFIX = 'https://engine-eu.datapos.app';
+const ENGINE_STORAGE_URL_PREFIX = 'https://engine-eu.dpuse.app';
 
 // ???
 let activeEngineVersion: string;
@@ -24,13 +24,13 @@ export async function useEngineWorker(): Promise<EngineWorkerInterface> {
     if (engineWorker && activeEngineVersion === engineVersion) return engineWorker;
 
     // Import engine and initialise interface.
-    const module = await import(/* @vite-ignore */ `${ENGINE_STORAGE_URL_PREFIX}/engine_v${engineVersion}/datapos-engine.es.js`);
+    const module = await import(/* @vite-ignore */ `${ENGINE_STORAGE_URL_PREFIX}/engine_v${engineVersion}/dpuse-engine.es.js`);
     const engineInterface = module.default as EngineRuntimeInterface;
     const pendingEngineWorker = engineInterface.invokeWorker((errorEvent: ErrorEvent) => {
         console.error(errorEvent, 'engineWorker@useEngineWorker.1');
     });
     await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: useSessionStore().toolConfigs || [] });
-    if (import.meta.env.DEV) console.info(`[dpuse:app] ✅ Engine 'datapos-engine' v${engineVersion} loaded.`);
+    if (import.meta.env.DEV) console.info(`[dpuse:app] ✅ Engine 'dpuse-engine' v${engineVersion} loaded.`);
 
     /*****/
     async function streamCsvToConsole(): Promise<void> {
@@ -38,11 +38,11 @@ export async function useEngineWorker(): Promise<EngineWorkerInterface> {
         // const FILE_PATH = '/ENGAGEMENT_START_EVENTS_202405121858.csv'; //  '/ENGAGEMENT_START_EVENTS_202405121858.csv' or '/WDI_Data.csv'
         // const LATEST_FILE_STORE_EMULATOR_VERSION = '0.2.454';
         // const connectionConfig = {
-        //     id: 'datapos-connector-file-store-emulator',
+        //     id: 'dpuse-connector-file-store-emulator',
         //     description: {},
         //     authorisation: {},
         //     connectorConfig: {
-        //         id: 'datapos-connector-file-store-emulator',
+        //         id: 'dpuse-connector-file-store-emulator',
         //         label: { 'en-gb': '' },
         //         description: { 'en-gb': '...' },
         //         category: null,
@@ -111,7 +111,7 @@ export async function useEngineWorker(): Promise<EngineWorkerInterface> {
         //     const auditObjectContentOptionsRust: AuditObjectContentOptions = {
         //         chunkSize: 4096,
         //         encodingId: 'utf8',
-        //         parsingToolName: 'datapos-tool-rust-csv-core',
+        //         parsingToolName: 'dpuse-tool-rust-csv-core',
         //         path: FILE_PATH,
         //         valueDelimiterId: ','
         //     };

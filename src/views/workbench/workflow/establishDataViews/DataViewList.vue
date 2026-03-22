@@ -5,8 +5,8 @@ import { useRoute } from 'vue-router';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
 // DPUse Framework
-import { AppError } from '@datapos/datapos-shared/errors';
-import type { EngineCallbackData } from '@datapos/datapos-shared/engine';
+import { AppError } from '@dpuse/dpuse-shared/errors';
+import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
 import type {
     ConnectionConfig,
     CreateObjectOptions,
@@ -14,7 +14,7 @@ import type {
     FindObjectResult,
     RetrieveRecordsOptions,
     UpsertRecordsOptions
-} from '@datapos/datapos-shared/component/connector';
+} from '@dpuse/dpuse-shared/component/connector';
 
 // App Core
 import { reportAppError } from '@/observability/errorTracking';
@@ -105,8 +105,8 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
         // const startTime = performance.now();
-        // // const response = await fetch('https://sample-data-eu.datapos.app/fileStore/ENGAGEMENT_START_EVENTS_202405121858.csv');
-        // const response = await fetch('https://sample-data-eu.datapos.app/WDI_Data.csv');
+        // // const response = await fetch('https://sample-data-eu.dpuse.app/fileStore/ENGAGEMENT_START_EVENTS_202405121858.csv');
+        // const response = await fetch('https://sample-data-eu.dpuse.app/WDI_Data.csv');
 
         // const auditObjectContentSettings: AuditContentSettings = { encodingId: 'utf-8', path: '/WDI_Data.csv', valueDelimiterId: ',' };
         // const auditObjectContentResult = (await processRequest('auditObjectContent', testConnectionConfig!, auditObjectContentSettings)) as AuditContentResult;

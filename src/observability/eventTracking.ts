@@ -2,7 +2,7 @@
 import { version } from '~/package.json';
 
 // Constants
-const DPU_API_HOST = 'api.datapos.app';
+const DPU_API_HOST = 'api.dpuse.app';
 
 // Tracked identity for event attribution
 let activeSessionId: string | undefined;

@@ -5,9 +5,9 @@ import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
-import { AppError } from '@datapos/datapos-shared/errors';
-import type { EngineCallbackData } from '@datapos/datapos-shared/engine';
-import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@datapos/datapos-shared/component/connector';
+import { AppError } from '@dpuse/dpuse-shared/errors';
+import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
+import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/connector';
 
 // App Core
 import { reportAppError } from '@/observability/errorTracking';

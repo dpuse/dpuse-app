@@ -145,17 +145,17 @@ Datapos Copilot uses this ledger to answer "show current module states" and simi
 
 ## Operational Hooks
 
-- Pull live module data: `GET https://api.datapos.app/states` (optionally filter with `?typeId=source|transform|visualise`).
-- Upsert a module payload after resolving an issue: `PUT https://api.datapos.app/states/{moduleId}` with the JSON structures shown above.
-- Clear stuck state (incident use only): `DELETE https://api.datapos.app/states/{moduleId}` or `DELETE /states` for a full reset before re-seeding from IaC.
+- Pull live module data: `GET https://api.dpuse.app/states` (optionally filter with `?typeId=source|transform|visualise`).
+- Upsert a module payload after resolving an issue: `PUT https://api.dpuse.app/states/{moduleId}` with the JSON structures shown above.
+- Clear stuck state (incident use only): `DELETE https://api.dpuse.app/states/{moduleId}` or `DELETE /states` for a full reset before re-seeding from IaC.
 
 ## Current Risks & Follow-ups
 
 ## Operational Hooks
 
-- Pull live module data: `GET https://api.datapos.app/states` (optionally filter with `?typeId=source|transform|visualise`).
-- Upsert a module payload after resolving an issue: `PUT https://api.datapos.app/states/{moduleId}` with the JSON structures shown above.
-- Clear stuck state (incident use only): `DELETE https://api.datapos.app/states/{moduleId}` or `DELETE /states` for a full reset before re-seeding from IaC.
+- Pull live module data: `GET https://api.dpuse.app/states` (optionally filter with `?typeId=source|transform|visualise`).
+- Upsert a module payload after resolving an issue: `PUT https://api.dpuse.app/states/{moduleId}` with the JSON structures shown above.
+- Clear stuck state (incident use only): `DELETE https://api.dpuse.app/states/{moduleId}` or `DELETE /states` for a full reset before re-seeding from IaC.
 
 ## Current Risks & Follow-ups
 

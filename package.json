@@ -1,13 +1,13 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.591",
+    "version": "0.0.592",
     "private": true,
     "type": "module",
     "engines": {
         "node": "^20.19.0 || >=22.12.0"
     },
     "dependencies": {
-        "@datapos/datapos-shared": "^0.3.590",
+        "@dpuse/dpuse-shared": "^0.3.594",
         "@tailwindcss/vite": "^4.2.2",
         "@tanstack/ai-client": "^0.7.2",
         "@tanstack/vue-virtual": "^3.13.23",
@@ -21,18 +21,18 @@
         "web-vitals": "^5.1.0"
     },
     "devDependencies": {
-        "@cloudflare/vite-plugin": "^1.29.1",
+        "@cloudflare/vite-plugin": "^1.30.0",
         "@cloudflare/workers-types": "^4.20260317.1",
-        "@datapos/datapos-development": "^0.3.448",
+        "@dpuse/dpuse-development": "^0.3.472",
         "@playwright/test": "^1.58.2",
         "@tsconfig/node24": "^24.0.4",
         "@types/eslint-plugin-security": "^3.0.1",
-        "@types/jsdom": "^28.0.0",
+        "@types/jsdom": "^28.0.1",
         "@types/node": "^25.5.0",
         "@types/trusted-types": "^2.0.7",
         "@vite-pwa/assets-generator": "^1.0.2",
         "@vitejs/plugin-vue": "^6.0.5",
-        "@vitest/eslint-plugin": "^1.6.12",
+        "@vitest/eslint-plugin": "^1.6.13",
         "@vue/eslint-config-prettier": "^10.2.0",
         "@vue/eslint-config-typescript": "^14.7.0",
         "@vue/test-utils": "^2.4.6",
@@ -41,12 +41,12 @@
         "eslint-import-resolver-typescript": "^4.4.4",
         "eslint-plugin-import": "^2.32.0",
         "eslint-plugin-playwright": "^2.10.1",
-        "eslint-plugin-security": "^3.0.1",
-        "eslint-plugin-sonarjs": "^3.0.7",
-        "eslint-plugin-unicorn": "^62.0.0",
+        "eslint-plugin-security": "^4.0.0",
+        "eslint-plugin-sonarjs": "^4.0.2",
+        "eslint-plugin-unicorn": "^63.0.0",
         "eslint-plugin-vue": "~10.8.0",
         "jiti": "^2.6.1",
-        "jsdom": "^29.0.0",
+        "jsdom": "^29.0.1",
         "npm-check-updates": "^19.6.5",
         "npm-run-all2": "^8.0.4",
         "prettier": "3.8.1",
@@ -57,7 +57,7 @@
         "vite-plugin-vue-devtools": "^8.1.0",
         "vitest": "^4.1.0",
         "vue-tsc": "^3.2.6",
-        "wrangler": "^4.75.0"
+        "wrangler": "^4.76.0"
     },
     "scripts": {
         "dev": "vite",
@@ -71,9 +71,9 @@
         "format": "prettier --write --experimental-cli src/",
         "index:knowledge": "op run --env-file=.env -- node ./scripts/indexKnowledge.mjs",
         "test:knowledge": "op run --env-file=.env -- node ./scripts/testKnowledge.mjs",
-        "check": "node -e \"import('@datapos/datapos-development').then(m => m.checkDependencies())\"",
+        "check": "node -e \"import('@dpuse/dpuse-development').then(m => m.checkDependencies())\"",
         "generate-pwa-assets": "pwa-assets-generator --config pwa.assets.config.ts",
         "release": "npm run build && npm run sync && wrangler deploy",
-        "sync": "node -e \"import('@datapos/datapos-development').then(m => m.syncProjectWithGitHub())\""
+        "sync": "node -e \"import('@dpuse/dpuse-development').then(m => m.syncProjectWithGitHub())\""
     }
 }

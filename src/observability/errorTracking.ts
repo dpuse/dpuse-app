@@ -1,5 +1,5 @@
 // DPUse Framework
-import { type AppError, type SerialisedError, serialiseError } from '@datapos/datapos-shared/errors';
+import { type AppError, type SerialisedError, serialiseError } from '@dpuse/dpuse-shared/errors';
 
 // Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

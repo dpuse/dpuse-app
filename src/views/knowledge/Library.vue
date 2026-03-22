@@ -20,7 +20,7 @@ const assistantThinking = ref<string | undefined>();
 const assistantText = ref<string | undefined>();
 
 const client = new ChatClient({
-    connection: fetchServerSentEvents('https://api.datapos.app/ai/anthropic/chat'),
+    connection: fetchServerSentEvents('https://api.dpuse.app/ai/anthropic/chat'),
     body: { model: 'claude-sonnet-4-5' },
     initialMessages: [],
     onMessagesChange: (messages): void => {

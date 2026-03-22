@@ -1,16 +1,16 @@
 // DPUse Framework
-import type { EngineConfig } from '@datapos/datapos-shared/engine';
-import type { ModuleConfig } from '@datapos/datapos-shared/component';
-import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
-import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/component/connector';
-import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
+import type { EngineConfig } from '@dpuse/dpuse-shared/engine';
+import type { ModuleConfig } from '@dpuse/dpuse-shared/component';
+import type { ToolConfig } from '@dpuse/dpuse-shared/component/tool';
+import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
+import type { ContextConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 
 // App Core
 import { useSessionStore } from '@/stores/sessionStore';
 
 // Constants
-const DPU_API_HOST = 'api.datapos.app';
-const LOCAL_META_NODE_CONNECTOR_ID = 'datapos-connector-dexie-js';
+const DPU_API_HOST = 'api.dpuse.app';
+const LOCAL_META_NODE_CONNECTOR_ID = 'dpuse-connector-dexie-js';
 const TIMEOUT_DELAY = 5000;
 
 // Long-lived session-scoped module states WebSocket
@@ -194,7 +194,7 @@ function constructDefaultConnectionConfigs(): void {
     const sessionState = useSessionStore();
     const pendingConnectionConfigs: ConnectionConfig[] = [];
     for (const connectorConfig of sessionState.connectorConfigs!) {
-        // if (connectorConfig.id === 'datapos-connector-file-store-emulator') {
+        // if (connectorConfig.id === 'dpuse-connector-file-store-emulator') {
         pendingConnectionConfigs.push(constructConnectionConfig(connectorConfig));
         // }
     }

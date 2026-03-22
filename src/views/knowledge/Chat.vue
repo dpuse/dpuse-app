@@ -20,7 +20,7 @@ function runTest(): void {
     myHeaders.append('Content-Type', 'application/json');
     const raw = JSON.stringify({ message: 'Can I show the current state of all modules?' });
     const requestOptions: RequestInit = { method: 'POST', headers: myHeaders, body: raw, redirect: 'follow' };
-    fetch('https://api.datapos.app/ai/chat', requestOptions)
+    fetch('https://api.dpuse.app/ai/chat', requestOptions)
         .then((response) => response.json())
         .then((result) => {
             const id = crypto.getRandomValues(new Uint32Array(1))[0] ?? 0;

@@ -9,13 +9,13 @@ import pluginVue from 'eslint-plugin-vue';
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting';
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 
-// ESlint configuration
+// ESlint Configuration
 export default defineConfigWithVueTs(
     {
         name: 'app/files-to-lint',
         files: ['**/*.{vue,ts,mts,tsx}'],
         settings: {
-            'import/core-modules': ['@datapos/datapos-shared/errors', 'eslint/config'],
+            'import/core-modules': ['@dpuse/dpuse-shared/errors', 'eslint/config'],
             'import/resolver': { typescript: { project: ['./tsconfig.json'] } }
         }
     },

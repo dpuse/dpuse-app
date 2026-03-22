@@ -7,11 +7,11 @@ import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-fronten
 import { ref, shallowRef, watch } from 'vue';
 
 // DPUse Framework
-import { AppError } from '@datapos/datapos-shared/errors';
-import type { EngineConfig } from '@datapos/datapos-shared/engine';
-import type { ToolConfig } from '@datapos/datapos-shared/component/tool';
-import type { ConnectionConfig, ConnectorConfig } from '@datapos/datapos-shared/component/connector';
-import type { ContextConfig, PresenterConfig } from '@datapos/datapos-shared';
+import { AppError } from '@dpuse/dpuse-shared/errors';
+import type { EngineConfig } from '@dpuse/dpuse-shared/engine';
+import type { ToolConfig } from '@dpuse/dpuse-shared/component/tool';
+import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
+import type { ContextConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 
 // App Core
 import { reportAppError } from '@/observability/errorTracking';

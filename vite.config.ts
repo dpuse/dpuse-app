@@ -23,13 +23,13 @@ export default defineConfig({
             'Content-Security-Policy':
                 "default-src 'none';" +
                 " base-uri 'self';" +
-                " connect-src 'self' http://localhost:5173 ws://localhost:5173 data: https://api.datapos.app wss://api.datapos.app https://engine-eu.datapos.app https://sample-data-eu.datapos.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io;" +
+                " connect-src 'self' http://localhost:5173 ws://localhost:5173 data: https://api.dpuse.app wss://api.dpuse.app https://engine-eu.dpuse.app https://sample-data-eu.dpuse.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io;" +
                 " form-action 'none';" +
                 " frame-ancestors 'none';" +
                 " img-src 'self' https://gravatar.com https://flagcdn.com https://tailwindcss.com;" +
                 " manifest-src 'self';" +
                 " object-src 'none';" +
-                " script-src 'self' https://engine-eu.datapos.app 'wasm-unsafe-eval' 'sha256-KG2wj49jjwMy8lKXGdeUFXZ/WLdgASNCo7M8X7Jny6A=';" +
+                " script-src 'self' https://engine-eu.dpuse.app 'wasm-unsafe-eval' 'sha256-KG2wj49jjwMy8lKXGdeUFXZ/WLdgASNCo7M8X7Jny6A=';" +
                 " style-src 'self' 'unsafe-inline';" + // 'unsafe-inline' is required in dev mode as Vite injects Tailwind CSS as inline <style> elements for HMR. Hashes required in production are not required here because of 'unsafe-inline' setting.
                 " worker-src 'self' blob:;" +
                 ' trusted-types default vue;' +

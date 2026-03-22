@@ -6,7 +6,7 @@ import { nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
-import { AppError } from '@datapos/datapos-shared/errors';
+import { AppError } from '@dpuse/dpuse-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
 import T from '@/locales/components/session/LoginForm.json';
 import { t } from '@/locales';
