@@ -1,6 +1,8 @@
 <script setup lang="ts">
+// External Dependencies
 import { PlusIcon } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
+import { computed, onUnmounted } from 'vue';
 
 // App Core
 import { t } from '@/locales';
@@ -10,18 +12,28 @@ import T from '@/locales/views/workbench/workflow/establishDataViews/EstablishDa
 import Header from '@/components/header/Header.vue';
 import ViewShell from '@/components/view/ViewShell.vue';
 
+// Composables
+import { useEstablishDataViewsProgress } from './useEstablishDataViewsProgress';
+
 const taskConfigs = [
-    { id: 'selectConnection', number: 1, label: 'Select Connection' },
-    { id: 'selectNode', number: 2, label: 'Select Node' },
-    { id: 'auditContent', number: 3, label: 'Audit Content' },
-    { id: 'auditRelationships', number: 4, label: 'Audit Relationships' },
-    { id: 'transform', number: 5, label: 'Transform' },
-    { id: 'investigate', number: 6, label: 'Investigate' }
+    { id: 'selectConnection', number: 1, enableTo: 1, label: 'Select Connection' },
+    { id: 'selectNode', number: 2, enableTo: 2, label: 'Select Node' },
+    { id: 'auditContent', number: 3, enableTo: 3, label: 'Audit Content' },
+    { id: 'auditRelationships', number: 4, enableTo: 6, label: 'Audit Relationships' },
+    { id: 'transform', number: 5, enableTo: 6, label: 'Transform' },
+    { id: 'investigate', number: 6, enableTo: 6, label: 'Investigate' }
 ];
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const route = useRoute();
+
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const activeTaskConfig = computed(() => taskConfigs.find((config) => config.id === route.query.wbView) ?? taskConfigs[0]);
+const { unlockedUpTo, reset } = useEstablishDataViewsProgress();
+
+onUnmounted(reset);
 </script>
 
 <template>
@@ -33,7 +45,14 @@ const route = useRoute();
                 <RouterLink
                     v-for="taskConfig in taskConfigs"
                     :key="taskConfig.id"
-                    class="border-y-2 border-t-transparent border-b-zinc-300 pb-1 leading-tight"
+                    :aria-selected="activeTaskConfig.id === taskConfig.id"
+                    class="border-y-2 border-t-transparent pb-1 leading-tight"
+                    :class="{
+                        'border-b-blue-500': activeTaskConfig.id === taskConfig.id,
+                        'border-b-zinc-500': activeTaskConfig.id !== taskConfig.id && taskConfig.number <= unlockedUpTo,
+                        'border-b-zinc-200': activeTaskConfig.id !== taskConfig.id && taskConfig.number > unlockedUpTo
+                    }"
+                    role="tab"
                     :to="{ name: taskConfig.id, query: { ...route.query, wbView: taskConfig.id } }"
                 >
                     <div>
