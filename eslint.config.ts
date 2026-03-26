@@ -9,7 +9,7 @@ import pluginVue from 'eslint-plugin-vue';
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting';
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 
-// ESlint Configuration
+// ESLint Configuration
 export default defineConfigWithVueTs(
     {
         name: 'app/files-to-lint',

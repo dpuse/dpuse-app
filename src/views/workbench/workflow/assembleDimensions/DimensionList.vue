@@ -81,7 +81,7 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
     <div class="border-separator mx-4 flex flex-none border-b py-1">
         <div class="flex-1"></div>
 
-        <Button @click="router.push({ name: 'connectionSelector', query: route.query })">
+        <Button @click="router.push({ name: '???', query: route.query })">
             <PlusIcon stroke-width="1.25" />
         </Button>
     </div>

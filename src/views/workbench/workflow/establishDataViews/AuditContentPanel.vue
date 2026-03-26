@@ -1,5 +1,5 @@
 <script setup lang="ts"></script>
 
 <template>
-    <div>Select connection...</div>
+    <div class="px-4 pt-1">Audit content...</div>
 </template>

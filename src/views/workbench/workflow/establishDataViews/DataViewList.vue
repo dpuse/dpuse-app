@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // External Dependencies
-import { PlusIcon } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
@@ -123,14 +122,6 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 </script>
 
 <template>
-    <div class="border-separator mx-4 flex flex-none border-b py-1">
-        <div class="flex-1"></div>
-
-        <RouterLink :to="{ name: 'connectionSelector', query: { ...route.query, wbView: 'connectionSelector' } }">
-            <PlusIcon stroke-width="1.25" />
-        </RouterLink>
-    </div>
-
     <GridScroller
         v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
         class="flex-1 pb-16"
@@ -146,7 +137,9 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
                     :icon-color="activeBenchtopOptionConfig ? activeBenchtopOptionConfig.color : undefined"
                     :label="item.label"
                 /> -->
-            <Card v-if="item" :label="item.label" />
+            <RouterLink :to="{ name: 'selectNode', query: { ...route.query, wbView: 'selectNode' } }">
+                <Card v-if="item" :label="item.label" />
+            </RouterLink>
         </template>
     </GridScroller>
 

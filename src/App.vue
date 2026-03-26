@@ -249,7 +249,7 @@ function establishActiveAppPanelId(displayIsWide: boolean): void {
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">
-                        <component :is="Component" :key="$route.path" />
+                        <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
                     </Transition>
                 </RouterView>
             </div>
