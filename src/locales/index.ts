@@ -5,6 +5,7 @@ import { ref } from 'vue';
 
 export type FlagId = 'es' | 'gb';
 export type LocaleId = 'en' | 'es';
+export type LocaleLabel = Partial<Record<LocaleId, string>>;
 export const SUPPORTED_LANGUAGES: { id: LocaleId; flag: FlagId; label: string }[] = [
     { id: 'en', flag: 'gb', label: 'English' },
     { id: 'es', flag: 'es', label: 'Español' }
@@ -16,11 +17,8 @@ export const localeId = ref<LocaleId>(establishLocaleId());
 
 // Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export function localiseConfigs(
-    workflowStepConfigs: { id: string; label: Record<LocaleId, string>; description: Record<LocaleId, string> }[],
-    localeId: LocaleId
-): Record<string, unknown>[] {
-    return workflowStepConfigs.map((config) => ({ ...config, label: config.label[localeId] ?? config.id, description: config.description[localeId] ?? config.id }));
+export function localiseConfigs(configs: { id: string; label: LocaleLabel; description: LocaleLabel }[], localeId: LocaleId): Record<string, unknown>[] {
+    return configs.map((config) => ({ ...config, label: config.label[localeId] ?? config.id, description: config.description[localeId] ?? config.id }));
 }
 
 export function n(value: number, options?: Intl.NumberFormatOptions): string {

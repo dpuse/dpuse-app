@@ -3,11 +3,14 @@
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
 // Properties & Emits
-const { breadcrumbs, title, workbenchPaneIsHidden } = defineProps<{
+const { breadcrumbs, title, to, workbenchPaneIsHidden } = defineProps<{
     breadcrumbs?: { id: string; label: string }[];
     title: string;
+    to?: string;
     workbenchPaneIsHidden: boolean;
 }>();
+
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const { displayIsWide } = useDisplayBreakpoint();
 </script>
@@ -20,7 +23,14 @@ const { displayIsWide } = useDisplayBreakpoint();
                 <span v-for="(breadcrumb, index) of breadcrumbs" :key="breadcrumb.id"><span v-if="index > 0" class="mx-1">&gt;</span>{{ breadcrumb.label }}</span>
             </div>
 
-            <div class="w-full truncate" :class="{ 'text-center': !displayIsWide }">{{ title }}</div>
+            <component
+                :is="to ? 'RouterLink' : 'div'"
+                :to="{ name: to, query: { ...$route.query, wbView: to } }"
+                class="w-full truncate"
+                :class="{ 'text-center': !displayIsWide }"
+            >
+                {{ title }}
+            </component>
         </div>
     </div>
 </template>
