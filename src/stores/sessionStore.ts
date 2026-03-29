@@ -155,12 +155,18 @@ export const useSessionStore = defineStore('session', () => {
                 if (userId.value != null) module.initialise(userId.value);
             });
 
-            if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Authenticated session established (${actionId}).`);
             startSessionExpiryTimer();
             identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value);
+
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Authenticated session established (${actionId}).`);
         } else {
             forgetUser();
             clearSessionExpiryTimer();
+
+            import('~/src/observability/accountMonitor').then((module) => {
+                module.terminate();
+            });
+
             emailAddress.value = undefined;
             emailIsPrimary.value = undefined;
             emailIsVerified.value = undefined;
@@ -170,6 +176,7 @@ export const useSessionStore = defineStore('session', () => {
             lifetime.value = undefined;
             userId.value = undefined;
             sessionId.value = undefined;
+
             const icon = actionId === 'validationFailure' ? '⚠️' : 'ℹ️';
             if (import.meta.env.DEV) console.info(`[dpuse:app] ${icon} Unauthenticated session established (${actionId}).`);
         }

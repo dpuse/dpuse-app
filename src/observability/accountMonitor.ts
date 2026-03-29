@@ -19,6 +19,10 @@ export function initialise(userId: string): void {
     }
 }
 
+export function terminate(): void {
+    shutdown();
+}
+
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function connectToWebSocket(): WebSocket | undefined {
