@@ -33,14 +33,14 @@ export function initialise(): void {
 
 function connectToWebSocket(): WebSocket | undefined {
     try {
-        const wsURL = `wss://${DPU_API_HOST}/configs/websocket`;
-        let statesWebSocket: WebSocket | undefined = new WebSocket(wsURL);
+        const url = `wss://${DPU_API_HOST}/configs/websocket`;
+        let pendingWebSocket: WebSocket | undefined = new WebSocket(url);
 
-        statesWebSocket.addEventListener('open', () => {
+        pendingWebSocket.addEventListener('open', () => {
             if (import.meta.env.DEV) console.info('[dpuse:app] ✅ Configuration WebSocket connection established.');
         });
 
-        statesWebSocket.addEventListener('message', (event) => {
+        pendingWebSocket.addEventListener('message', (event) => {
             try {
                 const eventData = JSON.parse(event.data);
                 switch (eventData.typeId) {
@@ -56,18 +56,18 @@ function connectToWebSocket(): WebSocket | undefined {
             }
         });
 
-        statesWebSocket.addEventListener('close', (event) => {
+        pendingWebSocket.addEventListener('close', (event) => {
             if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️ Configuration WebSocket close event '${event.code}' received.`);
-            statesWebSocket = undefined;
+            pendingWebSocket = undefined;
             if (!webSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
         });
 
-        statesWebSocket.addEventListener('error', (error) => {
+        pendingWebSocket.addEventListener('error', (error) => {
             // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.
             if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Configuration WebSocket operational error: ${String(error)}`, error);
         });
 
-        return statesWebSocket;
+        return pendingWebSocket;
     } catch (error) {
         // TODO: Try and recreate a limited number of times. If no success then display message requesting refresh.
         if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Configuration WebSocket creation error: ${String(error)}`, error);

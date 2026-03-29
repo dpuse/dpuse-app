@@ -5,12 +5,14 @@ const TIMEOUT_DELAY = 5000;
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+let accountId: string | undefined;
 let webSocket: WebSocket | undefined;
 let webSocketShutdown = false;
 
 // Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export function initialise(): void {
+export function initialise(userId: string): void {
+    accountId = userId;
     if (!(webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN))) {
         webSocket = connectToWebSocket();
         window.addEventListener('beforeunload', () => shutdown());
@@ -21,37 +23,37 @@ export function initialise(): void {
 
 function connectToWebSocket(): WebSocket | undefined {
     try {
-        const wsURL = `wss://${DPU_API_HOST}/accounts/websocket`;
-        let statesWebSocket: WebSocket | undefined = new WebSocket(wsURL);
+        const url = `wss://${DPU_API_HOST}/accounts/${accountId}/websocket`;
+        let pendingWebSocket: WebSocket | undefined = new WebSocket(url);
 
-        statesWebSocket.addEventListener('open', () => {
+        pendingWebSocket.addEventListener('open', () => {
             if (import.meta.env.DEV) console.info('[dpuse:app] ✅ Accounts WebSocket connection established.');
         });
 
-        statesWebSocket.addEventListener('message', (event) => {
+        pendingWebSocket.addEventListener('message', (event) => {
             try {
                 const eventData = JSON.parse(event.data);
                 console.log(eventData);
             } catch (error) {
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Account configuration error: ${String(error)}`, error);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Account configuration retrieval error: ${String(error)}`, error);
             }
         });
 
-        statesWebSocket.addEventListener('close', (event) => {
-            if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️ WebSocket close event '${event.code}' received.`);
-            statesWebSocket = undefined;
+        pendingWebSocket.addEventListener('close', (event) => {
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️ Accounts WebSocket close event '${event.code}' received.`);
+            pendingWebSocket = undefined;
             if (!webSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
         });
 
-        statesWebSocket.addEventListener('error', (error) => {
+        pendingWebSocket.addEventListener('error', (error) => {
             // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.
-            if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ WebSocket operational error: ${String(error)}`, error);
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Accounts WebSocket operational error: ${String(error)}`, error);
         });
 
-        return statesWebSocket;
+        return pendingWebSocket;
     } catch (error) {
         // TODO: Try and recreate a limited number of times. If no success then display message requesting refresh.
-        if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ WebSocket creation error: ${String(error)}`, error);
+        if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Accounts WebSocket creation error: ${String(error)}`, error);
         return undefined;
     }
 }
