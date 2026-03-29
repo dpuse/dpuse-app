@@ -10,7 +10,7 @@ const { badges = [], icon, iconColor, label, overline } = defineProps<Properties
 <template>
     <div class="bg-card outline-boundary relative flex h-full w-full cursor-pointer flex-col gap-y-4 overflow-hidden rounded-lg p-4 font-light outline -outline-offset-1">
         <div v-if="badges.length > 0" class="absolute top-0 right-0 flex gap-x-1 pt-1.5 pr-1.5">
-            <template v-for="badge of badges" :key="badge.id">
+            <template v-for="badge in badges" :key="badge.id">
                 <span
                     class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium inset-ring"
                     :class="{

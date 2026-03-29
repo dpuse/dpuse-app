@@ -38,7 +38,7 @@ function runTest(): void {
 
         <div class="flex flex-1 flex-col overflow-y-hidden p-4">
             <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto pb-4 font-light wrap-break-word">
-                <div v-for="message of messages" :key="message.id">
+                <div v-for="message in messages" :key="message.id">
                     {{ message.text }}
                 </div>
             </div>

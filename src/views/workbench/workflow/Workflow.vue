@@ -36,7 +36,7 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
             <div class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] max-w-4xl">
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 p-4">
                     <RouterLink
-                        v-for="config of workflowStepConfigs"
+                        v-for="config in workflowStepConfigs"
                         :key="config.id"
                         class="bg-card outline-boundary overflow-hidden rounded-lg font-light outline -outline-offset-1"
                         :to="{ name: config.id, query: { ...route.query, wbView: config.id } }"

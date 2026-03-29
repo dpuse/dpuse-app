@@ -31,7 +31,7 @@ export function initialise(): void {
 
 function connectToModuleStatesWebSocket(): WebSocket | undefined {
     try {
-        const wsURL = `wss://${DPU_API_HOST}/states/websocket`;
+        const wsURL = `wss://${DPU_API_HOST}/configs/websocket`;
         let statesWebSocket: WebSocket | undefined = new WebSocket(wsURL);
 
         statesWebSocket.addEventListener('open', () => {

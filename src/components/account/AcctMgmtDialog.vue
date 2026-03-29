@@ -118,7 +118,7 @@ async function handleCloseDialog(): Promise<void> {
             <div class="flex flex-1 overflow-hidden">
                 <div v-if="displayIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 overflow-y-auto overscroll-y-none px-4 pb-6">
                     <div class="flex flex-1 flex-col gap-y-1">
-                        <template v-for="optionConfig of OPTION_CONFIGS" :key="optionConfig.id">
+                        <template v-for="optionConfig in OPTION_CONFIGS" :key="optionConfig.id">
                             <div v-if="optionConfig.type === 'label'" class="text-muted mt-3 text-xs font-medium">{{ optionConfig.label }}</div>
                             <Button
                                 v-else

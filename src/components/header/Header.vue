@@ -20,7 +20,7 @@ const { displayIsWide } = useDisplayBreakpoint();
         <!-- Title indented from left and right when display is compact, to allow for logos. -->
         <div class="border-separator flex h-14 flex-col justify-center border-b text-lg font-light" :class="{ 'px-12': !displayIsWide || workbenchPaneIsHidden }">
             <div v-if="breadcrumbs" class="w-full truncate text-xs" :class="{ 'text-center': !displayIsWide }">
-                <span v-for="(breadcrumb, index) of breadcrumbs" :key="breadcrumb.id"><span v-if="index > 0" class="mx-1">&gt;</span>{{ breadcrumb.label }}</span>
+                <span v-for="(breadcrumb, index) in breadcrumbs" :key="breadcrumb.id"><span v-if="index > 0" class="mx-1">&gt;</span>{{ breadcrumb.label }}</span>
             </div>
 
             <component

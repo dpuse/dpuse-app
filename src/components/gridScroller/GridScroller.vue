@@ -38,7 +38,9 @@ watchEffect(() => {
 });
 
 /** Component Lifecycle Event Handlers */
-onMounted(() => { if (gridScrollerReference.value) resizeObserver.observe(gridScrollerReference.value); });
+onMounted(() => {
+    if (gridScrollerReference.value) resizeObserver.observe(gridScrollerReference.value);
+});
 onUnmounted(() => resizeObserver.disconnect());
 
 // Utilities - Get item configuration.

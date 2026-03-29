@@ -89,7 +89,7 @@ export const useSessionStore = defineStore('session', () => {
                     establishSession('validationFailure');
                 });
         });
-        import('@/observability/deploymentMonitor').then((module) => module.initialise());
+        import('~/src/observability/configMonitor').then((module) => module.initialise());
     }
 
     async function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): Promise<void> {

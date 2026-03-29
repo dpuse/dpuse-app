@@ -7,7 +7,7 @@ import { shallowRef, watch } from 'vue';
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { useActiveBenchtop } from '@/composables/useActiveBenchtop';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
-import { localeId, localiseConfigs } from '~/src/locales';
+import { localeId, localiseConfigs } from '@/locales';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import HomeIcon from '@/components/icon/HomeIcon.vue';
@@ -50,7 +50,7 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
                 </RouterLink>
 
                 <RouterLink
-                    v-for="config of workflowStepConfigs"
+                    v-for="config in workflowStepConfigs"
                     :key="config.id"
                     :aria-label="config.label"
                     class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"

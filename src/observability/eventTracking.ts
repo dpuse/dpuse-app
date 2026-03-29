@@ -1,26 +1,39 @@
 // App Core
 import { version } from '~/package.json';
 
-// Constants
-const DPU_API_HOST = 'api.dpuse.app';
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Tracked identity for event attribution
-let activeSessionId: string | undefined;
-let activeUserId: string | undefined;
+const DPUSE_API_HOST = 'api.dpuse.app';
+
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+let activeSessionId: string | undefined; // Tracked session identity for event attribution.
+let activeUserId: string | undefined; // Tracked user identity for event attribution.
 const pendingEvents: Record<string, unknown>[] = [];
+let timeout = 5000;
 
-setInterval(flushEvents, 5000);
+// Initialisation ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+setInterval(flushEvents, timeout);
 document.addEventListener('visibilitychange', () => {
-    if (document.hidden) flushEvents();
+    if (!document.hidden) return;
+    flushEvents();
+    timeout = 30_000; // First check is 5secs after load, subsequent checks are every 30secs.
 });
 
-async function flushEvents(): Promise<void> {
-    if (pendingEvents.length === 0) return;
-    navigator.sendBeacon(`https://${DPU_API_HOST}/events`, JSON.stringify({ events: pendingEvents.splice(0), userAgentString: navigator.userAgent })); // Fails silently if browser cannot queue request
+// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export function forgetUser(): void {
+    activeUserId = undefined;
+    activeSessionId = undefined;
 }
 
-type EventTypeId = 'error' | 'interaction' | 'page' | 'performance';
-export function trackEvent(typeId: EventTypeId, data: Record<string, unknown>): void {
+export function identifyUser(userId: string, sessionId: string, emailAddress?: string): void {
+    activeUserId = userId;
+    activeSessionId = sessionId;
+}
+
+export function trackEvent(typeId: 'error' | 'interaction' | 'page' | 'performance', data: Record<string, unknown>): void {
     pendingEvents.push({
         typeId,
         asAt: Date.now(),
@@ -34,12 +47,9 @@ export function trackEvent(typeId: EventTypeId, data: Record<string, unknown>): 
     });
 }
 
-export function identifyUser(userId: string, sessionId: string, emailAddress?: string): void {
-    activeUserId = userId;
-    activeSessionId = sessionId;
-}
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export function forgetUser(): void {
-    activeUserId = undefined;
-    activeSessionId = undefined;
+async function flushEvents(): Promise<void> {
+    if (pendingEvents.length === 0) return;
+    navigator.sendBeacon(`https://${DPUSE_API_HOST}/events`, JSON.stringify({ events: pendingEvents.splice(0), userAgentString: navigator.userAgent })); // Fails silently if browser cannot queue request
 }
