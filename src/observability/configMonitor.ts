@@ -8,34 +8,36 @@ import type { ContextConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 // App Core
 import { useSessionStore } from '@/stores/sessionStore';
 
-// Constants
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const DPU_API_HOST = 'api.dpuse.app';
 const LOCAL_META_NODE_CONNECTOR_ID = 'dpuse-connector-dexie-js';
 const TIMEOUT_DELAY = 5000;
 
-// Long-lived session-scoped module states WebSocket
-let moduleStatesWebSocket: WebSocket | undefined;
-let moduleStatesWebSocketShutdown = false;
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 let localMetaNodeConnectorConfig: ConnectorConfig | undefined;
+let webSocket: WebSocket | undefined;
+let webSocketShutdown = false;
 
 // Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export function initialise(): void {
-    if (!(moduleStatesWebSocket && (moduleStatesWebSocket.readyState === WebSocket.CONNECTING || moduleStatesWebSocket.readyState === WebSocket.OPEN))) {
-        moduleStatesWebSocket = connectToModuleStatesWebSocket();
+    if (!(webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN))) {
+        webSocket = connectToWebSocket();
         window.addEventListener('beforeunload', () => shutdown());
     }
 }
 
 // WebSocket helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function connectToModuleStatesWebSocket(): WebSocket | undefined {
+function connectToWebSocket(): WebSocket | undefined {
     try {
         const wsURL = `wss://${DPU_API_HOST}/configs/websocket`;
         let statesWebSocket: WebSocket | undefined = new WebSocket(wsURL);
 
         statesWebSocket.addEventListener('open', () => {
-            if (import.meta.env.DEV) console.info('[dpuse:app] ✅ WebSocket connection established.');
+            if (import.meta.env.DEV) console.info('[dpuse:app] ✅ Configuration WebSocket connection established.');
         });
 
         statesWebSocket.addEventListener('message', (event) => {
@@ -43,47 +45,47 @@ function connectToModuleStatesWebSocket(): WebSocket | undefined {
                 const eventData = JSON.parse(event.data);
                 switch (eventData.typeId) {
                     case 'init':
-                        return registerModules(eventData.modules);
+                        return registerConfigurations(eventData.modules);
                     case 'deploy':
-                        return registerModules([eventData.module]);
+                        return registerConfigurations([eventData.module]);
                     case 'delete':
-                        return unregisterModules([eventData.module]);
+                        return unregisterConfigurations([eventData.module]);
                 }
             } catch (error) {
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Module registration error: ${String(error)}`, error);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Configuration registration error: ${String(error)}`, error);
             }
         });
 
         statesWebSocket.addEventListener('close', (event) => {
-            if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️ WebSocket close event '${event.code}' received.`);
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️ Configuration WebSocket close event '${event.code}' received.`);
             statesWebSocket = undefined;
-            if (!moduleStatesWebSocketShutdown) setTimeout(connectToModuleStatesWebSocket, TIMEOUT_DELAY);
+            if (!webSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
         });
 
         statesWebSocket.addEventListener('error', (error) => {
             // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.
-            if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ WebSocket operational error: ${String(error)}`, error);
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Configuration WebSocket operational error: ${String(error)}`, error);
         });
 
         return statesWebSocket;
     } catch (error) {
         // TODO: Try and recreate a limited number of times. If no success then display message requesting refresh.
-        if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ WebSocket creation error: ${String(error)}`, error);
+        if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Configuration WebSocket creation error: ${String(error)}`, error);
         return undefined;
     }
 }
 
 function shutdown(): void {
-    moduleStatesWebSocketShutdown = true;
-    if (moduleStatesWebSocket) {
-        moduleStatesWebSocket.close();
-        moduleStatesWebSocket = undefined;
+    webSocketShutdown = true;
+    if (webSocket) {
+        webSocket.close();
+        webSocket = undefined;
     }
 }
 
-// Module helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Registration Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function registerModules(moduleConfigs: ModuleConfig[]): void {
+function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
     const sessionState = useSessionStore();
 
     let connectorRegistered = false;
@@ -162,7 +164,7 @@ function registerModules(moduleConfigs: ModuleConfig[]): void {
     if (toolRegistered || !sessionState.toolConfigs) sessionState.toolConfigs = [...toolConfigs];
 }
 
-function unregisterModules(moduleConfigs: ModuleConfig[]): void {
+function unregisterConfigurations(moduleConfigs: ModuleConfig[]): void {
     const sessionState = useSessionStore();
     const idsToRemove = new Set(moduleConfigs.filter((m) => m.typeId === 'connector').map((m) => m.id));
     if (idsToRemove.size > 0 && sessionState.connectorConfigs) {
@@ -170,7 +172,7 @@ function unregisterModules(moduleConfigs: ModuleConfig[]): void {
     }
 }
 
-// Connection configuration helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Connection Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
     return {
