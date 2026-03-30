@@ -4,9 +4,9 @@ import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
 // App Components & Views - Lazy loaded as required.
-const About = defineAsyncComponent(() => import('./About.vue'));
-const Chat = defineAsyncComponent(() => import('./Chat.vue'));
-const Library = defineAsyncComponent(() => import('./Library.vue'));
+const AboutPanel = defineAsyncComponent(() => import('./AboutPanel.vue'));
+const ChatPanel = defineAsyncComponent(() => import('./ChatPanel.vue'));
+const LibraryPanel = defineAsyncComponent(() => import('./LibraryPanel.vue'));
 
 // Properties & Emits
 const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }>();
@@ -15,9 +15,9 @@ const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }
 
 export type KnowledgeViewId = 'about' | 'library' | 'chat';
 const knowledgePanels: Record<KnowledgeViewId, { component: Component; label: string }> = {
-    about: { component: About, label: 'About' },
-    library: { component: Library, label: 'Library' },
-    chat: { component: Chat, label: 'Chat' }
+    about: { component: AboutPanel, label: 'About' },
+    library: { component: LibraryPanel, label: 'Library' },
+    chat: { component: ChatPanel, label: 'Chat' }
 };
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

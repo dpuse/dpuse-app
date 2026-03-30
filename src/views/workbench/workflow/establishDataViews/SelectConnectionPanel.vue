@@ -3,8 +3,7 @@
 import { computed, shallowRef, watch } from 'vue';
 
 // App Core
-import type { TaskConfig } from './EstablishDataViews.vue';
-import { useEngineWorker } from '@/composables/useEngineWorker';
+import { useEngine } from '~/src/composables/useEngine';
 import { useSessionStore } from '@/stores/sessionStore';
 import { localeId, localiseConfigs } from '@/locales';
 
@@ -12,8 +11,10 @@ import { localeId, localiseConfigs } from '@/locales';
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
+import type { TaskConfig } from './EstablishDataViews.vue';
 import ViewScroller from '@/components/view/ViewScroller.vue';
 import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
+import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
 
 // Properties & Emits
 const { taskConfig } = defineProps<{ taskConfig: TaskConfig }>();
@@ -32,30 +33,35 @@ const localisedConnectionConfigs = shallowRef();
 
 watch(connectionConfigs, (newConnectionConfigs) => (localisedConnectionConfigs.value = localiseConfigs(newConnectionConfigs, localeId.value)), { immediate: true });
 
-// UI Helpers  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function triggerComplete(): void {
     emit('complete', taskConfig);
 }
 
 const connectorConfigs = computed(() => sessionState.connectorConfigs);
-const dropboxConnectorConfig = shallowRef();
-const dropboxConnectionConfig = shallowRef();
+const connectorConfig = shallowRef();
+const connectionConfig = shallowRef();
+
 watch(
     connectorConfigs,
     (newConnectorConfigs) => {
         if (newConnectorConfigs == null) return;
-        dropboxConnectorConfig.value = newConnectorConfigs.find((config) => config.id === 'dpuse-connector-dropbox');
-        if (dropboxConnectorConfig.value == null) return;
-        dropboxConnectionConfig.value = constructConnectionConfig(dropboxConnectorConfig.value);
+        connectorConfig.value = newConnectorConfigs.find((config) => config.id === 'dpuse-connector-dropbox');
+        if (connectorConfig.value == null) return;
+        connectionConfig.value = constructConnectionConfig(connectorConfig.value);
     },
     { immediate: true }
 );
 
 async function testAuth(): Promise<void> {
-    if (dropboxConnectorConfig.value == null || dropboxConnectionConfig.value == null) return;
-    const { processRequest } = await useEngineWorker();
-    await processRequest('authenticateConnection', dropboxConnectionConfig.value, {});
+    if (connectorConfig.value == null || connectionConfig.value == null) return;
+    const { processRequest } = await useEngine();
+    (await processRequest('authenticateConnection', connectionConfig.value, {
+        accountId: "JMT's Account",
+        windowCenterX: screen.width / 2,
+        windowCenterY: screen.height / 2
+    })) as EngineAuthActionOptions;
 }
 
 function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {

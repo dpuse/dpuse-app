@@ -47,7 +47,7 @@ const activeTaskConfig = computed(() => TASK_CONFIGS.find((config) => config.id 
 
 watch(localeId, (newLocaleId) => (localisedTaskConfigs.value = localiseConfigs(TASK_CONFIGS, newLocaleId)), { immediate: true });
 
-// UI Helpers  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleComplete(taskConfig: TaskConfig): void {
     enableTasksUpTo.value = taskConfig.enableUpTo;

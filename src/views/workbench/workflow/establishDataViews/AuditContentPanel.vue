@@ -6,7 +6,7 @@ import type { TaskConfig } from './EstablishDataViews.vue';
 const { taskConfig } = defineProps<{ taskConfig: TaskConfig }>();
 const emit = defineEmits<{ (event: 'complete', taskConfig: TaskConfig): void }>();
 
-// UI Helpers  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function triggerComplete(): void {
     emit('complete', taskConfig);

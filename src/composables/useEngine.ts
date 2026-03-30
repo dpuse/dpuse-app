@@ -1,33 +1,35 @@
-// DPY framework
+// DPUse Framework
 // import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 // import type { ConnectionConfig, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/connector';
 // import type { AuditObjectContentOptions, ConnectionConfig, PreviewObjectOptions, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/connector';
-// import type { EngineCallbackData, EngineRuntimeInterface, EngineWorkerInterface } from '@dpuse/dpuse-shared/engine';
-import type { EngineCallbackData, EngineRuntimeInterface, EngineWorkerInterface } from '@dpuse/dpuse-shared/engine';
+import type { EngineCallbackData, EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared/engine';
 
 // App Core
 import { useSessionStore } from '@/stores/sessionStore';
 
-// Constants
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const ENGINE_STORAGE_URL_PREFIX = 'https://engine-eu.dpuse.app';
 
-// ???
-let activeEngineVersion: string;
-let engineWorker: EngineWorkerInterface | undefined;
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Composables
-export async function useEngineWorker(): Promise<EngineWorkerInterface> {
-    // "useEngineWorker" is not invoked until all modules have been registered in session "defineStore". So "engineConfig" will be populated.
+let activeEngineVersion: string | undefined;
+let engineWorker: EngineWorker | undefined;
+
+// Engine Composable ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export async function useEngine(): Promise<EngineWorker> {
+    // "useEngine" is not invoked until all modules have been registered in session "defineStore". So "engineConfig" will be populated.
     const engineVersion = useSessionStore().engineConfig!.version as string;
 
     // Return current value if previously imported and a new version has not been published.
-    if (engineWorker && activeEngineVersion === engineVersion) return engineWorker;
+    if (engineWorker != null && activeEngineVersion === engineVersion) return engineWorker;
 
     // Import engine and initialise interface.
     const module = await import(/* @vite-ignore */ `${ENGINE_STORAGE_URL_PREFIX}/engine_v${engineVersion}/dpuse-engine.es.js`);
-    const engineInterface = module.default as EngineRuntimeInterface;
-    const pendingEngineWorker = engineInterface.invokeWorker((errorEvent: ErrorEvent) => {
-        console.error(errorEvent, 'engineWorker@useEngineWorker.1');
+    const engineRuntime = module.engineRuntime as EngineRuntime;
+    const pendingEngineWorker = engineRuntime.invokeWorker((errorEvent: ErrorEvent) => {
+        console.error(errorEvent, 'engineWorker@useEngine.1');
     });
     await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: useSessionStore().toolConfigs || [] });
     if (import.meta.env.DEV) console.info(`[dpuse:app] ✅ Engine 'dpuse-engine' v${engineVersion} loaded.`);

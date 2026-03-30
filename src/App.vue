@@ -14,13 +14,13 @@ import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
-import type { KnowledgeViewId } from '@/views/knowledge/Knowledge.vue';
+import type { KnowledgeViewId } from '@/views/knowledge/KnowledgeView.vue';
 import NavProgressBar from '@/components/navProgressBar/NavProgressBar.vue'; // Required when lazy loading is delayed.
 import SessionButton from '@/components/session/SessionButton.vue'; // Always visible.
 
 // App Components & Views - Lazy loaded as required.
-const AcctMgmtDialog = defineAsyncComponent({
-    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/components/account/AcctMgmtDialog.vue')),
+const AccountDialog = defineAsyncComponent({
+    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/components/account/AccountDialog.vue')),
     errorComponent: ChunkLoadError
 });
 const AuthDialog = defineAsyncComponent({
@@ -29,7 +29,7 @@ const AuthDialog = defineAsyncComponent({
 });
 // const DialogWrapper = defineAsyncComponent({ loader: () => import('@/components/dialog/DialogWrapper.vue'), errorComponent: ChunkLoadError });
 const KnowledgeOptionBar = defineAsyncComponent({ loader: () => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue'), errorComponent: ChunkLoadError });
-const Knowledge = defineAsyncComponent({ loader: () => import('@/views/knowledge/Knowledge.vue'), errorComponent: ChunkLoadError });
+const KnowledgeView = defineAsyncComponent({ loader: () => import('@/views/knowledge/KnowledgeView.vue'), errorComponent: ChunkLoadError });
 const PaneSplitter = defineAsyncComponent({ loader: () => import('@/components/paneSplitter/PaneSplitter.vue'), errorComponent: ChunkLoadError });
 const WorkbenchOptionBar = defineAsyncComponent({ loader: () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), errorComponent: ChunkLoadError });
 
@@ -229,7 +229,7 @@ function establishActiveAppPanelId(displayIsWide: boolean): void {
         <!-- Account Management dialog activated using url parameter 'dlg=acctMgmt'. -->
         <Transition name="dialog">
             <DialogWrapper v-if="acctMgmtDialogIsVisible">
-                <AcctMgmtDialog />
+                <AccountDialog />
             </DialogWrapper>
         </Transition>
 
@@ -267,7 +267,7 @@ function establishActiveAppPanelId(displayIsWide: boolean): void {
             @pointerdown="activeAppPaneId = 'knowledge'"
             @scroll.capture="activeAppPaneId = 'knowledge'"
         >
-            <Knowledge class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
+            <KnowledgeView class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
             <!-- <KnowledgeOptionBar v-if="displayIsWide" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation('knowledge')" /> -->
         </div>
 

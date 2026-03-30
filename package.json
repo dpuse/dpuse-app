@@ -1,14 +1,14 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.605",
+    "version": "0.0.606",
     "private": true,
     "type": "module",
     "engines": {
         "node": "^20.19.0 || >=22.12.0"
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^0.3.598",
+        "@dpuse/dpuse-shared": "^0.3.606",
         "@tailwindcss/vite": "^4.2.2",
         "@tanstack/ai-client": "^0.7.4",
         "@tanstack/vue-virtual": "^3.13.23",
@@ -23,8 +23,8 @@
     },
     "devDependencies": {
         "@cloudflare/vite-plugin": "^1.30.2",
-        "@cloudflare/workers-types": "^4.20260317.1",
-        "@dpuse/dpuse-development": "^0.3.487",
+        "@cloudflare/workers-types": "^4.20260329.1",
+        "@dpuse/dpuse-development": "^0.3.489",
         "@playwright/test": "^1.58.2",
         "@tsconfig/node24": "^24.0.4",
         "@types/eslint-plugin-security": "^3.0.1",

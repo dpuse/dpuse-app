@@ -13,7 +13,7 @@ import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObje
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/locales';
 import T from '@/locales/views/workbench/workflow/contextualiseData/ContextualiseData.json';
-import { useEngineWorker } from '@/composables/useEngineWorker';
+import { useEngine } from '~/src/composables/useEngine';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
@@ -50,7 +50,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
     try {
         if (!connectionConfig) return;
 
-        const { processRequest } = await useEngineWorker();
+        const { processRequest } = await useEngine();
         const findObjectOptions: FindObjectOptions = { storeId: 'dpuMetaStore', nodeId: 'eventQueries' };
         const findObjectResult = (await processRequest('findObject', connectionConfig, findObjectOptions)) as FindObjectResult;
         if (findObjectResult.path == null) {
