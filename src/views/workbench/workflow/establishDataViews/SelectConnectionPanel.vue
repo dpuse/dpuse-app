@@ -2,6 +2,10 @@
 // External Dependencies
 import { computed, shallowRef, watch } from 'vue';
 
+// DPUse Framework
+import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
+import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
+
 // App Core
 import { useEngine } from '~/src/composables/useEngine';
 import { useSessionStore } from '@/stores/sessionStore';
@@ -11,10 +15,9 @@ import { localeId, localiseConfigs } from '@/locales';
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import GridScroller from '@/components/gridScroller/GridScroller.vue';
+import SideBySidePanels from '@/components/sideBySidePanels/SideBySidePanels.vue';
 import type { TaskConfig } from './EstablishDataViews.vue';
 import ViewScroller from '@/components/view/ViewScroller.vue';
-import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
-import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
 
 // Properties & Emits
 const { taskConfig } = defineProps<{ taskConfig: TaskConfig }>();
@@ -84,18 +87,22 @@ function constructConnectionConfig(connectorConfig: ConnectorConfig): Connection
 </script>
 
 <template>
-    <div class="flex flex-1">
-        <GridScroller class="flex-1 pb-20" :items="localisedConnectionConfigs" :row-height="150" :target-column-width="350">
-            <template #default="{ item }">
-                <RouterLink :to="{ name: 'selectNode', query: { ...$route.query, wbView: 'selectNode' } }">
-                    <Card v-if="item" :label="item.label" />
-                </RouterLink>
-            </template>
-        </GridScroller>
+    <SideBySidePanels class="flex-1" max-right-width="400px">
+        <template #left>
+            <GridScroller class="flex-1 pb-20" :items="localisedConnectionConfigs" :row-height="150" :target-column-width="350">
+                <template #default="{ item }">
+                    <RouterLink :to="{ name: 'selectNode', query: { ...$route.query, wbView: 'selectNode' } }">
+                        <Card v-if="item" :label="item.label" />
+                    </RouterLink>
+                </template>
+            </GridScroller>
+        </template>
 
-        <div class="mr-4 bg-zinc-100 pb-20">
-            <Button @click="testAuth">Auth...</Button>
-            <RouterLink :to="{ name: 'selectNode', query: { ...$route.query, wbView: 'selectNode' } }" @click="triggerComplete">Next...</RouterLink>
-        </div>
-    </div>
+        <template #right>
+            <div class="mr-4 flex-1 pt-4 pb-20">
+                <Button @click="testAuth">Auth...</Button>
+                <RouterLink :to="{ name: 'selectNode', query: { ...$route.query, wbView: 'selectNode' } }" @click="triggerComplete">Next...</RouterLink>
+            </div>
+        </template>
+    </SideBySidePanels>
 </template>
