@@ -43,7 +43,7 @@ async function testAuth(): Promise<void> {
 </script>
 
 <template>
-    {{ connectionLocalisedConfig.connectorConfig.implementations }}
+    {{ connectionLocalisedConfig?.connectorConfig.implementations ?? 'PENDING...' }}
 
     <Input v-model="connectionLabel" name="label" :placeholder="t(T, 'Label')" :required="true" type="text" />
 
