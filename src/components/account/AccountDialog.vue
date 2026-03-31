@@ -11,11 +11,7 @@ import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
-
-// App Components & Views - Statically imported so always available, even after app goes offline.
 import Button, { type VariantTypeId } from '@/components/button/Button.vue';
-
-const { displayIsWide } = useDisplayBreakpoint();
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -48,8 +44,9 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
     deleteAccount: defineAsyncComponent(() => import('./DeleteAccount.vue'))
 };
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+const { displayIsWide } = useDisplayBreakpoint();
 const route = useRoute();
 const router = useRouter();
 

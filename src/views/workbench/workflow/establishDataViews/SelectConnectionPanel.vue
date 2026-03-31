@@ -14,8 +14,7 @@ import { localeId, localiseConfigs } from '@/locales';
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
-import GridScroller from '@/components/gridScroller/GridScroller.vue';
-import SideBySidePanels from '@/components/sideBySidePanels/SideBySidePanels.vue';
+import ListDetailPanel from '@/components/listDetailPanel/ListDetailPanel.vue';
 import type { TaskConfig } from './EstablishDataViews.vue';
 import ViewScroller from '@/components/view/ViewScroller.vue';
 
@@ -87,22 +86,16 @@ function constructConnectionConfig(connectorConfig: ConnectorConfig): Connection
 </script>
 
 <template>
-    <SideBySidePanels class="flex-1" max-right-width="400px">
-        <template #left>
-            <GridScroller class="flex-1 pb-20" :items="localisedConnectionConfigs" :row-height="150" :target-column-width="350">
-                <template #default="{ item }">
-                    <RouterLink :to="{ name: 'selectNode', query: { ...$route.query, wbView: 'selectNode' } }">
-                        <Card v-if="item" :label="item.label" />
-                    </RouterLink>
-                </template>
-            </GridScroller>
+    <ListDetailPanel class="flex-1" :items="localisedConnectionConfigs" max-right-width="400px">
+        <template #list-item="{ item }">
+            <Card v-if="item" :label="item.label" />
         </template>
 
-        <template #right>
+        <template #detail>
             <div class="mr-4 flex-1 pt-4 pb-20">
                 <Button @click="testAuth">Auth...</Button>
                 <RouterLink :to="{ name: 'selectNode', query: { ...$route.query, wbView: 'selectNode' } }" @click="triggerComplete">Next...</RouterLink>
             </div>
         </template>
-    </SideBySidePanels>
+    </ListDetailPanel>
 </template>

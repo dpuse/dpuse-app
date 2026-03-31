@@ -5,7 +5,7 @@ import { shallowRef, watch } from 'vue';
 
 // App Core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
-import { useActiveBenchtop } from '@/composables/useActiveBenchtop';
+import { setActiveBenchtop } from '@/composables/useActiveBenchtop';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
 import { localeId, localiseConfigs } from '@/locales';
 
@@ -16,12 +16,16 @@ import Separator from '@/components/separator/Separator.vue';
 // Properties & Emits
 const emit = defineEmits<{ (event: 'continue'): void }>();
 
-// States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const route = useRoute();
-const { setActiveBenchtop } = useActiveBenchtop();
+
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const workflowStepConfigs = shallowRef();
+
+// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(workflowStepData, newLocaleId)), { immediate: true });
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

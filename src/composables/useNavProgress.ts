@@ -1,26 +1,24 @@
 // External Dependencies
 import { type DeepReadonly, readonly, type Ref, ref } from 'vue';
 
-// Composable
-type NavProgressInterface = { isNavigating: DeepReadonly<Ref<boolean>> };
-export function useNavProgress(): NavProgressInterface {
-    return { isNavigating: readonly(isNavigating) };
-}
-
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const DELAY_MS = 150;
 const MIN_VISIBLE_MS = 350;
 
-// Non-Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+const isNavigating = ref(false);
 let showTimer: ReturnType<typeof setTimeout> | null = null;
 let hideTimer: ReturnType<typeof setTimeout> | null = null;
 let showedAt: number | null = null;
 
-// Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Navigation Progress Composable ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const isNavigating = ref(false);
+type NavProgressInterface = { isNavigating: DeepReadonly<Ref<boolean>> };
+export function useNavProgress(): NavProgressInterface {
+    return { isNavigating: readonly(isNavigating) };
+}
 
 // Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
