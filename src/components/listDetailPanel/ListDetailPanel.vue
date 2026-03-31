@@ -42,7 +42,9 @@ const activeItem = shallowRef<T | undefined>();
                 {{ activeItem?.label ?? 'Unknown' }}
             </div>
 
-            <slot name="detail" />
+            <div class="mr-4 flex-1 pt-4 pb-20">
+                <slot name="detail" />
+            </div>
         </div>
     </div>
 </template>

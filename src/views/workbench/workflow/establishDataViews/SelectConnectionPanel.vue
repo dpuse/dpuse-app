@@ -7,16 +7,17 @@ import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
 import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
 
 // App Core
+import T from '@/locales/components/session/LoginForm.json';
 import { useEngine } from '~/src/composables/useEngine';
 import { useSessionStore } from '@/stores/sessionStore';
-import { localeId, localiseConfigs } from '@/locales';
+import { localeId, localiseConfigs, t } from '@/locales';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
+import Input from '@/components/input/Input.vue';
 import ListDetailPanel from '@/components/listDetailPanel/ListDetailPanel.vue';
 import type { TaskConfig } from './EstablishDataViews.vue';
-import ViewScroller from '@/components/view/ViewScroller.vue';
 
 // Properties & Emits
 const { taskConfig } = defineProps<{ taskConfig: TaskConfig }>();
@@ -40,6 +41,8 @@ watch(connectionConfigs, (newConnectionConfigs) => (localisedConnectionConfigs.v
 function triggerComplete(): void {
     emit('complete', taskConfig);
 }
+
+// EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const connectorConfigs = computed(() => sessionState.connectorConfigs);
 const connectorConfig = shallowRef();
@@ -92,10 +95,11 @@ function constructConnectionConfig(connectorConfig: ConnectorConfig): Connection
         </template>
 
         <template #detail>
-            <div class="mr-4 flex-1 pt-4 pb-20">
-                <Button @click="testAuth">Auth...</Button>
-                <RouterLink :to="{ name: 'selectNode', query: { ...$route.query, wbView: 'selectNode' } }" @click="triggerComplete">Next...</RouterLink>
-            </div>
+            <Input name="email" autocomplete="email" :placeholder="t(T, 'Label')" :required="true" type="text" />
+
+            <Button @click="testAuth">Auth...</Button>
+
+            <RouterLink :to="{ name: 'selectNode', query: { ...$route.query, wbView: 'selectNode' } }" @click="triggerComplete">Select</RouterLink>
         </template>
     </ListDetailPanel>
 </template>
