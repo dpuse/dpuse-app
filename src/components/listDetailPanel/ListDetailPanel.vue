@@ -12,6 +12,7 @@ import GridScroller from '@/components/gridScroller/GridScroller.vue';
 
 // Properties & Emits
 const { items, maxRightWidth } = defineProps<{ items: T[]; maxRightWidth?: string }>();
+const emit = defineEmits<{ (event: 'select', item: T | undefined): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -20,6 +21,13 @@ const { displayIsWide } = useDisplayBreakpoint();
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeItem = shallowRef<T | undefined>();
+
+// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function selectItem(item: T | undefined): void {
+    activeItem.value = item;
+    emit('select', item);
+}
 </script>
 
 <template>
@@ -27,7 +35,7 @@ const activeItem = shallowRef<T | undefined>();
         <div v-if="displayIsWide || !activeItem" class="flex flex-1 flex-col">
             <GridScroller class="flex-1 pb-20" :items="items" :row-height="150" :target-column-width="350">
                 <template #default="{ item }">
-                    <div class="h-full" @click="activeItem = item">
+                    <div class="h-full" @click="selectItem(item)">
                         <slot name="list-item" :item="item" />
                     </div>
                 </template>

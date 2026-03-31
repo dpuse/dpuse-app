@@ -1,7 +1,15 @@
 <script setup lang="ts">
 // Properties & Emits
-type Properties = { autoComplete?: 'email' | 'current-password' | 'new-password'; name: string; placeholder?: string; required?: boolean; type?: 'email' | 'password' | 'text' };
-const { autoComplete, placeholder, required = false, type = 'text' } = defineProps<Properties>();
+type Properties = {
+    autoComplete?: 'email' | 'current-password' | 'new-password';
+    modelValue?: string;
+    name: string;
+    placeholder?: string;
+    required?: boolean;
+    type?: 'email' | 'password' | 'text';
+};
+const { autoComplete, modelValue, placeholder, required = false, type = 'text' } = defineProps<Properties>();
+const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
 </script>
 
 <template>
@@ -13,5 +21,7 @@ const { autoComplete, placeholder, required = false, type = 'text' } = definePro
         :placeholder="placeholder"
         :required="required"
         :type="type"
+        :value="modelValue"
+        @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
     />
 </template>

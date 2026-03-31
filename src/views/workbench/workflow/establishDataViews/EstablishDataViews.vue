@@ -51,6 +51,7 @@ watch(localeId, (newLocaleId) => (taskLocalisedConfigs.value = localiseConfigs<T
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleComplete(taskLocalisedConfig: TaskLocalisedConfig): void {
+    console.log('Hello...');
     enableTasksUpTo.value = taskLocalisedConfig.enableUpTo;
 }
 </script>
