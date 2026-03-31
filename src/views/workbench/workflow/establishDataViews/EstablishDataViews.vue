@@ -14,13 +14,14 @@ import ViewShell from '@/components/view/ViewShell.vue';
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export interface TaskConfig {
+interface TaskConfig {
     id: string;
     label: LocaleLabel;
     description: LocaleLabel;
     number: number;
     enableUpTo: number;
 }
+export type TaskLocalisedConfig = Omit<TaskConfig, 'label' | 'description'> & { label: string; description: string };
 const TASK_CONFIGS: TaskConfig[] = [
     { id: 'selectConnection', number: 1, enableUpTo: 1, label: { en: 'Select Connection' }, description: {} },
     { id: 'selectNode', number: 2, enableUpTo: 2, label: { en: 'Select Node' }, description: {} },
@@ -37,20 +38,20 @@ const route = useRoute();
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const enableTasksUpTo = ref(TASK_CONFIGS.find((config) => config.id === route.query.wbView)?.enableUpTo ?? 0); // TODO: This also needs to check the actual state of the data view.
-const localisedTaskConfigs = shallowRef();
+const taskLocalisedConfigs = shallowRef<TaskLocalisedConfig[]>();
 
 // Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const activeTaskConfig = computed(() => TASK_CONFIGS.find((config) => config.id === route.query.wbView));
+const activeTaskLocalisedConfig = computed(() => TASK_CONFIGS.find((config) => config.id === route.query.wbView));
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-watch(localeId, (newLocaleId) => (localisedTaskConfigs.value = localiseConfigs(TASK_CONFIGS, newLocaleId)), { immediate: true });
+watch(localeId, (newLocaleId) => (taskLocalisedConfigs.value = localiseConfigs<TaskLocalisedConfig>(TASK_CONFIGS, newLocaleId)), { immediate: true });
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function handleComplete(taskConfig: TaskConfig): void {
-    enableTasksUpTo.value = taskConfig.enableUpTo;
+function handleComplete(taskLocalisedConfig: TaskLocalisedConfig): void {
+    enableTasksUpTo.value = taskLocalisedConfig.enableUpTo;
 }
 </script>
 
@@ -59,23 +60,23 @@ function handleComplete(taskConfig: TaskConfig): void {
         <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label') }]" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" :workbench-pane-is-hidden="false" />
 
         <div class="border-separator mx-4 flex flex-none items-center justify-between border-b">
-            <div v-if="activeTaskConfig" class="flex gap-x-3 overflow-x-auto overscroll-x-none text-[15px]">
+            <div v-if="activeTaskLocalisedConfig" class="flex gap-x-3 overflow-x-auto overscroll-x-none text-[15px]">
                 <RouterLink
-                    v-for="taskConfig in localisedTaskConfigs"
-                    :key="taskConfig.id"
-                    :aria-selected="activeTaskConfig.id === taskConfig.id"
+                    v-for="taskLocalisedConfig in taskLocalisedConfigs"
+                    :key="taskLocalisedConfig.id"
+                    :aria-selected="activeTaskLocalisedConfig.id === taskLocalisedConfig.id"
                     class="border-y-2 border-t-transparent pb-1 leading-tight"
                     :class="{
-                        'border-b-blue-500': activeTaskConfig.id === taskConfig.id,
-                        'border-b-zinc-500': activeTaskConfig.id !== taskConfig.id && taskConfig.number <= enableTasksUpTo,
-                        'border-b-zinc-200': activeTaskConfig.id !== taskConfig.id && taskConfig.number > enableTasksUpTo
+                        'border-b-blue-500': activeTaskLocalisedConfig.id === taskLocalisedConfig.id,
+                        'border-b-zinc-500': activeTaskLocalisedConfig.id !== taskLocalisedConfig.id && taskLocalisedConfig.number <= enableTasksUpTo,
+                        'border-b-zinc-200': activeTaskLocalisedConfig.id !== taskLocalisedConfig.id && taskLocalisedConfig.number > enableTasksUpTo
                     }"
                     role="tab"
-                    :to="{ name: taskConfig.id, query: { ...route.query, wbView: taskConfig.id } }"
+                    :to="{ name: taskLocalisedConfig.id, query: { ...route.query, wbView: taskLocalisedConfig.id } }"
                 >
                     <div>
-                        <div class="text-muted text-xs font-medium">Task {{ taskConfig.number }}</div>
-                        <span class="text-sm">{{ taskConfig.label }}</span>
+                        <div class="text-muted text-xs font-medium">Task {{ taskLocalisedConfig.number }}</div>
+                        <span class="text-sm">{{ taskLocalisedConfig.label }}</span>
                     </div>
                 </RouterLink>
             </div>
@@ -86,7 +87,7 @@ function handleComplete(taskConfig: TaskConfig): void {
         </div>
 
         <RouterView v-slot="{ Component }">
-            <component :is="Component" :task-config="activeTaskConfig" @complete="handleComplete" />
+            <component :is="Component" :task-localised-config="activeTaskLocalisedConfig" @complete="handleComplete" />
         </RouterView>
     </ViewShell>
 </template>

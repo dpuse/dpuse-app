@@ -1,15 +1,15 @@
 <script setup lang="ts">
 // App Core
-import type { TaskConfig } from './EstablishDataViews.vue';
+import type { TaskLocalisedConfig } from './EstablishDataViews.vue';
 
 // Properties & Emits
-const { taskConfig } = defineProps<{ taskConfig: TaskConfig }>();
-const emit = defineEmits<{ (event: 'complete', taskConfig: TaskConfig): void }>();
+const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
+const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalisedConfig): void }>();
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function triggerComplete(): void {
-    emit('complete', taskConfig);
+    emit('complete', taskLocalisedConfig);
 }
 </script>
 

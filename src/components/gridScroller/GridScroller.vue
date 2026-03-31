@@ -18,7 +18,7 @@ const columnVirtualizer = useVirtualizer({
     horizontal: true,
     overscan: 5,
     /* Subtract 16px, app gutter of 1rem. */
-    estimateSize: () => (gridWidth.value >= 1280 ? targetColumnWidth : Math.floor((gridWidth.value - 16) / columnCount.value)),
+    estimateSize: () => (gridWidth.value >= 1280 ? targetColumnWidth : Math.floor((gridWidth.value - 0) / columnCount.value)),
     getScrollElement: () => gridScrollerReference.value
 });
 const rowVirtualizer = useVirtualizer({ count: 0, overscan: 5, estimateSize: () => rowHeight, getScrollElement: () => gridScrollerReference.value });

@@ -34,7 +34,7 @@ const activeItem = shallowRef<T | undefined>();
             </GridScroller>
         </div>
 
-        <div v-if="displayIsWide || activeItem" class="flex flex-1 flex-col" :style="{ maxWidth: maxRightWidth != null ? maxRightWidth : undefined }">
+        <div v-if="displayIsWide || activeItem" class="mx-4 flex flex-1 flex-col" :style="{ maxWidth: maxRightWidth != null ? maxRightWidth : undefined }">
             <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b">
                 <Button v-if="!displayIsWide" variant="iconSmall" @click="activeItem = undefined">
                     <ArrowBigLeftIcon stroke-width="1.25" />
@@ -42,8 +42,8 @@ const activeItem = shallowRef<T | undefined>();
                 {{ activeItem?.label ?? 'Unknown' }}
             </div>
 
-            <div class="mr-4 flex-1 pt-4 pb-20">
-                <slot name="detail" />
+            <div class="flex-1 pt-4 pr-4 pb-20">
+                <slot name="detail" :item="activeItem" />
             </div>
         </div>
     </div>

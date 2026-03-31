@@ -17,8 +17,8 @@ export const localeId = ref<LocaleId>(establishLocaleId());
 
 // Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export function localiseConfigs(configs: { id: string; label: LocaleLabel; description: LocaleLabel }[], localeId: LocaleId): Record<string, unknown>[] {
-    return configs.map((config) => ({ ...config, label: config.label[localeId] ?? config.id, description: config.description[localeId] ?? config.id }));
+export function localiseConfigs<T>(configs: { id: string; label: LocaleLabel; description: LocaleLabel }[], localeId: LocaleId): T[] {
+    return configs.map((config) => ({ ...config, label: config.label[localeId] ?? config.id, description: config.description[localeId] ?? config.id }) as T);
 }
 
 export function n(value: number, options?: Intl.NumberFormatOptions): string {

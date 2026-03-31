@@ -4,7 +4,7 @@ import { computed, shallowRef, watch } from 'vue';
 
 // DPUse Framework
 import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
-import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
+import type { ConnectionConfig, ConnectionLocalisedConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
 
 // App Core
 import T from '@/locales/components/session/LoginForm.json';
@@ -17,11 +17,11 @@ import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import Input from '@/components/input/Input.vue';
 import ListDetailPanel from '@/components/listDetailPanel/ListDetailPanel.vue';
-import type { TaskConfig } from './EstablishDataViews.vue';
+import type { TaskLocalisedConfig } from './EstablishDataViews.vue';
 
 // Properties & Emits
-const { taskConfig } = defineProps<{ taskConfig: TaskConfig }>();
-const emit = defineEmits<{ (event: 'complete', taskConfig: TaskConfig): void }>();
+const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
+const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalisedConfig): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -30,16 +30,18 @@ const sessionState = useSessionStore();
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const connectionConfigs = computed(() => sessionState.connectionConfigs);
-const localisedConnectionConfigs = shallowRef();
+const localisedConnectionConfigs = shallowRef<ConnectionLocalisedConfig[]>();
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-watch(connectionConfigs, (newConnectionConfigs) => (localisedConnectionConfigs.value = localiseConfigs(newConnectionConfigs, localeId.value)), { immediate: true });
+watch(connectionConfigs, (newConnectionConfigs) => (localisedConnectionConfigs.value = localiseConfigs<ConnectionLocalisedConfig>(newConnectionConfigs, localeId.value)), {
+    immediate: true
+});
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function triggerComplete(): void {
-    emit('complete', taskConfig);
+    emit('complete', taskLocalisedConfig);
 }
 
 // EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -89,12 +91,14 @@ function constructConnectionConfig(connectorConfig: ConnectorConfig): Connection
 </script>
 
 <template>
-    <ListDetailPanel class="flex-1" :items="localisedConnectionConfigs" max-right-width="400px">
+    <ListDetailPanel class="flex-1" :items="localisedConnectionConfigs || []" max-right-width="400px">
         <template #list-item="{ item }">
             <Card v-if="item" :label="item.label" />
         </template>
 
-        <template #detail>
+        <template #detail="{ item }">
+            {{ item?.connectorConfig.implementations }}
+
             <Input name="email" autocomplete="email" :placeholder="t(T, 'Label')" :required="true" type="text" />
 
             <Button @click="testAuth">Auth...</Button>

@@ -10,11 +10,11 @@ import { useEngine } from '@/composables/useEngine';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
-import type { TaskConfig } from './EstablishDataViews.vue';
+import type { TaskLocalisedConfig } from './EstablishDataViews.vue';
 
 // Properties & Emits
-const { taskConfig } = defineProps<{ taskConfig: TaskConfig }>();
-const emit = defineEmits<{ (event: 'complete', taskConfig: TaskConfig): void }>();
+const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
+const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalisedConfig): void }>();
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -23,7 +23,7 @@ const sessionState = useSessionStore();
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function triggerComplete(): void {
-    emit('complete', taskConfig);
+    emit('complete', taskLocalisedConfig);
 }
 
 // EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
