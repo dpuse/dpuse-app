@@ -43,16 +43,20 @@ function selectItem(item: T | undefined): void {
         </div>
 
         <div v-if="displayIsWide || activeItem" class="mx-4 flex flex-1 flex-col" :style="{ maxWidth: maxRightWidth != null ? maxRightWidth : undefined }">
-            <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b">
-                <Button v-if="!displayIsWide" variant="iconSmall" @click="activeItem = undefined">
-                    <ArrowBigLeftIcon stroke-width="1.25" />
-                </Button>
-                {{ activeItem?.label ?? 'Unknown' }}
+            <div v-if="activeItem">
+                <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b">
+                    <Button v-if="!displayIsWide" variant="iconSmall" @click="activeItem = undefined">
+                        <ArrowBigLeftIcon stroke-width="1.25" />
+                    </Button>
+                    {{ activeItem?.label ?? 'Unknown' }}
+                </div>
+
+                <div class="flex-1 pt-4 pr-4 pb-20">
+                    <slot name="detail" :item="activeItem" />
+                </div>
             </div>
 
-            <div class="flex-1 pt-4 pr-4 pb-20">
-                <slot name="detail" :item="activeItem" />
-            </div>
+            <div v-else>Select an item...</div>
         </div>
     </div>
 </template>
