@@ -21,6 +21,7 @@ class NonceInjector {
 
 /** Builds the full CSP header for a given nonce. The Worker sets this on every HTML response,
  *  making the static policy in public/_headers unreachable (it is kept only as documentation). */
+// TODO: Remove following settings from '_header' in '/public'.
 function buildCsp(nonce: string): string {
     return (
         "default-src 'none';" +
@@ -53,8 +54,10 @@ export default {
         const assetResponse = await environment.ASSETS.fetch(request as unknown as Request);
 
         // Only process HTML — pass all other assets (JS, CSS, images) through unchanged.
+        // Also skip nonce injection in dev (localhost) — Vite handles CSP via vite.config.ts
+        // using 'unsafe-inline', and its HMR style injections do not carry a nonce.
         const contentType = assetResponse.headers.get('Content-Type') ?? '';
-        if (!contentType.includes('text/html')) {
+        if (!contentType.includes('text/html') || url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
             return assetResponse as unknown as CfResponse;
         }
 
