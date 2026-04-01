@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.616",
+    "version": "0.0.617",
     "private": true,
     "type": "module",
     "engines": {
@@ -13,6 +13,7 @@
         "@tanstack/ai-client": "^0.7.5",
         "@tanstack/vue-virtual": "^3.13.23",
         "@teamhanko/hanko-frontend-sdk": "^2.5.0",
+        "ag-grid-community": "^35.2.0",
         "lucide-vue-next": "^1.0.0",
         "micromark": "^4.0.2",
         "pinia": "^3.0.4",
