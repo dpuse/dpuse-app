@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // External Dependencies
-// import { PlusIcon } from '@heroicons/vue/20/solid';
 import { PlusIcon } from 'lucide-vue-next';
 
 // Properties & Emits

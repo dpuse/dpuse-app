@@ -1,3 +1,7 @@
+<script setup lang="ts">
+// Sourced from Lucide https://lucide.dev/icons/sparkles.
+</script>
+
 <template>
     <svg
         viewBox="0 0 24 24"

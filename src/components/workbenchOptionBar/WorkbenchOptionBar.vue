@@ -7,9 +7,11 @@ import WorkbenchOptionBarContent from './WorkbenchOptionBarContent.vue';
 
 // Properties & Emits
 const { isOpenInNarrowDisplay } = defineProps<{ isOpenInNarrowDisplay: boolean }>();
+const emit = defineEmits<{ (event: 'continue'): void }>();
+
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const { displayIsWide } = useDisplayBreakpoint();
-const emit = defineEmits<{ (event: 'continue'): void }>();
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

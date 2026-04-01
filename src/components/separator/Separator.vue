@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // Properties & Emits
-type Properties = { text?: string };
-const { text } = defineProps<Properties>();
+const { text } = defineProps<{ text?: string }>();
 </script>
 
 <template>

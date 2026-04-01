@@ -1,10 +1,20 @@
 <script setup lang="ts">
+// External Dependencies
 import { ref } from 'vue';
 
-const props = withDefaults(defineProps<{ modelValue: number }>(), { modelValue: 50 });
+// Properties & Emits
+defineProps<{ modelValue?: number }>();
 const emit = defineEmits<{ 'update:modelValue': [value: number] }>();
 
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const isDragging = ref(false);
+
+// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function handleDoubleClick(): void {
+    emit('update:modelValue', 50);
+}
 
 function handlePointerDown(event: PointerEvent): void {
     isDragging.value = true;
@@ -22,10 +32,6 @@ function handlePointerUp(): void {
     isDragging.value = false;
     document.body.style.userSelect = '';
 }
-
-function handleDblClick(): void {
-    emit('update:modelValue', 50);
-}
 </script>
 
 <template>
@@ -34,6 +40,6 @@ function handleDblClick(): void {
         @pointerdown="handlePointerDown"
         @pointermove="handlePointerMove"
         @pointerup="handlePointerUp"
-        @dblclick="handleDblClick"
+        @dblclick="handleDoubleClick"
     />
 </template>
