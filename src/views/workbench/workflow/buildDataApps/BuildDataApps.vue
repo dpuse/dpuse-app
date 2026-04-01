@@ -16,33 +16,33 @@ ModuleRegistry.registerModules([InfiniteRowModelModule]);
 
 // Themes ─ parameterised to match the app's zinc colour tokens. ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// const lightTheme = themeQuartz.withParams({
-//     backgroundColor: '#ffffff',
-//     chromeBackgroundColor: '#fafafa',
-//     headerBackgroundColor: '#fafafa',
-//     foregroundColor: '#27272a', // zinc-800
-//     borderColor: '#e4e4e7', // zinc-200
-//     rowHoverColor: '#f4f4f5', // zinc-100
-//     selectedRowBackgroundColor: '#f4f4f5',
-//     accentColor: '#52525b', // zinc-600
-//     fontFamily: 'inherit',
-//     dataFontSize: 14,
-//     rowHeight: 48
-// });
+const lightTheme = themeQuartz.withParams({
+    backgroundColor: '#ffffff',
+    chromeBackgroundColor: '#fafafa',
+    headerBackgroundColor: '#fafafa',
+    foregroundColor: '#27272a', // zinc-800
+    borderColor: '#e4e4e7', // zinc-200
+    rowHoverColor: '#f4f4f5', // zinc-100
+    selectedRowBackgroundColor: '#f4f4f5',
+    accentColor: '#52525b', // zinc-600
+    fontFamily: 'inherit',
+    dataFontSize: 14,
+    rowHeight: 48
+});
 
-// const darkTheme = themeQuartz.withParams({
-//     backgroundColor: '#09090b', // zinc-950
-//     chromeBackgroundColor: '#18181b', // zinc-900
-//     headerBackgroundColor: '#18181b',
-//     foregroundColor: '#d4d4d8', // zinc-300
-//     borderColor: '#3f3f46', // zinc-700
-//     rowHoverColor: '#18181b',
-//     selectedRowBackgroundColor: '#27272a', // zinc-800
-//     accentColor: '#a1a1aa', // zinc-400
-//     fontFamily: 'inherit',
-//     dataFontSize: 14,
-//     rowHeight: 48
-// });
+const darkTheme = themeQuartz.withParams({
+    backgroundColor: '#09090b', // zinc-950
+    chromeBackgroundColor: '#18181b', // zinc-900
+    headerBackgroundColor: '#18181b',
+    foregroundColor: '#d4d4d8', // zinc-300
+    borderColor: '#3f3f46', // zinc-700
+    rowHoverColor: '#18181b',
+    selectedRowBackgroundColor: '#27272a', // zinc-800
+    accentColor: '#a1a1aa', // zinc-400
+    fontFamily: 'inherit',
+    dataFontSize: 14,
+    rowHeight: 48
+});
 
 // Simulated server datasource — 100,000 rows, 300ms latency. ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -75,14 +75,19 @@ const classObserver = new MutationObserver(() => {
     isDark.value = document.documentElement.classList.contains('dark');
 });
 
-// watch(isDark, (dark) => api?.setGridOption('theme', dark ? darkTheme : lightTheme));
+watch(isDark, (dark) => api?.setGridOption('theme', dark ? darkTheme : lightTheme));
 
 onMounted(() => {
     classObserver.observe(document.documentElement, { attributeFilter: ['class'] });
 
     if (!gridElement.value) return;
+
+    /** Nonce injected by the Cloudflare Worker into a <meta> tag — required for AG Grid's runtime style injection to pass CSP. */
+    const styleNonce = document.querySelector<HTMLMetaElement>('meta[name="csp-nonce"]')?.content ?? '';
+
     api = createGrid(gridElement.value, {
-        // theme: isDark.value ? darkTheme : lightTheme,
+        styleNonce,
+        theme: isDark.value ? darkTheme : lightTheme,
         rowModelType: 'infinite',
         /** Number of rows fetched per request. */
         cacheBlockSize: 100,

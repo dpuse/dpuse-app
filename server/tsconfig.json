@@ -1,0 +1,10 @@
+{
+    "extends": "@tsconfig/node24/tsconfig.json",
+    "include": ["./**/*"],
+    "compilerOptions": {
+        "noEmit": true,
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "types": ["@cloudflare/workers-types/experimental"]
+    }
+}
