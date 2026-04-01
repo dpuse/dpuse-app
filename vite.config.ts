@@ -6,7 +6,8 @@ import vue from '@vitejs/plugin-vue';
 // import vueDevTools from 'vite-plugin-vue-devtools';
 import { fileURLToPath, URL } from 'node:url';
 
-// Vite Configuration
+// Vite Configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 export default defineConfig({
     plugins: [vue(), /*vueDevTools(),*/ tailwindcss(), cloudflare()],
     resolve: {
@@ -23,7 +24,7 @@ export default defineConfig({
             'Content-Security-Policy':
                 "default-src 'none';" +
                 " base-uri 'self';" +
-                " connect-src 'self' http://localhost:5173 ws://localhost:5173 data: https://api.dpuse.app wss://api.dpuse.app https://engine-eu.dpuse.app https://sample-data-eu.dpuse.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io;" +
+                " connect-src 'self' https://localhost:5173 wss://localhost:5173 data: https://api.dpuse.app wss://api.dpuse.app https://engine-eu.dpuse.app https://sample-data-eu.dpuse.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io;" +
                 " form-action 'none';" +
                 " frame-ancestors 'none';" +
                 " img-src 'self' https://gravatar.com https://flagcdn.com https://tailwindcss.com;" +
@@ -37,6 +38,10 @@ export default defineConfig({
             'Cross-Origin-Resource-Policy': 'same-origin',
             'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self), clipboard-read=(self), clipboard-write=(self)',
             'Referrer-Policy': 'strict-origin-when-cross-origin'
+        },
+        https: {
+            key: '../../localhost/localhost+1-key.pem',
+            cert: '../../localhost/localhost+1.pem'
         }
     }
 });

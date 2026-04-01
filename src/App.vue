@@ -16,15 +16,15 @@ import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/views/knowledge/KnowledgeView.vue';
 import NavProgressBar from '@/components/navProgressBar/NavProgressBar.vue'; // Required when lazy loading is delayed.
-import SessionButton from '@/components/session/SessionButton.vue'; // Always visible.
+import SessionButton from '@/views/session/SessionButton.vue'; // Always visible.
 
 // App Components & Views - Lazy loaded as required.
 const AccountDialog = defineAsyncComponent({
-    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/components/account/AccountDialog.vue')),
+    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/views/session/accountDialog/AccountDialog.vue')),
     errorComponent: ChunkLoadError
 });
 const AuthDialog = defineAsyncComponent({
-    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/components/session/AuthDialog.vue')),
+    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/views/session/authDialog/AuthDialog.vue')),
     errorComponent: ChunkLoadError
 });
 // const DialogWrapper = defineAsyncComponent({ loader: () => import('@/components/dialog/DialogWrapper.vue'), errorComponent: ChunkLoadError });

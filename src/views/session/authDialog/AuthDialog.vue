@@ -15,8 +15,8 @@ import { useSessionStore } from '@/stores/sessionStore';
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
-import LoginForm from '@/components/session/LoginForm.vue';
-import PasswordForm from '@/components/session/PasswordForm.vue';
+import LoginForm from '@/views/session/authDialog/LoginForm.vue';
+import PasswordForm from '@/views/session/authDialog/PasswordForm.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

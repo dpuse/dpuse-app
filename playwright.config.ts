@@ -1,3 +1,4 @@
+// External Dependencies
 import process from 'node:process';
 import { defineConfig, devices } from '@playwright/test';
 
@@ -6,6 +7,8 @@ import { defineConfig, devices } from '@playwright/test';
  * https://github.com/motdotla/dotenv
  */
 // require('dotenv').config();
+
+// Playwright Configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 /**
  * See https://playwright.dev/docs/test-configuration.

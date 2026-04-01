@@ -9,7 +9,8 @@ import pluginVue from 'eslint-plugin-vue';
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting';
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 
-// ESLint Configuration
+// ESLint Configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 export default defineConfigWithVueTs(
     {
         name: 'app/files-to-lint',
@@ -20,7 +21,7 @@ export default defineConfigWithVueTs(
         }
     },
 
-    globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
+    globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**', 'pwa.assets.config.ts']),
 
     ...pluginVue.configs['flat/recommended'],
     vueTsConfigs.recommended,
