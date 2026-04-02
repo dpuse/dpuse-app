@@ -93,5 +93,20 @@ onUnmounted(() => {
 <style scoped>
 :deep(.ag-body-viewport) {
     overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Force scrollbars to be visible on iOS (Safari hides them by default) */
+:deep(.ag-body-viewport::-webkit-scrollbar),
+:deep(.ag-center-cols-viewport::-webkit-scrollbar) {
+    -webkit-appearance: none;
+    width: 7px;
+    height: 7px;
+}
+
+:deep(.ag-body-viewport::-webkit-scrollbar-thumb),
+:deep(.ag-center-cols-viewport::-webkit-scrollbar-thumb) {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.3);
 }
 </style>
