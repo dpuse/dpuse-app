@@ -5,17 +5,9 @@ import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue';
 
 // Types ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export type GridColumnDefinition = {
-    field: string;
-    headerName?: string;
-    width?: number;
-    flex?: number;
-};
+export type GridColumnDefinition = { field: string; headerName?: string; width?: number; flex?: number };
 
-export type GridDatasource = {
-    rowCount: number;
-    getRows: (startRow: number, endRow: number) => Promise<unknown[]>;
-};
+export type GridDatasource = { rowCount: number; getRows: (startRow: number, endRow: number) => Promise<unknown[]> };
 
 // Properties ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -209,7 +201,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.grid-scroll-body::-webkit-scrollbar {
+/* .grid-scroll-body::-webkit-scrollbar {
     -webkit-appearance: none;
     width: 7px;
     height: 7px;
@@ -218,5 +210,5 @@ onUnmounted(() => {
 .grid-scroll-body::-webkit-scrollbar-thumb {
     border-radius: 4px;
     background-color: rgba(0, 0, 0, 0.3);
-}
+} */
 </style>
