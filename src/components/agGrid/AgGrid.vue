@@ -89,3 +89,9 @@ onUnmounted(() => {
 <template>
     <div ref="gridElement" />
 </template>
+
+<style scoped>
+div {
+    overscroll-behavior: none;
+}
+</style>
