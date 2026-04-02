@@ -1,23 +1,30 @@
 import type { Ref } from 'vue';
 import { onMounted, onUnmounted } from 'vue';
 
-const LOCK_THRESHOLD_PX = 6;
+const LOCK_THRESHOLD_PX = 4;
 
 /**
  * Locks a scroll container to a single axis (horizontal or vertical) for the
  * duration of each touch gesture, based on the initial direction of movement.
  * Prevents the diagonal drift common on iOS when the user intends to scroll
  * in one direction only.
+ *
+ * On lock, the non-dominant axis scroll position is restored to its value at
+ * touchstart, undoing any drift that accumulated within the threshold window.
  */
 export function useSingleAxisScroll(scrollElement: Ref<HTMLElement | null>): void {
     let startX = 0;
     let startY = 0;
+    let scrollLeftAtStart = 0;
+    let scrollTopAtStart = 0;
     let locked = false;
 
     function onTouchStart(event: TouchEvent): void {
         const touch = event.touches[0];
         startX = touch.clientX;
         startY = touch.clientY;
+        scrollLeftAtStart = scrollElement.value?.scrollLeft ?? 0;
+        scrollTopAtStart = scrollElement.value?.scrollTop ?? 0;
         locked = false;
     }
 
@@ -29,9 +36,13 @@ export function useSingleAxisScroll(scrollElement: Ref<HTMLElement | null>): voi
         if (deltaX < LOCK_THRESHOLD_PX && deltaY < LOCK_THRESHOLD_PX) return;
         locked = true;
         if (deltaX > deltaY) {
+            // Horizontal intent — lock vertical and restore any vertical drift.
             scrollElement.value.style.overflowY = 'hidden';
+            scrollElement.value.scrollTop = scrollTopAtStart;
         } else {
+            // Vertical intent — lock horizontal and restore any horizontal drift.
             scrollElement.value.style.overflowX = 'hidden';
+            scrollElement.value.scrollLeft = scrollLeftAtStart;
         }
     }
 
