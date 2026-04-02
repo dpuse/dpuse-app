@@ -52,6 +52,6 @@ const columnDefs: ColDef[] = [
     <ViewShell>
         <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label') }]" :title="t(T, 'Build_Data_Apps')" :workbench-pane-is-hidden="false" />
 
-        <AgGrid class="flex-1" :column-defs="columnDefs" :datasource="datasource" />
+        <AgGrid class="flex-1 px-4" :column-defs="columnDefs" :datasource="datasource" />
     </ViewShell>
 </template>
