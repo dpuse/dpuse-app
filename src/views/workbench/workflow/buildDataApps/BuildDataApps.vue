@@ -2,18 +2,18 @@
 // App Core
 import { t } from '@/locales';
 import T from '@/locales/views/workbench/workflow/buildDataApps/BuildDataApps.json';
-import TanstackGrid, { type GridColumnDefinition, type GridDatasource } from '@/components/tanstackGrid/TanstackGrid.vue';
+import TanstackGrid, { type GridColumnDefinition, type GridDataSource } from '@/components/tanstackGrid/TanstackGrid.vue';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Header from '@/components/header/Header.vue';
 import ViewShell from '@/components/view/ViewShell.vue';
 
-// Simulated server datasource — 100,000 rows, 300ms latency. ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Simulated server dataSource — 100,000 rows, 300ms latency. ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const TOTAL_ROWS = 100_000;
 const CATEGORIES = ['Alpha', 'Beta', 'Gamma', 'Delta'] as const;
 
-const datasource: GridDatasource = {
+const dataSource: GridDataSource = {
     rowCount: TOTAL_ROWS,
     getRows(startRow: number, endRow: number) {
         return new Promise((resolve) => {
@@ -31,9 +31,9 @@ const datasource: GridDatasource = {
     }
 };
 
-const columnDefs: GridColumnDefinition[] = [
-    { field: 'id', headerName: 'ID', width: 80 },
-    { field: 'name', headerName: 'Name', flex: 1 },
+const columnDefinitions: GridColumnDefinition[] = [
+    { field: 'id', headerName: 'ID', width: 120 },
+    { field: 'name', headerName: 'Name', width: 120 },
     { field: 'category', headerName: 'Category', width: 120 },
     { field: 'value', headerName: 'Value', width: 120 }
 ];
@@ -43,6 +43,6 @@ const columnDefs: GridColumnDefinition[] = [
     <ViewShell>
         <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label') }]" :title="t(T, 'Build_Data_Apps')" :workbench-pane-is-hidden="false" />
 
-        <TanstackGrid class="flex-1 px-4" :column-defs="columnDefs" :datasource="datasource" />
+        <TanstackGrid class="flex-1 px-4" :column-definitions="columnDefinitions" :data-source="dataSource" />
     </ViewShell>
 </template>
