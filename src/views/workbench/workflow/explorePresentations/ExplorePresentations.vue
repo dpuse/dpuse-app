@@ -16,6 +16,7 @@ const CATEGORIES = ['Alpha', 'Beta', 'Gamma', 'Delta'] as const;
 const datasource: GridDatasource = {
     rowCount: TOTAL_ROWS,
     getRows(startRow: number, endRow: number) {
+        console.log(startRow, endRow);
         return new Promise((resolve) => {
             setTimeout(() => {
                 resolve(
