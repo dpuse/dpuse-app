@@ -3,6 +3,9 @@
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import { computed, ref, watch } from 'vue';
 
+// Internal Dependencies
+import { useSingleAxisScroll } from '@/composables/useSingleAxisScroll';
+
 // Properties & Emits ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 type Properties = {
@@ -30,6 +33,8 @@ let fetchGeneration = 0; // Incremented on dataSource change; in-flight response
 // Local State - Virtualizer ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const scrollElement = ref<HTMLDivElement | null>(null);
+
+useSingleAxisScroll(scrollElement);
 
 const virtualizer = useVirtualizer({
     get count() {
@@ -88,7 +93,7 @@ function fetchBlock(blockIndex: number): void {
     dataSource
         .getRows(start, end)
         .then((rows) => {
-            if (generation !== fetchGeneration) return; // dataSource changed while this fetch was in-flight; discard.
+            if (generation !== fetchGeneration) return; // DataSource changed while this fetch was in-flight; discard.
             while (blockCacheMap.size >= maxBlocksInCache) {
                 const evictBlockIndex = blockLeastRecentlyUsedOrder.shift();
                 if (evictBlockIndex === undefined) break;
