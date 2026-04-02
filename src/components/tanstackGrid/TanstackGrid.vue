@@ -25,6 +25,7 @@ const blockCacheMap = new Map<number, unknown[]>(); // Plain (non-reactive) Map 
 const blockCacheVersion = ref(0); // Re-renders are triggered only by `blockCacheVersion`, incremented once per fetch result.
 const blockLeastRecentlyUsedOrder: number[] = []; // Index 0 contains the block index of the least recently used (oldest) block.
 const blockPendingFetchIndexSet = new Set<number>();
+let fetchGeneration = 0; // Incremented on dataSource change; in-flight responses from prior generations are discarded.
 
 // Local State - Virtualizer ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -52,7 +53,21 @@ const visibleRowData = computed(() => {
     });
 });
 
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects - Virtualizer ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// When the data source is swapped, stale blocks must be purged immediately. In-flight fetches from the
+// prior source are identified by their generation snapshot and silently dropped when they resolve.
+watch(
+    () => dataSource,
+    () => {
+        fetchGeneration++;
+        blockCacheMap.clear();
+        blockLeastRecentlyUsedOrder.length = 0;
+        blockPendingFetchIndexSet.clear();
+        blockCacheVersion.value++;
+    },
+    { flush: 'sync' }
+);
 
 watch(virtualRows, (items) => {
     const requiredBlockIndexes = new Set(items.map((item) => getBlockIndex(item.index)));
@@ -69,9 +84,11 @@ function fetchBlock(blockIndex: number): void {
     blockPendingFetchIndexSet.add(blockIndex);
     const start = blockIndex * cacheBlockSize;
     const end = Math.min(start + cacheBlockSize, dataSource.rowCount);
+    const generation = fetchGeneration;
     dataSource
         .getRows(start, end)
         .then((rows) => {
+            if (generation !== fetchGeneration) return; // dataSource changed while this fetch was in-flight; discard.
             while (blockCacheMap.size >= maxBlocksInCache) {
                 const evictBlockIndex = blockLeastRecentlyUsedOrder.shift();
                 if (evictBlockIndex === undefined) break;
@@ -81,6 +98,7 @@ function fetchBlock(blockIndex: number): void {
             recordBlockAccessed(blockIndex);
             blockCacheVersion.value++;
         })
+        .catch((error) => console.error(`[TanstackGrid] Failed to fetch block ${blockIndex}:`, error))
         .finally(() => blockPendingFetchIndexSet.delete(blockIndex));
 }
 
