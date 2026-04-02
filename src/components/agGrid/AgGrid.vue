@@ -91,7 +91,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-div {
+:deep(.ag-body-viewport) {
     overscroll-behavior: none;
 }
 </style>
