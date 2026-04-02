@@ -1,8 +1,5 @@
 /*
-# Content-Security-Policy is set dynamically by the Cloudflare Worker (server/index.ts) via HTMLRewriter,
-# which injects a per-request nonce into all <style> and <script> tags and sets the CSP header with that nonce.
-# The static hash-based policy below is intentionally omitted — it is superseded by the Worker for all HTML responses.
-# Non-HTML assets (JS, CSS, images) do not enforce CSP so no policy is needed here for those either.
+Content-Security-Policy: default-src 'none'; base-uri 'self'; connect-src 'self' data: https://api.dpuse.app wss://api.dpuse.app https://engine-eu.dpuse.app https://sample-data-eu.dpuse.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io; form-action 'none'; frame-ancestors 'none'; img-src 'self' https://gravatar.com https://flagcdn.com https://tailwindcss.com; manifest-src 'self'; object-src 'none'; script-src 'self' https://engine-eu.dpuse.app 'wasm-unsafe-eval' 'sha256-KG2wj49jjwMy8lKXGdeUFXZ/WLdgASNCo7M8X7Jny6A='; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; trusted-types default vue; require-trusted-types-for 'script';
 Cross-Origin-Resource-Policy: same-origin
 Referrer-Policy: strict-origin-when-cross-origin
 X-Content-Type-Options: nosniff
