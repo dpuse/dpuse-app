@@ -2,9 +2,9 @@
 // App Core
 import { t } from '@/locales';
 import T from '@/locales/views/workbench/workflow/explorePresentations/ExplorePresentations.json';
+import TanstackGrid, { type GridColumnDefinition, type GridDatasource } from '@/components/tanstackGrid/TanstackGrid.vue';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
-import TanstackGrid, { type GridColumnDef, type GridDatasource } from '@/components/tanstackGrid/TanstackGrid.vue';
 import Header from '@/components/header/Header.vue';
 import ViewShell from '@/components/view/ViewShell.vue';
 
@@ -32,7 +32,7 @@ const datasource: GridDatasource = {
     }
 };
 
-const columnDefs: GridColumnDef[] = [
+const columnDefs: GridColumnDefinition[] = [
     { field: 'id', headerName: 'ID', width: 80 },
     { field: 'name', headerName: 'Name', flex: 1 },
     { field: 'category', headerName: 'Category', width: 120 },
