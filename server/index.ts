@@ -66,6 +66,9 @@ export default {
 
         const headers = new Headers(assetResponse.headers);
         headers.set('Content-Security-Policy', buildCsp(nonce));
+        // Prevent caching of HTML — the nonce is per-request, so a cached body with a stale nonce
+        // would not match the new CSP header on the next request, blocking all inline scripts and styles.
+        headers.set('Cache-Control', 'no-store');
 
         // Stream the HTML through HTMLRewriter:
         // - adds nonce attribute to every <style> and <script> tag
