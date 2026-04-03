@@ -75,6 +75,6 @@ const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
                 </div>
             </div>
         </div>
-        <ScrollScrubber :scroll-element="scrollElement" />
+        <ScrollScrubber :scroll-element="scrollElement" :row-count="dataSource.rowCount" />
     </div>
 </template>
