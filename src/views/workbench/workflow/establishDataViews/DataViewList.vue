@@ -24,7 +24,7 @@ import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';
-import GridScroller from '@/components/gridScroller/GridScroller.vue';
+import GridScroller from '@/components/grid/GridScroller.vue';
 import ViewScroller from '@/components/view/ViewScroller.vue';
 
 // App Components & Views - Lazy loaded as required.

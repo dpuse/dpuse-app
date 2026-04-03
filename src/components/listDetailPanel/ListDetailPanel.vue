@@ -8,7 +8,7 @@ import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
-import GridScroller from '@/components/gridScroller/GridScroller.vue';
+import GridScroller from '@/components/grid/GridScroller.vue';
 
 // Properties & Emits
 const { items, maxRightWidth } = defineProps<{ items: T[]; maxRightWidth?: string }>();
