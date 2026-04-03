@@ -1,114 +1,144 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 
-const props = defineProps<{
+const { scrollElement } = defineProps<{
     scrollElement: HTMLElement | null;
 }>();
 
-const trackRef = ref<HTMLElement | null>(null);
+const trackReference = ref<HTMLElement | null>(null);
 const thumbTop = ref(0);
 const thumbHeight = ref(44);
 const isScrollable = ref(false);
+const isVisible = ref(false);
 
 const MIN_THUMB_HEIGHT = 44;
+const HIDE_DELAY_MS = 1200;
 
 let resizeObserver: ResizeObserver | null = null;
+let hideTimer: ReturnType<typeof setTimeout> | null = null;
+
+function showScrubber(): void {
+    isVisible.value = true;
+    if (hideTimer !== null) clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => (isVisible.value = false), HIDE_DELAY_MS);
+}
+
+function cancelHide(): void {
+    if (hideTimer !== null) {
+        clearTimeout(hideTimer);
+        hideTimer = null;
+    }
+    isVisible.value = true;
+}
+
+function resumeHide(): void {
+    hideTimer = setTimeout(() => (isVisible.value = false), HIDE_DELAY_MS);
+}
 
 function getMetrics() {
-    const el = props.scrollElement;
-    const track = trackRef.value;
-    if (!el || !track) return null;
+    const element = scrollElement;
+    const track = trackReference.value;
+    if (!element || !track) return null;
     return {
-        scrollTop: el.scrollTop,
-        scrollHeight: el.scrollHeight,
-        clientHeight: el.clientHeight,
-        maxScroll: el.scrollHeight - el.clientHeight,
-        trackHeight: el.clientHeight, // track mirrors the scroll viewport height
+        scrollTop: element.scrollTop,
+        scrollHeight: element.scrollHeight,
+        clientHeight: element.clientHeight,
+        maxScroll: element.scrollHeight - element.clientHeight,
+        trackHeight: element.clientHeight // track mirrors the scroll viewport height
     };
 }
 
-function updateThumb() {
-    const m = getMetrics();
-    if (!m) return;
+function updateThumb(): void {
+    const metrics = getMetrics();
+    if (!metrics) return;
 
-    isScrollable.value = m.maxScroll > 0;
+    isScrollable.value = metrics.maxScroll > 0;
+    showScrubber();
     if (!isScrollable.value) return;
 
-    const natural = (m.clientHeight / m.scrollHeight) * m.trackHeight;
+    const natural = (metrics.clientHeight / metrics.scrollHeight) * metrics.trackHeight;
     const clamped = Math.max(MIN_THUMB_HEIGHT, natural);
     thumbHeight.value = clamped;
 
-    const availableTrack = m.trackHeight - clamped;
-    const ratio = Math.min(1, Math.max(0, m.scrollTop / m.maxScroll));
+    const availableTrack = metrics.trackHeight - clamped;
+    const ratio = Math.min(1, Math.max(0, metrics.scrollTop / metrics.maxScroll));
     thumbTop.value = ratio * availableTrack;
 }
 
-function scrollFromTouchY(clientY: number) {
-    const m = getMetrics();
-    const track = trackRef.value;
-    if (!m || !track) return;
+function scrollFromTouchY(clientY: number): void {
+    const metrics = getMetrics();
+    const track = trackReference.value;
+    if (!metrics || !track) return;
 
     const trackRect = track.getBoundingClientRect();
-    const availableTrack = m.trackHeight - thumbHeight.value;
+    const availableTrack = metrics.trackHeight - thumbHeight.value;
     const relativeY = clientY - trackRect.top - thumbHeight.value / 2;
     const ratio = Math.min(1, Math.max(0, relativeY / availableTrack));
-    props.scrollElement!.scrollTop = ratio * m.maxScroll;
+    scrollElement!.scrollTop = ratio * metrics.maxScroll;
     updateThumb();
 }
 
-function onTouchStart(e: TouchEvent) {
-    e.preventDefault();
-    scrollFromTouchY(e.touches[0].clientY);
+function onTouchStart(event: TouchEvent): void {
+    event.preventDefault();
+    cancelHide();
+    scrollFromTouchY(event.touches[0].clientY);
 }
 
-function onTouchMove(e: TouchEvent) {
-    e.preventDefault();
-    scrollFromTouchY(e.touches[0].clientY);
+function onTouchMove(event: TouchEvent): void {
+    event.preventDefault();
+    scrollFromTouchY(event.touches[0].clientY);
+}
+
+function onTouchEnd(): void {
+    resumeHide();
 }
 
 let mouseDown = false;
 
-function onMouseDown(e: MouseEvent) {
+function onMouseDown(event: MouseEvent): void {
+    event.preventDefault();
     mouseDown = true;
-    scrollFromMouseY(e.clientY);
+    cancelHide();
+    scrollFromMouseY(event.clientY);
 }
 
-function onMouseMove(e: MouseEvent) {
+function onMouseMove(event: MouseEvent): void {
     if (!mouseDown) return;
-    scrollFromMouseY(e.clientY);
+    scrollFromMouseY(event.clientY);
 }
 
-function onMouseUp() {
+function onMouseUp(): void {
     mouseDown = false;
+    resumeHide();
 }
 
-function scrollFromMouseY(clientY: number) {
-    const m = getMetrics();
-    const track = trackRef.value;
-    if (!m || !track) return;
+function scrollFromMouseY(clientY: number): void {
+    const metrics = getMetrics();
+    const track = trackReference.value;
+    if (!metrics || !track) return;
     const trackRect = track.getBoundingClientRect();
-    const availableTrack = m.trackHeight - thumbHeight.value;
+    const availableTrack = metrics.trackHeight - thumbHeight.value;
     const relativeY = clientY - trackRect.top - thumbHeight.value / 2;
     const ratio = Math.min(1, Math.max(0, relativeY / availableTrack));
-    props.scrollElement!.scrollTop = ratio * m.maxScroll;
+    scrollElement!.scrollTop = ratio * metrics.maxScroll;
     updateThumb();
 }
 
-function teardownScrollListener() {
-    props.scrollElement?.removeEventListener('scroll', updateThumb);
+function teardownScrollListener(): void {
+    scrollElement?.removeEventListener('scroll', updateThumb);
 }
 
 watch(
-    () => props.scrollElement,
-    (newEl, oldEl) => {
-        oldEl?.removeEventListener('scroll', updateThumb);
+    () => scrollElement,
+    (newElement, oldElement) => {
+        oldElement?.removeEventListener('scroll', updateThumb);
         resizeObserver?.disconnect();
 
-        if (!newEl) return;
+        if (!newElement) return;
 
-        newEl.addEventListener('scroll', updateThumb, { passive: true });
+        newElement.addEventListener('scroll', updateThumb, { passive: true });
         resizeObserver = new ResizeObserver(updateThumb);
-        resizeObserver.observe(newEl);
+        resizeObserver.observe(newElement);
         updateThumb();
     },
     { immediate: true }
@@ -116,10 +146,11 @@ watch(
 
 onMounted(() => {
     updateThumb();
-    const track = trackRef.value;
+    const track = trackReference.value;
     if (!track) return;
     track.addEventListener('touchstart', onTouchStart, { passive: false });
     track.addEventListener('touchmove', onTouchMove, { passive: false });
+    track.addEventListener('touchend', onTouchEnd, { passive: true });
     track.addEventListener('mousedown', onMouseDown);
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
@@ -128,10 +159,11 @@ onMounted(() => {
 onUnmounted(() => {
     teardownScrollListener();
     resizeObserver?.disconnect();
-    const track = trackRef.value;
+    const track = trackReference.value;
     if (!track) return;
     track.removeEventListener('touchstart', onTouchStart);
     track.removeEventListener('touchmove', onTouchMove);
+    track.removeEventListener('touchend', onTouchEnd);
     track.removeEventListener('mousedown', onMouseDown);
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
@@ -139,8 +171,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div v-show="isScrollable" ref="trackRef" class="scrubber-track">
-        <div class="scrubber-thumb" :style="{ top: thumbTop + 'px', height: thumbHeight + 'px' }" />
+    <div v-show="isScrollable" ref="trackReference" class="scrubber-track" :class="{ 'scrubber-track--visible': isVisible }">
+        <div class="scrubber-thumb" :style="{ top: thumbTop + 'px', height: thumbHeight + 'px' }">
+            <div class="scrubber-grip">
+                <span /><span /><span />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -154,7 +190,8 @@ onUnmounted(() => {
     width: 20px;
     z-index: 20;
     touch-action: none;
-    background: rgba(0, 0, 0, 0.04);
+    background: transparent;
+    transition: background 0.3s ease;
 }
 
 /* @media (pointer: coarse) { */
@@ -163,12 +200,35 @@ onUnmounted(() => {
 }
 /* } */
 
+.scrubber-track--visible {
+    background: rgba(0, 0, 0, 0.04);
+}
+
 .scrubber-thumb {
     position: absolute;
-    right: 4px;
-    width: 4px;
-    border-radius: 2px;
-    background: rgba(120, 120, 120, 0.45);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    border-radius: 6px;
+    border: 1.5px solid rgba(120, 120, 120, 0.5);
     pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scrubber-grip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.scrubber-grip span {
+    display: block;
+    width: 6px;
+    height: 1.5px;
+    border-radius: 1px;
+    background: rgba(120, 120, 120, 0.6);
 }
 </style>
