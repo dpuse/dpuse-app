@@ -1,33 +1,45 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
-const { scrollElement, rowCount } = defineProps<{
+const { scrollElement, axis = 'vertical', rowCount = 0 } = defineProps<{
     scrollElement: HTMLElement | null;
-    rowCount: number;
+    axis?: 'vertical' | 'horizontal';
+    rowCount?: number;
 }>();
 
 const trackReference = ref<HTMLElement | null>(null);
-const thumbTop = ref(0);
-const thumbHeight = ref(40);
+const thumbOffset = ref(0);
+const thumbSize = ref(40);
 const isScrollable = ref(false);
 const isDragging = ref(false);
 const currentRow = ref(1);
 
-const MIN_THUMB_HEIGHT = 40;
+const MIN_THUMB_SIZE = 40;
 
 let resizeObserver: ResizeObserver | null = null;
+
+const isVertical = (): boolean => axis === 'vertical';
 
 function getMetrics() {
     const element = scrollElement;
     const track = trackReference.value;
     if (!element || !track) return null;
-    return {
-        scrollTop: element.scrollTop,
-        scrollHeight: element.scrollHeight,
-        clientHeight: element.clientHeight,
-        maxScroll: element.scrollHeight - element.clientHeight,
-        trackHeight: element.clientHeight
-    };
+
+    return isVertical()
+        ? {
+              scrollPos: element.scrollTop,
+              scrollSize: element.scrollHeight,
+              clientSize: element.clientHeight,
+              maxScroll: element.scrollHeight - element.clientHeight,
+              trackSize: element.clientHeight
+          }
+        : {
+              scrollPos: element.scrollLeft,
+              scrollSize: element.scrollWidth,
+              clientSize: element.clientWidth,
+              maxScroll: element.scrollWidth - element.clientWidth,
+              trackSize: element.clientWidth
+          };
 }
 
 function updateThumb(): void {
@@ -37,38 +49,49 @@ function updateThumb(): void {
     isScrollable.value = metrics.maxScroll > 0;
     if (!isScrollable.value) return;
 
-    const natural = (metrics.clientHeight / metrics.scrollHeight) * metrics.trackHeight;
-    const clamped = Math.max(MIN_THUMB_HEIGHT, natural);
-    thumbHeight.value = clamped;
+    const natural = (metrics.clientSize / metrics.scrollSize) * metrics.trackSize;
+    const clamped = Math.max(MIN_THUMB_SIZE, natural);
+    thumbSize.value = clamped;
 
-    const availableTrack = metrics.trackHeight - clamped;
-    const ratio = Math.min(1, Math.max(0, metrics.scrollTop / metrics.maxScroll));
-    thumbTop.value = ratio * availableTrack;
-    currentRow.value = Math.max(1, Math.round(ratio * rowCount));
+    const availableTrack = metrics.trackSize - clamped;
+    const ratio = Math.min(1, Math.max(0, metrics.scrollPos / metrics.maxScroll));
+    thumbOffset.value = ratio * availableTrack;
+
+    if (isVertical() && rowCount > 0) {
+        currentRow.value = Math.max(1, Math.round(ratio * rowCount));
+    }
 }
 
-function scrollFromY(clientY: number): void {
+function scrollFromPosition(clientPos: number): void {
     const metrics = getMetrics();
     const track = trackReference.value;
     if (!metrics || !track) return;
 
     const trackRect = track.getBoundingClientRect();
-    const availableTrack = metrics.trackHeight - thumbHeight.value;
-    const relativeY = clientY - trackRect.top - thumbHeight.value / 2;
-    const ratio = Math.min(1, Math.max(0, relativeY / availableTrack));
-    scrollElement!.scrollTop = ratio * metrics.maxScroll;
+    const availableTrack = metrics.trackSize - thumbSize.value;
+
+    if (isVertical()) {
+        const relativePos = clientPos - trackRect.top - thumbSize.value / 2;
+        const ratio = Math.min(1, Math.max(0, relativePos / availableTrack));
+        scrollElement!.scrollTop = ratio * metrics.maxScroll;
+    } else {
+        const relativePos = clientPos - trackRect.left - thumbSize.value / 2;
+        const ratio = Math.min(1, Math.max(0, relativePos / availableTrack));
+        scrollElement!.scrollLeft = ratio * metrics.maxScroll;
+    }
+
     updateThumb();
 }
 
 function onTouchStart(event: TouchEvent): void {
     event.preventDefault();
     isDragging.value = true;
-    scrollFromY(event.touches[0].clientY);
+    scrollFromPosition(isVertical() ? event.touches[0].clientY : event.touches[0].clientX);
 }
 
 function onTouchMove(event: TouchEvent): void {
     event.preventDefault();
-    scrollFromY(event.touches[0].clientY);
+    scrollFromPosition(isVertical() ? event.touches[0].clientY : event.touches[0].clientX);
 }
 
 function onTouchEnd(): void {
@@ -81,12 +104,12 @@ function onMouseDown(event: MouseEvent): void {
     event.preventDefault();
     mouseDown = true;
     isDragging.value = true;
-    scrollFromY(event.clientY);
+    scrollFromPosition(isVertical() ? event.clientY : event.clientX);
 }
 
 function onMouseMove(event: MouseEvent): void {
     if (!mouseDown) return;
-    scrollFromY(event.clientY);
+    scrollFromPosition(isVertical() ? event.clientY : event.clientX);
 }
 
 function onMouseUp(): void {
@@ -137,47 +160,81 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div v-show="isScrollable" ref="trackReference" class="scrubber-track">
+    <div
+        v-show="isScrollable"
+        ref="trackReference"
+        class="scrubber-track bg-black/4 dark:bg-white/6"
+        :class="isVertical() ? 'scrubber-track--vertical' : 'scrubber-track--horizontal'"
+    >
+        <!-- Row label — vertical only -->
         <Transition name="label">
-            <div v-if="isDragging" class="scrubber-label" :style="{ top: thumbTop + thumbHeight / 2 + 'px' }">
+            <div
+                v-if="isVertical() && isDragging && rowCount > 0"
+                class="scrubber-label bg-zinc-800 text-zinc-50 dark:bg-zinc-200 dark:text-zinc-800"
+                :style="{ top: thumbOffset + thumbSize / 2 + 'px' }"
+            >
                 {{ currentRow.toLocaleString() }}
             </div>
         </Transition>
-        <div class="scrubber-thumb" :style="{ top: thumbTop + 'px', height: thumbHeight + 'px' }">
-            <div class="scrubber-grip">
-                <span /><span /><span />
+
+        <!-- Vertical thumb -->
+        <div
+            v-if="isVertical()"
+            class="scrubber-thumb scrubber-thumb--vertical border border-zinc-400/40 dark:border-zinc-400/70"
+            :style="{ top: thumbOffset + 'px', height: thumbSize + 'px' }"
+        >
+            <div class="scrubber-grip scrubber-grip--vertical">
+                <span class="scrubber-grip-line--horizontal bg-zinc-400/50 dark:bg-zinc-400/80" />
+                <span class="scrubber-grip-line--horizontal bg-zinc-400/50 dark:bg-zinc-400/80" />
+                <span class="scrubber-grip-line--horizontal bg-zinc-400/50 dark:bg-zinc-400/80" />
+            </div>
+        </div>
+
+        <!-- Horizontal thumb -->
+        <div
+            v-else
+            class="scrubber-thumb scrubber-thumb--horizontal border border-zinc-400/40 dark:border-zinc-400/70"
+            :style="{ left: thumbOffset + 'px', width: thumbSize + 'px' }"
+        >
+            <div class="scrubber-grip scrubber-grip--horizontal">
+                <span class="scrubber-grip-line--vertical bg-zinc-400/50 dark:bg-zinc-400/80" />
+                <span class="scrubber-grip-line--vertical bg-zinc-400/50 dark:bg-zinc-400/80" />
+                <span class="scrubber-grip-line--vertical bg-zinc-400/50 dark:bg-zinc-400/80" />
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
+/* ── Track ───────────────────────────────────────────────────── */
 .scrubber-track {
-    display: none;
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 20px;
     z-index: 20;
     touch-action: none;
 }
 
-/* @media (pointer: coarse) { */
-.scrubber-track {
-    display: block;
+.scrubber-track--vertical {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 20px;
 }
-/* } */
 
+.scrubber-track--horizontal {
+    left: 0;
+    right: 20px; /* leave room for vertical scrubber corner */
+    bottom: 0;
+    height: 20px;
+}
+
+/* ── Label ───────────────────────────────────────────────────── */
 .scrubber-label {
     position: absolute;
     right: 28px;
     transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.75);
-    color: #fff;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 600;
-    padding: 6px 14px;
+    padding: 5px 12px;
     border-radius: 20px;
     white-space: nowrap;
     pointer-events: none;
@@ -194,31 +251,57 @@ onUnmounted(() => {
     opacity: 0;
 }
 
-.scrubber-thumb {
+/* ── Vertical thumb ──────────────────────────────────────────── */
+.scrubber-thumb--vertical {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
     width: 12px;
     border-radius: 6px;
-    border: 1.5px solid rgba(120, 120, 120, 0.3);
     pointer-events: none;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.scrubber-grip {
+.scrubber-grip--vertical {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 3px;
 }
 
-.scrubber-grip span {
+.scrubber-grip-line--horizontal {
     display: block;
     width: 6px;
     height: 1.5px;
     border-radius: 1px;
-    background: rgba(120, 120, 120, 0.35);
+}
+
+/* ── Horizontal thumb ────────────────────────────────────────── */
+.scrubber-thumb--horizontal {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 12px;
+    border-radius: 6px;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scrubber-grip--horizontal {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 3px;
+}
+
+.scrubber-grip-line--vertical {
+    display: block;
+    width: 1.5px;
+    height: 6px;
+    border-radius: 1px;
 }
 </style>
