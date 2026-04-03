@@ -1,8 +1,9 @@
 <script setup lang="ts">
 // App Core
+import type { DataSource } from '~/src/composables/useLazyRows';
 import { t } from '@/locales';
 import T from '@/locales/views/workbench/workflow/explorePresentations/ExplorePresentations.json';
-import TanstackGrid, { type GridColumnDefinition, type GridDataSource } from '@/components/tanstackGrid/TanstackGrid.vue';
+import Table, { type ColumnDefinition } from '@/components/table/Table.vue';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Header from '@/components/header/Header.vue';
@@ -13,7 +14,7 @@ import ViewShell from '@/components/view/ViewShell.vue';
 const TOTAL_ROWS = 100_000;
 const CATEGORIES = ['Alpha', 'Beta', 'Gamma', 'Delta'] as const;
 
-const dataSource: GridDataSource = {
+const dataSource: DataSource = {
     rowCount: TOTAL_ROWS,
     getRows(startRow: number, endRow: number) {
         console.log(startRow, endRow);
@@ -32,7 +33,7 @@ const dataSource: GridDataSource = {
     }
 };
 
-const columnDefinitions: GridColumnDefinition[] = [
+const columnDefinitions: ColumnDefinition[] = [
     { field: 'id', headerName: 'ID', width: 80 },
     { field: 'name', headerName: 'Name', width: 120 },
     { field: 'category', headerName: 'Category', width: 120 },
@@ -44,6 +45,6 @@ const columnDefinitions: GridColumnDefinition[] = [
     <ViewShell>
         <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label') }]" :title="t(T, 'Explore_Presentations')" :workbench-pane-is-hidden="false" />
 
-        <TanstackGrid class="flex-1 px-4" :column-definitions="columnDefinitions" :data-source="dataSource" />
+        <Table class="flex-1 px-4" :column-definitions="columnDefinitions" :data-source="dataSource" />
     </ViewShell>
 </template>
