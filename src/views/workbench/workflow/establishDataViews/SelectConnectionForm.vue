@@ -9,7 +9,7 @@ import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
 // App Core
 import T from '@/locales/components/session/LoginForm.json';
 import { t } from '@/locales';
-import { useEngine } from '~/src/composables/useEngine';
+import { useEngine } from '@/composables/useEngine';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';

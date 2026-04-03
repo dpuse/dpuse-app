@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // App Core
-import type { DataSource } from '~/src/composables/useLazyRows';
+import type { DataSource } from '@/composables/useDataWindow';
 import { t } from '@/locales';
 import T from '@/locales/views/workbench/workflow/buildDataApps/BuildDataApps.json';
 import Table, { type ColumnDefinition } from '@/components/table/Table.vue';
@@ -9,7 +9,7 @@ import Table, { type ColumnDefinition } from '@/components/table/Table.vue';
 import Header from '@/components/header/Header.vue';
 import ViewShell from '@/components/view/ViewShell.vue';
 
-// Simulated server dataSource — 100,000 rows, 300ms latency. ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const TOTAL_ROWS = 100_000;
 const CATEGORIES = ['Alpha', 'Beta', 'Gamma', 'Delta'] as const;

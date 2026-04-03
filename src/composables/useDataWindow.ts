@@ -1,6 +1,6 @@
 // External Dependencies
-import { useVirtualizer } from '@tanstack/vue-virtual';
-import { computed, type Ref, ref, watch } from 'vue';
+import { computed, type ComputedRef, type Ref, ref, watch } from 'vue';
+import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 
 // Types
 export type DataSource = { rowCount: number; getRows: (startRow: number, endRow: number) => Promise<unknown[]> };
@@ -13,7 +13,16 @@ type Options = {
     estimateSize?: () => number;
 };
 
-export function useLazyRows({ scrollElement, dataSource, cacheBlockSize = (): number => 100, maxBlocksInCache = (): number => 10, estimateSize = (): number => 48 }: Options) {
+// Composable ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+type Xxxx = { virtualRows: ComputedRef<VirtualItem[]>; totalRowCount: ComputedRef<number>; visibleRowData: ComputedRef<(Record<string, unknown> | undefined)[]> };
+export function useDataWindow({
+    scrollElement,
+    dataSource,
+    cacheBlockSize = (): number => 100,
+    maxBlocksInCache = (): number => 10,
+    estimateSize = (): number => 48
+}: Options): Xxxx {
     // Data Block Cache ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     const blockCacheMap = new Map<number, unknown[]>(); // Plain (non-reactive) Map so Vue never traverses its internals during render.
@@ -36,7 +45,7 @@ export function useLazyRows({ scrollElement, dataSource, cacheBlockSize = (): nu
     // Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     const virtualRows = computed(() => virtualizer.value.getVirtualItems());
-    const totalRowSize = computed(() => virtualizer.value.getTotalSize());
+    const totalRowCount = computed(() => virtualizer.value.getTotalSize());
     const visibleRowData = computed(() => {
         void blockCacheVersion.value; // Only recomputes when `virtualRows` or `blockCacheVersion` changes — never on resize.
         return virtualRows.value.map((virtualRow) => {
@@ -91,7 +100,7 @@ export function useLazyRows({ scrollElement, dataSource, cacheBlockSize = (): nu
                 recordBlockAccessed(blockIndex);
                 blockCacheVersion.value++;
             })
-            .catch((error) => console.error(`[dpuse-app] useLazyRows failed to fetch block ${blockIndex}:`, error))
+            .catch((error) => console.error(`[dpuse-app] useDataWindow failed to fetch block ${blockIndex}:`, error))
             .finally(() => blockPendingFetchIndexSet.delete(blockIndex));
     }
 
@@ -105,5 +114,5 @@ export function useLazyRows({ scrollElement, dataSource, cacheBlockSize = (): nu
         blockLeastRecentlyUsedOrder.push(blockIndex);
     }
 
-    return { virtualRows, totalRowSize, visibleRowData };
+    return { virtualRows, totalRowCount, visibleRowData };
 }

@@ -19,7 +19,7 @@ import type {
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/locales';
 import T from '@/locales/views/workbench/workflow/establishDataViews/EstablishDataViews.json';
-import { useEngine } from '~/src/composables/useEngine';
+import { useEngine } from '@/composables/useEngine';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.

@@ -3,7 +3,7 @@
 import { computed, ref } from 'vue';
 
 // App Core
-import { type DataSource, useLazyRows } from '@/composables/useLazyRows';
+import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // Properties & Emits ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -20,7 +20,7 @@ const { columnDefinitions, dataSource, cacheBlockSize, maxBlocksInCache } = defi
 
 const scrollElement = ref<HTMLElement | null>(null);
 const totalColumnsWidth = computed(() => columnDefinitions.reduce((sum, col) => sum + (col.width ?? 150), 0));
-const { virtualRows, totalRowSize, visibleRowData } = useLazyRows({
+const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
     cacheBlockSize: cacheBlockSize === undefined ? undefined : (): number => cacheBlockSize,
@@ -45,7 +45,7 @@ const { virtualRows, totalRowSize, visibleRowData } = useLazyRows({
                 </div>
 
                 <!-- Virtual rows -->
-                <div :style="{ height: totalRowSize + 'px', position: 'relative' }">
+                <div :style="{ height: totalRowCount + 'px', position: 'relative' }">
                     <div
                         v-for="(virtualRow, i) in virtualRows"
                         :key="virtualRow.index"
