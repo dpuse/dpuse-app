@@ -3,9 +3,6 @@
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import { computed, ref, watch } from 'vue';
 
-// Internal Dependencies
-import { useSingleAxisScroll } from '@/composables/useSingleAxisScroll';
-
 // Properties & Emits ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 type Properties = {
@@ -33,8 +30,6 @@ let fetchGeneration = 0; // Incremented on dataSource change; in-flight response
 // Local State - Virtualizer ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const scrollElement = ref<HTMLDivElement | null>(null);
-
-useSingleAxisScroll(scrollElement);
 
 const virtualizer = useVirtualizer({
     get count() {
