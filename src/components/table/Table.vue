@@ -5,6 +5,9 @@ import { computed, ref } from 'vue';
 // App Core
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
+// App Components & Views - Statically imported so always available, even after app goes offline.
+import ScrollScrubber from '@/components/shared/ScrollScrubber.vue';
+
 // Properties & Emits ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 type Properties = {
@@ -29,7 +32,7 @@ const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
 </script>
 
 <template>
-    <div class="flex h-full flex-col overflow-hidden">
+    <div class="relative flex h-full flex-col overflow-hidden">
         <div ref="scrollElement" class="flex-1 overflow-auto" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
             <div :style="{ minWidth: totalColumnsWidth + 'px' }">
                 <!-- Sticky header -->
@@ -72,5 +75,6 @@ const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
                 </div>
             </div>
         </div>
+        <ScrollScrubber :scroll-element="scrollElement" />
     </div>
 </template>
