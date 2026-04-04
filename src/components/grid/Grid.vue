@@ -1,85 +1,165 @@
-<script setup lang="ts" generic="T extends { id: string }">
+<script setup lang="ts">
 // External Dependencies
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useVirtualizer } from '@tanstack/vue-virtual';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
-// Properties & Emits
+// App Core
+import type { DataSource } from '@/composables/useDataWindow';
+
+// App Components & Views - Statically imported so always available, even after app goes offline.
+import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
+
+// Properties & Emits ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 type Properties = {
-    items?: T[];
-    maxWidth?: 'max-w-4xl' | 'max-w-5xl' | 'max-w-6xl' | 'max-w-7xl' | 'max-w-full'; // 56rem (896px), 64rem (1,024px), 72rem (1,152px). 80rem (1,280px), 100%.
+    dataSource?: DataSource; // Large async datasets — uses block cache.
+    items?: Record<string, unknown>[]; // Small static arrays — no block cache.
+    rowHeight?: number; // Row height in px. Default: 35.
+    targetColumnWidth?: number; // Target column width in px. Default: 200.
+    cacheBlockSize?: number; // Rows fetched per request (dataSource only). Default: 100.
+    maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction (dataSource only). Default: 10.
 };
-// eslint-disable-next-line unicorn/no-useless-undefined
-const { items = undefined, maxWidth = 'max-w-full' } = defineProps<Properties>();
+const { dataSource, items, rowHeight = 35, targetColumnWidth = 200, cacheBlockSize = 100, maxBlocksInCache = 10 } = defineProps<Properties>();
 
-/** Constants */
-const SKELETON_ITEM_HEIGHT = 120; // Pixels.
+// Row count — derived from whichever source is active.
+const rowCount = computed(() => dataSource?.rowCount ?? items?.length ?? 0);
 
-/** Non-Reactive Variables */
-let resizeObserver: ResizeObserver | undefined;
+// Block Cache (dataSource mode only) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Inlined (not useDataWindow) because the grid maps N data rows → 1 virtual row; useDataWindow assumes 1:1.
 
-/** Reactive DOM References */
-const contentReference = ref<HTMLElement | null>(null);
+const blockCacheMap = new Map<number, unknown[]>(); // Non-reactive; Vue never traverses its internals.
+const blockCacheVersion = ref(0); // Incremented on fetch completion to trigger re-renders.
+const blockLruOrder: number[] = [];
+const blockPendingSet = new Set<number>();
+let fetchGeneration = 0;
 
-/** Reactive Variables & Watchers */
-const hasItems = ref(false);
-const minHeight = ref(SKELETON_ITEM_HEIGHT);
-
-// Reactive Variables & Watchers - Content reference.
-watch(contentReference, (newContentReference, oldContentReference) => {
-    if (oldContentReference) resizeObserver?.unobserve(oldContentReference);
-    if (newContentReference) {
-        resizeObserver?.observe(newContentReference);
-        calcMinimumHeight(newContentReference);
-    }
-});
-
-// Reactive Variables & Watchers - Items.
 watch(
-    () => items,
-    (newItems) => (hasItems.value = newItems !== undefined),
-    { immediate: true }
+    () => dataSource,
+    () => {
+        fetchGeneration++;
+        blockCacheMap.clear();
+        blockLruOrder.length = 0;
+        blockPendingSet.clear();
+        blockCacheVersion.value++;
+    },
+    { flush: 'sync' }
 );
 
-/** Component Lifecycle Event Handlers */
-onMounted(() => {
-    resizeObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) calcMinimumHeight(entry.target as HTMLElement);
-    });
-});
-onBeforeUnmount(() => {
-    resizeObserver?.disconnect();
-    resizeObserver = undefined;
+function fetchBlock(blockIndex: number): void {
+    if (!dataSource) return;
+    if (blockCacheMap.has(blockIndex) || blockPendingSet.has(blockIndex)) return;
+    blockPendingSet.add(blockIndex);
+    const start = blockIndex * cacheBlockSize;
+    const end = Math.min(start + cacheBlockSize, dataSource.rowCount);
+    const generation = fetchGeneration;
+    dataSource
+        .getRows(start, end)
+        .then((rows) => {
+            if (generation !== fetchGeneration) return;
+            while (blockCacheMap.size >= maxBlocksInCache) {
+                const evict = blockLruOrder.shift();
+                if (evict === undefined) break;
+                blockCacheMap.delete(evict);
+            }
+            blockCacheMap.set(blockIndex, rows);
+            const pos = blockLruOrder.indexOf(blockIndex);
+            if (pos !== -1) blockLruOrder.splice(pos, 1);
+            blockLruOrder.push(blockIndex);
+            blockCacheVersion.value++;
+        })
+        .catch((error) => console.error('[dpuse-app] Grid failed to fetch block:', error))
+        .finally(() => blockPendingSet.delete(blockIndex));
+}
+
+// Row accessor — returns undefined while a block is loading (signals skeleton to caller).
+function getRow(dataIndex: number): Record<string, unknown> | undefined {
+    if (dataIndex >= rowCount.value) return undefined;
+    if (items) return items[dataIndex];
+    void blockCacheVersion.value; // Register as reactive dependency so re-renders fire on fetch completion.
+    const blockIndex = Math.floor(dataIndex / cacheBlockSize);
+    const block = blockCacheMap.get(blockIndex);
+    return block ? (block[dataIndex % cacheBlockSize] as Record<string, unknown>) : undefined;
+}
+
+// Layout ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const scrollElement = ref<HTMLDivElement | null>(null);
+const columnCount = ref(1);
+const gridWidth = ref(0);
+
+const gridRowCount = computed(() => Math.ceil(rowCount.value / columnCount.value));
+
+const resizeObserver = new ResizeObserver((entries) => {
+    gridWidth.value = entries[0]!.contentRect.width;
+    columnCount.value = Math.max(Math.floor(gridWidth.value / targetColumnWidth), 1);
+    columnVirtualizer.value.measure();
 });
 
-// Utilities - Calculate minimum height.
-function calcMinimumHeight(element: Element): void {
-    const bounds = (element as HTMLElement).getBoundingClientRect();
-    minHeight.value = bounds.height;
-}
+onMounted(() => {
+    if (scrollElement.value) resizeObserver.observe(scrollElement.value);
+});
+onUnmounted(() => resizeObserver.disconnect());
+
+// Virtualizers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const columnVirtualizer = useVirtualizer({
+    get count() {
+        return columnCount.value;
+    },
+    horizontal: true,
+    overscan: 2,
+    estimateSize: () => (gridWidth.value >= 1280 ? targetColumnWidth : Math.floor(gridWidth.value / columnCount.value)),
+    getScrollElement: () => scrollElement.value
+});
+
+const rowVirtualizer = useVirtualizer({
+    get count() {
+        return gridRowCount.value;
+    },
+    overscan: 3,
+    estimateSize: () => rowHeight,
+    getScrollElement: () => scrollElement.value
+});
+
+const virtualRows = computed(() => rowVirtualizer.value.getVirtualItems());
+const totalSize = computed(() => rowVirtualizer.value.getTotalSize());
+
+// Fetch blocks for all data items in the current viewport (dataSource mode only).
+watch([virtualRows, (): number => columnCount.value], ([rows, cols]) => {
+    if (!dataSource) return;
+    for (const vRow of rows) {
+        for (let c = 0; c < cols; c++) {
+            const dataIndex = vRow.index * cols + c;
+            if (dataIndex < dataSource.rowCount) {
+                fetchBlock(Math.floor(dataIndex / cacheBlockSize));
+            }
+        }
+    }
+});
 </script>
 
 <template>
-    <div class="relative" :style="{ minHeight: `${minHeight}px` }">
-        <Transition name="fade">
-            <!-- Skeleton - Display while items are undefined. -->
-            <div v-if="!hasItems" ref="contentRef" class="absolute inset-x-0 mx-auto grid grid-cols-1 gap-(--dp-app-gutter) sm:grid-cols-2 xl:grid-cols-3" :class="maxWidth">
-                <USkeleton v-for="n in 1" :key="`skeleton-${n}`" class="block rounded-sm sm:hidden" :style="{ height: `${SKELETON_ITEM_HEIGHT}px` }" />
-                <USkeleton v-for="n in 2" :key="`skeleton-${n}`" class="hidden rounded-sm sm:block xl:hidden" :style="{ height: `${SKELETON_ITEM_HEIGHT}px` }" />
-                <USkeleton v-for="n in 3" :key="`skeleton-${n}`" class="hidden rounded-sm xl:block" :style="{ height: `${SKELETON_ITEM_HEIGHT}px` }" />
-            </div>
-
-            <!-- Alert - Display if no items. -->
-            <div v-else-if="items && items.length === 0" ref="contentRef" class="absolute inset-x-0 mx-auto max-w-prose">
-                <!-- <UAlert color="info" icon="i-heroicons-information-circle" title="No items." variant="soft" /> -->
-            </div>
-
-            <!-- Items - Pass back each item and format using default slot. -->
-            <div v-else ref="contentRef" class="absolute inset-x-0 mx-auto" :class="maxWidth">
-                <div class="grid grid-cols-1 gap-(--dp-app-gutter) sm:grid-cols-2 xl:grid-cols-3">
-                    <div v-for="item in items || []" :key="item.id">
-                        <slot :item="item" />
+    <div class="relative flex h-full flex-col overflow-hidden">
+        <div ref="scrollElement" class="flex-1 overflow-auto" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
+            <div :style="{ height: totalSize + 'px', position: 'relative' }">
+                <template v-for="vRow in virtualRows" :key="vRow.index">
+                    <div
+                        v-for="vCol in columnVirtualizer.getVirtualItems()"
+                        :key="vCol.index"
+                        class="absolute top-0 left-0"
+                        :style="{
+                            height: `${vRow.size}px`,
+                            transform: `translateX(${vCol.start}px) translateY(${vRow.start}px)`,
+                            width: `${vCol.size}px`
+                        }"
+                    >
+                        <div class="h-full pt-4 pl-4">
+                            <slot :row="getRow(vRow.index * columnCount + vCol.index)" :index="vRow.index * columnCount + vCol.index" />
+                        </div>
                     </div>
-                </div>
+                </template>
             </div>
-        </Transition>
+        </div>
+        <ScrollThumb :scroll-element="scrollElement" :row-count="rowCount" />
     </div>
 </template>

@@ -3,7 +3,7 @@
 import type { DataSource } from '@/composables/useDataWindow';
 import { t } from '@/locales';
 import T from '@/locales/views/workbench/workflow/explorePresentations/ExplorePresentations.json';
-import Table, { type ColumnDefinition } from '@/components/table/Table.vue';
+import Table, { type ColumnDefinition } from '@/components/table/SimpleTable.vue';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Header from '@/components/header/Header.vue';

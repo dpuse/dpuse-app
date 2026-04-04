@@ -4,23 +4,8 @@ import { useVirtualizer } from '@tanstack/vue-virtual';
 import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, getCoreRowModel, useVueTable, type VisibilityState } from '@tanstack/vue-table';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
-// Toolbar Height ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Measured so ScrollThumb can be offset to align with the scroll area, not the toolbar.
-const toolbarElement = ref<HTMLElement | null>(null);
-const toolbarHeight = ref(0);
-let toolbarObserver: ResizeObserver | null = null;
-onMounted(() => {
-    if (!toolbarElement.value) return;
-    toolbarObserver = new ResizeObserver(() => {
-        toolbarHeight.value = toolbarElement.value?.offsetHeight ?? 0;
-    });
-    toolbarObserver.observe(toolbarElement.value);
-    toolbarHeight.value = toolbarElement.value.offsetHeight;
-});
-onBeforeUnmount(() => toolbarObserver?.disconnect());
-
 // App Core
-import type { ColumnDefinition } from '@/components/table/Table.vue';
+import type { ColumnDefinition } from '@/components/table/SimpleTable.vue';
 import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
@@ -43,6 +28,29 @@ type Properties = {
 };
 const { columnDefinitions, dataSource, cacheBlockSize, maxBlocksInCache } = defineProps<Properties>();
 
+// Column Virtualization Threshold ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Column virtualization is only activated when the total initial column width exceeds this threshold.
+// Below the threshold, all columns are rendered in a flat flex row — simpler and cheaper.
+// Composable rules prevent conditional useVirtualizer calls, so it is always called;
+// when not needed, count is set to 0 so it remains idle.
+const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000;
+const useColumnVirtualization = columnDefinitions.reduce((sum, col) => sum + (col.width ?? 150), 0) > COLUMN_VIRTUALIZATION_THRESHOLD_PX;
+
+// Toolbar Height ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Measured so ScrollThumb can be offset to align with the scroll area, not the toolbar.
+const toolbarElement = ref<HTMLElement | null>(null);
+const toolbarHeight = ref(0);
+let toolbarObserver: ResizeObserver | null = null;
+onMounted(() => {
+    if (!toolbarElement.value) return;
+    toolbarObserver = new ResizeObserver(() => {
+        toolbarHeight.value = toolbarElement.value?.offsetHeight ?? 0;
+    });
+    toolbarObserver.observe(toolbarElement.value);
+    toolbarHeight.value = toolbarElement.value.offsetHeight;
+});
+onBeforeUnmount(() => toolbarObserver?.disconnect());
+
 // Column State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const visibilityState = ref<VisibilityState>({});
@@ -61,8 +69,8 @@ const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
 
 // TanStack Table (column state only — data is always empty, rows are never processed) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// measureColumns is populated after columnVirtualizer is defined below.
-// onColumnSizingChange only fires on user interaction (after setup completes), so the forward reference is safe.
+// measureColumns is set after columnVirtualizer is defined. onColumnSizingChange only fires on user
+// interaction (after setup completes), so the forward reference is safe.
 let measureColumns: () => void = () => {};
 
 const columnDefs = computed<ColumnDef<RowData>[]>(() =>
@@ -119,11 +127,11 @@ const rightHeaders = computed(() => table.getRightLeafHeaders());
 const leftPinnedWidth = computed(() => leftHeaders.value.reduce((sum, h) => sum + h.column.getSize(), 0));
 const rightPinnedWidth = computed(() => rightHeaders.value.reduce((sum, h) => sum + h.column.getSize(), 0));
 
-// Column Virtualizer (horizontal — center columns only) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Column Virtualizer (horizontal — always called per composable rules, idle when not needed) ━━━━━━━━━━━━━━━━━━━━━━━━
 
 const columnVirtualizer = useVirtualizer({
     get count() {
-        return centerHeaders.value.length;
+        return useColumnVirtualization ? centerHeaders.value.length : 0;
     },
     getScrollElement: () => scrollElement.value,
     estimateSize: (index) => centerHeaders.value[index]?.column.getSize() ?? 150,
@@ -131,11 +139,12 @@ const columnVirtualizer = useVirtualizer({
     overscan: 3
 });
 
-// Wire up the forward reference now that columnVirtualizer is defined
-measureColumns = (): void => columnVirtualizer.value.measure();
+measureColumns = useColumnVirtualization ? (): void => columnVirtualizer.value.measure() : (): void => {};
 
 const virtualColumns = computed(() => columnVirtualizer.value.getVirtualItems());
-const totalCenterWidth = computed(() => columnVirtualizer.value.getTotalSize());
+
+// totalCenterWidth: from the virtualizer when active; otherwise sum visible center column sizes directly.
+const totalCenterWidth = computed(() => (useColumnVirtualization ? columnVirtualizer.value.getTotalSize() : centerHeaders.value.reduce((sum, h) => sum + h.column.getSize(), 0)));
 const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value + rightPinnedWidth.value);
 </script>
 
@@ -151,7 +160,7 @@ const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value
             <div :style="{ minWidth: totalWidth + 'px' }">
                 <!-- Sticky header ─────────────────────────────────────────────────────────────── -->
                 <div class="sticky top-0 z-10 flex border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900" style="height: 40px">
-                    <!-- Left pinned headers — wrapper owns sticky positioning; component stays relative internally -->
+                    <!-- Left pinned headers -->
                     <div
                         v-for="h in leftHeaders"
                         :key="h.id"
@@ -161,8 +170,13 @@ const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value
                         <AdvancedTableHeaderCell :header="h" />
                     </div>
 
-                    <!-- Center headers (column-virtualized) — wrapper owns absolute positioning -->
-                    <div :style="{ position: 'relative', width: totalCenterWidth + 'px', flexShrink: 0 }">
+                    <!-- Center headers: flat when below threshold, virtualised when above -->
+                    <template v-if="!useColumnVirtualization">
+                        <div v-for="h in centerHeaders" :key="h.id" class="h-full shrink-0" :style="{ width: h.column.getSize() + 'px' }">
+                            <AdvancedTableHeaderCell :header="h" />
+                        </div>
+                    </template>
+                    <div v-else :style="{ position: 'relative', width: totalCenterWidth + 'px', flexShrink: 0 }">
                         <template v-for="vc in virtualColumns" :key="vc.key">
                             <div v-if="centerHeaders[vc.index]" class="absolute top-0 h-full" :style="{ left: vc.start + 'px', width: vc.size + 'px' }">
                                 <AdvancedTableHeaderCell :header="centerHeaders[vc.index]!" />
@@ -170,7 +184,7 @@ const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value
                         </template>
                     </div>
 
-                    <!-- Right pinned headers — wrapper owns sticky positioning -->
+                    <!-- Right pinned headers -->
                     <div
                         v-for="h in rightHeaders"
                         :key="h.id"
@@ -189,7 +203,7 @@ const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value
                         class="group absolute flex border-b border-zinc-100 bg-white dark:border-zinc-800 dark:bg-zinc-950"
                         :style="{ top: 0, transform: `translateY(${vRow.start}px)`, height: vRow.size + 'px', width: totalWidth + 'px' }"
                     >
-                        <!-- Left pinned cells — sticky, background matches row hover state via group -->
+                        <!-- Left pinned cells -->
                         <AdvancedTableCell
                             v-for="h in leftHeaders"
                             :key="h.id"
@@ -199,8 +213,18 @@ const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value
                             :style="{ left: h.column.getStart('left') + 'px', width: h.column.getSize() + 'px', zIndex: 1 }"
                         />
 
-                        <!-- Center cells (column-virtualized) -->
-                        <div class="group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900" :style="{ position: 'relative', width: totalCenterWidth + 'px', flexShrink: 0 }">
+                        <!-- Center cells: flat when below threshold, virtualised when above -->
+                        <template v-if="!useColumnVirtualization">
+                            <AdvancedTableCell
+                                v-for="h in centerHeaders"
+                                :key="h.id"
+                                :value="visibleRowData[i]?.[h.column.id]"
+                                :loading="visibleRowData[i] === undefined"
+                                class="shrink-0"
+                                :style="{ width: h.column.getSize() + 'px' }"
+                            />
+                        </template>
+                        <div v-else class="group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900" :style="{ position: 'relative', width: totalCenterWidth + 'px', flexShrink: 0 }">
                             <template v-for="vc in virtualColumns" :key="vc.key">
                                 <AdvancedTableCell
                                     v-if="centerHeaders[vc.index]"
@@ -212,7 +236,7 @@ const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value
                             </template>
                         </div>
 
-                        <!-- Right pinned cells — sticky, background matches row hover state via group -->
+                        <!-- Right pinned cells -->
                         <AdvancedTableCell
                             v-for="h in rightHeaders"
                             :key="h.id"

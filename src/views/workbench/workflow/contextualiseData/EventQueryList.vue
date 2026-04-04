@@ -19,7 +19,7 @@ import { useSessionStore } from '@/stores/sessionStore';
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
-import GridScroller from '@/components/grid/GridScroller.vue';
+import Grid from '@/components/grid/Grid.vue';
 import ViewScroller from '@/components/view/ViewScroller.vue';
 
 // App Components & Views - Lazy loaded as required.
@@ -86,17 +86,17 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
         </Button>
     </div>
 
-    <GridScroller
+    <Grid
         v-if="eventQueryRetrievalIsActive && eventQueryConfigs && eventQueryConfigs.length > 0"
         class="flex-1 pb-6"
         :items="eventQueryConfigs"
         :row-height="150"
         :target-column-width="350"
     >
-        <template #default="{ item }">
-            <Card v-if="item" :label="item.label" />
+        <template #default="{ row }">
+            <Card v-if="row" :label="row.label as string" />
         </template>
-    </GridScroller>
+    </Grid>
 
     <ViewScroller v-else-if="eventQueryRetrievalIsActive">
         <EmptyStatePlaceholder :message-item-label="t(T, 'event_queries')" :description-item-label="t(T, 'event_query')" :action-item-label="t(T, 'Event_Query')" />

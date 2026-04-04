@@ -24,7 +24,7 @@ import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';
-import GridScroller from '@/components/grid/GridScroller.vue';
+import Grid from '@/components/grid/Grid.vue';
 import ViewScroller from '@/components/view/ViewScroller.vue';
 
 // App Components & Views - Lazy loaded as required.
@@ -122,26 +122,26 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 </script>
 
 <template>
-    <GridScroller
+    <Grid
         v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
         class="flex-1 pb-20"
         :items="dataViewConfigs"
         :row-height="150"
         :target-column-width="350"
     >
-        <template #default="{ item }">
+        <template #default="{ row }">
             <!-- <Card
-                    v-if="item"
-                    :badges="item.badges"
+                    v-if="row"
+                    :badges="row.badges"
                     :icon="activeBenchtopOptionConfig ? activeBenchtopOptionConfig.icon : undefined"
                     :icon-color="activeBenchtopOptionConfig ? activeBenchtopOptionConfig.color : undefined"
-                    :label="item.label"
+                    :label="row.label"
                 /> -->
             <RouterLink :to="{ name: 'selectNode', query: { ...route.query, wbView: 'selectNode' } }">
-                <Card v-if="item" :label="item.label" />
+                <Card v-if="row" :label="row.label as string" />
             </RouterLink>
         </template>
-    </GridScroller>
+    </Grid>
 
     <ViewScroller v-else-if="dataViewRetrievalIsActive">
         <EmptyStatePlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
