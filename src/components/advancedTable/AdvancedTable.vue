@@ -126,13 +126,13 @@ const columnVirtualizer = useVirtualizer({
         return centerHeaders.value.length;
     },
     getScrollElement: () => scrollElement.value,
-    estimateSize: (i) => centerHeaders.value[i]?.column.getSize() ?? 150,
+    estimateSize: (index) => centerHeaders.value[index]?.column.getSize() ?? 150,
     horizontal: true,
     overscan: 3
 });
 
 // Wire up the forward reference now that columnVirtualizer is defined
-measureColumns = () => columnVirtualizer.value.measure();
+measureColumns = (): void => columnVirtualizer.value.measure();
 
 const virtualColumns = computed(() => columnVirtualizer.value.getVirtualItems());
 const totalCenterWidth = computed(() => columnVirtualizer.value.getTotalSize());
