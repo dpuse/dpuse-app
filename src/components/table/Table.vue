@@ -33,7 +33,7 @@ const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
 
 <template>
     <div class="relative flex h-full flex-col overflow-hidden">
-        <div ref="scrollElement" class="flex-1 overflow-auto" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch; touch-action: pan-y; scrollbar-width: none">
+        <div ref="scrollElement" class="flex-1 overflow-auto" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
             <div :style="{ minWidth: totalColumnsWidth + 'px' }">
                 <!-- Sticky header -->
                 <div class="sticky top-0 z-10 flex border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900" style="height: 40px">
@@ -75,13 +75,6 @@ const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
                 </div>
             </div>
         </div>
-        <ScrollScrubber :scroll-element="scrollElement" axis="vertical" :row-count="dataSource.rowCount" />
-        <ScrollScrubber :scroll-element="scrollElement" axis="horizontal" />
+        <ScrollScrubber :scroll-element="scrollElement" :row-count="dataSource.rowCount" />
     </div>
 </template>
-
-<style scoped>
-.flex-1::-webkit-scrollbar {
-    display: none;
-}
-</style>
