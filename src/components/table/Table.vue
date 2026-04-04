@@ -6,7 +6,7 @@ import { computed, ref } from 'vue';
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
-import ScrollScrubber from '@/components/shared/ScrollScrubber.vue';
+import ScrollScrubber from '@/components/scrollThumb/ScrollThumb.vue';
 
 // Properties & Emits ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

@@ -15,14 +15,14 @@ type Options = {
 
 // Composable ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-type Xxxx = { virtualRows: ComputedRef<VirtualItem[]>; totalRowCount: ComputedRef<number>; visibleRowData: ComputedRef<(Record<string, unknown> | undefined)[]> };
+type DataWindow = { virtualRows: ComputedRef<VirtualItem[]>; totalRowCount: ComputedRef<number>; visibleRowData: ComputedRef<(Record<string, unknown> | undefined)[]> };
 export function useDataWindow({
     scrollElement,
     dataSource,
     cacheBlockSize = (): number => 100,
     maxBlocksInCache = (): number => 10,
     estimateSize = (): number => 48
-}: Options): Xxxx {
+}: Options): DataWindow {
     // Data Block Cache ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     const blockCacheMap = new Map<number, unknown[]>(); // Plain (non-reactive) Map so Vue never traverses its internals during render.
