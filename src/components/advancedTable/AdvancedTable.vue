@@ -1,20 +1,28 @@
 <script setup lang="ts">
 // External Dependencies
-import { computed, ref } from 'vue';
 import { useVirtualizer } from '@tanstack/vue-virtual';
-import {
-    getCoreRowModel,
-    useVueTable,
-    type ColumnDef,
-    type ColumnPinningState,
-    type ColumnSizingState,
-    type VisibilityState,
-} from '@tanstack/vue-table';
+import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, getCoreRowModel, useVueTable, type VisibilityState } from '@tanstack/vue-table';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+
+// Toolbar Height ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Measured so ScrollThumb can be offset to align with the scroll area, not the toolbar.
+const toolbarElement = ref<HTMLElement | null>(null);
+const toolbarHeight = ref(0);
+let toolbarObserver: ResizeObserver | null = null;
+onMounted(() => {
+    if (!toolbarElement.value) return;
+    toolbarObserver = new ResizeObserver(() => {
+        toolbarHeight.value = toolbarElement.value?.offsetHeight ?? 0;
+    });
+    toolbarObserver.observe(toolbarElement.value);
+    toolbarHeight.value = toolbarElement.value.offsetHeight;
+});
+onBeforeUnmount(() => toolbarObserver?.disconnect());
 
 // App Core
-import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
+import type { ColumnDefinition } from '@/components/table/Table.vue';
 import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
-import { type ColumnDefinition } from '@/components/table/Table.vue';
+import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // Local Components — statically imported so always available, even after app goes offline.
 import AdvancedTableCell from './AdvancedTableCell.vue';
@@ -48,7 +56,7 @@ const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
     cacheBlockSize: cacheBlockSize === undefined ? undefined : (): number => cacheBlockSize,
-    maxBlocksInCache: maxBlocksInCache === undefined ? undefined : (): number => maxBlocksInCache,
+    maxBlocksInCache: maxBlocksInCache === undefined ? undefined : (): number => maxBlocksInCache
 });
 
 // TanStack Table (column state only — data is always empty, rows are never processed) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -65,8 +73,8 @@ const columnDefs = computed<ColumnDef<RowData>[]>(() =>
         size: col.width ?? 150,
         enableResizing: true,
         enableHiding: true,
-        enablePinning: true,
-    })),
+        enablePinning: true
+    }))
 );
 
 // useVueTable returns reactive(), NOT a ref — access methods directly (not via .value)
@@ -89,7 +97,7 @@ const table = useVueTable<RowData>({
         },
         get columnSizing() {
             return sizingState.value;
-        },
+        }
     },
     onColumnVisibilityChange: (updater) => {
         visibilityState.value = typeof updater === 'function' ? updater(visibilityState.value) : updater;
@@ -100,7 +108,7 @@ const table = useVueTable<RowData>({
     onColumnSizingChange: (updater) => {
         sizingState.value = typeof updater === 'function' ? updater(sizingState.value) : updater;
         measureColumns(); // Called once on resize-end, not per mouse-move pixel
-    },
+    }
 });
 
 // Header Groups — leaf headers give access to header.getResizeHandler() ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -120,7 +128,7 @@ const columnVirtualizer = useVirtualizer({
     getScrollElement: () => scrollElement.value,
     estimateSize: (i) => centerHeaders.value[i]?.column.getSize() ?? 150,
     horizontal: true,
-    overscan: 3,
+    overscan: 3
 });
 
 // Wire up the forward reference now that columnVirtualizer is defined
@@ -134,42 +142,43 @@ const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value
 <template>
     <div class="relative flex h-full flex-col overflow-hidden">
         <!-- Toolbar -->
-        <AdvancedTableColumnPicker :table="table" />
+        <div ref="toolbarElement">
+            <AdvancedTableColumnPicker :table="table" />
+        </div>
 
         <!-- Scroll container — single element for both row and column virtualizers -->
         <div ref="scrollElement" class="flex-1 overflow-auto" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
             <div :style="{ minWidth: totalWidth + 'px' }">
                 <!-- Sticky header ─────────────────────────────────────────────────────────────── -->
                 <div class="sticky top-0 z-10 flex border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900" style="height: 40px">
-                    <!-- Left pinned headers -->
-                    <AdvancedTableHeaderCell
+                    <!-- Left pinned headers — wrapper owns sticky positioning; component stays relative internally -->
+                    <div
                         v-for="h in leftHeaders"
                         :key="h.id"
-                        :header="h"
                         class="sticky shrink-0 border-r border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900"
                         :style="{ left: h.column.getStart('left') + 'px', width: h.column.getSize() + 'px', zIndex: 2 }"
-                    />
+                    >
+                        <AdvancedTableHeaderCell :header="h" />
+                    </div>
 
-                    <!-- Center headers (column-virtualized) -->
+                    <!-- Center headers (column-virtualized) — wrapper owns absolute positioning -->
                     <div :style="{ position: 'relative', width: totalCenterWidth + 'px', flexShrink: 0 }">
                         <template v-for="vc in virtualColumns" :key="vc.key">
-                            <AdvancedTableHeaderCell
-                                v-if="centerHeaders[vc.index]"
-                                :header="centerHeaders[vc.index]!"
-                                class="absolute top-0 h-full"
-                                :style="{ left: vc.start + 'px', width: vc.size + 'px' }"
-                            />
+                            <div v-if="centerHeaders[vc.index]" class="absolute top-0 h-full" :style="{ left: vc.start + 'px', width: vc.size + 'px' }">
+                                <AdvancedTableHeaderCell :header="centerHeaders[vc.index]!" />
+                            </div>
                         </template>
                     </div>
 
-                    <!-- Right pinned headers -->
-                    <AdvancedTableHeaderCell
+                    <!-- Right pinned headers — wrapper owns sticky positioning -->
+                    <div
                         v-for="h in rightHeaders"
                         :key="h.id"
-                        :header="h"
                         class="sticky shrink-0 border-l border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900"
                         :style="{ right: h.column.getAfter('right') + 'px', width: h.column.getSize() + 'px', zIndex: 2 }"
-                    />
+                    >
+                        <AdvancedTableHeaderCell :header="h" />
+                    </div>
                 </div>
 
                 <!-- Virtual rows spacer ────────────────────────────────────────────────────────── -->
@@ -191,10 +200,7 @@ const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value
                         />
 
                         <!-- Center cells (column-virtualized) -->
-                        <div
-                            class="group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900"
-                            :style="{ position: 'relative', width: totalCenterWidth + 'px', flexShrink: 0 }"
-                        >
+                        <div class="group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900" :style="{ position: 'relative', width: totalCenterWidth + 'px', flexShrink: 0 }">
                             <template v-for="vc in virtualColumns" :key="vc.key">
                                 <AdvancedTableCell
                                     v-if="centerHeaders[vc.index]"
@@ -220,6 +226,6 @@ const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value
             </div>
         </div>
 
-        <ScrollThumb :scroll-element="scrollElement" :row-count="dataSource.rowCount" />
+        <ScrollThumb :scroll-element="scrollElement" :row-count="dataSource.rowCount" :style="{ top: toolbarHeight + 'px' }" />
     </div>
 </template>
