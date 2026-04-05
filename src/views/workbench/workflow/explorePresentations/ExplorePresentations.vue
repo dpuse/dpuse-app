@@ -7,7 +7,8 @@ import T from '@/locales/views/workbench/workflow/explorePresentations/ExplorePr
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Header from '@/components/header/Header.vue';
 import ViewShell from '@/components/view/ViewShell.vue';
-import Table, { type ColumnDefinition } from '@/components/table/Table.vue';
+import type { ColumnDef } from '@tanstack/vue-table';
+import Table from '@/components/table/Table.vue';
 
 // EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -32,11 +33,11 @@ const dataSource: DataSource = {
     }
 };
 
-const columnDefinitions: ColumnDefinition[] = [
-    { field: 'id', headerName: 'ID', width: 80 },
-    { field: 'name', headerName: 'Name', width: 120 },
-    { field: 'category', headerName: 'Category', width: 120 },
-    { field: 'value', headerName: 'Value', width: 120 }
+const columnDefinitions: ColumnDef<Record<string, unknown>>[] = [
+    { accessorKey: 'id', header: 'ID', size: 80 },
+    { accessorKey: 'name', header: 'Name', size: 120 },
+    { accessorKey: 'category', header: 'Category', size: 120 },
+    { accessorKey: 'value', header: 'Value', size: 120 }
 ];
 </script>
 

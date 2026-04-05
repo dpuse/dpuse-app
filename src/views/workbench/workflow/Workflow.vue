@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // External Dependencies
-import { useRoute } from 'vue-router';
 import { shallowRef, watch } from 'vue';
 
 // App Core
@@ -13,10 +12,6 @@ import Card from '@/components/card/Card.vue';
 import Header from '@/components/header/Header.vue';
 import ViewScroller from '@/components/view/ViewScroller.vue';
 import ViewShell from '@/components/view/ViewShell.vue';
-
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const route = useRoute();
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -44,7 +39,7 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
                         v-for="config in workflowStepConfigs"
                         :key="config.id"
                         class="bg-card outline-boundary overflow-hidden rounded-lg font-light outline -outline-offset-1"
-                        :to="{ name: config.id, query: { ...route.query, wbView: config.id } }"
+                        :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
                     >
                         <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                     </RouterLink>

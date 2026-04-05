@@ -39,7 +39,7 @@ const { displayIsWide } = useDisplayBreakpoint();
 const route = useRoute();
 const router = useRouter();
 
-// Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 type AppPaneId = 'workbench' | 'knowledge';
 const activeAppPaneId = ref<AppPaneId | undefined>(undefined);

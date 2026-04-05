@@ -16,48 +16,29 @@ import TableHeaderCell from './TableHeaderCell.vue';
 // Properties & Emits
 type RowData = Record<string, unknown>;
 type Properties = {
-    columnDefinitions: ColumnDefinition[];
+    columnDefinitions: ColumnDef<RowData>[];
     dataSource: DataSource;
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
 };
-export type ColumnDefinition = { field: string; headerName?: string; width?: number };
 const { columnDefinitions, dataSource, cacheBlockSize, maxBlocksInCache } = defineProps<Properties>();
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000;
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local State - Toolbar ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Column Virtualization Threshold ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Column virtualization is only activated when the total initial column width exceeds this threshold.
-// Below the threshold, all columns are rendered in a flat flex row — simpler and cheaper.
-// Composable rules prevent conditional useVirtualizer calls, so it is always called;
-// when not needed, count is set to 0 so it remains idle.
-const useColumnVirtualization = columnDefinitions.reduce((sum, col) => sum + (col.width ?? 150), 0) > COLUMN_VIRTUALIZATION_THRESHOLD_PX;
-
-// Toolbar Height ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Measured so ScrollThumb can be offset to align with the scroll area, not the toolbar.
 const toolbarElement = ref<HTMLElement | null>(null);
 const toolbarHeight = ref(0);
 let toolbarObserver: ResizeObserver | null = null;
 
-// Column State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local State - Columns ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const visibilityState = ref<VisibilityState>({});
-const pinningState = ref<ColumnPinningState>({});
-const sizingState = ref<ColumnSizingState>({});
-
-// Row Virtualizer (vertical) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const scrollElement = ref<HTMLElement | null>(null);
-const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
-    scrollElement,
-    dataSource: () => dataSource,
-    cacheBlockSize: cacheBlockSize === undefined ? undefined : (): number => cacheBlockSize,
-    maxBlocksInCache: maxBlocksInCache === undefined ? undefined : (): number => maxBlocksInCache
-});
+const columnPinningStateMap = ref<ColumnPinningState>({});
+const columnSizingStateMap = ref<ColumnSizingState>({});
+const columnVisibilityStateMap = ref<VisibilityState>({});
 
 // TanStack Table (column state only — data is always empty, rows are never processed) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -65,62 +46,18 @@ const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
 // interaction (after setup completes), so the forward reference is safe.
 let measureColumns: () => void = () => {};
 
-const columnDefs = computed<ColumnDef<RowData>[]>(() =>
-    columnDefinitions.map((col) => ({
-        id: col.field,
-        accessorKey: col.field,
-        header: col.headerName ?? col.field,
-        size: col.width ?? 150,
-        enableResizing: true,
-        enableHiding: true,
-        enablePinning: true
-    }))
-);
+// Local State - Column Virtualiser ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// useVueTable returns reactive(), NOT a ref — access methods directly (not via .value)
-const table = useVueTable<RowData>({
-    get data(): RowData[] {
-        return []; // CRITICAL: always empty — rows are rendered via useDataWindow, never via TanStack Table
-    },
-    get columns() {
-        return columnDefs.value;
-    },
-    getCoreRowModel: getCoreRowModel(),
-    enableColumnResizing: true,
-    columnResizeMode: 'onEnd', // Snaps on mouse-up — avoids 60fps reactivity cascade during drag
-    state: {
-        get columnVisibility() {
-            return visibilityState.value;
-        },
-        get columnPinning() {
-            return pinningState.value;
-        },
-        get columnSizing() {
-            return sizingState.value;
-        }
-    },
-    onColumnVisibilityChange: (updater) => {
-        visibilityState.value = typeof updater === 'function' ? updater(visibilityState.value) : updater;
-    },
-    onColumnPinningChange: (updater) => {
-        pinningState.value = typeof updater === 'function' ? updater(pinningState.value) : updater;
-    },
-    onColumnSizingChange: (updater) => {
-        sizingState.value = typeof updater === 'function' ? updater(sizingState.value) : updater;
-        measureColumns(); // Called once on resize-end, not per mouse-move pixel
-    }
-});
+// Column Virtualization Threshold ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Column virtualization is only activated when the total initial column width exceeds this threshold.
+// Below the threshold, all columns are rendered in a flat flex row — simpler and cheaper.
+// Composable rules prevent conditional useVirtualizer calls, so it is always called;
+// when not needed, count is set to 0 so it remains idle.
+const useColumnVirtualization = columnDefinitions.reduce((sum, col) => sum + (col.size ?? 150), 0) > COLUMN_VIRTUALIZATION_THRESHOLD_PX;
 
-// Header Groups — leaf headers give access to header.getResizeHandler() ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const leftHeaders = computed(() => table.getLeftLeafHeaders());
-const centerHeaders = computed(() => table.getCenterLeafHeaders());
-const rightHeaders = computed(() => table.getRightLeafHeaders());
-const leftPinnedWidth = computed(() => leftHeaders.value.reduce((sum, h) => sum + h.column.getSize(), 0));
-const rightPinnedWidth = computed(() => rightHeaders.value.reduce((sum, h) => sum + h.column.getSize(), 0));
+// Local State - Column Virtualizer ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 // Column Virtualizer (horizontal — always called per composable rules, idle when not needed) ━━━━━━━━━━━━━━━━━━━━━━━━
-
 const columnVirtualizer = useVirtualizer({
     get count() {
         return useColumnVirtualization ? centerHeaders.value.length : 0;
@@ -131,13 +68,71 @@ const columnVirtualizer = useVirtualizer({
     overscan: 3
 });
 
-measureColumns = useColumnVirtualization ? (): void => columnVirtualizer.value.measure() : (): void => {};
+// Local State - Row Virtualizer ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const virtualColumns = computed(() => columnVirtualizer.value.getVirtualItems());
+const scrollElement = ref<HTMLElement | null>(null);
+const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
+    scrollElement,
+    dataSource: () => dataSource,
+    cacheBlockSize: cacheBlockSize === undefined ? undefined : (): number => cacheBlockSize,
+    maxBlocksInCache: maxBlocksInCache === undefined ? undefined : (): number => maxBlocksInCache
+});
+
+// Local State - Table ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// useVueTable returns reactive(), NOT a ref — access methods directly (not via .value)
+const table = useVueTable<RowData>({
+    get data(): RowData[] {
+        return []; // CRITICAL: always empty — rows are rendered via useDataWindow, never via TanStack Table
+    },
+    get columns() {
+        return columnDefinitions;
+    },
+    getCoreRowModel: getCoreRowModel(),
+    enableColumnResizing: true,
+    defaultColumn: { enableResizing: true, enableHiding: true, enablePinning: true, size: 150 },
+    columnResizeMode: 'onEnd', // Snaps on mouse-up — avoids 60fps reactivity cascade during drag
+    state: {
+        get columnVisibility() {
+            return columnVisibilityStateMap.value;
+        },
+        get columnPinning() {
+            return columnPinningStateMap.value;
+        },
+        get columnSizing() {
+            return columnSizingStateMap.value;
+        }
+    },
+    onColumnVisibilityChange: (updater) => {
+        columnVisibilityStateMap.value = typeof updater === 'function' ? updater(columnVisibilityStateMap.value) : updater;
+    },
+    onColumnPinningChange: (updater) => {
+        columnPinningStateMap.value = typeof updater === 'function' ? updater(columnPinningStateMap.value) : updater;
+    },
+    onColumnSizingChange: (updater) => {
+        columnSizingStateMap.value = typeof updater === 'function' ? updater(columnSizingStateMap.value) : updater;
+        measureColumns(); // Called once on resize-end, not per mouse-move pixel
+    }
+});
+
+// Derived State - Column Headers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// Header Groups — leaf headers give access to header.getResizeHandler() ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const leftHeaders = computed(() => table.getLeftLeafHeaders());
+const centerHeaders = computed(() => table.getCenterLeafHeaders());
+const rightHeaders = computed(() => table.getRightLeafHeaders());
+const leftPinnedWidth = computed(() => leftHeaders.value.reduce((sum, h) => sum + h.column.getSize(), 0));
+const rightPinnedWidth = computed(() => rightHeaders.value.reduce((sum, h) => sum + h.column.getSize(), 0));
+
+measureColumns = useColumnVirtualization ? (): void => columnVirtualizer.value.measure() : (): void => {};
 
 // totalCenterWidth: from the virtualizer when active; otherwise sum visible center column sizes directly.
 const totalCenterWidth = computed(() => (useColumnVirtualization ? columnVirtualizer.value.getTotalSize() : centerHeaders.value.reduce((sum, h) => sum + h.column.getSize(), 0)));
 const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value + rightPinnedWidth.value);
+
+// Derived State - Columns ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const virtualColumns = computed(() => columnVirtualizer.value.getVirtualItems());
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
