@@ -19,7 +19,7 @@ import { useSessionStore } from '@/stores/sessionStore';
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
-import Grid from '@/components/grid/Grid.vue';
+import List from '@/components/list/List.vue';
 import ViewScroller from '@/components/view/ViewScroller.vue';
 
 // App Components & Views - Lazy loaded as required.
@@ -43,6 +43,10 @@ watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveEventQuer
 // Local event query configurations state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const eventQueryConfigs = computed(() => sessionState.eventQueryConfigs);
+const dataSource = computed(() => ({
+    rowCount: eventQueryConfigs.value?.length ?? 0,
+    getRows: (start: number, end: number): Promise<unknown[]> => Promise.resolve((eventQueryConfigs.value ?? []).slice(start, end))
+}));
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -86,17 +90,17 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
         </Button>
     </div>
 
-    <Grid
+    <List
         v-if="eventQueryRetrievalIsActive && eventQueryConfigs && eventQueryConfigs.length > 0"
         class="flex-1 pb-6"
-        :items="eventQueryConfigs"
+        :data-source="dataSource"
         :row-height="150"
         :target-column-width="350"
     >
         <template #default="{ row }">
             <Card v-if="row" :label="row.label as string" />
         </template>
-    </Grid>
+    </List>
 
     <ViewScroller v-else-if="eventQueryRetrievalIsActive">
         <EmptyStatePlaceholder :message-item-label="t(T, 'event_queries')" :description-item-label="t(T, 'event_query')" :action-item-label="t(T, 'Event_Query')" />

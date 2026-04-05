@@ -5,14 +5,13 @@ import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, getCor
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 // App Core
-import type { ColumnDefinition } from '@/components/table/SimpleTable.vue';
 import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // Local Components — statically imported so always available, even after app goes offline.
-import AdvancedTableCell from './AdvancedTableCell.vue';
-import AdvancedTableColumnPicker from './AdvancedTableColumnPicker.vue';
-import AdvancedTableHeaderCell from './AdvancedTableHeaderCell.vue';
+import AdvancedTableCell from './TableCell.vue';
+import AdvancedTableColumnPicker from './TableColumnPicker.vue';
+import AdvancedTableHeaderCell from './TableHeaderCell.vue';
 
 // Types ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -26,6 +25,7 @@ type Properties = {
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
 };
+export type ColumnDefinition = { field: string; headerName?: string; width?: number };
 const { columnDefinitions, dataSource, cacheBlockSize, maxBlocksInCache } = defineProps<Properties>();
 
 // Column Virtualization Threshold ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -24,7 +24,7 @@ import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';
-import Grid from '@/components/grid/Grid.vue';
+import List from '@/components/list/List.vue';
 import ViewScroller from '@/components/view/ViewScroller.vue';
 
 // App Components & Views - Lazy loaded as required.
@@ -47,6 +47,10 @@ watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDataViews
 // Local data view configurations state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const dataViewConfigs = computed(() => sessionState.dataViewConfigs);
+const dataSource = computed(() => ({
+    rowCount: dataViewConfigs.value?.length ?? 0,
+    getRows: (start: number, end: number): Promise<unknown[]> => Promise.resolve((dataViewConfigs.value ?? []).slice(start, end))
+}));
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -122,10 +126,10 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 </script>
 
 <template>
-    <Grid
+    <List
         v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
         class="flex-1 pb-20"
-        :items="dataViewConfigs"
+        :data-source="dataSource"
         :row-height="150"
         :target-column-width="350"
     >
@@ -141,7 +145,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
                 <Card v-if="row" :label="row.label as string" />
             </RouterLink>
         </template>
-    </Grid>
+    </List>
 
     <ViewScroller v-else-if="dataViewRetrievalIsActive">
         <EmptyStatePlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />

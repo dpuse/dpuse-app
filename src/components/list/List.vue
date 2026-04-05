@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 // App Core
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
@@ -12,19 +12,46 @@ import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
 
 type Properties = {
     dataSource: DataSource;
-    field?: string; // Field key to render when no default slot is provided.
     rowHeight?: number; // Row height in px. Default: 48.
+    targetColumnWidth?: number; // When set, multiple items are shown per row based on available width.
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
 };
-const { dataSource, field, rowHeight = 48, cacheBlockSize, maxBlocksInCache } = defineProps<Properties>();
+const { dataSource, rowHeight = 48, targetColumnWidth, cacheBlockSize, maxBlocksInCache } = defineProps<Properties>();
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Layout ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const scrollElement = ref<HTMLElement | null>(null);
-const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
+const columnCount = ref(1);
+const columnWidth = ref(0);
+
+const resizeObserver = new ResizeObserver((entries) => {
+    const width = entries[0]!.contentRect.width;
+    if (targetColumnWidth === undefined) {
+        columnCount.value = 1;
+        columnWidth.value = width;
+    } else {
+        columnCount.value = Math.max(Math.floor((width - 16) / targetColumnWidth), 1);
+        columnWidth.value = Math.floor((width - 16) / columnCount.value);
+    }
+});
+
+onMounted(() => {
+    if (scrollElement.value) resizeObserver.observe(scrollElement.value);
+});
+onUnmounted(() => resizeObserver.disconnect());
+
+// Data Window ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const { virtualRows, totalRowCount, getRow } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
+    count: () => Math.ceil(dataSource.rowCount / columnCount.value),
+    getDataIndexes: (virtualRowIndex) => {
+        const indexes: number[] = [];
+        for (let c = 0; c < columnCount.value; c++) indexes.push(virtualRowIndex * columnCount.value + c);
+        return indexes;
+    },
     estimateSize: () => rowHeight,
     cacheBlockSize: cacheBlockSize === undefined ? undefined : (): number => cacheBlockSize,
     maxBlocksInCache: maxBlocksInCache === undefined ? undefined : (): number => maxBlocksInCache
@@ -33,24 +60,25 @@ const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
 
 <template>
     <div class="relative flex h-full flex-col overflow-hidden">
-        <div ref="scrollElement" class="flex-1 overflow-auto" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
-            <!-- Virtual rows -->
+        <div ref="scrollElement" class="flex-1 overflow-y-auto pb-(--dp-app-bottom-gutter)" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
             <div :style="{ height: totalRowCount + 'px', position: 'relative' }">
                 <div
-                    v-for="(virtualRow, i) in virtualRows"
-                    :key="virtualRow.index"
-                    class="absolute w-full border-b border-zinc-100 bg-white hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900"
-                    :style="{ top: 0, transform: `translateY(${virtualRow.start}px)`, height: virtualRow.size + 'px' }"
+                    v-for="vRow in virtualRows"
+                    :key="vRow.index"
+                    class="absolute top-0 left-0 flex"
+                    :style="{ transform: `translateY(${vRow.start}px)`, height: `${vRow.size}px`, width: `${columnCount * columnWidth}px` }"
                 >
-                    <slot v-if="visibleRowData[i] !== undefined" :row="visibleRowData[i]" :index="virtualRow.index">
-                        <div class="flex h-full items-center overflow-hidden px-3 text-sm text-zinc-800 dark:text-zinc-300">
-                            <span class="truncate">{{ field ? (visibleRowData[i]?.[field] ?? '') : '' }}</span>
+                    <template v-for="colIndex in columnCount" :key="colIndex">
+                        <!-- Skip cells beyond the last data item (last row may be partially filled) -->
+                        <div v-if="vRow.index * columnCount + colIndex - 1 < dataSource.rowCount" class="shrink-0" :style="{ width: `${columnWidth}px` }">
+                            <div class="h-full" :class="targetColumnWidth !== undefined ? 'pt-4 pl-4' : ''">
+                                <slot v-if="getRow(vRow.index * columnCount + colIndex - 1) !== undefined" :row="getRow(vRow.index * columnCount + colIndex - 1)" :index="vRow.index * columnCount + colIndex - 1" />
+                                <div v-else class="flex h-full items-center px-3">
+                                    <div class="h-4 w-3/4 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700" />
+                                </div>
+                            </div>
                         </div>
-                    </slot>
-
-                    <div v-else class="flex h-full items-center px-3">
-                        <div class="h-4 w-3/4 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700" />
-                    </div>
+                    </template>
                 </div>
             </div>
         </div>

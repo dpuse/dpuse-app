@@ -1,14 +1,15 @@
 <script setup lang="ts" generic="T extends { id: string; label: string }">
 // External Dependencies
 import { ArrowBigLeftIcon } from 'lucide-vue-next';
-import { shallowRef } from 'vue';
+import { computed, shallowRef } from 'vue';
 
 // App Core
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
+import type { DataSource } from '@/composables/useDataWindow';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
-import Grid from '@/components/grid/Grid.vue';
+import List from '@/components/list/List.vue';
 
 // Properties & Emits
 const { items, maxRightWidth } = defineProps<{ items: T[]; maxRightWidth?: string }>();
@@ -22,6 +23,11 @@ const { displayIsWide } = useDisplayBreakpoint();
 
 const activeItem = shallowRef<T | undefined>();
 
+const dataSource = computed<DataSource>(() => ({
+    rowCount: items.length,
+    getRows: (start, end): Promise<unknown[]> => Promise.resolve(items.slice(start, end))
+}));
+
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function selectItem(item: T | undefined): void {
@@ -33,13 +39,13 @@ function selectItem(item: T | undefined): void {
 <template>
     <div class="flex">
         <div v-if="displayIsWide || !activeItem" class="flex flex-1 flex-col">
-            <Grid class="flex-1 pb-20" :items="items" :row-height="150" :target-column-width="350">
+            <List class="flex-1 pb-20" :data-source="dataSource" :row-height="150" :target-column-width="350">
                 <template #default="{ row }">
                     <div class="h-full" @click="selectItem(row as T)">
                         <slot name="list-item" :item="row as T" />
                     </div>
                 </template>
-            </Grid>
+            </List>
         </div>
 
         <div v-if="displayIsWide || activeItem" class="mx-4 flex flex-1 flex-col" :style="{ maxWidth: maxRightWidth != null ? maxRightWidth : undefined }">
