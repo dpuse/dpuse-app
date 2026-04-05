@@ -14,7 +14,7 @@ const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export type KnowledgeViewId = 'about' | 'library' | 'chat';
-const knowledgePanels: Record<KnowledgeViewId, { component: Component; label: string }> = {
+const KNOWLEDGE_PANELS: Record<KnowledgeViewId, { component: Component; label: string }> = {
     about: { component: AboutPanel, label: 'About' },
     library: { component: LibraryPanel, label: 'Library' },
     chat: { component: ChatPanel, label: 'Chat' }
@@ -28,7 +28,7 @@ const route = useRoute();
 
 const activePanel = computed(() => {
     const parameter = route.query.kView as KnowledgeViewId | undefined;
-    return knowledgePanels[parameter ?? 'about'] ?? knowledgePanels.about;
+    return KNOWLEDGE_PANELS[parameter ?? 'about'] ?? KNOWLEDGE_PANELS.about;
 });
 </script>
 

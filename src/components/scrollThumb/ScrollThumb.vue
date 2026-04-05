@@ -5,9 +5,6 @@ import { onMounted, onUnmounted, ref, watch } from 'vue';
 // Properties & Emits
 const { scrollElement, rowCount = 0 } = defineProps<{ scrollElement: HTMLElement | null; rowCount?: number }>();
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const currentRow = ref(1);
@@ -147,15 +144,13 @@ function scrollFromY(clientY: number): void {
 
 <template>
     <div v-show="isScrollable" ref="trackReference" class="scrubber-track">
-        <Transition name="label">
-            <div
-                v-if="isDragging && rowCount > 0"
-                class="scrubber-label bg-zinc-800 text-zinc-50 dark:bg-zinc-200 dark:text-zinc-800"
-                :style="{ top: thumbOffset + thumbSize / 2 + 'px' }"
-            >
-                {{ currentRow.toLocaleString() }}
-            </div>
-        </Transition>
+        <div
+            class="scrubber-label bg-zinc-800 text-zinc-50 dark:bg-zinc-200 dark:text-zinc-800"
+            :class="{ 'scrubber-label--visible': isDragging && rowCount > 0 }"
+            :style="{ top: thumbOffset + thumbSize / 2 + 'px' }"
+        >
+            {{ currentRow.toLocaleString() }}
+        </div>
         <div class="scrubber-thumb border border-zinc-400/40 dark:border-zinc-400/70" :style="{ top: thumbOffset + 'px', height: thumbSize + 'px' }">
             <div class="scrubber-grip">
                 <span class="scrubber-grip-line bg-zinc-400/50 dark:bg-zinc-400/80" />
@@ -188,16 +183,12 @@ function scrollFromY(clientY: number): void {
     white-space: nowrap;
     pointer-events: none;
     user-select: none;
-}
-
-.label-enter-active,
-.label-leave-active {
+    opacity: 0;
     transition: opacity 0.15s ease;
 }
 
-.label-enter-from,
-.label-leave-to {
-    opacity: 0;
+.scrubber-label--visible {
+    opacity: 1;
 }
 
 .scrubber-thumb {

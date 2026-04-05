@@ -35,7 +35,8 @@ const ExplorePresentations = lazyLoad('explorePresentations', () => import('@/vi
 
 const BuildDataApps = lazyLoad('buildDataApps', () => import('@/views/workbench/workflow/buildDataApps/BuildDataApps.vue'));
 
-// Constants
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 export const APP_ROUTES = [
     {
         path: '/',
