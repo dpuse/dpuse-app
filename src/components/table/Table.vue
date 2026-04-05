@@ -13,12 +13,8 @@ import AdvancedTableCell from './TableCell.vue';
 import AdvancedTableColumnPicker from './TableColumnPicker.vue';
 import AdvancedTableHeaderCell from './TableHeaderCell.vue';
 
-// Types ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
+// Properties & Emits
 type RowData = Record<string, unknown>;
-
-// Properties & Emits ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 type Properties = {
     columnDefinitions: ColumnDefinition[];
     dataSource: DataSource;

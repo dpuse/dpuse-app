@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Properties & Emits
 defineProps<{ value: unknown; loading: boolean }>();
 </script>
 

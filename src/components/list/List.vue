@@ -8,8 +8,7 @@ import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
 
-// Properties & Emits ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
+// Properties & Emits
 type Properties = {
     dataSource: DataSource;
     rowHeight?: number; // Row height in px. Default: 48.
@@ -19,12 +18,11 @@ type Properties = {
 };
 const { dataSource, rowHeight = 48, targetColumnWidth, cacheBlockSize, maxBlocksInCache } = defineProps<Properties>();
 
-// Layout ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const scrollElement = ref<HTMLElement | null>(null);
 const columnCount = ref(1);
 const columnWidth = ref(0);
-
+const scrollElement = ref<HTMLElement | null>(null);
 const resizeObserver = new ResizeObserver((entries) => {
     const width = entries[0]!.contentRect.width;
     if (targetColumnWidth === undefined) {
@@ -35,27 +33,24 @@ const resizeObserver = new ResizeObserver((entries) => {
         columnWidth.value = Math.floor((width - 16) / columnCount.value);
     }
 });
-
-onMounted(() => {
-    if (scrollElement.value) resizeObserver.observe(scrollElement.value);
-});
-onUnmounted(() => resizeObserver.disconnect());
-
-// Data Window ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 const { virtualRows, totalRowCount, getRow } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
     count: () => Math.ceil(dataSource.rowCount / columnCount.value),
     getDataIndexes: (virtualRowIndex) => {
         const indexes: number[] = [];
-        for (let c = 0; c < columnCount.value; c++) indexes.push(virtualRowIndex * columnCount.value + c);
+        for (let count = 0; count < columnCount.value; count++) indexes.push(virtualRowIndex * columnCount.value + count);
         return indexes;
     },
     estimateSize: () => rowHeight,
     cacheBlockSize: cacheBlockSize === undefined ? undefined : (): number => cacheBlockSize,
     maxBlocksInCache: maxBlocksInCache === undefined ? undefined : (): number => maxBlocksInCache
 });
+
+// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+onMounted(() => resizeObserver.observe(scrollElement.value!));
+onUnmounted(() => resizeObserver.disconnect());
 </script>
 
 <template>
@@ -72,7 +67,11 @@ const { virtualRows, totalRowCount, getRow } = useDataWindow({
                         <!-- Skip cells beyond the last data item (last row may be partially filled) -->
                         <div v-if="vRow.index * columnCount + colIndex - 1 < dataSource.rowCount" class="shrink-0" :style="{ width: `${columnWidth}px` }">
                             <div class="h-full" :class="targetColumnWidth !== undefined ? 'pt-4 pl-4' : ''">
-                                <slot v-if="getRow(vRow.index * columnCount + colIndex - 1) !== undefined" :row="getRow(vRow.index * columnCount + colIndex - 1)" :index="vRow.index * columnCount + colIndex - 1" />
+                                <slot
+                                    v-if="getRow(vRow.index * columnCount + colIndex - 1) !== undefined"
+                                    :row="getRow(vRow.index * columnCount + colIndex - 1)"
+                                    :index="vRow.index * columnCount + colIndex - 1"
+                                />
                                 <div v-else class="flex h-full items-center px-3">
                                     <div class="h-4 w-3/4 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700" />
                                 </div>
