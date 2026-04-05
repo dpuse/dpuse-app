@@ -91,7 +91,7 @@ const gridRowCount = computed(() => Math.ceil(rowCount.value / columnCount.value
 
 const resizeObserver = new ResizeObserver((entries) => {
     gridWidth.value = entries[0]!.contentRect.width;
-    columnCount.value = Math.max(Math.floor(gridWidth.value / targetColumnWidth), 1);
+    columnCount.value = Math.max(Math.floor((gridWidth.value - 16) / targetColumnWidth), 1);
     columnVirtualizer.value.measure();
 });
 
@@ -108,7 +108,7 @@ const columnVirtualizer = useVirtualizer({
     },
     horizontal: true,
     overscan: 2,
-    estimateSize: () => (gridWidth.value >= 1280 ? targetColumnWidth : Math.floor(gridWidth.value / columnCount.value)),
+    estimateSize: () => (gridWidth.value >= 1280 ? targetColumnWidth : Math.floor((gridWidth.value - 16) / columnCount.value)),
     getScrollElement: () => scrollElement.value
 });
 
@@ -140,7 +140,7 @@ watch([virtualRows, (): number => columnCount.value], ([rows, cols]) => {
 
 <template>
     <div class="relative flex h-full flex-col overflow-hidden">
-        <div ref="scrollElement" class="flex-1 overflow-auto" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
+        <div ref="scrollElement" class="flex-1 overflow-y-auto pb-(--dp-app-bottom-gutter)" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
             <div :style="{ height: totalSize + 'px', position: 'relative' }">
                 <template v-for="vRow in virtualRows" :key="vRow.index">
                     <div

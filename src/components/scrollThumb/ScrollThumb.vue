@@ -7,7 +7,6 @@ const { scrollElement, rowCount = 0 } = defineProps<{ scrollElement: HTMLElement
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const MIN_THUMB_SIZE = 40;
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -121,11 +120,9 @@ function updateThumb(): void {
     isScrollable.value = metrics.maxScroll > 0;
     if (!isScrollable.value) return;
 
-    const natural = (metrics.clientSize / metrics.scrollSize) * metrics.trackSize;
-    const clamped = Math.max(MIN_THUMB_SIZE, natural);
-    thumbSize.value = clamped;
+    thumbSize.value = 40;
 
-    const availableTrack = metrics.trackSize - clamped;
+    const availableTrack = metrics.trackSize - 40;
     const ratio = Math.min(1, Math.max(0, metrics.scrollPos / metrics.maxScroll));
     thumbOffset.value = ratio * availableTrack;
 
