@@ -1,11 +1,13 @@
 <script setup lang="ts">
+// External Dependencies
+import { nextTick, onUnmounted, ref } from 'vue';
+import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'lucide-vue-next';
+import { useRoute, useRouter } from 'vue-router';
+
 // App Core
 import T from '@/locales/views/session/SessionMenu.json';
-import { useSessionStore } from '@/stores/sessionStore';
-import { computed, nextTick, onUnmounted, ref } from 'vue';
-import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'lucide-vue-next';
+import { useSession } from '~/src/state/useSession';
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
-import { useRoute, useRouter } from 'vue-router';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
@@ -30,13 +32,9 @@ onUnmounted(() => document.removeEventListener('fullscreenchange', handleFullscr
 async function toggleFullscreen(): Promise<void> {
     await (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen());
 }
-const sessionStore = useSessionStore();
+const { isAuthenticated: sessionIsAuthenticated, signOut } = useSession();
 const route = useRoute();
 const router = useRouter();
-
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const sessionIsAuthenticated = computed(() => sessionStore.isAuthenticated);
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -68,7 +66,7 @@ function handleSignInRegister(): void {
 }
 
 function handleSignOut(): void {
-    sessionStore.signOut().then(() => emit('continue'));
+    signOut().then(() => emit('continue'));
 }
 
 function handleToggleWindowExpansion(): void {

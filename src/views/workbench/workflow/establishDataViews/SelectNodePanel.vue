@@ -1,13 +1,13 @@
 <script setup lang="ts">
 // External Dependencies
-import { computed, shallowRef, watch } from 'vue';
+import { shallowRef, watch } from 'vue';
 
 // DPUse Framework
 import type { ConnectionConfig, ConnectorConfig, ListNodesOptions } from '@dpuse/dpuse-shared/component/connector';
 
 // App Core
 import { useEngine } from '@/services/useEngine';
-import { useSessionStore } from '@/stores/sessionStore';
+import { useSession } from '~/src/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
@@ -18,7 +18,7 @@ const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalise
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const sessionStore = useSessionStore();
+const { connectorConfigs } = useSession();
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -27,8 +27,6 @@ function triggerComplete(): void {
 }
 
 // EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const connectorConfigs = computed(() => sessionStore.connectorConfigs);
 const connectorConfig = shallowRef();
 const connectionConfig = shallowRef();
 const listNodesResult = shallowRef();

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 // External Dependencies
-import { computed, shallowRef, watch } from 'vue';
+import { shallowRef, watch } from 'vue';
 
 // DPUse Framework
 import type { ConnectionConfig, ConnectionLocalisedConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
 
 // App Core
-import { useSessionStore } from '@/stores/sessionStore';
+import { useSession } from '~/src/state/useSession';
 import { localeId, localiseConfigs, t } from '@/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
@@ -21,11 +21,7 @@ const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalise
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const sessionStore = useSessionStore();
-
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const connectionConfigs = computed(() => sessionStore.connectionConfigs);
+const { connectionConfigs, connectorConfigs } = useSession();
 const localisedConnectionConfigs = shallowRef<ConnectionLocalisedConfig[]>();
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -42,7 +38,6 @@ function triggerComplete(): void {
 
 // EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const connectorConfigs = computed(() => sessionStore.connectorConfigs);
 const connectorConfig = shallowRef();
 const connectionConfig = shallowRef();
 

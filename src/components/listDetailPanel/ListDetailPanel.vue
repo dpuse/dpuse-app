@@ -4,7 +4,7 @@ import { ArrowBigLeftIcon } from 'lucide-vue-next';
 import { computed, shallowRef } from 'vue';
 
 // App Core
-import { useDisplayBreakpoint } from '~/src/composables/useDisplayBreakpoint';
+import { useDisplayBreakpoint } from '~/src/state/useDisplayBreakpoint';
 import type { DataSource } from '@/composables/useDataWindow';
 
 // App Components - Statically imported so always available, even after app goes offline.

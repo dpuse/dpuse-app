@@ -1,6 +1,5 @@
 // External Dependencies
 import { createApp } from 'vue';
-import { createPinia } from 'pinia';
 
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -53,7 +52,6 @@ try {
         const data = { componentName: instance?.$options?.__name ?? undefined, info, typeId: 'unhandledVueRuntime' };
         reportAppError(new AppError('Unhandled Vue error.', 'dpuse.main', data, { cause: error }));
     };
-    app.use(createPinia());
     app.use(createAppRouter());
     app.mount('#app');
 } catch (error) {

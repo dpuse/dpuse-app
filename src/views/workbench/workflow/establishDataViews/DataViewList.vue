@@ -20,7 +20,7 @@ import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/locales';
 import T from '@/locales/views/workbench/workflow/establishDataViews/EstablishDataViews.json';
 import { useEngine } from '@/services/useEngine';
-import { useSessionStore } from '@/stores/sessionStore';
+import { useSession } from '~/src/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';
@@ -33,7 +33,7 @@ const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/em
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const route = useRoute();
-const sessionStore = useSessionStore();
+const { localMetaStoreConnectionConfig, dataViewConfigs } = useSession();
 
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -41,12 +41,10 @@ const dataViewRetrievalIsActive = ref(false);
 
 // Local meta store connection configuration state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const localMetaStoreConnectionConfig = computed(() => sessionStore.localMetaStoreConnectionConfig);
 watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDataViews(newConnectionConfig), { immediate: true });
 
 // Local data view configurations state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const dataViewConfigs = computed(() => sessionStore.dataViewConfigs);
 const dataSource = computed(() => ({
     rowCount: dataViewConfigs.value?.length ?? 0,
     getRows: (start: number, end: number): Promise<unknown[]> => Promise.resolve((dataViewConfigs.value ?? []).slice(start, end))
@@ -82,7 +80,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dataViews', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
         await processRequest('retrieveRecords', connectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
             if (data.typeId === 'chunk') {
-                sessionStore.dataViewConfigs = (data.properties.records as { id: string; label: string }[]).map((record) => {
+                dataViewConfigs.value = (data.properties.records as { id: string; label: string }[]).map((record) => {
                     const localisedConfig = record;
                     return localisedConfig;
                 });

@@ -6,7 +6,7 @@ import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/comp
 import type { ContextConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 
 // App Core
-import { useSessionStore } from '@/stores/sessionStore';
+import { useSession } from '~/src/state/useSession';
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -86,14 +86,14 @@ function shutdown(): void {
 // Registration Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
-    const sessionStore = useSessionStore();
+    const { engineConfig, contextConfig, connectorConfigs, presenterConfigs, toolConfigs, localMetaStoreConnectionConfig } = useSession();
 
     let connectorRegistered = false;
     let presenterRegistered = false;
     let toolRegistered = false;
-    const connectorConfigs = [...(sessionStore.connectorConfigs ?? [])];
-    const presenterConfigs = [...(sessionStore.presenterConfigs ?? [])];
-    const toolConfigs = [...(sessionStore.toolConfigs ?? [])];
+    const pendingConnectorConfigs = [...(connectorConfigs.value ?? [])];
+    const pendingPresenterConfigs = [...(presenterConfigs.value ?? [])];
+    const pendingToolConfigs = [...(toolConfigs.value ?? [])];
 
     for (const moduleConfig of moduleConfigs) {
         // TODO: Only register if new added or new version. Can we import in parallel for efficiency?
@@ -103,44 +103,44 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
                 break;
             }
             case 'engine': {
-                sessionStore.engineConfig = moduleConfig as EngineConfig;
+                engineConfig.value = moduleConfig as EngineConfig;
                 if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Engine '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'connector': {
                 connectorRegistered = true;
-                const index = connectorConfigs.findIndex((connectorConfig) => connectorConfig.id === moduleConfig.id);
+                const index = pendingConnectorConfigs.findIndex((connectorConfig) => connectorConfig.id === moduleConfig.id);
                 if (index === -1) {
-                    connectorConfigs.push(moduleConfig as ConnectorConfig);
+                    pendingConnectorConfigs.push(moduleConfig as ConnectorConfig);
                 } else {
-                    connectorConfigs[index] = moduleConfig as ConnectorConfig;
+                    pendingConnectorConfigs[index] = moduleConfig as ConnectorConfig;
                 }
                 if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Connector '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'context': {
-                sessionStore.contextConfig = moduleConfig as ContextConfig; // Trigger shallow reference change for context.
+                contextConfig.value = moduleConfig as ContextConfig; // Trigger shallow reference change for context.
                 if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Context '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'presenter': {
                 presenterRegistered = true;
-                const index = presenterConfigs.findIndex((presenterConfig) => presenterConfig.id === moduleConfig.id);
+                const index = pendingPresenterConfigs.findIndex((presenterConfig) => presenterConfig.id === moduleConfig.id);
                 if (index === -1) {
-                    presenterConfigs.push(moduleConfig as PresenterConfig);
+                    pendingPresenterConfigs.push(moduleConfig as PresenterConfig);
                 } else {
-                    presenterConfigs[index] = moduleConfig as PresenterConfig;
+                    pendingPresenterConfigs[index] = moduleConfig as PresenterConfig;
                 }
                 if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Presenter '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'tool': {
                 toolRegistered = true;
-                const index = toolConfigs.findIndex((toolConfig) => toolConfig.id === moduleConfig.id);
+                const index = pendingToolConfigs.findIndex((toolConfig) => toolConfig.id === moduleConfig.id);
                 if (index === -1) {
-                    toolConfigs.push(moduleConfig as ToolConfig);
+                    pendingToolConfigs.push(moduleConfig as ToolConfig);
                 } else {
-                    toolConfigs[index] = moduleConfig as ToolConfig;
+                    pendingToolConfigs[index] = moduleConfig as ToolConfig;
                 }
                 if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Tool '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
@@ -149,26 +149,26 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
     }
 
     if (connectorRegistered) {
-        sessionStore.connectorConfigs = [...connectorConfigs];
-        if (sessionStore.connectorConfigs.length > 0) {
-            localMetaNodeConnectorConfig = sessionStore.connectorConfigs.find((connectorConfig) => connectorConfig.id === LOCAL_META_NODE_CONNECTOR_ID);
+        connectorConfigs.value = [...pendingConnectorConfigs];
+        if (connectorConfigs.value.length > 0) {
+            localMetaNodeConnectorConfig = connectorConfigs.value.find((connectorConfig) => connectorConfig.id === LOCAL_META_NODE_CONNECTOR_ID);
             if (localMetaNodeConnectorConfig) {
-                sessionStore.localMetaStoreConnectionConfig = constructConnectionConfig(localMetaNodeConnectorConfig);
+                localMetaStoreConnectionConfig.value = constructConnectionConfig(localMetaNodeConnectorConfig);
             }
             constructDefaultConnectionConfigs();
         }
     }
 
-    if (presenterRegistered || !sessionStore.presenterConfigs) sessionStore.presenterConfigs = [...presenterConfigs];
+    if (presenterRegistered || !presenterConfigs.value) presenterConfigs.value = [...pendingPresenterConfigs];
 
-    if (toolRegistered || !sessionStore.toolConfigs) sessionStore.toolConfigs = [...toolConfigs];
+    if (toolRegistered || !toolConfigs.value) toolConfigs.value = [...pendingToolConfigs];
 }
 
 function unregisterConfigurations(moduleConfigs: ModuleConfig[]): void {
-    const sessionStore = useSessionStore();
+    const { connectorConfigs } = useSession();
     const idsToRemove = new Set(moduleConfigs.filter((m) => m.typeId === 'connector').map((m) => m.id));
-    if (idsToRemove.size > 0 && sessionStore.connectorConfigs) {
-        sessionStore.connectorConfigs = sessionStore.connectorConfigs.filter((c) => !idsToRemove.has(c.id));
+    if (idsToRemove.size > 0 && connectorConfigs.value) {
+        connectorConfigs.value = connectorConfigs.value.filter((c) => !idsToRemove.has(c.id));
     }
 }
 
@@ -193,12 +193,12 @@ function constructConnectionConfig(connectorConfig: ConnectorConfig): Connection
 }
 
 function constructDefaultConnectionConfigs(): void {
-    const sessionStore = useSessionStore();
+    const { connectorConfigs, connectionConfigs } = useSession();
     const pendingConnectionConfigs: ConnectionConfig[] = [];
-    for (const connectorConfig of sessionStore.connectorConfigs!) {
+    for (const connectorConfig of connectorConfigs.value!) {
         // if (connectorConfig.id === 'dpuse-connector-file-store-emulator') {
         pendingConnectionConfigs.push(constructConnectionConfig(connectorConfig));
         // }
     }
-    sessionStore.connectionConfigs = pendingConnectionConfigs;
+    connectionConfigs.value = pendingConnectionConfigs;
 }

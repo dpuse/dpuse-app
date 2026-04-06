@@ -1,13 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { useSessionStore } from '@/stores/sessionStore';
+import { useSession } from '~/src/state/useSession';
 
-const sessionStore = useSessionStore();
-
-const expiresAt = computed(() => sessionStore.expiresAt);
-const expiresIn = computed(() => sessionStore.expiresIn);
-const lifetime = computed(() => sessionStore.lifetime);
+const { expiresAt, expiresIn, lifetime } = useSession();
 
 const elapsed = computed(() => (lifetime.value ? ((lifetime.value - (expiresIn.value || 0)) / lifetime.value) * 100 : 0));
 

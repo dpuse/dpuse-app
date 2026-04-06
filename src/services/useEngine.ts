@@ -5,7 +5,7 @@
 import type { EngineCallbackData, EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared/engine';
 
 // App Core
-import { useSessionStore } from '@/stores/sessionStore';
+import { useSession } from '~/src/state/useSession';
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -19,8 +19,8 @@ let engineWorker: EngineWorker | undefined;
 // Engine Composable ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export async function useEngine(): Promise<EngineWorker> {
-    // "useEngine" is not invoked until all modules have been registered in session "defineStore". So "engineConfig" will be populated.
-    const engineVersion = useSessionStore().engineConfig!.version as string;
+    // "useEngine" is not invoked until all modules have been registered in session "useSession". So "engineConfig" will be populated.
+    const engineVersion = useSession().engineConfig.value!.version as string;
 
     // Return current value if previously imported and a new version has not been published.
     if (engineWorker != null && activeEngineVersion === engineVersion) return engineWorker;
@@ -31,7 +31,7 @@ export async function useEngine(): Promise<EngineWorker> {
     const pendingEngineWorker = engineRuntime.invokeWorker((errorEvent: ErrorEvent) => {
         console.error(errorEvent, 'engineWorker@useEngine.1');
     });
-    await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: useSessionStore().toolConfigs || [] });
+    await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: useSession().toolConfigs.value || [] });
     if (import.meta.env.DEV) console.info(`[dpuse:app] ✅ Engine 'dpuse-engine' v${engineVersion} loaded.`);
 
     /*****/

@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 // App Core
 import { t } from '@/locales';
 import T from '@/locales/views/session/accountDialog/AccountDialog.json';
-import { useDisplayBreakpoint } from '~/src/composables/useDisplayBreakpoint';
+import { useDisplayBreakpoint } from '~/src/state/useDisplayBreakpoint';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';

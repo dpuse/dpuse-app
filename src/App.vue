@@ -5,8 +5,8 @@ import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
-import { useDisplayBreakpoint } from '~/src/composables/useDisplayBreakpoint';
-import { useSessionStore } from '@/stores/sessionStore';
+import { useDisplayBreakpoint } from '~/src/state/useDisplayBreakpoint';
+import { useSession } from '~/src/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
@@ -85,7 +85,7 @@ router.isReady().then(() => {
     establishActiveAppPanelId(displayIsWide.value);
 });
 
-onMounted(() => useSessionStore().initialiseServices());
+onMounted(() => useSession().initialiseServices());
 
 watch(displayIsWide, (newDisplayIsWide) => establishActiveAppPanelId(newDisplayIsWide));
 

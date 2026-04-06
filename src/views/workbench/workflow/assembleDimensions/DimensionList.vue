@@ -14,7 +14,7 @@ import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/locales';
 import T from '@/locales/views/workbench/workflow/assembleDimensions/DimensionsList.json';
 import { useEngine } from '@/services/useEngine';
-import { useSessionStore } from '@/stores/sessionStore';
+import { useSession } from '~/src/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
@@ -29,7 +29,7 @@ const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/em
 
 const route = useRoute();
 const router = useRouter();
-const sessionStore = useSessionStore();
+const { localMetaStoreConnectionConfig } = useSession();
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -37,12 +37,11 @@ const dimensionRetrievalIsActive = ref(false);
 
 // Local meta store connection configuration state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const localMetaStoreConnectionConfig = computed(() => sessionStore.localMetaStoreConnectionConfig);
 watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDimensions(newConnectionConfig), { immediate: true });
 
 // Local dimensions configurations state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const dimensionConfigs = computed(() => sessionStore.dimensionConfigs);
+const { dimensionConfigs } = useSession();
 const dataSource = computed(() => ({
     rowCount: dimensionConfigs.value?.length ?? 0,
     getRows: (start: number, end: number): Promise<unknown[]> => Promise.resolve((dimensionConfigs.value ?? []).slice(start, end))
@@ -65,7 +64,7 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
         const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dimensions', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
         await processRequest('retrieveRecords', connectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
             if (data.typeId === 'chunk') {
-                sessionStore.dimensionConfigs = (data.properties.records as { id: string; label: string }[]).map((record) => {
+                dimensionConfigs.value = (data.properties.records as { id: string; label: string }[]).map((record) => {
                     const localisedConfig = record;
                     return localisedConfig;
                 });

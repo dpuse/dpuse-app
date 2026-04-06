@@ -10,7 +10,7 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
 import T from '@/locales/views/session/authDialog/LoginForm.json';
 import { t } from '@/locales';
-import { useSessionStore } from '@/stores/sessionStore';
+import { useSession } from '~/src/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
@@ -23,7 +23,7 @@ import Separator from '@/components/separator/Separator.vue';
 
 const route = useRoute();
 const router = useRouter();
-const sessionStore = useSessionStore();
+const { constructFlow, destroyFlow, emailAddress } = useSession();
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -39,14 +39,13 @@ const uiStateId = ref<'enterId' | 'selectSignInMethod' | 'enterPasscode' | 'ente
 // Lifecycle Event Handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 onMounted(() => {
-    sessionStore
-        .constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state))
+    constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state))
         .then(() => (flowConstructed.value = true))
         .catch((error) =>
             reportAppError(new AppError('Failed to initialise sign in flow.', 'dpuse.sessionStore.useSessionStore.constructFlow', { typeId: 'handled' }, { cause: error }))
         );
 });
-onUnmounted(() => sessionStore.destroyFlow());
+onUnmounted(() => destroyFlow());
 
 // Login flow helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -69,7 +68,7 @@ function handleLoginFlowStateChange(state: AnyState): Promise<void> {
             handleIdEntered.value = undefined;
             handlePasswordEntered.value = undefined;
             handlePasswordBack.value = undefined;
-            sessionStore.destroyFlow();
+            destroyFlow();
             handleCloseDialog();
             return Promise.resolve();
         case 'error':
@@ -90,7 +89,7 @@ async function handleLoginFlowInitState(state: State<'login_init'>): Promise<voi
         const result = await action.run({ [input.name]: identifier });
         if (result.error) console.log(result.error, result);
 
-        sessionStore.emailAddress = identifier; // TODO: This should be moved to success state, see state.payload.user.emails...
+        emailAddress.value = identifier; // TODO: This should be moved to success state, see state.payload.user.emails...
     };
 }
 
