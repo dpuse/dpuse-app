@@ -16,13 +16,13 @@ import T from '@/locales/views/workbench/workflow/contextualiseData/Contextualis
 import { useEngine } from '@/composables/useEngine';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App Components & Views - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import List from '@/components/list/List.vue';
-import ViewScroller from '@/components/view/ViewScroller.vue';
+import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
 
-// App Components & Views - Lazy loaded as required.
+// App Components - Lazy loaded as required.
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -102,7 +102,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
         </template>
     </List>
 
-    <ViewScroller v-else-if="eventQueryRetrievalIsActive">
+    <PanelScroller v-else-if="eventQueryRetrievalIsActive">
         <EmptyStatePlaceholder :message-item-label="t(T, 'event_queries')" :description-item-label="t(T, 'event_query')" :action-item-label="t(T, 'Event_Query')" />
-    </ViewScroller>
+    </PanelScroller>
 </template>

@@ -12,7 +12,7 @@ import T from '@/locales/components/session/LoginForm.json';
 import { t } from '@/locales';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App Components & Views - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
 import LoginForm from '@/views/session/authDialog/LoginForm.vue';

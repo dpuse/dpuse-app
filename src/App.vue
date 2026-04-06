@@ -8,17 +8,17 @@ import { useRoute, useRouter } from 'vue-router';
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App Components & Views - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
-import type { KnowledgeViewId } from '@/views/knowledge/KnowledgeView.vue';
+import type { KnowledgeViewId } from '@/views/knowledge/KnowledgeLayout.vue';
 import NavProgressBar from '@/components/navProgressBar/NavProgressBar.vue'; // Required when lazy loading is delayed.
 import SessionButton from '@/views/session/SessionButton.vue'; // Always visible.
 
-// App Components & Views - Lazy loaded as required.
+// App Components - Lazy loaded as required.
 const AccountDialog = defineAsyncComponent({
     loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/views/session/accountDialog/AccountDialog.vue')),
     errorComponent: ChunkLoadError
@@ -29,7 +29,7 @@ const AuthDialog = defineAsyncComponent({
 });
 // const DialogWrapper = defineAsyncComponent({ loader: () => import('@/components/dialog/DialogWrapper.vue'), errorComponent: ChunkLoadError });
 // const KnowledgeOptionBar = defineAsyncComponent({ loader: () => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue'), errorComponent: ChunkLoadError });
-const KnowledgeView = defineAsyncComponent({ loader: () => import('@/views/knowledge/KnowledgeView.vue'), errorComponent: ChunkLoadError });
+const KnowledgeLayout = defineAsyncComponent({ loader: () => import('@/views/knowledge/KnowledgeLayout.vue'), errorComponent: ChunkLoadError });
 const PaneSplitter = defineAsyncComponent({ loader: () => import('@/components/paneSplitter/PaneSplitter.vue'), errorComponent: ChunkLoadError });
 const WorkbenchOptionBar = defineAsyncComponent({ loader: () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), errorComponent: ChunkLoadError });
 
@@ -267,7 +267,7 @@ function establishActiveAppPanelId(displayIsWide: boolean): void {
             @pointerdown="activeAppPaneId = 'knowledge'"
             @scroll.capture="activeAppPaneId = 'knowledge'"
         >
-            <KnowledgeView class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
+            <KnowledgeLayout class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
             <!-- <KnowledgeOptionBar v-if="displayIsWide" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation('knowledge')" /> -->
         </div>
 

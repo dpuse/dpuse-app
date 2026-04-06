@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // App Core
-import type { TaskLocalisedConfig } from './EstablishDataViews.vue';
+import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
 
 // Properties & Emits
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();

@@ -8,15 +8,15 @@ import { createRouter, createWebHistory, type Router, type RouterScrollBehavior,
 // App Core
 import { completeNavigation, startNavigation } from '@/composables/useNavProgress';
 
-// App Components & Views - Statically imported so always available, even when offline.
+// App Components - Statically imported so always available, even when offline.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 
-// App Components & Views - Lazy loaded as required.
-const Admin = lazyLoad('admin', () => import('@/views/workbench/admin/Admin.vue'));
-const Partner = lazyLoad('partner', () => import('@/views/workbench/partner/Partner.vue'));
-const Workflow = lazyLoad('workflow', () => import('@/views/workbench/workflow/Workflow.vue'));
+// App Components - Lazy loaded as required.
+const AdminHomeView = lazyLoad('admin', () => import('@/views/workbench/admin/AdminHomeView.vue'));
+const PartnerHomeView = lazyLoad('partner', () => import('@/views/workbench/partner/PartnerHomeView.vue'));
+const WorkflowHomeView = lazyLoad('workflow', () => import('@/views/workbench/workflow/WorkflowHomeView.vue'));
 
-const EstablishDataViews = lazyLoad('establishDataViews', () => import('@/views/workbench/workflow/establishDataViews/EstablishDataViews.vue'));
+const EstablishDataViewsLayout = lazyLoad('establishDataViews', () => import('@/views/workbench/workflow/establishDataViews/EstablishDataViewsLayout.vue'));
 const DataViewList = lazyLoad('establishDataViews', () => import('@/views/workbench/workflow/establishDataViews/DataViewList.vue'));
 const SelectConnectionPanel = lazyLoad('selectConnection', () => import('@/views/workbench/workflow/establishDataViews/SelectConnectionPanel.vue'));
 const SelectNodePanel = lazyLoad('selectNode', () => import('@/views/workbench/workflow/establishDataViews/SelectNodePanel.vue'));
@@ -25,15 +25,15 @@ const AuditRelationshipsPanel = lazyLoad('auditRelationships', () => import('@/v
 const TransformPanel = lazyLoad('transform', () => import('@/views/workbench/workflow/establishDataViews/TransformPanel.vue'));
 const InvestigatePanel = lazyLoad('investigate', () => import('@/views/workbench/workflow/establishDataViews/InvestigatePanel.vue'));
 
-const AssembleDimensions = lazyLoad('assembleDimensions', () => import('@/views/workbench/workflow/assembleDimensions/AssembleDimensions.vue'));
+const AssembleDimensionsLayout = lazyLoad('assembleDimensions', () => import('@/views/workbench/workflow/assembleDimensions/AssembleDimensionsLayout.vue'));
 const DimensionList = lazyLoad('assembleDimensions', () => import('@/views/workbench/workflow/assembleDimensions/DimensionList.vue'));
 
-const ContextualiseData = lazyLoad('contextualiseData', () => import('@/views/workbench/workflow/contextualiseData/ContextualiseData.vue'));
+const ContextualiseDataLayout = lazyLoad('contextualiseData', () => import('@/views/workbench/workflow/contextualiseData/ContextualiseDataLayout.vue'));
 const EventQueryList = lazyLoad('contextualiseData', () => import('@/views/workbench/workflow/contextualiseData/EventQueryList.vue'));
 
-const ExplorePresentations = lazyLoad('explorePresentations', () => import('@/views/workbench/workflow/explorePresentations/ExplorePresentations.vue'));
+const ExplorePresentationsView = lazyLoad('explorePresentations', () => import('@/views/workbench/workflow/explorePresentations/ExplorePresentationsView.vue'));
 
-const BuildDataApps = lazyLoad('buildDataApps', () => import('@/views/workbench/workflow/buildDataApps/BuildDataApps.vue'));
+const BuildDataAppsView = lazyLoad('buildDataApps', () => import('@/views/workbench/workflow/buildDataApps/BuildDataAppsView.vue'));
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -42,15 +42,15 @@ export const APP_ROUTES = [
         path: '/',
         children: [
             { path: '', component: { render: (): null => null } }, // Matches exactly '/'. beforeEach handles the default redirect to knowledge about.
-            { path: 'admin', children: [{ name: 'admin', path: '', component: Admin }] },
-            { path: 'partner', children: [{ name: 'partner', path: '', component: Partner }] },
+            { path: 'admin', children: [{ name: 'admin', path: '', component: AdminHomeView }] },
+            { path: 'partner', children: [{ name: 'partner', path: '', component: PartnerHomeView }] },
             {
                 path: 'workflow',
                 children: [
-                    { name: 'workflow', path: '', component: Workflow },
+                    { name: 'workflow', path: '', component: WorkflowHomeView },
                     {
                         path: 'establishDataViews',
-                        component: EstablishDataViews,
+                        component: EstablishDataViewsLayout,
                         children: [
                             { name: 'establishDataViews', path: '', component: DataViewList },
                             { name: 'selectConnection', path: 'selectConnection', component: SelectConnectionPanel },
@@ -61,10 +61,10 @@ export const APP_ROUTES = [
                             { name: 'investigate', path: 'investigate', component: InvestigatePanel }
                         ]
                     },
-                    { path: 'assembleDimensions', component: AssembleDimensions, children: [{ name: 'assembleDimensions', path: '', component: DimensionList }] },
-                    { path: 'contextualiseData', component: ContextualiseData, children: [{ name: 'contextualiseData', path: '', component: EventQueryList }] },
-                    { name: 'explorePresentations', path: 'explorePresentations', component: ExplorePresentations },
-                    { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataApps }
+                    { path: 'assembleDimensions', component: AssembleDimensionsLayout, children: [{ name: 'assembleDimensions', path: '', component: DimensionList }] },
+                    { path: 'contextualiseData', component: ContextualiseDataLayout, children: [{ name: 'contextualiseData', path: '', component: EventQueryList }] },
+                    { name: 'explorePresentations', path: 'explorePresentations', component: ExplorePresentationsView },
+                    { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsView }
                 ]
             }
         ]

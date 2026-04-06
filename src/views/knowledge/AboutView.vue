@@ -7,9 +7,9 @@ import { shallowRef, watch } from 'vue';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
 import { localeId, localiseConfigs, t } from '@/locales';
 
-// App Components & Views - Statically imported so always available, even after app goes offline.
-import ViewScroller from '@/components/view/ViewScroller.vue';
-import ViewShell from '@/components/view/ViewShell.vue';
+// App Components - Statically imported so always available, even after app goes offline.
+import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
+import ViewShell from '@/components/viewShell/ViewShell.vue';
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -38,7 +38,7 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
             :workbench-pane-is-hidden="false"
         /> -->
 
-        <ViewScroller>
+        <PanelScroller>
             <div class="bg-white py-24 sm:py-32">
                 <div class="mx-auto max-w-7xl px-6 lg:px-8">
                     <div class="mx-auto max-w-2xl lg:text-center">
@@ -82,6 +82,6 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
                     </RouterLink>
                 </div>
             </div> -->
-        </ViewScroller>
+        </PanelScroller>
     </ViewShell>
 </template>

@@ -3,7 +3,7 @@
 import { ref } from 'vue';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 
-// App Components & Views - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import Header from '@/components/header/Header.vue';
 

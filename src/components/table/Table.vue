@@ -6,7 +6,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 // App Core
 import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
-import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
+import { type DataSource, type RowData, useDataWindow } from '@/composables/useDataWindow';
 
 // Local Components — statically imported so always available, even after app goes offline.
 import TableCell from './TableRowCell.vue';
@@ -14,7 +14,6 @@ import TableColumnPicker from './TableColumnPicker.vue';
 import TableHeaderCell from './TableHeaderCell.vue';
 
 // Properties & Emits
-type RowData = Record<string, unknown>;
 type Properties = {
     columnDefinitions: ColumnDef<RowData>[];
     dataSource: DataSource;

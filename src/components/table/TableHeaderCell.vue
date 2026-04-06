@@ -4,8 +4,10 @@ import { ChevronDown } from 'lucide-vue-next';
 import type { Header } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
+// App Core
+import type { RowData } from '@/composables/useDataWindow';
+
 // Properties & Emits
-type RowData = Record<string, unknown>;
 defineProps<{ header: Header<RowData, unknown> }>();
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

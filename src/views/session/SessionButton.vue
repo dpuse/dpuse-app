@@ -7,7 +7,7 @@ import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } f
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 import { useSessionStore } from '@/stores/sessionStore';
 
-// App Components & Views - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import Mask from '@/components/mask/Mask.vue';
 import SessionMenu from '@/views/session/SessionMenu.vue';

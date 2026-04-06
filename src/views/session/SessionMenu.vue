@@ -7,7 +7,7 @@ import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'l
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
 import { useRoute, useRouter } from 'vue-router';
 
-// App Components & Views - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import Separator from '@/components/separator/Separator.vue';
 

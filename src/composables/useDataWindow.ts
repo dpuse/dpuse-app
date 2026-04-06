@@ -4,6 +4,7 @@ import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 
 // Types
 export type DataSource = { rowCount: number; getRows: (startRow: number, endRow: number) => Promise<unknown[]> };
+export type RowData = Record<string, unknown>;
 
 type Options = {
     scrollElement: Ref<HTMLElement | null>;
@@ -22,7 +23,7 @@ type DataWindow = {
     getRow: (dataIndex: number) => Record<string, unknown> | undefined;
 };
 
-// Composable ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Data Window Composable ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export function useDataWindow({
     scrollElement,
@@ -104,7 +105,7 @@ export function useDataWindow({
         return block ? (block[dataIndex % cacheBlockSize()] as Record<string, unknown>) : undefined;
     }
 
-    // Virtualizer ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Row Virtualizer ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     const virtualizer = useVirtualizer({
         get count() {
@@ -115,7 +116,7 @@ export function useDataWindow({
         overscan: 5
     });
 
-    // Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     const virtualRows = computed(() => virtualizer.value.getVirtualItems());
     const totalRowCount = computed(() => virtualizer.value.getTotalSize());

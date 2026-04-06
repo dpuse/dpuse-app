@@ -4,8 +4,10 @@ import { Settings2 } from 'lucide-vue-next';
 import type { Table } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
+// App Core
+import type { RowData } from '@/composables/useDataWindow';
+
 // Properties & Emits
-type RowData = Record<string, unknown>;
 defineProps<{ table: Table<RowData> }>();
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

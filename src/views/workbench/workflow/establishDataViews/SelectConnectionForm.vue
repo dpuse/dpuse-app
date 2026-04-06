@@ -11,7 +11,7 @@ import T from '@/locales/components/session/LoginForm.json';
 import { t } from '@/locales';
 import { useEngine } from '@/composables/useEngine';
 
-// App Components & Views - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import Input from '@/components/input/Input.vue';
 

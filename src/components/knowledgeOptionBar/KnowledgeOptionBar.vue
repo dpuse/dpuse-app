@@ -2,7 +2,7 @@
 // App Core
 import { useDisplayBreakpoint } from '@/composables/useDisplayBreakpoint';
 
-// App Components & Views - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import KnowledgeOptionBarContent from './KnowledgeOptionBarContent.vue';
 
 // Properties & Emits

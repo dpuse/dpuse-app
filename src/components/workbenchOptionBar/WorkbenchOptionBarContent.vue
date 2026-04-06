@@ -9,7 +9,7 @@ import { setActiveBenchtop } from '@/composables/useActiveBenchtop';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
 import { localeId, localiseConfigs } from '@/locales';
 
-// App Components & Views - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import HomeIcon from '@/components/icon/HomeIcon.vue';
 import Separator from '@/components/separator/Separator.vue';
 

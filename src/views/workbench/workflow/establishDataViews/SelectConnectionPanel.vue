@@ -9,11 +9,11 @@ import type { ConnectionConfig, ConnectionLocalisedConfig, ConnectorConfig } fro
 import { useSessionStore } from '@/stores/sessionStore';
 import { localeId, localiseConfigs, t } from '@/locales';
 
-// App Components & Views - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';
 import ListDetailPanel from '@/components/listDetailPanel/ListDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
-import type { TaskLocalisedConfig } from './EstablishDataViews.vue';
+import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
 
 // Properties & Emits
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();

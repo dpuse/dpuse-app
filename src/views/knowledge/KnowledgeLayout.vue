@@ -3,10 +3,10 @@
 import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
-// App Components & Views - Lazy loaded as required.
-const AboutPanel = defineAsyncComponent(() => import('./AboutPanel.vue'));
-const ChatPanel = defineAsyncComponent(() => import('./ChatPanel.vue'));
-const LibraryPanel = defineAsyncComponent(() => import('./LibraryPanel.vue'));
+// App Components - Lazy loaded as required.
+const AboutView = defineAsyncComponent(() => import('./AboutView.vue'));
+const ChatView = defineAsyncComponent(() => import('./ChatView.vue'));
+const LibraryView = defineAsyncComponent(() => import('./LibraryView.vue'));
 
 // Properties & Emits
 const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }>();
@@ -15,9 +15,9 @@ const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }
 
 export type KnowledgeViewId = 'about' | 'library' | 'chat';
 const KNOWLEDGE_PANELS: Record<KnowledgeViewId, { component: Component; label: string }> = {
-    about: { component: AboutPanel, label: 'About' },
-    library: { component: LibraryPanel, label: 'Library' },
-    chat: { component: ChatPanel, label: 'Chat' }
+    about: { component: AboutView, label: 'About' },
+    library: { component: LibraryView, label: 'Library' },
+    chat: { component: ChatView, label: 'Chat' }
 };
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -26,7 +26,7 @@ const route = useRoute();
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const activePanel = computed(() => {
+const activeView = computed(() => {
     const parameter = route.query.kView as KnowledgeViewId | undefined;
     return KNOWLEDGE_PANELS[parameter ?? 'about'] ?? KNOWLEDGE_PANELS.about;
 });
@@ -34,12 +34,12 @@ const activePanel = computed(() => {
 
 <template>
     <div class="flex h-full min-w-0 flex-1 flex-col">
-        <!-- <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="activePanel.label" :workbench-pane-is-hidden="workbenchPaneIsHidden" /> -->
+        <!-- <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="activeView.label" :workbench-pane-is-hidden="workbenchPaneIsHidden" /> -->
 
         <component
-            :is="activePanel.component"
+            :is="activeView.component"
             :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]"
-            :title="activePanel.label"
+            :title="activeView.label"
             :workbench-pane-is-hidden="workbenchPaneIsHidden"
         />
     </div>
