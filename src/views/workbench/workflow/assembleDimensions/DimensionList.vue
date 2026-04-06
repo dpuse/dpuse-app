@@ -11,8 +11,8 @@ import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObje
 
 // App Core
 import { reportAppError } from '@/observability/errorTracking';
-import { t } from '@/locales';
-import T from '@/locales/views/workbench/workflow/assembleDimensions/DimensionsList.json';
+import { t } from '~/src/services/locales';
+import T from '~/src/services/locales/views/workbench/workflow/assembleDimensions/DimensionsList.json';
 import { useEngine } from '@/composables/useEngine';
 import { useSessionStore } from '@/stores/sessionStore';
 
@@ -29,7 +29,7 @@ const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/em
 
 const route = useRoute();
 const router = useRouter();
-const sessionState = useSessionStore();
+const sessionStore = useSessionStore();
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -37,12 +37,12 @@ const dimensionRetrievalIsActive = ref(false);
 
 // Local meta store connection configuration state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const localMetaStoreConnectionConfig = computed(() => sessionState.localMetaStoreConnectionConfig);
+const localMetaStoreConnectionConfig = computed(() => sessionStore.localMetaStoreConnectionConfig);
 watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDimensions(newConnectionConfig), { immediate: true });
 
 // Local dimensions configurations state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const dimensionConfigs = computed(() => sessionState.dimensionConfigs);
+const dimensionConfigs = computed(() => sessionStore.dimensionConfigs);
 const dataSource = computed(() => ({
     rowCount: dimensionConfigs.value?.length ?? 0,
     getRows: (start: number, end: number): Promise<unknown[]> => Promise.resolve((dimensionConfigs.value ?? []).slice(start, end))
@@ -65,7 +65,7 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
         const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dimensions', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
         await processRequest('retrieveRecords', connectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
             if (data.typeId === 'chunk') {
-                sessionState.dimensionConfigs = (data.properties.records as { id: string; label: string }[]).map((record) => {
+                sessionStore.dimensionConfigs = (data.properties.records as { id: string; label: string }[]).map((record) => {
                     const localisedConfig = record;
                     return localisedConfig;
                 });

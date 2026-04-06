@@ -3,11 +3,11 @@ import { computed } from 'vue';
 
 import { useSessionStore } from '@/stores/sessionStore';
 
-const sessionState = useSessionStore();
+const sessionStore = useSessionStore();
 
-const expiresAt = computed(() => sessionState.expiresAt);
-const expiresIn = computed(() => sessionState.expiresIn);
-const lifetime = computed(() => sessionState.lifetime);
+const expiresAt = computed(() => sessionStore.expiresAt);
+const expiresIn = computed(() => sessionStore.expiresIn);
+const lifetime = computed(() => sessionStore.lifetime);
 
 const elapsed = computed(() => (lifetime.value ? ((lifetime.value - (expiresIn.value || 0)) / lifetime.value) * 100 : 0));
 

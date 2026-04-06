@@ -4,8 +4,8 @@ import { UserRoundKeyIcon } from 'lucide-vue-next';
 import { onUnmounted, ref } from 'vue';
 
 // App Core
-import T from '@/locales/components/session/LoginForm.json';
-import { t } from '@/locales';
+import T from '~/src/services/locales/components/session/LoginForm.json';
+import { t } from '~/src/services/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';

@@ -3,9 +3,9 @@
 import { shallowRef, watch } from 'vue';
 
 // App Core
-import T from '@/locales/views/workbench/workflow/Workflow.json';
+import T from '~/src/services/locales/views/workbench/workflow/Workflow.json';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
-import { localeId, localiseConfigs, t } from '@/locales';
+import { localeId, localiseConfigs, t } from '~/src/services/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';

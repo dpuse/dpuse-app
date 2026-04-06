@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // App Core
-import { t } from '@/locales';
-import T from '@/locales/views/workbench/workflow/assembleDimensions/AssembleDimensions.json';
+import { t } from '~/src/services/locales';
+import T from '~/src/services/locales/views/workbench/workflow/assembleDimensions/AssembleDimensions.json';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Header from '@/components/header/Header.vue';

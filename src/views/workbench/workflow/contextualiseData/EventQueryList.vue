@@ -11,8 +11,8 @@ import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObje
 
 // App Core
 import { reportAppError } from '@/observability/errorTracking';
-import { t } from '@/locales';
-import T from '@/locales/views/workbench/workflow/contextualiseData/ContextualiseData.json';
+import { t } from '~/src/services/locales';
+import T from '~/src/services/locales/views/workbench/workflow/contextualiseData/ContextualiseData.json';
 import { useEngine } from '@/composables/useEngine';
 import { useSessionStore } from '@/stores/sessionStore';
 
@@ -29,7 +29,7 @@ const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/em
 
 const route = useRoute();
 const router = useRouter();
-const sessionState = useSessionStore();
+const sessionStore = useSessionStore();
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -37,12 +37,12 @@ const eventQueryRetrievalIsActive = ref(false);
 
 // Local meta store connection configuration state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const localMetaStoreConnectionConfig = computed(() => sessionState.localMetaStoreConnectionConfig);
+const localMetaStoreConnectionConfig = computed(() => sessionStore.localMetaStoreConnectionConfig);
 watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveEventQueries(newConnectionConfig), { immediate: true });
 
 // Local event query configurations state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const eventQueryConfigs = computed(() => sessionState.eventQueryConfigs);
+const eventQueryConfigs = computed(() => sessionStore.eventQueryConfigs);
 const dataSource = computed(() => ({
     rowCount: eventQueryConfigs.value?.length ?? 0,
     getRows: (start: number, end: number): Promise<unknown[]> => Promise.resolve((eventQueryConfigs.value ?? []).slice(start, end))
@@ -65,7 +65,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
         const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/eventQueries', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
         await processRequest('retrieveRecords', connectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
             if (data.typeId === 'chunk') {
-                sessionState.eventQueryConfigs = (data.properties.records as { id: string; label: string }[]).map((record) => {
+                sessionStore.eventQueryConfigs = (data.properties.records as { id: string; label: string }[]).map((record) => {
                     const localisedConfig = record;
                     return localisedConfig;
                 });

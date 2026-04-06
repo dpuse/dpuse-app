@@ -5,9 +5,9 @@ import { shallowRef, watch } from 'vue';
 
 // App Core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
-import { setActiveBenchtop } from '@/composables/useActiveBenchtop';
+import { setActiveBenchtop } from '~/src/state/useActiveBenchtop';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
-import { localeId, localiseConfigs } from '@/locales';
+import { localeId, localiseConfigs } from '~/src/services/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import HomeIcon from '@/components/icon/HomeIcon.vue';

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // App Core
-import { useNavProgress } from '@/composables/useNavProgress';
+import { useNavProgress } from '~/src/state/useNavProgress';
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

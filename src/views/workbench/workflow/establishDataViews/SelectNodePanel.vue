@@ -18,7 +18,7 @@ const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalise
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const sessionState = useSessionStore();
+const sessionStore = useSessionStore();
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -28,7 +28,7 @@ function triggerComplete(): void {
 
 // EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const connectorConfigs = computed(() => sessionState.connectorConfigs);
+const connectorConfigs = computed(() => sessionStore.connectorConfigs);
 const connectorConfig = shallowRef();
 const connectionConfig = shallowRef();
 const listNodesResult = shallowRef();

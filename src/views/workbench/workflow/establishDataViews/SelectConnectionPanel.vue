@@ -7,7 +7,7 @@ import type { ConnectionConfig, ConnectionLocalisedConfig, ConnectorConfig } fro
 
 // App Core
 import { useSessionStore } from '@/stores/sessionStore';
-import { localeId, localiseConfigs, t } from '@/locales';
+import { localeId, localiseConfigs, t } from '~/src/services/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';
@@ -21,11 +21,11 @@ const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalise
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const sessionState = useSessionStore();
+const sessionStore = useSessionStore();
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const connectionConfigs = computed(() => sessionState.connectionConfigs);
+const connectionConfigs = computed(() => sessionStore.connectionConfigs);
 const localisedConnectionConfigs = shallowRef<ConnectionLocalisedConfig[]>();
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -42,7 +42,7 @@ function triggerComplete(): void {
 
 // EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const connectorConfigs = computed(() => sessionState.connectorConfigs);
+const connectorConfigs = computed(() => sessionStore.connectorConfigs);
 const connectorConfig = shallowRef();
 const connectionConfig = shallowRef();
 

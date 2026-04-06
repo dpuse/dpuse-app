@@ -1,10 +1,10 @@
 <script setup lang="ts">
 // App Core
-import T from '@/locales/components/session/SessionMenu.json';
+import T from '~/src/services/locales/components/session/SessionMenu.json';
 import { useSessionStore } from '@/stores/sessionStore';
 import { computed, nextTick, onUnmounted, ref } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'lucide-vue-next';
-import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
+import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '~/src/services/locales';
 import { useRoute, useRouter } from 'vue-router';
 
 // App Components - Statically imported so always available, even after app goes offline.
@@ -30,13 +30,13 @@ onUnmounted(() => document.removeEventListener('fullscreenchange', handleFullscr
 async function toggleFullscreen(): Promise<void> {
     await (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen());
 }
-const sessionState = useSessionStore();
+const sessionStore = useSessionStore();
 const route = useRoute();
 const router = useRouter();
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const sessionIsAuthenticated = computed(() => sessionState.isAuthenticated);
+const sessionIsAuthenticated = computed(() => sessionStore.isAuthenticated);
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -68,7 +68,7 @@ function handleSignInRegister(): void {
 }
 
 function handleSignOut(): void {
-    sessionState.signOut().then(() => emit('continue'));
+    sessionStore.signOut().then(() => emit('continue'));
 }
 
 function handleToggleWindowExpansion(): void {

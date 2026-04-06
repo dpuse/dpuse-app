@@ -7,8 +7,8 @@ import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/co
 import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
 
 // App Core
-import T from '@/locales/components/session/LoginForm.json';
-import { t } from '@/locales';
+import T from '~/src/services/locales/components/session/LoginForm.json';
+import { t } from '~/src/services/locales';
 import { useEngine } from '@/composables/useEngine';
 
 // App Components - Statically imported so always available, even after app goes offline.

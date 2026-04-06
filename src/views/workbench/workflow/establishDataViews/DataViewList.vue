@@ -17,8 +17,8 @@ import type {
 
 // App Core
 import { reportAppError } from '@/observability/errorTracking';
-import { t } from '@/locales';
-import T from '@/locales/views/workbench/workflow/establishDataViews/EstablishDataViews.json';
+import { t } from '~/src/services/locales';
+import T from '~/src/services/locales/views/workbench/workflow/establishDataViews/EstablishDataViews.json';
 import { useEngine } from '@/composables/useEngine';
 import { useSessionStore } from '@/stores/sessionStore';
 
@@ -33,7 +33,7 @@ const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/em
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const route = useRoute();
-const sessionState = useSessionStore();
+const sessionStore = useSessionStore();
 
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -41,12 +41,12 @@ const dataViewRetrievalIsActive = ref(false);
 
 // Local meta store connection configuration state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const localMetaStoreConnectionConfig = computed(() => sessionState.localMetaStoreConnectionConfig);
+const localMetaStoreConnectionConfig = computed(() => sessionStore.localMetaStoreConnectionConfig);
 watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDataViews(newConnectionConfig), { immediate: true });
 
 // Local data view configurations state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const dataViewConfigs = computed(() => sessionState.dataViewConfigs);
+const dataViewConfigs = computed(() => sessionStore.dataViewConfigs);
 const dataSource = computed(() => ({
     rowCount: dataViewConfigs.value?.length ?? 0,
     getRows: (start: number, end: number): Promise<unknown[]> => Promise.resolve((dataViewConfigs.value ?? []).slice(start, end))
@@ -82,7 +82,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dataViews', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
         await processRequest('retrieveRecords', connectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
             if (data.typeId === 'chunk') {
-                sessionState.dataViewConfigs = (data.properties.records as { id: string; label: string }[]).map((record) => {
+                sessionStore.dataViewConfigs = (data.properties.records as { id: string; label: string }[]).map((record) => {
                     const localisedConfig = record;
                     return localisedConfig;
                 });
@@ -92,10 +92,10 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         });
 
         // // TODO: Temporary code.
-        // if (!sessionState.dataViewConfigs.length) {
-        //     sessionState.dataViewConfigs = [];
+        // if (!sessionStore.dataViewConfigs.length) {
+        //     sessionStore.dataViewConfigs = [];
         //     for (let index = 1; index < 26; index++)
-        //         sessionState.dataViewConfigs.push({
+        //         sessionStore.dataViewConfigs.push({
         //             id: `id${index}`,
         //             label: `Data View ${index}`,
         //             description: `Data view ${index} description...`,

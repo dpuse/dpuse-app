@@ -5,8 +5,8 @@ import { useRoute } from 'vue-router';
 import { computed, ref, shallowRef, watch } from 'vue';
 
 // App Core
-import T from '@/locales/views/workbench/workflow/establishDataViews/EstablishDataViews.json';
-import { localeId, type LocaleLabel, localiseConfigs, t } from '@/locales';
+import T from '~/src/services/locales/views/workbench/workflow/establishDataViews/EstablishDataViews.json';
+import { localeId, type LocaleLabel, localiseConfigs, t } from '~/src/services/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Header from '@/components/header/Header.vue';
