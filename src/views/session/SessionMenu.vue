@@ -1,10 +1,10 @@
 <script setup lang="ts">
 // App Core
-import T from '~/src/services/locales/components/session/SessionMenu.json';
+import T from '@/locales/views/session/SessionMenu.json';
 import { useSessionStore } from '@/stores/sessionStore';
 import { computed, nextTick, onUnmounted, ref } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'lucide-vue-next';
-import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '~/src/services/locales';
+import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
 import { useRoute, useRouter } from 'vue-router';
 
 // App Components - Statically imported so always available, even after app goes offline.

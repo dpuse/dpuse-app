@@ -7,7 +7,7 @@ import type { ConnectionConfig, ConnectionLocalisedConfig, ConnectorConfig } fro
 
 // App Core
 import { useSessionStore } from '@/stores/sessionStore';
-import { localeId, localiseConfigs, t } from '~/src/services/locales';
+import { localeId, localiseConfigs, t } from '@/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';

@@ -5,7 +5,7 @@ import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
-import { useDisplayBreakpoint } from '~/src/state/useDisplayBreakpoint';
+import { useDisplayBreakpoint } from '~/src/composables/useDisplayBreakpoint';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components - Statically imported so always available, even after app goes offline.

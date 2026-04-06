@@ -5,7 +5,7 @@ import { shallowRef, watch } from 'vue';
 
 // App Core
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
-import { localeId, localiseConfigs, t } from '~/src/services/locales';
+import { localeId, localiseConfigs, t } from '@/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import PanelScroller from '@/components/panelScroller/PanelScroller.vue';

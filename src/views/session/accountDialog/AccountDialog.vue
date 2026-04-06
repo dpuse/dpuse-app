@@ -5,9 +5,9 @@ import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef,
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
-import { t } from '~/src/services/locales';
-import T from '~/src/services/locales/views/session/accountDialog/AccountDialog.json';
-import { useDisplayBreakpoint } from '~/src/state/useDisplayBreakpoint';
+import { t } from '@/locales';
+import T from '@/locales/views/session/accountDialog/AccountDialog.json';
+import { useDisplayBreakpoint } from '~/src/composables/useDisplayBreakpoint';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';

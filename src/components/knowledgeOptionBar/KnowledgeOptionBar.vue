@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // App Core
-import { useDisplayBreakpoint } from '~/src/state/useDisplayBreakpoint';
+import { useDisplayBreakpoint } from '~/src/composables/useDisplayBreakpoint';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import KnowledgeOptionBarContent from './KnowledgeOptionBarContent.vue';

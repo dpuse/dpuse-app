@@ -3,8 +3,8 @@
 import { ref } from 'vue';
 
 // App Core
-import T from '~/src/services/locales/components/session/PasswordForm.json';
-import { t } from '~/src/services/locales';
+import T from '@/locales/views/session/authDialog/PasswordForm.json';
+import { t } from '@/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';

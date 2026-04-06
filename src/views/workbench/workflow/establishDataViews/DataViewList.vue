@@ -17,9 +17,9 @@ import type {
 
 // App Core
 import { reportAppError } from '@/observability/errorTracking';
-import { t } from '~/src/services/locales';
-import T from '~/src/services/locales/views/workbench/workflow/establishDataViews/EstablishDataViews.json';
-import { useEngine } from '@/composables/useEngine';
+import { t } from '@/locales';
+import T from '@/locales/views/workbench/workflow/establishDataViews/EstablishDataViews.json';
+import { useEngine } from '@/services/useEngine';
 import { useSessionStore } from '@/stores/sessionStore';
 
 // App Components - Statically imported so always available, even after app goes offline.
