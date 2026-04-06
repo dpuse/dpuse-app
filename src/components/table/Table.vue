@@ -21,17 +21,13 @@ type Properties = {
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
 };
-const { columnDefinitions, dataSource, cacheBlockSize, maxBlocksInCache } = defineProps<Properties>();
+const { columnDefinitions, dataSource, cacheBlockSize = 100, maxBlocksInCache = 10 } = defineProps<Properties>();
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000;
+const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000; // Empirically chosen — below this width, flat rendering is cheaper than virtualizer overhead.
 
 // Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-// Column virtualization is only activated when the total initial column width exceeds the threshold.
-// Below the threshold, all columns are rendered in a flat flex row — simpler and cheaper.
-const isColumnVirtualisationRequired = columnDefinitions.reduce((sum, col) => sum + (col.size ?? 150), 0) > COLUMN_VIRTUALIZATION_THRESHOLD_PX;
 
 const scrollElement = ref<HTMLElement | null>(null);
 
@@ -47,11 +43,12 @@ const columnPinningStateMap = ref<ColumnPinningState>({});
 const columnSizingStateMap = ref<ColumnSizingState>({});
 const columnVisibilityStateMap = ref<VisibilityState>({});
 
-// Composable rules prevent conditional useVirtualizer calls, so it is always called;
-// when not needed, count is set to 0 so it remains idle.
+// Column virtualization is only activated when the total initial column width exceeds the threshold.
+// Below the threshold, all columns are rendered in a flat flex row — simpler and cheaper.
+const isColumnVirtualisationRequired = computed(() => columnDefinitions.reduce((sum, col) => sum + (col.size ?? 150), 0) > COLUMN_VIRTUALIZATION_THRESHOLD_PX);
 const columnVirtualizer = useVirtualizer({
     get count() {
-        return isColumnVirtualisationRequired ? centerLeafHeaders.value.length : 0; // Idle when not needed.
+        return isColumnVirtualisationRequired.value ? centerLeafHeaders.value.length : 0;
     },
     estimateSize: (index) => centerLeafHeaders.value[index]?.column.getSize() ?? 150,
     getScrollElement: () => scrollElement.value,
@@ -64,8 +61,8 @@ const columnVirtualizer = useVirtualizer({
 const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
-    cacheBlockSize: cacheBlockSize === undefined ? undefined : (): number => cacheBlockSize,
-    maxBlocksInCache: maxBlocksInCache === undefined ? undefined : (): number => maxBlocksInCache
+    cacheBlockSize: () => cacheBlockSize,
+    maxBlocksInCache: () => maxBlocksInCache
 });
 
 // Local State - Table ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -100,22 +97,22 @@ const table = useVueTable<RowData>({
     },
     onColumnSizingChange: (updater) => {
         columnSizingStateMap.value = typeof updater === 'function' ? updater(columnSizingStateMap.value) : updater;
-        if (isColumnVirtualisationRequired) columnVirtualizer.value.measure();
+        if (isColumnVirtualisationRequired.value) columnVirtualizer.value.measure();
     }
 });
 
 // Derived State - Columns ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const leftLeafHeaders = computed(() => table.getLeftLeafHeaders());
 const centerLeafHeaders = computed(() => table.getCenterLeafHeaders());
-const rightLeafHeaders = computed(() => table.getRightLeafHeaders());
+const leftLeafHeaders = computed(() => table.getLeftLeafHeaders());
 const leftPinnedWidth = computed(() => leftLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0));
+const rightLeafHeaders = computed(() => table.getRightLeafHeaders());
 const rightPinnedWidth = computed(() => rightLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0));
 const totalCenterWidth = computed(() =>
-    isColumnVirtualisationRequired ? columnVirtualizer.value.getTotalSize() : centerLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0)
+    isColumnVirtualisationRequired.value ? columnVirtualizer.value.getTotalSize() : centerLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0)
 );
 const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value + rightPinnedWidth.value);
-const virtualColumns = computed(() => columnVirtualizer.value.getVirtualItems());
+const virtualColumns = computed(() => (isColumnVirtualisationRequired.value ? columnVirtualizer.value.getVirtualItems() : []));
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -138,10 +135,10 @@ onBeforeUnmount(() => toolbarObserver?.disconnect());
         </div>
 
         <!-- Scroll container — single element for both row and column virtualizers -->
-        <div ref="scrollElement" class="flex-1 overflow-auto" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
+        <div ref="scrollElement" class="flex-1 overflow-auto overscroll-none">
             <div :style="{ minWidth: totalWidth + 'px' }">
                 <!-- Header -->
-                <div class="sticky top-0 z-10 flex border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900" style="height: 40px">
+                <div class="sticky top-0 z-10 flex h-10 border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
                     <!-- Left pinned headers -->
                     <div
                         v-for="leftLeafHeader in leftLeafHeaders"
@@ -157,23 +154,22 @@ onBeforeUnmount(() => toolbarObserver?.disconnect());
                         <div
                             v-for="centerLeafHeader in centerLeafHeaders"
                             :key="centerLeafHeader.id"
-                            class="centerLeafHeader-full shrink-0"
+                            class="h-full shrink-0"
                             :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
                         >
                             <TableHeaderCell :header="centerLeafHeader" />
                         </div>
                     </template>
 
-                    <div v-else :style="{ position: 'relative', width: totalCenterWidth + 'px', flexShrink: 0 }">
-                        <template v-for="virtualColumn in virtualColumns" :key="virtualColumn.key">
-                            <div
-                                v-if="centerLeafHeaders[virtualColumn.index]"
-                                class="absolute top-0 h-full"
-                                :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
-                            >
-                                <TableHeaderCell :header="centerLeafHeaders[virtualColumn.index]!" />
-                            </div>
-                        </template>
+                    <div v-else class="relative shrink-0" :style="{ width: totalCenterWidth + 'px' }">
+                        <div
+                            v-for="virtualColumn in virtualColumns"
+                            :key="virtualColumn.index"
+                            class="absolute top-0 h-full"
+                            :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
+                        >
+                            <TableHeaderCell :header="centerLeafHeaders[virtualColumn.index]!" />
+                        </div>
                     </div>
 
                     <!-- Right pinned headers -->
@@ -188,12 +184,12 @@ onBeforeUnmount(() => toolbarObserver?.disconnect());
                 </div>
 
                 <!-- Virtual rows spacer -->
-                <div :style="{ height: totalRowCount + 'px', position: 'relative' }">
+                <div class="relative" :style="{ height: totalRowCount + 'px' }">
                     <div
                         v-for="(vRow, i) in virtualRows"
                         :key="vRow.index"
-                        class="group absolute flex border-b border-zinc-100 bg-white dark:border-zinc-800 dark:bg-zinc-950"
-                        :style="{ top: 0, transform: `translateY(${vRow.start}px)`, height: vRow.size + 'px', width: totalWidth + 'px' }"
+                        class="group absolute top-0 flex border-b border-zinc-100 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+                        :style="{ transform: `translateY(${vRow.start}px)`, height: vRow.size + 'px', width: totalWidth + 'px' }"
                     >
                         <!-- Left pinned cells -->
                         <TableCell
@@ -217,16 +213,15 @@ onBeforeUnmount(() => toolbarObserver?.disconnect());
                             />
                         </template>
 
-                        <div v-else class="group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900" :style="{ position: 'relative', width: totalCenterWidth + 'px', flexShrink: 0 }">
-                            <template v-for="virtualColumn in virtualColumns" :key="virtualColumn.key">
-                                <TableCell
-                                    v-if="centerLeafHeaders[virtualColumn.index]"
-                                    :value="visibleRowData[i]?.[centerLeafHeaders[virtualColumn.index]!.column.id]"
-                                    :loading="visibleRowData[i] === undefined"
-                                    class="absolute top-0 h-full"
-                                    :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
-                                />
-                            </template>
+                        <div v-else class="relative shrink-0 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900" :style="{ width: totalCenterWidth + 'px' }">
+                            <TableCell
+                                v-for="virtualColumn in virtualColumns"
+                                :key="virtualColumn.index"
+                                :value="visibleRowData[i]?.[centerLeafHeaders[virtualColumn.index]!.column.id]"
+                                :loading="visibleRowData[i] === undefined"
+                                class="absolute top-0 h-full"
+                                :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
+                            />
                         </div>
 
                         <!-- Right pinned cells -->

@@ -1,14 +1,14 @@
 <script setup lang="ts">
 // App Core
+import type { ColumnDef } from '@tanstack/vue-table';
 import type { DataSource } from '@/composables/useDataWindow';
 import { t } from '@/locales';
 import T from '@/locales/views/workbench/workflow/buildDataApps/BuildDataApps.json';
 
 // App Components & Views - Statically imported so always available, even after app goes offline.
 import Header from '@/components/header/Header.vue';
-import ViewShell from '@/components/view/ViewShell.vue';
-import type { ColumnDef } from '@tanstack/vue-table';
 import Table from '@/components/table/Table.vue';
+import ViewShell from '@/components/view/ViewShell.vue';
 
 // EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
