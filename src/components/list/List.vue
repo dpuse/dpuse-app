@@ -81,6 +81,7 @@ onUnmounted(() => resizeObserver.disconnect());
                 </div>
             </div>
         </div>
+
         <ScrollThumb :scroll-element="scrollElement" :row-count="dataSource.rowCount" />
     </div>
 </template>
