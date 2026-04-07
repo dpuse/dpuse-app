@@ -10,7 +10,7 @@ import { useSession } from '@/state/useSession';
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import Mask from '@/components/mask/Mask.vue';
-import SessionMenu from '@/views/session/SessionMenu.vue';
+import SessionMenu from '@/domains/session/SessionMenu.vue';
 
 // Properties & Emits
 const { workbenchOptionBarIsVisible } = defineProps<{ workbenchOptionBarIsVisible: boolean }>();

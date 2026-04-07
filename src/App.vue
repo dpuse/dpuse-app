@@ -14,22 +14,22 @@ import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
-import type { KnowledgeViewId } from '@/views/knowledge/KnowledgeLayout.vue';
+import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
 import NavProgressBar from '@/components/navProgressBar/NavProgressBar.vue'; // Required when lazy loading is delayed.
-import SessionButton from '@/views/session/SessionButton.vue'; // Always visible.
+import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
 
 // App Components - Lazy loaded as required.
 const AccountDialog = defineAsyncComponent({
-    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/views/session/accountDialog/AccountDialog.vue')),
+    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/domains/session/accountDialog/AccountDialog.vue')),
     errorComponent: ChunkLoadError
 });
 const AuthDialog = defineAsyncComponent({
-    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/views/session/authDialog/AuthDialog.vue')),
+    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/domains/session/authDialog/AuthDialog.vue')),
     errorComponent: ChunkLoadError
 });
 // const DialogWrapper = defineAsyncComponent({ loader: () => import('@/components/dialog/DialogWrapper.vue'), errorComponent: ChunkLoadError });
 // const KnowledgeOptionBar = defineAsyncComponent({ loader: () => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue'), errorComponent: ChunkLoadError });
-const KnowledgeLayout = defineAsyncComponent({ loader: () => import('@/views/knowledge/KnowledgeLayout.vue'), errorComponent: ChunkLoadError });
+const KnowledgeLayout = defineAsyncComponent({ loader: () => import('@/domains/knowledge/KnowledgeLayout.vue'), errorComponent: ChunkLoadError });
 const PaneSplitter = defineAsyncComponent({ loader: () => import('@/components/paneSplitter/PaneSplitter.vue'), errorComponent: ChunkLoadError });
 const WorkbenchOptionBar = defineAsyncComponent({ loader: () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), errorComponent: ChunkLoadError });
 

@@ -8,15 +8,15 @@ import { useRoute, useRouter } from 'vue-router';
 // App Core
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
-import T from '@/locales/views/session/authDialog/LoginForm.json';
+import T from '@/locales/domains/session/authDialog/LoginForm.json';
 import { t } from '@/locales';
 import { useSession } from '@/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
-import LoginForm from '@/views/session/authDialog/LoginForm.vue';
-import PasswordForm from '@/views/session/authDialog/PasswordForm.vue';
+import LoginForm from '@/domains/session/authDialog/LoginForm.vue';
+import PasswordForm from '@/domains/session/authDialog/PasswordForm.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

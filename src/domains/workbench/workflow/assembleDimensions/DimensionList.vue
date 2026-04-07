@@ -12,7 +12,7 @@ import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObje
 // App Core
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/locales';
-import T from '@/locales/views/workbench/workflow/assembleDimensions/DimensionsList.json';
+import T from '@/locales/domains/workbench/workflow/assembleDimensions/DimensionsList.json';
 import { useEngine } from '@/services/useEngine';
 import { useSession } from '@/state/useSession';
 

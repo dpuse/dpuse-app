@@ -12,28 +12,28 @@ import { completeNavigation, startNavigation } from '@/state/useNavProgress';
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 
 // App Components - Lazy loaded as required.
-const AdminHomeView = lazyLoad('admin', () => import('@/views/workbench/admin/AdminHomeView.vue'));
-const PartnerHomeView = lazyLoad('partner', () => import('@/views/workbench/partner/PartnerHomeView.vue'));
-const WorkflowHomeView = lazyLoad('workflow', () => import('@/views/workbench/workflow/WorkflowHomeView.vue'));
+const AdminHomeView = lazyLoad('admin', () => import('@/domains/workbench/admin/AdminHomeView.vue'));
+const PartnerHomeView = lazyLoad('partner', () => import('@/domains/workbench/partner/PartnerHomeView.vue'));
+const WorkflowHomeView = lazyLoad('workflow', () => import('@/domains/workbench/workflow/WorkflowHomeView.vue'));
 
-const EstablishDataViewsLayout = lazyLoad('establishDataViews', () => import('@/views/workbench/workflow/establishDataViews/EstablishDataViewsLayout.vue'));
-const DataViewList = lazyLoad('establishDataViews', () => import('@/views/workbench/workflow/establishDataViews/DataViewList.vue'));
-const SelectConnectionPanel = lazyLoad('selectConnection', () => import('@/views/workbench/workflow/establishDataViews/SelectConnectionPanel.vue'));
-const SelectNodePanel = lazyLoad('selectNode', () => import('@/views/workbench/workflow/establishDataViews/SelectNodePanel.vue'));
-const AuditContentPanel = lazyLoad('auditContent', () => import('@/views/workbench/workflow/establishDataViews/AuditContentPanel.vue'));
-const AuditRelationshipsPanel = lazyLoad('auditRelationships', () => import('@/views/workbench/workflow/establishDataViews/AuditRelationshipsPanel.vue'));
-const TransformPanel = lazyLoad('transform', () => import('@/views/workbench/workflow/establishDataViews/TransformPanel.vue'));
-const InvestigatePanel = lazyLoad('investigate', () => import('@/views/workbench/workflow/establishDataViews/InvestigatePanel.vue'));
+const EstablishDataViewsLayout = lazyLoad('establishDataViews', () => import('@/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.vue'));
+const DataViewList = lazyLoad('establishDataViews', () => import('@/domains/workbench/workflow/establishDataViews/DataViewList.vue'));
+const SelectConnectionPanel = lazyLoad('selectConnection', () => import('@/domains/workbench/workflow/establishDataViews/SelectConnectionPanel.vue'));
+const SelectNodePanel = lazyLoad('selectNode', () => import('@/domains/workbench/workflow/establishDataViews/SelectNodePanel.vue'));
+const AuditContentPanel = lazyLoad('auditContent', () => import('@/domains/workbench/workflow/establishDataViews/AuditContentPanel.vue'));
+const AuditRelationshipsPanel = lazyLoad('auditRelationships', () => import('@/domains/workbench/workflow/establishDataViews/AuditRelationshipsPanel.vue'));
+const TransformPanel = lazyLoad('transform', () => import('@/domains/workbench/workflow/establishDataViews/TransformPanel.vue'));
+const InvestigatePanel = lazyLoad('investigate', () => import('@/domains/workbench/workflow/establishDataViews/InvestigatePanel.vue'));
 
-const AssembleDimensionsLayout = lazyLoad('assembleDimensions', () => import('@/views/workbench/workflow/assembleDimensions/AssembleDimensionsLayout.vue'));
-const DimensionList = lazyLoad('assembleDimensions', () => import('@/views/workbench/workflow/assembleDimensions/DimensionList.vue'));
+const AssembleDimensionsLayout = lazyLoad('assembleDimensions', () => import('@/domains/workbench/workflow/assembleDimensions/AssembleDimensionsLayout.vue'));
+const DimensionList = lazyLoad('assembleDimensions', () => import('@/domains/workbench/workflow/assembleDimensions/DimensionList.vue'));
 
-const ContextualiseDataLayout = lazyLoad('contextualiseData', () => import('@/views/workbench/workflow/contextualiseData/ContextualiseDataLayout.vue'));
-const EventQueryList = lazyLoad('contextualiseData', () => import('@/views/workbench/workflow/contextualiseData/EventQueryList.vue'));
+const ContextualiseDataLayout = lazyLoad('contextualiseData', () => import('@/domains/workbench/workflow/contextualiseData/ContextualiseDataLayout.vue'));
+const EventQueryList = lazyLoad('contextualiseData', () => import('@/domains/workbench/workflow/contextualiseData/EventQueryList.vue'));
 
-const ExplorePresentationsView = lazyLoad('explorePresentations', () => import('@/views/workbench/workflow/explorePresentations/ExplorePresentationsView.vue'));
+const ExplorePresentationsView = lazyLoad('explorePresentations', () => import('@/domains/workbench/workflow/explorePresentations/ExplorePresentationsView.vue'));
 
-const BuildDataAppsView = lazyLoad('buildDataApps', () => import('@/views/workbench/workflow/buildDataApps/BuildDataAppsView.vue'));
+const BuildDataAppsView = lazyLoad('buildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsView.vue'));
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

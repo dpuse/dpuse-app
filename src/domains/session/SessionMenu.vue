@@ -5,7 +5,7 @@ import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'l
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
-import T from '@/locales/views/session/SessionMenu.json';
+import T from '@/locales/domains/session/SessionMenu.json';
 import { useSession } from '@/state/useSession';
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
 

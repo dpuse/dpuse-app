@@ -7,7 +7,7 @@ import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/co
 import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
 
 // App Core
-import T from '@/locales/views/session/authDialog/LoginForm.json';
+import T from '@/locales/domains/session/authDialog/LoginForm.json';
 import { t } from '@/locales';
 import { useEngine } from '@/services/useEngine';
 
