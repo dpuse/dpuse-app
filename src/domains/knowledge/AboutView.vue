@@ -5,7 +5,7 @@ import { shallowRef, watch } from 'vue';
 // App Core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
-import { localeId, localiseConfigs, t } from '@/locales';
+import { localeId, localiseConfigs } from '@/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
@@ -13,7 +13,7 @@ import ViewShell from '@/components/viewShell/ViewShell.vue';
 
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const workflowStepConfigs = shallowRef<BenchtopOptionLocalisedConfig[]>();
+const workflowStepConfigs = shallowRef<BenchtopOptionLocalisedConfig[]>([]);
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

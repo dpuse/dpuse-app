@@ -21,7 +21,7 @@ const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalise
 
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const localisedConnectionConfigs = shallowRef<ConnectionLocalisedConfig[]>();
+const localisedConnectionConfigs = shallowRef<ConnectionLocalisedConfig[]>([]);
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

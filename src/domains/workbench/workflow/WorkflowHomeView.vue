@@ -3,6 +3,7 @@
 import { shallowRef, watch } from 'vue';
 
 // App Core
+import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import T from '@/locales/domains/workbench/workflow/Workflow.json';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
 import { localeId, localiseConfigs, t } from '@/locales';
@@ -15,11 +16,11 @@ import ViewShell from '@/components/viewShell/ViewShell.vue';
 
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const workflowStepConfigs = shallowRef();
+const workflowStepConfigs = shallowRef<BenchtopOptionLocalisedConfig[]>([]);
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(workflowStepData, newLocaleId)), { immediate: true }); // TODO: T type
+watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs<BenchtopOptionLocalisedConfig>(workflowStepData, newLocaleId)), { immediate: true });
 </script>
 
 <template>
