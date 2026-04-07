@@ -12,9 +12,9 @@ import { completeNavigation, startNavigation } from '@/state/navProgress';
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 
 // App Components - Lazy loaded as required.
-const AdminHomeView = lazyLoad('admin', () => import('@/domains/workbench/admin/AdminHomeView.vue'));
-const PartnerHomeView = lazyLoad('partner', () => import('@/domains/workbench/partner/PartnerHomeView.vue'));
-const WorkflowHomeView = lazyLoad('workflow', () => import('@/domains/workbench/workflow/WorkflowHomeView.vue'));
+const AdminHomeLayout = lazyLoad('admin', () => import('@/domains/workbench/admin/AdminHomeLayout.vue'));
+const PartnerHomeLayout = lazyLoad('partner', () => import('@/domains/workbench/partner/PartnerHomeLayout.vue'));
+const WorkflowHomeLayout = lazyLoad('workflow', () => import('@/domains/workbench/workflow/WorkflowHomeLayout.vue'));
 
 const EstablishDataViewsLayout = lazyLoad('establishDataViews', () => import('@/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.vue'));
 const DataViewList = lazyLoad('establishDataViews', () => import('@/domains/workbench/workflow/establishDataViews/DataViewList.vue'));
@@ -31,9 +31,9 @@ const DimensionList = lazyLoad('assembleDimensions', () => import('@/domains/wor
 const ContextualiseDataLayout = lazyLoad('contextualiseData', () => import('@/domains/workbench/workflow/contextualiseData/ContextualiseDataLayout.vue'));
 const EventQueryList = lazyLoad('contextualiseData', () => import('@/domains/workbench/workflow/contextualiseData/EventQueryList.vue'));
 
-const ExplorePresentationsView = lazyLoad('explorePresentations', () => import('@/domains/workbench/workflow/explorePresentations/ExplorePresentationsView.vue'));
+const ExplorePresentationsLayout = lazyLoad('explorePresentations', () => import('@/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.vue'));
 
-const BuildDataAppsView = lazyLoad('buildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsView.vue'));
+const BuildDataAppsLayout = lazyLoad('buildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'));
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -42,12 +42,12 @@ export const APP_ROUTES = [
         path: '/',
         children: [
             { path: '', component: { render: (): null => null } }, // Matches exactly '/'. beforeEach handles the default redirect to knowledge about.
-            { path: 'admin', children: [{ name: 'admin', path: '', component: AdminHomeView }] },
-            { path: 'partner', children: [{ name: 'partner', path: '', component: PartnerHomeView }] },
+            { path: 'admin', children: [{ name: 'admin', path: '', component: AdminHomeLayout }] },
+            { path: 'partner', children: [{ name: 'partner', path: '', component: PartnerHomeLayout }] },
             {
                 path: 'workflow',
                 children: [
-                    { name: 'workflow', path: '', component: WorkflowHomeView },
+                    { name: 'workflow', path: '', component: WorkflowHomeLayout },
                     {
                         path: 'establishDataViews',
                         component: EstablishDataViewsLayout,
@@ -63,8 +63,8 @@ export const APP_ROUTES = [
                     },
                     { path: 'assembleDimensions', component: AssembleDimensionsLayout, children: [{ name: 'assembleDimensions', path: '', component: DimensionList }] },
                     { path: 'contextualiseData', component: ContextualiseDataLayout, children: [{ name: 'contextualiseData', path: '', component: EventQueryList }] },
-                    { name: 'explorePresentations', path: 'explorePresentations', component: ExplorePresentationsView },
-                    { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsView }
+                    { name: 'explorePresentations', path: 'explorePresentations', component: ExplorePresentationsLayout },
+                    { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsLayout }
                 ]
             }
         ]

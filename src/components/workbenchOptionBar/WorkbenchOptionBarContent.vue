@@ -1,11 +1,11 @@
 <script setup lang="ts">
 // External Dependencies
-import { shallowRef, watch } from 'vue';
+import { computed } from 'vue';
 
 // App Core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { setActiveBenchtop } from '@/state/activeBenchtop';
-import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
+import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
 import { localeId, localiseConfigs } from '@/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
@@ -15,13 +15,9 @@ import Separator from '@/components/separator/Separator.vue';
 // Properties & Emits
 const emit = defineEmits<{ (event: 'continue'): void }>();
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const workflowStepConfigs = shallowRef<BenchtopOptionLocalisedConfig[]>([]);
-
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs<BenchtopOptionLocalisedConfig>(workflowStepData, newLocaleId)), { immediate: true });
+const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocalisedConfig>(workflowOptionData, localeId.value));
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -49,7 +45,7 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
                 </RouterLink>
 
                 <RouterLink
-                    v-for="config in workflowStepConfigs"
+                    v-for="config in workflowOptionConfigs"
                     :key="config.id"
                     :aria-label="config.label"
                     class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"

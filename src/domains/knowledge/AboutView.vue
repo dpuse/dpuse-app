@@ -1,23 +1,19 @@
 <script setup lang="ts">
 // External Dependencies
-import { shallowRef, watch } from 'vue';
+import { computed } from 'vue';
 
 // App Core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
-import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
+import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
 import { localeId, localiseConfigs } from '@/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
 import ViewShell from '@/components/viewShell/ViewShell.vue';
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const workflowStepConfigs = shallowRef<BenchtopOptionLocalisedConfig[]>([]);
-
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs<BenchtopOptionLocalisedConfig>(workflowStepData, newLocaleId)), { immediate: true });
+const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocalisedConfig>(workflowOptionData, localeId.value));
 </script>
 
 <template>
@@ -50,7 +46,7 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs<Be
                     </div>
                     <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
                         <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-                            <RouterLink v-for="config in workflowStepConfigs" :key="config.id" class="flex flex-col" :to="{ name: config.id, query: $route.query }">
+                            <RouterLink v-for="config in workflowOptionConfigs" :key="config.id" class="flex flex-col" :to="{ name: config.id, query: $route.query }">
                                 <dt class="flex items-center gap-x-3 text-base/7 font-semibold text-gray-900">
                                     <!-- <component :is="feature.icon" class="size-5 flex-none text-indigo-600" aria-hidden="true" /> -->
                                     <div aria-hidden="true" style="height: 32px; width: 32px" :style="config.color ? { color: config.color } : undefined" v-html="config.icon" />
@@ -72,7 +68,7 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs<Be
             <!-- <div class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] max-w-4xl">
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 p-4">
                     <RouterLink
-                        v-for="config in workflowStepConfigs"
+                        v-for="config in workflowOptionConfigs"
                         :key="config.id"
                         class="bg-card outline-boundary overflow-hidden rounded-lg font-light outline -outline-offset-1"
                         :to="{ name: config.id, query: $route.query }"
