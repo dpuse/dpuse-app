@@ -17,7 +17,7 @@ import Separator from '@/components/separator/Separator.vue';
 const { sheet } = defineProps<{ sheet?: boolean }>();
 const emit = defineEmits<{ (event: 'continue'): void }>();
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const fullScreenIsSupported = document.fullscreenEnabled;
 const isFullscreen = ref(!!document.fullscreenElement);

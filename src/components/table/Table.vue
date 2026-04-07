@@ -8,7 +8,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
 import { type DataSource, type RowData, useDataWindow } from '@/composables/useDataWindow';
 
-// Local Components — statically imported so always available, even after app goes offline.
+// App Components - Statically imported so always available, even after app goes offline.
 import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';
 import TableHeaderCell from './TableHeaderCell.vue';
@@ -30,13 +30,13 @@ const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000; // Empirically chosen — below
 
 const scrollElement = ref<HTMLElement | null>(null);
 
-// Local State - Toolbar ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State - Toolbar ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const toolbarElement = ref<HTMLElement | null>(null);
 const toolbarHeight = ref(0); // Measured so ScrollThumb can be offset to align with the scroll area, not the toolbar.
 let toolbarObserver: ResizeObserver | null = null;
 
-// Local State - Columns ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State - Columns ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const columnPinningStateMap = ref<ColumnPinningState>({});
 const columnSizingStateMap = ref<ColumnSizingState>({});
@@ -55,7 +55,7 @@ const columnVirtualizer = useVirtualizer({
     overscan: 3
 });
 
-// Local State - Rows ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State - Rows ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
     scrollElement,
@@ -64,7 +64,7 @@ const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
     maxBlocksInCache: () => maxBlocksInCache
 });
 
-// Local State - Table ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State - Table ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const table = useVueTable<RowData>({
     get data(): RowData[] {

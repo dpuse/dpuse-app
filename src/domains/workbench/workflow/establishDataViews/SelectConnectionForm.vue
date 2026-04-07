@@ -19,7 +19,7 @@ import Input from '@/components/input/Input.vue';
 const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: ConnectionLocalisedConfig | undefined }>();
 const emit = defineEmits<{ (event: 'complete'): void }>();
 
-// Local State
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const connectionLabel = ref<string | undefined>();
 

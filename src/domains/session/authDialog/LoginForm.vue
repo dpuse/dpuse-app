@@ -17,16 +17,15 @@ import MicrosoftLogoIcon from '@/components/icon/logos/MicrosoftLogoIcon.vue';
 import Separator from '@/components/separator/Separator.vue';
 
 // Properties & Emits
-type Properties = { onTrigger: (identifier: string) => Promise<void> };
-const { onTrigger } = defineProps<Properties>();
+const { onTrigger } = defineProps<{ onTrigger: (identifier: string) => Promise<void> }>();
+
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const identifier = ref('terrell.jm@icloud.com');
+const isDark = ref(document.documentElement.classList.contains('dark'));
 
 // ??? ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const identifier = ref('terrell.jm@icloud.com');
-
-// Local State - Dark Mode ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const isDark = ref(document.documentElement.classList.contains('dark'));
 const observer = new MutationObserver(() => (isDark.value = document.documentElement.classList.contains('dark')));
 observer.observe(document.documentElement, { attributeFilter: ['class'] });
 onUnmounted(() => observer.disconnect());

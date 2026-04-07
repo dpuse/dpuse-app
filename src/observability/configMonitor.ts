@@ -14,7 +14,7 @@ const DPU_API_HOST = 'api.dpuse.app';
 const LOCAL_META_NODE_CONNECTOR_ID = 'dpuse-connector-dexie-js';
 const TIMEOUT_DELAY = 5000;
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 let localMetaNodeConnectorConfig: ConnectorConfig | undefined;
 let webSocket: WebSocket | undefined;
