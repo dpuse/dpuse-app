@@ -12,7 +12,7 @@ import { reportAppError, reportFatalError } from '@/observability/errorTracking'
 // App Components - Statically imported so always available, even after app goes offline.
 import App from '@/App.vue';
 
-// App Bootstrap ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Bootstrap ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 try {
     // Add global error handlers.
