@@ -10,7 +10,7 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
 import T from '@/locales/views/session/authDialog/LoginForm.json';
 import { t } from '@/locales';
-import { useSession } from '~/src/state/useSession';
+import { useSession } from '@/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';

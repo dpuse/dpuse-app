@@ -6,7 +6,7 @@ import { h } from 'vue';
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior, START_LOCATION } from 'vue-router';
 
 // App Core
-import { completeNavigation, startNavigation } from '~/src/state/useNavProgress';
+import { completeNavigation, startNavigation } from '@/state/useNavProgress';
 
 // App Components - Statically imported so always available, even when offline.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';

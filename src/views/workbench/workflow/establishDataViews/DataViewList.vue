@@ -20,7 +20,7 @@ import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/locales';
 import T from '@/locales/views/workbench/workflow/establishDataViews/EstablishDataViews.json';
 import { useEngine } from '@/services/useEngine';
-import { useSession } from '~/src/state/useSession';
+import { useSession } from '@/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';

@@ -6,7 +6,7 @@ import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/comp
 import type { ContextConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 
 // App Core
-import { useSession } from '~/src/state/useSession';
+import { useSession } from '@/state/useSession';
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

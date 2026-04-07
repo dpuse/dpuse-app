@@ -7,7 +7,7 @@ import type { ConnectionConfig, ConnectorConfig, ListNodesOptions } from '@dpuse
 
 // App Core
 import { useEngine } from '@/services/useEngine';
-import { useSession } from '~/src/state/useSession';
+import { useSession } from '@/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';

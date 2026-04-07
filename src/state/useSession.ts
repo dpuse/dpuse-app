@@ -1,6 +1,6 @@
 // External Dependencies
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
-import { ref, shallowRef, watch } from 'vue';
+import { ref, shallowRef } from 'vue';
 
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -114,7 +114,7 @@ function initialiseServices(): void {
                 establishSession('validationFailure');
             });
     });
-    import('~/src/observability/configMonitor').then((module) => module.initialise());
+    import('@/observability/configMonitor').then((module) => module.initialise());
 }
 
 async function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): Promise<void> {
@@ -150,7 +150,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
         sessionId.value = claims.session_id;
         userId.value = claims.subject;
 
-        import('~/src/observability/accountMonitor').then((module) => {
+        import('@/observability/accountMonitor').then((module) => {
             if (userId.value != null) module.initialise(userId.value);
         });
 
@@ -162,7 +162,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
         forgetUser();
         clearSessionExpiryTimer();
 
-        import('~/src/observability/accountMonitor').then((module) => {
+        import('@/observability/accountMonitor').then((module) => {
             module.terminate();
         });
 

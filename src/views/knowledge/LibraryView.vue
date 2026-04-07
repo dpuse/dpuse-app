@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { micromark } from 'micromark';
+import { marked } from 'marked';
 import { ref } from 'vue';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
@@ -34,7 +34,7 @@ const client = new ChatClient({
                     if (part.type === 'thinking') {
                         assistantThinking.value = part.content;
                     } else if (part.type === 'text') {
-                        assistantText.value = micromark(part.content);
+                        assistantText.value = marked(part.content) as string;
                     }
                 }
             }

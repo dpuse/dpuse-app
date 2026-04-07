@@ -6,7 +6,7 @@ import { shallowRef, watch } from 'vue';
 import type { ConnectionConfig, ConnectionLocalisedConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
 
 // App Core
-import { useSession } from '~/src/state/useSession';
+import { useSession } from '@/state/useSession';
 import { localeId, localiseConfigs, t } from '@/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.

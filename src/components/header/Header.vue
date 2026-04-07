@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // App Core
-import { useDisplayBreakpoint } from '~/src/state/useDisplayBreakpoint';
+import { useDisplayBreakpoint } from '@/state/useDisplayBreakpoint';
 
 // Properties & Emits
 const { breadcrumbs, title, to, workbenchPaneIsHidden } = defineProps<{
