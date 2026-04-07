@@ -5,7 +5,7 @@ import { version } from '~/package.json';
 
 const DPUSE_API_HOST = 'api.dpuse.app';
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 let activeSessionId: string | undefined; // Tracked session identity for event attribution.
 let activeUserId: string | undefined; // Tracked user identity for event attribution.

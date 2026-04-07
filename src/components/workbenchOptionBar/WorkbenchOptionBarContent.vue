@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // External Dependencies
-import { useRoute } from 'vue-router';
 import { shallowRef, watch } from 'vue';
 
 // App Core
@@ -16,17 +15,13 @@ import Separator from '@/components/separator/Separator.vue';
 // Properties & Emits
 const emit = defineEmits<{ (event: 'continue'): void }>();
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const route = useRoute();
-
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const workflowStepConfigs = shallowRef();
+const workflowStepConfigs = shallowRef<BenchtopOptionLocalisedConfig[]>();
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(workflowStepData, newLocaleId)), { immediate: true }); // TODO: T type
+watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs<BenchtopOptionLocalisedConfig>(workflowStepData, newLocaleId)), { immediate: true });
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -46,7 +41,7 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
             <div class="flex flex-1 flex-col items-center gap-y-2">
                 <RouterLink
                     class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"
-                    :to="{ name: 'workflow', query: { ...route.query, wbView: 'workflow' } }"
+                    :to="{ name: 'workflow', query: { ...$route.query, wbView: 'workflow' } }"
                     variant="iconLarge"
                     @click="handleComplete({ id: 'home', label: '', color: '', description: '', icon: '', step: 0, tasks: [] })"
                 >
@@ -58,7 +53,7 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
                     :key="config.id"
                     :aria-label="config.label"
                     class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"
-                    :to="{ name: config.id, query: { ...route.query, wbView: config.id } }"
+                    :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
                     variant="iconLarge"
                     @click="handleComplete(config)"
                 >

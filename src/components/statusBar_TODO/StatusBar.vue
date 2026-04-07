@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { useSession } from '@/state/useSession';
-
-const { expiresAt, expiresIn, lifetime } = useSession();
+import { expiresAt, expiresIn, lifetime } from '@/state/useSession';
 
 const elapsed = computed(() => (lifetime.value ? ((lifetime.value - (expiresIn.value || 0)) / lifetime.value) * 100 : 0));
 

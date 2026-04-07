@@ -6,8 +6,8 @@ import { shallowRef, watch } from 'vue';
 import type { ConnectionConfig, ConnectorConfig, ListNodesOptions } from '@dpuse/dpuse-shared/component/connector';
 
 // App Core
+import { connectorConfigs } from '@/state/useSession';
 import { useEngine } from '@/services/useEngine';
-import { useSession } from '@/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
@@ -15,10 +15,6 @@ import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
 // Properties & Emits
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
 const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalisedConfig): void }>();
-
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const { connectorConfigs } = useSession();
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

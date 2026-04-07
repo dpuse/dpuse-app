@@ -6,7 +6,7 @@ import { type DeepReadonly, readonly, type Ref, ref } from 'vue';
 const DELAY_MS = 150;
 const MIN_VISIBLE_MS = 350;
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const isNavigating = ref(false);
 let showTimer: ReturnType<typeof setTimeout> | null = null;

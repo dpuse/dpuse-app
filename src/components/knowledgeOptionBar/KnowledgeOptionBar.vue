@@ -9,7 +9,7 @@ import KnowledgeOptionBarContent from './KnowledgeOptionBarContent.vue';
 const { isOpenInNarrowDisplay } = defineProps<{ isOpenInNarrowDisplay: boolean }>();
 const emit = defineEmits<{ (event: 'continue'): void }>();
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const { displayIsWide } = useDisplayBreakpoint();
 

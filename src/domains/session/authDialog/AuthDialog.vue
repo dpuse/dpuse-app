@@ -10,7 +10,7 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
 import T from '@/locales/domains/session/authDialog/LoginForm.json';
 import { t } from '@/locales';
-import { useSession } from '@/state/useSession';
+import { constructFlow, destroyFlow, emailAddress } from '@/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
@@ -19,31 +19,25 @@ import LoginForm from '@/domains/session/authDialog/LoginForm.vue';
 import PasswordForm from '@/domains/session/authDialog/PasswordForm.vue';
 import Separator from '@/components/separator/Separator.vue';
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const route = useRoute();
-const router = useRouter();
-const { constructFlow, destroyFlow, emailAddress } = useSession();
-
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const containerReference = ref<HTMLDivElement | null>(null);
 const flowConstructed = ref(false);
 const isClosing = ref(false);
-const rootReference = ref<HTMLElement | null>(null);
 const handleIdEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 const handlePasswordBack = ref<(() => Promise<void>) | undefined>(undefined);
 const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
+const rootReference = ref<HTMLElement | null>(null);
+const route = useRoute();
+const router = useRouter();
 const uiStateId = ref<'enterId' | 'selectSignInMethod' | 'enterPasscode' | 'enterPassword' | undefined>(undefined);
 
-// Lifecycle Event Handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 onMounted(() => {
     constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state))
         .then(() => (flowConstructed.value = true))
-        .catch((error) =>
-            reportAppError(new AppError('Failed to initialise sign in flow.', 'dpuse.sessionStore.useSessionStore.constructFlow', { typeId: 'handled' }, { cause: error }))
-        );
+        .catch((error) => reportAppError(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthDialog.onMounted.constructFlow', { typeId: 'handled' }, { cause: error })));
 });
 onUnmounted(() => destroyFlow());
 

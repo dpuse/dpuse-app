@@ -6,8 +6,8 @@ import { shallowRef, watch } from 'vue';
 import type { ConnectionConfig, ConnectionLocalisedConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
 
 // App Core
-import { useSession } from '@/state/useSession';
-import { localeId, localiseConfigs, t } from '@/locales';
+import { connectionConfigs, connectorConfigs } from '@/state/useSession';
+import { localeId, localiseConfigs } from '@/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';
@@ -19,9 +19,8 @@ import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
 const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalisedConfig): void }>();
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const { connectionConfigs, connectorConfigs } = useSession();
 const localisedConnectionConfigs = shallowRef<ConnectionLocalisedConfig[]>();
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -1,7 +1,7 @@
 // External Dependencies
 import { type DeepReadonly, readonly, type Ref, ref } from 'vue';
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const mediaQuery = globalThis.matchMedia('(min-width: 768px)');
 const displayIsWide = ref(mediaQuery.matches);

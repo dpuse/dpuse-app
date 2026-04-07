@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // External Dependencies
-import { useRoute } from 'vue-router';
 import { shallowRef, watch } from 'vue';
 
 // App Core
+import type { BenchtopOptionLocalisedConfig } from '~/src/types/workbench';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
 import { localeId, localiseConfigs, t } from '@/locales';
 
@@ -11,14 +11,13 @@ import { localeId, localiseConfigs, t } from '@/locales';
 import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
 import ViewShell from '@/components/viewShell/ViewShell.vue';
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const route = useRoute();
+const workflowStepConfigs = shallowRef<BenchtopOptionLocalisedConfig[]>();
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const workflowStepConfigs = shallowRef();
-watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(workflowStepData, newLocaleId)), { immediate: true }); // TODO: T type
+watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs<BenchtopOptionLocalisedConfig>(workflowStepData, newLocaleId)), { immediate: true });
 </script>
 
 <template>
@@ -51,7 +50,7 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
                     </div>
                     <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
                         <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-                            <RouterLink v-for="config in workflowStepConfigs" :key="config.id" class="flex flex-col" :to="{ name: config.id, query: route.query }">
+                            <RouterLink v-for="config in workflowStepConfigs" :key="config.id" class="flex flex-col" :to="{ name: config.id, query: $route.query }">
                                 <dt class="flex items-center gap-x-3 text-base/7 font-semibold text-gray-900">
                                     <!-- <component :is="feature.icon" class="size-5 flex-none text-indigo-600" aria-hidden="true" /> -->
                                     <div aria-hidden="true" style="height: 32px; width: 32px" :style="config.color ? { color: config.color } : undefined" v-html="config.icon" />
@@ -60,9 +59,9 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
                                 <dd class="mt-4 flex flex-auto flex-col text-base/7 text-gray-600">
                                     <p class="flex-auto">{{ config.description }}</p>
                                     <p class="mt-6">
-                                        <a :href="config.href" class="text-sm/6 font-semibold text-indigo-600 hover:text-indigo-500"
+                                        <!-- <a :href="config.href" class="text-sm/6 font-semibold text-indigo-600 hover:text-indigo-500"
                                             >Learn more <span aria-hidden="true">→</span></a
-                                        >
+                                        > -->
                                     </p>
                                 </dd>
                             </RouterLink>
@@ -76,7 +75,7 @@ watch(localeId, (newLocaleId) => (workflowStepConfigs.value = localiseConfigs(wo
                         v-for="config in workflowStepConfigs"
                         :key="config.id"
                         class="bg-card outline-boundary overflow-hidden rounded-lg font-light outline -outline-offset-1"
-                        :to="{ name: config.id, query: route.query }"
+                        :to="{ name: config.id, query: $route.query }"
                     >
                         <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                     </RouterLink>

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 // External Dependencies
-import { nextTick, onUnmounted, ref } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'lucide-vue-next';
+import { nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
 import T from '@/locales/domains/session/SessionMenu.json';
-import { useSession } from '@/state/useSession';
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
+import { isAuthenticated as sessionIsAuthenticated, signOut } from '@/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
@@ -17,26 +17,24 @@ import Separator from '@/components/separator/Separator.vue';
 const { sheet } = defineProps<{ sheet?: boolean }>();
 const emit = defineEmits<{ (event: 'continue'): void }>();
 
-// ??? ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const isPWA = globalThis.matchMedia('(display-mode: standalone)').matches || globalThis.matchMedia('(display-mode: fullscreen)').matches;
-
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const fullScreenIsSupported = document.fullscreenEnabled;
 const isFullscreen = ref(!!document.fullscreenElement);
-const handleFullscreenChange = (): void => void (isFullscreen.value = !!document.fullscreenElement);
-document.addEventListener('fullscreenchange', handleFullscreenChange);
-onUnmounted(() => document.removeEventListener('fullscreenchange', handleFullscreenChange));
-
-async function toggleFullscreen(): Promise<void> {
-    await (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen());
-}
-const { isAuthenticated: sessionIsAuthenticated, signOut } = useSession();
+const isPWA = globalThis.matchMedia('(display-mode: standalone)').matches || globalThis.matchMedia('(display-mode: fullscreen)').matches;
 const route = useRoute();
 const router = useRouter();
 
+// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+onMounted(() => document.addEventListener('fullscreenchange', handleFullscreenChange));
+onUnmounted(() => document.removeEventListener('fullscreenchange', handleFullscreenChange));
+
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function handleFullscreenChange(): void {
+    isFullscreen.value = !!document.fullscreenElement;
+}
 
 function handleManageAccount(): void {
     router.replace({ query: { ...route.query, dlg: 'acctMgmt' } });
@@ -72,6 +70,10 @@ function handleSignOut(): void {
 function handleToggleWindowExpansion(): void {
     toggleFullscreen();
     emit('continue');
+}
+
+async function toggleFullscreen(): Promise<void> {
+    await (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen());
 }
 </script>
 

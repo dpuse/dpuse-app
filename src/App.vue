@@ -5,8 +5,8 @@ import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
+import { initialiseServices } from '@/state/useSession';
 import { useDisplayBreakpoint } from '@/state/useDisplayBreakpoint';
-import { useSession } from '@/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
@@ -39,7 +39,7 @@ const { displayIsWide } = useDisplayBreakpoint();
 const route = useRoute();
 const router = useRouter();
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 type AppPaneId = 'workbench' | 'knowledge';
 const activeAppPaneId = ref<AppPaneId | undefined>(undefined);
@@ -85,7 +85,7 @@ router.isReady().then(() => {
     establishActiveAppPanelId(displayIsWide.value);
 });
 
-onMounted(() => useSession().initialiseServices());
+onMounted(() => initialiseServices());
 
 watch(displayIsWide, (newDisplayIsWide) => establishActiveAppPanelId(newDisplayIsWide));
 

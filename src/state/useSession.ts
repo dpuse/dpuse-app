@@ -19,6 +19,32 @@ const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
 
+// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export const connectionConfigs = shallowRef<ConnectionConfig[]>([]);
+export const connectorConfigs = shallowRef<ConnectorConfig[] | undefined>();
+export const contextConfig = shallowRef<ContextConfig | undefined>();
+export const dataViewConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
+export const dimensionConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
+export const emailAddress = ref<string | undefined>();
+export const engineConfig = shallowRef<EngineConfig | undefined>();
+export const expiresAt = ref<number | undefined>();
+export const expiresIn = ref<number | undefined>();
+export const eventQueryConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
+export const isAuthenticated = ref<boolean | undefined>(); // Undefined if Hanko session validation pending; false if signed OUT; true if signed IN.
+export const lifetime = ref<number | undefined>();
+export const localMetaStoreConnectionConfig = shallowRef<ConnectionConfig | undefined>();
+export const presenterConfigs = shallowRef<PresenterConfig[] | undefined>();
+export const toolConfigs = shallowRef<ToolConfig[] | undefined>();
+
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const areUpdatesPending = ref(false);
+const emailIsPrimary = ref<boolean | undefined>();
+const emailIsVerified = ref<boolean | undefined>();
+const sessionId = ref<string | undefined>();
+const userId = ref<string | undefined>();
+
 // Long-lived module-scoped Hanko instance reused across multiple authentication sessions.
 let hankoInstance: Hanko | undefined;
 
@@ -27,29 +53,6 @@ let hankoFlowCleanupFunction: (() => void) | undefined;
 
 // Long-lived authenticated-session-scoped expiry timer.
 let expiryTimer: ReturnType<typeof setTimeout> | undefined;
-
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const areUpdatesPending = ref(false);
-const connectionConfigs = shallowRef<ConnectionConfig[]>([]);
-const connectorConfigs = shallowRef<ConnectorConfig[] | undefined>();
-const contextConfig = shallowRef<ContextConfig | undefined>();
-const dataViewConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
-const dimensionConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
-const emailAddress = ref<string | undefined>();
-const emailIsPrimary = ref<boolean | undefined>();
-const emailIsVerified = ref<boolean | undefined>();
-const engineConfig = shallowRef<EngineConfig | undefined>();
-const expiresAt = ref<number | undefined>();
-const expiresIn = ref<number | undefined>();
-const eventQueryConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
-const isAuthenticated = ref<boolean | undefined>(); // Undefined if Hanko session validation pending; false if signed OUT; true if signed IN.
-const lifetime = ref<number | undefined>();
-const localMetaStoreConnectionConfig = shallowRef<ConnectionConfig | undefined>();
-const presenterConfigs = shallowRef<PresenterConfig[] | undefined>();
-const sessionId = ref<string | undefined>();
-const toolConfigs = shallowRef<ToolConfig[] | undefined>();
-const userId = ref<string | undefined>();
 
 // Initialisation ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -67,36 +70,9 @@ globalThis.addEventListener('beforeunload', (event) => {
 //     { immediate: true }
 // );
 
-// Session Composable ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const session = {
-    connectionConfigs,
-    connectorConfigs,
-    contextConfig,
-    constructFlow,
-    dataViewConfigs,
-    destroyFlow,
-    dimensionConfigs,
-    emailAddress,
-    engineConfig,
-    expiresAt,
-    expiresIn,
-    eventQueryConfigs,
-    initialiseServices,
-    isAuthenticated,
-    lifetime,
-    localMetaStoreConnectionConfig,
-    presenterConfigs,
-    signOut,
-    toolConfigs
-};
-export function useSession(): typeof session {
-    return session;
-}
-
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function initialiseServices(): void {
+export function initialiseServices(): void {
     import('@teamhanko/hanko-frontend-sdk').then(({ Hanko }) => {
         hankoInstance = new Hanko(HANKO_API_URL);
         hankoInstance.onSessionCreated((sessionDetails) => establishSession('created', sessionDetails.claims));
@@ -117,19 +93,21 @@ function initialiseServices(): void {
     import('@/observability/configMonitor').then((module) => module.initialise());
 }
 
-async function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): Promise<void> {
+export async function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): Promise<void> {
     hankoFlowCleanupFunction = hankoInstance?.onAfterStateChange(stateHandler);
     await hankoInstance?.createState(name);
 }
 
-function destroyFlow(): void {
+export function destroyFlow(): void {
     hankoFlowCleanupFunction?.();
     hankoFlowCleanupFunction = undefined;
 }
 
-async function signOut(): Promise<void> {
+export async function signOut(): Promise<void> {
     await hankoInstance?.logout();
 }
+
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'terminated' | 'validated' | 'validationFailure', claims?: Claims): void {
     if (claims) {

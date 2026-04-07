@@ -6,7 +6,7 @@ import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/comp
 import type { ContextConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 
 // App Core
-import { useSession } from '@/state/useSession';
+import { connectionConfigs, connectorConfigs, contextConfig, engineConfig, localMetaStoreConnectionConfig, presenterConfigs, toolConfigs } from '@/state/useSession';
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -86,8 +86,6 @@ function shutdown(): void {
 // Registration Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
-    const { engineConfig, contextConfig, connectorConfigs, presenterConfigs, toolConfigs, localMetaStoreConnectionConfig } = useSession();
-
     let connectorRegistered = false;
     let presenterRegistered = false;
     let toolRegistered = false;
@@ -165,7 +163,6 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
 }
 
 function unregisterConfigurations(moduleConfigs: ModuleConfig[]): void {
-    const { connectorConfigs } = useSession();
     const idsToRemove = new Set(moduleConfigs.filter((m) => m.typeId === 'connector').map((m) => m.id));
     if (idsToRemove.size > 0 && connectorConfigs.value) {
         connectorConfigs.value = connectorConfigs.value.filter((c) => !idsToRemove.has(c.id));
@@ -193,7 +190,6 @@ function constructConnectionConfig(connectorConfig: ConnectorConfig): Connection
 }
 
 function constructDefaultConnectionConfigs(): void {
-    const { connectorConfigs, connectionConfigs } = useSession();
     const pendingConnectionConfigs: ConnectionConfig[] = [];
     for (const connectorConfig of connectorConfigs.value!) {
         // if (connectorConfig.id === 'dpuse-connector-file-store-emulator') {

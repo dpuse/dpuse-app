@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // External Dependencies
 import { PlusIcon } from 'lucide-vue-next';
+import { useRouter } from 'vue-router';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -14,7 +14,7 @@ import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/locales';
 import T from '@/locales/domains/workbench/workflow/assembleDimensions/DimensionsList.json';
 import { useEngine } from '@/services/useEngine';
-import { useSession } from '@/state/useSession';
+import { dimensionConfigs, localMetaStoreConnectionConfig } from '@/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
@@ -25,27 +25,21 @@ import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
 // App Components - Lazy loaded as required.
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const route = useRoute();
-const router = useRouter();
-const { localMetaStoreConnectionConfig } = useSession();
-
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const dimensionRetrievalIsActive = ref(false);
+const router = useRouter();
 
-// Local meta store connection configuration state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDimensions(newConnectionConfig), { immediate: true });
-
-// Local dimensions configurations state ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const { dimensionConfigs } = useSession();
 const dataSource = computed(() => ({
     rowCount: dimensionConfigs.value?.length ?? 0,
     getRows: (start: number, end: number): Promise<unknown[]> => Promise.resolve((dimensionConfigs.value ?? []).slice(start, end))
 }));
+
+// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDimensions(newConnectionConfig), { immediate: true });
 
 // Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -84,7 +78,7 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
     <div class="border-separator mx-4 flex flex-none border-b py-1">
         <div class="flex-1"></div>
 
-        <Button @click="router.push({ name: '???', query: route.query })">
+        <Button @click="router.push({ name: '???', query: $route.query })">
             <PlusIcon stroke-width="1.25" />
         </Button>
     </div>

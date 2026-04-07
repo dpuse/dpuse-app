@@ -13,7 +13,7 @@ import Header from '@/components/header/Header.vue';
 import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
 import ViewShell from '@/components/viewShell/ViewShell.vue';
 
-// Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const workflowStepConfigs = shallowRef();
 

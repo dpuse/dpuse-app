@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // External Dependencies
-import { useRoute } from 'vue-router';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
 // DPUse Framework
@@ -20,7 +19,7 @@ import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/locales';
 import T from '@/locales/domains/workbench/workflow/establishDataViews/EstablishDataViews.json';
 import { useEngine } from '@/services/useEngine';
-import { useSession } from '@/state/useSession';
+import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/useSession';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';
@@ -29,11 +28,6 @@ import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
 
 // App Components - Lazy loaded as required.
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
-
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const route = useRoute();
-const { localMetaStoreConnectionConfig, dataViewConfigs } = useSession();
 
 // Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -139,7 +133,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
                     :icon-color="activeBenchtopOptionConfig ? activeBenchtopOptionConfig.color : undefined"
                     :label="row.label"
                 /> -->
-            <RouterLink :to="{ name: 'selectNode', query: { ...route.query, wbView: 'selectNode' } }">
+            <RouterLink :to="{ name: 'selectNode', query: { ...$route.query, wbView: 'selectNode' } }">
                 <Card v-if="row" :label="row.label as string" />
             </RouterLink>
         </template>
