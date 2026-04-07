@@ -5,9 +5,9 @@ import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef,
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
+import { displayIsWide } from '@/state/useDisplayBreakpoint';
 import { t } from '@/locales';
 import T from '@/locales/domains/session/accountDialog/AccountDialog.json';
-import { useDisplayBreakpoint } from '@/state/useDisplayBreakpoint';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
@@ -44,16 +44,14 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
     deleteAccount: defineAsyncComponent(() => import('./DeleteAccount.vue'))
 };
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const { displayIsWide } = useDisplayBreakpoint();
-const route = useRoute();
-const router = useRouter();
-
-// Local States ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
+const route = useRoute();
+const router = useRouter();
 const subPanelError = ref<unknown>(null);
+
+// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 onErrorCaptured((error) => {
     subPanelError.value = error;

@@ -5,8 +5,8 @@ import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
-import { initialiseServices } from '@/state/useSession';
-import { useDisplayBreakpoint } from '@/state/useDisplayBreakpoint';
+import { displayIsWide } from '@/state/useDisplayBreakpoint';
+import { initialiseServices } from '@/state/session';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
@@ -33,13 +33,7 @@ const KnowledgeLayout = defineAsyncComponent({ loader: () => import('@/domains/k
 const PaneSplitter = defineAsyncComponent({ loader: () => import('@/components/paneSplitter/PaneSplitter.vue'), errorComponent: ChunkLoadError });
 const WorkbenchOptionBar = defineAsyncComponent({ loader: () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), errorComponent: ChunkLoadError });
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const { displayIsWide } = useDisplayBreakpoint();
-const route = useRoute();
-const router = useRouter();
-
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 type AppPaneId = 'workbench' | 'knowledge';
 const activeAppPaneId = ref<AppPaneId | undefined>(undefined);
@@ -50,6 +44,9 @@ const knowledgePaneIsActive = ref(false);
 const knowledgePaneIsVisible = ref(false);
 
 const paneSplitterPercent = ref(50);
+
+const route = useRoute();
+const router = useRouter();
 
 const workbenchOptionBarIsVisible = ref(false);
 const workbenchPaneActivated = ref(false);

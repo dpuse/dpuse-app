@@ -24,7 +24,7 @@ const KNOWLEDGE_PANELS: Record<KnowledgeViewId, { component: Component; label: s
 
 const route = useRoute();
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeView = computed(() => {
     const parameter = route.query.kView as KnowledgeViewId | undefined;

@@ -14,7 +14,7 @@ import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/locales';
 import T from '@/locales/domains/workbench/workflow/contextualiseData/ContextualiseData.json';
 import { useEngine } from '@/services/useEngine';
-import { eventQueryConfigs, localMetaStoreConnectionConfig } from '@/state/useSession';
+import { eventQueryConfigs, localMetaStoreConnectionConfig } from '@/state/session';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
@@ -25,7 +25,7 @@ import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
 // App Components - Lazy loaded as required.
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const eventQueryRetrievalIsActive = ref(false);
 const route = useRoute();

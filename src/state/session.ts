@@ -37,7 +37,7 @@ export const localMetaStoreConnectionConfig = shallowRef<ConnectionConfig | unde
 export const presenterConfigs = shallowRef<PresenterConfig[] | undefined>();
 export const toolConfigs = shallowRef<ToolConfig[] | undefined>();
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const areUpdatesPending = ref(false);
 const emailIsPrimary = ref<boolean | undefined>();

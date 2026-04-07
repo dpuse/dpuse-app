@@ -4,8 +4,8 @@ import { ArrowBigLeftIcon } from 'lucide-vue-next';
 import { computed, shallowRef } from 'vue';
 
 // App Core
-import { useDisplayBreakpoint } from '@/state/useDisplayBreakpoint';
 import type { DataSource } from '@/composables/useDataWindow';
+import { displayIsWide } from '@/state/useDisplayBreakpoint';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
@@ -15,13 +15,11 @@ import List from '@/components/list/List.vue';
 const { items, maxRightWidth } = defineProps<{ items: T[]; maxRightWidth?: string }>();
 const emit = defineEmits<{ (event: 'select', item: T | undefined): void }>();
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const { displayIsWide } = useDisplayBreakpoint();
-
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeItem = shallowRef<T | undefined>();
+
+// Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const dataSource = computed<DataSource>(() => ({
     rowCount: items.length,

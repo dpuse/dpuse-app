@@ -6,7 +6,7 @@ import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/comp
 import type { ContextConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 
 // App Core
-import { connectionConfigs, connectorConfigs, contextConfig, engineConfig, localMetaStoreConnectionConfig, presenterConfigs, toolConfigs } from '@/state/useSession';
+import { connectionConfigs, connectorConfigs, contextConfig, engineConfig, localMetaStoreConnectionConfig, presenterConfigs, toolConfigs } from '@/state/session';
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

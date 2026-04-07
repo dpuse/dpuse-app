@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 // App Core
 import T from '@/locales/domains/session/SessionMenu.json';
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
-import { isAuthenticated as sessionIsAuthenticated, signOut } from '@/state/useSession';
+import { isAuthenticated as sessionIsAuthenticated, signOut } from '@/state/session';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';

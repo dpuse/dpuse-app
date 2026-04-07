@@ -2,7 +2,7 @@
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { type DeepReadonly, readonly, type ShallowRef, shallowRef } from 'vue';
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeBenchtopOptionConfig = shallowRef<BenchtopOptionLocalisedConfig | undefined>();
 

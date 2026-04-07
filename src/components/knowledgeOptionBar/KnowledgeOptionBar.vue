@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // App Core
-import { useDisplayBreakpoint } from '@/state/useDisplayBreakpoint';
+import { displayIsWide } from '@/state/useDisplayBreakpoint';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import KnowledgeOptionBarContent from './KnowledgeOptionBarContent.vue';
@@ -8,10 +8,6 @@ import KnowledgeOptionBarContent from './KnowledgeOptionBarContent.vue';
 // Properties & Emits
 const { isOpenInNarrowDisplay } = defineProps<{ isOpenInNarrowDisplay: boolean }>();
 const emit = defineEmits<{ (event: 'continue'): void }>();
-
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const { displayIsWide } = useDisplayBreakpoint();
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

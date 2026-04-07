@@ -10,7 +10,7 @@ import type { RowData } from '@/composables/useDataWindow';
 // Properties & Emits
 defineProps<{ header: Header<RowData, unknown> }>();
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const menuOpen = ref(false);
 const menuReference = ref<HTMLElement | null>(null);

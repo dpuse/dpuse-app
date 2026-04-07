@@ -4,8 +4,8 @@ import { LoaderCircleIcon } from 'lucide-vue-next';
 import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 
 // App Core
-import { isAuthenticated as sessionIsAuthenticated } from '@/state/useSession';
-import { useDisplayBreakpoint } from '@/state/useDisplayBreakpoint';
+import { displayIsWide } from '@/state/useDisplayBreakpoint';
+import { isAuthenticated as sessionIsAuthenticated } from '@/state/session';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
@@ -15,11 +15,7 @@ import SessionMenu from '@/domains/session/SessionMenu.vue';
 // Properties & Emits
 const { workbenchOptionBarIsVisible } = defineProps<{ workbenchOptionBarIsVisible: boolean }>();
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const { displayIsWide } = useDisplayBreakpoint();
-
-// Reactive State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const sessionMenuIsVisible = ref(false);
 

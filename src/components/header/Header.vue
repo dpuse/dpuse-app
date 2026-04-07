@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // App Core
-import { useDisplayBreakpoint } from '@/state/useDisplayBreakpoint';
+import { displayIsWide } from '@/state/useDisplayBreakpoint';
 
 // Properties & Emits
 const { breadcrumbs, title, to, workbenchPaneIsHidden } = defineProps<{
@@ -9,10 +9,6 @@ const { breadcrumbs, title, to, workbenchPaneIsHidden } = defineProps<{
     to?: string;
     workbenchPaneIsHidden: boolean;
 }>();
-
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const { displayIsWide } = useDisplayBreakpoint();
 </script>
 
 <template>

@@ -1,22 +1,23 @@
 // External Dependencies
-import { type DeepReadonly, readonly, type Ref, ref } from 'vue';
+import { ref } from 'vue';
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const mediaQuery = globalThis.matchMedia('(min-width: 768px)');
-const displayIsWide = ref(mediaQuery.matches);
+const MEDIA_QUERY = globalThis.matchMedia('(min-width: 768px)');
+
+// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export const displayIsWide = ref(MEDIA_QUERY.matches);
 
 // Initialisation ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-mediaQuery.addEventListener('change', onMediaQueryChange);
-if (import.meta.hot) import.meta.hot.dispose(() => mediaQuery.removeEventListener('change', onMediaQueryChange));
-function onMediaQueryChange(event: MediaQueryListEvent): void {
-    displayIsWide.value = event.matches;
+MEDIA_QUERY.addEventListener('change', onMediaQueryChange);
+if (import.meta.hot) {
+    import.meta.hot.dispose(() => MEDIA_QUERY.removeEventListener('change', onMediaQueryChange)); // Dispose runs when module about to be replaced.
 }
 
-// Display Breakpoint Composable ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-type DisplayBreakpointInterface = { displayIsWide: DeepReadonly<Ref<boolean>> };
-export function useDisplayBreakpoint(): DisplayBreakpointInterface {
-    return { displayIsWide: readonly(displayIsWide) };
+function onMediaQueryChange(event: MediaQueryListEvent): void {
+    displayIsWide.value = event.matches;
 }

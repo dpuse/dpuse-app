@@ -10,7 +10,7 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
 import T from '@/locales/domains/session/authDialog/LoginForm.json';
 import { t } from '@/locales';
-import { constructFlow, destroyFlow, emailAddress } from '@/state/useSession';
+import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
@@ -19,7 +19,7 @@ import LoginForm from '@/domains/session/authDialog/LoginForm.vue';
 import PasswordForm from '@/domains/session/authDialog/PasswordForm.vue';
 import Separator from '@/components/separator/Separator.vue';
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const containerReference = ref<HTMLDivElement | null>(null);
 const flowConstructed = ref(false);
