@@ -1,10 +1,6 @@
 <script setup lang="ts">
 // App Core
-import { useNavProgress } from '@/state/useNavProgress';
-
-// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const { isNavigating } = useNavProgress();
+import { isNavigating } from '~/src/state/navProgress';
 </script>
 
 <template>

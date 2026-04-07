@@ -11,7 +11,7 @@ import { localeId, localiseConfigs, t } from '@/locales';
 import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
 import ViewShell from '@/components/viewShell/ViewShell.vue';
 
-// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const workflowStepConfigs = shallowRef<BenchtopOptionLocalisedConfig[]>();
 

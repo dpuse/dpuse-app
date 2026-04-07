@@ -19,7 +19,7 @@ const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
 
-// Global State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export const connectionConfigs = shallowRef<ConnectionConfig[]>([]);
 export const connectorConfigs = shallowRef<ConnectorConfig[] | undefined>();
@@ -36,8 +36,6 @@ export const lifetime = ref<number | undefined>();
 export const localMetaStoreConnectionConfig = shallowRef<ConnectionConfig | undefined>();
 export const presenterConfigs = shallowRef<PresenterConfig[] | undefined>();
 export const toolConfigs = shallowRef<ToolConfig[] | undefined>();
-
-// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const areUpdatesPending = ref(false);
 const emailIsPrimary = ref<boolean | undefined>();

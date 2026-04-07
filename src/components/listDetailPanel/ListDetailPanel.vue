@@ -5,7 +5,7 @@ import { computed, shallowRef } from 'vue';
 
 // App Core
 import type { DataSource } from '@/composables/useDataWindow';
-import { displayIsWide } from '@/state/useDisplayBreakpoint';
+import { displayIsWide } from '~/src/state/displayBreakpoint';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
@@ -15,7 +15,7 @@ import List from '@/components/list/List.vue';
 const { items, maxRightWidth } = defineProps<{ items: T[]; maxRightWidth?: string }>();
 const emit = defineEmits<{ (event: 'select', item: T | undefined): void }>();
 
-// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeItem = shallowRef<T | undefined>();
 

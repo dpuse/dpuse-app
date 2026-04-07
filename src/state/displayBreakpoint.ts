@@ -5,19 +5,19 @@ import { ref } from 'vue';
 
 const MEDIA_QUERY = globalThis.matchMedia('(min-width: 768px)');
 
-// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export const displayIsWide = ref(MEDIA_QUERY.matches);
 
 // Initialisation ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-MEDIA_QUERY.addEventListener('change', onMediaQueryChange);
+MEDIA_QUERY.addEventListener('change', handleMediaQueryChange);
 if (import.meta.hot) {
-    import.meta.hot.dispose(() => MEDIA_QUERY.removeEventListener('change', onMediaQueryChange)); // Dispose runs when module about to be replaced.
+    import.meta.hot.dispose(() => MEDIA_QUERY.removeEventListener('change', handleMediaQueryChange)); // Dispose runs when module is about to be replaced.
 }
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function onMediaQueryChange(event: MediaQueryListEvent): void {
+function handleMediaQueryChange(event: MediaQueryListEvent): void {
     displayIsWide.value = event.matches;
 }

@@ -5,7 +5,7 @@ import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef,
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
-import { displayIsWide } from '@/state/useDisplayBreakpoint';
+import { displayIsWide } from '~/src/state/displayBreakpoint';
 import { t } from '@/locales';
 import T from '@/locales/domains/session/accountDialog/AccountDialog.json';
 
@@ -44,7 +44,7 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
     deleteAccount: defineAsyncComponent(() => import('./DeleteAccount.vue'))
 };
 
-// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
 const route = useRoute();

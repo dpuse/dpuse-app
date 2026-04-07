@@ -11,7 +11,7 @@ import { engineConfig, toolConfigs } from '@/state/session';
 
 const ENGINE_STORAGE_URL_PREFIX = 'https://engine-eu.dpuse.app';
 
-// Source State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 let activeEngineVersion: string | undefined;
 let engineWorker: EngineWorker | undefined;
