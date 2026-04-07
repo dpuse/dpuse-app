@@ -6,7 +6,6 @@ import { useRoute, useRouter } from 'vue-router';
 
 // App Core
 import { displayIsWide } from '@/state/displayBreakpoint';
-// import { initialiseServices } from '@/state/session';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
