@@ -3,7 +3,7 @@
 import { shallowRef, watch } from 'vue';
 
 // App Core
-import type { BenchtopOptionLocalisedConfig } from '~/src/types/workbench';
+import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import workflowStepData from '~/knowledge/workbench/benchtops/workflow/workflowSteps.json';
 import { localeId, localiseConfigs, t } from '@/locales';
 

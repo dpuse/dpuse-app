@@ -5,7 +5,7 @@ import { computed, shallowRef } from 'vue';
 
 // App Core
 import type { DataSource } from '@/composables/useDataWindow';
-import { displayIsWide } from '~/src/state/displayBreakpoint';
+import { displayIsWide } from '@/state/displayBreakpoint';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';

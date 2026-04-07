@@ -5,7 +5,7 @@ import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef,
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
-import { displayIsWide } from '~/src/state/displayBreakpoint';
+import { displayIsWide } from '@/state/displayBreakpoint';
 import { t } from '@/locales';
 import T from '@/locales/domains/session/accountDialog/AccountDialog.json';
 

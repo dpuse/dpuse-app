@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // App Core
-import { displayIsWide } from '~/src/state/displayBreakpoint';
+import { displayIsWide } from '@/state/displayBreakpoint';
 
 // Properties & Emits
 const { breadcrumbs, title, to, workbenchPaneIsHidden } = defineProps<{
