@@ -37,7 +37,7 @@ function handleFullscreenChange(): void {
 }
 
 function handleManageAccount(): void {
-    router.replace({ query: { ...route.query, dlg: 'acctMgmt' } });
+    router.replace({ query: { ...route.query, dlg: 'account' } });
     emit('continue');
 }
 
