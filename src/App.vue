@@ -6,19 +6,18 @@ import { useRoute, useRouter } from 'vue-router';
 
 // App Core
 import { displayIsWide } from '@/state/displayBreakpoint';
+import { completeBusy, isBusy, startBusy } from '@/state/appProgress';
 
 // App Components - Statically imported so always available, even after app goes offline.
+import BusyMask from '@/components/mask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
 import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
-//import DialogWrapper from '@/components/dialog/DialogWrapper.vue';
+import DialogWrapper from '@/components/dialog/DialogWrapper.vue'; // Static so dialog mask appears immediately on open.
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
 import NavProgressBar from '@/components/navProgressBar/NavProgressBar.vue'; // Required when lazy loading is delayed.
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
-
-// App Components - Statically imported for use as async component loading states.
-import WorkbenchOptionBarSkeleton from '@/components/workbenchOptionBar/WorkbenchOptionBarSkeleton.vue';
 
 // App Components - Lazy loaded as required.
 const AccountDialog = defineAsyncComponent({
@@ -29,16 +28,24 @@ const AuthDialog = defineAsyncComponent({
     loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/domains/session/authDialog/AuthDialog.vue')),
     errorComponent: ChunkLoadError
 });
-const DialogWrapper = defineAsyncComponent({ loader: () => import('@/components/dialog/DialogWrapper.vue'), errorComponent: ChunkLoadError });
 // const KnowledgeOptionBar = defineAsyncComponent({ loader: () => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue'), errorComponent: ChunkLoadError });
-const KnowledgeLayout = defineAsyncComponent({ loader: () => import('@/domains/knowledge/KnowledgeLayout.vue'), errorComponent: ChunkLoadError });
-const PaneSplitter = defineAsyncComponent({ loader: () => import('@/components/paneSplitter/PaneSplitter.vue'), errorComponent: ChunkLoadError });
-const WorkbenchOptionBar = defineAsyncComponent({ loader: () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), loadingComponent: WorkbenchOptionBarSkeleton, delay: 0, errorComponent: ChunkLoadError });
+const KnowledgeLayout = defineAsyncComponent({
+    loader: () => { startBusy(); return import('@/domains/knowledge/KnowledgeLayout.vue').finally(() => completeBusy()); },
+    errorComponent: ChunkLoadError
+});
+const PaneSplitter = defineAsyncComponent({
+    loader: () => { startBusy(); return import('@/components/paneSplitter/PaneSplitter.vue').finally(() => completeBusy()); },
+    errorComponent: ChunkLoadError
+});
+const WorkbenchOptionBar = defineAsyncComponent({
+    loader: () => { startBusy(); return import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue').finally(() => completeBusy()); },
+    errorComponent: ChunkLoadError
+});
 
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 type AppPaneId = 'workbench' | 'knowledge';
-const activeAppPaneId = ref<AppPaneId | undefined>(undefined);
+const activeAppPaneId = ref<AppPaneId | undefined>();
 
 const knowledgeOptionBarIsVisible = ref(false);
 const knowledgePaneActivated = ref(false);
@@ -189,6 +196,9 @@ function establishActiveAppPanelId(displayIsWide: boolean): void {
 
         <!-- Navigation progress bar. Always visible. -->
         <NavProgressBar />
+
+        <!-- Busy mask - shown during non-dialog async component loading to prevent duplicate actions. -->
+        <BusyMask v-if="isBusy" />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button class="fixed top-[calc(env(safe-area-inset-top)+7px)] left-3 z-40" variant="iconLarge" @click="toggleAppPane('workbench')">

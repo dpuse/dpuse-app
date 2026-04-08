@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// App Core
 import { displayIsWide } from '@/state/displayBreakpoint';
 </script>
 

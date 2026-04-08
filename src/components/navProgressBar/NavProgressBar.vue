@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // App Core
-import { isNavigating } from '@/state/navProgress';
+import { isNavigating } from '@/state/appProgress';
 </script>
 
 <template>
