@@ -1,15 +1,11 @@
 // TESTING: Promise.reject(new Error('Simulated chunk failure')).catch((error) => handleLoadError('explorePresentations', error))
 
 // External Dependencies
-import type { Component } from 'vue';
-import { h } from 'vue';
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior, START_LOCATION } from 'vue-router';
 
 // App Core
+import { lazyLoad } from '@/utils/lazyLoad';
 import { completeNavigation, startNavigation } from '@/state/appProgress';
-
-// App Components - Statically imported so always available, even when offline.
-import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 
 // App Components - Lazy loaded as required.
 const AdminHomeLayout = lazyLoad('admin', () => import('@/domains/workbench/admin/AdminHomeLayout.vue'));
@@ -104,20 +100,10 @@ export const createAppRouter = (): Router => {
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function handleLoadError(chunkName: string, error: unknown): { render: () => ReturnType<typeof h> } {
-    return { render: (): ReturnType<typeof h> => h(ChunkLoadError, { chunkName, error }) };
-}
-
 function handleScrollBehavior(
     _to: Parameters<RouterScrollBehavior>[0],
     _from: Parameters<RouterScrollBehavior>[1],
     savedPosition: Parameters<RouterScrollBehavior>[2]
 ): ReturnType<RouterScrollBehavior> {
     return savedPosition ? { ...savedPosition, behavior: 'auto' } : { left: 0, top: 0 }; // NOTE: "behavior: 'auto'" required for Safari iOS v18.3.2.
-}
-
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function lazyLoad(chunkName: string, importFunction: () => Promise<Component>): () => Promise<Component> {
-    return () => importFunction().catch((error) => handleLoadError(chunkName, error));
 }

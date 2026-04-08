@@ -6,9 +6,11 @@ import { useRoute, useRouter } from 'vue-router';
 
 // App Core
 import { displayIsWide } from '@/state/displayBreakpoint';
-import { completeBusy, isBusy, startBusy } from '@/state/appProgress';
+import { isBusy } from '@/state/appProgress';
+import { lazyLoad } from '@/utils/lazyLoad';
 
 // App Components - Statically imported so always available, even after app goes offline.
+import AppProgressBar from '@/components/appProgressBar/AppProgressBar.vue'; // Required when lazy loading is delayed.
 import BusyMask from '@/components/mask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
 import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
@@ -16,31 +18,16 @@ import DialogWrapper from '@/components/dialog/DialogWrapper.vue'; // Static so 
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
-import NavProgressBar from '@/components/navProgressBar/NavProgressBar.vue'; // Required when lazy loading is delayed.
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
+import WorkbenchOptionBarSkeleton from '@/components/workbenchOptionBar/WorkbenchOptionBarSkeleton.vue'; // Reserves sidebar space on wide displays while chunk loads.
 
 // App Components - Lazy loaded as required.
-const AccountDialog = defineAsyncComponent({
-    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/domains/session/accountDialog/AccountDialog.vue')),
-    errorComponent: ChunkLoadError
-});
-const AuthDialog = defineAsyncComponent({
-    loader: () => new Promise((r) => setTimeout(r, 0)).then(() => import('@/domains/session/authDialog/AuthDialog.vue')),
-    errorComponent: ChunkLoadError
-});
-// const KnowledgeOptionBar = defineAsyncComponent({ loader: () => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue'), errorComponent: ChunkLoadError });
-const KnowledgeLayout = defineAsyncComponent({
-    loader: () => { startBusy(); return import('@/domains/knowledge/KnowledgeLayout.vue').finally(() => completeBusy()); },
-    errorComponent: ChunkLoadError
-});
-const PaneSplitter = defineAsyncComponent({
-    loader: () => { startBusy(); return import('@/components/paneSplitter/PaneSplitter.vue').finally(() => completeBusy()); },
-    errorComponent: ChunkLoadError
-});
-const WorkbenchOptionBar = defineAsyncComponent({
-    loader: () => { startBusy(); return import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue').finally(() => completeBusy()); },
-    errorComponent: ChunkLoadError
-});
+// const KnowledgeOptionBar = defineAsyncComponent({ loader: lazyLoad('knowledgeOptionBar', () => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue')), errorComponent: ChunkLoadError });
+const AccountDialog = defineAsyncComponent({ loader: lazyLoad('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue'), 2000), errorComponent: ChunkLoadError });
+const AuthDialog = defineAsyncComponent({ loader: lazyLoad('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 2000), errorComponent: ChunkLoadError });
+const KnowledgeLayout = defineAsyncComponent({ loader: lazyLoad('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 2000), errorComponent: ChunkLoadError });
+const PaneSplitter = defineAsyncComponent({ loader: lazyLoad('paneSplitter', () => import('@/components/paneSplitter/PaneSplitter.vue'), 2000), errorComponent: ChunkLoadError });
+const WorkbenchOptionBar = defineAsyncComponent({ loader: lazyLoad('workbenchOptionBar', () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), 2000), loadingComponent: WorkbenchOptionBarSkeleton, delay: 0, errorComponent: ChunkLoadError });
 
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -195,7 +182,7 @@ function establishActiveAppPanelId(displayIsWide: boolean): void {
         <div class="bg-surface/85 fixed inset-x-0 top-0 h-[env(safe-area-inset-top)] backdrop-blur-[3px]" />
 
         <!-- Navigation progress bar. Always visible. -->
-        <NavProgressBar />
+        <AppProgressBar />
 
         <!-- Busy mask - shown during non-dialog async component loading to prevent duplicate actions. -->
         <BusyMask v-if="isBusy" />

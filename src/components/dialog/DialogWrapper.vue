@@ -9,6 +9,7 @@ import Mask from '@/components/mask/Mask.vue';
 <template>
     <div class="fixed inset-0 z-50 flex items-center justify-center">
         <Mask />
+
         <Suspense>
             <template #default>
                 <slot />
