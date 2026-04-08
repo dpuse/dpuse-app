@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 // App Core
 import { displayIsWide } from '@/state/displayBreakpoint';
 import { isBusy } from '@/state/appProgress';
-import { lazyLoad } from '@/utils/lazyLoad';
+import { load } from '@/utils/component';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import AppProgressBar from '@/components/appProgressBar/AppProgressBar.vue'; // Required when lazy loading is delayed.
@@ -22,16 +22,13 @@ import SessionButton from '@/domains/session/SessionButton.vue'; // Always visib
 import WorkbenchOptionBarSkeleton from '@/components/workbenchOptionBar/WorkbenchOptionBarSkeleton.vue'; // Reserves sidebar space on wide displays while chunk loads.
 
 // App Components - Lazy loaded as required.
-// const KnowledgeOptionBar = defineAsyncComponent({ loader: lazyLoad('knowledgeOptionBar', () => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue')), errorComponent: ChunkLoadError });
-const AccountDialog = defineAsyncComponent({
-    loader: lazyLoad('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue'), 0),
-    errorComponent: ChunkLoadError
-});
-const AuthDialog = defineAsyncComponent({ loader: lazyLoad('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0), errorComponent: ChunkLoadError });
-const KnowledgeLayout = defineAsyncComponent({ loader: lazyLoad('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });
-const PaneSplitter = defineAsyncComponent({ loader: lazyLoad('paneSplitter', () => import('@/components/paneSplitter/PaneSplitter.vue'), 0), errorComponent: ChunkLoadError });
+// const KnowledgeOptionBar = defineAsyncComponent({ loader: load('knowledgeOptionBar', () => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue')), errorComponent: ChunkLoadError });
+const AccountDialog = defineAsyncComponent({ loader: load('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue'), 0), errorComponent: ChunkLoadError });
+const AuthDialog = defineAsyncComponent({ loader: load('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0), errorComponent: ChunkLoadError });
+const KnowledgeLayout = defineAsyncComponent({ loader: load('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });
+const PaneSplitter = defineAsyncComponent({ loader: load('paneSplitter', () => import('@/components/paneSplitter/PaneSplitter.vue'), 0), errorComponent: ChunkLoadError });
 const WorkbenchOptionBar = defineAsyncComponent({
-    loader: lazyLoad('workbenchOptionBar', () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), 0),
+    loader: load('workbenchOptionBar', () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), 0),
     loadingComponent: WorkbenchOptionBarSkeleton,
     delay: 0,
     errorComponent: ChunkLoadError
@@ -92,9 +89,8 @@ watch(displayIsWide, (newDisplayIsWide) => establishActiveAppPanelId(newDisplayI
 
 // UI Helpers - Options ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function completeOptionInvocation(paneId: AppPaneId): void {
+function completeOptionInvocation(): void {
     if (!displayIsWide.value) {
-        activeAppPaneId.value = paneId;
         knowledgeOptionBarIsVisible.value = false;
         workbenchOptionBarIsVisible.value = false;
     }
@@ -242,7 +238,7 @@ function establishActiveAppPanelId(displayIsWide: boolean): void {
         </Transition>
 
         <!-- Workbench option bar - narrow display overlay, rendered at top level so it's accessible regardless of whether the workbench pane is active. -->
-        <WorkbenchOptionBar v-if="!displayIsWide && workbenchOptionBarIsVisible" @continue="completeOptionInvocation('workbench')" />
+        <WorkbenchOptionBar v-if="!displayIsWide && workbenchOptionBarIsVisible" @continue="completeOptionInvocation()" />
 
         <!-- Left Pane - Workbench option bar (wide only) and panel. -->
         <div
@@ -253,7 +249,7 @@ function establishActiveAppPanelId(displayIsWide: boolean): void {
             @pointerdown="activeAppPaneId = 'workbench'"
             @scroll.capture="activeAppPaneId = 'workbench'"
         >
-            <WorkbenchOptionBar v-if="displayIsWide" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation('workbench')" />
+            <WorkbenchOptionBar v-if="displayIsWide" class="flex-none" :is-open-in-narrow-display="false" @continue="completeOptionInvocation()" />
             <div class="flex-1 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">
