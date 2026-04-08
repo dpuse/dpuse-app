@@ -29,7 +29,7 @@ try {
         if (event.reason instanceof Error) {
             reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause: event.reason }));
         } else {
-            reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause: new Error(String(event.reason) || 'Unknown promise rejection error.') }));
+            reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause: new Error(String(event.reason ?? 'Unknown promise rejection error.')) }));
         }
         event.preventDefault();
     });
@@ -50,7 +50,7 @@ try {
     const app = createApp(App);
     app.config.errorHandler = (error, instance, info): void => {
         const data = { componentName: instance?.$options?.__name ?? undefined, info, typeId: 'unhandledVueRuntime' };
-        reportAppError(new AppError('Unhandled Vue error.', 'dpuse.main', data, { cause: error }));
+        reportAppError(new AppError('Unhandled Vue error.', 'dpuse.main', data, { cause: error ?? 'Unknown Vue runtime error.' }));
     };
     app.use(createAppRouter());
     app.mount('#app');
