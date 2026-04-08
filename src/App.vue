@@ -23,11 +23,19 @@ import WorkbenchOptionBarSkeleton from '@/components/workbenchOptionBar/Workbenc
 
 // App Components - Lazy loaded as required.
 // const KnowledgeOptionBar = defineAsyncComponent({ loader: lazyLoad('knowledgeOptionBar', () => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue')), errorComponent: ChunkLoadError });
-const AccountDialog = defineAsyncComponent({ loader: lazyLoad('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue'), 2000), errorComponent: ChunkLoadError });
-const AuthDialog = defineAsyncComponent({ loader: lazyLoad('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 2000), errorComponent: ChunkLoadError });
-const KnowledgeLayout = defineAsyncComponent({ loader: lazyLoad('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 2000), errorComponent: ChunkLoadError });
-const PaneSplitter = defineAsyncComponent({ loader: lazyLoad('paneSplitter', () => import('@/components/paneSplitter/PaneSplitter.vue'), 2000), errorComponent: ChunkLoadError });
-const WorkbenchOptionBar = defineAsyncComponent({ loader: lazyLoad('workbenchOptionBar', () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), 2000), loadingComponent: WorkbenchOptionBarSkeleton, delay: 0, errorComponent: ChunkLoadError });
+const AccountDialog = defineAsyncComponent({
+    loader: lazyLoad('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue'), 0),
+    errorComponent: ChunkLoadError
+});
+const AuthDialog = defineAsyncComponent({ loader: lazyLoad('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0), errorComponent: ChunkLoadError });
+const KnowledgeLayout = defineAsyncComponent({ loader: lazyLoad('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });
+const PaneSplitter = defineAsyncComponent({ loader: lazyLoad('paneSplitter', () => import('@/components/paneSplitter/PaneSplitter.vue'), 0), errorComponent: ChunkLoadError });
+const WorkbenchOptionBar = defineAsyncComponent({
+    loader: lazyLoad('workbenchOptionBar', () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), 0),
+    loadingComponent: WorkbenchOptionBarSkeleton,
+    delay: 0,
+    errorComponent: ChunkLoadError
+});
 
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

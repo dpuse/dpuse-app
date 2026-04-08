@@ -8,10 +8,10 @@ import { completeBusy, startBusy } from '@/state/appProgress';
 
 // Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export function lazyLoad(chunkName: string, importFunction: () => Promise<Component>, delayMs = 2000): () => Promise<Component> {
+export function lazyLoad(chunkName: string, importFunction: () => Promise<Component>, delayMs = 0): () => Promise<Component> {
     return async () => {
         startBusy();
-        const load = delayMs > 0 ? new Promise<void>((r) => setTimeout(r, delayMs)).then(() => importFunction()) : importFunction();
+        const load = delayMs > 0 ? new Promise<void>((resolve) => setTimeout(resolve, delayMs)).then(() => importFunction()) : importFunction();
         return load.catch((error) => ({ render: (): ReturnType<typeof h> => h(ChunkLoadError, { chunkName, error }) }) as Component).finally(() => completeBusy());
     };
 }
