@@ -8,7 +8,7 @@ import T from '@/locales/domains/workbench/workflow/buildDataApps/BuildDataApps.
 // App Components - Statically imported so always available, even after app goes offline.
 import Header from '@/components/header/Header.vue';
 import Table from '@/components/table/Table.vue';
-import ViewShell from '@/components/viewShell/ViewShell.vue';
+import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
 
 // EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -42,9 +42,9 @@ const columnDefinitions: ColumnDef<Record<string, unknown>>[] = [
 </script>
 
 <template>
-    <ViewShell>
+    <LayoutShell>
         <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label') }]" :title="t(T, 'Build_Data_Apps')" :workbench-pane-is-hidden="false" />
 
         <Table class="flex-1 px-4" :column-definitions="columnDefinitions" :data-source="dataSource" />
-    </ViewShell>
+    </LayoutShell>
 </template>

@@ -11,8 +11,8 @@ import { localeId, localiseConfigs, t } from '@/locales';
 // App Components - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';
 import Header from '@/components/header/Header.vue';
+import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
 import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
-import ViewShell from '@/components/viewShell/ViewShell.vue';
 
 // Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -20,7 +20,7 @@ const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocal
 </script>
 
 <template>
-    <ViewShell>
+    <LayoutShell>
         <Header
             :breadcrumbs="[{ id: 'workbench', label: t(T, 'wb.label') }]"
             class="dpuse-workbench-prose w-full"
@@ -43,5 +43,5 @@ const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocal
                 </div>
             </div>
         </PanelScroller>
-    </ViewShell>
+    </LayoutShell>
 </template>

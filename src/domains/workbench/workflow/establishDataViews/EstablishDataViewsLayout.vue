@@ -10,7 +10,7 @@ import { localeId, type LocaleLabel, localiseConfigs, t } from '@/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Header from '@/components/header/Header.vue';
-import ViewShell from '@/components/viewShell/ViewShell.vue';
+import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -57,7 +57,7 @@ function handleComplete(taskLocalisedConfig: TaskLocalisedConfig): void {
 </script>
 
 <template>
-    <ViewShell>
+    <LayoutShell>
         <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label') }]" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" :workbench-pane-is-hidden="false" />
 
         <div class="border-separator mx-4 flex flex-none items-center justify-between border-b">
@@ -90,5 +90,5 @@ function handleComplete(taskLocalisedConfig: TaskLocalisedConfig): void {
         <RouterView v-slot="{ Component }">
             <component :is="Component" :task-localised-config="activeTaskLocalisedConfig" @complete="handleComplete" />
         </RouterView>
-    </ViewShell>
+    </LayoutShell>
 </template>

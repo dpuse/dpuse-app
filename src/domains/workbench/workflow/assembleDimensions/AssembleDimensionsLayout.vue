@@ -5,13 +5,13 @@ import T from '@/locales/domains/workbench/workflow/assembleDimensions/AssembleD
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Header from '@/components/header/Header.vue';
-import ViewShell from '@/components/viewShell/ViewShell.vue';
+import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
 </script>
 
 <template>
-    <ViewShell>
+    <LayoutShell>
         <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label') }]" :title="t(T, 'Assemble_Dimensions')" :workbench-pane-is-hidden="false" />
 
         <RouterView />
-    </ViewShell>
+    </LayoutShell>
 </template>
