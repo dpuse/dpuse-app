@@ -163,12 +163,13 @@ function toggleKnowledgeAppPane(): void {
         // Don't close the knowledge pane if it's the only one visible.
         if (knowledgePaneIsVisible.value && !workbenchPaneIsVisible.value) return;
         applyKnowledgePaneToggle();
-        if (knowledgePaneIsVisible.value) {
-            activeAppPaneId.value = 'knowledge';
-        } else if (activeAppPaneId.value === 'knowledge') {
-            // The active pane was just closed — point to whichever pane is still open.
-            activeAppPaneId.value = 'workbench';
-        }
+        // if (knowledgePaneIsVisible.value) {
+        //     activeAppPaneId.value = 'knowledge';
+        // } else if (activeAppPaneId.value === 'knowledge') {
+        //     // The active pane was just closed — point to whichever pane is still open.
+        //     activeAppPaneId.value = 'workbench';
+        // }
+        activeAppPaneId.value = knowledgePaneIsVisible.value ? 'knowledge' : 'workbench';
         return;
     }
 
