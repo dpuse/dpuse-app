@@ -221,7 +221,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 
         <!-- Knowledge toggle fixed in top right corner. Always visible. -->
         <div class="fixed top-[calc(env(safe-area-inset-top)+7px)] right-3 z-40 flex">
-            <div v-if="displayIsWide || knowledgeOptionBarIsVisible">
+            <nav v-if="displayIsWide || knowledgeOptionBarIsVisible">
                 <Button aria-label="Select knowledge about panel" variant="iconLarge" @click="selectKnowledgePanel('about')">
                     <InfoIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
@@ -233,7 +233,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
                 <Button aria-label="Select knowledge chat panel" variant="iconLarge" @click="selectKnowledgePanel('chat')">
                     <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
-            </div>
+            </nav>
 
             <!-- <Button :disabled="!workbenchPaneIsVisible" variant="iconLarge" @click="toggleKnowledgeAppPane()"> -->
             <Button aria-label="Toggle knowledge panel" variant="iconLarge" @click="toggleKnowledgeAppPane()">
@@ -264,7 +264,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <WorkbenchOptionBar v-if="!displayIsWide && workbenchOptionBarIsVisible" @continue="closeOptionBarOnNarrowDisplay()" />
 
         <!-- Left Pane - Workbench option bar (wide only) and panel. -->
-        <div
+        <main
             v-if="workbenchPaneActivated"
             v-show="workbenchPaneIsVisible"
             class="flex h-full"
@@ -280,7 +280,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
                     </Transition>
                 </RouterView>
             </div>
-        </div>
+        </main>
 
         <!-- Vertical Splitter - Only visible if display is wide and both panes are visible. -->
         <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
