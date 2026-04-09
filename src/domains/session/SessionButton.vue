@@ -9,7 +9,7 @@ import { isAuthenticated as sessionIsAuthenticated } from '@/state/session';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
-import Mask from '@/components/mask/Mask.vue';
+import DialogMask from '@/components/mask/DialogMask.vue';
 import SessionMenu from '@/domains/session/SessionMenu.vue';
 
 // Properties & Emits
@@ -74,7 +74,7 @@ function onMenuAfterLeave(): void {}
 <template>
     <div class="flex flex-col">
         <Transition name="dpuse-mask">
-            <Mask v-if="sessionMenuIsVisible && !displayIsWide" class="z-40" />
+            <DialogMask v-if="sessionMenuIsVisible && !displayIsWide" class="z-40" />
         </Transition>
 
         <Transition :name="displayIsWide ? 'dpuse-slide-up' : 'dpuse-sheet'" @after-leave="onMenuAfterLeave">
@@ -196,7 +196,7 @@ function onMenuAfterLeave(): void {}
     opacity: 1;
 }
 
-/* Mask fade */
+/* DialogMask fade */
 .dpuse-mask-enter-active,
 .dpuse-mask-leave-active {
     transition: opacity 0.2s ease;

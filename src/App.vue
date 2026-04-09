@@ -25,7 +25,10 @@ const AccountDialog = defineAsyncComponent({ loader: load('accountDialog', () =>
 const AuthDialog = defineAsyncComponent({ loader: load('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0), errorComponent: ChunkLoadError });
 const KnowledgeLayout = defineAsyncComponent({ loader: load('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });
 const PaneSplitter = defineAsyncComponent({ loader: load('paneSplitter', () => import('@/components/paneSplitter/PaneSplitter.vue'), 0), errorComponent: ChunkLoadError });
-const WorkbenchOptionBar = defineAsyncComponent({ loader: load('workbenchOptionBar', () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), 0), errorComponent: ChunkLoadError });
+const WorkbenchOptionBar = defineAsyncComponent({
+    loader: load('workbenchOptionBar', () => import('@/domains/workbench/WorkbenchOptionBar.vue'), 0),
+    errorComponent: ChunkLoadError
+});
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -200,8 +203,8 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 </script>
 
 <template>
-    <div class="bg-surface text-content fixed inset-0 flex">
-        <div class="bg-surface/85 fixed inset-x-0 top-0 h-[env(safe-area-inset-top)] backdrop-blur-[3px]" />
+    <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
+        <div class="from-surface/85 fixed inset-x-0 top-0 h-[env(safe-area-inset-top)] bg-linear-to-t to-transparent backdrop-blur-[3px]" />
 
         <!-- Navigation progress bar. Always visible. -->
         <AppProgressBar />
@@ -210,7 +213,12 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <BusyMask v-if="isBusy" />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
-        <Button aria-label="Toggle workbench panel" class="fixed top-[calc(env(safe-area-inset-top)+7px)] left-3 z-40" variant="iconLarge" @click="toggleWorkbenchAppPane()">
+        <Button
+            aria-label="Toggle workbench panel"
+            class="fixed top-[calc(env(safe-area-inset-top)+7px)] left-3 z-40 rounded-full! shadow-sm"
+            variant="iconLarge"
+            @click="toggleWorkbenchAppPane()"
+        >
             <DPUseLogoIcon />
         </Button>
 
@@ -262,15 +270,16 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <main
             v-if="workbenchPaneActivated"
             v-show="workbenchPaneIsVisible"
-            class="h-full grid"
+            class="grid h-full"
             :class="displayIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
             :style="workbenchPaneStyle"
             @pointerdown="activeAppPaneId = 'workbench'"
             @scroll.capture="activeAppPaneId = 'workbench'"
         >
             <div v-if="displayIsWide" class="border-boundary bg-backdrop h-full border-r">
-                <WorkbenchOptionBar :is-open-in-narrow-display="false" @continue="closeOptionBarOnNarrowDisplay()" />
+                <WorkbenchOptionBar @continue="closeOptionBarOnNarrowDisplay()" />
             </div>
+
             <div class="overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">

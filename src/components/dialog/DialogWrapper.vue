@@ -3,12 +3,12 @@
 import { LoaderCircleIcon } from 'lucide-vue-next';
 
 // App Components - Statically imported so always available, even after app goes offline.
-import Mask from '@/components/mask/Mask.vue';
+import DialogMask from '@/components/mask/DialogMask.vue';
 </script>
 
 <template>
     <div class="fixed inset-0 z-50 flex items-center justify-center">
-        <Mask />
+        <DialogMask />
 
         <Suspense>
             <template #default>

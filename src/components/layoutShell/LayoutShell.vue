@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-surface flex h-full flex-col">
+    <section class="bg-surface flex h-full flex-col">
         <slot />
-    </div>
+    </section>
 </template>
