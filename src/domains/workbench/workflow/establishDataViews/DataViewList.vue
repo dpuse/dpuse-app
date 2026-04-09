@@ -24,7 +24,7 @@ import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/session
 // App Components - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';
 import List from '@/components/list/List.vue';
-import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
+import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 
 // App Components - Lazy loaded as required.
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
@@ -139,7 +139,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         </template>
     </List>
 
-    <PanelScroller v-else-if="dataViewRetrievalIsActive">
+    <ContentScroller v-else-if="dataViewRetrievalIsActive">
         <EmptyStatePlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
-    </PanelScroller>
+    </ContentScroller>
 </template>

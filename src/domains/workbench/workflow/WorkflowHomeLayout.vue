@@ -10,9 +10,9 @@ import { localeId, localiseConfigs, t } from '@/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';
+import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 import Header from '@/components/header/Header.vue';
 import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
-import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
 
 // Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -29,7 +29,7 @@ const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocal
             :workbench-pane-is-hidden="false"
         />
 
-        <PanelScroller>
+        <ContentScroller>
             <div class="dpuse-workbench-prose">
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 p-4">
                     <RouterLink
@@ -42,6 +42,6 @@ const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocal
                     </RouterLink>
                 </div>
             </div>
-        </PanelScroller>
+        </ContentScroller>
     </LayoutShell>
 </template>

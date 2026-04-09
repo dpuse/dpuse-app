@@ -20,7 +20,7 @@ import { eventQueryConfigs, localMetaStoreConnectionConfig } from '@/state/sessi
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import List from '@/components/list/List.vue';
-import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
+import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 
 // App Components - Lazy loaded as required.
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
@@ -96,7 +96,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
         </template>
     </List>
 
-    <PanelScroller v-else-if="eventQueryRetrievalIsActive">
+    <ContentScroller v-else-if="eventQueryRetrievalIsActive">
         <EmptyStatePlaceholder :message-item-label="t(T, 'event_queries')" :description-item-label="t(T, 'event_query')" :action-item-label="t(T, 'Event_Query')" />
-    </PanelScroller>
+    </ContentScroller>
 </template>

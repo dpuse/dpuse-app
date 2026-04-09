@@ -20,7 +20,7 @@ import { dimensionConfigs, localMetaStoreConnectionConfig } from '@/state/sessio
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import List from '@/components/list/List.vue';
-import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
+import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 
 // App Components - Lazy loaded as required.
 const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
@@ -95,7 +95,7 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
         </template>
     </List>
 
-    <PanelScroller v-else-if="dimensionRetrievalIsActive">
+    <ContentScroller v-else-if="dimensionRetrievalIsActive">
         <EmptyStatePlaceholder :message-item-label="t(T, 'dimensions')" :description-item-label="t(T, 'dimension')" :action-item-label="t(T, 'Dimension')" />
-    </PanelScroller>
+    </ContentScroller>
 </template>

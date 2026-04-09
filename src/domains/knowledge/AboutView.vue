@@ -8,8 +8,7 @@ import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflo
 import { localeId, localiseConfigs } from '@/locales';
 
 // App Components - Statically imported so always available, even after app goes offline.
-import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
-import PanelScroller from '@/components/panelScroller/PanelScroller.vue';
+import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 
 // Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -33,8 +32,8 @@ const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocal
             :workbench-pane-is-hidden="false"
         /> -->
 
-    <PanelScroller>
-        <div class="bg-white py-24 sm:py-32">
+    <ContentScroller>
+        <article class="bg-white py-24 sm:py-32">
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <div class="mx-auto max-w-2xl lg:text-center">
                     <h2 class="text-base/7 font-semibold text-indigo-600">From data to understanding - The workflow</h2>
@@ -64,7 +63,7 @@ const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocal
                     </dl>
                 </div>
             </div>
-        </div>
+        </article>
         <!-- <div class="mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] max-w-4xl">
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 p-4">
                     <RouterLink
@@ -77,6 +76,6 @@ const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocal
                     </RouterLink>
                 </div>
             </div> -->
-    </PanelScroller>
+    </ContentScroller>
     <!-- </LayoutShell> -->
 </template>
