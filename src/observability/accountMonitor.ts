@@ -17,6 +17,7 @@ export function initialise(userId: string): void {
         webSocket = connectToWebSocket();
         window.addEventListener('pagehide', () => shutdown());
         window.addEventListener('pageshow', (event) => {
+            console.log(1111);
             if (event.persisted) {
                 webSocketShutdown = false;
                 webSocket = connectToWebSocket();
