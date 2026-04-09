@@ -38,7 +38,7 @@ const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocal
                         class="outline-boundary overflow-hidden rounded-lg font-light outline -outline-offset-1"
                         :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
                     >
-                        <Card class="bg-white" :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
+                        <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                     </RouterLink>
                 </div>
             </div>

@@ -54,18 +54,18 @@ let expiryTimer: ReturnType<typeof setTimeout> | undefined;
 
 // Initialisation ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// function handleBeforeUnload(event: BeforeUnloadEvent): void {
-//     event.preventDefault();
-//     event.returnValue = '';
-// }
+function handleBeforeUnload(event: BeforeUnloadEvent): void {
+    event.preventDefault();
+    event.returnValue = '';
+}
 
-// watch(areUpdatesPending, (pending) => {
-//     if (pending) {
-//         globalThis.addEventListener('beforeunload', handleBeforeUnload);
-//     } else {
-//         globalThis.removeEventListener('beforeunload', handleBeforeUnload);
-//     }
-// });
+watch(areUpdatesPending, (pending) => {
+    if (pending) {
+        globalThis.addEventListener('beforeunload', handleBeforeUnload);
+    } else {
+        globalThis.removeEventListener('beforeunload', handleBeforeUnload);
+    }
+});
 
 // watch(
 //     localMetaStoreConnectionConfig,

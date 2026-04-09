@@ -17,7 +17,6 @@ export function initialise(userId: string): void {
         webSocket = connectToWebSocket();
         window.addEventListener('pagehide', () => shutdown());
         window.addEventListener('pageshow', (event) => {
-            console.log(1111);
             if (event.persisted) {
                 webSocketShutdown = false;
                 webSocket = connectToWebSocket();
@@ -50,11 +49,11 @@ function connectToWebSocket(): WebSocket | undefined {
             }
         });
 
-        // pendingWebSocket.addEventListener('close', (event) => {
-        //     if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️ Accounts WebSocket close event '${event.code}' received.`);
-        //     pendingWebSocket = undefined;
-        //     if (!webSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
-        // });
+        pendingWebSocket.addEventListener('close', (event) => {
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️ Accounts WebSocket close event '${event.code}' received.`);
+            pendingWebSocket = undefined;
+            if (!webSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
+        });
 
         pendingWebSocket.addEventListener('error', (error) => {
             // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.

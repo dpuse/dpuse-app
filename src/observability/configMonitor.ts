@@ -62,11 +62,11 @@ function connectToWebSocket(): WebSocket | undefined {
             }
         });
 
-        // pendingWebSocket.addEventListener('close', (event) => {
-        //     if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️ Configuration WebSocket close event '${event.code}' received.`);
-        //     pendingWebSocket = undefined;
-        //     if (!webSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
-        // });
+        pendingWebSocket.addEventListener('close', (event) => {
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️ Configuration WebSocket close event '${event.code}' received.`);
+            pendingWebSocket = undefined;
+            if (!webSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
+        });
 
         pendingWebSocket.addEventListener('error', (error) => {
             // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.

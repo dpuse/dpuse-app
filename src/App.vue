@@ -94,7 +94,7 @@ router
         activeAppPaneId.value = 'workbench';
     });
 
-// onMounted(() => import('@/state/session').then((module) => module.initialiseServices()));
+onMounted(() => import('@/state/session').then((module) => module.initialiseServices()));
 
 watch(displayIsWide, (newDisplayIsWide) => {
     if (activeAppPaneId.value != null) establishActiveAppPaneId(newDisplayIsWide);
