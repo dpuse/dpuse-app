@@ -19,19 +19,13 @@ import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
-import WorkbenchOptionBarSkeleton from '@/components/workbenchOptionBar/WorkbenchOptionBarSkeleton.vue'; // Reserves sidebar space on wide displays while chunk loads.
 
 // App Components - Lazy loaded as required.
 const AccountDialog = defineAsyncComponent({ loader: load('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue'), 0), errorComponent: ChunkLoadError });
 const AuthDialog = defineAsyncComponent({ loader: load('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0), errorComponent: ChunkLoadError });
 const KnowledgeLayout = defineAsyncComponent({ loader: load('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });
 const PaneSplitter = defineAsyncComponent({ loader: load('paneSplitter', () => import('@/components/paneSplitter/PaneSplitter.vue'), 0), errorComponent: ChunkLoadError });
-const WorkbenchOptionBar = defineAsyncComponent({
-    loader: load('workbenchOptionBar', () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), 0),
-    loadingComponent: WorkbenchOptionBarSkeleton,
-    delay: 0,
-    errorComponent: ChunkLoadError
-});
+const WorkbenchOptionBar = defineAsyncComponent({ loader: load('workbenchOptionBar', () => import('@/components/workbenchOptionBar/WorkbenchOptionBar.vue'), 0), errorComponent: ChunkLoadError });
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -268,13 +262,16 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <main
             v-if="workbenchPaneActivated"
             v-show="workbenchPaneIsVisible"
-            class="flex h-full"
+            class="h-full grid"
+            :class="displayIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
             :style="workbenchPaneStyle"
             @pointerdown="activeAppPaneId = 'workbench'"
             @scroll.capture="activeAppPaneId = 'workbench'"
         >
-            <WorkbenchOptionBar v-if="displayIsWide" class="flex-none" :is-open-in-narrow-display="false" @continue="closeOptionBarOnNarrowDisplay()" />
-            <div class="flex-1 overflow-y-hidden">
+            <div v-if="displayIsWide" class="border-boundary bg-backdrop h-full border-r">
+                <WorkbenchOptionBar :is-open-in-narrow-display="false" @continue="closeOptionBarOnNarrowDisplay()" />
+            </div>
+            <div class="overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">
                         <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
