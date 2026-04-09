@@ -99,7 +99,7 @@ async function main() {
     console.log('Indexed knowledge into Vectorize index:', vectorIndex);
 }
 
-// eslint-disable-next-line unicorn/prefer-top-level-await
+ 
 main().catch((error) => {
     console.error(error);
     process.exitCode = 1;

@@ -113,41 +113,38 @@ function selectKnowledgePanel(knowledgeViewId: KnowledgeViewId): void {
     knowledgeOptionBarIsVisible.value = false;
 }
 
-function toggleAppPane(appPaneId: AppPaneId): void {
-    const togglePane = appPaneId === 'workbench' ? toggleWorkbenchAppPane : toggleKnowledgeAppPane;
-    const paneIsVisible = appPaneId === 'workbench' ? workbenchPaneIsVisible : knowledgePaneIsVisible;
-    const paneOptionBarIsVisible = appPaneId === 'workbench' ? workbenchOptionBarIsVisible : knowledgeOptionBarIsVisible;
-    const otherPaneIsVisible = appPaneId === 'workbench' ? knowledgePaneIsVisible : workbenchPaneIsVisible;
-    const otherOptionBarIsVisible = appPaneId === 'workbench' ? knowledgeOptionBarIsVisible : workbenchOptionBarIsVisible;
-
+function toggleWorkbenchAppPane(): void {
     if (displayIsWide.value) {
-        togglePane();
-        if (paneIsVisible.value) {
-            activeAppPaneId.value = appPaneId;
-        } else if (activeAppPaneId.value === appPaneId) {
-            // The active pane was just closed — point to whichever pane is still open.
-            activeAppPaneId.value = appPaneId === 'workbench' ? 'knowledge' : 'workbench';
-        }
+        // Don't close the workbench pane if it's the only one visible.
+        if (workbenchPaneIsVisible.value && !knowledgePaneIsVisible.value) return;
+        applyWorkbenchPaneToggle();
+        // if (workbenchPaneIsVisible.value) {
+        //     activeAppPaneId.value = 'workbench';
+        // } else if (activeAppPaneId.value === 'workbench') {
+        //     // The active pane was just closed — point to whichever pane is still open.
+        //     activeAppPaneId.value = 'knowledge';
+        // }
+        activeAppPaneId.value = workbenchPaneIsVisible.value ? 'workbench' : 'knowledge';
         return;
     }
 
     // Narrow: pane already visible — toggle its option bar.
-    if (paneIsVisible.value) {
-        paneOptionBarIsVisible.value = !paneOptionBarIsVisible.value;
+    if (workbenchPaneIsVisible.value) {
+        workbenchOptionBarIsVisible.value = !workbenchOptionBarIsVisible.value;
         return;
     }
 
     // Narrow: switching to this pane — close other option bar first if open.
-    activeAppPaneId.value = appPaneId;
-    if (otherOptionBarIsVisible.value) {
-        otherOptionBarIsVisible.value = false;
+    activeAppPaneId.value = 'workbench';
+    if (knowledgeOptionBarIsVisible.value) {
+        knowledgeOptionBarIsVisible.value = false;
         return;
     }
-    otherPaneIsVisible.value = false;
-    togglePane();
+    knowledgePaneIsVisible.value = false;
+    applyWorkbenchPaneToggle();
 }
 
-function toggleWorkbenchAppPane(): void {
+function applyWorkbenchPaneToggle(): void {
     if (route.path === '/') {
         workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = true;
         router.replace({
@@ -162,6 +159,36 @@ function toggleWorkbenchAppPane(): void {
 }
 
 function toggleKnowledgeAppPane(): void {
+    if (displayIsWide.value) {
+        // Don't close the knowledge pane if it's the only one visible.
+        if (knowledgePaneIsVisible.value && !workbenchPaneIsVisible.value) return;
+        applyKnowledgePaneToggle();
+        if (knowledgePaneIsVisible.value) {
+            activeAppPaneId.value = 'knowledge';
+        } else if (activeAppPaneId.value === 'knowledge') {
+            // The active pane was just closed — point to whichever pane is still open.
+            activeAppPaneId.value = 'workbench';
+        }
+        return;
+    }
+
+    // Narrow: pane already visible — toggle its option bar.
+    if (knowledgePaneIsVisible.value) {
+        knowledgeOptionBarIsVisible.value = !knowledgeOptionBarIsVisible.value;
+        return;
+    }
+
+    // Narrow: switching to this pane — close other option bar first if open.
+    activeAppPaneId.value = 'knowledge';
+    if (workbenchOptionBarIsVisible.value) {
+        workbenchOptionBarIsVisible.value = false;
+        return;
+    }
+    workbenchPaneIsVisible.value = false;
+    applyKnowledgePaneToggle();
+}
+
+function applyKnowledgePaneToggle(): void {
     if ('kView' in route.query) {
         knowledgePaneIsActive.value = knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
         if (knowledgePaneIsActive.value) knowledgePaneActivated.value = true;
@@ -196,7 +223,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <BusyMask v-if="isBusy" />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
-        <Button class="fixed top-[calc(env(safe-area-inset-top)+7px)] left-3 z-40" variant="iconLarge" @click="toggleAppPane('workbench')">
+        <Button class="fixed top-[calc(env(safe-area-inset-top)+7px)] left-3 z-40" variant="iconLarge" @click="toggleWorkbenchAppPane()">
             <DPUseLogoIcon />
         </Button>
 
@@ -216,8 +243,8 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
                 </Button>
             </div>
 
-            <!-- <Button :disabled="!workbenchPaneIsVisible" variant="iconLarge" @click="toggleAppPane('knowledge')"> -->
-            <Button variant="iconLarge" @click="toggleAppPane('knowledge')">
+            <!-- <Button :disabled="!workbenchPaneIsVisible" variant="iconLarge" @click="toggleKnowledgeAppPane()"> -->
+            <Button variant="iconLarge" @click="toggleKnowledgeAppPane()">
                 <KnowledgeIcon />
             </Button>
         </div>

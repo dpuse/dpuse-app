@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.690",
+    "version": "0.0.691",
     "private": true,
     "type": "module",
     "engines": {
@@ -46,6 +46,7 @@
         "eslint-plugin-sonarjs": "^4.0.2",
         "eslint-plugin-unicorn": "^63.0.0",
         "eslint-plugin-vue": "~10.8.0",
+        "eslint-plugin-vuejs-accessibility": "^2.5.0",
         "jiti": "^2.6.1",
         "jsdom": "^29.0.2",
         "npm-check-updates": "^20.0.0",
@@ -57,6 +58,7 @@
         "vite": "^8.0.7",
         "vite-plugin-vue-devtools": "^8.1.1",
         "vitest": "^4.1.3",
+        "vue-axe": "^3.1.2",
         "vue-tsc": "^3.2.6",
         "wrangler": "^4.80.0"
     },

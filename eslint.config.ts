@@ -6,6 +6,7 @@ import pluginSecurity from 'eslint-plugin-security';
 import pluginUnicorn from 'eslint-plugin-unicorn';
 import pluginVitest from '@vitest/eslint-plugin';
 import pluginVue from 'eslint-plugin-vue';
+import pluginVueA11y from 'eslint-plugin-vuejs-accessibility';
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting';
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 
@@ -24,6 +25,7 @@ export default defineConfigWithVueTs(
     globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**', 'pwa.assets.config.ts']),
 
     ...pluginVue.configs['flat/recommended'],
+    ...pluginVueA11y.configs['flat/recommended'],
     vueTsConfigs.recommended,
     pluginImport.flatConfigs.recommended,
     pluginSecurity.configs.recommended,
