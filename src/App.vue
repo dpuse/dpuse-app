@@ -215,7 +215,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
             aria-label="Toggle workbench panel"
-            class="bg-surface fixed top-[calc(env(safe-area-inset-top)+7px)] left-3 z-40 rounded-full! pl-[calc(env(safe-area-inset-left))] shadow-md"
+            class="bg-surface pl- fixed top-[calc(env(safe-area-inset-top)+7px)] left-[calc(env(safe-area-inset-left)+12px)] z-40 rounded-full! shadow-md"
             variant="iconLarge"
             @click="toggleWorkbenchAppPane()"
         >
@@ -223,7 +223,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </Button>
 
         <!-- Knowledge toggle fixed in top right corner. Always visible. -->
-        <div class="fixed top-[calc(env(safe-area-inset-top)+7px)] right-3 z-40 flex pr-[calc(env(safe-area-inset-right))]">
+        <div class="fixed top-[calc(env(safe-area-inset-top)+7px)] right-[calc(env(safe-area-inset-right)+12px)] z-40 flex">
             <nav v-if="displayIsWide || knowledgeOptionBarIsVisible">
                 <Button aria-label="Select knowledge about panel" variant="iconLarge" @click="selectKnowledgePanel('about')">
                     <InfoIcon aria-hidden="true" :stroke-width="1.25" />
@@ -245,7 +245,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </div>
 
         <!-- Session button - always visible, independent of pane state -->
-        <div class="fixed bottom-6 left-3 z-40 pl-[calc(env(safe-area-inset-left))]">
+        <div class="fixed bottom-6 left-[calc(env(safe-area-inset-left)+12px)] z-40">
             <SessionButton :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
         </div>
 
