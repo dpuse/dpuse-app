@@ -204,7 +204,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 
 <template>
     <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
-        <div class="to-surface/85 fixed inset-x-0 top-0 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent" />
+        <div class="to-surface/95 fixed inset-x-0 top-0 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent backdrop-blur-[1px]" />
 
         <!-- Navigation progress bar. Always visible. -->
         <AppProgressBar />
