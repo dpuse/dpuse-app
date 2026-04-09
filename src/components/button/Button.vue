@@ -76,11 +76,11 @@ const variantClasses = computed((): (string | string[] | Record<string, string> 
         case 'listitemDestructive':
             return [COMMON_RECTANGLE_CLASSES, COMMON_DESTRUCTIVE_CLASSES, isActive ? 'bg-red-300 dark:bg-red-400/40' : undefined];
         case 'avatar':
-            return [COMMON_GRAPHIC_CLASSES, COMMON_AVATAR_CLASSES];
+            return [COMMON_GRAPHIC_CLASSES, COMMON_AVATAR_CLASSES, '[&>img]:rounded-full'];
         case 'iconLarge':
-            return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'dpuse-lg p-1.75'];
+            return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.75 [&>svg]:size-[26px]'];
         case 'iconSmall':
-            return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'dpuse-sm p-1.25'];
+            return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.25 [&>svg]:size-5'];
         default:
             return [COMMON_RECTANGLE_CLASSES, COMMON_NEUTRAL_CLASSES];
     }
@@ -92,17 +92,3 @@ const variantClasses = computed((): (string | string[] | Record<string, string> 
         <slot />
     </button>
 </template>
-
-<style scoped>
-button.dpuse-sm > :deep(svg) {
-    width: 20px;
-    height: 20px;
-}
-button.dpuse-lg > :deep(svg) {
-    width: 26px;
-    height: 26px;
-}
-button.dpuse-avatar > :deep(img) {
-    border-radius: 50%;
-}
-</style>
