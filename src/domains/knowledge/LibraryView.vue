@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { marked } from 'marked';
+// import { marked } from 'marked';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
 import { onMounted, ref } from 'vue';
@@ -37,7 +37,7 @@ onMounted(() => {
                         if (part.type === 'thinking') {
                             assistantThinking.value = part.content;
                         } else if (part.type === 'text') {
-                            assistantText.value = marked(part.content) as string;
+                            // assistantText.value = marked(part.content) as string;
                         }
                     }
                 }
