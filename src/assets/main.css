@@ -35,7 +35,7 @@ body {
     --boundary: var(--color-zinc-100);
     --separator: var(--color-zinc-200);
     --content: var(--color-zinc-800);
-    --muted: var(--color-zinc-400);
+    --muted: var(--color-zinc-500);
 }
 
 .dark {
