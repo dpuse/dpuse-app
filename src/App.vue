@@ -22,7 +22,6 @@ import SessionButton from '@/domains/session/SessionButton.vue'; // Always visib
 import WorkbenchOptionBarSkeleton from '@/components/workbenchOptionBar/WorkbenchOptionBarSkeleton.vue'; // Reserves sidebar space on wide displays while chunk loads.
 
 // App Components - Lazy loaded as required.
-// const KnowledgeOptionBar = defineAsyncComponent({ loader: load('knowledgeOptionBar', () => import('@/components/knowledgeOptionBar/KnowledgeOptionBar.vue')), errorComponent: ChunkLoadError });
 const AccountDialog = defineAsyncComponent({ loader: load('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue'), 0), errorComponent: ChunkLoadError });
 const AuthDialog = defineAsyncComponent({ loader: load('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0), errorComponent: ChunkLoadError });
 const KnowledgeLayout = defineAsyncComponent({ loader: load('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });
@@ -34,6 +33,10 @@ const WorkbenchOptionBar = defineAsyncComponent({
     errorComponent: ChunkLoadError
 });
 
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
+
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 type AppPaneId = 'workbench' | 'knowledge';
@@ -44,7 +47,7 @@ const knowledgePaneActivated = ref(false); // Keeps the component alive so it do
 const knowledgePaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
 const knowledgePaneIsVisible = ref(false); // The pane is actually rendered in the layout right now.
 
-const paneSplitterPercent = ref(50);
+const paneSplitterPercent = ref(Number(localStorage.getItem(PANE_SPLITTER_PERCENT_KEY)) || 50);
 
 const route = useRoute();
 const router = useRouter();
@@ -93,7 +96,11 @@ router
 
 onMounted(() => import('@/state/session').then((module) => module.initialiseServices()));
 
-watch(displayIsWide, (newDisplayIsWide) => establishActiveAppPaneId(newDisplayIsWide));
+watch(displayIsWide, (newDisplayIsWide) => {
+    if (activeAppPaneId.value != null) establishActiveAppPaneId(newDisplayIsWide);
+});
+
+watch(paneSplitterPercent, (newPaneSplitterPercent) => localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent)));
 
 // UI Helpers - Options ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -107,6 +114,7 @@ function closeOptionBarOnNarrowDisplay(): void {
 // UI Helpers - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function selectKnowledgePanel(knowledgeViewId: KnowledgeViewId): void {
+    activeAppPaneId.value = 'knowledge';
     knowledgePaneIsActive.value = knowledgePaneIsVisible.value = route.query.kView !== knowledgeViewId || knowledgePaneIsVisible.value !== true;
     if (knowledgePaneIsActive.value) knowledgePaneActivated.value = true;
     router.replace({ query: { ...route.query, kState: knowledgePaneIsVisible.value ? 1 : undefined, kView: knowledgeViewId } });
@@ -115,88 +123,71 @@ function selectKnowledgePanel(knowledgeViewId: KnowledgeViewId): void {
 
 function toggleWorkbenchAppPane(): void {
     if (displayIsWide.value) {
-        // Don't close the workbench pane if it's the only one visible.
-        if (workbenchPaneIsVisible.value && !knowledgePaneIsVisible.value) return;
+        if (workbenchPaneIsVisible.value && !knowledgePaneIsVisible.value) return; // Don't close the workbench pane if it's the only one visible.
         applyWorkbenchPaneToggle();
-        // if (workbenchPaneIsVisible.value) {
-        //     activeAppPaneId.value = 'workbench';
-        // } else if (activeAppPaneId.value === 'workbench') {
-        //     // The active pane was just closed — point to whichever pane is still open.
-        //     activeAppPaneId.value = 'knowledge';
-        // }
         activeAppPaneId.value = workbenchPaneIsVisible.value ? 'workbench' : 'knowledge';
         return;
     }
 
-    // Narrow: pane already visible — toggle its option bar.
+    // Display is narrow, pane already visible — toggle its option bar.
     if (workbenchPaneIsVisible.value) {
         workbenchOptionBarIsVisible.value = !workbenchOptionBarIsVisible.value;
         return;
     }
 
-    // Narrow: switching to this pane — close other option bar first if open.
+    // Display is narrow, switching to this pane — close other option bar first if open.
     activeAppPaneId.value = 'workbench';
-    if (knowledgeOptionBarIsVisible.value) {
-        knowledgeOptionBarIsVisible.value = false;
-        return;
-    }
+    knowledgeOptionBarIsVisible.value = false;
     knowledgePaneIsVisible.value = false;
     applyWorkbenchPaneToggle();
 }
 
 function applyWorkbenchPaneToggle(): void {
     if (route.path === '/') {
+        // Then - workbench pane has never been activated, active and navigate to last know route.
         workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = true;
         router.replace({
             name: (Array.isArray(route.query.wbView) ? route.query.wbView[0] : route.query.wbView) ?? 'workflow',
-            query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined }
+            query: { ...route.query, wbState: 1, kState: knowledgePaneIsVisible.value ? 1 : undefined }
         });
     } else {
+        // Else - toggle workbench pane and update route properties.
         workbenchPaneIsActive.value = workbenchPaneIsVisible.value = !workbenchPaneIsVisible.value;
-        if (workbenchPaneIsActive.value) workbenchPaneActivated.value = true;
         router.replace({ query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
     }
 }
 
 function toggleKnowledgeAppPane(): void {
     if (displayIsWide.value) {
-        // Don't close the knowledge pane if it's the only one visible.
-        if (knowledgePaneIsVisible.value && !workbenchPaneIsVisible.value) return;
+        if (knowledgePaneIsVisible.value && !workbenchPaneIsVisible.value) return; // Don't close the knowledge pane if it's the only one visible.
         applyKnowledgePaneToggle();
-        // if (knowledgePaneIsVisible.value) {
-        //     activeAppPaneId.value = 'knowledge';
-        // } else if (activeAppPaneId.value === 'knowledge') {
-        //     // The active pane was just closed — point to whichever pane is still open.
-        //     activeAppPaneId.value = 'workbench';
-        // }
         activeAppPaneId.value = knowledgePaneIsVisible.value ? 'knowledge' : 'workbench';
         return;
     }
 
-    // Narrow: pane already visible — toggle its option bar.
+    // Display is narrow, pane already visible — toggle its option bar.
     if (knowledgePaneIsVisible.value) {
         knowledgeOptionBarIsVisible.value = !knowledgeOptionBarIsVisible.value;
         return;
     }
 
-    // Narrow: switching to this pane — close other option bar first if open.
+    // Display is narrow, switching to this pane — close other option bar first if open.
     activeAppPaneId.value = 'knowledge';
-    if (workbenchOptionBarIsVisible.value) {
-        workbenchOptionBarIsVisible.value = false;
-        return;
-    }
+    workbenchOptionBarIsVisible.value = false;
     workbenchPaneIsVisible.value = false;
     applyKnowledgePaneToggle();
 }
 
 function applyKnowledgePaneToggle(): void {
     if ('kView' in route.query) {
+        // Then - toggle knowledge pane, ensure knowledge pane is activated (may be first time), and update route properties.
         knowledgePaneIsActive.value = knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
         if (knowledgePaneIsActive.value) knowledgePaneActivated.value = true;
         router.replace({ query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
     } else {
+        // Else - knowledge pane has never been activated, active and navigate to last 'about' route.
         knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = true;
-        router.replace({ query: { ...route.query, kView: 'about', wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
+        router.replace({ query: { ...route.query, kView: 'about', wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: 1 } });
     }
 }
 
