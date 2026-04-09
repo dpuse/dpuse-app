@@ -102,16 +102,51 @@ watch(displayIsWide, (newDisplayIsWide) => {
 
 watch(paneSplitterPercent, (newPaneSplitterPercent) => localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent)));
 
-// UI Helpers - Options ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers - Option Bars ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function closeOptionBarOnNarrowDisplay(): void {
-    if (!displayIsWide.value) {
-        knowledgeOptionBarIsVisible.value = false;
-        workbenchOptionBarIsVisible.value = false;
+    if (displayIsWide.value) return;
+    knowledgeOptionBarIsVisible.value = false;
+    workbenchOptionBarIsVisible.value = false;
+}
+
+// UI Helpers - Panes - Knowledge  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function toggleKnowledgeAppPane(): void {
+    if (displayIsWide.value) {
+        if (knowledgePaneIsVisible.value && !workbenchPaneIsVisible.value) return; // Don't close the knowledge pane if it's the only one visible.
+        applyKnowledgePaneToggle();
+        activeAppPaneId.value = knowledgePaneIsVisible.value ? 'knowledge' : 'workbench';
+        return;
+    }
+
+    // Display is narrow, pane already visible — toggle its option bar.
+    if (knowledgePaneIsVisible.value) {
+        knowledgeOptionBarIsVisible.value = !knowledgeOptionBarIsVisible.value;
+        return;
+    }
+
+    // Display is narrow, switching to this pane — close other option bar first if open.
+    activeAppPaneId.value = 'knowledge';
+    workbenchOptionBarIsVisible.value = false;
+    workbenchPaneIsVisible.value = false;
+    applyKnowledgePaneToggle();
+}
+
+function applyKnowledgePaneToggle(): void {
+    if ('kView' in route.query) {
+        // Then - toggle knowledge pane, ensure knowledge pane is activated (may be first time), and update route properties.
+        knowledgePaneIsActive.value = knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
+        if (knowledgePaneIsActive.value) knowledgePaneActivated.value = true;
+        router.replace({ query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
+    } else {
+        // Else - knowledge pane has never been activated, active and navigate to last 'about' route.
+        knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = true;
+        router.replace({ query: { ...route.query, kView: 'about', wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: 1 } });
     }
 }
 
-// UI Helpers - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers - Panes - Workbench ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function selectKnowledgePanel(knowledgeViewId: KnowledgeViewId): void {
     activeAppPaneId.value = 'knowledge';
@@ -154,40 +189,6 @@ function applyWorkbenchPaneToggle(): void {
         // Else - toggle workbench pane and update route properties.
         workbenchPaneIsActive.value = workbenchPaneIsVisible.value = !workbenchPaneIsVisible.value;
         router.replace({ query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
-    }
-}
-
-function toggleKnowledgeAppPane(): void {
-    if (displayIsWide.value) {
-        if (knowledgePaneIsVisible.value && !workbenchPaneIsVisible.value) return; // Don't close the knowledge pane if it's the only one visible.
-        applyKnowledgePaneToggle();
-        activeAppPaneId.value = knowledgePaneIsVisible.value ? 'knowledge' : 'workbench';
-        return;
-    }
-
-    // Display is narrow, pane already visible — toggle its option bar.
-    if (knowledgePaneIsVisible.value) {
-        knowledgeOptionBarIsVisible.value = !knowledgeOptionBarIsVisible.value;
-        return;
-    }
-
-    // Display is narrow, switching to this pane — close other option bar first if open.
-    activeAppPaneId.value = 'knowledge';
-    workbenchOptionBarIsVisible.value = false;
-    workbenchPaneIsVisible.value = false;
-    applyKnowledgePaneToggle();
-}
-
-function applyKnowledgePaneToggle(): void {
-    if ('kView' in route.query) {
-        // Then - toggle knowledge pane, ensure knowledge pane is activated (may be first time), and update route properties.
-        knowledgePaneIsActive.value = knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
-        if (knowledgePaneIsActive.value) knowledgePaneActivated.value = true;
-        router.replace({ query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
-    } else {
-        // Else - knowledge pane has never been activated, active and navigate to last 'about' route.
-        knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = true;
-        router.replace({ query: { ...route.query, kView: 'about', wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: 1 } });
     }
 }
 
@@ -295,15 +296,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             @scroll.capture="activeAppPaneId = 'knowledge'"
         >
             <KnowledgeLayout class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
-            <!-- <KnowledgeOptionBar v-if="displayIsWide" class="flex-none" :is-open-in-narrow-display="false" @continue="closeOptionBarOnNarrowDisplay('knowledge')" /> -->
         </div>
-
-        <!-- Knowledge option bar - narrow display overlay, rendered at top level so it's accessible regardless of whether the knowledge pane is active. -->
-        <!-- <KnowledgeOptionBar
-            v-if="!displayIsWide && knowledgeOptionBarInitialised"
-            :is-open-in-narrow-display="knowledgeOptionBarIsVisible"
-            @continue="closeOptionBarOnNarrowDisplay('knowledge')"
-        /> -->
     </div>
 </template>
 

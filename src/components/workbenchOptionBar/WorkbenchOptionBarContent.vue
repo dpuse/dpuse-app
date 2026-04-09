@@ -28,7 +28,7 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
 </script>
 
 <template>
-    <nav class="border-boundary bg-backdrop h-full w-16.25 flex-col border-r pt-[calc(env(safe-area-inset-top)+55px)] pb-18.5">
+    <aside class="border-boundary bg-backdrop h-full w-16.25 flex-col border-r pt-[calc(env(safe-area-inset-top)+55px)] pb-18.5">
         <!-- Separator -->
         <div class="bg-separator mx-3 h-px" />
 
@@ -60,7 +60,7 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
         </div>
 
         <Separator class="mx-3" />
-    </nav>
+    </aside>
 </template>
 
 <style scoped>

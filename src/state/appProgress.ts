@@ -5,6 +5,7 @@ import { ref } from 'vue';
 
 const NAV_DELAY_MS = 150;
 const NAV_MIN_VISIBLE_MS = 350;
+const BUSY_DELAY_MS = 200;
 
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -19,6 +20,7 @@ let showedAt: number | null = null;
 export const isBusy = ref(false);
 
 let busyCount = 0;
+let busyTimer: ReturnType<typeof setTimeout> | null = null;
 
 // Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -51,10 +53,21 @@ export function completeNavigation(): void {
 
 export function startBusy(): void {
     busyCount++;
-    isBusy.value = true;
+    if (busyTimer == null) {
+        busyTimer = setTimeout(() => {
+            busyTimer = null;
+            if (busyCount > 0) isBusy.value = true;
+        }, BUSY_DELAY_MS);
+    }
 }
 
 export function completeBusy(): void {
     busyCount = Math.max(0, busyCount - 1);
-    if (busyCount === 0) isBusy.value = false;
+    if (busyCount === 0) {
+        if (busyTimer != null) {
+            clearTimeout(busyTimer);
+            busyTimer = null;
+        }
+        isBusy.value = false;
+    }
 }
