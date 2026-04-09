@@ -91,20 +91,22 @@ function onMenuAfterLeave(): void {}
             />
         </Transition>
 
-        <Button class="dpuse-outside-click-ignore relative h-10 w-10" :class="{ 'shadow-md': !displayIsWide && !workbenchOptionBarIsVisible }" variant="avatar">
+        <Button
+            aria-label="Toggle session panel"
+            class="dpuse-outside-click-ignore relative h-10 w-10"
+            :class="{ 'shadow-md': !displayIsWide && !workbenchOptionBarIsVisible }"
+            variant="avatar"
+            @click="sessionMenuIsVisible = !sessionMenuIsVisible"
+        >
             <Transition name="fade">
                 <!-- Session is authenticated. Show photo or initials. -->
-                <div v-if="sessionIsAuthenticated === true" class="absolute inset-0 flex items-center justify-center" @click="sessionMenuIsVisible = !sessionMenuIsVisible">
-                    <img v-if="!error" class="size-9.5 rounded-full" :src="avatarUrl" @error="error = true" />
+                <div v-if="sessionIsAuthenticated === true" class="absolute inset-0 flex items-center justify-center">
+                    <img v-if="!error" alt="" class="size-9.5 rounded-full" :src="avatarUrl" @error="error = true" />
                     <div v-else class="rounded-full text-xl">{{ initials }}</div>
                 </div>
 
                 <!-- Session is NOT authenticated. Show user silhouette. -->
-                <div
-                    v-else-if="sessionIsAuthenticated === false"
-                    class="bg-surface absolute inset-0 flex items-center justify-center rounded-full"
-                    @click="sessionMenuIsVisible = !sessionMenuIsVisible"
-                >
+                <div v-else-if="sessionIsAuthenticated === false" class="bg-surface absolute inset-0 flex items-center justify-center rounded-full">
                     <svg viewBox="0 0 24 24" fill="currentColor" class="size-8 text-zinc-400/60">
                         <path
                             fill-rule="evenodd"

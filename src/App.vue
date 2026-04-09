@@ -243,7 +243,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 
         <!-- Session button - always visible, independent of pane state -->
         <div class="fixed bottom-6 left-3 z-40">
-            <SessionButton aria-label="Toggle session panel" :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
+            <SessionButton :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
         </div>
 
         <!-- Authentication dialog activated using url parameter 'dlg=auth'. -->
