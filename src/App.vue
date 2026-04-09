@@ -215,35 +215,35 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <BusyMask v-if="isBusy" />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
-        <Button class="fixed top-[calc(env(safe-area-inset-top)+7px)] left-3 z-40" variant="iconLarge" @click="toggleWorkbenchAppPane()">
+        <Button aria-label="Toggle workbench panel" class="fixed top-[calc(env(safe-area-inset-top)+7px)] left-3 z-40" variant="iconLarge" @click="toggleWorkbenchAppPane()">
             <DPUseLogoIcon />
         </Button>
 
         <!-- Knowledge toggle fixed in top right corner. Always visible. -->
         <div class="fixed top-[calc(env(safe-area-inset-top)+7px)] right-3 z-40 flex">
             <div v-if="displayIsWide || knowledgeOptionBarIsVisible">
-                <Button variant="iconLarge" @click="selectKnowledgePanel('about')">
+                <Button aria-label="Select knowledge about panel" variant="iconLarge" @click="selectKnowledgePanel('about')">
                     <InfoIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
 
-                <Button variant="iconLarge" @click="selectKnowledgePanel('library')">
+                <Button aria-label="Select knowledge library panel" variant="iconLarge" @click="selectKnowledgePanel('library')">
                     <LibraryBigIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
 
-                <Button variant="iconLarge" @click="selectKnowledgePanel('chat')">
+                <Button aria-label="Select knowledge chat panel" variant="iconLarge" @click="selectKnowledgePanel('chat')">
                     <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
             </div>
 
             <!-- <Button :disabled="!workbenchPaneIsVisible" variant="iconLarge" @click="toggleKnowledgeAppPane()"> -->
-            <Button variant="iconLarge" @click="toggleKnowledgeAppPane()">
+            <Button aria-label="Toggle knowledge panel" variant="iconLarge" @click="toggleKnowledgeAppPane()">
                 <KnowledgeIcon />
             </Button>
         </div>
 
         <!-- Session button - always visible, independent of pane state -->
         <div class="fixed bottom-6 left-3 z-40">
-            <SessionButton :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
+            <SessionButton aria-label="Toggle session panel" :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
         </div>
 
         <!-- Authentication dialog activated using url parameter 'dlg=auth'. -->
