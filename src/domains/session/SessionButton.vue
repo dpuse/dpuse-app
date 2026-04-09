@@ -94,7 +94,7 @@ function onMenuAfterLeave(): void {}
         <Button
             aria-label="Toggle session panel"
             class="dpuse-outside-click-ignore relative h-10 w-10"
-            :class="{ 'shadow-md': !displayIsWide && !workbenchOptionBarIsVisible }"
+            :class="{ 'bg-surface shadow-md': !displayIsWide && !workbenchOptionBarIsVisible }"
             variant="avatar"
             @click="sessionMenuIsVisible = !sessionMenuIsVisible"
         >
