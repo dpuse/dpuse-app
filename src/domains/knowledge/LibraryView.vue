@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // External Dependencies
-// import { marked } from 'marked';
+import { marked } from 'marked';
 import { SendHorizonalIcon } from 'lucide-vue-next';
-// import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
+import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
 import { onMounted, ref } from 'vue';
 
 // App Components - Statically imported so always available, even after app goes offline.
@@ -19,42 +19,42 @@ const userText = ref<string | undefined>();
 const assistantThinking = ref<string | undefined>();
 const assistantText = ref<string | undefined>();
 
-// let client: ChatClient;
+let client: ChatClient;
 
 onMounted(() => {
-    // client = new ChatClient({
-    //     connection: fetchServerSentEvents('https://api.dpuse.app/ai/anthropic/chat'),
-    //     body: { model: 'claude-sonnet-4-5' },
-    //     initialMessages: [],
-    //     onMessagesChange: (messages): void => {
-    //         for (const message of messages) {
-    //             for (const part of message.parts) {
-    //                 if (message.role === 'user') {
-    //                     if (part.type === 'text') {
-    //                         userText.value = part.content;
-    //                     }
-    //                 } else if (message.role === 'assistant') {
-    //                     if (part.type === 'thinking') {
-    //                         assistantThinking.value = part.content;
-    //                     } else if (part.type === 'text') {
-    //                         // assistantText.value = marked(part.content) as string;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     },
-    //     onResponse: (response): void => {},
-    //     onChunk: (chunk): void => {},
-    //     // onToolCall: async ({ toolName, input }) => {
-    //     //     // Handle client tool execution
-    //     //     return { result: '...' };
-    //     // },
-    //     onFinish: (message): void => {}
-    // });
+    client = new ChatClient({
+        connection: fetchServerSentEvents('https://api.dpuse.app/ai/anthropic/chat'),
+        body: { model: 'claude-sonnet-4-5' },
+        initialMessages: [],
+        onMessagesChange: (messages): void => {
+            for (const message of messages) {
+                for (const part of message.parts) {
+                    if (message.role === 'user') {
+                        if (part.type === 'text') {
+                            userText.value = part.content;
+                        }
+                    } else if (message.role === 'assistant') {
+                        if (part.type === 'thinking') {
+                            assistantThinking.value = part.content;
+                        } else if (part.type === 'text') {
+                            assistantText.value = marked(part.content) as string;
+                        }
+                    }
+                }
+            }
+        },
+        onResponse: (response): void => {},
+        onChunk: (chunk): void => {},
+        // onToolCall: async ({ toolName, input }) => {
+        //     // Handle client tool execution
+        //     return { result: '...' };
+        // },
+        onFinish: (message): void => {}
+    });
 });
 
 async function runTest(): Promise<void> {
-    // await client.sendMessage('What should I search for to find the latest developments in renewable energy?');
+    await client.sendMessage('What should I search for to find the latest developments in renewable energy?');
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

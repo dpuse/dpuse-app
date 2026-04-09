@@ -18,6 +18,15 @@ export default defineConfig({
     },
     build: {
         // chunkSizeWarningLimit: 600
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules/@tanstack/ai')) {
+                        return 'ai-vendor';
+                    }
+                }
+            }
+        }
     },
     worker: {
         format: 'es'
