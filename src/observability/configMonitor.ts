@@ -25,7 +25,13 @@ let webSocketShutdown = false;
 export function initialise(): void {
     if (!(webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN))) {
         webSocket = connectToWebSocket();
-        window.addEventListener('beforeunload', () => shutdown());
+        window.addEventListener('pagehide', () => shutdown());
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                webSocketShutdown = false;
+                webSocket = connectToWebSocket();
+            }
+        });
     }
 }
 

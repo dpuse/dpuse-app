@@ -1,6 +1,6 @@
 // External Dependencies
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
-import { ref, shallowRef } from 'vue';
+import { ref, shallowRef, watch } from 'vue';
 
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -54,10 +54,17 @@ let expiryTimer: ReturnType<typeof setTimeout> | undefined;
 
 // Initialisation ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-globalThis.addEventListener('beforeunload', (event) => {
-    if (!areUpdatesPending.value) return;
+function handleBeforeUnload(event: BeforeUnloadEvent): void {
     event.preventDefault();
     event.returnValue = '';
+}
+
+watch(areUpdatesPending, (pending) => {
+    if (pending) {
+        globalThis.addEventListener('beforeunload', handleBeforeUnload);
+    } else {
+        globalThis.removeEventListener('beforeunload', handleBeforeUnload);
+    }
 });
 
 // watch(
