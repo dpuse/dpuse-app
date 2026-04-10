@@ -98,64 +98,64 @@ async function handleCloseDialog(): Promise<void> {
 </script>
 
 <template>
-    <div class="fixed inset-0 z-50">
+    <!-- <div class="fixed inset-0 z-50">
         <div
             role="dialog"
             aria-modal="true"
             class="bg-surface text-content z-10 flex h-full max-h-full w-full max-w-full flex-col sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-3xl sm:max-w-[calc(100vw-2rem)] sm:-translate-x-1/2 sm:rounded-lg"
             tabindex="-1"
-        >
-            <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light">{{ t(T, 'Manage_Account') }}</div>
-            <!-- Close Button -->
-            <Button class="absolute top-3 right-3" variant="iconLarge" @click="handleCloseDialog">
-                <XIcon stroke-width="1.25" />
-            </Button>
+        > -->
+    <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light">{{ t(T, 'Manage_Account') }}</div>
+    <!-- Close Button -->
+    <Button class="absolute top-3 right-3" variant="iconLarge" @click="handleCloseDialog">
+        <XIcon stroke-width="1.25" />
+    </Button>
 
-            <div class="flex flex-1 overflow-hidden">
-                <div v-if="displayIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 overflow-y-auto overscroll-y-none px-4 pb-6">
-                    <div class="flex flex-1 flex-col gap-y-1">
-                        <template v-for="optionConfig in OPTION_CONFIGS" :key="optionConfig.id">
-                            <div v-if="optionConfig.type === 'label'" class="text-muted mt-3 text-xs font-medium">{{ optionConfig.label }}</div>
-                            <Button
-                                v-else
-                                class="inline-flex min-w-50 justify-start"
-                                :is-active="route.name === optionConfig.id && displayIsWide"
-                                :variant="optionConfig.variant ? optionConfig.variant : 'listItem'"
-                                @click="activeOptionConfig = optionConfig"
-                            >
-                                {{ optionConfig.label }}
-                            </Button>
-                        </template>
-                    </div>
+    <div class="flex flex-1 overflow-hidden">
+        <div v-if="displayIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 overflow-y-auto overscroll-y-none px-4 pb-6">
+            <div class="flex flex-1 flex-col gap-y-1">
+                <template v-for="optionConfig in OPTION_CONFIGS" :key="optionConfig.id">
+                    <div v-if="optionConfig.type === 'label'" class="text-muted mt-3 text-xs font-medium">{{ optionConfig.label }}</div>
+                    <Button
+                        v-else
+                        class="inline-flex min-w-50 justify-start"
+                        :is-active="route.name === optionConfig.id && displayIsWide"
+                        :variant="optionConfig.variant ? optionConfig.variant : 'listItem'"
+                        @click="activeOptionConfig = optionConfig"
+                    >
+                        {{ optionConfig.label }}
+                    </Button>
+                </template>
+            </div>
 
-                    <!-- <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div> -->
+            <!-- <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div> -->
 
-                    <!-- <Button class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: route.query }" variant="destructive">
+            <!-- <Button class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: route.query }" variant="destructive">
                         {{ t(T, 'Delete_account') }}
                     </Button> -->
-                </div>
+        </div>
 
-                <div v-if="displayIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
-                    <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b">
-                        <Button v-if="!displayIsWide" variant="iconSmall" @click="handleBack">
-                            <ArrowBigLeftIcon stroke-width="1.25" />
-                        </Button>
-                        {{ activeOptionConfig!.title }}
-                    </div>
-
-                    <ChunkLoadError v-if="subPanelError" :error="subPanelError" chunk-name="account panel" class="flex-1" />
-                    <Suspense v-else>
-                        <template #default>
-                            <component :is="OPTION_COMPONENT_MAP[activeOptionConfig?.id ?? '']" class="flex-1" />
-                        </template>
-                        <template #fallback>
-                            <div class="flex flex-1 items-center justify-center">
-                                <LoaderCircleIcon class="text-muted animate-spin" />
-                            </div>
-                        </template>
-                    </Suspense>
-                </div>
+        <div v-if="displayIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
+            <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b">
+                <Button v-if="!displayIsWide" variant="iconSmall" @click="handleBack">
+                    <ArrowBigLeftIcon stroke-width="1.25" />
+                </Button>
+                {{ activeOptionConfig!.title }}
             </div>
+
+            <ChunkLoadError v-if="subPanelError" :error="subPanelError" chunk-name="account panel" class="flex-1" />
+            <Suspense v-else>
+                <template #default>
+                    <component :is="OPTION_COMPONENT_MAP[activeOptionConfig?.id ?? '']" class="flex-1" />
+                </template>
+                <template #fallback>
+                    <div class="flex flex-1 items-center justify-center">
+                        <LoaderCircleIcon class="text-muted animate-spin" />
+                    </div>
+                </template>
+            </Suspense>
         </div>
     </div>
+    <!-- </div>
+    </div> -->
 </template>

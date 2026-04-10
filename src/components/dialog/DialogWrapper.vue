@@ -7,12 +7,26 @@ import DialogMask from '@/components/mask/DialogMask.vue';
 </script>
 
 <template>
-    <div class="fixed inset-0 z-50 flex items-center justify-center pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))]">
+    <div class="fixed inset-0 z-50 flex items-center justify-center">
         <DialogMask />
 
         <Suspense>
             <template #default>
-                <slot />
+                <!-- <div class="fixed inset-0 z-50">
+                <div
+                    role="dialog"
+                    aria-modal="true"
+                    class="bg-surface text-content z-10 flex h-full max-h-full w-full max-w-full flex-col sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-3xl sm:max-w-[calc(100vw-2rem)] sm:-translate-x-1/2 sm:rounded-lg"
+                    tabindex="-1"
+                > -->
+                <div
+                    aria-modal="true"
+                    class="bg-surface text-content z-10 flex h-full max-h-full w-full max-w-full flex-col pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))] sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-3xl sm:max-w-[calc(100vw-2rem)] sm:-translate-x-1/2 sm:rounded-lg"
+                    role="dialog"
+                    tabindex="-1"
+                >
+                    <slot />
+                </div>
             </template>
             <template #fallback>
                 <div
