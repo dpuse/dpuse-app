@@ -98,7 +98,7 @@ async function handleCloseDialog(): Promise<void> {
 </script>
 
 <template>
-    <div class="fixed top-[calc(env(safe-area-inset-top))] right-[calc(env(safe-area-inset-right))] bottom-0 left-[calc(env(safe-area-inset-left))] z-50">
+    <div class="fixed inset-0 z-50 pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))]">
         <div
             role="dialog"
             aria-modal="true"
