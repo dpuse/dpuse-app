@@ -4,9 +4,9 @@ import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
 // App Components - Lazy loaded as required.
-const AboutView = defineAsyncComponent(() => import('./AboutView.vue'));
-const ChatView = defineAsyncComponent(() => import('./ChatView.vue'));
-const LibraryView = defineAsyncComponent(() => import('./LibraryView.vue'));
+const AboutView = defineAsyncComponent(() => import('./AboutPanel.vue'));
+const ChatView = defineAsyncComponent(() => import('./ChatPanel.vue'));
+const LibraryView = defineAsyncComponent(() => import('./LibraryPanel.vue'));
 
 // Properties & Emits
 const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }>();

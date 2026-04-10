@@ -33,15 +33,15 @@ const OPTION_CONFIGS: OptionLocalisedConfig[] = [
     { id: 'deleteAccount', icon: '', label: 'Delete account', variant: 'listitemDestructive' }
 ];
 const OPTION_COMPONENT_MAP: Record<string, Component> = {
-    managePersonalDetails: defineAsyncComponent(() => import('./ManagePersonalDetails.vue')),
-    manageSubscription: defineAsyncComponent(() => import('./ManageSubscription.vue')),
-    managePreferences: defineAsyncComponent(() => import('./ManagePreferences.vue')),
-    manageAccess: defineAsyncComponent(() => import('./ManageAccess.vue')),
-    manageSessions: defineAsyncComponent(() => import('./ManageSessions.vue')),
-    reviewActivity: defineAsyncComponent(() => import('./ReviewActivity.vue')),
-    manageDataServiceTokens: defineAsyncComponent(() => import('./ManageDataServiceTokens.vue')),
-    generateToken: defineAsyncComponent(() => import('./GenerateToken.vue')),
-    deleteAccount: defineAsyncComponent(() => import('./DeleteAccount.vue'))
+    managePersonalDetails: defineAsyncComponent(() => import('./ManagePersonalDetailsPanel.vue')),
+    manageSubscription: defineAsyncComponent(() => import('./ManageSubscriptionPanel.vue')),
+    managePreferences: defineAsyncComponent(() => import('./ManagePreferencesPanel.vue')),
+    manageAccess: defineAsyncComponent(() => import('./ManageAccessPanel.vue')),
+    manageSessions: defineAsyncComponent(() => import('./ManageSessionsPanel.vue')),
+    reviewActivity: defineAsyncComponent(() => import('./ReviewActivityPanel.vue')),
+    manageDataServiceTokens: defineAsyncComponent(() => import('./ManageDataServiceTokensPanel.vue')),
+    generateToken: defineAsyncComponent(() => import('./GenerateTokenPanel.vue')),
+    deleteAccount: defineAsyncComponent(() => import('./DeleteAccountPanel.vue'))
 };
 
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { ref } from 'vue';
+import { onBeforeUnmount, ref } from 'vue';
 
 // Properties & Emits
 const emit = defineEmits<{ scrolledFromTop: [value: boolean] }>();
@@ -8,6 +8,10 @@ const emit = defineEmits<{ scrolledFromTop: [value: boolean] }>();
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const element = ref<HTMLElement | null>(null);
+
+// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+onBeforeUnmount(() => emit('scrolledFromTop', false));
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
