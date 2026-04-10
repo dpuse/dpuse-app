@@ -7,7 +7,7 @@ import DialogMask from '@/components/mask/DialogMask.vue';
 </script>
 
 <template>
-    <div class="fixed inset-0 z-50 mt-[calc(env(safe-area-inset-top))] mr-[calc(env(safe-area-inset-right))] ml-[calc(env(safe-area-inset-left))] flex items-center justify-center">
+    <div class="fixed inset-0 z-50 flex items-center justify-center pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))]">
         <DialogMask />
 
         <Suspense>
