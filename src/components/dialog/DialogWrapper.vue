@@ -34,7 +34,11 @@ async function handleCloseDialog(): Promise<void> {
                     tabindex="-1"
                 >
                     <!-- Close Button -->
-                    <Button class="absolute top-[calc(env(safe-area-inset-top)+12px)] right-[calc(env(safe-area-inset-right)+12px)]" variant="iconLarge" @click="handleCloseDialog">
+                    <Button
+                        class="absolute top-[calc(env(safe-area-inset-top)+12px)] right-[calc(env(safe-area-inset-right)+12px)] md:top-3 md:right-3"
+                        variant="iconLarge"
+                        @click="handleCloseDialog"
+                    >
                         <XIcon stroke-width="1.25" />
                     </Button>
 
