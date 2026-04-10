@@ -29,7 +29,7 @@ async function handleCloseDialog(): Promise<void> {
             <template #default>
                 <div
                     aria-modal="true"
-                    class="bg-surface text-content z-10 flex h-full max-h-full w-full max-w-full flex-col pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))] sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-3xl sm:max-w-[calc(100vw-2rem)] sm:-translate-x-1/2 sm:rounded-lg"
+                    class="bg-surface text-content z-10 flex h-full max-h-full w-full max-w-full flex-col pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))] md:absolute md:top-[5%] md:left-1/2 md:h-auto md:max-h-[90vh] md:w-3xl md:max-w-[calc(100vw-2rem)] md:-translate-x-1/2 md:rounded-lg"
                     role="dialog"
                     tabindex="-1"
                 >
@@ -45,7 +45,7 @@ async function handleCloseDialog(): Promise<void> {
 
             <template #fallback>
                 <div
-                    class="bg-surface z-10 flex h-full max-h-full w-full max-w-full gap-x-1 overflow-hidden overflow-y-auto overscroll-y-none text-zinc-500 sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-sm sm:-translate-x-1/2 sm:rounded-lg"
+                    class="bg-surface z-10 flex h-full max-h-full w-full max-w-full gap-x-1 overflow-hidden overflow-y-auto overscroll-y-none text-zinc-500 md:absolute md:top-[5%] md:left-1/2 md:h-auto md:max-h-[90vh] md:w-sm md:-translate-x-1/2 md:rounded-lg"
                 >
                     <LoaderCircleIcon class="animate-spin" />
                     Loading component...
