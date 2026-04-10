@@ -4,6 +4,7 @@ import { computed } from 'vue';
 
 // App Core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
+import { scrolledFromTop } from '@/state/scrolledFromTop';
 import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
 import { localeId, localiseConfigs } from '@/locales';
 
@@ -32,7 +33,7 @@ const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocal
             :workbench-pane-is-hidden="false"
         /> -->
 
-    <ContentScroller>
+    <ContentScroller @scrolled-from-top="scrolledFromTop = $event">
         <article class="bg-white py-24 sm:py-32">
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <div class="mx-auto max-w-2xl lg:text-center">

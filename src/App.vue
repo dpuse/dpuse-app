@@ -8,13 +8,14 @@ import { useRoute, useRouter } from 'vue-router';
 import { displayIsWide } from '@/state/displayBreakpoint';
 import { isBusy } from '@/state/appProgress';
 import { load } from '@/utils/component';
+import { scrolledFromTop } from '@/state/scrolledFromTop';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import AppProgressBar from '@/components/appProgressBar/AppProgressBar.vue'; // Required when lazy loading is delayed.
 import BusyMask from '@/components/mask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
 import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
-import DialogWrapper from '@/components/dialog/DialogWrapper.vue'; // Static so dialog mask appears immediately on open.
+import DialogWrapper from '@/components/dialogWrapper/DialogWrapper.vue'; // Static so dialog mask appears immediately on open.
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
 import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
@@ -215,7 +216,8 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
             aria-label="Toggle workbench panel"
-            class="bg-surface pl- fixed top-[calc(env(safe-area-inset-top)+7px)] left-[calc(env(safe-area-inset-left)+12px)] z-40 rounded-full! shadow-md"
+            class="bg-surface pl- fixed top-[calc(env(safe-area-inset-top)+7px)] left-[calc(env(safe-area-inset-left)+12px)] z-40 rounded-full!"
+            :class="{ 'shadow-md': !displayIsWide && scrolledFromTop }"
             variant="iconLarge"
             @click="toggleWorkbenchAppPane()"
         >
@@ -239,7 +241,13 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             </nav>
 
             <!-- <Button :disabled="!workbenchPaneIsVisible" variant="iconLarge" @click="toggleKnowledgeAppPane()"> -->
-            <Button aria-label="Toggle knowledge panel" class="bg-surface rounded-full! shadow-md" variant="iconLarge" @click="toggleKnowledgeAppPane()">
+            <Button
+                aria-label="Toggle knowledge panel"
+                class="bg-surface rounded-full!"
+                :class="{ 'shadow-md': !displayIsWide && scrolledFromTop }"
+                variant="iconLarge"
+                @click="toggleKnowledgeAppPane()"
+            >
                 <KnowledgeIcon />
             </Button>
         </div>
