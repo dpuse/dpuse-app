@@ -78,17 +78,7 @@ function onMenuAfterLeave(): void {}
         </Transition>
 
         <Transition :name="displayIsWide ? 'dpuse-slide-up' : 'dpuse-sheet'" @after-leave="onMenuAfterLeave">
-            <SessionMenu
-                v-if="sessionMenuIsVisible"
-                ref="sessionMenuReference"
-                :class="
-                    displayIsWide
-                        ? 'fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto overscroll-y-none'
-                        : 'fixed right-0 bottom-0 left-0 z-50 max-h-[80vh] overflow-y-auto overscroll-y-none rounded-t-2xl'
-                "
-                :sheet="!displayIsWide"
-                @continue="handleClose"
-            />
+            <SessionMenu v-if="sessionMenuIsVisible" ref="sessionMenuReference" @continue="handleClose" />
         </Transition>
 
         <Button

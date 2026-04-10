@@ -23,7 +23,7 @@ import List from '@/components/list/List.vue';
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 
 // App Components - Lazy loaded as required.
-const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
+const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/emptyPlaceholder/EmptyPlaceholder.vue'));
 
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -97,6 +97,6 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
     </List>
 
     <ContentScroller v-else-if="eventQueryRetrievalIsActive">
-        <EmptyStatePlaceholder :message-item-label="t(T, 'event_queries')" :description-item-label="t(T, 'event_query')" :action-item-label="t(T, 'Event_Query')" />
+        <EmptyPlaceholder :message-item-label="t(T, 'event_queries')" :description-item-label="t(T, 'event_query')" :action-item-label="t(T, 'Event_Query')" />
     </ContentScroller>
 </template>

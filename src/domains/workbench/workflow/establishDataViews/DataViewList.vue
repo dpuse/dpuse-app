@@ -27,7 +27,7 @@ import List from '@/components/list/List.vue';
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 
 // App Components - Lazy loaded as required.
-const EmptyStatePlaceholder = defineAsyncComponent(() => import('@/components/emptyState/EmptyStatePlaceholder.vue'));
+const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/emptyPlaceholder/EmptyPlaceholder.vue'));
 
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -140,6 +140,6 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
     </List>
 
     <ContentScroller v-else-if="dataViewRetrievalIsActive">
-        <EmptyStatePlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
+        <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
     </ContentScroller>
 </template>
