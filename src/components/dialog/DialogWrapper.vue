@@ -52,7 +52,7 @@ async function handleCloseDialog(): Promise<void> {
                     class="bg-surface z-10 flex h-full max-h-full w-full max-w-full gap-x-1 overflow-hidden overflow-y-auto overscroll-y-none text-zinc-500 md:absolute md:top-[5%] md:left-1/2 md:h-auto md:max-h-[90vh] md:w-sm md:-translate-x-1/2 md:rounded-lg"
                 >
                     <LoaderCircleIcon class="animate-spin" />
-                    Loading component...
+                    <span>Loading component...</span>
                 </div>
             </template>
         </Suspense>
