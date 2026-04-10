@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // External Dependencies
-import { ArrowBigLeftIcon, LoaderCircleIcon, XIcon } from 'lucide-vue-next';
+import { useRoute } from 'vue-router';
+import { ArrowBigLeftIcon, LoaderCircleIcon } from 'lucide-vue-next';
 import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 
 // App Core
 import { displayIsWide } from '@/state/displayBreakpoint';
@@ -47,7 +47,6 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const route = useRoute();
-const router = useRouter();
 
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
 const subPanelError = ref<unknown>(null);
@@ -87,14 +86,6 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
         return activeOptionConfig;
     }
 }
-
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-async function handleCloseDialog(): Promise<void> {
-    const rest = { ...route.query };
-    delete rest.dlg;
-    router.push({ query: { ...rest } });
-}
 </script>
 
 <template>
@@ -106,10 +97,6 @@ async function handleCloseDialog(): Promise<void> {
             tabindex="-1"
         > -->
     <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light">{{ t(T, 'Manage_Account') }}</div>
-    <!-- Close Button -->
-    <Button class="absolute top-3 right-3" variant="iconLarge" @click="handleCloseDialog">
-        <XIcon stroke-width="1.25" />
-    </Button>
 
     <div class="flex flex-1 overflow-hidden">
         <div v-if="displayIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 overflow-y-auto overscroll-y-none px-4 pb-6">
