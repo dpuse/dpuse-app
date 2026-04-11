@@ -4,9 +4,9 @@ import { computed } from 'vue';
 
 // App Core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
-import T from '@/locales/domains/workbench/workflow/Workflow.json';
+import T from '@/translations/domains/workbench/workflow/WorkflowHomeLayout.json';
 import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
-import { localeId, localiseConfigs, t } from '@/locales';
+import { localeId, localiseConfigs, t } from '@/translations';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';

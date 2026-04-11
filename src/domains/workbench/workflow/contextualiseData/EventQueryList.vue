@@ -11,16 +11,16 @@ import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObje
 
 // App Core
 import { reportAppError } from '@/observability/errorTracking';
-import { t } from '@/locales';
-import T from '@/locales/domains/workbench/workflow/contextualiseData/ContextualiseData.json';
+import { t } from '@/translations';
+import T from '@/translations/domains/workbench/workflow/contextualiseData/EventQueryList.json';
 import { useEngine } from '@/services/useEngine';
 import { eventQueryConfigs, localMetaStoreConnectionConfig } from '@/state/session';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
-import List from '@/components/list/List.vue';
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
+import List from '@/components/list/List.vue';
 
 // App Components - Lazy loaded as required.
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/emptyPlaceholder/EmptyPlaceholder.vue'));

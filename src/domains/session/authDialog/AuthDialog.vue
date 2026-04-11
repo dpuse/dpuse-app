@@ -8,8 +8,8 @@ import { useRoute, useRouter } from 'vue-router';
 // App Core
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
-import T from '@/locales/domains/session/authDialog/LoginForm.json';
-import { t } from '@/locales';
+import T from '@/translations/domains/session/authDialog/LoginForm.json';
+import { t } from '@/translations';
 import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
 // App Components - Statically imported so always available, even after app goes offline.

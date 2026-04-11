@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // App Core
-import { t } from '@/locales';
-import T from '@/locales/domains/workbench/workflow/contextualiseData/ContextualiseData.json';
+import { t } from '@/translations';
+import T from '@/translations/domains/workbench/workflow/contextualiseData/ContextualiseDataLayout.json';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Header from '@/components/header/Header.vue';

@@ -3,7 +3,7 @@
 import { onBeforeUnmount } from 'vue';
 
 // App Core
-import { contentScrollTop } from '~/src/state/appLayout';
+import { contentScrollTop } from '@/state/appLayout';
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

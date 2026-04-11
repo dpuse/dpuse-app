@@ -2,13 +2,13 @@
 // App Core
 import type { ColumnDef } from '@tanstack/vue-table';
 import type { DataSource } from '@/composables/useDataWindow';
-import { t } from '@/locales';
-import T from '@/locales/domains/workbench/workflow/explorePresentations/ExplorePresentations.json';
+import { t } from '@/translations';
+import T from '@/translations/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.json';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Header from '@/components/header/Header.vue';
-import Table from '@/components/table/Table.vue';
 import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
+import Table from '@/components/table/Table.vue';
 
 // EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

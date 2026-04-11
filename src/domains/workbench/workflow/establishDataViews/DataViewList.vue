@@ -16,8 +16,8 @@ import type {
 
 // App Core
 import { reportAppError } from '@/observability/errorTracking';
-import { t } from '@/locales';
-import T from '@/locales/domains/workbench/workflow/establishDataViews/EstablishDataViews.json';
+import { t } from '@/translations';
+import T from '@/translations/domains/workbench/workflow/establishDataViews/DataViewList.json';
 import { useEngine } from '@/services/useEngine';
 import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/session';
 

@@ -6,7 +6,7 @@ import { computed } from 'vue';
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { setActiveBenchtop } from '@/state/activeBenchtop';
 import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
-import { localeId, localiseConfigs } from '@/locales';
+import { localeId, localiseConfigs } from '@/translations';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import HomeIcon from '@/components/icon/HomeIcon.vue';

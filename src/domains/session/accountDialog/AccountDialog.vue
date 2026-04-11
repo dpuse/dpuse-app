@@ -6,8 +6,8 @@ import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef,
 
 // App Core
 import { displayIsWide } from '@/state/appLayout';
-import { t } from '@/locales';
-import T from '@/locales/domains/session/accountDialog/AccountDialog.json';
+import { t } from '@/translations';
+import T from '@/translations/domains/session/accountDialog/AccountDialog.json';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // App Core
-import { localeId } from '@/locales';
+import { localeId } from '@/translations';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';

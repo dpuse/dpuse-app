@@ -7,6 +7,8 @@ import { useRoute, useRouter } from 'vue-router';
 // App Core
 import { isBusy } from '@/state/appProgress';
 import { load } from '@/utils/component';
+import T from '@/translations/App.json';
+import { t } from '@/translations';
 import { contentScrollTop, displayIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // App Components - Statically imported so always available, even after app goes offline.
@@ -212,7 +214,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
-            aria-label="Toggle workbench panel"
+            :aria-label="t(T, 'wb.toggle.label.aria')"
             class="bg-surface pl- fixed top-[calc(env(safe-area-inset-top)+7px)] left-[calc(env(safe-area-inset-left)+12px)] z-40 rounded-full!"
             :class="{ 'shadow-md': !displayIsWide && contentScrollTop > 0 }"
             variant="iconLarge"
