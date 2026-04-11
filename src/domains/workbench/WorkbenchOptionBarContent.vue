@@ -5,8 +5,9 @@ import { computed } from 'vue';
 // App Core
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { setActiveBenchtop } from '@/state/activeBenchtop';
+import T from '@/translations/domains/workbench/WorkbenchOptionBarContent.json';
 import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
-import { localeId, localiseConfigs } from '@/translations';
+import { localeId, localiseConfigs, t } from '@/translations';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import HomeIcon from '@/components/icon/HomeIcon.vue';
@@ -36,7 +37,7 @@ function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
         <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none py-2">
             <div class="flex flex-1 flex-col items-center gap-y-2">
                 <RouterLink
-                    aria-label="Home"
+                    :aria-label="t(T, 'home.aria')"
                     class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"
                     :to="{ name: 'workflow', query: { ...$route.query, wbView: 'workflow' } }"
                     variant="iconLarge"
