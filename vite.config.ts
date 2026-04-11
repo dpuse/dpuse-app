@@ -40,10 +40,10 @@ export default defineConfig({
             'Content-Security-Policy':
                 "default-src 'none';" +
                 " base-uri 'self';" +
-                " connect-src 'self' https://localhost:5173 wss://localhost:5173 data: https://api.dpuse.app wss://api.dpuse.app https://engine-eu.dpuse.app https://sample-data-eu.dpuse.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io;" +
+                " connect-src 'self' https://localhost:5173 wss://localhost:5173 data: https://api.dpuse.app wss://api.dpuse.app https://engine-eu.dpuse.app https://sample-data-eu.dpuse.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io https://blockly-demo.appspot.com;" +
                 " form-action 'none';" +
                 " frame-ancestors 'none';" +
-                " img-src 'self' https://gravatar.com https://flagcdn.com https://tailwindcss.com;" +
+                " img-src 'self' https://gravatar.com https://flagcdn.com https://tailwindcss.com https://blockly-demo.appspot.com;" +
                 " manifest-src 'self';" +
                 " object-src 'none';" +
                 " script-src 'self' https://engine-eu.dpuse.app 'wasm-unsafe-eval' 'sha256-HSvgr//xBF8qoKsX1FPA79evG6rtxroRm2NegRE7MHs=';" +
