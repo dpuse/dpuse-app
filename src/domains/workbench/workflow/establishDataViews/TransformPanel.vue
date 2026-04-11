@@ -157,12 +157,11 @@ onMounted(() => {
             { kind: 'block', type: 'math_blocks' },
             { kind: 'block', type: 'procedure_blocks' },
             { kind: 'block', type: 'text_blocks' },
-            { kind: 'block', type: 'variable_blocks' },
-            { kind: 'block', type: 'math_blocks' }
+            { kind: 'block', type: 'variable_blocks' }
         ]
     };
 
-    const workspace = inject('blocklyDiv', { toolbox: toolbox, renderer: 'thrasos', theme: ModestTheme }); // thrasos, zelos
+    const workspace = inject('blocklyDiv', { toolbox: toolbox, renderer: 'dpuse', theme: ModestTheme }); // dpuse, thrasos, zelos
 });
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
