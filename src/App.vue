@@ -5,10 +5,9 @@ import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
-import { displayIsWide } from '@/state/displayBreakpoint';
 import { isBusy } from '@/state/appProgress';
 import { load } from '@/utils/component';
-import { scrolledFromTop } from '@/state/scrolledFromTop';
+import { contentScrollTop, displayIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import AppProgressBar from '@/components/appProgressBar/AppProgressBar.vue'; // Required when lazy loading is delayed.
@@ -43,7 +42,6 @@ const activeAppPaneId = ref<AppPaneId | undefined>();
 const knowledgeOptionBarIsVisible = ref(false);
 const knowledgePaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
 const knowledgePaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
-const knowledgePaneIsVisible = ref(false); // The pane is actually rendered in the layout right now.
 
 const paneSplitterPercent = ref(Number(localStorage.getItem(PANE_SPLITTER_PERCENT_KEY)) || 50);
 
@@ -53,7 +51,6 @@ const router = useRouter();
 const workbenchOptionBarIsVisible = ref(false);
 const workbenchPaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
 const workbenchPaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
-const workbenchPaneIsVisible = ref(false); // The pane is actually rendered in the layout right now.
 
 // Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -217,7 +214,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <Button
             aria-label="Toggle workbench panel"
             class="bg-surface pl- fixed top-[calc(env(safe-area-inset-top)+7px)] left-[calc(env(safe-area-inset-left)+12px)] z-40 rounded-full!"
-            :class="{ 'shadow-md': !displayIsWide && scrolledFromTop }"
+            :class="{ 'shadow-md': !displayIsWide && contentScrollTop > 0 }"
             variant="iconLarge"
             @click="toggleWorkbenchAppPane()"
         >
@@ -244,7 +241,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             <Button
                 aria-label="Toggle knowledge panel"
                 class="bg-surface rounded-full!"
-                :class="{ 'shadow-md': !displayIsWide && scrolledFromTop }"
+                :class="{ 'shadow-md': !displayIsWide && contentScrollTop > 0 }"
                 variant="iconLarge"
                 @click="toggleKnowledgeAppPane()"
             >

@@ -5,7 +5,7 @@ import { nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
-import { displayIsWide } from '@/state/displayBreakpoint';
+import { displayIsWide } from '@/state/appLayout';
 import T from '@/locales/domains/session/SessionMenu.json';
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/locales';
 import { isAuthenticated as sessionIsAuthenticated, signOut } from '@/state/session';

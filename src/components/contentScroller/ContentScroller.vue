@@ -1,27 +1,17 @@
 <script setup lang="ts">
 // External Dependencies
-import { onBeforeUnmount, ref } from 'vue';
+import { onBeforeUnmount } from 'vue';
 
-// Properties & Emits
-const emit = defineEmits<{ scrolledFromTop: [value: boolean] }>();
-
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const element = ref<HTMLElement | null>(null);
+// App Core
+import { contentScrollTop } from '~/src/state/appLayout';
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-onBeforeUnmount(() => emit('scrolledFromTop', false));
-
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function onScroll(): void {
-    emit('scrolledFromTop', element.value!.scrollTop > 0);
-}
+onBeforeUnmount(() => (contentScrollTop.value = 0));
 </script>
 
 <template>
-    <div ref="element" class="flex-1 overflow-y-auto overscroll-y-none pb-16" @scroll.passive="onScroll">
+    <div class="flex-1 overflow-y-auto overscroll-y-none pb-16" @scroll.passive="contentScrollTop = ($event.target as HTMLElement).scrollTop ?? 0">
         <slot />
     </div>
 </template>

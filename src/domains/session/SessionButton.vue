@@ -4,7 +4,7 @@ import { LoaderCircleIcon } from 'lucide-vue-next';
 import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 
 // App Core
-import { displayIsWide } from '@/state/displayBreakpoint';
+import { displayIsWide } from '@/state/appLayout';
 import { isAuthenticated as sessionIsAuthenticated } from '@/state/session';
 
 // App Components - Statically imported so always available, even after app goes offline.

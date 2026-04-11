@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // App Core
-import { displayIsWide } from '@/state/displayBreakpoint';
+import { displayIsWide } from '@/state/appLayout';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import WorkbenchOptionBarContent from './WorkbenchOptionBarContent.vue';

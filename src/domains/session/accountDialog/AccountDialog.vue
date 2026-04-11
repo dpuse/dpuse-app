@@ -5,7 +5,7 @@ import { ArrowBigLeftIcon, LoaderCircleIcon } from 'lucide-vue-next';
 import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 
 // App Core
-import { displayIsWide } from '@/state/displayBreakpoint';
+import { displayIsWide } from '@/state/appLayout';
 import { t } from '@/locales';
 import T from '@/locales/domains/session/accountDialog/AccountDialog.json';
 
