@@ -3,7 +3,7 @@
 
 // External Dependencies
 import { onMounted } from 'vue';
-import { blockRendering, common, inject, Theme, Themes } from 'blockly/core';
+import { blockRendering, common, inject, Theme, Themes, thrasos } from 'blockly/core';
 
 // App Core
 import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
@@ -15,13 +15,16 @@ const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalise
 // Side Effects  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 onMounted(() => {
-    class CustomConstantProvider extends blockRendering.ConstantProvider {
+    class DPUseConstantProvider extends blockRendering.ConstantProvider {
         constructor() {
             super();
             this.NOTCH_WIDTH = 26;
             this.NOTCH_HEIGHT = 6;
             this.CORNER_RADIUS = 4;
-            this.MEDIUM_PADDING = 8;
+            this.MEDIUM_PADDING = 18;
+            this.LARGE_PADDING = 18;
+            this.BOTTOM_ROW_MIN_HEIGHT = 18;
+            this.TOP_ROW_MIN_HEIGHT = 18;
         }
 
         protected override makeNotch(): blockRendering.Notch {
@@ -43,21 +46,21 @@ onMounted(() => {
         }
     }
 
-    class DPUseRenderer extends blockRendering.Renderer {
+    class DPUseRenderer extends thrasos.Renderer {
         constructor() {
             super('dpuse');
         }
 
-        protected override makeConstants_(): CustomConstantProvider {
-            return new CustomConstantProvider();
+        protected override makeConstants_(): DPUseConstantProvider {
+            return new DPUseConstantProvider();
         }
     }
 
     blockRendering.register('dpuse', DPUseRenderer);
 
-    const ModestTheme = Theme.defineTheme('modest', {
-        name: 'modest',
-        base: Themes.Classic,
+    const DPUseTheme = Theme.defineTheme('dpuse', {
+        name: 'dpuse',
+        base: Themes.Classic, // Classic, Zelos
         blockStyles: {
             list_blocks: { colourPrimary: '#4DB6B5', colourSecondary: '#CE93D8', colourTertiary: '#FFFFFF' },
             logic_blocks: { colourPrimary: '#d1c4e9', colourSecondary: '#90CAF9', colourTertiary: '#FFFFFF' },
@@ -161,7 +164,9 @@ onMounted(() => {
         ]
     };
 
-    const workspace = inject('blocklyDiv', { toolbox: toolbox, renderer: 'dpuse', theme: ModestTheme }); // dpuse, thrasos, zelos
+    // Renderers: dpuse, dark, geras, highcontrast, thrasos, tritanopia, zelos
+    // Themes: clasic, deuteranopia, modern, thrasos, zelos
+    const workspace = inject('blocklyDiv', { toolbox: toolbox, renderer: 'dpuse', theme: 'dpuse' });
 });
 
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -175,7 +180,7 @@ function triggerComplete(): void {
     <div class="px-4 pt-1">
         <div>Transform...</div>
 
-        <div id="blocklyDiv" style="height: 680px; width: 100%"></div>
+        <div id="blocklyDiv" style="height: 480px; width: 100%"></div>
 
         <RouterLink :to="{ name: 'investigate', query: { ...$route.query, wbView: 'investigate' } }" @click="triggerComplete">Next...</RouterLink>
     </div>
@@ -183,6 +188,6 @@ function triggerComplete(): void {
 
 <style scoped>
 :deep(.blocklyText) {
-    fill: #172218 !important;
+    fill: #09090b !important;
 }
 </style>
