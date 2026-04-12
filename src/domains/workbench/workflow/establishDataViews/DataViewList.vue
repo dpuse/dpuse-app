@@ -23,8 +23,8 @@ import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/session
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Card from '@/components/card/Card.vue';
-import List from '@/components/list/List.vue';
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
+import List from '@/components/grid/Grid.vue';
 
 // App Components - Lazy loaded as required.
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/emptyPlaceholder/EmptyPlaceholder.vue'));

@@ -20,7 +20,7 @@ import { eventQueryConfigs, localMetaStoreConnectionConfig } from '@/state/sessi
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
-import List from '@/components/list/List.vue';
+import List from '@/components/grid/Grid.vue';
 
 // App Components - Lazy loaded as required.
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/emptyPlaceholder/EmptyPlaceholder.vue'));

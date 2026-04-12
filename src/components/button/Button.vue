@@ -3,13 +3,14 @@
 import { computed } from 'vue';
 
 // Properties & Emits
-export type VariantTypeId = 'primary' | 'positive' | 'guarded' | 'destructive' | 'listitemDestructive' | 'ghost' | 'outline' | 'listItem' | 'avatar' | 'iconLarge' | 'iconSmall';
+export type VariantTypeId = 'avatar' | 'destructive' | 'ghost' | 'guarded' | 'iconLarge' | 'iconSmall' | 'listItem' | 'listitemDestructive' | 'outline' | 'positive' | 'primary';
 const { isActive = false, variant = 'neutral' } = defineProps<{ isActive?: boolean; variant?: VariantTypeId }>();
 
 // Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const COMMON_RECTANGLE_CLASSES = 'rounded-md text-[15px] leading-6 focus-visible:ring-2 dark:text-zinc-300 px-3 py-1.5';
 const COMMON_GRAPHIC_CLASSES = 'focus-visible:ring-2';
+const COMMON_ITEM_CLASSES = 'rounded-md text-[15px] leading-6 focus-visible:ring-2 dark:text-zinc-300 w-full text-left';
 
 const COMMON_DESTRUCTIVE_CLASSES = [
     'bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-900 focus-visible:ring-red-300',
@@ -68,13 +69,13 @@ const variantClasses = computed((): (string | string[] | Record<string, string> 
             return [COMMON_RECTANGLE_CLASSES, COMMON_OUTLINE_CLASSES];
         case 'listItem':
             return [
-                COMMON_RECTANGLE_CLASSES,
+                COMMON_ITEM_CLASSES,
                 'bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300',
                 'dark:bg-zinc-300/10 dark:hover:bg-zinc-300/20 dark:active:bg-zinc-300/30 dark:focus-visible:ring-zinc-500',
                 isActive ? 'bg-zinc-200 dark:hover:bg-zinc-300/30' : undefined
             ];
         case 'listitemDestructive':
-            return [COMMON_RECTANGLE_CLASSES, COMMON_DESTRUCTIVE_CLASSES, isActive ? 'bg-red-300 dark:bg-red-400/40' : undefined];
+            return [COMMON_ITEM_CLASSES, COMMON_DESTRUCTIVE_CLASSES, isActive ? 'bg-red-300 dark:bg-red-400/40' : undefined];
         case 'avatar':
             return [COMMON_GRAPHIC_CLASSES, COMMON_AVATAR_CLASSES, '[&>img]:rounded-full'];
         case 'iconLarge':

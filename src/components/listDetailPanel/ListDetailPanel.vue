@@ -9,7 +9,7 @@ import { displayIsWide } from '@/state/appLayout';
 
 // App Components - Statically imported so always available, even after app goes offline.
 import Button from '@/components/button/Button.vue';
-import List from '@/components/list/List.vue';
+import List from '@/components/grid/Grid.vue';
 
 // Properties & Emits
 const { items, maxRightWidth } = defineProps<{ items: T[]; maxRightWidth?: string }>();
@@ -39,9 +39,14 @@ function selectItem(item: T | undefined): void {
         <div v-if="displayIsWide || !activeItem" class="flex flex-1 flex-col">
             <List class="flex-1 pb-20" :data-source="dataSource" :row-height="150" :target-column-width="350">
                 <template #default="{ row }">
-                    <div class="h-full" @click="selectItem(row as T)">
-                        <slot name="list-item" :item="row as T" />
-                    </div>
+                    <Button class="h-full" variant="listItem" @click="selectItem(row as T)">
+                        <slot name="list-item-default" :item="row as T" />
+                    </Button>
+                </template>
+                <template #compact="{ row }">
+                    <Button class="h-full" variant="listItem" @click="selectItem(row as T)">
+                        <slot name="list-item-compact" :item="row as T" />
+                    </Button>
                 </template>
             </List>
         </div>

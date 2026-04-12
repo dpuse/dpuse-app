@@ -42,7 +42,7 @@ async function handleSubmit(): Promise<void> {
         <h2 class="text-2xl font-normal">{{ t(T, 'Sign_in') }}</h2>
 
         <form class="mt-2 flex flex-col gap-y-3">
-            <Input name="email" autocomplete="email" :placeholder="t(T, 'Email_address')" :required="true" type="email" />
+            <Input id="emailAddress" autocomplete="email" :label="t(T, 'Email_address')" :placeholder="t(T, 'Email_address')" :required="true" type="email" />
             <Button variant="primary" @click="handleSubmit">{{ t(T, 'Continue') }}</Button>
         </form>
 

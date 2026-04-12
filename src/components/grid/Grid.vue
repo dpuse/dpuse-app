@@ -25,7 +25,7 @@ const columnWidth = ref(0);
 const scrollElement = ref<HTMLElement | null>(null);
 const resizeObserver = new ResizeObserver((entries) => {
     const width = entries[0]!.contentRect.width;
-    if (targetColumnWidth === undefined) {
+    if (targetColumnWidth == null) {
         columnCount.value = 1;
         columnWidth.value = width;
     } else {
@@ -42,7 +42,7 @@ const { virtualRows, totalRowCount, getRow } = useDataWindow({
         for (let count = 0; count < columnCount.value; count++) indexes.push(virtualRowIndex * columnCount.value + count);
         return indexes;
     },
-    estimateSize: () => rowHeight,
+    estimateSize: () => (columnCount.value === 1 ? 48 : rowHeight),
     cacheBlockSize: cacheBlockSize === undefined ? undefined : (): number => cacheBlockSize,
     maxBlocksInCache: maxBlocksInCache === undefined ? undefined : (): number => maxBlocksInCache
 });
@@ -66,12 +66,20 @@ onUnmounted(() => resizeObserver.disconnect());
                     <template v-for="colIndex in columnCount" :key="colIndex">
                         <!-- Skip cells beyond the last data item (last row may be partially filled) -->
                         <div v-if="vRow.index * columnCount + colIndex - 1 < dataSource.rowCount" class="shrink-0" :style="{ width: `${columnWidth}px` }">
-                            <div class="h-full" :class="targetColumnWidth !== undefined ? 'pt-4 pl-4' : ''">
+                            <div class="h-full pl-4" :class="columnCount === 1 ? 'pt-2' : 'pt-4'">
                                 <slot
-                                    v-if="getRow(vRow.index * columnCount + colIndex - 1) !== undefined"
+                                    v-if="$slots.compact && columnCount === 1 && getRow(vRow.index + colIndex - 1) !== undefined"
+                                    name="compact"
+                                    :row="getRow(vRow.index + colIndex - 1)"
+                                    :index="vRow.index + colIndex - 1"
+                                />
+
+                                <slot
+                                    v-else-if="getRow(vRow.index * columnCount + colIndex - 1) !== undefined"
                                     :row="getRow(vRow.index * columnCount + colIndex - 1)"
                                     :index="vRow.index * columnCount + colIndex - 1"
                                 />
+
                                 <div v-else class="flex h-full items-center px-3">
                                     <div class="h-4 w-3/4 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700" />
                                 </div>

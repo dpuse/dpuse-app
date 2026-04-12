@@ -45,7 +45,7 @@ async function testAuth(): Promise<void> {
 <template>
     {{ connectionLocalisedConfig?.connectorConfig.implementations ?? 'PENDING...' }}
 
-    <Input v-model="connectionLabel" name="label" :placeholder="t(T, 'Label')" :required="true" type="text" />
+    <Input id="label" v-model="connectionLabel" :label="t(T, 'Label')" :placeholder="t(T, 'Label')" :required="true" type="text" />
 
     <Button @click="testAuth">Auth...</Button>
 

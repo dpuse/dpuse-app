@@ -35,8 +35,6 @@ const TASK_CONFIGS: TaskConfig[] = [
 
 const route = useRoute();
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 const enableTasksUpTo = ref(TASK_CONFIGS.find((config) => config.id === route.query.wbView)?.enableUpTo ?? 0); // TODO: This also needs to check the actual state of the data view.
 const taskLocalisedConfigs = shallowRef<TaskLocalisedConfig[]>([]);
 
@@ -76,7 +74,7 @@ function handleComplete(taskLocalisedConfig: TaskLocalisedConfig): void {
                     :to="{ name: taskLocalisedConfig.id, query: { ...route.query, wbView: taskLocalisedConfig.id } }"
                 >
                     <div>
-                        <div class="text-muted text-xs font-medium">Task {{ taskLocalisedConfig.number }}</div>
+                        <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }} {{ taskLocalisedConfig.number }}</div>
                         <span class="text-sm">{{ taskLocalisedConfig.label }}</span>
                     </div>
                 </RouterLink>

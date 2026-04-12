@@ -14,6 +14,7 @@ import Card from '@/components/card/Card.vue';
 import ListDetailPanel from '@/components/listDetailPanel/ListDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
 import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
+import Tile from '@/components/tile/Tile.vue';
 
 // Properties & Emits
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
@@ -72,8 +73,12 @@ function constructConnectionConfig(connectorConfig: ConnectorConfig): Connection
 
 <template>
     <ListDetailPanel class="flex-1" :items="localisedConnectionConfigs || []" max-right-width="400px">
-        <template #list-item="{ item }">
+        <template #list-item-default="{ item }">
             <Card v-if="item" :label="item.label" />
+        </template>
+
+        <template #list-item-compact="{ item }">
+            <Tile v-if="item" :label="item.label" />
         </template>
 
         <template #detail="{ item }">
