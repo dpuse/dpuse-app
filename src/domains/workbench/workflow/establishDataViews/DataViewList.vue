@@ -126,14 +126,14 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         :target-column-width="350"
     >
         <template #default="{ row }">
-            <!-- <Card
+            <RouterLink :to="{ name: 'selectNode', query: { ...$route.query, wbView: 'selectNode' } }">
+                <!-- <Card
                     v-if="row"
                     :badges="row.badges"
                     :icon="activeBenchtopOptionConfig ? activeBenchtopOptionConfig.icon : undefined"
                     :icon-color="activeBenchtopOptionConfig ? activeBenchtopOptionConfig.color : undefined"
                     :label="row.label"
                 /> -->
-            <RouterLink :to="{ name: 'selectNode', query: { ...$route.query, wbView: 'selectNode' } }">
                 <Card v-if="row" :label="row.label as string" />
             </RouterLink>
         </template>

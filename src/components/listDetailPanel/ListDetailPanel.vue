@@ -43,6 +43,7 @@ function selectItem(item: T | undefined): void {
                         <slot name="list-item-default" :item="row as T" />
                     </Button>
                 </template>
+
                 <template #compact="{ row }">
                     <Button class="h-full" variant="listItem" @click="selectItem(row as T)">
                         <slot name="list-item-compact" :item="row as T" />
