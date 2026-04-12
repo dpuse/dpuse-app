@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useSlots } from 'vue';
 
 // App Core
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
@@ -33,19 +33,22 @@ const resizeObserver = new ResizeObserver((entries) => {
         columnWidth.value = Math.floor((width - 16) / columnCount.value);
     }
 });
+const slots = useSlots();
 const { virtualRows, totalRowCount, getRow } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
     count: () => Math.ceil(dataSource.rowCount / columnCount.value),
-    getDataIndexes: (virtualRowIndex) => {
-        const indexes: number[] = [];
-        for (let count = 0; count < columnCount.value; count++) indexes.push(virtualRowIndex * columnCount.value + count);
-        return indexes;
-    },
-    estimateSize: () => (columnCount.value === 1 ? 48 : rowHeight),
-    cacheBlockSize: cacheBlockSize === undefined ? undefined : (): number => cacheBlockSize,
-    maxBlocksInCache: maxBlocksInCache === undefined ? undefined : (): number => maxBlocksInCache
+    getDataIndexes: (virtualRowIndex) => Array.from({ length: columnCount.value }, (_, col) => virtualRowIndex * columnCount.value + col),
+    estimateSize: () => (slots.compact && columnCount.value === 1 ? 48 : rowHeight),
+    cacheBlockSize: cacheBlockSize == null ? undefined : (): number => cacheBlockSize,
+    maxBlocksInCache: maxBlocksInCache == null ? undefined : (): number => maxBlocksInCache
 });
+
+// Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const rowWidth = computed(() => columnCount.value * columnWidth.value);
+const columnOffsets = computed(() => Array.from({ length: columnCount.value }, (_, index) => index));
+const isCompact = computed(() => !!slots.compact && columnCount.value === 1);
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -55,31 +58,29 @@ onUnmounted(() => resizeObserver.disconnect());
 
 <template>
     <div class="relative flex h-full flex-col overflow-hidden">
-        <div ref="scrollElement" class="flex-1 overflow-y-auto pb-(--dp-app-bottom-gutter)" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
+        <div ref="scrollElement" class="flex-1 overflow-y-auto pb-(--dp-app-bottom-gutter)" role="list" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
             <div :style="{ height: totalRowCount + 'px', position: 'relative' }">
                 <div
-                    v-for="vRow in virtualRows"
-                    :key="vRow.index"
+                    v-for="virtualRow in virtualRows"
+                    :key="virtualRow.index"
                     class="absolute top-0 left-0 flex"
-                    :style="{ transform: `translateY(${vRow.start}px)`, height: `${vRow.size}px`, width: `${columnCount * columnWidth}px` }"
+                    :style="{ transform: `translateY(${virtualRow.start}px)`, height: `${virtualRow.size}px`, width: `${rowWidth}px` }"
                 >
-                    <template v-for="colIndex in columnCount" :key="colIndex">
+                    <template v-for="columnOffset in columnOffsets" :key="columnOffset">
                         <!-- Skip cells beyond the last data item (last row may be partially filled) -->
-                        <div v-if="vRow.index * columnCount + colIndex - 1 < dataSource.rowCount" class="shrink-0" :style="{ width: `${columnWidth}px` }">
-                            <div class="h-full pl-4" :class="columnCount === 1 ? 'pt-2' : 'pt-4'">
+                        <div v-if="virtualRow.index * columnCount + columnOffset < dataSource.rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
+                            <div class="h-full pl-4" :class="isCompact ? 'pt-2' : 'pt-4'">
                                 <slot
-                                    v-if="$slots.compact && columnCount === 1 && getRow(vRow.index + colIndex - 1) !== undefined"
+                                    v-if="isCompact && getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
                                     name="compact"
-                                    :row="getRow(vRow.index + colIndex - 1)"
-                                    :index="vRow.index + colIndex - 1"
+                                    :row="getRow(virtualRow.index * columnCount + columnOffset)"
+                                    :index="virtualRow.index * columnCount + columnOffset"
                                 />
-
                                 <slot
-                                    v-else-if="getRow(vRow.index * columnCount + colIndex - 1) !== undefined"
-                                    :row="getRow(vRow.index * columnCount + colIndex - 1)"
-                                    :index="vRow.index * columnCount + colIndex - 1"
+                                    v-else-if="getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
+                                    :row="getRow(virtualRow.index * columnCount + columnOffset)"
+                                    :index="virtualRow.index * columnCount + columnOffset"
                                 />
-
                                 <div v-else class="flex h-full items-center px-3">
                                     <div class="h-4 w-3/4 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700" />
                                 </div>

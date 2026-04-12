@@ -51,7 +51,7 @@ export default defineConfig({
                 " worker-src 'self' blob:;" +
                 ' trusted-types default vue;' +
                 " require-trusted-types-for 'script';",
-            'Cross-Origin-Resource-Policy': 'same-origin',
+            'Cross-Origin-Resource-Policy': 'same-origin-allow-popups',
             'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self), clipboard-read=(self), clipboard-write=(self)',
             'Referrer-Policy': 'strict-origin-when-cross-origin'
         },
