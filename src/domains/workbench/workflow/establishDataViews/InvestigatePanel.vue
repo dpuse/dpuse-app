@@ -181,6 +181,7 @@ const sql = computed((): string => {
 </script>
 
 <template>
+    <!-- eslint-disable vue/no-bare-strings-in-template -->
     <div class="flex flex-1 flex-col overflow-hidden">
         <!-- ── Main Area: Palette + Canvas ── -->
         <div class="flex flex-1 overflow-hidden">
