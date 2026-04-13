@@ -1,18 +1,18 @@
 // App Core
 import { version } from '~/package.json';
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DPUSE_API_HOST = 'api.dpuse.app';
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 let activeSessionId: string | undefined; // Tracked session identity for event attribution.
 let activeUserId: string | undefined; // Tracked user identity for event attribution.
 const pendingEvents: Record<string, unknown>[] = [];
 let timeout = 5000;
 
-// Initialisation ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Initialisation ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 setInterval(flushEvents, timeout);
 document.addEventListener('visibilitychange', () => {
@@ -21,7 +21,7 @@ document.addEventListener('visibilitychange', () => {
     timeout = 30_000; // First check is 5secs after load, subsequent checks are every 30secs.
 });
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function forgetUser(): void {
     activeUserId = undefined;
@@ -47,7 +47,7 @@ export function trackEvent(typeId: 'error' | 'interaction' | 'page' | 'performan
     });
 }
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helpers ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function flushEvents(): Promise<void> {
     if (pendingEvents.length === 0) return;

@@ -22,7 +22,7 @@ type DataWindow<T> = {
     getRow: (dataIndex: number) => T | undefined;
 };
 
-// Data Window Composable ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Data Window Composable ──────────────────────────────────────────────────────────────────────────────────────────────
 
 export function useDataWindow<T>({
     scrollElement,
@@ -33,7 +33,7 @@ export function useDataWindow<T>({
     maxBlocksInCache = (): number => 10,
     estimateSize = (): number => 48
 }: Options<T>): DataWindow<T> {
-    // Data Block Cache: Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Data Block Cache: Local State ───────────────────────────────────────────────────────────────────────────────────
 
     const blockCacheMap = new Map<number, unknown[]>(); // Plain (non-reactive) Map so Vue never traverses its internals during render.
     const blockCacheVersion = ref(0); // Re-renders are triggered only by `blockCacheVersion`, incremented once per fetch result.
@@ -41,7 +41,7 @@ export function useDataWindow<T>({
     const blockPendingSet = new Set<number>();
     let fetchGeneration = 0; // Incremented on dataSource change; in-flight responses from prior generations are discarded.
 
-    // Data Block Cache: Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Data Block Cache: Side Effects ──────────────────────────────────────────────────────────────────────────────────
 
     // When the data source is swapped, stale blocks must be purged immediately. In-flight fetches from the
     // prior source are identified by their generation snapshot and silently dropped when they resolve.
@@ -57,7 +57,7 @@ export function useDataWindow<T>({
         { flush: 'sync' }
     );
 
-    // Row Virtualizer: Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Row Virtualizer: Local State ────────────────────────────────────────────────────────────────────────────────────
 
     const virtualizer = useVirtualizer({
         get count() {
@@ -68,7 +68,7 @@ export function useDataWindow<T>({
         overscan: 5
     });
 
-    // Row Virtualizer: Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Row Virtualizer: Derived State ──────────────────────────────────────────────────────────────────────────────────
 
     const virtualRows = computed(() => virtualizer.value.getVirtualItems());
     const totalRowCount = computed(() => virtualizer.value.getTotalSize());
@@ -77,7 +77,7 @@ export function useDataWindow<T>({
         return virtualRows.value.map((virtualRow) => getRow(virtualRow.index)) as T[];
     });
 
-    // Row Virtualizer: Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Row Virtualizer: Side Effects ───────────────────────────────────────────────────────────────────────────────────
 
     // Fetch blocks for all data items in the current viewport. fetchBlock also updates LRU for cached blocks.
     // getDataIndexes maps a virtual row index to one or more data indexes (default 1:1; Grid passes N:1).
@@ -96,7 +96,7 @@ export function useDataWindow<T>({
         }
     });
 
-    // Row Virtualizer: Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Row Virtualizer: Helpers ────────────────────────────────────────────────────────────────────────────────────────
 
     // Fetch the block if not cached. If already cached, update LRU order so the block is not evicted
     // while it is still in the viewport.

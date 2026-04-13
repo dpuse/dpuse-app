@@ -12,7 +12,7 @@ import { localeId, type LocaleLabel, localiseConfigs, t } from '@/translations';
 import Header from '@/components/header/Header.vue';
 import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface TaskConfig {
     id: string;
@@ -31,22 +31,22 @@ const TASK_CONFIGS: TaskConfig[] = [
     { id: 'investigate', number: 6, enableUpTo: 6, label: { en: 'Investigate' }, description: {} }
 ];
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 
 const enableTasksUpTo = ref(TASK_CONFIGS.find((config) => config.id === route.query.wbView)?.enableUpTo ?? 0); // TODO: This also needs to check the actual state of the data view.
 const taskLocalisedConfigs = shallowRef<TaskLocalisedConfig[]>([]);
 
-// Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeTaskLocalisedConfig = computed(() => TASK_CONFIGS.find((config) => config.id === route.query.wbView));
 
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(localeId, (newLocaleId) => (taskLocalisedConfigs.value = localiseConfigs<TaskLocalisedConfig>(TASK_CONFIGS, newLocaleId)), { immediate: true });
 
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleComplete(taskLocalisedConfig: TaskLocalisedConfig): void {
     enableTasksUpTo.value = taskLocalisedConfig.enableUpTo;

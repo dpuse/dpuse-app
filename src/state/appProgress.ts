@@ -1,13 +1,13 @@
 // External Dependencies
 import { ref } from 'vue';
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const NAV_DELAY_MS = 150;
 const NAV_MIN_VISIBLE_MS = 350;
 const BUSY_DELAY_MS = 200;
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Navigation progress bar state - debounced so fast navigations show nothing.
 export const isNavigating = ref(false);
@@ -22,7 +22,7 @@ export const isBusy = ref(false);
 let busyCount = 0;
 let busyTimer: ReturnType<typeof setTimeout> | null = null;
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function startNavigation(): void {
     if (hideTimer != null) {
@@ -49,7 +49,7 @@ export function completeNavigation(): void {
     }, remaining);
 }
 
-// Actions - Busy ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions - Busy ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function startBusy(): void {
     busyCount++;

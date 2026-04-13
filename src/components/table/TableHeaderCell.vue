@@ -7,17 +7,17 @@ import { onBeforeUnmount, onMounted, ref } from 'vue';
 // Properties & Emits
 defineProps<{ header: Header<T, unknown> }>();
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const menuOpen = ref(false);
 const menuReference = ref<HTMLElement | null>(null);
 
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => document.addEventListener('click', onDocumentClick));
 onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick));
 
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Close menu when clicking outside
 function onDocumentClick(event: MouseEvent): void {

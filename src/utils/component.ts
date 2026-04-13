@@ -6,7 +6,7 @@ import { h } from 'vue';
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 import { completeBusy, startBusy } from '@/state/appProgress';
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function load(chunkName: string, importFunction: () => Promise<Component>, delayMs = 0): () => Promise<Component> {
     return async () => {

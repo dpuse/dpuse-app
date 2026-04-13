@@ -8,19 +8,19 @@ import type { ContextConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 // App Core
 import { connectionConfigs, connectorConfigs, contextConfig, engineConfig, localMetaStoreConnectionConfig, presenterConfigs, toolConfigs } from '@/state/session';
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DPU_API_HOST = 'api.dpuse.app';
 const LOCAL_META_NODE_CONNECTOR_ID = 'dpuse-connector-dexie-js';
 const TIMEOUT_DELAY = 5000;
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 let localMetaNodeConnectorConfig: ConnectorConfig | undefined;
 let webSocket: WebSocket | undefined;
 let webSocketShutdown = false;
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function initialise(): void {
     if (!(webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN))) {
@@ -35,7 +35,7 @@ export function initialise(): void {
     }
 }
 
-// WebSocket helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// WebSocket helpers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function connectToWebSocket(): WebSocket | undefined {
     try {
@@ -89,7 +89,7 @@ function shutdown(): void {
     }
 }
 
-// Registration Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Registration Helpers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
     let connectorRegistered = false;
@@ -175,7 +175,7 @@ function unregisterConfigurations(moduleConfigs: ModuleConfig[]): void {
     }
 }
 
-// Connection Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Connection Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────
 
 function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
     return {

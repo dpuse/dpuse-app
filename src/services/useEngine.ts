@@ -7,16 +7,16 @@ import type { EngineCallbackData, EngineRuntime, EngineWorker } from '@dpuse/dpu
 // App Core
 import { engineConfig, toolConfigs } from '@/state/session';
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const ENGINE_STORAGE_URL_PREFIX = 'https://engine-eu.dpuse.app';
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 let activeEngineVersion: string | undefined;
 let engineWorker: EngineWorker | undefined;
 
-// Engine Composable ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Engine Composable ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function useEngine(): Promise<EngineWorker> {
     // "useEngine" is not invoked until all modules have been registered in session. So "engineConfig" will be populated.

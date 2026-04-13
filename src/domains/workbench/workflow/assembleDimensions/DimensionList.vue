@@ -27,12 +27,12 @@ import Grid from '@/components/grid/Grid.vue';
 // App Components - Dynamically imported.
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/emptyPlaceholder/EmptyPlaceholder.vue'));
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dimensionRetrievalIsActive = ref(false);
 const router = useRouter();
 
-// Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dataSource = computed(
     (): DataSource<DimensionConfig> => ({
@@ -41,11 +41,11 @@ const dataSource = computed(
     })
 );
 
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDimensions(newConnectionConfig), { immediate: true });
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<void> {
     try {

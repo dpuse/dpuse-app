@@ -7,12 +7,12 @@ import { useRoute, useRouter } from 'vue-router';
 import Button from '@/components/button/Button.vue';
 import DialogMask from '@/components/mask/DialogMask.vue';
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();
 
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleCloseDialog(): Promise<void> {
     const rest = { ...route.query };

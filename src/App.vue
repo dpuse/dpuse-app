@@ -32,11 +32,11 @@ const WorkbenchOptionBar = defineAsyncComponent({
     errorComponent: ChunkLoadError
 });
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 type AppPaneId = 'workbench' | 'knowledge';
 const activeAppPaneId = ref<AppPaneId | undefined>();
@@ -54,12 +54,12 @@ const workbenchOptionBarIsVisible = ref(false);
 const workbenchPaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
 const workbenchPaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
 
-// Derived State - Dialogs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State - Dialogs ─────────────────────────────────────────────────────────────────────────────────────────────
 
 const accountDialogIsVisible = computed(() => route.query.dlg === 'account');
 const authDialogIsVisible = computed(() => route.query.dlg === 'auth');
 
-// Derived State - Panes ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State - Panes ───────────────────────────────────────────────────────────────────────────────────────────────
 
 const knowledgePaneStyle = computed(() => {
     if (knowledgePaneIsVisible.value) return { minWidth: '0', flex: '1' };
@@ -74,7 +74,7 @@ const workbenchPaneStyle = computed(() => {
     return { minWidth: '0', flex: '1' };
 });
 
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 router
     .isReady()
@@ -100,7 +100,7 @@ watch(displayIsWide, (newDisplayIsWide) => {
 
 watch(paneSplitterPercent, (newPaneSplitterPercent) => localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent)));
 
-// UI Helpers - Option Bars ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers - Option Bars ────────────────────────────────────────────────────────────────────────────────────────────
 
 function closeOptionBarOnNarrowDisplay(): void {
     if (displayIsWide.value) return;
@@ -108,7 +108,7 @@ function closeOptionBarOnNarrowDisplay(): void {
     workbenchOptionBarIsVisible.value = false;
 }
 
-// UI Helpers - Panes - Knowledge  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers - Panes - Knowledge  ─────────────────────────────────────────────────────────────────────────────────────
 
 function toggleKnowledgeAppPane(): void {
     if (displayIsWide.value) {
@@ -144,7 +144,7 @@ function applyKnowledgePaneToggle(): void {
     }
 }
 
-// UI Helpers - Panes - Workbench ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers - Panes - Workbench ──────────────────────────────────────────────────────────────────────────────────────
 
 function selectKnowledgePanel(knowledgeViewId: KnowledgeViewId): void {
     activeAppPaneId.value = 'knowledge';
@@ -190,7 +190,7 @@ function applyWorkbenchPaneToggle(): void {
     }
 }
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function establishActiveAppPaneId(displayIsWide: boolean): void {
     if (displayIsWide) {

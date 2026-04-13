@@ -10,7 +10,7 @@ import Header from '@/components/header/Header.vue';
 import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
 import Table from '@/components/table/Table.vue';
 
-// EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const TOTAL_ROWS = 100_000;
 const CATEGORIES = ['Alpha', 'Beta', 'Gamma', 'Delta'] as const;

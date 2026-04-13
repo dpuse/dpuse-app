@@ -11,7 +11,7 @@ const LibraryView = defineAsyncComponent(() => import('./LibraryPanel.vue'));
 // Properties & Emits
 const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }>();
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export type KnowledgeViewId = 'about' | 'library' | 'chat';
 const KNOWLEDGE_PANELS: Record<KnowledgeViewId, { component: Component; label: string }> = {
@@ -20,11 +20,11 @@ const KNOWLEDGE_PANELS: Record<KnowledgeViewId, { component: Component; label: s
     chat: { component: ChatView, label: 'Chat' }
 };
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 
-// Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeView = computed(() => {
     const parameter = route.query.kView as KnowledgeViewId | undefined;

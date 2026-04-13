@@ -13,7 +13,7 @@ import T from '@/translations/domains/session/accountDialog/AccountDialog.json';
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 import Button, { type VariantTypeId } from '@/components/button/Button.vue';
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string; variant?: VariantTypeId };
 const OPTION_CONFIGS: OptionLocalisedConfig[] = [
@@ -44,14 +44,14 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
     deleteAccount: defineAsyncComponent(() => import('./DeleteAccountPanel.vue'))
 };
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
 const subPanelError = ref<unknown>(null);
 
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onErrorCaptured((error) => {
     subPanelError.value = error;
@@ -62,7 +62,7 @@ watch(displayIsWide, (isWide) => {
     if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1];
 });
 
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleBack(): void {
     activeOptionConfig.value = undefined;

@@ -19,18 +19,18 @@ import Separator from '@/components/separator/Separator.vue';
 // Properties & Emits
 const { onTrigger } = defineProps<{ onTrigger: (identifier: string) => Promise<void> }>();
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const identifier = ref('terrell.jm@icloud.com');
 const isDark = ref(document.documentElement.classList.contains('dark'));
 
-// ??? ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ??? ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const observer = new MutationObserver(() => (isDark.value = document.documentElement.classList.contains('dark')));
 observer.observe(document.documentElement, { attributeFilter: ['class'] });
 onUnmounted(() => observer.disconnect());
 
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
     await onTrigger(identifier.value);

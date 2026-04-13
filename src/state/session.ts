@@ -15,13 +15,13 @@ import { localeId } from '../translations';
 import { reportAppError } from '@/observability/errorTracking';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const connectionConfigs = shallowRef<ConnectionConfig[]>([]);
 export const connectorConfigs = shallowRef<ConnectorConfig[] | undefined>();
@@ -54,7 +54,7 @@ let hankoFlowCleanupFunction: (() => void) | undefined;
 // Long-lived authenticated-session-scoped expiry timer.
 let expiryTimer: ReturnType<typeof setTimeout> | undefined;
 
-// Initialisation ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Initialisation ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleBeforeUnload(event: BeforeUnloadEvent): void {
     event.preventDefault();
@@ -85,7 +85,7 @@ watch(
     { immediate: true }
 );
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function initialiseServices(): void {
     import('@teamhanko/hanko-frontend-sdk').then(({ Hanko }) => {
@@ -122,7 +122,7 @@ export async function signOut(): Promise<void> {
     await hankoInstance?.logout();
 }
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'terminated' | 'validated' | 'validationFailure', claims?: Claims): void {
     if (claims) {

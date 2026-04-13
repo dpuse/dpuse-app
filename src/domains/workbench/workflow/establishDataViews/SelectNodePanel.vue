@@ -16,13 +16,13 @@ import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
 const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalisedConfig): void }>();
 
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function triggerComplete(): void {
     emit('complete', taskLocalisedConfig);
 }
 
-// EXPERIMENTAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
 const connectorConfig = shallowRef();
 const connectionConfig = shallowRef();
 const listNodesResult = shallowRef();

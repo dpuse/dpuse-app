@@ -1,7 +1,7 @@
 // DPUse Framework
 import { type AppError, type SerialisedError, serialiseError } from '@dpuse/dpuse-shared/errors';
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function logError(error: unknown): void {
     const serialisedError = serialiseError(error);
@@ -34,7 +34,7 @@ export function reportAppError(error: AppError): void {
     logErrorToConsole(serialisedErrors);
 }
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function logErrorToConsole(serialisedErrors: SerialisedError[]): void {
     console.log('[dpuse:app] ❌', formatTrace(serialisedErrors));

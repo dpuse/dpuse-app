@@ -12,7 +12,7 @@ import Header from '@/components/header/Header.vue';
 // Properties & Emits
 const { title } = defineProps<{ title: string }>();
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Chat state (kept here so it persists across view switches)
 const userText = ref<string | undefined>();
@@ -57,7 +57,7 @@ async function runTest(): Promise<void> {
     await client.sendMessage('What should I search for to find the latest developments in renewable energy?');
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 </script>
 
 <template>

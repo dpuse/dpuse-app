@@ -10,7 +10,7 @@ import { localeId, localiseConfigs } from '@/translations';
 // App Components - Statically imported.
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 
-// Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocalisedConfig>(workflowOptionData, localeId.value));
 </script>

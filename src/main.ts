@@ -12,7 +12,7 @@ import { reportAppError, reportFatalError } from '@/observability/errorTracking'
 // App Components - Statically imported.
 import App from '@/App.vue';
 
-// App Bootstrap ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// App Bootstrap ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 try {
     // Add global error handlers.

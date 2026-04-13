@@ -31,11 +31,11 @@ import Grid from '@/components/grid/Grid.vue';
 // App Components - Dynamically imported.
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/emptyPlaceholder/EmptyPlaceholder.vue'));
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dataViewRetrievalIsActive = ref(false);
 
-// Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dataSource = computed(
     (): DataSource<DataViewConfig> => ({
@@ -44,11 +44,11 @@ const dataSource = computed(
     })
 );
 
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDataViews(newConnectionConfig), { immediate: true });
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<void> {
     try {
@@ -101,7 +101,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         //         });
         // }
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
         // const startTime = performance.now();
         // // const response = await fetch('https://sample-data-eu.dpuse.app/fileStore/ENGAGEMENT_START_EVENTS_202405121858.csv');
@@ -112,7 +112,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         // const elapsedMs = performance.now() - startTime;
         // console.log('auditObjectContentResult', elapsedMs, auditObjectContentResult);
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
     } catch (error) {
         reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.EstablishDataViews.retrieveDataViews', { typeId: 'handled' }, { cause: error }));
     } finally {

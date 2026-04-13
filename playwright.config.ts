@@ -8,7 +8,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 // require('dotenv').config();
 
-// Playwright Configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Playwright Configuration ────────────────────────────────────────────────────────────────────────────────────────────
 
 /**
  * See https://playwright.dev/docs/test-configuration.

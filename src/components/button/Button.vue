@@ -6,7 +6,7 @@ import { computed } from 'vue';
 export type VariantTypeId = 'avatar' | 'destructive' | 'ghost' | 'guarded' | 'iconLarge' | 'iconSmall' | 'listItem' | 'listitemDestructive' | 'outline' | 'positive' | 'primary';
 const { isActive = false, variant = 'neutral' } = defineProps<{ isActive?: boolean; variant?: VariantTypeId }>();
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const COMMON_RECTANGLE_CLASSES = 'rounded-md text-[15px] leading-6 focus-visible:ring-2 dark:text-zinc-300 px-3 py-1.5';
 const COMMON_GRAPHIC_CLASSES = 'focus-visible:ring-2';
@@ -51,7 +51,7 @@ const COMMON_OUTLINE_CLASSES = [
     'dark:hover:bg-zinc-300/20 dark:active:bg-zinc-300/30 dark:focus-visible:ring-zinc-500'
 ];
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const variantClasses = computed((): (string | string[] | Record<string, string> | undefined)[] => {
     switch (variant) {

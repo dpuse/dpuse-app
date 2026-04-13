@@ -15,18 +15,18 @@ import Grid from '@/components/grid/Grid.vue';
 const { items, maxRightWidth } = defineProps<{ items: T[]; maxRightWidth?: string }>();
 const emit = defineEmits<{ (event: 'select', item: T | undefined): void }>();
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeItem = shallowRef<T | undefined>();
 
-// Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dataSource = computed<DataSource>(() => ({
     rowCount: items.length,
     getRows: (start, end): Promise<unknown[]> => Promise.resolve(items.slice(start, end))
 }));
 
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function selectItem(item: T | undefined): void {
     activeItem.value = item;

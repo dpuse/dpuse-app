@@ -19,7 +19,7 @@ import LoginForm from '@/domains/session/authDialog/LoginForm.vue';
 import PasswordForm from '@/domains/session/authDialog/PasswordForm.vue';
 import Separator from '@/components/separator/Separator.vue';
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const containerReference = ref<HTMLDivElement | null>(null);
 const flowConstructed = ref(false);
@@ -32,7 +32,7 @@ const route = useRoute();
 const router = useRouter();
 const uiStateId = ref<'enterId' | 'selectSignInMethod' | 'enterPasscode' | 'enterPassword' | undefined>(undefined);
 
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
     constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state))
@@ -41,7 +41,7 @@ onMounted(() => {
 });
 onUnmounted(() => destroyFlow());
 
-// Login flow helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Login flow helpers ──────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleLoginFlowStateChange(state: AnyState): Promise<void> {
     switch (state.name) {
@@ -131,7 +131,7 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
     if (result.error) console.log(result.error, result);
 }
 
-// Transition helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Transition helpers ─────────────────────────────────────────────────────────────────────────────────────────
 
 function onBeforeLeave(): void {
     const container = containerReference.value;
@@ -157,7 +157,7 @@ function onAfterEnter(): void {
     container.style.transition = '';
 }
 
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleCloseDialog(): Promise<void> {
     isClosing.value = true;

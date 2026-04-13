@@ -1,13 +1,13 @@
 // External Dependencies
 import { ref } from 'vue';
 
-// Interfaces/Types ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Interfaces/Types ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export type FlagId = 'es' | 'gb';
 export type LocaleId = 'en' | 'es';
 export type LocaleLabel = Partial<Record<LocaleId, string>>;
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DEFAULT_LOCALE_ID: LocaleId = 'en';
 export const SUPPORTED_LANGUAGES: { id: LocaleId; flag: FlagId; label: string }[] = [
@@ -15,11 +15,11 @@ export const SUPPORTED_LANGUAGES: { id: LocaleId; flag: FlagId; label: string }[
     { id: 'es', flag: 'es', label: 'Español' }
 ];
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const localeId = ref<LocaleId>(establishLocaleId());
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function localiseConfigs<T>(configs: { id: string; label: LocaleLabel; description: LocaleLabel }[], localeId: LocaleId): T[] {
     return configs.map((config) => ({ ...config, label: config.label[localeId] ?? config.id, description: config.description[localeId] ?? config.id }) as T);
@@ -36,7 +36,7 @@ export function t(translations: Translations, id: keyof Translations, parameters
     return text;
 }
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function establishLocaleId(): LocaleId {
     for (const languageId of globalThis.navigator?.languages ?? []) {

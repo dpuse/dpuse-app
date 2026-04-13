@@ -22,21 +22,21 @@ type Properties = {
 };
 const { columnDefinitions, dataSource, cacheBlockSize = 100, maxBlocksInCache = 10 } = defineProps<Properties>();
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000; // Empirically chosen — below this width, flat rendering is cheaper than virtualizer overhead.
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const scrollElement = ref<HTMLElement | null>(null);
 
-// State - Toolbar ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State - Toolbar ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const toolbarElement = ref<HTMLElement | null>(null);
 const toolbarHeight = ref(0); // Measured so ScrollThumb can be offset to align with the scroll area, not the toolbar.
 let toolbarObserver: ResizeObserver | null = null;
 
-// State - Columns ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State - Columns ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const columnPinningStateMap = ref<ColumnPinningState>({});
 const columnSizingStateMap = ref<ColumnSizingState>({});
@@ -55,7 +55,7 @@ const columnVirtualizer = useVirtualizer({
     overscan: 3
 });
 
-// State - Rows ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State - Rows ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
     scrollElement,
@@ -64,7 +64,7 @@ const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
     maxBlocksInCache: () => maxBlocksInCache
 });
 
-// State - Table ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State - Table ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const table = useVueTable<T>({
     get data(): T[] {
@@ -100,7 +100,7 @@ const table = useVueTable<T>({
     }
 });
 
-// Derived State - Columns ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State - Columns ─────────────────────────────────────────────────────────────────────────────────────────────
 
 const centerLeafHeaders = computed(() => table.getCenterLeafHeaders());
 const leftLeafHeaders = computed(() => table.getLeftLeafHeaders());
@@ -113,7 +113,7 @@ const totalCenterWidth = computed(() =>
 const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value + rightPinnedWidth.value);
 const virtualColumns = computed(() => (isColumnVirtualisationRequired.value ? columnVirtualizer.value.getVirtualItems() : []));
 
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
     if (!toolbarElement.value) return;

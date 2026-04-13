@@ -14,7 +14,7 @@ import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 import Header from '@/components/header/Header.vue';
 import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
 
-// Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocalisedConfig>(workflowOptionData, localeId.value));
 </script>

@@ -31,7 +31,7 @@ const ExplorePresentationsLayout = load('explorePresentations', () => import('@/
 
 const BuildDataAppsLayout = load('buildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'));
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const APP_ROUTES = [
     {
@@ -103,7 +103,7 @@ export const createAppRouter = (): Router => {
     return router;
 };
 
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleScrollBehavior(
     _to: Parameters<RouterScrollBehavior>[0],

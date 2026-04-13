@@ -12,7 +12,7 @@ import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
 const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalisedConfig): void }>();
 
-// Side Effects  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects  ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // onMounted(() => {
 //     class DPUseConstantProvider extends blockRendering.ConstantProvider {
@@ -169,7 +169,7 @@ const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalise
 //     const workspace = inject('blocklyDiv', { toolbox: toolbox, renderer: 'dpuse', theme: 'dpuse' });
 // });
 
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function triggerComplete(): void {
     emit('complete', taskLocalisedConfig);

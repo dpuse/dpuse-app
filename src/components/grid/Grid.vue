@@ -18,7 +18,7 @@ type Properties = {
 };
 const { dataSource, rowHeight = 48, targetColumnWidth, cacheBlockSize, maxBlocksInCache } = defineProps<Properties>();
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const columnCount = ref(1);
 const columnWidth = ref(0);
@@ -44,13 +44,13 @@ const { virtualRows, totalRowCount, getRow } = useDataWindow({
     maxBlocksInCache: maxBlocksInCache == null ? undefined : (): number => maxBlocksInCache
 });
 
-// Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const rowWidth = computed(() => columnCount.value * columnWidth.value);
 const columnOffsets = computed(() => Array.from({ length: columnCount.value }, (_, index) => index));
 const isCompact = computed(() => !!slots.compact && columnCount.value === 1);
 
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => resizeObserver.observe(scrollElement.value!));
 onUnmounted(() => resizeObserver.disconnect());

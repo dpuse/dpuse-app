@@ -5,11 +5,11 @@ import { onBeforeUnmount, useTemplateRef, watch } from 'vue';
 // App Core
 import { contentScrollTop, knowledgePaneIsVisible } from '@/state/appLayout';
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const element = useTemplateRef<HTMLElement>('scroller');
 
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onBeforeUnmount(() => (contentScrollTop.value = 0));
 

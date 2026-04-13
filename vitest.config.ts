@@ -19,7 +19,7 @@ import { configDefaults, defineConfig } from 'vitest/config';
 //   }),
 // )
 
-// Vitest Configuration ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Vitest Configuration ────────────────────────────────────────────────────────────────────────────────────────────────
 
 export default defineConfig({
     plugins: [

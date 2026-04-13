@@ -3,7 +3,7 @@
 import { ChevronDownIcon, ChevronRightIcon, PlusIcon, XIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// Interfaces/Types ─────────────────────────────────────────────────────────────────────
 
 interface Column {
     name: string;
@@ -32,7 +32,7 @@ const COLUMNS: Column[] = [
     { name: 'customer_id', type: 'id' },
     { name: 'amount', type: 'number' },
     { name: 'status', type: 'text' },
-    { name: 'created_at', type: 'date' },
+    { name: 'created_at', type: 'date' }
 ];
 
 const OPS = ['=', '!=', '<', '<=', '>', '>=', 'LIKE', 'IS NULL', 'IS NOT NULL'] as const;
@@ -102,13 +102,13 @@ const TYPE_CHIP: Record<string, string> = {
     id: 'bg-violet-100 text-violet-800 dark:bg-violet-400/20 dark:text-violet-300 inset-ring inset-ring-violet-300/60 dark:inset-ring-violet-500/30',
     number: 'bg-blue-100 text-blue-800 dark:bg-blue-400/20 dark:text-blue-300 inset-ring inset-ring-blue-300/60 dark:inset-ring-blue-500/30',
     text: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-400/20 dark:text-emerald-300 inset-ring inset-ring-emerald-300/60 dark:inset-ring-emerald-500/30',
-    date: 'bg-amber-100 text-amber-800 dark:bg-amber-400/20 dark:text-amber-300 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30',
+    date: 'bg-amber-100 text-amber-800 dark:bg-amber-400/20 dark:text-amber-300 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30'
 };
 const TYPE_TEXT: Record<string, string> = {
     id: 'text-violet-700 dark:text-violet-400',
     number: 'text-blue-700 dark:text-blue-400',
     text: 'text-emerald-700 dark:text-emerald-400',
-    date: 'text-amber-700 dark:text-amber-400',
+    date: 'text-amber-700 dark:text-amber-400'
 };
 const TYPE_ICON: Record<string, string> = { id: '#', number: '1', text: 'A', date: '⏱' };
 
@@ -147,11 +147,9 @@ const sql = computed((): string => {
 <template>
     <!-- eslint-disable vue/no-bare-strings-in-template -->
     <div class="flex flex-1 flex-col overflow-hidden">
-
         <!-- ── Query Canvas ── -->
         <div class="flex-1 overflow-y-auto p-4">
             <div class="flex flex-col gap-3">
-
                 <!-- ── SELECT ── -->
                 <section class="border-separator overflow-hidden rounded-lg border">
                     <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
@@ -170,13 +168,11 @@ const sql = computed((): string => {
                     <div v-if="clauseOpen.select" class="p-3">
                         <!-- Existing chips -->
                         <div class="flex flex-wrap gap-2">
-                            <span v-if="query.select.length === 0 && !pickerOpen.select" class="text-xs text-zinc-400 dark:text-zinc-500">
-                                All columns (*)
-                            </span>
+                            <span v-if="query.select.length === 0 && !pickerOpen.select" class="text-xs text-zinc-400 dark:text-zinc-500"> All columns (*) </span>
                             <div
                                 v-for="name in query.select"
                                 :key="name"
-                                class="flex items-center gap-1 rounded-full py-1.5 pl-2.5 pr-1 text-xs select-none"
+                                class="flex items-center gap-1 rounded-full py-1.5 pr-1 pl-2.5 text-xs select-none"
                                 :class="chipClass(name)"
                             >
                                 <span class="w-3 flex-none text-center font-mono text-[10px] opacity-60">{{ typeIcon(name) }}</span>
@@ -222,12 +218,7 @@ const sql = computed((): string => {
                     <!-- Collapsed summary -->
                     <div v-else class="flex flex-wrap gap-1.5 px-3 py-2">
                         <span v-if="query.select.length === 0" class="font-mono text-xs text-zinc-400">*</span>
-                        <span
-                            v-for="name in query.select"
-                            :key="name"
-                            class="rounded px-1.5 py-0.5 font-mono text-[11px]"
-                            :class="chipClass(name)"
-                        >{{ name }}</span>
+                        <span v-for="name in query.select" :key="name" class="rounded px-1.5 py-0.5 font-mono text-[11px]" :class="chipClass(name)">{{ name }}</span>
                     </div>
                 </section>
 
@@ -252,13 +243,9 @@ const sql = computed((): string => {
                     <div v-if="clauseOpen.where" class="p-3">
                         <!-- Existing conditions -->
                         <div v-if="query.where.length > 0" class="mb-3 flex flex-col gap-2">
-                            <div
-                                v-for="(cond, index) in query.where"
-                                :key="cond.id"
-                                class="flex items-center gap-2 text-xs"
-                            >
+                            <div v-for="(cond, index) in query.where" :key="cond.id" class="flex items-center gap-2 text-xs">
                                 <span v-if="index > 0" class="w-7 flex-none text-right font-mono text-[10px] font-semibold text-zinc-400">AND</span>
-                                <div class="flex flex-1 items-center gap-1.5 rounded-full bg-zinc-100 py-1.5 pl-2.5 pr-1 dark:bg-zinc-700">
+                                <div class="flex flex-1 items-center gap-1.5 rounded-full bg-zinc-100 py-1.5 pr-1 pl-2.5 dark:bg-zinc-700">
                                     <span class="font-mono font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
                                     <span class="font-mono text-zinc-400">{{ cond.op }}</span>
                                     <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="font-mono text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
@@ -272,10 +259,18 @@ const sql = computed((): string => {
                         <!-- Condition builder -->
                         <div v-if="pickerOpen.where" class="border-separator rounded-lg border bg-white p-3 dark:bg-zinc-900">
                             <div class="flex flex-col gap-2">
-                                <select v-model="whereDraft.column" aria-label="Column" class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                                <select
+                                    v-model="whereDraft.column"
+                                    aria-label="Column"
+                                    class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                                >
                                     <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
                                 </select>
-                                <select v-model="whereDraft.op" aria-label="Operator" class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                                <select
+                                    v-model="whereDraft.op"
+                                    aria-label="Operator"
+                                    class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                                >
                                     <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
                                 </select>
                                 <input
@@ -288,18 +283,24 @@ const sql = computed((): string => {
                                 />
                             </div>
                             <div class="mt-3 flex justify-end gap-2">
-                                <button class="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700" type="button" @click="pickerOpen.where = false">
+                                <button
+                                    class="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                                    type="button"
+                                    @click="pickerOpen.where = false"
+                                >
                                     Cancel
                                 </button>
-                                <button class="rounded-md bg-blue-100 px-3 py-1.5 text-sm text-blue-800 hover:bg-blue-200 dark:bg-blue-400/20 dark:text-blue-300 dark:hover:bg-blue-400/30" type="button" @click="addCondition('where')">
+                                <button
+                                    class="rounded-md bg-blue-100 px-3 py-1.5 text-sm text-blue-800 hover:bg-blue-200 dark:bg-blue-400/20 dark:text-blue-300 dark:hover:bg-blue-400/30"
+                                    type="button"
+                                    @click="addCondition('where')"
+                                >
                                     Add condition
                                 </button>
                             </div>
                         </div>
 
-                        <span v-if="query.where.length === 0 && !pickerOpen.where" class="text-xs text-zinc-400 dark:text-zinc-500">
-                            No filter — use + to add a condition
-                        </span>
+                        <span v-if="query.where.length === 0 && !pickerOpen.where" class="text-xs text-zinc-400 dark:text-zinc-500"> No filter — use + to add a condition </span>
                     </div>
 
                     <!-- Collapsed summary -->
@@ -334,13 +335,11 @@ const sql = computed((): string => {
                     <div v-if="clauseOpen.groupBy" class="p-3">
                         <!-- Existing chips -->
                         <div class="flex flex-wrap gap-2">
-                            <span v-if="query.groupBy.length === 0 && !pickerOpen.groupBy" class="text-xs text-zinc-400 dark:text-zinc-500">
-                                No grouping
-                            </span>
+                            <span v-if="query.groupBy.length === 0 && !pickerOpen.groupBy" class="text-xs text-zinc-400 dark:text-zinc-500"> No grouping </span>
                             <div
                                 v-for="name in query.groupBy"
                                 :key="name"
-                                class="flex items-center gap-1 rounded-full py-1.5 pl-2.5 pr-1 text-xs select-none"
+                                class="flex items-center gap-1 rounded-full py-1.5 pr-1 pl-2.5 text-xs select-none"
                                 :class="chipClass(name)"
                             >
                                 <span class="w-3 flex-none text-center font-mono text-[10px] opacity-60">{{ typeIcon(name) }}</span>
@@ -386,12 +385,7 @@ const sql = computed((): string => {
                     <!-- Collapsed summary -->
                     <div v-else class="flex flex-wrap gap-1.5 px-3 py-2">
                         <span v-if="query.groupBy.length === 0" class="text-xs text-zinc-400">—</span>
-                        <span
-                            v-for="name in query.groupBy"
-                            :key="name"
-                            class="rounded px-1.5 py-0.5 font-mono text-[11px]"
-                            :class="chipClass(name)"
-                        >{{ name }}</span>
+                        <span v-for="name in query.groupBy" :key="name" class="rounded px-1.5 py-0.5 font-mono text-[11px]" :class="chipClass(name)">{{ name }}</span>
                     </div>
                 </section>
 
@@ -416,13 +410,9 @@ const sql = computed((): string => {
                     <div v-if="clauseOpen.having" class="p-3">
                         <!-- Existing conditions -->
                         <div v-if="query.having.length > 0" class="mb-3 flex flex-col gap-2">
-                            <div
-                                v-for="(cond, index) in query.having"
-                                :key="cond.id"
-                                class="flex items-center gap-2 text-xs"
-                            >
+                            <div v-for="(cond, index) in query.having" :key="cond.id" class="flex items-center gap-2 text-xs">
                                 <span v-if="index > 0" class="w-7 flex-none text-right font-mono text-[10px] font-semibold text-zinc-400">AND</span>
-                                <div class="flex flex-1 items-center gap-1.5 rounded-full bg-zinc-100 py-1.5 pl-2.5 pr-1 dark:bg-zinc-700">
+                                <div class="flex flex-1 items-center gap-1.5 rounded-full bg-zinc-100 py-1.5 pr-1 pl-2.5 dark:bg-zinc-700">
                                     <span class="font-mono font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
                                     <span class="font-mono text-zinc-400">{{ cond.op }}</span>
                                     <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="font-mono text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
@@ -436,10 +426,18 @@ const sql = computed((): string => {
                         <!-- Condition builder -->
                         <div v-if="pickerOpen.having" class="border-separator rounded-lg border bg-white p-3 dark:bg-zinc-900">
                             <div class="flex flex-col gap-2">
-                                <select v-model="havingDraft.column" aria-label="Column" class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                                <select
+                                    v-model="havingDraft.column"
+                                    aria-label="Column"
+                                    class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                                >
                                     <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
                                 </select>
-                                <select v-model="havingDraft.op" aria-label="Operator" class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                                <select
+                                    v-model="havingDraft.op"
+                                    aria-label="Operator"
+                                    class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                                >
                                     <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
                                 </select>
                                 <input
@@ -452,18 +450,24 @@ const sql = computed((): string => {
                                 />
                             </div>
                             <div class="mt-3 flex justify-end gap-2">
-                                <button class="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700" type="button" @click="pickerOpen.having = false">
+                                <button
+                                    class="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                                    type="button"
+                                    @click="pickerOpen.having = false"
+                                >
                                     Cancel
                                 </button>
-                                <button class="rounded-md bg-blue-100 px-3 py-1.5 text-sm text-blue-800 hover:bg-blue-200 dark:bg-blue-400/20 dark:text-blue-300 dark:hover:bg-blue-400/30" type="button" @click="addCondition('having')">
+                                <button
+                                    class="rounded-md bg-blue-100 px-3 py-1.5 text-sm text-blue-800 hover:bg-blue-200 dark:bg-blue-400/20 dark:text-blue-300 dark:hover:bg-blue-400/30"
+                                    type="button"
+                                    @click="addCondition('having')"
+                                >
                                     Add condition
                                 </button>
                             </div>
                         </div>
 
-                        <span v-if="query.having.length === 0 && !pickerOpen.having" class="text-xs text-zinc-400 dark:text-zinc-500">
-                            No filter — use + to add a condition
-                        </span>
+                        <span v-if="query.having.length === 0 && !pickerOpen.having" class="text-xs text-zinc-400 dark:text-zinc-500"> No filter — use + to add a condition </span>
                     </div>
 
                     <!-- Collapsed summary -->
@@ -509,7 +513,7 @@ const sql = computed((): string => {
                                     <span class="font-mono">{{ item.column }}</span>
                                 </div>
                                 <button
-                                    class="border-l py-1.5 pl-1.5 pr-2 font-mono text-[10px] font-semibold tracking-wide hover:bg-black/10 dark:hover:bg-white/15"
+                                    class="border-l py-1.5 pr-2 pl-1.5 font-mono text-[10px] font-semibold tracking-wide hover:bg-black/10 dark:hover:bg-white/15"
                                     style="border-color: color-mix(in oklab, currentColor 20%, transparent)"
                                     type="button"
                                     @click="toggleOrderDirection(item.column)"
@@ -529,18 +533,15 @@ const sql = computed((): string => {
                                     v-for="col in COLUMNS"
                                     :key="col.name"
                                     class="flex min-h-9 items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm"
-                                    :class="query.orderBy.some((o) => o.column === col.name)
-                                        ? chipClass(col.name)
-                                        : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'"
+                                    :class="query.orderBy.some((o) => o.column === col.name) ? chipClass(col.name) : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'"
                                     type="button"
                                     @click="toggleOrderBy(col.name)"
                                 >
                                     <span class="w-3 flex-none text-center font-mono text-[10px] opacity-50">{{ TYPE_ICON[col.type] }}</span>
                                     <span class="flex-1 font-mono text-xs">{{ col.name }}</span>
-                                    <span
-                                        v-if="query.orderBy.some((o) => o.column === col.name)"
-                                        class="font-mono text-[10px] font-semibold opacity-60"
-                                    >{{ query.orderBy.find((o) => o.column === col.name)?.dir }}</span>
+                                    <span v-if="query.orderBy.some((o) => o.column === col.name)" class="font-mono text-[10px] font-semibold opacity-60">{{
+                                        query.orderBy.find((o) => o.column === col.name)?.dir
+                                    }}</span>
                                 </button>
                             </div>
                             <div class="mt-3 flex justify-end">
@@ -554,22 +555,16 @@ const sql = computed((): string => {
                             </div>
                         </div>
 
-                        <span v-if="query.orderBy.length === 0 && !pickerOpen.orderBy" class="text-xs text-zinc-400 dark:text-zinc-500">
-                            No sort order
-                        </span>
+                        <span v-if="query.orderBy.length === 0 && !pickerOpen.orderBy" class="text-xs text-zinc-400 dark:text-zinc-500"> No sort order </span>
                     </div>
 
                     <!-- Collapsed summary -->
                     <div v-else-if="query.orderBy.length > 0" class="flex flex-wrap gap-1.5 px-3 py-2">
-                        <span
-                            v-for="item in query.orderBy"
-                            :key="item.column"
-                            class="rounded px-1.5 py-0.5 font-mono text-[11px]"
-                            :class="chipClass(item.column)"
-                        >{{ item.column }} {{ item.dir }}</span>
+                        <span v-for="item in query.orderBy" :key="item.column" class="rounded px-1.5 py-0.5 font-mono text-[11px]" :class="chipClass(item.column)"
+                            >{{ item.column }} {{ item.dir }}</span
+                        >
                     </div>
                 </section>
-
             </div>
         </div>
 
@@ -586,6 +581,5 @@ const sql = computed((): string => {
             </button>
             <pre v-if="sqlOpen" class="overflow-x-auto px-4 py-3 font-mono text-xs text-zinc-600 dark:text-zinc-400">{{ sql }}</pre>
         </div>
-
     </div>
 </template>

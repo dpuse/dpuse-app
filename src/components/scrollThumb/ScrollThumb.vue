@@ -5,7 +5,7 @@ import { onMounted, onUnmounted, ref, watch } from 'vue';
 // Properties & Emits
 const { scrollElement, rowCount = 0 } = defineProps<{ scrollElement: HTMLElement | null; rowCount?: number }>();
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const currentRow = ref(1);
 const isDragging = ref(false);
@@ -15,7 +15,7 @@ const trackReference = ref<HTMLElement | null>(null);
 const thumbOffset = ref(0);
 const thumbSize = ref(40);
 
-// Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
     updateThumb();
@@ -58,7 +58,7 @@ watch(
     { immediate: true }
 );
 
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function onTouchStart(event: TouchEvent): void {
     event.preventDefault();
@@ -94,7 +94,7 @@ function onMouseUp(): void {
     isDragging.value = false;
 }
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 type Metrics = { scrollPos: number; scrollSize: number; clientSize: number; maxScroll: number; trackSize: number };
 function getMetrics(): Metrics | null {

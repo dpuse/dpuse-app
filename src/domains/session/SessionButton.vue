@@ -15,11 +15,11 @@ import SessionMenu from '@/domains/session/SessionMenu.vue';
 // Properties & Emits
 const { workbenchOptionBarIsVisible } = defineProps<{ workbenchOptionBarIsVisible: boolean }>();
 
-// State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const sessionMenuIsVisible = ref(false);
 
-// ??? Avatar ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ??? Avatar ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const avatarUrl = ref('');
 const emailAddress = 'terrell.jm@gmail.com';
@@ -43,7 +43,7 @@ async function gravatarUrl(email: string, size: number): Promise<string> {
     return `https://gravatar.com/avatar/${hashHex}?s=${size}&d=404`;
 }
 
-// Lifecycle Event Handlers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Lifecycle Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
     // gravatarUrl(emailAddress, 38)
@@ -51,7 +51,7 @@ onMounted(() => {
     //     .catch((error) => console.log(error));
 });
 
-// UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const sessionMenuReference = ref<ComponentPublicInstance | null>(null);
 const handleDocumentPointerDown = (event: PointerEvent): void => {
