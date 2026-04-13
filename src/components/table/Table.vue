@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Record<string, unknown>">
 // External Dependencies
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, getCoreRowModel, useVueTable, type VisibilityState } from '@tanstack/vue-table';
@@ -6,7 +6,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 // App Core
 import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
-import { type DataSource, type RowData, useDataWindow } from '@/composables/useDataWindow';
+import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // App Components - Statically imported.
 import TableCell from './TableRowCell.vue';
@@ -15,8 +15,8 @@ import TableHeaderCell from './TableHeaderCell.vue';
 
 // Properties & Emits
 type Properties = {
-    columnDefinitions: ColumnDef<RowData>[];
-    dataSource: DataSource;
+    columnDefinitions: ColumnDef<T>[];
+    dataSource: DataSource<T>;
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
 };
@@ -66,8 +66,8 @@ const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
 
 // State - Table ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const table = useVueTable<RowData>({
-    get data(): RowData[] {
+const table = useVueTable<T>({
+    get data(): T[] {
         return []; // Always empty — rows are rendered via useDataWindow, never via TanStack Table.
     },
     get columns() {

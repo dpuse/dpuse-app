@@ -15,7 +15,7 @@ import Table from '@/components/table/Table.vue';
 const TOTAL_ROWS = 100_000;
 const CATEGORIES = ['Alpha', 'Beta', 'Gamma', 'Delta'] as const;
 
-const dataSource: DataSource = {
+const dataSource: DataSource<{ id: number; name: string; category: string; value: string }> = {
     rowCount: TOTAL_ROWS,
     getRows(startRow: number, endRow: number) {
         return new Promise((resolve) => {

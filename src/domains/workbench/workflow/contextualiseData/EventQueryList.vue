@@ -7,6 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
+import type { EventQueryConfig } from '@dpuse/dpuse-shared';
 import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/connector';
 
 // App Core
@@ -21,6 +22,7 @@ import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 import Grid from '@/components/grid/Grid.vue';
+import type { DataSource } from '~/src/composables/useDataWindow';
 
 // App Components - Dynamically imported.
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/emptyPlaceholder/EmptyPlaceholder.vue'));
@@ -33,10 +35,12 @@ const router = useRouter();
 
 // Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const dataSource = computed(() => ({
-    rowCount: eventQueryConfigs.value?.length ?? 0,
-    getRows: (start: number, end: number): Promise<unknown[]> => Promise.resolve((eventQueryConfigs.value ?? []).slice(start, end))
-}));
+const dataSource = computed(
+    (): DataSource<EventQueryConfig> => ({
+        rowCount: eventQueryConfigs.value?.length ?? 0,
+        getRows: (start: number, end: number): Promise<EventQueryConfig[]> => Promise.resolve((eventQueryConfigs.value ?? []).slice(start, end))
+    })
+);
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -59,7 +63,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
         const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/eventQueries', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
         await processRequest('retrieveRecords', connectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
             if (data.typeId === 'chunk') {
-                eventQueryConfigs.value = (data.properties.records as { id: string; label: string }[]).map((record) => {
+                eventQueryConfigs.value = (data.properties.records as EventQueryConfig[]).map((record) => {
                     const localisedConfig = record;
                     return localisedConfig;
                 });

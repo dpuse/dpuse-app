@@ -6,10 +6,12 @@ import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
+import type { DimensionConfig } from '@dpuse/dpuse-shared';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
 import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/connector';
 
 // App Core
+import type { DataSource } from '@/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/translations';
 import T from '@/translations/domains/workbench/workflow/assembleDimensions/DimensionList.json';
@@ -32,10 +34,12 @@ const router = useRouter();
 
 // Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const dataSource = computed(() => ({
-    rowCount: dimensionConfigs.value?.length ?? 0,
-    getRows: (start: number, end: number): Promise<unknown[]> => Promise.resolve((dimensionConfigs.value ?? []).slice(start, end))
-}));
+const dataSource = computed(
+    (): DataSource<DimensionConfig> => ({
+        rowCount: dimensionConfigs.value?.length ?? 0,
+        getRows: (start: number, end: number): Promise<DimensionConfig[]> => Promise.resolve((dimensionConfigs.value ?? []).slice(start, end))
+    })
+);
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -58,7 +62,7 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
         const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dimensions', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
         await processRequest('retrieveRecords', connectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
             if (data.typeId === 'chunk') {
-                dimensionConfigs.value = (data.properties.records as { id: string; label: string }[]).map((record) => {
+                dimensionConfigs.value = (data.properties.records as DimensionConfig[]).map((record) => {
                     const localisedConfig = record;
                     return localisedConfig;
                 });

@@ -66,7 +66,7 @@ export default defineConfigWithVueTs(
             'unicorn/switch-case-braces': 'off',
             'unicorn/prefer-top-level-await': 'off',
 
-            'vuejs-accessibility/label-has-for': ['error', { required: { some: ['id'] } }],
+            'vuejs-accessibility/label-has-for': ['error', { required: { some: ['id', 'nesting'] } }],
 
             'vue/multi-word-component-names': 'off',
             'vue/no-bare-strings-in-template': ['warn'],

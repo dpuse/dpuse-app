@@ -8,7 +8,7 @@ import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { EngineConfig } from '@dpuse/dpuse-shared/engine';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/tool';
 import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
-import type { ContextConfig, EventQueryConfig, PresenterConfig } from '@dpuse/dpuse-shared';
+import type { ContextConfig, DimensionConfig, EventQueryConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 
 // App Core
 import { localeId } from '../translations';
@@ -27,7 +27,7 @@ export const connectionConfigs = shallowRef<ConnectionConfig[]>([]);
 export const connectorConfigs = shallowRef<ConnectorConfig[] | undefined>();
 export const contextConfig = shallowRef<ContextConfig | undefined>();
 export const dataViewConfigs = shallowRef<DataViewConfig[] | undefined>();
-export const dimensionConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
+export const dimensionConfigs = shallowRef<DimensionConfig[] | undefined>();
 export const emailAddress = ref<string | undefined>();
 export const engineConfig = shallowRef<EngineConfig | undefined>();
 export const expiresAt = ref<number | undefined>();

@@ -4,7 +4,6 @@ import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 
 // Types
 export type DataSource<T = unknown> = { rowCount: number; getRows: (startRow: number, endRow: number) => Promise<T[]> };
-export type RowData = Record<string, unknown>;
 
 type Options<T> = {
     scrollElement: Ref<HTMLElement | null>;

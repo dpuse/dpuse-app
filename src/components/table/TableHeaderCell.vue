@@ -1,14 +1,11 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 // External Dependencies
 import { ChevronDown } from 'lucide-vue-next';
 import type { Header } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
-// App Core
-import type { RowData } from '@/composables/useDataWindow';
-
 // Properties & Emits
-defineProps<{ header: Header<RowData, unknown> }>();
+defineProps<{ header: Header<T, unknown> }>();
 
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -94,6 +91,8 @@ function onDocumentClick(event: MouseEvent): void {
             v-if="header.column.getCanResize()"
             class="absolute top-0 right-0 h-full w-1 cursor-col-resize touch-none select-none hover:bg-zinc-300 dark:hover:bg-zinc-600"
             :class="header.column.getIsResizing() ? 'bg-zinc-400 dark:bg-zinc-500' : ''"
+            role="button"
+            tabIndex="0"
             @mousedown.stop="header.getResizeHandler()($event)"
             @touchstart.stop.passive="header.getResizeHandler()($event)"
         />

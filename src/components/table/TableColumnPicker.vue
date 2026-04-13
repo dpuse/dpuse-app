@@ -1,14 +1,11 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 // External Dependencies
 import { Settings2 } from 'lucide-vue-next';
 import type { Table } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
-// App Core
-import type { RowData } from '@/composables/useDataWindow';
-
 // Properties & Emits
-defineProps<{ table: Table<RowData> }>();
+defineProps<{ table: Table<T> }>();
 
 // State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
