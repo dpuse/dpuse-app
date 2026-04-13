@@ -51,9 +51,7 @@ const clauseOpen = ref({ select: true, where: true, groupBy: false, having: fals
 const pickerOpen = ref({ select: false, where: false, groupBy: false, having: false, orderBy: false });
 const sqlOpen = ref(true);
 
-const visibleSelectColumns = computed(() =>
-    clauseOpen.value.select ? COLUMNS : COLUMNS.filter((c) => query.value.select.includes(c.name))
-);
+const visibleSelectColumns = computed(() => (clauseOpen.value.select ? COLUMNS : COLUMNS.filter((c) => query.value.select.includes(c.name))));
 
 function makeDraft(): { column: string; op: string; value: string } {
     return { column: COLUMNS[0].name, op: '=', value: '' };
@@ -66,6 +64,16 @@ const havingDraft = ref(makeDraft());
 function openPicker(clause: keyof typeof pickerOpen.value): void {
     clauseOpen.value[clause] = true;
     pickerOpen.value[clause] = true;
+}
+
+function onColItemLeave(element: Element): void {
+    const htmlElement = element as HTMLElement;
+    const { top, left, width, height } = htmlElement.getBoundingClientRect();
+    const gridRect = htmlElement.parentElement!.getBoundingClientRect();
+    htmlElement.style.top = `${top - gridRect.top}px`;
+    htmlElement.style.left = `${left - gridRect.left}px`;
+    htmlElement.style.width = `${width}px`;
+    htmlElement.style.height = `${height}px`;
 }
 
 function toggleSelect(name: string): void {
@@ -117,6 +125,12 @@ const TYPE_TEXT: Record<string, string> = {
     text: 'text-emerald-700 dark:text-emerald-400',
     date: 'text-amber-700 dark:text-amber-400'
 };
+const TYPE_OUTLINE: Record<string, string> = {
+    id: 'text-violet-700 dark:text-violet-400 inset-ring inset-ring-violet-300/60 dark:inset-ring-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-400/10',
+    number: 'text-blue-700 dark:text-blue-400 inset-ring inset-ring-blue-300/60 dark:inset-ring-blue-500/30 hover:bg-blue-50 dark:hover:bg-blue-400/10',
+    text: 'text-emerald-700 dark:text-emerald-400 inset-ring inset-ring-emerald-300/60 dark:inset-ring-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-400/10',
+    date: 'text-amber-700 dark:text-amber-400 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30 hover:bg-amber-50 dark:hover:bg-amber-400/10'
+};
 const TYPE_ICON: Record<string, string> = { id: '#', number: '1', text: 'A', date: '⏱' };
 
 function colType(name: string): string {
@@ -124,6 +138,9 @@ function colType(name: string): string {
 }
 function chipClass(name: string): string {
     return TYPE_CHIP[colType(name)] ?? TYPE_CHIP.text;
+}
+function outlineClass(name: string): string {
+    return TYPE_OUTLINE[colType(name)] ?? TYPE_OUTLINE.text;
 }
 function textClass(name: string): string {
     return TYPE_TEXT[colType(name)] ?? TYPE_TEXT.text;
@@ -161,27 +178,27 @@ const sql = computed((): string => {
                 type="button"
                 @click="clauseOpen.select = !clauseOpen.select"
             >
-                <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Columns</span>
+                <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Select Columns</span>
                 <ChevronUpIcon v-if="clauseOpen.select" class="size-5 text-zinc-400" />
                 <ChevronDownIcon v-else class="size-5 text-zinc-400" />
             </button>
 
             <div class="p-3">
-                <Transition name="col-msg">
-                    <p v-if="!clauseOpen.select && query.select.length === 0" class="pb-1 text-xs text-zinc-400 dark:text-zinc-500">Displaying all columns</p>
-                </Transition>
-                <TransitionGroup name="col-item" tag="div" class="grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-1">
+                <TransitionGroup name="col-item" tag="div" class="relative grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-1" @leave="onColItemLeave">
                     <button
                         v-for="col in visibleSelectColumns"
                         :key="col.name"
                         class="flex items-center gap-2 rounded-md px-2 py-2 text-left text-xs transition-colors"
-                        :class="query.select.includes(col.name) ? chipClass(col.name) : 'text-zinc-600 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-zinc-800'"
+                        :class="query.select.includes(col.name) ? chipClass(col.name) : outlineClass(col.name)"
                         type="button"
                         @click="toggleSelect(col.name)"
                     >
-                        <span class="w-3 flex-none text-center text-[10px] opacity-60">{{ typeIcon(col.name) }}</span>
+                        <span class="w-4 flex-none text-center text-sm opacity-70">{{ typeIcon(col.name) }}</span>
                         <span class="font-mono">{{ col.name }}</span>
                     </button>
+                    <p v-if="!clauseOpen.select && query.select.length === 0" key="__msg" class="col-span-full py-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                        Displaying all columns
+                    </p>
                 </TransitionGroup>
             </div>
         </section>
@@ -190,7 +207,7 @@ const sql = computed((): string => {
         <section class="border-separator mt-4 rounded-md border">
             <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Filter</span>
+                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Filter Rows</span>
                     <span v-if="query.where.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
@@ -278,7 +295,7 @@ const sql = computed((): string => {
         <section class="border-separator mt-4 rounded-md border">
             <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Group</span>
+                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Group Rows</span>
                     <span v-if="query.groupBy.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
@@ -348,7 +365,7 @@ const sql = computed((): string => {
         <section class="border-separator mt-4 rounded-md border">
             <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Group Filter</span>
+                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Filter Row Groups</span>
                     <span v-if="query.having.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
@@ -436,7 +453,7 @@ const sql = computed((): string => {
         <section class="border-separator mt-4 rounded-md border">
             <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Sort</span>
+                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Sort Rows</span>
                     <span v-if="query.orderBy.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
@@ -536,9 +553,16 @@ const sql = computed((): string => {
 
 <style scoped>
 /* Column grid items — TransitionGroup */
-.col-item-enter-active,
+.col-item-enter-active {
+    transition:
+        opacity 0.18s ease,
+        transform 0.18s ease;
+}
 .col-item-leave-active {
-    transition: opacity 0.18s ease, transform 0.18s ease;
+    position: absolute;
+    transition:
+        opacity 0.18s ease,
+        transform 0.18s ease;
 }
 .col-item-enter-from,
 .col-item-leave-to {
@@ -547,15 +571,5 @@ const sql = computed((): string => {
 }
 .col-item-move {
     transition: transform 0.22s ease;
-}
-
-/* "Displaying all columns" message */
-.col-msg-enter-active,
-.col-msg-leave-active {
-    transition: opacity 0.15s ease;
-}
-.col-msg-enter-from,
-.col-msg-leave-to {
-    opacity: 0;
 }
 </style>
