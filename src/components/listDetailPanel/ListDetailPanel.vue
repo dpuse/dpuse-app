@@ -9,7 +9,7 @@ import { displayIsWide } from '@/state/appLayout';
 
 // App Components - Statically imported.
 import Button from '@/components/button/Button.vue';
-import List from '@/components/grid/Grid.vue';
+import Grid from '@/components/grid/Grid.vue';
 
 // Properties & Emits
 const { items, maxRightWidth } = defineProps<{ items: T[]; maxRightWidth?: string }>();
@@ -37,7 +37,7 @@ function selectItem(item: T | undefined): void {
 <template>
     <div class="flex">
         <div v-if="displayIsWide || !activeItem" class="flex flex-1 flex-col">
-            <List class="flex-1 pb-20" :data-source="dataSource" :row-height="150" :target-column-width="350">
+            <Grid class="flex-1 pb-20" :data-source="dataSource" :row-height="150" :target-column-width="350">
                 <template #default="{ row }">
                     <Button class="h-full" variant="listItem" @click="selectItem(row as T)">
                         <slot name="list-item-default" :item="row as T" />
@@ -49,7 +49,7 @@ function selectItem(item: T | undefined): void {
                         <slot name="list-item-compact" :item="row as T" />
                     </Button>
                 </template>
-            </List>
+            </Grid>
         </div>
 
         <div v-if="displayIsWide || activeItem" class="mx-4 flex flex-1 flex-col" :style="{ maxWidth: maxRightWidth != null ? maxRightWidth : undefined }">

@@ -49,12 +49,17 @@ export const APP_ROUTES = [
                         component: EstablishDataViewsLayout,
                         children: [
                             { name: 'establishDataViews', path: '', component: DataViewList },
-                            { name: 'selectConnection', path: 'selectConnection', component: SelectConnectionPanel },
-                            { name: 'selectNode', path: 'selectNode', component: SelectNodePanel },
-                            { name: 'auditContent', path: 'auditContent', component: AuditContentPanel },
-                            { name: 'auditRelationships', path: 'auditRelationships', component: AuditRelationshipsPanel },
-                            { name: 'transform', path: 'transform', component: TransformPanel },
-                            { name: 'investigate', path: 'investigate', component: InvestigatePanel }
+                            {
+                                path: ':dataViewId',
+                                children: [
+                                    { name: 'selectConnection', path: 'selectConnection', component: SelectConnectionPanel },
+                                    { name: 'selectNode', path: 'selectNode', component: SelectNodePanel },
+                                    { name: 'auditContent', path: 'auditContent', component: AuditContentPanel },
+                                    { name: 'auditRelationships', path: 'auditRelationships', component: AuditRelationshipsPanel },
+                                    { name: 'transform', path: 'transform', component: TransformPanel },
+                                    { name: 'investigate', path: 'investigate', component: InvestigatePanel }
+                                ]
+                            }
                         ]
                     },
                     { path: 'assembleDimensions', component: AssembleDimensionsLayout, children: [{ name: 'assembleDimensions', path: '', component: DimensionList }] },

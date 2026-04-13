@@ -4,10 +4,11 @@ import { ref, shallowRef, watch } from 'vue';
 
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
+import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { EngineConfig } from '@dpuse/dpuse-shared/engine';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/tool';
 import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
-import type { ContextConfig, PresenterConfig } from '@dpuse/dpuse-shared';
+import type { ContextConfig, EventQueryConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 
 // App Core
 import { localeId } from '../translations';
@@ -25,13 +26,13 @@ const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_
 export const connectionConfigs = shallowRef<ConnectionConfig[]>([]);
 export const connectorConfigs = shallowRef<ConnectorConfig[] | undefined>();
 export const contextConfig = shallowRef<ContextConfig | undefined>();
-export const dataViewConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
+export const dataViewConfigs = shallowRef<DataViewConfig[] | undefined>();
 export const dimensionConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
 export const emailAddress = ref<string | undefined>();
 export const engineConfig = shallowRef<EngineConfig | undefined>();
 export const expiresAt = ref<number | undefined>();
 export const expiresIn = ref<number | undefined>();
-export const eventQueryConfigs = shallowRef<{ id: string; label: string }[] | undefined>();
+export const eventQueryConfigs = shallowRef<EventQueryConfig[] | undefined>();
 export const isAuthenticated = ref<boolean | undefined>(); // Undefined if Hanko session validation pending; false if signed OUT; true if signed IN.
 export const lifetime = ref<number | undefined>();
 export const localMetaStoreConnectionConfig = shallowRef<ConnectionConfig | undefined>();
@@ -71,7 +72,7 @@ watch(areUpdatesPending, (newAreUpdatesPending) => {
 watch(
     localeId,
     (newLocaleId) => {
-        console.log('### Locale changed to', newLocaleId);
+        console.log('### Locale:', newLocaleId);
     },
     { immediate: true }
 );
@@ -79,7 +80,7 @@ watch(
 watch(
     localMetaStoreConnectionConfig,
     (newLocalMetaStoreConnectionConfig, oldLocalMetaStoreConnectionConfig) => {
-        console.log('### Local meta store configuration changed to', JSON.stringify(oldLocalMetaStoreConnectionConfig), JSON.stringify(newLocalMetaStoreConnectionConfig));
+        // console.log('### Local meta store configuration changed to', JSON.stringify(oldLocalMetaStoreConnectionConfig), JSON.stringify(newLocalMetaStoreConnectionConfig));
     },
     { immediate: true }
 );

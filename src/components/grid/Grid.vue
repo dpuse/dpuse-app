@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 // External Dependencies
 import { computed, onMounted, onUnmounted, ref, useSlots } from 'vue';
 
@@ -10,7 +10,7 @@ import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
 
 // Properties & Emits
 type Properties = {
-    dataSource: DataSource;
+    dataSource: DataSource<T>;
     rowHeight?: number; // Row height in px. Default: 48.
     targetColumnWidth?: number; // When set, multiple items are shown per row based on available width.
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.

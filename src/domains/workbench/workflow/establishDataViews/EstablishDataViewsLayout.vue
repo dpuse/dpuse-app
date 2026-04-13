@@ -72,7 +72,7 @@ function handleComplete(taskLocalisedConfig: TaskLocalisedConfig): void {
                         'border-b-zinc-200': activeTaskLocalisedConfig.id !== taskLocalisedConfig.id && taskLocalisedConfig.number > enableTasksUpTo
                     }"
                     role="tab"
-                    :to="{ name: taskLocalisedConfig.id, query: { ...route.query, wbView: taskLocalisedConfig.id } }"
+                    :to="{ name: taskLocalisedConfig.id, params: { dataViewId: 'xxx' }, query: { ...route.query, wbView: taskLocalisedConfig.id } }"
                 >
                     <div>
                         <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }} {{ taskLocalisedConfig.number }}</div>
@@ -81,7 +81,7 @@ function handleComplete(taskLocalisedConfig: TaskLocalisedConfig): void {
                 </RouterLink>
             </div>
 
-            <RouterLink v-else class="ml-auto py-2" :to="{ name: 'selectConnection', query: { ...route.query, wbView: 'selectConnection' } }">
+            <RouterLink v-else class="ml-auto py-2" :to="{ name: 'selectConnection', params: { dataViewId: 'new' }, query: { ...route.query, wbView: 'selectConnection' } }">
                 <PlusIcon stroke-width="1.25" />
             </RouterLink>
         </nav>

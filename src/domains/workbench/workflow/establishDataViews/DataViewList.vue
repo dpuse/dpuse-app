@@ -4,6 +4,7 @@ import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
+import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
 import type {
     ConnectionConfig,
@@ -15,6 +16,7 @@ import type {
 } from '@dpuse/dpuse-shared/component/connector';
 
 // App Core
+import type { DataSource } from '~/src/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/translations';
 import T from '@/translations/domains/workbench/workflow/establishDataViews/DataViewList.json';
@@ -24,7 +26,7 @@ import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/session
 // App Components - Statically imported.
 import Card from '@/components/card/Card.vue';
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
-import List from '@/components/grid/Grid.vue';
+import Grid from '@/components/grid/Grid.vue';
 
 // App Components - Dynamically imported.
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/emptyPlaceholder/EmptyPlaceholder.vue'));
@@ -35,10 +37,12 @@ const dataViewRetrievalIsActive = ref(false);
 
 // Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const dataSource = computed(() => ({
-    rowCount: dataViewConfigs.value?.length ?? 0,
-    getRows: (start: number, end: number): Promise<unknown[]> => Promise.resolve((dataViewConfigs.value ?? []).slice(start, end))
-}));
+const dataSource = computed(
+    (): DataSource<DataViewConfig> => ({
+        rowCount: dataViewConfigs.value?.length ?? 0,
+        getRows: (start: number, end: number): Promise<DataViewConfig[]> => Promise.resolve((dataViewConfigs.value ?? []).slice(start, end))
+    })
+);
 
 // Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -74,7 +78,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dataViews', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
         await processRequest('retrieveRecords', connectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
             if (data.typeId === 'chunk') {
-                dataViewConfigs.value = (data.properties.records as { id: string; label: string }[]).map((record) => {
+                dataViewConfigs.value = (data.properties.records as DataViewConfig[]).map((record) => {
                     const localisedConfig = record;
                     return localisedConfig;
                 });
@@ -118,7 +122,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 </script>
 
 <template>
-    <List
+    <Grid
         v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
         class="flex-1 pb-20"
         :data-source="dataSource"
@@ -126,7 +130,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         :target-column-width="350"
     >
         <template #default="{ row }">
-            <RouterLink :to="{ name: 'selectNode', query: { ...$route.query, wbView: 'selectNode' } }">
+            <RouterLink v-if="row" :to="{ name: 'selectNode', params: { dataViewId: row.id }, query: { ...$route.query, wbView: 'selectNode' } }">
                 <!-- <Card
                     v-if="row"
                     :badges="row.badges"
@@ -134,10 +138,10 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
                     :icon-color="activeBenchtopOptionConfig ? activeBenchtopOptionConfig.color : undefined"
                     :label="row.label"
                 /> -->
-                <Card v-if="row" :label="row.label as string" />
+                <Card :label="row.label as string" />
             </RouterLink>
         </template>
-    </List>
+    </Grid>
 
     <ContentScroller v-else-if="dataViewRetrievalIsActive">
         <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />

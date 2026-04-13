@@ -3,12 +3,12 @@ import { computed, type ComputedRef, type Ref, ref, watch } from 'vue';
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 
 // Types
-export type DataSource = { rowCount: number; getRows: (startRow: number, endRow: number) => Promise<unknown[]> };
+export type DataSource<T = unknown> = { rowCount: number; getRows: (startRow: number, endRow: number) => Promise<T[]> };
 export type RowData = Record<string, unknown>;
 
-type Options = {
+type Options<T> = {
     scrollElement: Ref<HTMLElement | null>;
-    dataSource: () => DataSource;
+    dataSource: () => DataSource<T>;
     count?: () => number; // Virtual row count. Defaults to dataSource().rowCount (1 virtual row per data row).
     getDataIndexes?: (virtualRowIndex: number) => number[]; // Maps a virtual row index to data row indexes for block fetching. Defaults to identity (1:1).
     cacheBlockSize?: () => number;
@@ -16,16 +16,16 @@ type Options = {
     estimateSize?: () => number;
 };
 
-type DataWindow = {
+type DataWindow<T> = {
     virtualRows: ComputedRef<VirtualItem[]>;
     totalRowCount: ComputedRef<number>;
-    visibleRowData: ComputedRef<(Record<string, unknown> | undefined)[]>;
-    getRow: (dataIndex: number) => Record<string, unknown> | undefined;
+    visibleRowData: ComputedRef<(T | undefined)[]>;
+    getRow: (dataIndex: number) => T | undefined;
 };
 
 // Data Window Composable ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export function useDataWindow({
+export function useDataWindow<T>({
     scrollElement,
     dataSource,
     count,
@@ -33,7 +33,7 @@ export function useDataWindow({
     cacheBlockSize = (): number => 100,
     maxBlocksInCache = (): number => 10,
     estimateSize = (): number => 48
-}: Options): DataWindow {
+}: Options<T>): DataWindow<T> {
     // Data Block Cache: Local State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     const blockCacheMap = new Map<number, unknown[]>(); // Plain (non-reactive) Map so Vue never traverses its internals during render.
@@ -73,9 +73,9 @@ export function useDataWindow({
 
     const virtualRows = computed(() => virtualizer.value.getVirtualItems());
     const totalRowCount = computed(() => virtualizer.value.getTotalSize());
-    const visibleRowData = computed(() => {
+    const visibleRowData = computed((): T[] => {
         void blockCacheVersion.value; // Only recomputes when `virtualRows` or `blockCacheVersion` changes — never on resize.
-        return virtualRows.value.map((virtualRow) => getRow(virtualRow.index));
+        return virtualRows.value.map((virtualRow) => getRow(virtualRow.index)) as T[];
     });
 
     // Row Virtualizer: Side Effects ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -134,12 +134,12 @@ export function useDataWindow({
 
     // Look up a data row by its flat data index. Returns undefined while the block is loading.
     // Touches blockCacheVersion so any reactive context (computed or template) re-evaluates on fetch completion.
-    function getRow(dataIndex: number): Record<string, unknown> | undefined {
+    function getRow(dataIndex: number): T | undefined {
         if (dataIndex >= dataSource().rowCount) return undefined;
         void blockCacheVersion.value;
         const blockIndex = getBlockIndex(dataIndex);
         const block = blockCacheMap.get(blockIndex);
-        return block ? (block[dataIndex % cacheBlockSize()] as Record<string, unknown>) : undefined;
+        return block ? (block[dataIndex % cacheBlockSize()] as T) : undefined;
     }
 
     function recordBlockAccessed(blockIndex: number): void {

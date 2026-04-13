@@ -20,7 +20,7 @@ import { dimensionConfigs, localMetaStoreConnectionConfig } from '@/state/sessio
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
-import List from '@/components/grid/Grid.vue';
+import Grid from '@/components/grid/Grid.vue';
 
 // App Components - Dynamically imported.
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/emptyPlaceholder/EmptyPlaceholder.vue'));
@@ -83,7 +83,7 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
         </Button>
     </div>
 
-    <List
+    <Grid
         v-if="dimensionRetrievalIsActive && dimensionConfigs && dimensionConfigs.length > 0"
         class="flex-1 pb-6"
         :data-source="dataSource"
@@ -93,7 +93,7 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
         <template #default="{ row }">
             <Card v-if="row" :label="row.label as string" />
         </template>
-    </List>
+    </Grid>
 
     <ContentScroller v-else-if="dimensionRetrievalIsActive">
         <EmptyPlaceholder :message-item-label="t(T, 'dimensions')" :description-item-label="t(T, 'dimension')" :action-item-label="t(T, 'Dimension')" />
