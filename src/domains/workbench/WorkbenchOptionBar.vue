@@ -10,14 +10,14 @@ defineEmits<{ (event: 'continue'): void }>();
 </script>
 
 <template>
-    <div>
+    <div class="h-full">
         <WorkbenchOptionBarContent v-if="displayIsWide" class="flex" @continue="$emit('continue')" />
 
         <Transition appear name="horizontal-slide-ltr">
-            <div v-if="!displayIsWide" class="fixed inset-0 z-30 flex">
+            <div v-if="!displayIsWide" class="fixed inset-0 z-30">
                 <div class="bg-surface/70 absolute inset-0" role="button" tabIndex="-1" @click="$emit('continue')" @keydown="$emit('continue')" />
 
-                <WorkbenchOptionBarContent class="dpuse-horizontal-slide-ltr-element relative mr-auto flex shadow-md" @continue="$emit('continue')" />
+                <WorkbenchOptionBarContent class="dpuse-horizontal-slide-ltr-element relative mr-auto shadow-md" @continue="$emit('continue')" />
             </div>
         </Transition>
     </div>

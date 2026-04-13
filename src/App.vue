@@ -284,9 +284,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             @pointerdown="activeAppPaneId = 'workbench'"
             @scroll.capture="activeAppPaneId = 'workbench'"
         >
-            <div v-if="displayIsWide" class="border-boundary bg-backdrop h-full border-r">
-                <WorkbenchOptionBar @continue="closeOptionBarOnNarrowDisplay()" />
-            </div>
+            <WorkbenchOptionBar v-if="displayIsWide" class="overflow-y-hidden" @continue="closeOptionBarOnNarrowDisplay()" />
 
             <div class="overflow-y-hidden">
                 <RouterView v-slot="{ Component }">

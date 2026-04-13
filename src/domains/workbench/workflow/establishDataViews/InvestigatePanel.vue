@@ -3,7 +3,10 @@
 import { ChevronDownIcon, ChevronRightIcon, PlusIcon, XIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
-// Interfaces/Types ─────────────────────────────────────────────────────────────────────
+// App Components - Statically imported.
+import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
+
+// Interfaces/Types ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface Column {
     name: string;
@@ -146,430 +149,414 @@ const sql = computed((): string => {
 
 <template>
     <!-- eslint-disable vue/no-bare-strings-in-template -->
-    <div class="flex flex-1 flex-col overflow-hidden">
-        <!-- ── Query Canvas ── -->
-        <div class="flex-1 overflow-y-auto p-4">
-            <div class="flex flex-col gap-3">
-                <!-- ── SELECT ── -->
-                <section class="border-separator overflow-hidden rounded-lg border">
-                    <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
-                        <span class="font-mono text-sm font-semibold text-zinc-700 dark:text-zinc-200">SELECT</span>
-                        <div class="flex items-center gap-1">
-                            <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add columns" @click="openPicker('select')">
-                                <PlusIcon class="size-4 text-zinc-500" />
-                            </button>
-                            <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.select = !clauseOpen.select">
-                                <ChevronDownIcon v-if="clauseOpen.select" class="size-4 text-zinc-400" />
-                                <ChevronRightIcon v-else class="size-4 text-zinc-400" />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div v-if="clauseOpen.select" class="p-3">
-                        <!-- Existing chips -->
-                        <div class="flex flex-wrap gap-2">
-                            <span v-if="query.select.length === 0 && !pickerOpen.select" class="text-xs text-zinc-400 dark:text-zinc-500"> All columns (*) </span>
-                            <div
-                                v-for="name in query.select"
-                                :key="name"
-                                class="flex items-center gap-1 rounded-full py-1.5 pr-1 pl-2.5 text-xs select-none"
-                                :class="chipClass(name)"
-                            >
-                                <span class="w-3 flex-none text-center font-mono text-[10px] opacity-60">{{ typeIcon(name) }}</span>
-                                <span class="font-mono">{{ name }}</span>
-                                <button class="ml-0.5 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="toggleSelect(name)">
-                                    <XIcon class="size-3" />
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Column picker -->
-                        <div v-if="pickerOpen.select" class="border-separator mt-3 rounded-lg border bg-white p-3 dark:bg-zinc-900">
-                            <div class="grid grid-cols-2 gap-0.5">
-                                <label
-                                    v-for="col in COLUMNS"
-                                    :key="col.name"
-                                    class="flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
-                                    :class="query.select.includes(col.name) ? chipClass(col.name) : ''"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        :checked="query.select.includes(col.name)"
-                                        aria-label="Select column"
-                                        class="size-4 flex-none cursor-pointer rounded accent-blue-500"
-                                        @change="toggleSelect(col.name)"
-                                    />
-                                    <span class="w-3 flex-none text-center font-mono text-[10px] opacity-50">{{ TYPE_ICON[col.type] }}</span>
-                                    <span class="font-mono text-xs">{{ col.name }}</span>
-                                </label>
-                            </div>
-                            <div class="mt-3 flex justify-end">
-                                <button
-                                    class="rounded-md bg-zinc-100 px-3 py-1.5 text-sm hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
-                                    type="button"
-                                    @click="pickerOpen.select = false"
-                                >
-                                    Done
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Collapsed summary -->
-                    <div v-else class="flex flex-wrap gap-1.5 px-3 py-2">
-                        <span v-if="query.select.length === 0" class="font-mono text-xs text-zinc-400">*</span>
-                        <span v-for="name in query.select" :key="name" class="rounded px-1.5 py-0.5 font-mono text-[11px]" :class="chipClass(name)">{{ name }}</span>
-                    </div>
-                </section>
-
-                <!-- ── WHERE ── -->
-                <section class="border-separator overflow-hidden rounded-lg border">
-                    <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono text-sm font-semibold text-zinc-700 dark:text-zinc-200">WHERE</span>
-                            <span v-if="query.where.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add condition" @click="openPicker('where')">
-                                <PlusIcon class="size-4 text-zinc-500" />
-                            </button>
-                            <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.where = !clauseOpen.where">
-                                <ChevronDownIcon v-if="clauseOpen.where" class="size-4 text-zinc-400" />
-                                <ChevronRightIcon v-else class="size-4 text-zinc-400" />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div v-if="clauseOpen.where" class="p-3">
-                        <!-- Existing conditions -->
-                        <div v-if="query.where.length > 0" class="mb-3 flex flex-col gap-2">
-                            <div v-for="(cond, index) in query.where" :key="cond.id" class="flex items-center gap-2 text-xs">
-                                <span v-if="index > 0" class="w-7 flex-none text-right font-mono text-[10px] font-semibold text-zinc-400">AND</span>
-                                <div class="flex flex-1 items-center gap-1.5 rounded-full bg-zinc-100 py-1.5 pr-1 pl-2.5 dark:bg-zinc-700">
-                                    <span class="font-mono font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
-                                    <span class="font-mono text-zinc-400">{{ cond.op }}</span>
-                                    <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="font-mono text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
-                                    <button class="ml-auto rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="removeCondition('where', cond.id)">
-                                        <XIcon class="size-3 text-zinc-400" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Condition builder -->
-                        <div v-if="pickerOpen.where" class="border-separator rounded-lg border bg-white p-3 dark:bg-zinc-900">
-                            <div class="flex flex-col gap-2">
-                                <select
-                                    v-model="whereDraft.column"
-                                    aria-label="Column"
-                                    class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
-                                >
-                                    <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
-                                </select>
-                                <select
-                                    v-model="whereDraft.op"
-                                    aria-label="Operator"
-                                    class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
-                                >
-                                    <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
-                                </select>
-                                <input
-                                    v-if="!['IS NULL', 'IS NOT NULL'].includes(whereDraft.op)"
-                                    v-model="whereDraft.value"
-                                    aria-label="Value"
-                                    class="border-separator h-9 w-full rounded-md border bg-white px-3 font-mono text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
-                                    placeholder="value…"
-                                    type="text"
-                                />
-                            </div>
-                            <div class="mt-3 flex justify-end gap-2">
-                                <button
-                                    class="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                                    type="button"
-                                    @click="pickerOpen.where = false"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    class="rounded-md bg-blue-100 px-3 py-1.5 text-sm text-blue-800 hover:bg-blue-200 dark:bg-blue-400/20 dark:text-blue-300 dark:hover:bg-blue-400/30"
-                                    type="button"
-                                    @click="addCondition('where')"
-                                >
-                                    Add condition
-                                </button>
-                            </div>
-                        </div>
-
-                        <span v-if="query.where.length === 0 && !pickerOpen.where" class="text-xs text-zinc-400 dark:text-zinc-500"> No filter — use + to add a condition </span>
-                    </div>
-
-                    <!-- Collapsed summary -->
-                    <div v-else-if="query.where.length > 0" class="flex flex-col gap-1 px-3 py-2">
-                        <div v-for="(cond, index) in query.where" :key="cond.id" class="flex items-center gap-1.5 text-xs">
-                            <span v-if="index > 0" class="font-mono text-[10px] font-semibold text-zinc-400">AND</span>
-                            <span class="font-mono font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
-                            <span class="text-zinc-400">{{ cond.op }}</span>
-                            <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="font-mono text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- ── GROUP BY ── -->
-                <section class="border-separator overflow-hidden rounded-lg border">
-                    <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono text-sm font-semibold text-zinc-700 dark:text-zinc-200">GROUP BY</span>
-                            <span v-if="query.groupBy.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add grouping" @click="openPicker('groupBy')">
-                                <PlusIcon class="size-4 text-zinc-500" />
-                            </button>
-                            <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.groupBy = !clauseOpen.groupBy">
-                                <ChevronDownIcon v-if="clauseOpen.groupBy" class="size-4 text-zinc-400" />
-                                <ChevronRightIcon v-else class="size-4 text-zinc-400" />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div v-if="clauseOpen.groupBy" class="p-3">
-                        <!-- Existing chips -->
-                        <div class="flex flex-wrap gap-2">
-                            <span v-if="query.groupBy.length === 0 && !pickerOpen.groupBy" class="text-xs text-zinc-400 dark:text-zinc-500"> No grouping </span>
-                            <div
-                                v-for="name in query.groupBy"
-                                :key="name"
-                                class="flex items-center gap-1 rounded-full py-1.5 pr-1 pl-2.5 text-xs select-none"
-                                :class="chipClass(name)"
-                            >
-                                <span class="w-3 flex-none text-center font-mono text-[10px] opacity-60">{{ typeIcon(name) }}</span>
-                                <span class="font-mono">{{ name }}</span>
-                                <button class="ml-0.5 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="toggleGroupBy(name)">
-                                    <XIcon class="size-3" />
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Column picker -->
-                        <div v-if="pickerOpen.groupBy" class="border-separator mt-3 rounded-lg border bg-white p-3 dark:bg-zinc-900">
-                            <div class="grid grid-cols-2 gap-0.5">
-                                <label
-                                    v-for="col in COLUMNS"
-                                    :key="col.name"
-                                    class="flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
-                                    :class="query.groupBy.includes(col.name) ? chipClass(col.name) : ''"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        :checked="query.groupBy.includes(col.name)"
-                                        aria-label="Group by column"
-                                        class="size-4 flex-none cursor-pointer rounded accent-blue-500"
-                                        @change="toggleGroupBy(col.name)"
-                                    />
-                                    <span class="w-3 flex-none text-center font-mono text-[10px] opacity-50">{{ TYPE_ICON[col.type] }}</span>
-                                    <span class="font-mono text-xs">{{ col.name }}</span>
-                                </label>
-                            </div>
-                            <div class="mt-3 flex justify-end">
-                                <button
-                                    class="rounded-md bg-zinc-100 px-3 py-1.5 text-sm hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
-                                    type="button"
-                                    @click="pickerOpen.groupBy = false"
-                                >
-                                    Done
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Collapsed summary -->
-                    <div v-else class="flex flex-wrap gap-1.5 px-3 py-2">
-                        <span v-if="query.groupBy.length === 0" class="text-xs text-zinc-400">—</span>
-                        <span v-for="name in query.groupBy" :key="name" class="rounded px-1.5 py-0.5 font-mono text-[11px]" :class="chipClass(name)">{{ name }}</span>
-                    </div>
-                </section>
-
-                <!-- ── HAVING ── -->
-                <section class="border-separator overflow-hidden rounded-lg border">
-                    <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono text-sm font-semibold text-zinc-700 dark:text-zinc-200">HAVING</span>
-                            <span v-if="query.having.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add having condition" @click="openPicker('having')">
-                                <PlusIcon class="size-4 text-zinc-500" />
-                            </button>
-                            <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.having = !clauseOpen.having">
-                                <ChevronDownIcon v-if="clauseOpen.having" class="size-4 text-zinc-400" />
-                                <ChevronRightIcon v-else class="size-4 text-zinc-400" />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div v-if="clauseOpen.having" class="p-3">
-                        <!-- Existing conditions -->
-                        <div v-if="query.having.length > 0" class="mb-3 flex flex-col gap-2">
-                            <div v-for="(cond, index) in query.having" :key="cond.id" class="flex items-center gap-2 text-xs">
-                                <span v-if="index > 0" class="w-7 flex-none text-right font-mono text-[10px] font-semibold text-zinc-400">AND</span>
-                                <div class="flex flex-1 items-center gap-1.5 rounded-full bg-zinc-100 py-1.5 pr-1 pl-2.5 dark:bg-zinc-700">
-                                    <span class="font-mono font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
-                                    <span class="font-mono text-zinc-400">{{ cond.op }}</span>
-                                    <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="font-mono text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
-                                    <button class="ml-auto rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="removeCondition('having', cond.id)">
-                                        <XIcon class="size-3 text-zinc-400" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Condition builder -->
-                        <div v-if="pickerOpen.having" class="border-separator rounded-lg border bg-white p-3 dark:bg-zinc-900">
-                            <div class="flex flex-col gap-2">
-                                <select
-                                    v-model="havingDraft.column"
-                                    aria-label="Column"
-                                    class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
-                                >
-                                    <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
-                                </select>
-                                <select
-                                    v-model="havingDraft.op"
-                                    aria-label="Operator"
-                                    class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
-                                >
-                                    <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
-                                </select>
-                                <input
-                                    v-if="!['IS NULL', 'IS NOT NULL'].includes(havingDraft.op)"
-                                    v-model="havingDraft.value"
-                                    aria-label="Value"
-                                    class="border-separator h-9 w-full rounded-md border bg-white px-3 font-mono text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
-                                    placeholder="value…"
-                                    type="text"
-                                />
-                            </div>
-                            <div class="mt-3 flex justify-end gap-2">
-                                <button
-                                    class="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                                    type="button"
-                                    @click="pickerOpen.having = false"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    class="rounded-md bg-blue-100 px-3 py-1.5 text-sm text-blue-800 hover:bg-blue-200 dark:bg-blue-400/20 dark:text-blue-300 dark:hover:bg-blue-400/30"
-                                    type="button"
-                                    @click="addCondition('having')"
-                                >
-                                    Add condition
-                                </button>
-                            </div>
-                        </div>
-
-                        <span v-if="query.having.length === 0 && !pickerOpen.having" class="text-xs text-zinc-400 dark:text-zinc-500"> No filter — use + to add a condition </span>
-                    </div>
-
-                    <!-- Collapsed summary -->
-                    <div v-else-if="query.having.length > 0" class="flex flex-col gap-1 px-3 py-2">
-                        <div v-for="(cond, index) in query.having" :key="cond.id" class="flex items-center gap-1.5 text-xs">
-                            <span v-if="index > 0" class="font-mono text-[10px] font-semibold text-zinc-400">AND</span>
-                            <span class="font-mono font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
-                            <span class="text-zinc-400">{{ cond.op }}</span>
-                            <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="font-mono text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- ── ORDER BY ── -->
-                <section class="border-separator overflow-hidden rounded-lg border">
-                    <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono text-sm font-semibold text-zinc-700 dark:text-zinc-200">ORDER BY</span>
-                            <span v-if="query.orderBy.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add sort column" @click="openPicker('orderBy')">
-                                <PlusIcon class="size-4 text-zinc-500" />
-                            </button>
-                            <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.orderBy = !clauseOpen.orderBy">
-                                <ChevronDownIcon v-if="clauseOpen.orderBy" class="size-4 text-zinc-400" />
-                                <ChevronRightIcon v-else class="size-4 text-zinc-400" />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div v-if="clauseOpen.orderBy" class="p-3">
-                        <!-- Existing order chips -->
-                        <div v-if="query.orderBy.length > 0" class="mb-3 flex flex-wrap gap-2">
-                            <div
-                                v-for="item in query.orderBy"
-                                :key="item.column"
-                                class="flex items-center overflow-hidden rounded-full text-xs select-none"
-                                :class="chipClass(item.column)"
-                            >
-                                <div class="flex items-center gap-1.5 py-1.5 pl-2.5">
-                                    <span class="w-3 flex-none text-center font-mono text-[10px] opacity-60">{{ typeIcon(item.column) }}</span>
-                                    <span class="font-mono">{{ item.column }}</span>
-                                </div>
-                                <button
-                                    class="border-l py-1.5 pr-2 pl-1.5 font-mono text-[10px] font-semibold tracking-wide hover:bg-black/10 dark:hover:bg-white/15"
-                                    style="border-color: color-mix(in oklab, currentColor 20%, transparent)"
-                                    type="button"
-                                    @click="toggleOrderDirection(item.column)"
-                                >
-                                    {{ item.dir }}
-                                </button>
-                                <button class="py-1.5 pr-1.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="toggleOrderBy(item.column)">
-                                    <XIcon class="size-3" />
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Column picker -->
-                        <div v-if="pickerOpen.orderBy" class="border-separator rounded-lg border bg-white p-3 dark:bg-zinc-900">
-                            <div class="flex flex-col gap-0.5">
-                                <button
-                                    v-for="col in COLUMNS"
-                                    :key="col.name"
-                                    class="flex min-h-9 items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm"
-                                    :class="query.orderBy.some((o) => o.column === col.name) ? chipClass(col.name) : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'"
-                                    type="button"
-                                    @click="toggleOrderBy(col.name)"
-                                >
-                                    <span class="w-3 flex-none text-center font-mono text-[10px] opacity-50">{{ TYPE_ICON[col.type] }}</span>
-                                    <span class="flex-1 font-mono text-xs">{{ col.name }}</span>
-                                    <span v-if="query.orderBy.some((o) => o.column === col.name)" class="font-mono text-[10px] font-semibold opacity-60">{{
-                                        query.orderBy.find((o) => o.column === col.name)?.dir
-                                    }}</span>
-                                </button>
-                            </div>
-                            <div class="mt-3 flex justify-end">
-                                <button
-                                    class="rounded-md bg-zinc-100 px-3 py-1.5 text-sm hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
-                                    type="button"
-                                    @click="pickerOpen.orderBy = false"
-                                >
-                                    Done
-                                </button>
-                            </div>
-                        </div>
-
-                        <span v-if="query.orderBy.length === 0 && !pickerOpen.orderBy" class="text-xs text-zinc-400 dark:text-zinc-500"> No sort order </span>
-                    </div>
-
-                    <!-- Collapsed summary -->
-                    <div v-else-if="query.orderBy.length > 0" class="flex flex-wrap gap-1.5 px-3 py-2">
-                        <span v-for="item in query.orderBy" :key="item.column" class="rounded px-1.5 py-0.5 font-mono text-[11px]" :class="chipClass(item.column)"
-                            >{{ item.column }} {{ item.dir }}</span
-                        >
-                    </div>
-                </section>
+    <!-- <div class="flex flex-1 flex-col overflow-hidden"> -->
+    <!-- ── Query Canvas ── -->
+    <!-- <div class="flex-1 overflow-y-auto bg-red-100 p-4"> -->
+    <!-- <div class="flex flex-col gap-3"> -->
+    <ContentScroller class="px-4">
+        <!-- ── SELECT ── -->
+        <section class="border-separator mt-4 rounded-lg border">
+            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
+                <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Columns</span>
+                <div class="flex items-center gap-1">
+                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add columns" @click="openPicker('select')">
+                        <PlusIcon class="size-4 text-zinc-500" />
+                    </button>
+                    <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.select = !clauseOpen.select">
+                        <ChevronDownIcon v-if="clauseOpen.select" class="size-4 text-zinc-400" />
+                        <ChevronRightIcon v-else class="size-4 text-zinc-400" />
+                    </button>
+                </div>
             </div>
-        </div>
 
-        <!-- ── SQL Preview ── -->
-        <div class="border-separator flex-none border-t">
+            <div v-if="clauseOpen.select" class="p-3">
+                <!-- Existing chips -->
+                <div class="flex flex-wrap gap-2">
+                    <span v-if="query.select.length === 0 && !pickerOpen.select" class="text-xs text-zinc-400 dark:text-zinc-500"> All columns (*) </span>
+                    <div v-for="name in query.select" :key="name" class="flex items-center gap-1 rounded-full py-1.5 pr-1 pl-2.5 text-xs select-none" :class="chipClass(name)">
+                        <span class="w-3 flex-none text-center text-[10px] opacity-60">{{ typeIcon(name) }}</span>
+                        <span class="font-mono">{{ name }}</span>
+                        <button class="ml-0.5 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="toggleSelect(name)">
+                            <XIcon class="size-3" />
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Column picker -->
+                <div v-if="pickerOpen.select" class="border-separator mt-3 rounded-lg border bg-white p-3 dark:bg-zinc-900">
+                    <div class="grid grid-cols-2 gap-0.5">
+                        <label
+                            v-for="col in COLUMNS"
+                            :key="col.name"
+                            class="flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                            :class="query.select.includes(col.name) ? chipClass(col.name) : ''"
+                        >
+                            <input
+                                type="checkbox"
+                                :checked="query.select.includes(col.name)"
+                                aria-label="Select column"
+                                class="size-4 flex-none cursor-pointer rounded accent-blue-500"
+                                @change="toggleSelect(col.name)"
+                            />
+                            <span class="w-3 flex-none text-center text-[10px] opacity-50">{{ TYPE_ICON[col.type] }}</span>
+                            <span class="text-xs">{{ col.name }}</span>
+                        </label>
+                    </div>
+                    <div class="mt-3 flex justify-end">
+                        <button
+                            class="rounded-md bg-zinc-100 px-3 py-1.5 text-sm hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
+                            type="button"
+                            @click="pickerOpen.select = false"
+                        >
+                            Done
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collapsed summary -->
+            <div v-else class="flex flex-wrap gap-1.5 px-3 py-2">
+                <span v-if="query.select.length === 0" class="text-xs text-zinc-400">*</span>
+                <span v-for="name in query.select" :key="name" class="rounded px-1.5 py-0.5 text-[11px]" :class="chipClass(name)">{{ name }}</span>
+            </div>
+        </section>
+
+        <!-- ── WHERE ── -->
+        <section class="border-separator mt-4 rounded-lg border">
+            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Filter</span>
+                    <span v-if="query.where.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add condition" @click="openPicker('where')">
+                        <PlusIcon class="size-4 text-zinc-500" />
+                    </button>
+                    <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.where = !clauseOpen.where">
+                        <ChevronDownIcon v-if="clauseOpen.where" class="size-4 text-zinc-400" />
+                        <ChevronRightIcon v-else class="size-4 text-zinc-400" />
+                    </button>
+                </div>
+            </div>
+
+            <div v-if="clauseOpen.where" class="p-3">
+                <!-- Existing conditions -->
+                <div v-if="query.where.length > 0" class="mb-3 flex flex-col gap-2">
+                    <div v-for="(cond, index) in query.where" :key="cond.id" class="flex items-center gap-2 text-xs">
+                        <span v-if="index > 0" class="w-7 flex-none text-right text-[10px] font-semibold text-zinc-400">AND</span>
+                        <div class="flex flex-1 items-center gap-1.5 rounded-full bg-zinc-100 py-1.5 pr-1 pl-2.5 dark:bg-zinc-700">
+                            <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
+                            <span class="text-zinc-400">{{ cond.op }}</span>
+                            <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
+                            <button class="ml-auto rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="removeCondition('where', cond.id)">
+                                <XIcon class="size-3 text-zinc-400" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Condition builder -->
+                <div v-if="pickerOpen.where" class="border-separator rounded-lg border bg-white p-3 dark:bg-zinc-900">
+                    <div class="flex flex-col gap-2">
+                        <select
+                            v-model="whereDraft.column"
+                            aria-label="Column"
+                            class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                        >
+                            <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
+                        </select>
+                        <select
+                            v-model="whereDraft.op"
+                            aria-label="Operator"
+                            class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                        >
+                            <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
+                        </select>
+                        <input
+                            v-if="!['IS NULL', 'IS NOT NULL'].includes(whereDraft.op)"
+                            v-model="whereDraft.value"
+                            aria-label="Value"
+                            class="border-separator h-9 w-full rounded-md border bg-white px-3 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            placeholder="value…"
+                            type="text"
+                        />
+                    </div>
+                    <div class="mt-3 flex justify-end gap-2">
+                        <button class="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700" type="button" @click="pickerOpen.where = false">
+                            Cancel
+                        </button>
+                        <button
+                            class="rounded-md bg-blue-100 px-3 py-1.5 text-sm text-blue-800 hover:bg-blue-200 dark:bg-blue-400/20 dark:text-blue-300 dark:hover:bg-blue-400/30"
+                            type="button"
+                            @click="addCondition('where')"
+                        >
+                            Add condition
+                        </button>
+                    </div>
+                </div>
+
+                <span v-if="query.where.length === 0 && !pickerOpen.where" class="text-xs text-zinc-400 dark:text-zinc-500"> No filter — use + to add a condition </span>
+            </div>
+
+            <!-- Collapsed summary -->
+            <div v-else-if="query.where.length > 0" class="flex flex-col gap-1 px-3 py-2">
+                <div v-for="(cond, index) in query.where" :key="cond.id" class="flex items-center gap-1.5 text-xs">
+                    <span v-if="index > 0" class="text-[10px] font-semibold text-zinc-400">AND</span>
+                    <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
+                    <span class="text-zinc-400">{{ cond.op }}</span>
+                    <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── GROUP BY ── -->
+        <section class="border-separator mt-4 rounded-lg border">
+            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Group</span>
+                    <span v-if="query.groupBy.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add grouping" @click="openPicker('groupBy')">
+                        <PlusIcon class="size-4 text-zinc-500" />
+                    </button>
+                    <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.groupBy = !clauseOpen.groupBy">
+                        <ChevronDownIcon v-if="clauseOpen.groupBy" class="size-4 text-zinc-400" />
+                        <ChevronRightIcon v-else class="size-4 text-zinc-400" />
+                    </button>
+                </div>
+            </div>
+
+            <div v-if="clauseOpen.groupBy" class="p-3">
+                <!-- Existing chips -->
+                <div class="flex flex-wrap gap-2">
+                    <span v-if="query.groupBy.length === 0 && !pickerOpen.groupBy" class="text-xs text-zinc-400 dark:text-zinc-500"> No grouping </span>
+                    <div v-for="name in query.groupBy" :key="name" class="flex items-center gap-1 rounded-full py-1.5 pr-1 pl-2.5 text-xs select-none" :class="chipClass(name)">
+                        <span class="w-3 flex-none text-center text-[10px] opacity-60">{{ typeIcon(name) }}</span>
+                        <span class="font-mono">{{ name }}</span>
+                        <button class="ml-0.5 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="toggleGroupBy(name)">
+                            <XIcon class="size-3" />
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Column picker -->
+                <div v-if="pickerOpen.groupBy" class="border-separator mt-3 rounded-lg border bg-white p-3 dark:bg-zinc-900">
+                    <div class="grid grid-cols-2 gap-0.5">
+                        <label
+                            v-for="col in COLUMNS"
+                            :key="col.name"
+                            class="flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                            :class="query.groupBy.includes(col.name) ? chipClass(col.name) : ''"
+                        >
+                            <input
+                                type="checkbox"
+                                :checked="query.groupBy.includes(col.name)"
+                                aria-label="Group by column"
+                                class="size-4 flex-none cursor-pointer rounded accent-blue-500"
+                                @change="toggleGroupBy(col.name)"
+                            />
+                            <span class="w-3 flex-none text-center text-[10px] opacity-50">{{ TYPE_ICON[col.type] }}</span>
+                            <span class="text-xs">{{ col.name }}</span>
+                        </label>
+                    </div>
+                    <div class="mt-3 flex justify-end">
+                        <button
+                            class="rounded-md bg-zinc-100 px-3 py-1.5 text-sm hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
+                            type="button"
+                            @click="pickerOpen.groupBy = false"
+                        >
+                            Done
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collapsed summary -->
+            <div v-else class="flex flex-wrap gap-1.5 px-3 py-2">
+                <span v-if="query.groupBy.length === 0" class="text-xs text-zinc-400">—</span>
+                <span v-for="name in query.groupBy" :key="name" class="rounded px-1.5 py-0.5 text-[11px]" :class="chipClass(name)">{{ name }}</span>
+            </div>
+        </section>
+
+        <!-- ── HAVING ── -->
+        <section class="border-separator mt-4 rounded-lg border">
+            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Group Filter</span>
+                    <span v-if="query.having.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add having condition" @click="openPicker('having')">
+                        <PlusIcon class="size-4 text-zinc-500" />
+                    </button>
+                    <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.having = !clauseOpen.having">
+                        <ChevronDownIcon v-if="clauseOpen.having" class="size-4 text-zinc-400" />
+                        <ChevronRightIcon v-else class="size-4 text-zinc-400" />
+                    </button>
+                </div>
+            </div>
+
+            <div v-if="clauseOpen.having" class="p-3">
+                <!-- Existing conditions -->
+                <div v-if="query.having.length > 0" class="mb-3 flex flex-col gap-2">
+                    <div v-for="(cond, index) in query.having" :key="cond.id" class="flex items-center gap-2 text-xs">
+                        <span v-if="index > 0" class="w-7 flex-none text-right text-[10px] font-semibold text-zinc-400">AND</span>
+                        <div class="flex flex-1 items-center gap-1.5 rounded-full bg-zinc-100 py-1.5 pr-1 pl-2.5 dark:bg-zinc-700">
+                            <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
+                            <span class="text-zinc-400">{{ cond.op }}</span>
+                            <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
+                            <button class="ml-auto rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="removeCondition('having', cond.id)">
+                                <XIcon class="size-3 text-zinc-400" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Condition builder -->
+                <div v-if="pickerOpen.having" class="border-separator rounded-lg border bg-white p-3 dark:bg-zinc-900">
+                    <div class="flex flex-col gap-2">
+                        <select
+                            v-model="havingDraft.column"
+                            aria-label="Column"
+                            class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                        >
+                            <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
+                        </select>
+                        <select
+                            v-model="havingDraft.op"
+                            aria-label="Operator"
+                            class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                        >
+                            <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
+                        </select>
+                        <input
+                            v-if="!['IS NULL', 'IS NOT NULL'].includes(havingDraft.op)"
+                            v-model="havingDraft.value"
+                            aria-label="Value"
+                            class="border-separator h-9 w-full rounded-md border bg-white px-3 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            placeholder="value…"
+                            type="text"
+                        />
+                    </div>
+                    <div class="mt-3 flex justify-end gap-2">
+                        <button class="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700" type="button" @click="pickerOpen.having = false">
+                            Cancel
+                        </button>
+                        <button
+                            class="rounded-md bg-blue-100 px-3 py-1.5 text-sm text-blue-800 hover:bg-blue-200 dark:bg-blue-400/20 dark:text-blue-300 dark:hover:bg-blue-400/30"
+                            type="button"
+                            @click="addCondition('having')"
+                        >
+                            Add condition
+                        </button>
+                    </div>
+                </div>
+
+                <span v-if="query.having.length === 0 && !pickerOpen.having" class="text-xs text-zinc-400 dark:text-zinc-500"> No filter — use + to add a condition </span>
+            </div>
+
+            <!-- Collapsed summary -->
+            <div v-else-if="query.having.length > 0" class="flex flex-col gap-1 px-3 py-2">
+                <div v-for="(cond, index) in query.having" :key="cond.id" class="flex items-center gap-1.5 text-xs">
+                    <span v-if="index > 0" class="text-[10px] font-semibold text-zinc-400">AND</span>
+                    <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
+                    <span class="text-zinc-400">{{ cond.op }}</span>
+                    <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── ORDER BY ── -->
+        <section class="border-separator mt-4 rounded-lg border">
+            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Sort</span>
+                    <span v-if="query.orderBy.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add sort column" @click="openPicker('orderBy')">
+                        <PlusIcon class="size-4 text-zinc-500" />
+                    </button>
+                    <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.orderBy = !clauseOpen.orderBy">
+                        <ChevronDownIcon v-if="clauseOpen.orderBy" class="size-4 text-zinc-400" />
+                        <ChevronRightIcon v-else class="size-4 text-zinc-400" />
+                    </button>
+                </div>
+            </div>
+
+            <div v-if="clauseOpen.orderBy" class="p-3">
+                <!-- Existing order chips -->
+                <div v-if="query.orderBy.length > 0" class="mb-3 flex flex-wrap gap-2">
+                    <div
+                        v-for="item in query.orderBy"
+                        :key="item.column"
+                        class="flex items-center overflow-hidden rounded-full text-xs select-none"
+                        :class="chipClass(item.column)"
+                    >
+                        <div class="flex items-center gap-1.5 py-1.5 pl-2.5">
+                            <span class="w-3 flex-none text-center text-[10px] opacity-60">{{ typeIcon(item.column) }}</span>
+                            <span class="font-mono">{{ item.column }}</span>
+                        </div>
+                        <button
+                            class="border-l py-1.5 pr-2 pl-1.5 text-[10px] font-semibold tracking-wide hover:bg-black/10 dark:hover:bg-white/15"
+                            style="border-color: color-mix(in oklab, currentColor 20%, transparent)"
+                            type="button"
+                            @click="toggleOrderDirection(item.column)"
+                        >
+                            {{ item.dir }}
+                        </button>
+                        <button class="py-1.5 pr-1.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="toggleOrderBy(item.column)">
+                            <XIcon class="size-3" />
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Column picker -->
+                <div v-if="pickerOpen.orderBy" class="border-separator rounded-lg border bg-white p-3 dark:bg-zinc-900">
+                    <div class="flex flex-col gap-0.5">
+                        <button
+                            v-for="col in COLUMNS"
+                            :key="col.name"
+                            class="flex min-h-9 items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm"
+                            :class="query.orderBy.some((o) => o.column === col.name) ? chipClass(col.name) : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'"
+                            type="button"
+                            @click="toggleOrderBy(col.name)"
+                        >
+                            <span class="w-3 flex-none text-center text-[10px] opacity-50">{{ TYPE_ICON[col.type] }}</span>
+                            <span class="flex-1 text-xs">{{ col.name }}</span>
+                            <span v-if="query.orderBy.some((o) => o.column === col.name)" class="text-[10px] font-semibold opacity-60">{{
+                                query.orderBy.find((o) => o.column === col.name)?.dir
+                            }}</span>
+                        </button>
+                    </div>
+                    <div class="mt-3 flex justify-end">
+                        <button
+                            class="rounded-md bg-zinc-100 px-3 py-1.5 text-sm hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
+                            type="button"
+                            @click="pickerOpen.orderBy = false"
+                        >
+                            Done
+                        </button>
+                    </div>
+                </div>
+
+                <span v-if="query.orderBy.length === 0 && !pickerOpen.orderBy" class="text-xs text-zinc-400 dark:text-zinc-500"> No sort order </span>
+            </div>
+
+            <!-- Collapsed summary -->
+            <div v-else-if="query.orderBy.length > 0" class="flex flex-wrap gap-1.5 px-3 py-2">
+                <span v-for="item in query.orderBy" :key="item.column" class="rounded px-1.5 py-0.5 text-[11px]" :class="chipClass(item.column)"
+                    >{{ item.column }} {{ item.dir }}</span
+                >
+            </div>
+        </section>
+    </ContentScroller>
+    <!-- </div> -->
+    <!-- </div> -->
+
+    <!-- ── SQL Preview ── -->
+    <!-- <div class="border-separator flex-none border-t">
             <button
                 class="border-separator flex w-full items-center gap-2 border-b px-4 py-2 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
                 type="button"
@@ -579,7 +566,7 @@ const sql = computed((): string => {
                 <ChevronRightIcon v-else class="size-4 flex-none text-zinc-400" />
                 <span class="text-muted text-[11px] font-semibold tracking-wider uppercase">SQL Preview</span>
             </button>
-            <pre v-if="sqlOpen" class="overflow-x-auto px-4 py-3 font-mono text-xs text-zinc-600 dark:text-zinc-400">{{ sql }}</pre>
-        </div>
-    </div>
+            <pre v-if="sqlOpen" class="overflow-x-auto px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">{{ sql }}</pre>
+        </div> -->
+    <!-- </div> -->
 </template>
