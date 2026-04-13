@@ -153,7 +153,7 @@ const sql = computed((): string => {
     <!-- ── Query Canvas ── -->
     <!-- <div class="flex-1 overflow-y-auto bg-red-100 p-4"> -->
     <!-- <div class="flex flex-col gap-3"> -->
-    <ContentScroller class="px-4">
+    <ContentScroller class="px-4 pb-20!">
         <!-- ── SELECT ── -->
         <section class="border-separator mt-4 rounded-lg border">
             <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">

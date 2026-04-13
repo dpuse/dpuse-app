@@ -19,7 +19,7 @@ watch(knowledgePaneIsVisible, (newKnowledgePanelIsVisible) => {
 </script>
 
 <template>
-    <div ref="scroller" class="flex-1 overflow-y-auto overscroll-y-none pb-16" @scroll.passive="contentScrollTop = ($event.target as HTMLElement).scrollTop ?? 0">
+    <div ref="scroller" class="flex-1 overflow-y-auto overscroll-y-none" @scroll.passive="contentScrollTop = ($event.target as HTMLElement).scrollTop ?? 0">
         <slot />
     </div>
 </template>
