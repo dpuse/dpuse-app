@@ -7,7 +7,7 @@ import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } f
 import { displayIsWide } from '@/state/appLayout';
 import { isAuthenticated as sessionIsAuthenticated } from '@/state/session';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import Button from '@/components/button/Button.vue';
 import DialogMask from '@/components/mask/DialogMask.vue';
 import SessionMenu from '@/domains/session/SessionMenu.vue';

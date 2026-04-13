@@ -3,7 +3,7 @@
 import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
-// App Components - Lazy loaded as required.
+// App Components - Dynamically imported.
 const AboutView = defineAsyncComponent(() => import('./AboutPanel.vue'));
 const ChatView = defineAsyncComponent(() => import('./ChatPanel.vue'));
 const LibraryView = defineAsyncComponent(() => import('./LibraryPanel.vue'));
@@ -34,8 +34,6 @@ const activeView = computed(() => {
 
 <template>
     <div class="flex h-full min-w-0 flex-1 flex-col">
-        <!-- <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="activeView.label" :workbench-pane-is-hidden="workbenchPaneIsHidden" /> -->
-
         <component
             :is="activeView.component"
             :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]"

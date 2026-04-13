@@ -9,7 +9,7 @@ import type { ConnectionConfig, ConnectorConfig, ListNodesOptions } from '@dpuse
 import { connectorConfigs } from '@/state/session';
 import { useEngine } from '@/services/useEngine';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
 
 // Properties & Emits

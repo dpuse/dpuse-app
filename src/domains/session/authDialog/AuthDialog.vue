@@ -12,7 +12,7 @@ import T from '@/translations/domains/session/authDialog/LoginForm.json';
 import { t } from '@/translations';
 import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import Button from '@/components/button/Button.vue';
 import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
 import LoginForm from '@/domains/session/authDialog/LoginForm.vue';

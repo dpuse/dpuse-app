@@ -8,7 +8,7 @@ import { computed, ref, shallowRef, watch } from 'vue';
 import T from '@/translations/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.json';
 import { localeId, type LocaleLabel, localiseConfigs, t } from '@/translations';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import Header from '@/components/header/Header.vue';
 import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
 
@@ -49,21 +49,17 @@ watch(localeId, (newLocaleId) => (taskLocalisedConfigs.value = localiseConfigs<T
 // UI Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function handleComplete(taskLocalisedConfig: TaskLocalisedConfig): void {
-    console.log('Hello...');
     enableTasksUpTo.value = taskLocalisedConfig.enableUpTo;
 }
 </script>
 
 <template>
     <LayoutShell>
-        <Header
-            :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label'), to: 'workflow' }]"
-            :title="t(T, 'Establish_Data_Views')"
-            to="establishDataViews"
-            :workbench-pane-is-hidden="false"
-        />
+        <!-- Header -->
+        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label'), to: 'workflow' }]" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" />
 
-        <div class="border-separator mx-4 flex flex-none items-center justify-between border-b">
+        <!-- Task Action Bar -->
+        <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
             <div v-if="activeTaskLocalisedConfig" class="flex gap-x-3 overflow-x-auto overscroll-x-none text-[15px]">
                 <RouterLink
                     v-for="taskLocalisedConfig in taskLocalisedConfigs"
@@ -88,8 +84,9 @@ function handleComplete(taskLocalisedConfig: TaskLocalisedConfig): void {
             <RouterLink v-else class="ml-auto py-2" :to="{ name: 'selectConnection', query: { ...route.query, wbView: 'selectConnection' } }">
                 <PlusIcon stroke-width="1.25" />
             </RouterLink>
-        </div>
+        </nav>
 
+        <!-- Data View List or Active Task Panel -->
         <RouterView v-slot="{ Component }">
             <component :is="Component" :task-localised-config="activeTaskLocalisedConfig" @complete="handleComplete" />
         </RouterView>

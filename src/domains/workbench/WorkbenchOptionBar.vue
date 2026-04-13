@@ -2,7 +2,7 @@
 // App Core
 import { displayIsWide } from '@/state/appLayout';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import WorkbenchOptionBarContent from './WorkbenchOptionBarContent.vue';
 
 // Properties & Emits

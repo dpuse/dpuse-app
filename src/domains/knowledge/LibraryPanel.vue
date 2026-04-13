@@ -5,12 +5,12 @@ import { SendHorizonalIcon } from 'lucide-vue-next';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
 import { onMounted, ref } from 'vue';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import Button from '@/components/button/Button.vue';
 import Header from '@/components/header/Header.vue';
 
 // Properties & Emits
-const { title, workbenchPaneIsHidden } = defineProps<{ title: string; workbenchPaneIsHidden: boolean }>();
+const { title } = defineProps<{ title: string }>();
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -62,7 +62,7 @@ async function runTest(): Promise<void> {
 
 <template>
     <div>
-        <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="title" :workbench-pane-is-hidden="workbenchPaneIsHidden" />
+        <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="title" />
 
         <div class="flex flex-1 flex-col overflow-y-hidden px-4">
             <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">

@@ -9,7 +9,7 @@ import T from '@/translations/domains/workbench/WorkbenchOptionBarContent.json';
 import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
 import { localeId, localiseConfigs, t } from '@/translations';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import HomeIcon from '@/components/icon/HomeIcon.vue';
 import Separator from '@/components/separator/Separator.vue';
 

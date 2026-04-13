@@ -9,7 +9,7 @@ import { displayIsWide } from '@/state/appLayout';
 import { t } from '@/translations';
 import T from '@/translations/domains/session/accountDialog/AccountDialog.json';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
 import Button, { type VariantTypeId } from '@/components/button/Button.vue';
 

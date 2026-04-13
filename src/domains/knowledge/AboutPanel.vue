@@ -7,7 +7,7 @@ import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
 import { localeId, localiseConfigs } from '@/translations';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 
 // Derived State ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

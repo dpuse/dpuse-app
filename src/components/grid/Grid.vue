@@ -5,7 +5,7 @@ import { computed, onMounted, onUnmounted, ref, useSlots } from 'vue';
 // App Core
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
 
 // Properties & Emits

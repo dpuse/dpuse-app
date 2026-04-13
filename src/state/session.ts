@@ -10,6 +10,7 @@ import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/comp
 import type { ContextConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 
 // App Core
+import { localeId } from '../translations';
 import { reportAppError } from '@/observability/errorTracking';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
 
@@ -59,21 +60,29 @@ function handleBeforeUnload(event: BeforeUnloadEvent): void {
     event.returnValue = '';
 }
 
-watch(areUpdatesPending, (pending) => {
-    if (pending) {
+watch(areUpdatesPending, (newAreUpdatesPending) => {
+    if (newAreUpdatesPending) {
         globalThis.addEventListener('beforeunload', handleBeforeUnload);
     } else {
         globalThis.removeEventListener('beforeunload', handleBeforeUnload);
     }
 });
 
-// watch(
-//     localMetaStoreConnectionConfig,
-//     (newConnectionConfig) => {
-//         // console.log(1111, newConnectionConfig);
-//     },
-//     { immediate: true }
-// );
+watch(
+    localeId,
+    (newLocaleId) => {
+        console.log('### Locale changed to', newLocaleId);
+    },
+    { immediate: true }
+);
+
+watch(
+    localMetaStoreConnectionConfig,
+    (newLocalMetaStoreConnectionConfig, oldLocalMetaStoreConnectionConfig) => {
+        console.log('### Local meta store configuration changed to', JSON.stringify(oldLocalMetaStoreConnectionConfig), JSON.stringify(newLocalMetaStoreConnectionConfig));
+    },
+    { immediate: true }
+);
 
 // Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

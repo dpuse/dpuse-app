@@ -7,7 +7,7 @@ import { computed, shallowRef } from 'vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import Button from '@/components/button/Button.vue';
 import List from '@/components/grid/Grid.vue';
 

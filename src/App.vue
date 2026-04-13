@@ -11,7 +11,7 @@ import T from '@/translations/App.json';
 import { t } from '@/translations';
 import { contentScrollTop, displayIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import AppProgressBar from '@/components/appProgressBar/AppProgressBar.vue'; // Required when lazy loading is delayed.
 import BusyMask from '@/components/mask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
 import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
@@ -22,7 +22,7 @@ import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visib
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
 
-// App Components - Lazy loaded as required.
+// App Components - Dynamically imported.
 const AccountDialog = defineAsyncComponent({ loader: load('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue'), 0), errorComponent: ChunkLoadError });
 const AuthDialog = defineAsyncComponent({ loader: load('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0), errorComponent: ChunkLoadError });
 const KnowledgeLayout = defineAsyncComponent({ loader: load('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });
@@ -79,6 +79,7 @@ const workbenchPaneStyle = computed(() => {
 router
     .isReady()
     .then(() => {
+        // The initial navigation has fully completed. This block intentionally runs once to bootstrap pane state from the initial URL.
         workbenchPaneActivated.value = workbenchPaneIsActive.value = route.path !== '/';
         knowledgePaneActivated.value = knowledgePaneIsActive.value = route.query.kState === '1' && 'kView' in route.query;
         activeAppPaneId.value = workbenchPaneActivated.value ? 'workbench' : 'knowledge';

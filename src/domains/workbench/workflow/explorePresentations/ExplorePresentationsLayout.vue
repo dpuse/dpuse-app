@@ -5,7 +5,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { t } from '@/translations';
 import T from '@/translations/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.json';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import Header from '@/components/header/Header.vue';
 import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
 import Table from '@/components/table/Table.vue';
@@ -43,7 +43,7 @@ const columnDefinitions: ColumnDef<Record<string, unknown>>[] = [
 
 <template>
     <LayoutShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label') }]" :title="t(T, 'Explore_Presentations')" :workbench-pane-is-hidden="false" />
+        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label') }]" :title="t(T, 'Explore_Presentations')" />
 
         <Table class="flex-1 px-4" :column-definitions="columnDefinitions" :data-source="dataSource" />
     </LayoutShell>

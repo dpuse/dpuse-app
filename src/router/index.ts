@@ -7,7 +7,7 @@ import { createRouter, createWebHistory, type Router, type RouterScrollBehavior,
 import { load } from '@/utils/component';
 import { completeNavigation, startNavigation } from '@/state/appProgress';
 
-// App Components - Lazy loaded as required.
+// App Components - Dynamically imported.
 const AdminHomeLayout = load('admin', () => import('@/domains/workbench/admin/AdminHomeLayout.vue'));
 const PartnerHomeLayout = load('partner', () => import('@/domains/workbench/partner/PartnerHomeLayout.vue'));
 const WorkflowHomeLayout = load('workflow', () => import('@/domains/workbench/workflow/WorkflowHomeLayout.vue'));

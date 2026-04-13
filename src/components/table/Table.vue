@@ -8,7 +8,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
 import { type DataSource, type RowData, useDataWindow } from '@/composables/useDataWindow';
 
-// App Components - Statically imported so always available, even after app goes offline.
+// App Components - Statically imported.
 import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';
 import TableHeaderCell from './TableHeaderCell.vue';
