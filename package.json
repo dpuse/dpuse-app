@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.758",
+    "version": "0.0.759",
     "private": true,
     "type": "module",
     "engines": {
@@ -11,11 +11,10 @@
         "@blockly/theme-modern": "^7.0.5",
         "@dpuse/dpuse-shared": "^0.3.611",
         "@tailwindcss/vite": "^4.2.2",
-        "@tanstack/ai-client": "^0.7.8",
+        "@tanstack/ai-client": "^0.7.9",
         "@tanstack/vue-table": "^8.21.3",
         "@tanstack/vue-virtual": "^3.13.23",
         "@teamhanko/hanko-frontend-sdk": "^2.6.0",
-        "blockly": "^12.5.1",
         "lucide-vue-next": "^1.0.0",
         "marked": "^18.0.0",
         "tailwindcss": "^4.2.2",
@@ -24,8 +23,8 @@
         "web-vitals": "^5.2.0"
     },
     "devDependencies": {
-        "@cloudflare/vite-plugin": "^1.31.2",
-        "@cloudflare/workers-types": "^4.20260411.1",
+        "@cloudflare/vite-plugin": "^1.32.1",
+        "@cloudflare/workers-types": "^4.20260413.1",
         "@dpuse/dpuse-development": "^0.3.489",
         "@playwright/test": "^1.59.1",
         "@tsconfig/node24": "^24.0.4",
@@ -34,7 +33,7 @@
         "@types/node": "^25.6.0",
         "@types/trusted-types": "^2.0.7",
         "@vite-pwa/assets-generator": "^1.0.2",
-        "@vitejs/plugin-vue": "^6.0.5",
+        "@vitejs/plugin-vue": "^6.0.6",
         "@vitest/eslint-plugin": "^1.6.15",
         "@vue/eslint-config-prettier": "^10.2.0",
         "@vue/eslint-config-typescript": "^14.7.0",
@@ -62,7 +61,7 @@
         "vitest": "^4.1.4",
         "vue-axe": "^3.1.2",
         "vue-tsc": "^3.2.6",
-        "wrangler": "^4.81.1"
+        "wrangler": "^4.82.1"
     },
     "scripts": {
         "dev": "vite",
