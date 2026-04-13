@@ -143,7 +143,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         </template>
     </Grid>
 
-    <ContentScroller v-else-if="dataViewRetrievalIsActive">
+    <ContentScroller v-else-if="dataViewRetrievalIsActive" class="pb-16">
         <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
     </ContentScroller>
 </template>

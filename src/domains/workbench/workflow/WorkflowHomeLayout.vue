@@ -25,7 +25,7 @@ const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocal
         <Header :breadcrumbs="[{ id: 'workbench', label: t(T, 'wb.label') }]" class="dpuse-workbench-prose w-full" data-testid="header" :title="t(T, 'wb.wf.label')" />
 
         <!-- Workflow Steps -->
-        <ContentScroller>
+        <ContentScroller class="pb-16">
             <div class="dpuse-workbench-prose grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 p-4">
                 <RouterLink
                     v-for="config in workflowOptionConfigs"

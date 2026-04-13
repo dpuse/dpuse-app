@@ -100,7 +100,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
         </template>
     </Grid>
 
-    <ContentScroller v-else-if="eventQueryRetrievalIsActive">
+    <ContentScroller v-else-if="eventQueryRetrievalIsActive" class="pb-16">
         <EmptyPlaceholder :message-item-label="t(T, 'event_queries')" :description-item-label="t(T, 'event_query')" :action-item-label="t(T, 'Event_Query')" />
     </ContentScroller>
 </template>

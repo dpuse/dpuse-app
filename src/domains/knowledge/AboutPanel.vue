@@ -16,7 +16,7 @@ const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocal
 </script>
 
 <template>
-    <ContentScroller>
+    <ContentScroller class="pb-16">
         <article class="bg-white py-24 sm:py-32">
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <!-- Hero Section -->

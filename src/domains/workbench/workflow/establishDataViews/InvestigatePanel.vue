@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { ChevronDownIcon, ChevronRightIcon, PlusIcon, XIcon } from 'lucide-vue-next';
+import { ChevronDownIcon, ChevronRightIcon, ChevronUpIcon, PlusIcon, XIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 // App Components - Statically imported.
@@ -28,7 +28,7 @@ interface Query {
     orderBy: Array<{ column: string; dir: 'ASC' | 'DESC' }>;
 }
 
-// ── Data (mocked from current data view) ─────────────────────────────────────
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const COLUMNS: Column[] = [
     { name: 'id', type: 'id' },
@@ -40,7 +40,7 @@ const COLUMNS: Column[] = [
 
 const OPS = ['=', '!=', '<', '<=', '>', '>=', 'LIKE', 'IS NULL', 'IS NOT NULL'] as const;
 
-// ── State ─────────────────────────────────────────────────────────────────────
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 let ctr = 0;
 const uid = (): string => String(++ctr);
@@ -50,6 +50,10 @@ const query = ref<Query>({ select: [], where: [], groupBy: [], having: [], order
 const clauseOpen = ref({ select: true, where: true, groupBy: false, having: false, orderBy: true });
 const pickerOpen = ref({ select: false, where: false, groupBy: false, having: false, orderBy: false });
 const sqlOpen = ref(true);
+
+const visibleSelectColumns = computed(() =>
+    clauseOpen.value.select ? COLUMNS : COLUMNS.filter((c) => query.value.select.includes(c.name))
+);
 
 function makeDraft(): { column: string; op: string; value: string } {
     return { column: COLUMNS[0].name, op: '=', value: '' };
@@ -149,81 +153,42 @@ const sql = computed((): string => {
 
 <template>
     <!-- eslint-disable vue/no-bare-strings-in-template -->
-    <!-- <div class="flex flex-1 flex-col overflow-hidden"> -->
-    <!-- ── Query Canvas ── -->
-    <!-- <div class="flex-1 overflow-y-auto bg-red-100 p-4"> -->
-    <!-- <div class="flex flex-col gap-3"> -->
     <ContentScroller class="px-4 pb-20!">
-        <!-- ── SELECT ── -->
-        <section class="border-separator mt-4 rounded-lg border">
-            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
+        <!-- Columns (Select) -->
+        <section class="border-separator mt-4 rounded-md border">
+            <button
+                class="border-separator flex w-full items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60"
+                type="button"
+                @click="clauseOpen.select = !clauseOpen.select"
+            >
                 <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Columns</span>
-                <div class="flex items-center gap-1">
-                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add columns" @click="openPicker('select')">
-                        <PlusIcon class="size-4 text-zinc-500" />
+                <ChevronUpIcon v-if="clauseOpen.select" class="size-5 text-zinc-400" />
+                <ChevronDownIcon v-else class="size-5 text-zinc-400" />
+            </button>
+
+            <div class="p-3">
+                <Transition name="col-msg">
+                    <p v-if="!clauseOpen.select && query.select.length === 0" class="pb-1 text-xs text-zinc-400 dark:text-zinc-500">Displaying all columns</p>
+                </Transition>
+                <TransitionGroup name="col-item" tag="div" class="grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-1">
+                    <button
+                        v-for="col in visibleSelectColumns"
+                        :key="col.name"
+                        class="flex items-center gap-2 rounded-md px-2 py-2 text-left text-xs transition-colors"
+                        :class="query.select.includes(col.name) ? chipClass(col.name) : 'text-zinc-600 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-zinc-800'"
+                        type="button"
+                        @click="toggleSelect(col.name)"
+                    >
+                        <span class="w-3 flex-none text-center text-[10px] opacity-60">{{ typeIcon(col.name) }}</span>
+                        <span class="font-mono">{{ col.name }}</span>
                     </button>
-                    <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.select = !clauseOpen.select">
-                        <ChevronDownIcon v-if="clauseOpen.select" class="size-4 text-zinc-400" />
-                        <ChevronRightIcon v-else class="size-4 text-zinc-400" />
-                    </button>
-                </div>
-            </div>
-
-            <div v-if="clauseOpen.select" class="p-3">
-                <!-- Existing chips -->
-                <div class="flex flex-wrap gap-2">
-                    <span v-if="query.select.length === 0 && !pickerOpen.select" class="text-xs text-zinc-400 dark:text-zinc-500"> All columns (*) </span>
-                    <div v-for="name in query.select" :key="name" class="flex items-center gap-1 rounded-full py-1.5 pr-1 pl-2.5 text-xs select-none" :class="chipClass(name)">
-                        <span class="w-3 flex-none text-center text-[10px] opacity-60">{{ typeIcon(name) }}</span>
-                        <span class="font-mono">{{ name }}</span>
-                        <button class="ml-0.5 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="toggleSelect(name)">
-                            <XIcon class="size-3" />
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Column picker -->
-                <div v-if="pickerOpen.select" class="border-separator mt-3 rounded-lg border bg-white p-3 dark:bg-zinc-900">
-                    <div class="grid grid-cols-2 gap-0.5">
-                        <label
-                            v-for="col in COLUMNS"
-                            :key="col.name"
-                            class="flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
-                            :class="query.select.includes(col.name) ? chipClass(col.name) : ''"
-                        >
-                            <input
-                                type="checkbox"
-                                :checked="query.select.includes(col.name)"
-                                aria-label="Select column"
-                                class="size-4 flex-none cursor-pointer rounded accent-blue-500"
-                                @change="toggleSelect(col.name)"
-                            />
-                            <span class="w-3 flex-none text-center text-[10px] opacity-50">{{ TYPE_ICON[col.type] }}</span>
-                            <span class="text-xs">{{ col.name }}</span>
-                        </label>
-                    </div>
-                    <div class="mt-3 flex justify-end">
-                        <button
-                            class="rounded-md bg-zinc-100 px-3 py-1.5 text-sm hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
-                            type="button"
-                            @click="pickerOpen.select = false"
-                        >
-                            Done
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Collapsed summary -->
-            <div v-else class="flex flex-wrap gap-1.5 px-3 py-2">
-                <span v-if="query.select.length === 0" class="text-xs text-zinc-400">*</span>
-                <span v-for="name in query.select" :key="name" class="rounded px-1.5 py-0.5 text-[11px]" :class="chipClass(name)">{{ name }}</span>
+                </TransitionGroup>
             </div>
         </section>
 
-        <!-- ── WHERE ── -->
-        <section class="border-separator mt-4 rounded-lg border">
-            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
+        <!-- Filter (Where)-->
+        <section class="border-separator mt-4 rounded-md border">
+            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Filter</span>
                     <span v-if="query.where.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
@@ -309,9 +274,9 @@ const sql = computed((): string => {
             </div>
         </section>
 
-        <!-- ── GROUP BY ── -->
-        <section class="border-separator mt-4 rounded-lg border">
-            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
+        <!-- Group (Group By) -->
+        <section class="border-separator mt-4 rounded-md border">
+            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Group</span>
                     <span v-if="query.groupBy.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
@@ -379,9 +344,9 @@ const sql = computed((): string => {
             </div>
         </section>
 
-        <!-- ── HAVING ── -->
-        <section class="border-separator mt-4 rounded-lg border">
-            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
+        <!-- Group Filter (Having) -->
+        <section class="border-separator mt-4 rounded-md border">
+            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Group Filter</span>
                     <span v-if="query.having.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
@@ -467,9 +432,9 @@ const sql = computed((): string => {
             </div>
         </section>
 
-        <!-- ── ORDER BY ── -->
-        <section class="border-separator mt-4 rounded-lg border">
-            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-800/60">
+        <!--Sort (Order By) -->
+        <section class="border-separator mt-4 rounded-md border">
+            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Sort</span>
                     <span v-if="query.orderBy.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
@@ -552,10 +517,8 @@ const sql = computed((): string => {
             </div>
         </section>
     </ContentScroller>
-    <!-- </div> -->
-    <!-- </div> -->
 
-    <!-- ── SQL Preview ── -->
+    <!-- SQL Preview -->
     <!-- <div class="border-separator flex-none border-t">
             <button
                 class="border-separator flex w-full items-center gap-2 border-b px-4 py-2 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
@@ -570,3 +533,29 @@ const sql = computed((): string => {
         </div> -->
     <!-- </div> -->
 </template>
+
+<style scoped>
+/* Column grid items — TransitionGroup */
+.col-item-enter-active,
+.col-item-leave-active {
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.col-item-enter-from,
+.col-item-leave-to {
+    opacity: 0;
+    transform: scale(0.85);
+}
+.col-item-move {
+    transition: transform 0.22s ease;
+}
+
+/* "Displaying all columns" message */
+.col-msg-enter-active,
+.col-msg-leave-active {
+    transition: opacity 0.15s ease;
+}
+.col-msg-enter-from,
+.col-msg-leave-to {
+    opacity: 0;
+}
+</style>
