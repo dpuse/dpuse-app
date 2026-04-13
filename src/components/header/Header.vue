@@ -4,7 +4,7 @@ import { displayIsWide } from '@/state/appLayout';
 
 // Properties & Emits
 const { breadcrumbs, title, to, workbenchPaneIsHidden } = defineProps<{
-    breadcrumbs?: { id: string; label: string }[];
+    breadcrumbs?: { id: string; label: string; to?: string }[];
     title: string;
     to?: string;
     workbenchPaneIsHidden: boolean;
@@ -13,12 +13,24 @@ const { breadcrumbs, title, to, workbenchPaneIsHidden } = defineProps<{
 
 <template>
     <header class="mt-[env(safe-area-inset-top)] flex-none px-4">
-        <!-- Title indented from left and right when display is compact, to allow for logos. -->
+        <!-- Content indented from left and right when display is compact, to allow for logos. -->
         <div class="border-separator flex h-14 flex-col justify-center border-b text-lg font-light" :class="{ 'px-12': !displayIsWide || workbenchPaneIsHidden }">
+            <!-- Breadcrumbs -->
             <div v-if="breadcrumbs" class="w-full truncate text-xs" :class="{ 'text-center': !displayIsWide }">
-                <span v-for="(breadcrumb, index) in breadcrumbs" :key="breadcrumb.id"><span v-if="index > 0" class="mx-1">&gt;</span>{{ breadcrumb.label }}</span>
+                <!-- <span v-for="(breadcrumb, index) in breadcrumbs" :key="breadcrumb.id"><span v-if="index > 0" class="mx-1">&gt;</span>{{ breadcrumb.label }}</span> -->
+                <component
+                    :is="breadcrumb.to ? 'RouterLink' : 'div'"
+                    v-for="(breadcrumb, index) in breadcrumbs"
+                    :key="breadcrumb.id"
+                    :to="{ name: breadcrumb.to, query: { ...$route.query, wbView: breadcrumb.to } }"
+                    class="w-full truncate"
+                    :class="{ 'text-center': !displayIsWide }"
+                >
+                    <span v-if="index > 0" class="mx-1">&gt;</span>{{ breadcrumb.label }}
+                </component>
             </div>
 
+            <!-- Title -->
             <component
                 :is="to ? 'RouterLink' : 'div'"
                 :to="{ name: to, query: { ...$route.query, wbView: to } }"

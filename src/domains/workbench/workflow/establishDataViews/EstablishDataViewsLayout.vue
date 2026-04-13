@@ -56,7 +56,12 @@ function handleComplete(taskLocalisedConfig: TaskLocalisedConfig): void {
 
 <template>
     <LayoutShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label') }]" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" :workbench-pane-is-hidden="false" />
+        <Header
+            :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label'), to: 'workflow' }]"
+            :title="t(T, 'Establish_Data_Views')"
+            to="establishDataViews"
+            :workbench-pane-is-hidden="false"
+        />
 
         <div class="border-separator mx-4 flex flex-none items-center justify-between border-b">
             <div v-if="activeTaskLocalisedConfig" class="flex gap-x-3 overflow-x-auto overscroll-x-none text-[15px]">
