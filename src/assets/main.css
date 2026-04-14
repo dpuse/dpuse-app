@@ -64,6 +64,16 @@ body {
     }
 }
 
+@supports (-webkit-touch-callout: none) {
+    @media (hover: none) and (pointer: coarse) {
+        input,
+        select,
+        textarea {
+            font-size: 16px;
+        }
+    }
+}
+
 /* Vue Transition - Horizontal slide left to right. */
 .horizontal-slide-ltr-enter-active,
 .horizontal-slide-ltr-leave-active {
