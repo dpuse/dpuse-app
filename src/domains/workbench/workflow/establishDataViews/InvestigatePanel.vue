@@ -1,16 +1,34 @@
 <script setup lang="ts">
 // External Dependencies
-import { ChevronDownIcon, ChevronRightIcon, ChevronUpIcon, PlusIcon, XIcon } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import {
+    CalendarClockIcon,
+    CalendarIcon,
+    ChevronDownIcon,
+    ChevronRightIcon,
+    ChevronUpIcon,
+    ClockIcon,
+    HashIcon,
+    KeyRoundIcon,
+    PlusIcon,
+    ToggleLeftIcon,
+    TypeIcon,
+    XIcon
+} from 'lucide-vue-next';
+import { type Component, computed, ref } from 'vue';
 
 // App Components - Statically imported.
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
+import SortableColumnTile from './SortableColumnTile.vue';
+
+// App Core
+import { useGridSort } from './useGridSort';
 
 // Interfaces/Types ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface Column {
+    index: number;
     name: string;
-    type: 'id' | 'number' | 'text' | 'date';
+    type: 'id' | 'number' | 'text' | 'date' | 'time' | 'boolean' | 'dateTime';
 }
 
 interface Condition {
@@ -31,11 +49,14 @@ interface Query {
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const COLUMNS: Column[] = [
-    { name: 'id', type: 'id' },
-    { name: 'customer_id', type: 'id' },
-    { name: 'amount', type: 'number' },
-    { name: 'status', type: 'text' },
-    { name: 'created_at', type: 'date' }
+    { index: 1, name: 'id', type: 'id' },
+    { index: 2, name: 'customer_id', type: 'id' },
+    { index: 3, name: 'amount', type: 'number' },
+    { index: 4, name: 'status', type: 'text' },
+    { index: 5, name: 'created_date', type: 'date' },
+    { index: 6, name: 'start_time', type: 'time' },
+    { index: 7, name: 'updated_at', type: 'dateTime' },
+    { index: 8, name: 'is_active', type: 'boolean' }
 ];
 
 const OPS = ['=', '!=', '<', '<=', '>', '>=', 'LIKE', 'IS NULL', 'IS NOT NULL'] as const;
@@ -49,9 +70,31 @@ const query = ref<Query>({ select: [], where: [], groupBy: [], having: [], order
 
 const clauseOpen = ref({ select: true, where: true, groupBy: false, having: false, orderBy: true });
 const pickerOpen = ref({ select: false, where: false, groupBy: false, having: false, orderBy: false });
-const sqlOpen = ref(true);
+// const sqlOpen = ref(true);
 
-const visibleSelectColumns = computed(() => (clauseOpen.value.select ? COLUMNS : COLUMNS.filter((c) => query.value.select.includes(c.name))));
+// ── Column search (open state) ────────────────────────────────────────────────
+const columnSearch = ref('');
+const selectContainerElement = ref<HTMLElement | null>(null);
+
+const filteredColumns = computed<Column[]>(() => {
+    const q = columnSearch.value.trim().toLowerCase();
+    return q ? COLUMNS.filter((c) => c.name.toLowerCase().includes(q)) : COLUMNS;
+});
+
+// ── Drag-to-reorder (closed state) ───────────────────────────────────────────
+const { displayItems: selectDisplayItems, onHandlePointerDown: onSelectHandlePointerDown } = useGridSort({
+    items: () => query.value.select,
+    onReorder: (next): void => { query.value.select = next; },
+    containerElement: selectContainerElement,
+});
+
+// ── Single item list driving the TransitionGroup in both states ───────────────
+// Open: all filtered columns. Closed: only selected columns in drag order.
+// Same key (col.name, no prefix) in both states so Vue can FLIP tiles when toggling.
+const selectVisibleItems = computed<Array<{ name: string; isDragging: boolean }>>(() => {
+    if (clauseOpen.value.select) return filteredColumns.value.map((c) => ({ name: c.name, isDragging: false }));
+    return selectDisplayItems.value;
+});
 
 function makeDraft(): { column: string; op: string; value: string } {
     return { column: COLUMNS[0].name, op: '=', value: '' };
@@ -59,7 +102,7 @@ function makeDraft(): { column: string; op: string; value: string } {
 const whereDraft = ref(makeDraft());
 const havingDraft = ref(makeDraft());
 
-// ── Mutations ─────────────────────────────────────────────────────────────────
+// Helpers - Mutations  ────────────────────────────────────────────────────────────────────────────────────────────────
 
 function openPicker(clause: keyof typeof pickerOpen.value): void {
     clauseOpen.value[clause] = true;
@@ -111,27 +154,44 @@ function toggleOrderDirection(name: string): void {
     if (item) item.dir = item.dir === 'ASC' ? 'DESC' : 'ASC';
 }
 
-// ── Styling ───────────────────────────────────────────────────────────────────
+// Helpers - Styling  ──────────────────────────────────────────────────────────────────────────────────────────────────
 
 const TYPE_CHIP: Record<string, string> = {
     id: 'bg-violet-100 text-violet-800 dark:bg-violet-400/20 dark:text-violet-300 inset-ring inset-ring-violet-300/60 dark:inset-ring-violet-500/30',
     number: 'bg-blue-100 text-blue-800 dark:bg-blue-400/20 dark:text-blue-300 inset-ring inset-ring-blue-300/60 dark:inset-ring-blue-500/30',
     text: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-400/20 dark:text-emerald-300 inset-ring inset-ring-emerald-300/60 dark:inset-ring-emerald-500/30',
-    date: 'bg-amber-100 text-amber-800 dark:bg-amber-400/20 dark:text-amber-300 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30'
+    date: 'bg-amber-100 text-amber-800 dark:bg-amber-400/20 dark:text-amber-300 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30',
+    time: 'bg-sky-100 text-sky-800 dark:bg-sky-400/20 dark:text-sky-300 inset-ring inset-ring-sky-300/60 dark:inset-ring-sky-500/30',
+    boolean: 'bg-rose-100 text-rose-800 dark:bg-rose-400/20 dark:text-rose-300 inset-ring inset-ring-rose-300/60 dark:inset-ring-rose-500/30',
+    dateTime: 'bg-orange-100 text-orange-800 dark:bg-orange-400/20 dark:text-orange-300 inset-ring inset-ring-orange-300/60 dark:inset-ring-orange-500/30'
 };
 const TYPE_TEXT: Record<string, string> = {
     id: 'text-violet-700 dark:text-violet-400',
     number: 'text-blue-700 dark:text-blue-400',
     text: 'text-emerald-700 dark:text-emerald-400',
-    date: 'text-amber-700 dark:text-amber-400'
+    date: 'text-amber-700 dark:text-amber-400',
+    time: 'text-sky-700 dark:text-sky-400',
+    boolean: 'text-rose-700 dark:text-rose-400',
+    dateTime: 'text-orange-700 dark:text-orange-400'
 };
 const TYPE_OUTLINE: Record<string, string> = {
     id: 'text-violet-700 dark:text-violet-400 inset-ring inset-ring-violet-300/60 dark:inset-ring-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-400/10',
     number: 'text-blue-700 dark:text-blue-400 inset-ring inset-ring-blue-300/60 dark:inset-ring-blue-500/30 hover:bg-blue-50 dark:hover:bg-blue-400/10',
     text: 'text-emerald-700 dark:text-emerald-400 inset-ring inset-ring-emerald-300/60 dark:inset-ring-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-400/10',
-    date: 'text-amber-700 dark:text-amber-400 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30 hover:bg-amber-50 dark:hover:bg-amber-400/10'
+    date: 'text-amber-700 dark:text-amber-400 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30 hover:bg-amber-50 dark:hover:bg-amber-400/10',
+    time: 'text-sky-700 dark:text-sky-400 inset-ring inset-ring-sky-300/60 dark:inset-ring-sky-500/30 hover:bg-sky-50 dark:hover:bg-sky-400/10',
+    boolean: 'text-rose-700 dark:text-rose-400 inset-ring inset-ring-rose-300/60 dark:inset-ring-rose-500/30 hover:bg-rose-50 dark:hover:bg-rose-400/10',
+    dateTime: 'text-orange-700 dark:text-orange-400 inset-ring inset-ring-orange-300/60 dark:inset-ring-orange-500/30 hover:bg-orange-50 dark:hover:bg-orange-400/10'
 };
-const TYPE_ICON: Record<string, string> = { id: '#', number: '1', text: 'A', date: '⏱' };
+const TYPE_ICON: Record<string, Component> = {
+    id: KeyRoundIcon,
+    number: HashIcon,
+    text: TypeIcon,
+    date: CalendarIcon,
+    time: ClockIcon,
+    boolean: ToggleLeftIcon,
+    dateTime: CalendarClockIcon
+};
 
 function colType(name: string): string {
     return COLUMNS.find((c) => c.name === name)?.type ?? 'text';
@@ -145,11 +205,11 @@ function outlineClass(name: string): string {
 function textClass(name: string): string {
     return TYPE_TEXT[colType(name)] ?? TYPE_TEXT.text;
 }
-function typeIcon(name: string): string {
-    return TYPE_ICON[colType(name)] ?? 'A';
+function typeIcon(name: string): Component {
+    return TYPE_ICON[colType(name)] ?? TypeIcon;
 }
 
-// ── SQL Preview ───────────────────────────────────────────────────────────────
+// Helpers - SQL Preview  ──────────────────────────────────────────────────────────────────────────────────────────────
 
 function condSql(c: Condition): string {
     const rhs = ['IS NULL', 'IS NOT NULL'].includes(c.op) ? '' : ` '${c.value}'`;
@@ -183,20 +243,40 @@ const sql = computed((): string => {
                 <ChevronDownIcon v-else class="size-5 text-zinc-400" />
             </button>
 
-            <div class="p-3">
+            <!-- Search: only visible when open -->
+            <div v-if="clauseOpen.select" class="border-separator border-b px-3 py-1.5">
+                <input
+                    v-model="columnSearch"
+                    class="w-full rounded-md bg-zinc-100 px-2 py-1 text-xs text-zinc-700 outline-none placeholder:text-zinc-400 dark:bg-zinc-700 dark:text-zinc-200"
+                    placeholder="Search columns…"
+                    type="search"
+                    aria-label="Search columns"
+                />
+            </div>
+
+            <!-- Single TransitionGroup for both states.
+                 Open: scrollable fixed-height list of all columns, click to toggle.
+                 Closed: auto-height, drag-to-reorder selected columns only.
+                 Same key (col.name) in both states — Vue tracks the same element → FLIP works on toggle. -->
+            <div
+                ref="selectContainerElement"
+                class="p-3"
+                :class="clauseOpen.select ? 'max-h-56 overflow-y-auto' : ''"
+            >
                 <TransitionGroup name="col-item" tag="div" class="relative grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-1" @leave="onColItemLeave">
-                    <button
-                        v-for="col in visibleSelectColumns"
-                        :key="col.name"
-                        class="flex items-center gap-2 rounded-md px-2 py-2 text-left text-xs transition-colors"
-                        :class="query.select.includes(col.name) ? chipClass(col.name) : outlineClass(col.name)"
-                        type="button"
-                        @click="toggleSelect(col.name)"
-                    >
-                        <span class="w-4 flex-none text-center text-sm opacity-70">{{ typeIcon(col.name) }}</span>
-                        <span class="font-mono">{{ col.name }}</span>
-                    </button>
-                    <p v-if="!clauseOpen.select && query.select.length === 0" key="__msg" class="col-span-full py-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                    <SortableColumnTile
+                        v-for="item in selectVisibleItems"
+                        :key="item.name"
+                        :name="item.name"
+                        :sortable="!clauseOpen.select"
+                        :is-dragging="item.isDragging"
+                        :selected="query.select.includes(item.name)"
+                        :tile-class="query.select.includes(item.name) ? chipClass(item.name) : outlineClass(item.name)"
+                        :icon="typeIcon(item.name)"
+                        @toggle="toggleSelect"
+                        @handle-pointer-down="onSelectHandlePointerDown"
+                    />
+                    <p v-if="!clauseOpen.select && selectVisibleItems.length === 0" key="__msg" class="col-span-full py-0.5 text-xs text-zinc-400 dark:text-zinc-500">
                         Displaying all columns
                     </p>
                 </TransitionGroup>
@@ -314,7 +394,7 @@ const sql = computed((): string => {
                 <div class="flex flex-wrap gap-2">
                     <span v-if="query.groupBy.length === 0 && !pickerOpen.groupBy" class="text-xs text-zinc-400 dark:text-zinc-500"> No grouping </span>
                     <div v-for="name in query.groupBy" :key="name" class="flex items-center gap-1 rounded-full py-1.5 pr-1 pl-2.5 text-xs select-none" :class="chipClass(name)">
-                        <span class="w-3 flex-none text-center text-[10px] opacity-60">{{ typeIcon(name) }}</span>
+                        <component :is="typeIcon(name)" class="size-3 flex-none opacity-60" />
                         <span class="font-mono">{{ name }}</span>
                         <button class="ml-0.5 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="toggleGroupBy(name)">
                             <XIcon class="size-3" />
@@ -338,7 +418,7 @@ const sql = computed((): string => {
                                 class="size-4 flex-none cursor-pointer rounded accent-blue-500"
                                 @change="toggleGroupBy(col.name)"
                             />
-                            <span class="w-3 flex-none text-center text-[10px] opacity-50">{{ TYPE_ICON[col.type] }}</span>
+                            <component :is="TYPE_ICON[col.type]" class="size-3 flex-none opacity-50" />
                             <span class="text-xs">{{ col.name }}</span>
                         </label>
                     </div>
@@ -477,7 +557,7 @@ const sql = computed((): string => {
                         :class="chipClass(item.column)"
                     >
                         <div class="flex items-center gap-1.5 py-1.5 pl-2.5">
-                            <span class="w-3 flex-none text-center text-[10px] opacity-60">{{ typeIcon(item.column) }}</span>
+                            <component :is="typeIcon(item.column)" class="size-3 flex-none opacity-60" />
                             <span class="font-mono">{{ item.column }}</span>
                         </div>
                         <button
@@ -505,7 +585,7 @@ const sql = computed((): string => {
                             type="button"
                             @click="toggleOrderBy(col.name)"
                         >
-                            <span class="w-3 flex-none text-center text-[10px] opacity-50">{{ TYPE_ICON[col.type] }}</span>
+                            <component :is="TYPE_ICON[col.type]" class="size-3 flex-none opacity-50" />
                             <span class="flex-1 text-xs">{{ col.name }}</span>
                             <span v-if="query.orderBy.some((o) => o.column === col.name)" class="text-[10px] font-semibold opacity-60">{{
                                 query.orderBy.find((o) => o.column === col.name)?.dir
@@ -569,6 +649,7 @@ const sql = computed((): string => {
     opacity: 0;
     transform: scale(0.85);
 }
+/* FLIP: tiles smoothly slide to their new positions during drag */
 .col-item-move {
     transition: transform 0.22s ease;
 }

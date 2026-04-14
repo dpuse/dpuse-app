@@ -78,11 +78,11 @@ async function toggleFullscreen(): Promise<void> {
 </script>
 <template>
     <div
-        class="border-boundary bg-surface flex flex-col overflow-y-auto overscroll-y-none border px-4 shadow-md"
+        class="border-boundary bg-surface flex flex-col overflow-y-auto overscroll-y-none px-4 shadow-md"
         :class="
             displayIsWide
-                ? 'fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto overscroll-y-none rounded-md py-4'
-                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80vh] max-w-lg overflow-y-auto overscroll-y-none rounded-t-2xl py-6'
+                ? 'fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto overscroll-y-none rounded-md border py-4'
+                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80vh] max-w-lg overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t py-6'
         "
     >
         <Button v-if="!displayIsWide" class="absolute top-2 right-3" variant="iconLarge" @click="emit('continue')">

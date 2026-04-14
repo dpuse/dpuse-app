@@ -13,10 +13,11 @@ type Properties = {
     dataSource: DataSource<T>;
     rowHeight?: number; // Row height in px. Default: 48.
     targetColumnWidth?: number; // When set, multiple items are shown per row based on available width.
+    cellClass?: string; // Override default cell padding. Defaults to 'h-full pl-4 pt-4' (or pt-2 when compact).
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
 };
-const { dataSource, rowHeight = 48, targetColumnWidth, cacheBlockSize, maxBlocksInCache } = defineProps<Properties>();
+const { dataSource, rowHeight = 48, targetColumnWidth, cellClass, cacheBlockSize, maxBlocksInCache } = defineProps<Properties>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -69,7 +70,7 @@ onUnmounted(() => resizeObserver.disconnect());
                     <template v-for="columnOffset in columnOffsets" :key="columnOffset">
                         <!-- Skip cells beyond the last data item (last row may be partially filled) -->
                         <div v-if="virtualRow.index * columnCount + columnOffset < dataSource.rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
-                            <div class="h-full pl-4" :class="isCompact ? 'pt-2' : 'pt-4'">
+                            <div :class="cellClass !== undefined ? cellClass : ['h-full pl-4', isCompact ? 'pt-2' : 'pt-4']">
                                 <slot
                                     v-if="isCompact && getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
                                     name="compact"
