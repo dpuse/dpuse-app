@@ -1,7 +1,5 @@
 <script setup lang="ts">
 // External Dependencies
-import { dragAndDrop } from '@formkit/drag-and-drop/vue';
-import { tearDown } from '@formkit/drag-and-drop';
 import {
     CalendarClockIcon,
     CalendarIcon,
@@ -16,16 +14,57 @@ import {
     TypeIcon,
     XIcon
 } from 'lucide-vue-next';
-import { type Component, type ComponentPublicInstance, computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { type Component, computed, ref } from 'vue';
+
+// App Core
+import { useSelectColumnSort } from './useSelectColumnSort';
 
 // App Components - Statically imported.
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 import SortableColumnTile from './SortableColumnTile.vue';
 
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const TYPE_CHIP: Record<string, string> = {
+    id: 'bg-violet-100 text-violet-800 dark:bg-violet-400/20 dark:text-violet-300 inset-ring inset-ring-violet-300/60 dark:inset-ring-violet-500/30',
+    number: 'bg-blue-100 text-blue-800 dark:bg-blue-400/20 dark:text-blue-300 inset-ring inset-ring-blue-300/60 dark:inset-ring-blue-500/30',
+    text: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-400/20 dark:text-emerald-300 inset-ring inset-ring-emerald-300/60 dark:inset-ring-emerald-500/30',
+    date: 'bg-amber-100 text-amber-800 dark:bg-amber-400/20 dark:text-amber-300 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30',
+    time: 'bg-sky-100 text-sky-800 dark:bg-sky-400/20 dark:text-sky-300 inset-ring inset-ring-sky-300/60 dark:inset-ring-sky-500/30',
+    boolean: 'bg-rose-100 text-rose-800 dark:bg-rose-400/20 dark:text-rose-300 inset-ring inset-ring-rose-300/60 dark:inset-ring-rose-500/30',
+    dateTime: 'bg-orange-100 text-orange-800 dark:bg-orange-400/20 dark:text-orange-300 inset-ring inset-ring-orange-300/60 dark:inset-ring-orange-500/30'
+};
+const TYPE_TEXT: Record<string, string> = {
+    id: 'text-violet-700 dark:text-violet-400',
+    number: 'text-blue-700 dark:text-blue-400',
+    text: 'text-emerald-700 dark:text-emerald-400',
+    date: 'text-amber-700 dark:text-amber-400',
+    time: 'text-sky-700 dark:text-sky-400',
+    boolean: 'text-rose-700 dark:text-rose-400',
+    dateTime: 'text-orange-700 dark:text-orange-400'
+};
+const TYPE_OUTLINE: Record<string, string> = {
+    id: 'text-violet-700 dark:text-violet-400 inset-ring inset-ring-violet-300/60 dark:inset-ring-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-400/10',
+    number: 'text-blue-700 dark:text-blue-400 inset-ring inset-ring-blue-300/60 dark:inset-ring-blue-500/30 hover:bg-blue-50 dark:hover:bg-blue-400/10',
+    text: 'text-emerald-700 dark:text-emerald-400 inset-ring inset-ring-emerald-300/60 dark:inset-ring-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-400/10',
+    date: 'text-amber-700 dark:text-amber-400 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30 hover:bg-amber-50 dark:hover:bg-amber-400/10',
+    time: 'text-sky-700 dark:text-sky-400 inset-ring inset-ring-sky-300/60 dark:inset-ring-sky-500/30 hover:bg-sky-50 dark:hover:bg-sky-400/10',
+    boolean: 'text-rose-700 dark:text-rose-400 inset-ring inset-ring-rose-300/60 dark:inset-ring-rose-500/30 hover:bg-rose-50 dark:hover:bg-rose-400/10',
+    dateTime: 'text-orange-700 dark:text-orange-400 inset-ring inset-ring-orange-300/60 dark:inset-ring-orange-500/30 hover:bg-orange-50 dark:hover:bg-orange-400/10'
+};
+const TYPE_ICON: Record<string, Component> = {
+    id: KeyRoundIcon,
+    number: HashIcon,
+    text: TypeIcon,
+    date: CalendarIcon,
+    time: ClockIcon,
+    boolean: ToggleLeftIcon,
+    dateTime: CalendarClockIcon
+};
+
 // Interfaces/Types ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface Column {
-    index: number;
     name: string;
     type: 'id' | 'number' | 'text' | 'date' | 'time' | 'boolean' | 'dateTime';
 }
@@ -48,14 +87,14 @@ interface Query {
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const COLUMNS: Column[] = [
-    { index: 1, name: 'id', type: 'id' },
-    { index: 2, name: 'customer_id', type: 'id' },
-    { index: 3, name: 'amount', type: 'number' },
-    { index: 4, name: 'status', type: 'text' },
-    { index: 5, name: 'created_date', type: 'date' },
-    { index: 6, name: 'start_time', type: 'time' },
-    { index: 7, name: 'updated_at', type: 'dateTime' },
-    { index: 8, name: 'is_active', type: 'boolean' }
+    { name: 'id', type: 'id' },
+    { name: 'customer_id', type: 'id' },
+    { name: 'amount', type: 'number' },
+    { name: 'status', type: 'text' },
+    { name: 'created_date', type: 'date' },
+    { name: 'start_time', type: 'time' },
+    { name: 'updated_at', type: 'dateTime' },
+    { name: 'is_active', type: 'boolean' }
 ];
 
 const OPS = ['=', '!=', '<', '<=', '>', '>=', 'LIKE', 'IS NULL', 'IS NOT NULL'] as const;
@@ -79,70 +118,15 @@ const filteredColumns = computed<Column[]>(() => {
     return q ? COLUMNS.filter((c) => c.name.toLowerCase().includes(q)) : COLUMNS;
 });
 
-const selectSortEnabled = computed(() => !clauseOpen.value.select && query.value.select.length > 1);
-const selectGridElement = ref<HTMLElement>();
 const selectSortableValues = computed<string[]>({
     get: () => query.value.select,
     set: (next) => {
         query.value.select = [...next];
     }
 });
-let activeSelectGridElement: HTMLElement | undefined;
-
-function bindSelectGridElement(instance: Element | ComponentPublicInstance | null): void {
-    if (clauseOpen.value.select || !instance) {
-        selectGridElement.value = undefined;
-        return;
-    }
-
-    if (instance instanceof HTMLElement) {
-        selectGridElement.value = instance;
-        return;
-    }
-
-    if ('$el' in instance && instance.$el instanceof HTMLElement) {
-        selectGridElement.value = instance.$el;
-        return;
-    }
-
-    selectGridElement.value = undefined;
-}
-
-function syncSelectDragAndDrop(): void {
-    if (activeSelectGridElement && activeSelectGridElement !== selectGridElement.value) {
-        tearDown(activeSelectGridElement);
-        activeSelectGridElement = undefined;
-    }
-
-    if (!selectSortEnabled.value || !selectGridElement.value) {
-        if (activeSelectGridElement) {
-            tearDown(activeSelectGridElement);
-            activeSelectGridElement = undefined;
-        }
-        return;
-    }
-
-    dragAndDrop<string>({
-        parent: selectGridElement,
-        values: selectSortableValues,
-        dragHandle: '[data-select-handle]',
-        dragPlaceholderClass: 'select-drag-placeholder',
-        sortable: true,
-        synthDragPlaceholderClass: 'select-drag-placeholder',
-        draggable: (child) => child.dataset.selected === 'true'
-    });
-    activeSelectGridElement = selectGridElement.value;
-}
-
-async function refreshSelectDragAndDrop(): Promise<void> {
-    await nextTick();
-    syncSelectDragAndDrop();
-}
-
-watch([selectSortEnabled, selectGridElement, (): string[] => [...query.value.select]], refreshSelectDragAndDrop, { immediate: true });
-
-onBeforeUnmount(() => {
-    if (activeSelectGridElement) tearDown(activeSelectGridElement);
+const { bindGridElement: bindSelectGridElement, sortEnabled: selectSortEnabled } = useSelectColumnSort({
+    isOpen: computed(() => clauseOpen.value.select),
+    values: selectSortableValues
 });
 
 // ── Single item list driving the TransitionGroup in both states ───────────────
@@ -212,43 +196,6 @@ function toggleOrderDirection(name: string): void {
 }
 
 // Helpers - Styling  ──────────────────────────────────────────────────────────────────────────────────────────────────
-
-const TYPE_CHIP: Record<string, string> = {
-    id: 'bg-violet-100 text-violet-800 dark:bg-violet-400/20 dark:text-violet-300 inset-ring inset-ring-violet-300/60 dark:inset-ring-violet-500/30',
-    number: 'bg-blue-100 text-blue-800 dark:bg-blue-400/20 dark:text-blue-300 inset-ring inset-ring-blue-300/60 dark:inset-ring-blue-500/30',
-    text: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-400/20 dark:text-emerald-300 inset-ring inset-ring-emerald-300/60 dark:inset-ring-emerald-500/30',
-    date: 'bg-amber-100 text-amber-800 dark:bg-amber-400/20 dark:text-amber-300 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30',
-    time: 'bg-sky-100 text-sky-800 dark:bg-sky-400/20 dark:text-sky-300 inset-ring inset-ring-sky-300/60 dark:inset-ring-sky-500/30',
-    boolean: 'bg-rose-100 text-rose-800 dark:bg-rose-400/20 dark:text-rose-300 inset-ring inset-ring-rose-300/60 dark:inset-ring-rose-500/30',
-    dateTime: 'bg-orange-100 text-orange-800 dark:bg-orange-400/20 dark:text-orange-300 inset-ring inset-ring-orange-300/60 dark:inset-ring-orange-500/30'
-};
-const TYPE_TEXT: Record<string, string> = {
-    id: 'text-violet-700 dark:text-violet-400',
-    number: 'text-blue-700 dark:text-blue-400',
-    text: 'text-emerald-700 dark:text-emerald-400',
-    date: 'text-amber-700 dark:text-amber-400',
-    time: 'text-sky-700 dark:text-sky-400',
-    boolean: 'text-rose-700 dark:text-rose-400',
-    dateTime: 'text-orange-700 dark:text-orange-400'
-};
-const TYPE_OUTLINE: Record<string, string> = {
-    id: 'text-violet-700 dark:text-violet-400 inset-ring inset-ring-violet-300/60 dark:inset-ring-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-400/10',
-    number: 'text-blue-700 dark:text-blue-400 inset-ring inset-ring-blue-300/60 dark:inset-ring-blue-500/30 hover:bg-blue-50 dark:hover:bg-blue-400/10',
-    text: 'text-emerald-700 dark:text-emerald-400 inset-ring inset-ring-emerald-300/60 dark:inset-ring-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-400/10',
-    date: 'text-amber-700 dark:text-amber-400 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30 hover:bg-amber-50 dark:hover:bg-amber-400/10',
-    time: 'text-sky-700 dark:text-sky-400 inset-ring inset-ring-sky-300/60 dark:inset-ring-sky-500/30 hover:bg-sky-50 dark:hover:bg-sky-400/10',
-    boolean: 'text-rose-700 dark:text-rose-400 inset-ring inset-ring-rose-300/60 dark:inset-ring-rose-500/30 hover:bg-rose-50 dark:hover:bg-rose-400/10',
-    dateTime: 'text-orange-700 dark:text-orange-400 inset-ring inset-ring-orange-300/60 dark:inset-ring-orange-500/30 hover:bg-orange-50 dark:hover:bg-orange-400/10'
-};
-const TYPE_ICON: Record<string, Component> = {
-    id: KeyRoundIcon,
-    number: HashIcon,
-    text: TypeIcon,
-    date: CalendarIcon,
-    time: ClockIcon,
-    boolean: ToggleLeftIcon,
-    dateTime: CalendarClockIcon
-};
 
 function colType(name: string): string {
     return COLUMNS.find((c) => c.name === name)?.type ?? 'text';
