@@ -112,7 +112,8 @@ async function toggleFullscreen(): Promise<void> {
         <Separator class="my-2.5" />
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Language') }}</div>
         <Button v-for="lang in SUPPORTED_LANGUAGES" :key="lang.id" class="mt-1 flex w-full items-center gap-x-2 text-sm" variant="listItem" @click="handleSetLanguage(lang.id)">
-            <img :src="`https://flagcdn.com/${lang.flag}.svg`" class="h-3.5 w-5 object-cover" :alt="lang.label" />
+            <!-- See https://flagpedia.net/index. -->
+            <img :src="`/flags/${lang.flag}.webp`" class="h-3.5 w-5 object-cover" :alt="lang.label" />
             <div>{{ lang.label }}</div>
         </Button>
 
