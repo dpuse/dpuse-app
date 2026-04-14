@@ -1,5 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
+import { dragAndDrop } from '@formkit/drag-and-drop/vue';
+import { tearDown } from '@formkit/drag-and-drop';
 import {
     CalendarClockIcon,
     CalendarIcon,
@@ -14,14 +16,11 @@ import {
     TypeIcon,
     XIcon
 } from 'lucide-vue-next';
-import { type Component, computed, ref } from 'vue';
+import { type Component, type ComponentPublicInstance, computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 
 // App Components - Statically imported.
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 import SortableColumnTile from './SortableColumnTile.vue';
-
-// App Core
-import { useGridSort } from './useGridSort';
 
 // Interfaces/Types ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -74,26 +73,84 @@ const pickerOpen = ref({ select: false, where: false, groupBy: false, having: fa
 
 // ── Column search (open state) ────────────────────────────────────────────────
 const columnSearch = ref('');
-const selectContainerElement = ref<HTMLElement | null>(null);
 
 const filteredColumns = computed<Column[]>(() => {
     const q = columnSearch.value.trim().toLowerCase();
     return q ? COLUMNS.filter((c) => c.name.toLowerCase().includes(q)) : COLUMNS;
 });
 
-// ── Drag-to-reorder (closed state) ───────────────────────────────────────────
-const { displayItems: selectDisplayItems, onHandlePointerDown: onSelectHandlePointerDown } = useGridSort({
-    items: () => query.value.select,
-    onReorder: (next): void => { query.value.select = next; },
-    containerElement: selectContainerElement,
+const selectSortEnabled = computed(() => !clauseOpen.value.select && query.value.select.length > 1);
+const selectGridElement = ref<HTMLElement>();
+const selectSortableValues = computed<string[]>({
+    get: () => query.value.select,
+    set: (next) => {
+        query.value.select = [...next];
+    }
+});
+let activeSelectGridElement: HTMLElement | undefined;
+
+function bindSelectGridElement(instance: Element | ComponentPublicInstance | null): void {
+    if (clauseOpen.value.select || !instance) {
+        selectGridElement.value = undefined;
+        return;
+    }
+
+    if (instance instanceof HTMLElement) {
+        selectGridElement.value = instance;
+        return;
+    }
+
+    if ('$el' in instance && instance.$el instanceof HTMLElement) {
+        selectGridElement.value = instance.$el;
+        return;
+    }
+
+    selectGridElement.value = undefined;
+}
+
+function syncSelectDragAndDrop(): void {
+    if (activeSelectGridElement && activeSelectGridElement !== selectGridElement.value) {
+        tearDown(activeSelectGridElement);
+        activeSelectGridElement = undefined;
+    }
+
+    if (!selectSortEnabled.value || !selectGridElement.value) {
+        if (activeSelectGridElement) {
+            tearDown(activeSelectGridElement);
+            activeSelectGridElement = undefined;
+        }
+        return;
+    }
+
+    dragAndDrop<string>({
+        parent: selectGridElement,
+        values: selectSortableValues,
+        dragHandle: '[data-select-handle]',
+        dragPlaceholderClass: 'select-drag-placeholder',
+        sortable: true,
+        synthDragPlaceholderClass: 'select-drag-placeholder',
+        draggable: (child) => child.dataset.selected === 'true'
+    });
+    activeSelectGridElement = selectGridElement.value;
+}
+
+async function refreshSelectDragAndDrop(): Promise<void> {
+    await nextTick();
+    syncSelectDragAndDrop();
+}
+
+watch([selectSortEnabled, selectGridElement, (): string[] => [...query.value.select]], refreshSelectDragAndDrop, { immediate: true });
+
+onBeforeUnmount(() => {
+    if (activeSelectGridElement) tearDown(activeSelectGridElement);
 });
 
 // ── Single item list driving the TransitionGroup in both states ───────────────
 // Open: all filtered columns. Closed: only selected columns in drag order.
 // Same key (col.name, no prefix) in both states so Vue can FLIP tiles when toggling.
-const selectVisibleItems = computed<Array<{ name: string; isDragging: boolean }>>(() => {
-    if (clauseOpen.value.select) return filteredColumns.value.map((c) => ({ name: c.name, isDragging: false }));
-    return selectDisplayItems.value;
+const selectVisibleItems = computed<string[]>(() => {
+    if (clauseOpen.value.select) return filteredColumns.value.map((c) => c.name);
+    return query.value.select;
 });
 
 function makeDraft(): { column: string; op: string; value: string } {
@@ -258,23 +315,23 @@ const sql = computed((): string => {
                  Open: scrollable fixed-height list of all columns, click to toggle.
                  Closed: auto-height, drag-to-reorder selected columns only.
                  Same key (col.name) in both states — Vue tracks the same element → FLIP works on toggle. -->
-            <div
-                ref="selectContainerElement"
-                class="p-3"
-                :class="clauseOpen.select ? 'max-h-56 overflow-y-auto' : ''"
-            >
-                <TransitionGroup name="col-item" tag="div" class="relative grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-1" @leave="onColItemLeave">
+            <div class="p-3" :class="clauseOpen.select ? 'max-h-56 overflow-y-auto' : ''">
+                <TransitionGroup
+                    :ref="bindSelectGridElement"
+                    name="col-item"
+                    tag="div"
+                    class="relative grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-1"
+                    @leave="onColItemLeave"
+                >
                     <SortableColumnTile
-                        v-for="item in selectVisibleItems"
-                        :key="item.name"
-                        :name="item.name"
-                        :sortable="!clauseOpen.select"
-                        :is-dragging="item.isDragging"
-                        :selected="query.select.includes(item.name)"
-                        :tile-class="query.select.includes(item.name) ? chipClass(item.name) : outlineClass(item.name)"
-                        :icon="typeIcon(item.name)"
+                        v-for="name in selectVisibleItems"
+                        :key="name"
+                        :name="name"
+                        :sortable="selectSortEnabled"
+                        :selected="query.select.includes(name)"
+                        :tile-class="query.select.includes(name) ? chipClass(name) : outlineClass(name)"
+                        :icon="typeIcon(name)"
                         @toggle="toggleSelect"
-                        @handle-pointer-down="onSelectHandlePointerDown"
                     />
                     <p v-if="!clauseOpen.select && selectVisibleItems.length === 0" key="__msg" class="col-span-full py-0.5 text-xs text-zinc-400 dark:text-zinc-500">
                         Displaying all columns
@@ -652,5 +709,9 @@ const sql = computed((): string => {
 /* FLIP: tiles smoothly slide to their new positions during drag */
 .col-item-move {
     transition: transform 0.22s ease;
+}
+
+.select-drag-placeholder {
+    opacity: 0.35;
 }
 </style>
