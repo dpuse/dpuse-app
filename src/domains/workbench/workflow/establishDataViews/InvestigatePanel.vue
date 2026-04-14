@@ -10,6 +10,7 @@ import {
     HashIcon,
     KeyRoundIcon,
     PlusIcon,
+    SearchIcon,
     ToggleLeftIcon,
     TypeIcon,
     XIcon
@@ -24,6 +25,19 @@ import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
 import SortableColumnTile from './SortableColumnTile.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const COLUMNS: Column[] = [
+    { name: 'id', type: 'id' },
+    { name: 'customer_id', type: 'id' },
+    { name: 'amount', type: 'number' },
+    { name: 'status', type: 'text' },
+    { name: 'created_date', type: 'date' },
+    { name: 'start_time', type: 'time' },
+    { name: 'updated_at', type: 'dateTime' },
+    { name: 'is_active', type: 'boolean' }
+];
+
+const OPS = ['=', '!=', '<', '<=', '>', '>=', 'LIKE', 'IS NULL', 'IS NOT NULL'] as const;
 
 const TYPE_CHIP: Record<string, string> = {
     id: 'bg-violet-100 text-violet-800 dark:bg-violet-400/20 dark:text-violet-300 inset-ring inset-ring-violet-300/60 dark:inset-ring-violet-500/30',
@@ -84,21 +98,6 @@ interface Query {
     orderBy: Array<{ column: string; dir: 'ASC' | 'DESC' }>;
 }
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const COLUMNS: Column[] = [
-    { name: 'id', type: 'id' },
-    { name: 'customer_id', type: 'id' },
-    { name: 'amount', type: 'number' },
-    { name: 'status', type: 'text' },
-    { name: 'created_date', type: 'date' },
-    { name: 'start_time', type: 'time' },
-    { name: 'updated_at', type: 'dateTime' },
-    { name: 'is_active', type: 'boolean' }
-];
-
-const OPS = ['=', '!=', '<', '<=', '>', '>=', 'LIKE', 'IS NULL', 'IS NOT NULL'] as const;
-
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 let ctr = 0;
@@ -108,13 +107,14 @@ const query = ref<Query>({ select: [], where: [], groupBy: [], having: [], order
 
 const clauseOpen = ref({ select: true, where: true, groupBy: false, having: false, orderBy: true });
 const pickerOpen = ref({ select: false, where: false, groupBy: false, having: false, orderBy: false });
+const selectSearchOpen = ref(false);
 // const sqlOpen = ref(true);
 
 // ── Column search (open state) ────────────────────────────────────────────────
 const columnSearch = ref('');
 
 const filteredColumns = computed<Column[]>(() => {
-    const q = columnSearch.value.trim().toLowerCase();
+    const q = selectSearchOpen.value ? columnSearch.value.trim().toLowerCase() : '';
     return q ? COLUMNS.filter((c) => c.name.toLowerCase().includes(q)) : COLUMNS;
 });
 
@@ -148,6 +148,10 @@ const havingDraft = ref(makeDraft());
 function openPicker(clause: keyof typeof pickerOpen.value): void {
     clauseOpen.value[clause] = true;
     pickerOpen.value[clause] = true;
+}
+
+function toggleSelectSearch(): void {
+    selectSearchOpen.value = !selectSearchOpen.value;
 }
 
 function onColItemLeave(element: Element): void {
@@ -237,25 +241,45 @@ const sql = computed((): string => {
     <ContentScroller class="px-4 pb-20!">
         <!-- Columns (Select) -->
         <section class="border-separator mt-4 rounded-md border">
-            <button
-                class="border-separator flex w-full items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60"
-                type="button"
-                @click="clauseOpen.select = !clauseOpen.select"
-            >
+            <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Select Columns</span>
-                <ChevronUpIcon v-if="clauseOpen.select" class="size-5 text-zinc-400" />
-                <ChevronDownIcon v-else class="size-5 text-zinc-400" />
-            </button>
+                <div class="flex items-center gap-1">
+                    <button
+                        v-if="clauseOpen.select"
+                        class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600"
+                        type="button"
+                        :title="selectSearchOpen ? 'Hide search' : 'Show search'"
+                        @click="toggleSelectSearch"
+                    >
+                        <SearchIcon class="size-4" :class="selectSearchOpen ? 'text-zinc-700 dark:text-zinc-200' : 'text-zinc-400'" />
+                    </button>
+                    <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.select = !clauseOpen.select">
+                        <ChevronUpIcon v-if="clauseOpen.select" class="size-5 text-zinc-400" />
+                        <ChevronDownIcon v-else class="size-5 text-zinc-400" />
+                    </button>
+                </div>
+            </div>
 
             <!-- Search: only visible when open -->
-            <div v-if="clauseOpen.select" class="border-separator border-b px-3 py-1.5">
-                <input
-                    v-model="columnSearch"
-                    class="w-full rounded-md bg-zinc-100 px-2 py-1 text-xs text-zinc-700 outline-none placeholder:text-zinc-400 dark:bg-zinc-700 dark:text-zinc-200"
-                    placeholder="Search columns…"
-                    type="search"
-                    aria-label="Search columns"
-                />
+            <div v-if="clauseOpen.select && selectSearchOpen" class="border-separator border-b px-3 py-1.5">
+                <div class="relative">
+                    <input
+                        v-model="columnSearch"
+                        class="dpuse-search-input w-full rounded-sm bg-zinc-100 px-2 py-1.5 pr-7 text-xs text-zinc-700 outline-none placeholder:text-zinc-400 dark:bg-zinc-700 dark:text-zinc-200"
+                        placeholder="Search column names…"
+                        type="search"
+                        aria-label="Search column names"
+                    />
+                    <button
+                        v-if="columnSearch.length > 0"
+                        class="absolute top-1/2 right-2 flex -translate-y-1/2 items-center justify-center p-0 text-zinc-400 hover:text-zinc-600 dark:text-zinc-300 dark:hover:text-zinc-100"
+                        type="button"
+                        aria-label="Clear column search"
+                        @click="columnSearch = ''"
+                    >
+                        <XIcon class="size-4" />
+                    </button>
+                </div>
             </div>
 
             <!-- Single TransitionGroup for both states.
@@ -280,6 +304,13 @@ const sql = computed((): string => {
                         :icon="typeIcon(name)"
                         @toggle="toggleSelect"
                     />
+                    <p
+                        v-if="clauseOpen.select && selectSearchOpen && columnSearch.trim().length > 0 && filteredColumns.length === 0"
+                        key="__not_found"
+                        class="col-span-full py-2 text-center text-xs text-zinc-400 dark:text-zinc-500"
+                    >
+                        No columns found
+                    </p>
                     <p v-if="!clauseOpen.select && selectVisibleItems.length === 0" key="__msg" class="col-span-full py-0.5 text-xs text-zinc-400 dark:text-zinc-500">
                         Displaying all columns
                     </p>
@@ -289,7 +320,7 @@ const sql = computed((): string => {
 
         <!-- Filter (Where)-->
         <section class="border-separator mt-4 rounded-md border">
-            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
+            <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Filter Rows</span>
                     <span v-if="query.where.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
@@ -377,7 +408,7 @@ const sql = computed((): string => {
 
         <!-- Group (Group By) -->
         <section class="border-separator mt-4 rounded-md border">
-            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
+            <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Group Rows</span>
                     <span v-if="query.groupBy.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
@@ -447,7 +478,7 @@ const sql = computed((): string => {
 
         <!-- Group Filter (Having) -->
         <section class="border-separator mt-4 rounded-md border">
-            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
+            <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Filter Row Groups</span>
                     <span v-if="query.having.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
@@ -535,7 +566,7 @@ const sql = computed((): string => {
 
         <!--Sort (Order By) -->
         <section class="border-separator mt-4 rounded-md border">
-            <div class="border-separator flex items-center justify-between border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
+            <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Sort Rows</span>
                     <span v-if="query.orderBy.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
@@ -660,5 +691,10 @@ const sql = computed((): string => {
 
 .select-drag-placeholder {
     opacity: 0.35;
+}
+
+.dpuse-search-input::-webkit-search-cancel-button {
+    display: none;
+    -webkit-appearance: none;
 }
 </style>
