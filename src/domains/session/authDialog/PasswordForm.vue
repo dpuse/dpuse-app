@@ -7,8 +7,8 @@ import T from '@/translations/domains/session/authDialog/PasswordForm.json';
 import { t } from '@/translations';
 
 // App Components - Statically imported.
-import Button from '@/components/button/Button.vue';
-import Input from '@/components/input/Input.vue';
+import Button from '@/components/ui/button/Button.vue';
+import Input from '@/components/ui/input/Input.vue';
 
 // Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
 

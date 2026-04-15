@@ -6,7 +6,7 @@ import { computed, onMounted, onUnmounted, ref, useSlots } from 'vue';
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // App Components - Statically imported.
-import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
+import ScrollThumb from '../scrollThumb/ScrollThumb.vue';
 
 // Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
 

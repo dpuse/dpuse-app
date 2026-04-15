@@ -13,11 +13,11 @@ import { t } from '@/translations';
 import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
 // App Components - Statically imported.
-import Button from '@/components/button/Button.vue';
-import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue';
+import Button from '@/components/ui/button/Button.vue';
+import DPUseLogo from '@/components/branding/DPUseLogo.vue';
 import LoginForm from '@/domains/session/authDialog/LoginForm.vue';
 import PasswordForm from '@/domains/session/authDialog/PasswordForm.vue';
-import Separator from '@/components/separator/Separator.vue';
+import Separator from '@/components/ui/separator/Separator.vue';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -200,7 +200,7 @@ async function handleCloseDialog(): Promise<void> {
             </Button>
 
             <div class="flex flex-col gap-y-3 p-8">
-                <DPUseLogoIcon class="size-12" />
+                <DPUseLogo class="size-12" />
 
                 <div ref="containerRef">
                     <Transition name="fade" mode="out-in" @before-leave="onBeforeLeave" @enter="onEnter" @after-enter="onAfterEnter">

@@ -4,8 +4,8 @@ import { LoaderCircleIcon, XIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
 // App Components - Statically imported.
-import Button from '@/components/button/Button.vue';
-import DialogMask from '@/components/mask/DialogMask.vue';
+import Button from '../ui/button/Button.vue';
+import DialogMask from '@/components/dialog/DialogMask.vue';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

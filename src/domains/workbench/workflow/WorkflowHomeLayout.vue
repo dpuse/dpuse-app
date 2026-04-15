@@ -9,10 +9,10 @@ import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflo
 import { localeId, localiseConfigs, t } from '@/translations';
 
 // App Components - Statically imported.
-import Card from '@/components/card/Card.vue';
-import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
-import Header from '@/components/header/Header.vue';
-import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
+import Card from '@/components/ui/card/Card.vue';
+import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
+import Header from '@/components/layout/header/Header.vue';
+import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 

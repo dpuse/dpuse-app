@@ -3,7 +3,7 @@
 import { localeId } from '@/translations';
 
 // App Components - Statically imported.
-import Button from '@/components/button/Button.vue';
+import Button from '@/components/ui/button/Button.vue';
 </script>
 
 <template>

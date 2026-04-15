@@ -3,7 +3,7 @@ import type { Component } from 'vue';
 import { h } from 'vue';
 
 // App Core
-import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
+import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
 import { completeBusy, startBusy } from '@/state/appProgress';
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────

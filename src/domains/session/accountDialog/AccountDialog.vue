@@ -10,8 +10,8 @@ import { t } from '@/translations';
 import T from '@/translations/domains/session/accountDialog/AccountDialog.json';
 
 // App Components - Statically imported.
-import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
-import Button, { type VariantTypeId } from '@/components/button/Button.vue';
+import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
+import Button, { type VariantTypeId } from '@/components/ui/button/Button.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 

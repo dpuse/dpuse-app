@@ -10,11 +10,11 @@ import { connectionConfigs, connectorConfigs } from '@/state/session';
 import { localeId, localiseConfigs } from '@/translations';
 
 // App Components - Statically imported.
-import Card from '@/components/card/Card.vue';
-import ListDetailPanel from '@/components/listDetailPanel/ListDetailPanel.vue';
+import Card from '@/components/ui/card/Card.vue';
+import ListDetailPanel from '@/components/layout/listDetailPanel/ListDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
 import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
-import Tile from '@/components/tile/Tile.vue';
+import Tile from '@/components/ui/tile/Tile.vue';
 
 // Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
 

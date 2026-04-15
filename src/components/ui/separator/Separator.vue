@@ -1,6 +1,5 @@
 <script setup lang="ts">
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
-
+// Properties & Emits
 const { text } = defineProps<{ text?: string }>();
 </script>
 

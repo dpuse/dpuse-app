@@ -8,8 +8,8 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
 
 // App Components - Statically imported.
-import Button from '@/components/button/Button.vue';
-import Grid from '@/components/grid/Grid.vue';
+import Button from '../../ui/button/Button.vue';
+import Grid from '../../ui/grid/Grid.vue';
 
 // Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
 

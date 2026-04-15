@@ -1,6 +1,5 @@
 <script setup lang="ts">
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
-
+// Properties & Emits
 type Properties = {
     autoComplete?: 'email' | 'current-password' | 'new-password';
     id: string;

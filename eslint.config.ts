@@ -60,7 +60,7 @@ export default defineConfigWithVueTs(
             // 'sonarjs/no-unused-vars': 'warn',
             // 'sonarjs/todo-tag': 'warn',
 
-            'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['App.vue', 'DPUseLogoIcon.vue' /*'src/components/icon(?:/.*)?'*/] }],
+            'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['App.vue', 'DPUseLogo.vue' /*'src/components/icon(?:/.*)?'*/] }],
             'unicorn/no-null': 'off',
             'unicorn/prevent-abbreviations': ['error', { ignore: ['env.d.ts'] }],
             'unicorn/switch-case-braces': 'off',

@@ -12,13 +12,13 @@ import { t } from '@/translations';
 import { contentScrollTop, displayIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // App Components - Statically imported.
-import AppProgressBar from '@/components/appProgressBar/AppProgressBar.vue'; // Required when lazy loading is delayed.
-import BusyMask from '@/components/mask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
-import Button from '@/components/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
-import ChunkLoadError from '@/components/chunkLoadError/ChunkLoadError.vue';
-import DialogWrapper from '@/components/dialogWrapper/DialogWrapper.vue'; // Static so dialog mask appears immediately on open.
-import DPUseLogoIcon from '@/components/icon/logos/DPUseLogoIcon.vue'; // Always visible.
-import KnowledgeIcon from '@/components/icon/KnowledgeIcon.vue'; // Always visible.
+import AppProgressBar from '@/components/layout/appProgressBar/AppProgressBar.vue'; // Required when lazy loading is delayed.
+import BusyMask from '@/components/layout/busyMask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
+import Button from '@/components/ui/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
+import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
+import DialogWrapper from '@/components/dialog/DialogWrapper.vue'; // Static so dialog mask appears immediately on open.
+import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
+import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
 
@@ -26,7 +26,7 @@ import SessionButton from '@/domains/session/SessionButton.vue'; // Always visib
 const AccountDialog = defineAsyncComponent({ loader: load('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue'), 0), errorComponent: ChunkLoadError });
 const AuthDialog = defineAsyncComponent({ loader: load('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0), errorComponent: ChunkLoadError });
 const KnowledgeLayout = defineAsyncComponent({ loader: load('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });
-const PaneSplitter = defineAsyncComponent({ loader: load('paneSplitter', () => import('@/components/paneSplitter/PaneSplitter.vue'), 0), errorComponent: ChunkLoadError });
+const PaneSplitter = defineAsyncComponent({ loader: load('paneSplitter', () => import('@/components/layout/paneSplitter/PaneSplitter.vue'), 0), errorComponent: ChunkLoadError });
 const WorkbenchOptionBar = defineAsyncComponent({
     loader: load('workbenchOptionBar', () => import('@/domains/workbench/WorkbenchOptionBar.vue'), 0),
     errorComponent: ChunkLoadError
@@ -221,7 +221,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             variant="iconLarge"
             @click="toggleWorkbenchAppPane()"
         >
-            <DPUseLogoIcon />
+            <DPUseLogo />
         </Button>
 
         <!-- Knowledge toggle fixed in top right corner. Always visible. -->
@@ -248,7 +248,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
                 variant="iconLarge"
                 @click="toggleKnowledgeAppPane()"
             >
-                <KnowledgeIcon />
+                <KnowledgeLogo />
             </Button>
         </div>
 

@@ -8,13 +8,13 @@ import T from '@/translations/domains/session/authDialog/LoginForm.json';
 import { t } from '@/translations';
 
 // App Components - Statically imported.
-import AppleLogoIcon from '@/components/icon/logos/AppleLogoIcon.vue';
-import Button from '@/components/button/Button.vue';
-import GitHubLogoIcon from '@/components/icon/logos/GitHubLogoIcon.vue';
-import GoogleLogoIcon from '@/components/icon/logos/GoogleLogoIcon.vue';
-import Input from '@/components/input/Input.vue';
-import MicrosoftLogoIcon from '@/components/icon/logos/MicrosoftLogoIcon.vue';
-import Separator from '@/components/separator/Separator.vue';
+import AppleLogo from '@/components/logos/AppleLogo.vue';
+import Button from '@/components/ui/button/Button.vue';
+import GitHubLogo from '@/components/logos/GitHubLogo.vue';
+import GoogleLogo from '@/components/logos/GoogleLogo.vue';
+import Input from '@/components/ui/input/Input.vue';
+import MicrosoftLogo from '@/components/logos/MicrosoftLogo.vue';
+import Separator from '@/components/ui/separator/Separator.vue';
 
 // Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -51,10 +51,10 @@ async function handleSubmit(): Promise<void> {
 
         <div class="flex flex-col gap-y-3">
             <Button class="flex justify-start gap-x-2" variant="outline"><UserRoundKeyIcon class="size-5" />{{ t(T, 'Sign_in_with_a_passkey') }}</Button>
-            <Button class="flex justify-start gap-x-2" variant="outline"><AppleLogoIcon class="size-5" :is-dark="isDark" />{{ t(T, 'Sign_in_with_Apple') }}</Button>
-            <Button class="flex justify-start gap-x-2" variant="outline"><GoogleLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_Google') }}</Button>
-            <Button class="flex justify-start gap-x-2" variant="outline"><GitHubLogoIcon class="size-5" :is-dark="isDark" />{{ t(T, 'Sign_in_with_GitHub') }}</Button>
-            <Button class="flex justify-start gap-x-2" variant="outline"><MicrosoftLogoIcon class="size-5" />{{ t(T, 'Sign_in_with_Microsoft') }}</Button>
+            <Button class="flex justify-start gap-x-2" variant="outline"><AppleLogo class="size-5" :is-dark="isDark" />{{ t(T, 'Sign_in_with_Apple') }}</Button>
+            <Button class="flex justify-start gap-x-2" variant="outline"><GoogleLogo class="size-5" />{{ t(T, 'Sign_in_with_Google') }}</Button>
+            <Button class="flex justify-start gap-x-2" variant="outline"><GitHubLogo class="size-5" :is-dark="isDark" />{{ t(T, 'Sign_in_with_GitHub') }}</Button>
+            <Button class="flex justify-start gap-x-2" variant="outline"><MicrosoftLogo class="size-5" />{{ t(T, 'Sign_in_with_Microsoft') }}</Button>
         </div>
     </div>
 </template>

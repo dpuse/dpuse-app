@@ -8,8 +8,8 @@ import { displayIsWide } from '@/state/appLayout';
 import { isAuthenticated as sessionIsAuthenticated } from '@/state/session';
 
 // App Components - Statically imported.
-import Button from '@/components/button/Button.vue';
-import DialogMask from '@/components/mask/DialogMask.vue';
+import Button from '@/components/ui/button/Button.vue';
+import DialogMask from '@/components/dialog/DialogMask.vue';
 import SessionMenu from '@/domains/session/SessionMenu.vue';
 
 // Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────

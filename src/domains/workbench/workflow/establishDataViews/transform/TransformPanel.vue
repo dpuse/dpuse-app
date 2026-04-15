@@ -21,7 +21,7 @@ import { type Component, computed, ref } from 'vue';
 import { useSelectColumnSort } from './useSelectColumnSort';
 
 // App Components - Statically imported.
-import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
+import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 import SortableColumnTile from './ColumnPill.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────

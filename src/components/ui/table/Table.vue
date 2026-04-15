@@ -5,10 +5,10 @@ import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, getCor
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 // App Core
-import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // App Components - Statically imported.
+import ScrollThumb from '../scrollThumb/ScrollThumb.vue';
 import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';
 import TableHeaderCell from './TableHeaderCell.vue';

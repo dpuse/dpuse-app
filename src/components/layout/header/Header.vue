@@ -2,8 +2,7 @@
 // App Core
 import { displayIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
-
+// Properties & Emits
 const { breadcrumbs, title, to } = defineProps<{ breadcrumbs?: { id: string; label: string; to?: string }[]; title: string; to?: string }>();
 </script>
 

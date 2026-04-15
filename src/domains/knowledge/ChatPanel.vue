@@ -4,8 +4,8 @@ import { ref } from 'vue';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 
 // App Components - Statically imported.
-import Button from '@/components/button/Button.vue';
-import Header from '@/components/header/Header.vue';
+import Button from '@/components/ui/button/Button.vue';
+import Header from '@/components/layout/header/Header.vue';
 
 // Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
 

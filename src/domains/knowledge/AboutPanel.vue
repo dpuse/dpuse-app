@@ -8,7 +8,7 @@ import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflo
 import { localeId, localiseConfigs } from '@/translations';
 
 // App Components - Statically imported.
-import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
+import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 

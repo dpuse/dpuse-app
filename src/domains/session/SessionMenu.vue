@@ -11,8 +11,8 @@ import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/translations'
 import { isAuthenticated as sessionIsAuthenticated, signOut } from '@/state/session';
 
 // App Components - Statically imported.
-import Button from '@/components/button/Button.vue';
-import Separator from '@/components/separator/Separator.vue';
+import Button from '@/components/ui/button/Button.vue';
+import Separator from '@/components/ui/separator/Separator.vue';
 
 // Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
 

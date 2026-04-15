@@ -24,12 +24,12 @@ import { useEngine } from '@/services/useEngine';
 import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/session';
 
 // App Components - Statically imported.
-import Card from '@/components/card/Card.vue';
-import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
-import Grid from '@/components/grid/Grid.vue';
+import Card from '@/components/ui/card/Card.vue';
+import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
+import Grid from '@/components/ui/grid/Grid.vue';
 
 // App Components - Dynamically imported.
-const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/emptyPlaceholder/EmptyPlaceholder.vue'));
+const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/emptyPlaceholder/EmptyPlaceholder.vue'));
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

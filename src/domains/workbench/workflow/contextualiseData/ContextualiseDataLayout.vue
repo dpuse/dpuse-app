@@ -4,8 +4,8 @@ import { t } from '@/translations';
 import T from '@/translations/domains/workbench/workflow/contextualiseData/ContextualiseDataLayout.json';
 
 // App Components - Statically imported.
-import Header from '@/components/header/Header.vue';
-import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
+import Header from '@/components/layout/header/Header.vue';
+import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 </script>
 
 <template>

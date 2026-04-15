@@ -9,8 +9,8 @@ import T from '@/translations/domains/workbench/workflow/establishDataViews/Esta
 import { localeId, type LocaleLabel, localiseConfigs, t } from '@/translations';
 
 // App Components - Statically imported.
-import Header from '@/components/header/Header.vue';
-import LayoutShell from '@/components/layoutShell/LayoutShell.vue';
+import Header from '@/components/layout/header/Header.vue';
+import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
