@@ -1,11 +1,11 @@
 <script setup lang="ts">
-// App Core
+// App Framework
 import type { ColumnDef } from '@tanstack/vue-table';
 import type { DataSource } from '@/composables/useDataWindow';
 import { t } from '@/translations';
 import T from '@/translations/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.json';
 
-// App Components - Statically imported.
+// App Static Components
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 import Table from '@/components/ui/table/Table.vue';

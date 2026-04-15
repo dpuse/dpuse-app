@@ -1,14 +1,14 @@
 <script setup lang="ts" generic="T">
 // External Dependencies
-import { computed, onMounted, onUnmounted, ref, useSlots, useTemplateRef } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
-// App Core
+// App Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
-// App Components - Statically imported.
+// App Static Components
 import ScrollThumb from '../scrollThumb/ScrollThumb.vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     dataSource: DataSource<T>;
@@ -18,6 +18,11 @@ type Properties = {
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
 };
 const { dataSource, rowHeight = 48, targetColumnWidth, cacheBlockSize, maxBlocksInCache } = defineProps<Properties>();
+
+const slots = defineSlots<{
+    compact?(properties: { index: number; row: T }): unknown;
+    default?(properties: { index: number; row: T }): unknown;
+}>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -34,7 +39,6 @@ const resizeObserver = new ResizeObserver((entries) => {
         columnWidth.value = Math.floor((width - 16) / columnCount.value);
     }
 });
-const slots = useSlots();
 const { virtualRows, totalRowCount, getRow } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
@@ -74,12 +78,12 @@ onUnmounted(() => resizeObserver.disconnect());
                                 <slot
                                     v-if="isCompact && getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
                                     name="compact"
-                                    :row="getRow(virtualRow.index * columnCount + columnOffset)"
+                                    :row="getRow(virtualRow.index * columnCount + columnOffset) as T"
                                     :index="virtualRow.index * columnCount + columnOffset"
                                 />
                                 <slot
                                     v-else-if="getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
-                                    :row="getRow(virtualRow.index * columnCount + columnOffset)"
+                                    :row="getRow(virtualRow.index * columnCount + columnOffset) as T"
                                     :index="virtualRow.index * columnCount + columnOffset"
                                 />
                                 <div v-else class="flex h-full items-center px-3">

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-// App Core
+// App Framework
 import { displayIsWide } from '@/state/appLayout';
 
-// App Components - Statically imported.
+// App Static Components
 import WorkbenchOptionPanel from './WorkbenchOptionPanel.vue';
 
-// Properties & Emits
-defineEmits<{ (event: 'continue'): void }>();
+// Properties, Emits & Slots
+defineEmits<{ continue: [] }>();
 </script>
 
 <template>

@@ -3,11 +3,11 @@
 import { ref } from 'vue';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 
-// App Components - Statically imported.
+// App Static Components
 import Button from '@/components/ui/button/Button.vue';
 import Header from '@/components/layout/header/Header.vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { title } = defineProps<{ title: string }>();
 

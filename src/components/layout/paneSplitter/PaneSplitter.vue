@@ -2,10 +2,9 @@
 // External Dependencies
 import { ref } from 'vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
-defineProps<{ modelValue?: number }>();
-const emit = defineEmits<{ 'update:modelValue': [value: number] }>();
+const modelValue = defineModel<number>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -14,7 +13,7 @@ const isDragging = ref(false);
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleDoubleClick(): void {
-    emit('update:modelValue', 50);
+    modelValue.value = 50;
 }
 
 function handlePointerDown(event: PointerEvent): void {
@@ -26,7 +25,7 @@ function handlePointerDown(event: PointerEvent): void {
 function handlePointerMove(event: PointerEvent): void {
     if (!isDragging.value) return;
     const percent = (event.clientX / window.innerWidth) * 100;
-    emit('update:modelValue', Math.min(Math.max(percent, 20), 80));
+    modelValue.value = Math.min(Math.max(percent, 20), 80);
 }
 
 function handlePointerUp(): void {

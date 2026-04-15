@@ -3,7 +3,7 @@
 import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
-// App Components - Dynamically imported.
+// App Dynamic Components
 const AboutView = defineAsyncComponent(() => import('./AboutPanel.vue'));
 const ChatView = defineAsyncComponent(() => import('./ChatPanel.vue'));
 const LibraryView = defineAsyncComponent(() => import('./LibraryPanel.vue'));
@@ -17,7 +17,7 @@ const KNOWLEDGE_PANELS: Record<KnowledgeViewId, { component: Component; label: s
     chat: { component: ChatView, label: 'Chat' }
 };
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }>();
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// App Core
+// App Framework
 import { displayIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
-// Properties & Emits
+// Properties, Emits & Slots
 const { breadcrumbs, title, to } = defineProps<{ breadcrumbs?: { id: string; label: string; to?: string }[]; title: string; to?: string }>();
 </script>
 

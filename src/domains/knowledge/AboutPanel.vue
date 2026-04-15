@@ -2,12 +2,12 @@
 // External Dependencies
 import { computed } from 'vue';
 
-// App Core
+// App Framework
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
 import { localeId, localiseConfigs } from '@/translations';
 
-// App Components - Statically imported.
+// App Static Components
 import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────

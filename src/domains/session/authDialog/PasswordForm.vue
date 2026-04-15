@@ -2,15 +2,15 @@
 // External Dependencies
 import { ref } from 'vue';
 
-// App Core
+// App Framework
 import T from '@/translations/domains/session/authDialog/PasswordForm.json';
 import { t } from '@/translations';
 
-// App Components - Statically imported.
+// App Static Components
 import Button from '@/components/ui/button/Button.vue';
 import Input from '@/components/ui/input/Input.vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { onBack, onTrigger } = defineProps<{ onBack: () => Promise<void>; onTrigger: (password: string) => Promise<void> }>();
 

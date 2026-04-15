@@ -5,11 +5,11 @@ import { SendHorizonalIcon } from 'lucide-vue-next';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
 import { onMounted, ref } from 'vue';
 
-// App Components - Statically imported.
+// App Static Components
 import Button from '@/components/ui/button/Button.vue';
 import Header from '@/components/layout/header/Header.vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { title } = defineProps<{ title: string }>();
 

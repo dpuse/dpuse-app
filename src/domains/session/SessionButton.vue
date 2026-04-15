@@ -3,16 +3,16 @@
 import { LoaderCircleIcon } from 'lucide-vue-next';
 import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 
-// App Core
+// App Framework
 import { displayIsWide } from '@/state/appLayout';
 import { isAuthenticated as sessionIsAuthenticated } from '@/state/session';
 
-// App Components - Statically imported.
+// App Static Components
 import Button from '@/components/ui/button/Button.vue';
 import DialogMask from '@/components/dialog/DialogMask.vue';
 import SessionMenu from '@/domains/session/SessionMenu.vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { workbenchOptionBarIsVisible } = defineProps<{ workbenchOptionBarIsVisible: boolean }>();
 

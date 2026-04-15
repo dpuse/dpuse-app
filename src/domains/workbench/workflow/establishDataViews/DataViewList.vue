@@ -15,7 +15,7 @@ import type {
     UpsertRecordsOptions
 } from '@dpuse/dpuse-shared/component/connector';
 
-// App Core
+// App Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/translations';
@@ -23,12 +23,12 @@ import T from '@/translations/domains/workbench/workflow/establishDataViews/Data
 import { useEngine } from '@/services/useEngine';
 import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/session';
 
-// App Components - Statically imported.
+// App Static Components
 import Card from '@/components/ui/card/Card.vue';
 import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 
-// App Components - Dynamically imported.
+// App Dynamic Components
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/emptyPlaceholder/EmptyPlaceholder.vue'));
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────

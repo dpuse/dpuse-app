@@ -3,11 +3,11 @@
 import { UserRoundKeyIcon } from 'lucide-vue-next';
 import { onUnmounted, ref } from 'vue';
 
-// App Core
+// App Framework
 import T from '@/translations/domains/session/authDialog/LoginForm.json';
 import { t } from '@/translations';
 
-// App Components - Statically imported.
+// App Static Components
 import AppleLogo from '@/components/logos/AppleLogo.vue';
 import Button from '@/components/ui/button/Button.vue';
 import GitHubLogo from '@/components/logos/GitHubLogo.vue';
@@ -16,7 +16,7 @@ import Input from '@/components/ui/input/Input.vue';
 import MicrosoftLogo from '@/components/logos/MicrosoftLogo.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { onTrigger } = defineProps<{ onTrigger: (identifier: string) => Promise<void> }>();
 

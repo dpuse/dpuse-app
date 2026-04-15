@@ -2,13 +2,13 @@
 // External Dependencies
 import { computed } from 'vue';
 
-// App Core
+// App Framework
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import T from '@/translations/domains/workbench/workflow/WorkflowHomeLayout.json';
 import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json'; // TODO: We do this in at least two other places, maybe we could centralise in state management?
 import { localeId, localiseConfigs, t } from '@/translations';
 
-// App Components - Statically imported.
+// App Static Components
 import Card from '@/components/ui/card/Card.vue';
 import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 import Header from '@/components/layout/header/Header.vue';

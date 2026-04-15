@@ -3,18 +3,25 @@
 import { ArrowBigLeftIcon } from 'lucide-vue-next';
 import { computed, shallowRef } from 'vue';
 
-// App Core
+// App Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
 
-// App Components - Statically imported.
+// App Static Components
 import Button from '../../ui/button/Button.vue';
 import Grid from '../../ui/grid/Grid.vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { items, maxRightWidth } = defineProps<{ items: T[]; maxRightWidth?: string }>();
-const emit = defineEmits<{ (event: 'select', item: T | undefined): void }>();
+
+const emit = defineEmits<{ 'select-item': [item: T] }>();
+
+defineSlots<{
+    detail(properties: { item: T }): unknown;
+    'list-item-compact'(properties: { item: T }): unknown;
+    'list-item-default'(properties: { item: T }): unknown;
+}>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -29,9 +36,9 @@ const dataSource = computed<DataSource>(() => ({
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function selectItem(item: T | undefined): void {
+function selectItem(item: T): void {
     activeItem.value = item;
-    emit('select', item);
+    emit('select-item', item);
 }
 </script>
 

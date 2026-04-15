@@ -2,20 +2,20 @@
 // External Dependencies
 import { computed } from 'vue';
 
-// App Core
+// App Framework
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { setActiveBenchtop } from '@/state/activeBenchtop';
 import T from '@/translations/domains/workbench/WorkbenchOptionBarContent.json';
 import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
 import { localeId, localiseConfigs, t } from '@/translations';
 
-// App Components - Statically imported.
+// App Static Components
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
-const emit = defineEmits<{ (event: 'continue'): void }>();
+const emit = defineEmits<{ continue: [] }>();
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 

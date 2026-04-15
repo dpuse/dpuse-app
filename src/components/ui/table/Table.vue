@@ -2,12 +2,12 @@
 // External Dependencies
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, getCoreRowModel, useVueTable, type VisibilityState } from '@tanstack/vue-table';
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue';
 
-// App Core
+// App Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
-// App Components - Statically imported.
+// App Static Components
 import ScrollThumb from '../scrollThumb/ScrollThumb.vue';
 import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';
@@ -17,7 +17,7 @@ import TableHeaderCell from './TableHeaderCell.vue';
 
 const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000; // Empirically chosen — below this width, flat rendering is cheaper than virtualizer overhead.
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     columnDefinitions: ColumnDef<T>[];
@@ -39,9 +39,9 @@ let toolbarObserver: ResizeObserver | null = null;
 
 // State - Columns ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const columnPinningStateMap = ref<ColumnPinningState>({});
-const columnSizingStateMap = ref<ColumnSizingState>({});
-const columnVisibilityStateMap = ref<VisibilityState>({});
+const columnPinningStateMap = shallowRef<ColumnPinningState>({});
+const columnSizingStateMap = shallowRef<ColumnSizingState>({});
+const columnVisibilityStateMap = shallowRef<VisibilityState>({});
 
 // Column virtualization is only activated when the total initial column width exceeds the threshold.
 // Below the threshold, all columns are rendered in a flat flex row — simpler and cheaper.

@@ -10,7 +10,7 @@ import type { ToolConfig } from '@dpuse/dpuse-shared/component/tool';
 import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
 import type { ContextConfig, DimensionConfig, EventQueryConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 
-// App Core
+// App Framework
 import { localeId } from '../translations';
 import { reportAppError } from '@/observability/errorTracking';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';

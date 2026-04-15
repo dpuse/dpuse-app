@@ -4,19 +4,19 @@ import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'l
 import { nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-// App Core
+// App Framework
 import { displayIsWide } from '@/state/appLayout';
 import T from '@/translations/domains/session/SessionMenu.json';
 import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/translations';
 import { isAuthenticated as sessionIsAuthenticated, signOut } from '@/state/session';
 
-// App Components - Statically imported.
+// App Static Components
 import Button from '@/components/ui/button/Button.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
-const emit = defineEmits<{ (event: 'continue'): void }>();
+const emit = defineEmits<{ continue: [] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

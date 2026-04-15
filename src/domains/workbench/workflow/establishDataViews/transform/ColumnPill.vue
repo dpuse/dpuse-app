@@ -3,13 +3,12 @@
 import type { Component } from 'vue';
 import { CheckIcon, GripVerticalIcon } from 'lucide-vue-next';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 type Properties = { name: string; sortable: boolean; selected: boolean; tileClass: string; icon: Component };
 const { name, sortable, tileClass, icon, selected } = defineProps<Properties>();
-const emit = defineEmits<{
-    toggle: [name: string];
-}>();
+
+const emit = defineEmits<{ toggle: [name: string] }>();
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

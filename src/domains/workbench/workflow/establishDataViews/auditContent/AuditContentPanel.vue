@@ -1,11 +1,12 @@
 <script setup lang="ts">
-// App Core
+// App Framework
 import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
-const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalisedConfig): void }>();
+
+const emit = defineEmits<{ complete: [taskLocalisedConfig: TaskLocalisedConfig] }>();
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

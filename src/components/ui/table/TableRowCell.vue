@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// Properties & Emits
-defineProps<{ value: unknown; loading: boolean }>();
+// Properties, Emits & Slots
+const { loading, value } = defineProps<{ loading: boolean; value: unknown }>();
 </script>
 
 <template>

@@ -2,7 +2,7 @@
 // External Dependencies
 import { onBeforeUnmount, useTemplateRef, watch } from 'vue';
 
-// App Core
+// App Framework
 import { contentScrollTop, knowledgePaneIsVisible } from '@/state/appLayout';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────

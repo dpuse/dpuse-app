@@ -2,7 +2,7 @@
 // External Dependencies
 import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { scrollElement, rowCount = 0 } = defineProps<{ scrollElement: HTMLElement | null; rowCount?: number }>();
 

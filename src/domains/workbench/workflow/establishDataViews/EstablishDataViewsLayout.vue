@@ -4,11 +4,11 @@ import { PlusIcon } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
 import { computed, ref, shallowRef, watch } from 'vue';
 
-// App Core
+// App Framework
 import T from '@/translations/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.json';
 import { localeId, type LocaleLabel, localiseConfigs, t } from '@/translations';
 
-// App Components - Statically imported.
+// App Static Components
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 

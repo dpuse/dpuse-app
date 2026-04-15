@@ -17,10 +17,10 @@ import {
 } from 'lucide-vue-next';
 import { type Component, computed, ref } from 'vue';
 
-// App Core
+// App Framework
 import { useSelectColumnSort } from './useSelectColumnSort';
 
-// App Components - Statically imported.
+// App Static Components
 import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 import SortableColumnTile from './ColumnPill.vue';
 

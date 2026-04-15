@@ -4,7 +4,7 @@
 // import type { AuditObjectContentOptions, ConnectionConfig, PreviewObjectOptions, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/connector';
 import type { EngineCallbackData, EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared/engine';
 
-// App Core
+// App Framework
 import { engineConfig, toolConfigs } from '@/state/session';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────

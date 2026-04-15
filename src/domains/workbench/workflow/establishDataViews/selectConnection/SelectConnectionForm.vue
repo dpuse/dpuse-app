@@ -6,19 +6,20 @@ import { ref } from 'vue';
 import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/connector';
 import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
 
-// App Core
+// App Framework
 import T from '@/translations/domains/session/authDialog/LoginForm.json';
 import { t } from '@/translations';
 import { useEngine } from '@/services/useEngine';
 
-// App Components - Statically imported.
+// App Static Components
 import Button from '@/components/ui/button/Button.vue';
 import Input from '@/components/ui/input/Input.vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig?: ConnectionLocalisedConfig }>();
-const emit = defineEmits<{ (event: 'complete'): void }>();
+
+const emit = defineEmits<{ complete: [] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

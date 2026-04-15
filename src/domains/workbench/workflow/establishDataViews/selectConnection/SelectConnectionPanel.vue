@@ -3,23 +3,24 @@
 import { shallowRef, watch } from 'vue';
 
 // DPUse Framework
-import type { ConnectionConfig, ConnectionLocalisedConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
+import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/connector';
 
-// App Core
-import { connectionConfigs, connectorConfigs } from '@/state/session';
+// App Framework
+import { connectionConfigs } from '@/state/session';
 import { localeId, localiseConfigs } from '@/translations';
 
-// App Components - Statically imported.
+// App Static Components
 import Card from '@/components/ui/card/Card.vue';
 import ListDetailPanel from '@/components/layout/listDetailPanel/ListDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
 import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 
-// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
-const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalisedConfig): void }>();
+
+const emit = defineEmits<{ complete: [taskLocalisedConfig: TaskLocalisedConfig] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -32,6 +33,10 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
 });
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function handleSelectItem(connectionLocalisedConfigs: ConnectionLocalisedConfig): void {
+    console.log(1111, connectionLocalisedConfigs);
+}
 
 function triggerComplete(): void {
     emit('complete', taskLocalisedConfig);
@@ -73,7 +78,7 @@ function triggerComplete(): void {
 </script>
 
 <template>
-    <ListDetailPanel class="flex-1" :items="connectionLocalisedConfigs || []" max-right-width="400px">
+    <ListDetailPanel class="flex-1" :items="connectionLocalisedConfigs || []" max-right-width="400px" @select-item="handleSelectItem($event)">
         <template #list-item-default="{ item }">
             <Card v-if="item" :label="item.label" />
         </template>

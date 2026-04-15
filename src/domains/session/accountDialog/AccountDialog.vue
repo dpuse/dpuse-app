@@ -4,12 +4,12 @@ import { useRoute } from 'vue-router';
 import { ArrowBigLeftIcon, LoaderCircleIcon } from 'lucide-vue-next';
 import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 
-// App Core
+// App Framework
 import { displayIsWide } from '@/state/appLayout';
 import { t } from '@/translations';
 import T from '@/translations/domains/session/accountDialog/AccountDialog.json';
 
-// App Components - Statically imported.
+// App Static Components
 import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
 import Button, { type VariantTypeId } from '@/components/ui/button/Button.vue';
 

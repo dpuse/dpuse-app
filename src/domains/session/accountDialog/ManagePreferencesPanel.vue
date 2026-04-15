@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// App Core
+// App Framework
 import { localeId } from '@/translations';
 
-// App Components - Statically imported.
+// App Static Components
 import Button from '@/components/ui/button/Button.vue';
 </script>
 
