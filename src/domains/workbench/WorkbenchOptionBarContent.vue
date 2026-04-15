@@ -10,7 +10,7 @@ import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflo
 import { localeId, localiseConfigs, t } from '@/translations';
 
 // App Components - Statically imported.
-import HomeIcon from './HomeIcon.vue';
+import HomeIcon from '@/components/icons/HomeIcon.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 
 // Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────

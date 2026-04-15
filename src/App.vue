@@ -12,7 +12,6 @@ import { t } from '@/translations';
 import { contentScrollTop, displayIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // App Components - Statically imported.
-import AppProgressBar from '@/components/layout/appProgressBar/AppProgressBar.vue'; // Required when lazy loading is delayed.
 import BusyMask from '@/components/layout/busyMask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
 import Button from '@/components/ui/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
 import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
@@ -20,6 +19,7 @@ import DialogWrapper from '@/components/dialog/DialogWrapper.vue'; // Static so 
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
+import ProgressBar from '@/components/layout/progressBar/ProgressBar.vue'; // Required when lazy loading is delayed.
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
 
 // App Components - Dynamically imported.
@@ -208,7 +208,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <div class="to-surface/95 fixed inset-x-0 top-0 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent" />
 
         <!-- Navigation progress bar. Always visible. -->
-        <AppProgressBar />
+        <ProgressBar />
 
         <!-- Busy mask - shown during non-dialog async component loading to prevent duplicate actions. -->
         <BusyMask v-if="isBusy" />
