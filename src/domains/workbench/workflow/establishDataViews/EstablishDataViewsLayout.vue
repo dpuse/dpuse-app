@@ -87,8 +87,10 @@ function updateTaskProgression(taskLocalisedConfig: TaskLocalisedConfig): void {
         </nav>
 
         <!-- Data View List or Active Task Panel -->
-        <RouterView v-slot="{ Component }">
-            <component :is="Component" :task-localised-config="activeTaskLocalisedConfig" @task-completed="updateTaskProgression" />
-        </RouterView>
+        <div class="flex flex-1 flex-col overflow-hidden">
+            <RouterView v-slot="{ Component }">
+                <component :is="Component" :task-localised-config="activeTaskLocalisedConfig" @task-completed="updateTaskProgression" />
+            </RouterView>
+        </div>
     </LayoutShell>
 </template>

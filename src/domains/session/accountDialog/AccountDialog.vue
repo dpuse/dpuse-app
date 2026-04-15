@@ -98,7 +98,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
         > -->
     <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light">{{ t(T, 'Manage_Account') }}</div>
 
-    <div class="flex flex-1 overflow-hidden">
+    <div class="flex flex-1 overflow-y-hidden">
         <div v-if="displayIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 overflow-y-auto overscroll-y-none px-4 pb-6">
             <div class="flex flex-1 flex-col gap-y-1">
                 <template v-for="optionConfig in OPTION_CONFIGS" :key="optionConfig.id">

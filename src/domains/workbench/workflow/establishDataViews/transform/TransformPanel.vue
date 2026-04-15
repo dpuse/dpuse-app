@@ -585,12 +585,7 @@ const sql = computed((): string => {
             <div v-if="clauseOpen.orderBy" class="p-3">
                 <!-- Existing order chips -->
                 <div v-if="query.orderBy.length > 0" class="mb-3 flex flex-wrap gap-2">
-                    <div
-                        v-for="item in query.orderBy"
-                        :key="item.column"
-                        class="flex items-center overflow-hidden rounded-full text-xs select-none"
-                        :class="chipClass(item.column)"
-                    >
+                    <div v-for="item in query.orderBy" :key="item.column" class="flex items-center rounded-full text-xs select-none" :class="chipClass(item.column)">
                         <div class="flex items-center gap-1.5 py-1.5 pl-2.5">
                             <component :is="typeIcon(item.column)" class="size-3 flex-none opacity-60" />
                             <span class="font-mono">{{ item.column }}</span>

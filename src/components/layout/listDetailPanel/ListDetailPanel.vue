@@ -9,11 +9,12 @@ import { displayIsWide } from '@/state/appLayout';
 
 // App Static Components
 import Button from '../../ui/button/Button.vue';
+import ContentScroller from '../../layout/contentScroller/ContentScroller.vue';
 import Grid from '../../ui/grid/Grid.vue';
 
 // Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
-const { items, maxRightWidth } = defineProps<{ items: T[]; maxRightWidth?: string }>();
+const { items, maxDetailWidth } = defineProps<{ items: T[]; maxDetailWidth?: string }>();
 
 const emit = defineEmits<{ 'select-item': [item: T] }>();
 
@@ -43,9 +44,9 @@ function selectItem(item: T): void {
 </script>
 
 <template>
-    <div class="flex">
+    <div class="flex overflow-y-hidden">
         <div v-if="displayIsWide || !activeItem" class="flex flex-1 flex-col">
-            <Grid class="flex-1 pb-20" :data-source="dataSource" :row-height="150" :target-column-width="350">
+            <Grid class="flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
                 <template #default="{ row }">
                     <Button class="h-full" variant="listItem" @click="selectItem(row as T)">
                         <slot name="list-item-default" :item="row as T" />
@@ -60,8 +61,12 @@ function selectItem(item: T): void {
             </Grid>
         </div>
 
-        <div v-if="displayIsWide || activeItem" class="mx-4 flex flex-1 flex-col" :style="{ maxWidth: maxRightWidth != null ? maxRightWidth : undefined }">
-            <div v-if="activeItem">
+        <div
+            v-if="displayIsWide || activeItem"
+            class="bg-backdrop border-boundary flex flex-1 flex-col border-l px-4"
+            :style="{ maxWidth: maxDetailWidth != null && displayIsWide ? maxDetailWidth : undefined }"
+        >
+            <div v-if="activeItem" class="flex flex-col overflow-y-hidden">
                 <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b">
                     <Button v-if="!displayIsWide" variant="iconSmall" @click="activeItem = undefined">
                         <ArrowBigLeftIcon stroke-width="1.25" />
@@ -69,9 +74,9 @@ function selectItem(item: T): void {
                     {{ activeItem?.label ?? 'Unknown' }}
                 </div>
 
-                <div class="flex-1 pt-4 pr-4 pb-20">
+                <ContentScroller class="flex-1 pt-4 pb-20">
                     <slot name="detail" :item="activeItem" />
-                </div>
+                </ContentScroller>
             </div>
 
             <div v-else>Select an item...</div>

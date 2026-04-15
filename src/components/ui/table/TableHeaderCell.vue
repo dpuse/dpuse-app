@@ -40,10 +40,7 @@ function onDocumentClick(event: MouseEvent): void {
                 <ChevronDown class="h-3 w-3" />
             </button>
 
-            <div
-                v-if="menuOpen"
-                class="absolute top-full right-0 z-50 min-w-32 overflow-hidden rounded border border-zinc-200 bg-white shadow-md dark:border-zinc-700 dark:bg-zinc-900"
-            >
+            <div v-if="menuOpen" class="absolute top-full right-0 z-50 min-w-32 rounded border border-zinc-200 bg-white shadow-md dark:border-zinc-700 dark:bg-zinc-900">
                 <button
                     v-if="header.column.getIsPinned() !== 'left'"
                     class="flex w-full items-center px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"

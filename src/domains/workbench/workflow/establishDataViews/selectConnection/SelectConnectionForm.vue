@@ -60,7 +60,7 @@ async function handleSubmit(): Promise<void> {
 </script>
 
 <template>
-    <div class="flex h-full flex-col gap-y-3">
+    <div class="flex h-full flex-col gap-y-3 bg-blue-200">
         <div class="flex flex-col gap-y-2">
             <h2 class="text-2xl font-normal">{{ t(T, 'Select_Connection') }}</h2>
             <p class="text-muted">{{ t(T, 'Select_a_connection_to_configure_the_data_view_before_continuing') }}</p>

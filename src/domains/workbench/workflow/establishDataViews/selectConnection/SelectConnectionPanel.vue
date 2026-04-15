@@ -77,7 +77,7 @@ function selectConnection(connectionLocalisedConfigs: ConnectionLocalisedConfig)
 </script>
 
 <template>
-    <ListDetailPanel class="flex-1" :items="connectionLocalisedConfigs || []" max-right-width="400px" @select-item="selectConnection($event)">
+    <ListDetailPanel :items="connectionLocalisedConfigs || []" max-detail-width="400px" @select-item="selectConnection($event)">
         <template #list-item-default="{ item }">
             <Card v-if="item" :label="item.label" />
         </template>

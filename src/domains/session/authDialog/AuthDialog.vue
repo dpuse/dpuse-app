@@ -191,7 +191,7 @@ async function handleCloseDialog(): Promise<void> {
         <div
             role="dialog"
             aria-modal="true"
-            class="bg-surface text-content z-10 h-full max-h-full w-full max-w-full overflow-hidden overflow-y-auto overscroll-y-none sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-sm sm:-translate-x-1/2 sm:rounded-lg"
+            class="bg-surface text-content z-10 h-full max-h-full w-full max-w-full overflow-y-auto overscroll-y-none sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-sm sm:-translate-x-1/2 sm:rounded-lg"
             tabindex="-1"
         >
             <!-- Close Button -->

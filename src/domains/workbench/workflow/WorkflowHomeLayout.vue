@@ -27,12 +27,7 @@ const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocal
         <!-- Workflow Steps -->
         <ContentScroller class="pb-16">
             <div class="dpuse-workbench-prose grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 p-4">
-                <RouterLink
-                    v-for="config in workflowOptionConfigs"
-                    :key="config.id"
-                    class="outline-boundary overflow-hidden rounded-lg font-light outline -outline-offset-1"
-                    :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
-                >
+                <RouterLink v-for="config in workflowOptionConfigs" :key="config.id" class=" " :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }">
                     <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                 </RouterLink>
             </div>

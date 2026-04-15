@@ -62,8 +62,8 @@ onUnmounted(() => resizeObserver.disconnect());
 </script>
 
 <template>
-    <div class="relative flex h-full flex-col overflow-hidden">
-        <div ref="scroller" class="flex-1 overflow-y-auto pb-(--dp-app-bottom-gutter)" role="list" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
+    <div class="relative flex h-full flex-col overflow-y-hidden">
+        <div ref="scroller" class="flex-1 overflow-y-auto" role="list" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
             <div :style="{ height: totalRowCount + 'px', position: 'relative' }">
                 <div
                     v-for="virtualRow in virtualRows"

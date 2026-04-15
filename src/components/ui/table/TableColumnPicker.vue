@@ -38,7 +38,7 @@ function onDocumentClick(event: MouseEvent): void {
                 Columns
             </button>
 
-            <div v-if="open" class="absolute top-full left-0 z-50 min-w-48 overflow-hidden rounded border border-zinc-200 bg-white shadow-md dark:border-zinc-700 dark:bg-zinc-900">
+            <div v-if="open" class="absolute top-full left-0 z-50 min-w-48 rounded border border-zinc-200 bg-white shadow-md dark:border-zinc-700 dark:bg-zinc-900">
                 <label
                     v-for="col in table.getAllColumns().filter((c) => c.getCanHide())"
                     :key="col.id"
