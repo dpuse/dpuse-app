@@ -2,7 +2,7 @@
 // External Dependencies
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, getCoreRowModel, useVueTable, type VisibilityState } from '@tanstack/vue-table';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 
 // App Core
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
@@ -29,11 +29,11 @@ const { columnDefinitions, dataSource, cacheBlockSize = 100, maxBlocksInCache = 
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const scrollElement = ref<HTMLElement | null>(null);
+const scrollElement = useTemplateRef<HTMLDivElement>('scroller');
 
 // State - Toolbar ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const toolbarElement = ref<HTMLElement | null>(null);
+const toolbarElement = useTemplateRef<HTMLDivElement>('toolbar');
 const toolbarHeight = ref(0); // Measured so ScrollThumb can be offset to align with the scroll area, not the toolbar.
 let toolbarObserver: ResizeObserver | null = null;
 
@@ -130,12 +130,12 @@ onBeforeUnmount(() => toolbarObserver?.disconnect());
 <template>
     <div class="relative flex h-full flex-col overflow-hidden">
         <!-- Toolbar -->
-        <div ref="toolbarElement">
+        <div ref="toolbar">
             <TableColumnPicker :table="table" />
         </div>
 
         <!-- Scroll container — single element for both row and column virtualizers -->
-        <div ref="scrollElement" class="flex-1 overflow-auto overscroll-none">
+        <div ref="scroller" class="flex-1 overflow-auto overscroll-none">
             <div :style="{ minWidth: totalWidth + 'px' }">
                 <!-- Header -->
                 <div class="sticky top-0 z-10 flex h-10 border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">

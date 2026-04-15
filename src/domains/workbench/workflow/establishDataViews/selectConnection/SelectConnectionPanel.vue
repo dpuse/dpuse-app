@@ -39,37 +39,37 @@ function triggerComplete(): void {
 
 // EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const connectorConfig = shallowRef();
-const connectionConfig = shallowRef();
+// const connectorConfig = shallowRef();
+// const connectionConfig = shallowRef();
 
-watch(
-    connectorConfigs,
-    (newConnectorConfigs) => {
-        if (newConnectorConfigs == null) return;
-        connectorConfig.value = newConnectorConfigs.find((config) => config.id === 'dpuse-connector-dropbox');
-        if (connectorConfig.value == null) return;
-        connectionConfig.value = constructConnectionConfig(connectorConfig.value);
-    },
-    { immediate: true }
-);
+// watch(
+//     connectorConfigs,
+//     (newConnectorConfigs) => {
+//         if (newConnectorConfigs == null) return;
+//         connectorConfig.value = newConnectorConfigs.find((config) => config.id === 'dpuse-connector-dropbox');
+//         if (connectorConfig.value == null) return;
+//         connectionConfig.value = constructConnectionConfig(connectorConfig.value);
+//     },
+//     { immediate: true }
+// );
 
-function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
-    return {
-        id: connectorConfig.id,
-        label: connectorConfig.label,
-        description: {},
-        authorisation: {},
-        connectorConfig,
-        icon: connectorConfig.icon,
-        iconDark: null,
-        lastVerifiedAt: 0,
-        lastUpdatedAt: null,
-        notation: undefined,
-        status: null,
-        statusId: connectorConfig.statusId,
-        typeId: 'connectorConnection'
-    };
-}
+// function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
+//     return {
+//         id: connectorConfig.id,
+//         label: connectorConfig.label,
+//         description: {},
+//         authorisation: {},
+//         connectorConfig,
+//         icon: connectorConfig.icon,
+//         iconDark: null,
+//         lastVerifiedAt: 0,
+//         lastUpdatedAt: null,
+//         notation: undefined,
+//         status: null,
+//         statusId: connectorConfig.statusId,
+//         typeId: 'connectorConnection'
+//     };
+// }
 </script>
 
 <template>

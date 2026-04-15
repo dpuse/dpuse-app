@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T">
 // External Dependencies
-import { computed, onMounted, onUnmounted, ref, useSlots } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useSlots, useTemplateRef } from 'vue';
 
 // App Core
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
@@ -23,7 +23,7 @@ const { dataSource, rowHeight = 48, targetColumnWidth, cacheBlockSize, maxBlocks
 
 const columnCount = ref(1);
 const columnWidth = ref(0);
-const scrollElement = ref<HTMLElement | null>(null);
+const scrollElement = useTemplateRef<HTMLDivElement>('scroller');
 const resizeObserver = new ResizeObserver((entries) => {
     const width = entries[0]!.contentRect.width;
     if (targetColumnWidth == null) {
@@ -59,7 +59,7 @@ onUnmounted(() => resizeObserver.disconnect());
 
 <template>
     <div class="relative flex h-full flex-col overflow-hidden">
-        <div ref="scrollElement" class="flex-1 overflow-y-auto pb-(--dp-app-bottom-gutter)" role="list" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
+        <div ref="scroller" class="flex-1 overflow-y-auto pb-(--dp-app-bottom-gutter)" role="list" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
             <div :style="{ height: totalRowCount + 'px', position: 'relative' }">
                 <div
                     v-for="virtualRow in virtualRows"

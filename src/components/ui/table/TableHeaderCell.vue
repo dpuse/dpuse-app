@@ -2,7 +2,7 @@
 // External Dependencies
 import { ChevronDown } from 'lucide-vue-next';
 import type { Header } from '@tanstack/vue-table';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 
 // Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -10,8 +10,8 @@ defineProps<{ header: Header<T, unknown> }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const menuElement = useTemplateRef<HTMLDivElement>('menu');
 const menuOpen = ref(false);
-const menuReference = ref<HTMLElement | null>(null);
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -22,7 +22,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick));
 
 // Close menu when clicking outside
 function onDocumentClick(event: MouseEvent): void {
-    if (menuReference.value && !menuReference.value.contains(event.target as Node)) {
+    if (menuElement.value && !menuElement.value.contains(event.target as Node)) {
         menuOpen.value = false;
     }
 }
@@ -35,7 +35,7 @@ function onDocumentClick(event: MouseEvent): void {
         </span>
 
         <!-- Column options menu -->
-        <div ref="menuReference" class="relative flex h-full items-center">
+        <div ref="menu" class="relative flex h-full items-center">
             <button class="flex h-full items-center px-1.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200" @click.stop="menuOpen = !menuOpen">
                 <ChevronDown class="h-3 w-3" />
             </button>

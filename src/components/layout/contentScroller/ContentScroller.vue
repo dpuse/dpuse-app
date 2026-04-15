@@ -7,14 +7,14 @@ import { contentScrollTop, knowledgePaneIsVisible } from '@/state/appLayout';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const element = useTemplateRef<HTMLElement>('scroller');
+const scrollerElement = useTemplateRef<HTMLDivElement>('scroller');
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onBeforeUnmount(() => (contentScrollTop.value = 0));
 
 watch(knowledgePaneIsVisible, (newKnowledgePanelIsVisible) => {
-    contentScrollTop.value = newKnowledgePanelIsVisible ? (element.value?.scrollTop ?? 0) : 0;
+    contentScrollTop.value = newKnowledgePanelIsVisible ? (scrollerElement.value?.scrollTop ?? 0) : 0;
 });
 </script>
 

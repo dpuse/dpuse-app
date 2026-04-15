@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 
 // Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -12,7 +12,7 @@ const currentRow = ref(1);
 const isDragging = ref(false);
 const isScrollable = ref(false);
 let resizeObserver: ResizeObserver | null = null;
-const trackReference = ref<HTMLElement | null>(null);
+const trackElement = useTemplateRef<HTMLDivElement>('track');
 const thumbOffset = ref(0);
 const thumbSize = ref(40);
 
@@ -20,7 +20,7 @@ const thumbSize = ref(40);
 
 onMounted(() => {
     updateThumb();
-    const track = trackReference.value;
+    const track = trackElement.value;
     if (!track) return;
     track.addEventListener('touchstart', onTouchStart, { passive: false });
     track.addEventListener('touchmove', onTouchMove, { passive: false });
@@ -33,7 +33,7 @@ onMounted(() => {
 onUnmounted(() => {
     scrollElement?.removeEventListener('scroll', updateThumb);
     resizeObserver?.disconnect();
-    const track = trackReference.value;
+    const track = trackElement.value;
     if (!track) return;
     track.removeEventListener('touchstart', onTouchStart);
     track.removeEventListener('touchmove', onTouchMove);
@@ -100,7 +100,7 @@ function onMouseUp(): void {
 type Metrics = { scrollPos: number; scrollSize: number; clientSize: number; maxScroll: number; trackSize: number };
 function getMetrics(): Metrics | null {
     const element = scrollElement;
-    const track = trackReference.value;
+    const track = trackElement.value;
     if (!element || !track) return null;
     return {
         scrollPos: element.scrollTop,
@@ -131,7 +131,7 @@ function updateThumb(): void {
 
 function scrollFromY(clientY: number): void {
     const metrics = getMetrics();
-    const track = trackReference.value;
+    const track = trackElement.value;
     if (!metrics || !track) return;
 
     const trackRect = track.getBoundingClientRect();
@@ -144,7 +144,7 @@ function scrollFromY(clientY: number): void {
 </script>
 
 <template>
-    <div v-show="isScrollable" ref="trackReference" class="scrubber-track">
+    <div v-show="isScrollable" ref="track" class="scrubber-track">
         <div
             class="scrubber-label bg-zinc-800 text-zinc-50 dark:bg-zinc-200 dark:text-zinc-800"
             :class="{ 'scrubber-label--visible': isDragging && rowCount > 0 }"

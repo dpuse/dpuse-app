@@ -17,7 +17,7 @@ import Input from '@/components/ui/input/Input.vue';
 
 // Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
 
-const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: ConnectionLocalisedConfig | undefined }>();
+const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig?: ConnectionLocalisedConfig }>();
 const emit = defineEmits<{ (event: 'complete'): void }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────

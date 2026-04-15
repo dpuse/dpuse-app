@@ -2,7 +2,7 @@
 // External Dependencies
 import { Settings2 } from 'lucide-vue-next';
 import type { Table } from '@tanstack/vue-table';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 
 // Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -11,7 +11,7 @@ defineProps<{ table: Table<T> }>();
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const open = ref(false);
-const pickerReference = ref<HTMLElement | null>(null);
+const pickerElement = useTemplateRef<HTMLDivElement>('picker');
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -21,7 +21,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick));
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function onDocumentClick(event: MouseEvent): void {
-    if (pickerReference.value && !pickerReference.value.contains(event.target as Node)) {
+    if (pickerElement.value && !pickerElement.value.contains(event.target as Node)) {
         open.value = false;
     }
 }
@@ -29,7 +29,7 @@ function onDocumentClick(event: MouseEvent): void {
 
 <template>
     <div class="flex items-center border-b border-zinc-200 px-3 py-1.5 dark:border-zinc-700">
-        <div ref="pickerReference" class="relative">
+        <div ref="picker" class="relative">
             <button
                 class="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
                 @click.stop="open = !open"

@@ -2,7 +2,7 @@
 // External Dependencies
 import { XIcon } from 'lucide-vue-next';
 import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
-import { nextTick, onMounted, onUnmounted, ref } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // App Core
@@ -21,13 +21,13 @@ import Separator from '@/components/ui/separator/Separator.vue';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const containerReference = ref<HTMLDivElement | null>(null);
+const containerElement = useTemplateRef<HTMLDivElement>('container');
 const flowConstructed = ref(false);
 const isClosing = ref(false);
 const handleIdEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 const handlePasswordBack = ref<(() => Promise<void>) | undefined>(undefined);
 const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
-const rootReference = ref<HTMLElement | null>(null);
+const rootElement = useTemplateRef<HTMLDivElement>('root');
 const route = useRoute();
 const router = useRouter();
 const uiStateId = ref<'enterId' | 'selectSignInMethod' | 'enterPasscode' | 'enterPassword' | undefined>(undefined);
@@ -134,14 +134,14 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
 // Transition helpers ─────────────────────────────────────────────────────────────────────────────────────────
 
 function onBeforeLeave(): void {
-    const container = containerReference.value;
+    const container = containerElement.value;
     if (!container) return;
     container.style.height = `${container.offsetHeight}px`;
     container.style.overflow = 'hidden';
 }
 
 function onEnter(element: Element): void {
-    const container = containerReference.value;
+    const container = containerElement.value;
     if (!container) return;
     const newHeight = (element as HTMLElement).offsetHeight;
     container.style.transition = 'height 0.25s ease-in-out';
@@ -150,7 +150,7 @@ function onEnter(element: Element): void {
 }
 
 function onAfterEnter(): void {
-    const container = containerReference.value;
+    const container = containerElement.value;
     if (!container) return;
     container.style.height = '';
     container.style.overflow = '';
@@ -164,7 +164,7 @@ async function handleCloseDialog(): Promise<void> {
     // Wait for Vue to apply the is-closing class, then read the actual animation duration for the fallback.
     await nextTick();
     await new Promise<void>((resolve) => {
-        const element = rootReference.value;
+        const element = rootElement.value;
         if (!element) {
             resolve();
             return;
@@ -187,7 +187,7 @@ async function handleCloseDialog(): Promise<void> {
 </script>
 
 <template>
-    <div ref="rootReference" class="dialog-root fixed inset-0 z-50" :class="{ 'dialog-root--closing': isClosing }">
+    <div ref="root" class="dialog-root fixed inset-0 z-50" :class="{ 'dialog-root--closing': isClosing }">
         <div
             role="dialog"
             aria-modal="true"
@@ -202,7 +202,7 @@ async function handleCloseDialog(): Promise<void> {
             <div class="flex flex-col gap-y-3 p-8">
                 <DPUseLogo class="size-12" />
 
-                <div ref="containerRef">
+                <div ref="container">
                     <Transition name="fade" mode="out-in" @before-leave="onBeforeLeave" @enter="onEnter" @after-enter="onAfterEnter">
                         <!-- Login form -->
                         <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" :on-trigger="handleIdEntered" />
