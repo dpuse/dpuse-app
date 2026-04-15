@@ -49,8 +49,9 @@ const COMMON_OUTLINE_CLASSES = [
 
 // Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
-export type VariantTypeId = 'avatar' | 'destructive' | 'ghost' | 'guarded' | 'iconLarge' | 'iconSmall' | 'listItem' | 'listitemDestructive' | 'outline' | 'positive' | 'primary';
-const { isActive = false, variant = 'neutral' } = defineProps<{ isActive?: boolean; variant?: VariantTypeId }>();
+export type VariantTypeId = 'avatar' | 'destructive' | 'ghost' | 'guarded' | 'iconLarge' | 'iconSmall' | 'listItem' | 'listitemDestructive' | 'neutral' | 'outline' | 'positive' | 'primary';
+type ButtonType = 'button' | 'reset' | 'submit';
+const { isActive = false, type = 'button', variant = 'neutral' } = defineProps<{ isActive?: boolean; type?: ButtonType; variant?: VariantTypeId }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -90,7 +91,7 @@ const variantClasses = computed((): (string | string[] | Record<string, string> 
 </script>
 
 <template>
-    <button class="transition-[background-color] duration-150 focus-visible:outline-none" :class="variantClasses" type="button">
+    <button class="transition-[background-color] duration-150 focus-visible:outline-none" :class="variantClasses" :type="type">
         <slot />
     </button>
 </template>

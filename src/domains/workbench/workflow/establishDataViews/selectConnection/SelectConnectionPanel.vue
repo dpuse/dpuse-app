@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { shallowRef, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
 import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/connector';
@@ -20,11 +21,13 @@ import Tile from '@/components/ui/tile/Tile.vue';
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
 
-const emit = defineEmits<{ complete: [taskLocalisedConfig: TaskLocalisedConfig] }>();
+defineEmits<{ 'task-completed': [taskLocalisedConfig: TaskLocalisedConfig] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const connectionLocalisedConfigs = shallowRef<ConnectionLocalisedConfig[]>([]);
+const route = useRoute();
+const router = useRouter();
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -34,12 +37,8 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleSelectItem(connectionLocalisedConfigs: ConnectionLocalisedConfig): void {
-    console.log(1111, connectionLocalisedConfigs);
-}
-
-function triggerComplete(): void {
-    emit('complete', taskLocalisedConfig);
+function selectConnection(connectionLocalisedConfigs: ConnectionLocalisedConfig): void {
+    router.replace({ query: { ...route.query, conId: connectionLocalisedConfigs.id } });
 }
 
 // EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -78,7 +77,7 @@ function triggerComplete(): void {
 </script>
 
 <template>
-    <ListDetailPanel class="flex-1" :items="connectionLocalisedConfigs || []" max-right-width="400px" @select-item="handleSelectItem($event)">
+    <ListDetailPanel class="flex-1" :items="connectionLocalisedConfigs || []" max-right-width="400px" @select-item="selectConnection($event)">
         <template #list-item-default="{ item }">
             <Card v-if="item" :label="item.label" />
         </template>
@@ -88,7 +87,7 @@ function triggerComplete(): void {
         </template>
 
         <template #detail="{ item }">
-            <SelectConnectionForm :connection-localised-config="item" @complete="triggerComplete" />
+            <SelectConnectionForm :connection-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
         </template>
     </ListDetailPanel>
 </template>

@@ -16,13 +16,7 @@ import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
 
-const emit = defineEmits<{ complete: [taskLocalisedConfig: TaskLocalisedConfig] }>();
-
-// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function triggerComplete(): void {
-    emit('complete', taskLocalisedConfig);
-}
+defineEmits<{ 'task-completed': [taskLocalisedConfig: TaskLocalisedConfig] }>();
 
 // EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
 const connectorConfig = shallowRef();
@@ -69,6 +63,6 @@ function constructConnectionConfig(connectorConfig: ConnectorConfig): Connection
             <div v-for="node in listNodesResult?.connectionNodeConfigs ?? []" :key="node.id">{{ node.label }}</div>
         </div>
 
-        <RouterLink :to="{ name: 'auditContent', query: { ...$route.query, wbView: 'auditContent' } }" @click="triggerComplete">Next...</RouterLink>
+        <RouterLink :to="{ name: 'auditContent', query: { ...$route.query, wbView: 'auditContent' } }" @click="$emit('task-completed', taskLocalisedConfig)">Next...</RouterLink>
     </div>
 </template>

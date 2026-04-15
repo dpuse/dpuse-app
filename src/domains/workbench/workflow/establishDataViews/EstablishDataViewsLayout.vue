@@ -48,7 +48,7 @@ watch(localeId, (newLocaleId) => (taskLocalisedConfigs.value = localiseConfigs<T
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleComplete(taskLocalisedConfig: TaskLocalisedConfig): void {
+function updateTaskProgression(taskLocalisedConfig: TaskLocalisedConfig): void {
     enableTasksUpTo.value = taskLocalisedConfig.enableUpTo;
 }
 </script>
@@ -88,7 +88,7 @@ function handleComplete(taskLocalisedConfig: TaskLocalisedConfig): void {
 
         <!-- Data View List or Active Task Panel -->
         <RouterView v-slot="{ Component }">
-            <component :is="Component" :task-localised-config="activeTaskLocalisedConfig" @complete="handleComplete" />
+            <component :is="Component" :task-localised-config="activeTaskLocalisedConfig" @task-completed="updateTaskProgression" />
         </RouterView>
     </LayoutShell>
 </template>
