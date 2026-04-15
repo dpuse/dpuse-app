@@ -1,5 +1,6 @@
 <script setup lang="ts">
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 type Badge = { id: string; color?: string; label: string };
 type Properties = { badges?: Badge[]; icon?: string; iconColor?: string; label: string; overline?: string };
 const { badges = [], icon, iconColor, label, overline } = defineProps<Properties>();

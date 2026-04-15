@@ -7,7 +7,8 @@ import { SendHorizonalIcon } from 'lucide-vue-next';
 import Button from '@/components/button/Button.vue';
 import Header from '@/components/header/Header.vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 const { title } = defineProps<{ title: string }>();
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

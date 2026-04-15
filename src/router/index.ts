@@ -14,12 +14,12 @@ const WorkflowHomeLayout = load('workflow', () => import('@/domains/workbench/wo
 
 const EstablishDataViewsLayout = load('establishDataViews', () => import('@/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.vue'));
 const DataViewList = load('establishDataViews', () => import('@/domains/workbench/workflow/establishDataViews/DataViewList.vue'));
-const SelectConnectionPanel = load('selectConnection', () => import('@/domains/workbench/workflow/establishDataViews/SelectConnectionPanel.vue'));
-const SelectNodePanel = load('selectNode', () => import('@/domains/workbench/workflow/establishDataViews/SelectNodePanel.vue'));
-const AuditContentPanel = load('auditContent', () => import('@/domains/workbench/workflow/establishDataViews/AuditContentPanel.vue'));
-const AuditRelationshipsPanel = load('auditRelationships', () => import('@/domains/workbench/workflow/establishDataViews/AuditRelationshipsPanel.vue'));
-const TransformPanel = load('transform', () => import('@/domains/workbench/workflow/establishDataViews/TransformPanel.vue'));
-const InvestigatePanel = load('investigate', () => import('@/domains/workbench/workflow/establishDataViews/InvestigatePanel.vue'));
+const SelectConnectionPanel = load('selectConnection', () => import('@/domains/workbench/workflow/establishDataViews/selectConnection/SelectConnectionPanel.vue'));
+const SelectNodePanel = load('selectNode', () => import('@/domains/workbench/workflow/establishDataViews/selectNode/SelectNodePanel.vue'));
+const AuditContentPanel = load('auditContent', () => import('@/domains/workbench/workflow/establishDataViews/auditContent/AuditContentPanel.vue'));
+const AuditRelationshipsPanel = load('auditRelationships', () => import('@/domains/workbench/workflow/establishDataViews/auditRelationships/AuditRelationshipsPanel.vue'));
+const TransformPanel = load('transform', () => import('@/domains/workbench/workflow/establishDataViews/transform/TransformPanel.vue'));
+const InvestigatePanel = load('investigate', () => import('@/domains/workbench/workflow/establishDataViews/investigate/InvestigatePanel.vue'));
 
 const AssembleDimensionsLayout = load('assembleDimensions', () => import('@/domains/workbench/workflow/assembleDimensions/AssembleDimensionsLayout.vue'));
 const DimensionList = load('assembleDimensions', () => import('@/domains/workbench/workflow/assembleDimensions/DimensionList.vue'));

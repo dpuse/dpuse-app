@@ -13,7 +13,8 @@ import { localeId, localiseConfigs, t } from '@/translations';
 import HomeIcon from '@/components/icon/HomeIcon.vue';
 import Separator from '@/components/separator/Separator.vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 const emit = defineEmits<{ (event: 'continue'): void }>();
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────

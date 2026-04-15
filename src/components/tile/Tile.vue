@@ -1,5 +1,6 @@
 <script setup lang="ts">
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 type Properties = { icon?: string; iconColor?: string; label: string; overline?: string };
 const { icon, iconColor, label } = defineProps<Properties>();
 </script>

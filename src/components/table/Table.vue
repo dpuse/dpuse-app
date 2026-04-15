@@ -13,7 +13,12 @@ import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';
 import TableHeaderCell from './TableHeaderCell.vue';
 
-// Properties & Emits
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000; // Empirically chosen — below this width, flat rendering is cheaper than virtualizer overhead.
+
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 type Properties = {
     columnDefinitions: ColumnDef<T>[];
     dataSource: DataSource<T>;
@@ -21,10 +26,6 @@ type Properties = {
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
 };
 const { columnDefinitions, dataSource, cacheBlockSize = 100, maxBlocksInCache = 10 } = defineProps<Properties>();
-
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000; // Empirically chosen — below this width, flat rendering is cheaper than virtualizer overhead.
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

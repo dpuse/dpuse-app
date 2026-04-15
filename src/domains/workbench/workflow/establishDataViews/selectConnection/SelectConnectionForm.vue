@@ -15,7 +15,8 @@ import { useEngine } from '@/services/useEngine';
 import Button from '@/components/button/Button.vue';
 import Input from '@/components/input/Input.vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: ConnectionLocalisedConfig | undefined }>();
 const emit = defineEmits<{ (event: 'complete'): void }>();
 

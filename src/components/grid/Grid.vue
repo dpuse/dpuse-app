@@ -8,7 +8,8 @@ import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 // App Components - Statically imported.
 import ScrollThumb from '@/components/scrollThumb/ScrollThumb.vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 type Properties = {
     dataSource: DataSource<T>;
     rowHeight?: number; // Row height in px. Default: 48.

@@ -10,7 +10,8 @@ import { t } from '@/translations';
 import Button from '@/components/button/Button.vue';
 import Input from '@/components/input/Input.vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 const { onBack, onTrigger } = defineProps<{ onBack: () => Promise<void>; onTrigger: (password: string) => Promise<void> }>();
 
 // ??? ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -2,7 +2,8 @@
 // External Dependencies
 import { ref } from 'vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 defineProps<{ modelValue?: number }>();
 const emit = defineEmits<{ 'update:modelValue': [value: number] }>();
 

@@ -4,7 +4,8 @@ import { Settings2 } from 'lucide-vue-next';
 import type { Table } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 defineProps<{ table: Table<T> }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────

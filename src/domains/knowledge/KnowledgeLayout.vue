@@ -8,9 +8,6 @@ const AboutView = defineAsyncComponent(() => import('./AboutPanel.vue'));
 const ChatView = defineAsyncComponent(() => import('./ChatPanel.vue'));
 const LibraryView = defineAsyncComponent(() => import('./LibraryPanel.vue'));
 
-// Properties & Emits
-const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }>();
-
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export type KnowledgeViewId = 'about' | 'library' | 'chat';
@@ -19,6 +16,10 @@ const KNOWLEDGE_PANELS: Record<KnowledgeViewId, { component: Component; label: s
     library: { component: LibraryView, label: 'Library' },
     chat: { component: ChatView, label: 'Chat' }
 };
+
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
+const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

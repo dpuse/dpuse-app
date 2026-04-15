@@ -14,7 +14,8 @@ import { isAuthenticated as sessionIsAuthenticated, signOut } from '@/state/sess
 import Button from '@/components/button/Button.vue';
 import Separator from '@/components/separator/Separator.vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 const emit = defineEmits<{ (event: 'continue'): void }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -82,7 +83,7 @@ async function toggleFullscreen(): Promise<void> {
         :class="
             displayIsWide
                 ? 'fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto overscroll-y-none rounded-md border py-4'
-                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80vh] max-w-lg overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t py-6'
+                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80vh] max-w-lg overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t pt-6 pb-8'
         "
     >
         <Button v-if="!displayIsWide" class="absolute top-2 right-3" variant="iconLarge" @click="emit('continue')">

@@ -10,9 +10,10 @@ import { connectorConfigs } from '@/state/session';
 import { useEngine } from '@/services/useEngine';
 
 // App Components - Statically imported.
-import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
+import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
 const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalisedConfig): void }>();
 

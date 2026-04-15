@@ -1,8 +1,9 @@
 <script setup lang="ts">
 // App Core
-import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
+import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
 const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalisedConfig): void }>();
 
@@ -15,7 +16,7 @@ function triggerComplete(): void {
 
 <template>
     <div class="px-4 pt-1">
-        <div>Audit relationships...</div>
-        <RouterLink :to="{ name: 'transform', query: { ...$route.query, wbView: 'transform' } }" @click="triggerComplete">Next...</RouterLink>
+        <div>Audit content...</div>
+        <RouterLink :to="{ name: 'auditRelationships', query: { ...$route.query, wbView: 'auditRelationships' } }" @click="triggerComplete">Next...</RouterLink>
     </div>
 </template>

@@ -11,7 +11,8 @@ import { displayIsWide } from '@/state/appLayout';
 import Button from '@/components/button/Button.vue';
 import Grid from '@/components/grid/Grid.vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 const { items, maxRightWidth } = defineProps<{ items: T[]; maxRightWidth?: string }>();
 const emit = defineEmits<{ (event: 'select', item: T | undefined): void }>();
 

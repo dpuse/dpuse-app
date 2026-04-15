@@ -21,8 +21,8 @@ import { eventQueryConfigs, localMetaStoreConnectionConfig } from '@/state/sessi
 import Button from '@/components/button/Button.vue';
 import Card from '@/components/card/Card.vue';
 import ContentScroller from '@/components/contentScroller/ContentScroller.vue';
+import type { DataSource } from '@/composables/useDataWindow';
 import Grid from '@/components/grid/Grid.vue';
-import type { DataSource } from '~/src/composables/useDataWindow';
 
 // App Components - Dynamically imported.
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/emptyPlaceholder/EmptyPlaceholder.vue'));

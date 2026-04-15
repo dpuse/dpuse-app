@@ -16,7 +16,7 @@ import type {
 } from '@dpuse/dpuse-shared/component/connector';
 
 // App Core
-import type { DataSource } from '~/src/composables/useDataWindow';
+import type { DataSource } from '@/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/translations';
 import T from '@/translations/domains/workbench/workflow/establishDataViews/DataViewList.json';

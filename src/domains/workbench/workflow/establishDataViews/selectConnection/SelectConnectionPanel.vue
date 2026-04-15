@@ -13,20 +13,21 @@ import { localeId, localiseConfigs } from '@/translations';
 import Card from '@/components/card/Card.vue';
 import ListDetailPanel from '@/components/listDetailPanel/ListDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
-import type { TaskLocalisedConfig } from './EstablishDataViewsLayout.vue';
+import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
 import Tile from '@/components/tile/Tile.vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
 const emit = defineEmits<{ (event: 'complete', taskLocalisedConfig: TaskLocalisedConfig): void }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const localisedConnectionConfigs = shallowRef<ConnectionLocalisedConfig[]>([]);
+const connectionLocalisedConfigs = shallowRef<ConnectionLocalisedConfig[]>([]);
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(connectionConfigs, (newConnectionConfigs) => (localisedConnectionConfigs.value = localiseConfigs<ConnectionLocalisedConfig>(newConnectionConfigs, localeId.value)), {
+watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.value = localiseConfigs<ConnectionLocalisedConfig>(newConnectionConfigs, localeId.value)), {
     immediate: true
 });
 
@@ -72,7 +73,7 @@ function constructConnectionConfig(connectorConfig: ConnectorConfig): Connection
 </script>
 
 <template>
-    <ListDetailPanel class="flex-1" :items="localisedConnectionConfigs || []" max-right-width="400px">
+    <ListDetailPanel class="flex-1" :items="connectionLocalisedConfigs || []" max-right-width="400px">
         <template #list-item-default="{ item }">
             <Card v-if="item" :label="item.label" />
         </template>

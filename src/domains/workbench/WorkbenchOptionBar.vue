@@ -5,7 +5,8 @@ import { displayIsWide } from '@/state/appLayout';
 // App Components - Statically imported.
 import WorkbenchOptionBarContent from './WorkbenchOptionBarContent.vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 defineEmits<{ (event: 'continue'): void }>();
 </script>
 

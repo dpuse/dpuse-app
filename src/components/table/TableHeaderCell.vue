@@ -4,7 +4,8 @@ import { ChevronDown } from 'lucide-vue-next';
 import type { Header } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
-// Properties & Emits
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
 defineProps<{ header: Header<T, unknown> }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────

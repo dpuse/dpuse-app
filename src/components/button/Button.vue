@@ -2,10 +2,6 @@
 // External Dependencies
 import { computed } from 'vue';
 
-// Properties & Emits
-export type VariantTypeId = 'avatar' | 'destructive' | 'ghost' | 'guarded' | 'iconLarge' | 'iconSmall' | 'listItem' | 'listitemDestructive' | 'outline' | 'positive' | 'primary';
-const { isActive = false, variant = 'neutral' } = defineProps<{ isActive?: boolean; variant?: VariantTypeId }>();
-
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const COMMON_RECTANGLE_CLASSES = 'rounded-md text-[15px] leading-6 focus-visible:ring-2 dark:text-zinc-300 px-3 py-1.5';
@@ -50,6 +46,11 @@ const COMMON_OUTLINE_CLASSES = [
     'hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300',
     'dark:hover:bg-zinc-300/20 dark:active:bg-zinc-300/30 dark:focus-visible:ring-zinc-500'
 ];
+
+// Properties & Emits ──────────────────────────────────────────────────────────────────────────────────────────────────
+
+export type VariantTypeId = 'avatar' | 'destructive' | 'ghost' | 'guarded' | 'iconLarge' | 'iconSmall' | 'listItem' | 'listitemDestructive' | 'outline' | 'positive' | 'primary';
+const { isActive = false, variant = 'neutral' } = defineProps<{ isActive?: boolean; variant?: VariantTypeId }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
