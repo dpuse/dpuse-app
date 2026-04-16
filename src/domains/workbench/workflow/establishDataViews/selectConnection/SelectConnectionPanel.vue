@@ -89,5 +89,7 @@ function selectConnection(connectionLocalisedConfigs: ConnectionLocalisedConfig)
         <template #detail="{ item }">
             <SelectConnectionForm :connection-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
         </template>
+
+        <template #empty> Select a connection... </template>
     </ListDetailPanel>
 </template>

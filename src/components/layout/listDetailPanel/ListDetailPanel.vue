@@ -20,6 +20,7 @@ const emit = defineEmits<{ 'select-item': [item: T] }>();
 
 defineSlots<{
     detail(properties: { item: T }): unknown;
+    empty(): unknown;
     'list-item-compact'(properties: { item: T }): unknown;
     'list-item-default'(properties: { item: T }): unknown;
 }>();
@@ -44,7 +45,8 @@ function selectItem(item: T): void {
 </script>
 
 <template>
-    <div class="flex overflow-y-hidden">
+    <div class="flex flex-1 overflow-y-hidden">
+        <!-- Grid -->
         <div v-if="displayIsWide || !activeItem" class="flex flex-1 flex-col">
             <Grid class="flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
                 <template #default="{ row }">
@@ -61,25 +63,28 @@ function selectItem(item: T): void {
             </Grid>
         </div>
 
+        <!-- Detail -->
         <div
             v-if="displayIsWide || activeItem"
-            class="bg-backdrop border-boundary flex flex-1 flex-col border-l px-4"
+            class="bg-backdrop border-boundary flex flex-1 flex-col border-l"
             :style="{ maxWidth: maxDetailWidth != null && displayIsWide ? maxDetailWidth : undefined }"
         >
             <div v-if="activeItem" class="flex flex-col overflow-y-hidden">
-                <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b">
+                <div class="border-separator mx-4 flex h-12 flex-none items-center gap-x-1 border-b">
                     <Button v-if="!displayIsWide" variant="iconSmall" @click="activeItem = undefined">
                         <ArrowBigLeftIcon stroke-width="1.25" />
                     </Button>
                     {{ activeItem?.label ?? 'Unknown' }}
                 </div>
 
-                <ContentScroller class="flex-1 pt-4 pb-20">
+                <ContentScroller class="flex-1 px-4 pt-4 pb-16">
                     <slot name="detail" :item="activeItem" />
                 </ContentScroller>
             </div>
 
-            <div v-else>Select an item...</div>
+            <div v-else>
+                <slot name="empty" />
+            </div>
         </div>
     </div>
 </template>

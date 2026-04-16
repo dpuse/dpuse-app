@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // External Dependencies
-import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
@@ -15,7 +14,7 @@ import Button from '@/components/ui/button/Button.vue';
 
 // Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
 
-const properties = defineProps<{ connectionLocalisedConfig?: ConnectionLocalisedConfig }>();
+const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: ConnectionLocalisedConfig }>();
 
 const emit = defineEmits<{ submit: [] }>();
 
@@ -24,26 +23,10 @@ const emit = defineEmits<{ submit: [] }>();
 const route = useRoute();
 const router = useRouter();
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const selectedConnectionDescription = computed(() => {
-    const description = properties.connectionLocalisedConfig?.description;
-    return typeof description === 'string' && description.trim().length > 0 ? description : undefined;
-});
-
-const selectedConnectionType = computed(() => properties.connectionLocalisedConfig?.connectorConfig.label ?? undefined);
-
-const implementationSummary = computed(() => {
-    const implementations = properties.connectionLocalisedConfig?.connectorConfig.implementations;
-    if (Array.isArray(implementations)) return implementations.join(', ');
-    if (implementations != null) return String(implementations);
-    return t(T, 'Implementation_not_available');
-});
-
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
-    if (properties.connectionLocalisedConfig == null) return;
+    if (connectionLocalisedConfig == null) return;
     emit('submit');
     await router.push({ name: 'selectNode', query: { ...route.query, wbView: 'selectNode' } });
 }
@@ -60,59 +43,52 @@ async function handleSubmit(): Promise<void> {
 </script>
 
 <template>
-    <div class="flex h-full flex-col gap-y-3 bg-blue-200">
-        <div class="flex flex-col gap-y-2">
-            <h2 class="text-2xl font-normal">{{ t(T, 'Select_Connection') }}</h2>
-            <p class="text-muted">{{ t(T, 'Select_a_connection_to_configure_the_data_view_before_continuing') }}</p>
+    <form class="flex flex-col" @submit.prevent="handleSubmit">
+        <strong>Connection:</strong>
+        <div>id: {{ connectionLocalisedConfig.id }}</div>
+        <div>label: {{ connectionLocalisedConfig.label }}</div>
+        <div>description: {{ connectionLocalisedConfig.description }}</div>
+        <div>notation: {{ connectionLocalisedConfig.notation }}</div>
+        <div>authorisation: {{ connectionLocalisedConfig.authorisation }}</div>
+        <div>firstCreatedAt: {{ connectionLocalisedConfig.firstCreatedAt }}</div>
+        <div>icon: {{ connectionLocalisedConfig.icon != null }}</div>
+        <div>iconDark: {{ connectionLocalisedConfig.iconDark != null }}</div>
+        <div>lastUpdatedAt: {{ connectionLocalisedConfig.lastUpdatedAt }}</div>
+        <div>lastVerifiedAt: {{ connectionLocalisedConfig.lastVerifiedAt }}</div>
+        <div>status: {{ connectionLocalisedConfig.status }}</div>
+        <div>statusId: {{ connectionLocalisedConfig.statusId }}</div>
+        <div>typeId: {{ connectionLocalisedConfig.typeId }}</div>
+        <strong>Connector:</strong>
+        <div>id: {{ connectionLocalisedConfig.connectorConfig.id }}</div>
+        <div>label: {{ connectionLocalisedConfig.connectorConfig.label }}</div>
+        <div>description: {{ connectionLocalisedConfig?.connectorConfig.description }}</div>
+        <div>category: {{ connectionLocalisedConfig?.connectorConfig.category }}</div>
+        <div>categoryId: {{ connectionLocalisedConfig?.connectorConfig.categoryId }}</div>
+        <div>firstCreatedAt: {{ connectionLocalisedConfig.firstCreatedAt }}</div>
+        <div>icon: {{ connectionLocalisedConfig.icon != null }}</div>
+        <div>iconDark: {{ connectionLocalisedConfig.iconDark != null }}</div>
+        <div>implementations: {{ connectionLocalisedConfig?.connectorConfig.implementations }}</div>
+        <div>operations: {{ connectionLocalisedConfig?.connectorConfig.operations }}</div>
+        <div>lastUpdatedAt: {{ connectionLocalisedConfig.lastUpdatedAt }}</div>
+        <div>lastVerifiedAt: {{ connectionLocalisedConfig.lastVerifiedAt }}</div>
+        <div>status: {{ connectionLocalisedConfig?.connectorConfig.status }}</div>
+        <div>statusId: {{ connectionLocalisedConfig?.connectorConfig.statusId }}</div>
+        <div>typeId: {{ connectionLocalisedConfig?.connectorConfig.typeId }}</div>
+        <div>usageId: {{ connectionLocalisedConfig?.connectorConfig.usageId }}</div>
+        <div>vendorAccountURL: {{ connectionLocalisedConfig?.connectorConfig.vendorAccountURL }}</div>
+        <div>vendorDocumentationURL: {{ connectionLocalisedConfig?.connectorConfig.vendorDocumentationURL }}</div>
+        <div>vendorHomeURL: {{ connectionLocalisedConfig?.connectorConfig.vendorHomeURL }}</div>
+        <div>version: {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
+
+        <div class="mt-auto flex justify-end border-t border-zinc-200 pt-4 dark:border-zinc-700">
+            <Button
+                :class="connectionLocalisedConfig == null ? 'cursor-not-allowed opacity-50' : undefined"
+                :disabled="connectionLocalisedConfig == null"
+                type="submit"
+                variant="primary"
+            >
+                {{ t(T, 'Next') }}
+            </Button>
         </div>
-
-        <form class="mt-3 flex flex-1 flex-col gap-y-6" @submit.prevent="handleSubmit">
-            <div v-if="properties.connectionLocalisedConfig" class="bg-card outline-boundary flex flex-col gap-y-6 rounded-lg p-4 outline -outline-offset-1">
-                <section class="flex flex-col gap-y-2">
-                    <h3 class="text-sm font-medium">{{ t(T, 'Selected_Connection') }}</h3>
-                    <div class="text-lg font-normal">{{ properties.connectionLocalisedConfig.label }}</div>
-                    <p v-if="selectedConnectionDescription" class="text-muted text-sm">{{ selectedConnectionDescription }}</p>
-                </section>
-
-                <section class="grid gap-4 sm:grid-cols-2">
-                    <div class="flex flex-col gap-y-1 rounded-md bg-zinc-50 px-3 py-3 dark:bg-zinc-300/10">
-                        <span class="text-muted text-xs font-medium tracking-wide uppercase">{{ t(T, 'Connection_Type') }}</span>
-                        <span>{{ selectedConnectionType }}</span>
-                    </div>
-
-                    <div class="flex flex-col gap-y-1 rounded-md bg-zinc-50 px-3 py-3 dark:bg-zinc-300/10">
-                        <span class="text-muted text-xs font-medium tracking-wide uppercase">{{ t(T, 'Capabilities') }}</span>
-                        <span>{{ implementationSummary }}</span>
-                    </div>
-                </section>
-
-                <section class="flex flex-col gap-y-3">
-                    <h3 class="text-sm font-medium">{{ t(T, 'Configuration') }}</h3>
-                    <div class="border-separator text-muted rounded-md border border-dashed px-4 py-6 text-sm">
-                        {{ t(T, 'Add_connection_specific_fields_here_as_this_workflow_evolves') }}
-                    </div>
-
-                    <!-- <Input id="label" v-model="connectionLabel" :label="t(T, 'Label')" :placeholder="t(T, 'Label')" :required="true" type="text" /> -->
-
-                    <!-- <Button @click="testAuth">Auth...</Button> -->
-                </section>
-            </div>
-
-            <div v-else class="bg-card outline-boundary flex flex-col gap-y-2 rounded-lg p-4 outline -outline-offset-1">
-                <h3 class="text-sm font-medium">{{ t(T, 'No_connection_selected') }}</h3>
-                <p class="text-muted text-sm">{{ t(T, 'Choose_a_connection_from_the_list_to_continue') }}</p>
-            </div>
-
-            <div class="mt-auto flex justify-end border-t border-zinc-200 pt-4 dark:border-zinc-700">
-                <Button
-                    :class="properties.connectionLocalisedConfig == null ? 'cursor-not-allowed opacity-50' : undefined"
-                    :disabled="properties.connectionLocalisedConfig == null"
-                    type="submit"
-                    variant="primary"
-                >
-                    {{ t(T, 'Continue') }}
-                </Button>
-            </div>
-        </form>
-    </div>
+    </form>
 </template>
