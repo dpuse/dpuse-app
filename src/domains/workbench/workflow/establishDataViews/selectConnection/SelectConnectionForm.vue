@@ -13,7 +13,7 @@ import { t } from '@/translations';
 import Button from '@/components/ui/button/Button.vue';
 import ContentScroller from '~/src/components/layout/contentScroller/ContentScroller.vue';
 
-// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: ConnectionLocalisedConfig }>();
 

@@ -8,7 +8,7 @@ import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 // App Static Components
 import ScrollThumb from '../scrollThumb/ScrollThumb.vue';
 
-// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     dataSource: DataSource<T>;

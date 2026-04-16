@@ -12,7 +12,7 @@ import { useEngine } from '@/services/useEngine';
 // App Static Components
 import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
 
-// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
 

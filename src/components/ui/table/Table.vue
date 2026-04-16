@@ -17,7 +17,7 @@ import TableHeaderCell from './TableHeaderCell.vue';
 
 const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000; // Empirically chosen — below this width, flat rendering is cheaper than virtualizer overhead.
 
-// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     columnDefinitions: ColumnDef<T>[];

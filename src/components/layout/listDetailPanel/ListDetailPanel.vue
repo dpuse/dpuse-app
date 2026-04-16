@@ -12,7 +12,7 @@ import Button from '../../ui/button/Button.vue';
 import ContentScroller from '../../layout/contentScroller/ContentScroller.vue';
 import Grid from '../../ui/grid/Grid.vue';
 
-// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { items, maxDetailWidth } = defineProps<{ items: T[]; maxDetailWidth?: string }>();
 

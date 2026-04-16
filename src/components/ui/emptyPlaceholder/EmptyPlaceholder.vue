@@ -2,7 +2,7 @@
 // External Dependencies
 import { PlusIcon } from 'lucide-vue-next';
 
-// Properties, Emits & Slots
+// Properties, Slots & Emits
 defineProps<{ messageItemLabel: string; descriptionItemLabel: string; actionItemLabel: string }>();
 </script>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Properties, Emits & Slots
+// Properties, Slots & Emits
 const { loading, value } = defineProps<{ loading: boolean; value: unknown }>();
 </script>
 

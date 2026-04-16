@@ -2,7 +2,7 @@
 // App Framework
 import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
 
-// Properties, Emits & Slots
+// Properties, Slots & Emits
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
 
 defineEmits<{ 'task-completed': [taskLocalisedConfig: TaskLocalisedConfig] }>();

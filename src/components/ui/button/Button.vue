@@ -47,9 +47,21 @@ const COMMON_OUTLINE_CLASSES = [
     'dark:hover:bg-zinc-300/20 dark:active:bg-zinc-300/30 dark:focus-visible:ring-zinc-500'
 ];
 
-// Properties, Emits & Slots ───────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
-export type VariantTypeId = 'avatar' | 'destructive' | 'ghost' | 'guarded' | 'iconLarge' | 'iconSmall' | 'listItem' | 'listitemDestructive' | 'neutral' | 'outline' | 'positive' | 'primary';
+export type VariantTypeId =
+    | 'avatar'
+    | 'destructive'
+    | 'ghost'
+    | 'guarded'
+    | 'iconLarge'
+    | 'iconSmall'
+    | 'listItem'
+    | 'listitemDestructive'
+    | 'neutral'
+    | 'outline'
+    | 'positive'
+    | 'primary';
 type ButtonType = 'button' | 'reset' | 'submit';
 const { isActive = false, type = 'button', variant = 'neutral' } = defineProps<{ isActive?: boolean; type?: ButtonType; variant?: VariantTypeId }>();
 
