@@ -77,9 +77,7 @@ function selectItem(item: T): void {
                     {{ activeItem?.label ?? 'Unknown' }}
                 </div>
 
-                <ContentScroller class="flex-1 px-4 pt-4 pb-16">
-                    <slot name="detail" :item="activeItem" />
-                </ContentScroller>
+                <slot name="detail" :item="activeItem" />
             </div>
 
             <div v-else>
