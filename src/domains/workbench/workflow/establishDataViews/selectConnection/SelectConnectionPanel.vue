@@ -12,7 +12,7 @@ import { localeId, localiseConfigs } from '@/translations';
 
 // App Static Components
 import Card from '@/components/ui/card/Card.vue';
-import ListDetailPanel from '@/components/layout/listDetailPanel/ListDetailPanel.vue';
+import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
 import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
@@ -77,7 +77,7 @@ function selectConnection(connectionLocalisedConfigs: ConnectionLocalisedConfig)
 </script>
 
 <template>
-    <ListDetailPanel :items="connectionLocalisedConfigs || []" max-detail-width="400px" @select-item="selectConnection($event)">
+    <GridDetailPanel :items="connectionLocalisedConfigs || []" max-detail-width="400px" @select-item="selectConnection($event)">
         <template #list-item-default="{ item }">
             <Card v-if="item" :label="item.label" />
         </template>
@@ -90,6 +90,8 @@ function selectConnection(connectionLocalisedConfigs: ConnectionLocalisedConfig)
             <SelectConnectionForm :connection-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
         </template>
 
-        <template #empty> Select a connection... </template>
-    </ListDetailPanel>
+        <template #no-selection>
+            <div class="p-4">Select a connection...</div>
+        </template>
+    </GridDetailPanel>
 </template>

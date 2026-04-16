@@ -9,7 +9,6 @@ import { displayIsWide } from '@/state/appLayout';
 
 // App Static Components
 import Button from '../../ui/button/Button.vue';
-import ContentScroller from '../../layout/contentScroller/ContentScroller.vue';
 import Grid from '../../ui/grid/Grid.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
@@ -20,7 +19,7 @@ const emit = defineEmits<{ 'select-item': [item: T] }>();
 
 defineSlots<{
     detail(properties: { item: T }): unknown;
-    empty(): unknown;
+    'no-selection'(): unknown;
     'list-item-compact'(properties: { item: T }): unknown;
     'list-item-default'(properties: { item: T }): unknown;
 }>();
@@ -81,7 +80,7 @@ function selectItem(item: T): void {
             </div>
 
             <div v-else>
-                <slot name="empty" />
+                <slot name="no-selection" />
             </div>
         </div>
     </div>
