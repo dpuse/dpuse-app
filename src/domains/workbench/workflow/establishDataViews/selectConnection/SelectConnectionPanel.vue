@@ -7,6 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/connector';
 
 // App Framework
+import { activeDataViewConfig } from '@/state/establishDataViews';
 import { connectionConfigs } from '@/state/session';
 import { localeId, localiseConfigs } from '@/translations';
 
@@ -38,7 +39,10 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function selectConnection(connectionLocalisedConfigs: ConnectionLocalisedConfig): void {
-    router.replace({ query: { ...route.query, conId: connectionLocalisedConfigs.id } });
+    if (activeDataViewConfig.value) {
+        activeDataViewConfig.value.connectionId = connectionLocalisedConfigs.id;
+        router.replace({ query: { ...route.query, conId: connectionLocalisedConfigs.id } });
+    }
 }
 
 // EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────

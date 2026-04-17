@@ -27,7 +27,6 @@ const router = useRouter();
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
-    if (connectionLocalisedConfig == null) return;
     emit('submit');
     await router.push({ name: 'selectNode', query: { ...route.query, wbView: 'selectNode' } });
 }

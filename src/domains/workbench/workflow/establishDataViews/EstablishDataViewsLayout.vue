@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router';
 import { computed, ref, shallowRef, watch } from 'vue';
 
 // App Framework
+import { activeDataViewConfig } from '@/state/establishDataViews';
 import T from '@/translations/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.json';
 import { localeId, type LocaleLabel, localiseConfigs, t } from '@/translations';
 
@@ -72,7 +73,7 @@ function updateTaskProgression(taskLocalisedConfig: TaskLocalisedConfig): void {
                         'border-b-zinc-200': activeTaskLocalisedConfig.id !== taskLocalisedConfig.id && taskLocalisedConfig.number > enableTasksUpTo
                     }"
                     role="tab"
-                    :to="{ name: taskLocalisedConfig.id, params: { dataViewId: 'xxx' }, query: { ...route.query, wbView: taskLocalisedConfig.id } }"
+                    :to="{ name: taskLocalisedConfig.id, query: { ...route.query, wbView: taskLocalisedConfig.id } }"
                 >
                     <div>
                         <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }} {{ taskLocalisedConfig.number }}</div>
@@ -81,7 +82,12 @@ function updateTaskProgression(taskLocalisedConfig: TaskLocalisedConfig): void {
                 </RouterLink>
             </div>
 
-            <RouterLink v-else class="ml-auto py-2" :to="{ name: 'selectConnection', params: { dataViewId: 'new' }, query: { ...route.query, wbView: 'selectConnection' } }">
+            <RouterLink
+                v-else
+                class="ml-auto py-2"
+                :to="{ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } }"
+                @click="activeDataViewConfig = undefined"
+            >
                 <PlusIcon stroke-width="1.25" />
             </RouterLink>
         </nav>

@@ -16,6 +16,7 @@ import type {
 } from '@dpuse/dpuse-shared/component/connector';
 
 // App Framework
+import { activeDataViewConfig } from '@/state/establishDataViews';
 import type { DataSource } from '@/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/translations';
@@ -130,7 +131,11 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         :target-column-width="350"
     >
         <template #default="{ row }">
-            <RouterLink v-if="row" :to="{ name: 'selectNode', params: { dataViewId: row.id }, query: { ...$route.query, wbView: 'selectNode' } }">
+            <RouterLink
+                v-if="row"
+                :to="{ name: 'selectNode', params: { dataViewId: row.id }, query: { ...$route.query, wbView: 'selectNode' } }"
+                @click="activeDataViewConfig = row"
+            >
                 <!-- <Card
                     v-if="row"
                     :badges="row.badges"
