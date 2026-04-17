@@ -1,18 +1,13 @@
 <script setup lang="ts">
-// External Dependencies
-import { computed } from 'vue';
-
 // App Framework
-import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
-import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
-import { localeId, localiseConfigs } from '@/translations';
+import { useWorkflowOptionConfigs } from '@/composables/useWorkflowOptionConfigs';
 
 // App Static Components
 import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocalisedConfig>(workflowOptionData, localeId.value));
+const workflowOptionConfigs = useWorkflowOptionConfigs();
 </script>
 
 <template>

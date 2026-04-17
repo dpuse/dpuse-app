@@ -1,13 +1,10 @@
 <script setup lang="ts">
-// External Dependencies
-import { computed } from 'vue';
-
 // App Framework
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { setActiveBenchtop } from '@/state/activeBenchtop';
 import T from '@/translations/domains/workbench/WorkbenchOptionBarContent.json';
-import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
-import { localeId, localiseConfigs, t } from '@/translations';
+import { t } from '@/translations';
+import { useWorkflowOptionConfigs } from '@/composables/useWorkflowOptionConfigs';
 
 // App Static Components
 import HomeIcon from '@/components/icons/HomeIcon.vue';
@@ -17,9 +14,9 @@ import Separator from '@/components/ui/separator/Separator.vue';
 
 const emit = defineEmits<{ continue: [] }>();
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const workflowOptionConfigs = computed(() => localiseConfigs<BenchtopOptionLocalisedConfig>(workflowOptionData, localeId.value));
+const workflowOptionConfigs = useWorkflowOptionConfigs();
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
