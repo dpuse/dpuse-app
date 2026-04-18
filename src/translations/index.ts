@@ -1,19 +1,8 @@
 // External Dependencies
 import { ref } from 'vue';
 
-// Interfaces/Types ────────────────────────────────────────────────────────────────────────────────────────────────────
-
-export type FlagId = 'es' | 'gb';
-export type LocaleId = 'en' | 'es';
-export type LocaleLabel = Partial<Record<LocaleId, string>>;
-
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const DEFAULT_LOCALE_ID: LocaleId = 'en';
-export const SUPPORTED_LANGUAGES: { id: LocaleId; flag: FlagId; label: string }[] = [
-    { id: 'en', flag: 'gb', label: 'English' },
-    { id: 'es', flag: 'es', label: 'Español' }
-];
+// DPUse Framework
+import { DEFAULT_LOCALE_ID, type LocaleId, type LocaleLabel, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -29,7 +18,7 @@ export function n(value: number, options?: Intl.NumberFormatOptions): string {
     return new Intl.NumberFormat(localeId.value, options).format(value);
 }
 
-type Translations = Record<string, Record<LocaleId, string>>;
+type Translations = Record<string, LocaleLabel>;
 export function t(translations: Translations, id: keyof Translations, parameters?: Record<string, number | string>): string {
     const text = translations[id]?.[localeId.value] ?? translations[id]?.[DEFAULT_LOCALE_ID] ?? id;
     if (parameters) return interpolateParameters(text, parameters);

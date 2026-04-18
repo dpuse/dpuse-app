@@ -7,8 +7,8 @@ import { useRoute, useRouter } from 'vue-router';
 import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/connector';
 
 // App Framework
-import { activeDataViewConfig } from '@/state/establishDataViews';
 import { connectionConfigs } from '@/state/session';
+import { activeConnectionConfig, activeDataViewConfig } from '@/state/establishDataViews';
 import { localeId, localiseConfigs } from '@/translations';
 
 // App Static Components
@@ -39,45 +39,16 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function selectConnection(connectionLocalisedConfigs: ConnectionLocalisedConfig): void {
-    if (activeDataViewConfig.value) {
+    activeConnectionConfig.value = connectionLocalisedConfigs;
+    if (activeDataViewConfig.value === undefined) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        activeDataViewConfig.value = { id: '_new_', label: { en: '' }, connectionId: connectionLocalisedConfigs.id };
+    } else {
         activeDataViewConfig.value.connectionId = connectionLocalisedConfigs.id;
-        router.replace({ query: { ...route.query, conId: connectionLocalisedConfigs.id } });
     }
+    router.replace({ query: { ...route.query, conId: connectionLocalisedConfigs.id } });
 }
-
-// EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// const connectorConfig = shallowRef();
-// const connectionConfig = shallowRef();
-
-// watch(
-//     connectorConfigs,
-//     (newConnectorConfigs) => {
-//         if (newConnectorConfigs == null) return;
-//         connectorConfig.value = newConnectorConfigs.find((config) => config.id === 'dpuse-connector-dropbox');
-//         if (connectorConfig.value == null) return;
-//         connectionConfig.value = constructConnectionConfig(connectorConfig.value);
-//     },
-//     { immediate: true }
-// );
-
-// function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
-//     return {
-//         id: connectorConfig.id,
-//         label: connectorConfig.label,
-//         description: {},
-//         authorisation: {},
-//         connectorConfig,
-//         icon: connectorConfig.icon,
-//         iconDark: null,
-//         lastVerifiedAt: 0,
-//         lastUpdatedAt: null,
-//         notation: undefined,
-//         status: null,
-//         statusId: connectorConfig.statusId,
-//         typeId: 'connectorConnection'
-//     };
-// }
 </script>
 
 <template>

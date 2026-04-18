@@ -4,10 +4,13 @@ import { PlusIcon } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
 import { computed, ref, shallowRef, watch } from 'vue';
 
+// DPUse Framework
+import type { LocaleLabel } from '@dpuse/dpuse-shared/locale';
+
 // App Framework
 import { activeDataViewConfig } from '@/state/establishDataViews';
 import T from '@/translations/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.json';
-import { localeId, type LocaleLabel, localiseConfigs, t } from '@/translations';
+import { localeId, localiseConfigs, t } from '@/translations';
 
 // App Static Components
 import Header from '@/components/layout/header/Header.vue';

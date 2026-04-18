@@ -4,10 +4,13 @@ import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'l
 import { nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+// DPUse Framework
+import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
+
 // App Framework
 import { displayIsWide } from '@/state/appLayout';
 import T from '@/translations/domains/session/SessionMenu.json';
-import { type LocaleId, localeId, SUPPORTED_LANGUAGES, t } from '@/translations';
+import { localeId, t } from '@/translations';
 import { isAuthenticated as sessionIsAuthenticated, signOut } from '@/state/session';
 
 // App Static Components

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 // External Dependencies
-import { shallowRef, watch } from 'vue';
+import { onMounted, shallowRef } from 'vue';
 
 // DPUse Framework
-import type { ConnectionConfig, ConnectorConfig, ListNodesOptions } from '@dpuse/dpuse-shared/component/connector';
+import type { ListNodesOptions } from '@dpuse/dpuse-shared/component/connector';
 
 // App Framework
-import { connectorConfigs } from '@/state/session';
+import { activeConnectionConfig } from '@/state/establishDataViews';
 import { useEngine } from '@/services/useEngine';
 
 // App Static Components
@@ -18,41 +18,48 @@ const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalised
 
 defineEmits<{ 'task-completed': [taskLocalisedConfig: TaskLocalisedConfig] }>();
 
-// EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
-const connectorConfig = shallowRef();
-const connectionConfig = shallowRef();
 const listNodesResult = shallowRef();
 
-watch(
-    connectorConfigs,
-    async (newConnectorConfigs) => {
-        if (newConnectorConfigs == null) return;
-        connectorConfig.value = newConnectorConfigs.find((config) => config.id === 'dpuse-connector-file-store-emulator');
-        if (connectorConfig.value == null) return;
-        connectionConfig.value = constructConnectionConfig(connectorConfig.value);
-        const { processRequest } = await useEngine();
-        listNodesResult.value = await processRequest('listNodes', connectionConfig.value, { folderPath: '/' } as ListNodesOptions);
-    },
-    { immediate: true }
-);
+onMounted(async () => {
+    const { processRequest } = await useEngine();
+    console.log(activeConnectionConfig.value);
+    listNodesResult.value = await processRequest('listNodes', activeConnectionConfig.value!, { folderPath: '/' } as ListNodesOptions); // TODO: use of !
+});
 
-function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
-    return {
-        id: connectorConfig.id,
-        label: connectorConfig.label,
-        description: {},
-        authorisation: {},
-        connectorConfig,
-        icon: connectorConfig.icon,
-        iconDark: null,
-        lastVerifiedAt: 0,
-        lastUpdatedAt: null,
-        notation: undefined,
-        status: null,
-        statusId: connectorConfig.statusId,
-        typeId: 'connectorConnection'
-    };
-}
+// // EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// const connectorConfig = shallowRef();
+// const connectionConfig = shallowRef();
+
+// watch(
+//     connectorConfigs,
+//     async (newConnectorConfigs) => {
+//         if (newConnectorConfigs == null) return;
+//         connectorConfig.value = newConnectorConfigs.find((config) => config.id === 'dpuse-connector-file-store-emulator');
+//         if (connectorConfig.value == null) return;
+//         connectionConfig.value = constructConnectionConfig(connectorConfig.value);
+//         const { processRequest } = await useEngine();
+//         listNodesResult.value = await processRequest('listNodes', connectionConfig.value, { folderPath: '/' } as ListNodesOptions);
+//     },
+//     { immediate: true }
+// );
+
+// function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
+//     return {
+//         id: connectorConfig.id,
+//         label: connectorConfig.label,
+//         description: {},
+//         authorisation: {},
+//         connectorConfig,
+//         icon: connectorConfig.icon,
+//         iconDark: null,
+//         lastVerifiedAt: 0,
+//         lastUpdatedAt: null,
+//         notation: undefined,
+//         status: null,
+//         statusId: connectorConfig.statusId,
+//         typeId: 'connectorConnection'
+//     };
+// }
 </script>
 
 <template>
