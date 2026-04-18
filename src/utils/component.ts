@@ -2,7 +2,7 @@
 import type { Component } from 'vue';
 import { h } from 'vue';
 
-// App Framework
+// Local Framework
 import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
 import { completeBusy, startBusy } from '@/state/appProgress';
 

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-// App Framework
+// Local Framework
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import { setActiveBenchtop } from '@/state/activeBenchtop';
 import T from '@/translations/domains/workbench/WorkbenchOptionBarContent.json';
 import { t } from '@/translations';
 import { useWorkflowOptionConfigs } from '@/composables/useWorkflowOptionConfigs';
 
-// App Static Components
+// Local Components - Static
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 

@@ -3,7 +3,7 @@
 import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent } from 'vue';
 
-// App Dynamic Components
+// Local Components - Dynamic
 const AboutView = defineAsyncComponent(() => import('./AboutPanel.vue'));
 const ChatView = defineAsyncComponent(() => import('./ChatPanel.vue'));
 const LibraryView = defineAsyncComponent(() => import('./LibraryPanel.vue'));

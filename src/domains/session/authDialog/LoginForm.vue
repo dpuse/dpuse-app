@@ -3,11 +3,11 @@
 import { UserRoundKeyIcon } from 'lucide-vue-next';
 import { onUnmounted, ref } from 'vue';
 
-// App Framework
+// Local Framework
 import T from '@/translations/domains/session/authDialog/LoginForm.json';
 import { t } from '@/translations';
 
-// App Static Components
+// Local Components - Static
 import AppleLogo from '@/components/logos/AppleLogo.vue';
 import Button from '@/components/ui/button/Button.vue';
 import GitHubLogo from '@/components/logos/GitHubLogo.vue';

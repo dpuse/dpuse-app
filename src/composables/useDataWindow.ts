@@ -2,7 +2,8 @@
 import { computed, type ComputedRef, ref, type ShallowRef, watch } from 'vue';
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 
-// Types
+// Types ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 export type DataSource<T = unknown> = { rowCount: number; getRows: (startRow: number, endRow: number) => Promise<T[]> };
 
 type Options<T> = {

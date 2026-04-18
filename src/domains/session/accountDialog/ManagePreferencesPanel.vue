@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// App Framework
+// Local Framework
 import { localeId } from '@/translations';
 
-// App Static Components
+// Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 </script>
 

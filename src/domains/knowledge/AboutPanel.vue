@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// App Framework
+// Local Framework
 import { useWorkflowOptionConfigs } from '@/composables/useWorkflowOptionConfigs';
 
-// App Static Components
+// Local Components - Static
 import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// App Framework
+// Local Framework
 import { isNavigating } from '@/state/appProgress';
 </script>
 

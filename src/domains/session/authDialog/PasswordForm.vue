@@ -2,11 +2,11 @@
 // External Dependencies
 import { ref } from 'vue';
 
-// App Framework
+// Local Framework
 import T from '@/translations/domains/session/authDialog/PasswordForm.json';
 import { t } from '@/translations';
 
-// App Static Components
+// Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Input from '@/components/ui/input/Input.vue';
 

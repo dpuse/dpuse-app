@@ -2,10 +2,10 @@
 // External Dependencies
 import type { ColumnDef } from '@tanstack/vue-table';
 
-// App Framework
+// Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 
-// App Static Components
+// Local Components - Static
 import Table from '@/components/ui/table/Table.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────

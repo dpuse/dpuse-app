@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// App Framework
+// Local Framework
 import { displayIsWide } from '@/state/appLayout';
 
-// App Static Components
+// Local Components - Static
 import WorkbenchOptionPanel from './WorkbenchOptionPanel.vue';
 
 // Properties, Slots & Emits

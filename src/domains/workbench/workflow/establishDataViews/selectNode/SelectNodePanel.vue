@@ -5,11 +5,11 @@ import { onMounted, shallowRef } from 'vue';
 // DPUse Framework
 import type { ListNodesOptions } from '@dpuse/dpuse-shared/component/connector';
 
-// App Framework
+// Local Framework
 import { activeConnectionConfig } from '@/state/establishDataViews';
 import { useEngine } from '@/services/useEngine';
 
-// App Static Components
+// Local Components - Static
 import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────

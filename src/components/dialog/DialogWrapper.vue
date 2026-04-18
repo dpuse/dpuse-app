@@ -3,7 +3,7 @@
 import { LoaderCircleIcon, XIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
-// App Static Components
+// Local Components - Static
 import Button from '../ui/button/Button.vue';
 import DialogMask from '@/components/dialog/DialogMask.vue';
 

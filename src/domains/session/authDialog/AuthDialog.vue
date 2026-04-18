@@ -5,14 +5,14 @@ import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State 
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-// App Framework
+// Local Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
 import T from '@/translations/domains/session/authDialog/LoginForm.json';
 import { t } from '@/translations';
 import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
-// App Static Components
+// Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';
 import LoginForm from '@/domains/session/authDialog/LoginForm.vue';

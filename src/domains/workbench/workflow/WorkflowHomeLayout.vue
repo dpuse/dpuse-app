@@ -1,10 +1,10 @@
 <script setup lang="ts">
-// App Framework
+// Local Framework
 import T from '@/translations/domains/workbench/workflow/WorkflowHomeLayout.json';
 import { t } from '@/translations';
 import { useWorkflowOptionConfigs } from '@/composables/useWorkflowOptionConfigs';
 
-// App Static Components
+// Local Components - Static
 import Card from '@/components/ui/card/Card.vue';
 import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 import Header from '@/components/layout/header/Header.vue';

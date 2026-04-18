@@ -1,7 +1,7 @@
 // External Dependencies
 import { computed, type ComputedRef } from 'vue';
 
-// App Framework
+// Local Framework
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
 import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
 import { localeId, localiseConfigs } from '@/translations';

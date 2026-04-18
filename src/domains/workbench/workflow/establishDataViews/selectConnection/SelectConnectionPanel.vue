@@ -6,12 +6,12 @@ import { useRoute, useRouter } from 'vue-router';
 // DPUse Framework
 import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/connector';
 
-// App Framework
+// Local Framework
 import { connectionConfigs } from '@/state/session';
 import { activeConnectionConfig, activeDataViewConfig } from '@/state/establishDataViews';
 import { localeId, localiseConfigs } from '@/translations';
 
-// App Static Components
+// Local Components - Static
 import Card from '@/components/ui/card/Card.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';

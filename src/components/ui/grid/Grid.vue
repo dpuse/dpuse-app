@@ -2,10 +2,10 @@
 // External Dependencies
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
-// App Framework
+// Local Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
-// App Static Components
+// Local Components - Static
 import ScrollThumb from '../scrollThumb/ScrollThumb.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────

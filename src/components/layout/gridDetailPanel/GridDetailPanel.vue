@@ -3,11 +3,11 @@
 import { ArrowBigLeftIcon } from 'lucide-vue-next';
 import { computed, shallowRef } from 'vue';
 
-// App Framework
+// Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
 
-// App Static Components
+// Local Components - Static
 import Button from '../../ui/button/Button.vue';
 import Grid from '../../ui/grid/Grid.vue';
 

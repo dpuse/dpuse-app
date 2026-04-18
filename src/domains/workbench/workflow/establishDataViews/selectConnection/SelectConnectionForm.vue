@@ -5,11 +5,11 @@ import { useRoute, useRouter } from 'vue-router';
 // DPUse Framework
 import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/connector';
 
-// App Framework
+// Local Framework
 import T from '@/translations/domains/workbench/workflow/establishDataViews/selectConnection/SelectConnectionForm.json';
 import { t } from '@/translations';
 
-// App Static Components
+// Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import ContentScroller from '~/src/components/layout/contentScroller/ContentScroller.vue';
 

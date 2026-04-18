@@ -5,7 +5,7 @@ import type { ToolConfig } from '@dpuse/dpuse-shared/component/tool';
 import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/connector';
 import type { ContextConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 
-// App Framework
+// Local Framework
 import { connectionConfigs, connectorConfigs, contextConfig, engineConfig, localMetaStoreConnectionConfig, presenterConfigs, toolConfigs } from '@/state/session';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -7,12 +7,12 @@ import { computed, ref, shallowRef, watch } from 'vue';
 // DPUse Framework
 import type { LocaleLabel } from '@dpuse/dpuse-shared/locale';
 
-// App Framework
+// Local Framework
 import { activeDataViewConfig } from '@/state/establishDataViews';
 import T from '@/translations/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.json';
 import { localeId, localiseConfigs, t } from '@/translations';
 
-// App Static Components
+// Local Components - Static
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 

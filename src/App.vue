@@ -4,14 +4,14 @@ import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
-// App Framework
+// Local Framework
 import { isBusy } from '@/state/appProgress';
 import { load } from '@/utils/component';
 import T from '@/translations/App.json';
 import { t } from '@/translations';
 import { contentScrollTop, displayIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
 
-// App Static Components
+// Local Components - Static
 import BusyMask from '@/components/layout/busyMask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
 import Button from '@/components/ui/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
 import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
@@ -22,7 +22,7 @@ import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
 import ProgressBar from '@/components/layout/progressBar/ProgressBar.vue'; // Required when lazy loading is delayed.
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
 
-// App Dynamic Components
+// Local Components - Dynamic
 const AccountDialog = defineAsyncComponent({ loader: load('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue'), 0), errorComponent: ChunkLoadError });
 const AuthDialog = defineAsyncComponent({ loader: load('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0), errorComponent: ChunkLoadError });
 const KnowledgeLayout = defineAsyncComponent({ loader: load('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });

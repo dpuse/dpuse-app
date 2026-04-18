@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// App Framework
+// Local Framework
 import { t } from '@/translations';
 import T from '@/translations/domains/workbench/workflow/assembleDimensions/AssembleDimensionsLayout.json';
 
-// App Static Components
+// Local Components - Static
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 </script>

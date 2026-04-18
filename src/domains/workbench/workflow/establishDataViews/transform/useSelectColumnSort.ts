@@ -3,14 +3,7 @@ import { dragAndDrop } from '@formkit/drag-and-drop/vue';
 import { tearDown } from '@formkit/drag-and-drop';
 import { type ComponentPublicInstance, computed, type ComputedRef, nextTick, onBeforeUnmount, ref, watch, type WritableComputedRef } from 'vue';
 
-// Constants ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const SELECT_DRAG_HANDLE_SELECTOR = '[data-select-handle]';
-const SELECT_DRAG_PLACEHOLDER_CLASS = 'select-drag-placeholder';
-const SELECTED_TILE_ATTRIBUTE = 'data-selected';
-const SELECTED_TILE_VALUE = 'true';
-
-// Interfaces/Types ────────────────────────────────────────────────────────────────────────────────────────────────────
+// Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface UseSelectColumnSortOptions {
     isOpen: ComputedRef<boolean>;
@@ -21,6 +14,13 @@ interface UseSelectColumnSortResult {
     bindGridElement: (instance: Element | ComponentPublicInstance | null) => void;
     sortEnabled: ComputedRef<boolean>;
 }
+
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const SELECT_DRAG_HANDLE_SELECTOR = '[data-select-handle]';
+const SELECT_DRAG_PLACEHOLDER_CLASS = 'select-drag-placeholder';
+const SELECTED_TILE_ATTRIBUTE = 'data-selected';
+const SELECTED_TILE_VALUE = 'true';
 
 // Composable ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

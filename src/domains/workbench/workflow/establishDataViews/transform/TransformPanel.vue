@@ -17,12 +17,34 @@ import {
 } from 'lucide-vue-next';
 import { type Component, computed, ref } from 'vue';
 
-// App Framework
+// Local Framework
 import { useSelectColumnSort } from './useSelectColumnSort';
 
-// App Static Components
+// Local Components - Static
 import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 import SortableColumnTile from './ColumnPill.vue';
+
+// Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+interface Column {
+    name: string;
+    type: 'id' | 'number' | 'text' | 'date' | 'time' | 'boolean' | 'dateTime';
+}
+
+interface Condition {
+    id: string;
+    column: string;
+    op: string;
+    value: string;
+}
+
+interface Query {
+    select: string[];
+    where: Condition[];
+    groupBy: string[];
+    having: Condition[];
+    orderBy: Array<{ column: string; dir: 'ASC' | 'DESC' }>;
+}
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -75,28 +97,6 @@ const TYPE_ICON: Record<string, Component> = {
     boolean: ToggleLeftIcon,
     dateTime: CalendarClockIcon
 };
-
-// Interfaces/Types ────────────────────────────────────────────────────────────────────────────────────────────────────
-
-interface Column {
-    name: string;
-    type: 'id' | 'number' | 'text' | 'date' | 'time' | 'boolean' | 'dateTime';
-}
-
-interface Condition {
-    id: string;
-    column: string;
-    op: string;
-    value: string;
-}
-
-interface Query {
-    select: string[];
-    where: Condition[];
-    groupBy: string[];
-    having: Condition[];
-    orderBy: Array<{ column: string; dir: 'ASC' | 'DESC' }>;
-}
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

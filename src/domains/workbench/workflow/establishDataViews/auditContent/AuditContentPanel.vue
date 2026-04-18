@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// App Framework
+// Local Framework
 import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
 
 // Properties, Slots & Emits

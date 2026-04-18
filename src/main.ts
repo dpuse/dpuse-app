@@ -4,12 +4,12 @@ import { createApp } from 'vue';
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 
-// App Framework
+// Local Framework
 import '@/assets/main.css';
 import { createAppRouter } from '@/router';
 import { reportAppError, reportFatalError } from '@/observability/errorTracking';
 
-// App Static Components
+// Local Components - Static
 import App from '@/App.vue';
 
 // App Bootstrap ───────────────────────────────────────────────────────────────────────────────────────────────────────

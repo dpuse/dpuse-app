@@ -3,11 +3,11 @@
 import { LoaderCircleIcon } from 'lucide-vue-next';
 import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 
-// App Framework
+// Local Framework
 import { displayIsWide } from '@/state/appLayout';
 import { isAuthenticated as sessionIsAuthenticated } from '@/state/session';
 
-// App Static Components
+// Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import DialogMask from '@/components/dialog/DialogMask.vue';
 import SessionMenu from '@/domains/session/SessionMenu.vue';

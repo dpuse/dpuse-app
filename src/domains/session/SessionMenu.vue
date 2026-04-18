@@ -7,13 +7,13 @@ import { useRoute, useRouter } from 'vue-router';
 // DPUse Framework
 import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
-// App Framework
+// Local Framework
 import { displayIsWide } from '@/state/appLayout';
 import T from '@/translations/domains/session/SessionMenu.json';
 import { localeId, t } from '@/translations';
 import { isAuthenticated as sessionIsAuthenticated, signOut } from '@/state/session';
 
-// App Static Components
+// Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 

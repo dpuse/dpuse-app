@@ -4,10 +4,10 @@ import { useVirtualizer } from '@tanstack/vue-virtual';
 import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, getCoreRowModel, useVueTable, type VisibilityState } from '@tanstack/vue-table';
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue';
 
-// App Framework
+// Local Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
-// App Static Components
+// Local Components - Static
 import ScrollThumb from '../scrollThumb/ScrollThumb.vue';
 import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';
