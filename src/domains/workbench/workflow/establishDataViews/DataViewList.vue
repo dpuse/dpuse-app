@@ -13,7 +13,7 @@ import type {
     FindObjectResult,
     RetrieveRecordsOptions,
     UpsertRecordsOptions
-} from '@dpuse/dpuse-shared/component/connector';
+} from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
 import { activeDataViewConfig } from '@/state/establishDataViews';

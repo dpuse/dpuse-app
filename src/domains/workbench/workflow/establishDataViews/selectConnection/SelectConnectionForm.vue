@@ -3,7 +3,7 @@
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
-import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/connector';
+import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
 import T from '@/translations/domains/workbench/workflow/establishDataViews/selectConnection/SelectConnectionForm.json';

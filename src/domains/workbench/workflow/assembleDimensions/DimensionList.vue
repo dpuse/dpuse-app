@@ -8,7 +8,7 @@ import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { DimensionConfig } from '@dpuse/dpuse-shared';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
-import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/connector';
+import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
 import type { DataSource } from '@/composables/useDataWindow';

@@ -4,7 +4,7 @@ import { shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
-import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/connector';
+import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
 import { connectionConfigs } from '@/state/session';
@@ -38,16 +38,36 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function selectConnection(connectionLocalisedConfigs: ConnectionLocalisedConfig): void {
-    activeConnectionConfig.value = connectionLocalisedConfigs;
-    if (activeDataViewConfig.value === undefined) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        activeDataViewConfig.value = { id: '_new_', label: { en: '' }, connectionId: connectionLocalisedConfigs.id };
-    } else {
-        activeDataViewConfig.value.connectionId = connectionLocalisedConfigs.id;
-    }
-    router.replace({ query: { ...route.query, conId: connectionLocalisedConfigs.id } });
+function selectConnection(connectionLocalisedConfig: ConnectionLocalisedConfig): void {
+    activeConnectionConfig.value = connectionLocalisedConfig;
+    activeDataViewConfig.value =
+        activeDataViewConfig.value === undefined
+            ? {
+                  id: '_new_',
+                  label: { en: 'New Data View' },
+                  description: { en: 'A new data view.' },
+                  firstCreatedAt: null,
+                  icon: null,
+                  iconDark: null,
+                  lastUpdatedAt: null,
+                  status: null,
+                  statusId: null,
+                  typeId: 'dataView',
+                  connectionId: connectionLocalisedConfig.id,
+                  connectionNodeConfig: undefined,
+                  previewConfig: undefined,
+                  contentAuditConfig: undefined,
+                  relationshipsAuditConfig: undefined
+              }
+            : {
+                  ...activeDataViewConfig.value,
+                  connectionId: connectionLocalisedConfig.id,
+                  connectionNodeConfig: undefined,
+                  previewConfig: undefined,
+                  contentAuditConfig: undefined,
+                  relationshipsAuditConfig: undefined
+              };
+    router.replace({ query: { ...route.query, conId: connectionLocalisedConfig.id } });
 }
 </script>
 

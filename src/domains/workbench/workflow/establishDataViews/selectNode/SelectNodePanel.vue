@@ -3,7 +3,7 @@
 import { onMounted, shallowRef } from 'vue';
 
 // DPUse Framework
-import type { ListNodesOptions } from '@dpuse/dpuse-shared/component/connector';
+import type { ListNodesOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
 import { activeConnectionConfig } from '@/state/establishDataViews';
