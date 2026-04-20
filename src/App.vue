@@ -285,8 +285,9 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             @pointerdown="activeAppPaneId = 'workbench'"
             @scroll.capture="activeAppPaneId = 'workbench'"
         >
-            <WorkbenchOptionBar v-if="displayIsWide" class="overflow-y-hidden" :class="{ 'col-start-1': displayIsWide }" @continue="closeOptionBarOnNarrowDisplay()" />
+            <WorkbenchOptionBar v-if="displayIsWide" class="overflow-y-hidden" @continue="closeOptionBarOnNarrowDisplay()" />
 
+            <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
             <div class="overflow-y-hidden" :class="{ 'col-start-2': displayIsWide }">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">
