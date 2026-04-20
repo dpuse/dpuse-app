@@ -5,7 +5,7 @@ import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } f
 
 // Local Framework
 import { displayIsWide } from '@/state/appLayout';
-import { isAuthenticated as sessionIsAuthenticated } from '@/state/session';
+import { isAuthenticated } from '@/state/session';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -91,13 +91,13 @@ function onMenuAfterLeave(): void {}
         >
             <Transition name="fade">
                 <!-- Session is authenticated. Show photo or initials. -->
-                <div v-if="sessionIsAuthenticated === true" class="absolute inset-0 flex items-center justify-center">
+                <div v-if="isAuthenticated === true" class="absolute inset-0 flex items-center justify-center">
                     <img v-if="!error" alt="" class="size-9.5 rounded-full" :src="avatarUrl" @error="error = true" />
                     <div v-else class="rounded-full text-xl">{{ initials }}</div>
                 </div>
 
                 <!-- Session is NOT authenticated. Show user silhouette. -->
-                <div v-else-if="sessionIsAuthenticated === false" class="bg-surface absolute inset-0 flex items-center justify-center rounded-full">
+                <div v-else-if="isAuthenticated === false" class="bg-surface absolute inset-0 flex items-center justify-center rounded-full">
                     <svg viewBox="0 0 24 24" fill="currentColor" class="size-8 text-zinc-400/60">
                         <path
                             fill-rule="evenodd"

@@ -7,6 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 // Local Framework
 import { isBusy } from '@/state/appProgress';
 import { load } from '@/utils/component';
+import { initialiseServices } from '@/state/session';
 import T from '@/translations/App.json';
 import { t } from '@/translations';
 import { contentScrollTop, displayIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
@@ -92,7 +93,7 @@ router
         activeAppPaneId.value = 'workbench';
     });
 
-onMounted(() => import('@/state/session').then((module) => module.initialiseServices()));
+onMounted(() => initialiseServices());
 
 watch(displayIsWide, (newDisplayIsWide) => {
     if (activeAppPaneId.value != null) establishActiveAppPaneId(newDisplayIsWide);

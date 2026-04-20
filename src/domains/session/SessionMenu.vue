@@ -10,8 +10,8 @@ import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 // Local Framework
 import { displayIsWide } from '@/state/appLayout';
 import T from '@/translations/domains/session/SessionMenu.json';
+import { isAuthenticated, signOut } from '@/state/session';
 import { localeId, t } from '@/translations';
-import { isAuthenticated as sessionIsAuthenticated, signOut } from '@/state/session';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -126,12 +126,12 @@ async function toggleFullscreen(): Promise<void> {
         <Button v-if="isPWA" class="min-w-50 justify-start" @click="handleReloadApplication">{{ t(T, 'Reload_application') }}</Button>
 
         <!-- Manage Account -->
-        <Separator v-if="sessionIsAuthenticated" class="my-2.5" />
-        <Button v-if="sessionIsAuthenticated" class="min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>
+        <Separator v-if="isAuthenticated" class="my-2.5" />
+        <Button v-if="isAuthenticated" class="min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>
 
         <!-- Sign In / Sign Out -->
         <Separator class="my-2.5" />
-        <Button v-if="sessionIsAuthenticated" class="min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</Button>
+        <Button v-if="isAuthenticated" class="min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</Button>
         <Button v-else class="min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</Button>
     </div>
 </template>

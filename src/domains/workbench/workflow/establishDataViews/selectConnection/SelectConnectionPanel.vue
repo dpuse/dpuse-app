@@ -8,9 +8,9 @@ import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/co
 
 // Local Framework
 import { connectionConfigs } from '@/state/session';
-import { activeConnectionConfig, activeDataViewConfig } from '@/state/establishDataViews';
 import { localeId } from '@/translations';
 import { localiseConfigs } from '@dpuse/dpuse-shared/locale';
+import { activeConnectionConfig, activeDataViewConfig } from '@/state/establishDataViews';
 
 // Local Components - Static
 import Card from '@/components/ui/card/Card.vue';

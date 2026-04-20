@@ -8,7 +8,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
-import type { EventQueryConfig } from '@dpuse/dpuse-shared';
+import type { EventQueryConfig } from '@dpuse/dpuse-shared/component/eventQuery';
 import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
