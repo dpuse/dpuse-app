@@ -279,15 +279,15 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <main
             v-if="workbenchPaneActivated"
             v-show="workbenchPaneIsVisible"
-            class="grid h-full min-w-0"
+            class="grid h-full"
             :class="displayIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
             :style="workbenchPaneStyle"
             @pointerdown="activeAppPaneId = 'workbench'"
             @scroll.capture="activeAppPaneId = 'workbench'"
         >
-            <WorkbenchOptionBar v-if="displayIsWide" class="overflow-y-hidden" @continue="closeOptionBarOnNarrowDisplay()" />
+            <WorkbenchOptionBar v-if="displayIsWide" class="overflow-y-hidden" :class="{ 'col-start-1': displayIsWide }" @continue="closeOptionBarOnNarrowDisplay()" />
 
-            <div class="min-h-0 min-w-0 overflow-y-hidden">
+            <div class="overflow-y-hidden" :class="{ 'col-start-2': displayIsWide }">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">
                         <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
@@ -303,7 +303,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <div
             v-if="knowledgePaneActivated"
             v-show="knowledgePaneIsVisible"
-            class="flex h-full min-w-0"
+            class="flex h-full"
             :style="knowledgePaneStyle"
             @pointerdown="activeAppPaneId = 'knowledge'"
             @scroll.capture="activeAppPaneId = 'knowledge'"
