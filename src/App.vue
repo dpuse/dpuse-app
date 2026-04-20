@@ -45,7 +45,6 @@ const activeAppPaneId = ref<AppPaneId | undefined>();
 const knowledgeOptionBarIsVisible = ref(false);
 const knowledgePaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
 const knowledgePaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
-const layoutIsReady = ref(false); // Prevents initial paint before the wide/narrow pane layout has been resolved.
 
 const paneSplitterPercent = ref(Number(localStorage.getItem(PANE_SPLITTER_PERCENT_KEY)) || 50);
 
@@ -86,14 +85,12 @@ router
         knowledgePaneActivated.value = knowledgePaneIsActive.value = route.query.kState === '1' && 'kView' in route.query;
         activeAppPaneId.value = workbenchPaneActivated.value ? 'workbench' : 'knowledge';
         establishActiveAppPaneId(displayIsWide.value);
-        layoutIsReady.value = true;
     })
     .catch(() => {
         // Router failed to initialise — fall back to showing the workbench pane.
         workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = true;
         knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = false;
         activeAppPaneId.value = 'workbench';
-        layoutIsReady.value = true;
     });
 
 onMounted(() => initialiseServices());
@@ -280,9 +277,9 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 
         <!-- Left Pane - Workbench option bar (wide only) and panel. -->
         <main
-            v-if="layoutIsReady && workbenchPaneActivated"
+            v-if="workbenchPaneActivated"
             v-show="workbenchPaneIsVisible"
-            class="grid h-full"
+            class="grid h-full min-w-0"
             :class="displayIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
             :style="workbenchPaneStyle"
             @pointerdown="activeAppPaneId = 'workbench'"
@@ -290,7 +287,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         >
             <WorkbenchOptionBar v-if="displayIsWide" class="overflow-y-hidden" @continue="closeOptionBarOnNarrowDisplay()" />
 
-            <div class="overflow-y-hidden">
+            <div class="min-h-0 min-w-0 overflow-y-hidden">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">
                         <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
@@ -300,13 +297,13 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </main>
 
         <!-- Vertical Splitter - Only visible if display is wide and both panes are visible. -->
-        <PaneSplitter v-if="layoutIsReady && paneSplitterIsVisible" v-model="paneSplitterPercent" />
+        <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
 
         <!-- Right Pane - Knowledge panel and option bar (wide only). -->
         <div
-            v-if="layoutIsReady && knowledgePaneActivated"
+            v-if="knowledgePaneActivated"
             v-show="knowledgePaneIsVisible"
-            class="flex h-full"
+            class="flex h-full min-w-0"
             :style="knowledgePaneStyle"
             @pointerdown="activeAppPaneId = 'knowledge'"
             @scroll.capture="activeAppPaneId = 'knowledge'"
