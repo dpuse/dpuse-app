@@ -5,9 +5,9 @@ import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next
 import { useRoute, useRouter } from 'vue-router';
 
 // Local Framework
+import { initialiseServices } from '@/state/session';
 import { isBusy } from '@/state/appProgress';
 import { load } from '@/utils/component';
-import { initialiseServices } from '@/state/session';
 import T from '@/translations/App.json';
 import { t } from '@/translations';
 import { contentScrollTop, displayIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
@@ -45,6 +45,7 @@ const activeAppPaneId = ref<AppPaneId | undefined>();
 const knowledgeOptionBarIsVisible = ref(false);
 const knowledgePaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
 const knowledgePaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
+const layoutIsReady = ref(false); // Prevents initial paint before the wide/narrow pane layout has been resolved.
 
 const paneSplitterPercent = ref(Number(localStorage.getItem(PANE_SPLITTER_PERCENT_KEY)) || 50);
 
@@ -85,12 +86,14 @@ router
         knowledgePaneActivated.value = knowledgePaneIsActive.value = route.query.kState === '1' && 'kView' in route.query;
         activeAppPaneId.value = workbenchPaneActivated.value ? 'workbench' : 'knowledge';
         establishActiveAppPaneId(displayIsWide.value);
+        layoutIsReady.value = true;
     })
     .catch(() => {
         // Router failed to initialise — fall back to showing the workbench pane.
         workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = true;
         knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = false;
         activeAppPaneId.value = 'workbench';
+        layoutIsReady.value = true;
     });
 
 onMounted(() => initialiseServices());
@@ -277,7 +280,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 
         <!-- Left Pane - Workbench option bar (wide only) and panel. -->
         <main
-            v-if="workbenchPaneActivated"
+            v-if="layoutIsReady && workbenchPaneActivated"
             v-show="workbenchPaneIsVisible"
             class="grid h-full"
             :class="displayIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
@@ -297,11 +300,11 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </main>
 
         <!-- Vertical Splitter - Only visible if display is wide and both panes are visible. -->
-        <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
+        <PaneSplitter v-if="layoutIsReady && paneSplitterIsVisible" v-model="paneSplitterPercent" />
 
         <!-- Right Pane - Knowledge panel and option bar (wide only). -->
         <div
-            v-if="knowledgePaneActivated"
+            v-if="layoutIsReady && knowledgePaneActivated"
             v-show="knowledgePaneIsVisible"
             class="flex h-full"
             :style="knowledgePaneStyle"
