@@ -5,12 +5,12 @@ import { useRoute } from 'vue-router';
 import { computed, ref, shallowRef, watch } from 'vue';
 
 // DPUse Framework
-import type { LocaleLabel } from '@dpuse/dpuse-shared/locale';
+import { type LocaleLabel, localiseConfigs } from '@dpuse/dpuse-shared/locale';
 
 // Local Framework
 import { activeDataViewConfig } from '@/state/establishDataViews';
 import T from '@/translations/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.json';
-import { localeId, localiseConfigs, t } from '@/translations';
+import { localeId, t } from '@/translations';
 
 // Local Components - Static
 import Header from '@/components/layout/header/Header.vue';

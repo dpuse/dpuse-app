@@ -2,8 +2,8 @@
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { EngineConfig } from '@dpuse/dpuse-shared/engine';
-import type { ModuleConfig } from '@dpuse/dpuse-shared/component';
-import type { ToolConfig } from '@dpuse/dpuse-shared/component/tool';
+import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
+import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 import type { ContextConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 
 // Local Framework

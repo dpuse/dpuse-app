@@ -6,9 +6,10 @@ import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
+import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { DimensionConfig } from '@dpuse/dpuse-shared';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
-import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
+import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
 import type { DataSource } from '@/composables/useDataWindow';

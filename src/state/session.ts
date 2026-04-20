@@ -4,10 +4,11 @@ import { ref, shallowRef, watch } from 'vue';
 
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
+import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { EngineConfig } from '@dpuse/dpuse-shared/engine';
-import type { ToolConfig } from '@dpuse/dpuse-shared/component/tool';
-import type { ConnectionConfig, ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
+import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
+import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { ContextConfig, DimensionConfig, EventQueryConfig, PresenterConfig } from '@dpuse/dpuse-shared';
 
 // Local Framework

@@ -6,9 +6,10 @@ import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
+import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
 import type { EventQueryConfig } from '@dpuse/dpuse-shared';
-import type { ConnectionConfig, CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
+import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
 import { reportAppError } from '@/observability/errorTracking';

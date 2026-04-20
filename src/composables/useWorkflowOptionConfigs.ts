@@ -3,8 +3,9 @@ import { computed, type ComputedRef } from 'vue';
 
 // Local Framework
 import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
+import { localeId } from '@/translations';
+import { localiseConfigs } from '@dpuse/dpuse-shared/locale';
 import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
-import { localeId, localiseConfigs } from '@/translations';
 
 // Workflow Option Configs Composable ──────────────────────────────────────────────────────────────────────────────────
 

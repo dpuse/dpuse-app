@@ -4,12 +4,13 @@ import { shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
-import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/module/connector';
+import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/connection';
 
 // Local Framework
 import { connectionConfigs } from '@/state/session';
 import { activeConnectionConfig, activeDataViewConfig } from '@/state/establishDataViews';
-import { localeId, localiseConfigs } from '@/translations';
+import { localeId } from '@/translations';
+import { localiseConfigs } from '@dpuse/dpuse-shared/locale';
 
 // Local Components - Static
 import Card from '@/components/ui/card/Card.vue';
