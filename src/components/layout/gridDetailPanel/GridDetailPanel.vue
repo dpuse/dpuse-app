@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends { id: string; label: string }">
 // External Dependencies
 import { ArrowBigLeftIcon } from 'lucide-vue-next';
-import { computed, shallowRef } from 'vue';
+import { shallowRef } from 'vue';
 
 // Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -13,11 +13,11 @@ import Grid from '../../ui/grid/Grid.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
-const { items, maxDetailWidth } = defineProps<{ items: T[]; maxDetailWidth?: string }>();
+const { dataSource, maxListWidth, maxDetailWidth } = defineProps<{ dataSource: DataSource<T>; maxListWidth?: string; maxDetailWidth?: string }>();
 
 const emit = defineEmits<{ 'select-item': [item: T] }>();
 
-defineSlots<{
+const slots = defineSlots<{
     detail(properties: { item: T }): unknown;
     'no-selection'(): unknown;
     'list-item-compact'(properties: { item: T }): unknown;
@@ -27,13 +27,6 @@ defineSlots<{
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeItem = shallowRef<T | undefined>();
-
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const dataSource = computed<DataSource>(() => ({
-    rowCount: items.length,
-    getRows: (start, end): Promise<unknown[]> => Promise.resolve(items.slice(start, end))
-}));
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -46,9 +39,9 @@ function selectItem(item: T): void {
 <template>
     <div class="flex flex-1 overflow-y-hidden">
         <!-- Grid -->
-        <div v-if="displayIsWide || !activeItem" class="flex flex-1 flex-col">
+        <div v-if="displayIsWide || !activeItem" class="flex flex-1 flex-col" :style="{ maxWidth: maxListWidth != null && displayIsWide ? maxListWidth : undefined }">
             <Grid class="flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
-                <template #default="{ row }">
+                <template v-if="slots['list-item-default']" #default="{ row }">
                     <Button class="h-full" variant="listItem" @click="selectItem(row as T)">
                         <slot name="list-item-default" :item="row as T" />
                     </Button>

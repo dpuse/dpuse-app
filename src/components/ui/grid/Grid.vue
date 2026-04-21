@@ -31,7 +31,7 @@ const columnWidth = ref(0);
 const scrollElement = useTemplateRef<HTMLDivElement>('scroller');
 const resizeObserver = new ResizeObserver((entries) => {
     const width = entries[0]!.contentRect.width;
-    if (targetColumnWidth == null) {
+    if (!slots.default || targetColumnWidth == null) {
         columnCount.value = 1;
         columnWidth.value = width;
     } else {
@@ -44,7 +44,7 @@ const { virtualRows, totalRowCount, getRow } = useDataWindow({
     dataSource: () => dataSource,
     count: () => Math.ceil(dataSource.rowCount / columnCount.value),
     getDataIndexes: (virtualRowIndex) => Array.from({ length: columnCount.value }, (_, col) => virtualRowIndex * columnCount.value + col),
-    estimateSize: () => (slots.compact && columnCount.value === 1 ? 48 : rowHeight),
+    estimateSize: () => (!slots.default || (slots.compact && columnCount.value === 1) ? 48 : rowHeight),
     cacheBlockSize: cacheBlockSize == null ? undefined : (): number => cacheBlockSize,
     maxBlocksInCache: maxBlocksInCache == null ? undefined : (): number => maxBlocksInCache
 });
@@ -53,7 +53,7 @@ const { virtualRows, totalRowCount, getRow } = useDataWindow({
 
 const rowWidth = computed(() => columnCount.value * columnWidth.value);
 const columnOffsets = computed(() => Array.from({ length: columnCount.value }, (_, index) => index));
-const isCompact = computed(() => !!slots.compact && columnCount.value === 1);
+const isCompact = computed(() => !slots.default || (!!slots.compact && columnCount.value === 1));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

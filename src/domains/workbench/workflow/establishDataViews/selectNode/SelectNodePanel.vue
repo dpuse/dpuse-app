@@ -3,15 +3,15 @@
 import { computed, onMounted, shallowRef } from 'vue';
 
 // DPUse Framework
-import type { ListNodesOptions } from '@dpuse/dpuse-shared/component/module/connector';
+import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
+import type { ListNodesOptions, ListNodesResult } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
-import { activeConnectionConfig } from '@/state/establishDataViews';
 import type { DataSource } from '@/composables/useDataWindow';
 import { useEngine } from '@/services/useEngine';
+import { activeConnectionConfig, activeConnectionNodeConfig } from '@/state/establishDataViews';
 
 // Local Components - Static
-import Card from '@/components/ui/card/Card.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
@@ -22,22 +22,34 @@ const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalised
 
 defineEmits<{ 'task-completed': [taskLocalisedConfig: TaskLocalisedConfig] }>();
 
-const listNodesResult = shallowRef();
+// State
 
-onMounted(async () => {
-    const { processRequest } = await useEngine();
-    console.log(activeConnectionConfig.value);
-    listNodesResult.value = await processRequest('listNodes', activeConnectionConfig.value!, { folderPath: '/' } as ListNodesOptions); // TODO: use of !.
-    console.log(1111, listNodesResult.value.connectionNodeConfigs);
-    console.log(2222, listNodesResult.value.connectionNodeConfigs.length);
-});
+const listNodesResult = shallowRef<ListNodesResult | undefined>();
+
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const connectionNodeConfigs = computed<ConnectionNodeConfig[]>(() => listNodesResult.value?.connectionNodeConfigs ?? []);
 
 const dataSource = computed(
-    (): DataSource<string> => ({
-        rowCount: listNodesResult.value.connectionNodeConfigs?.length ?? 0,
-        getRows: (start: number, end: number): Promise<string[]> => Promise.resolve((listNodesResult.value.connectionNodeConfigs ?? []).slice(start, end))
+    (): DataSource<ConnectionNodeConfig> => ({
+        rowCount: connectionNodeConfigs.value.length,
+        getRows: (start: number, end: number): Promise<ConnectionNodeConfig[]> => Promise.resolve(connectionNodeConfigs.value.slice(start, end))
     })
 );
+
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+onMounted(async () => {
+    if (activeConnectionConfig.value == null) throw new Error('Must be a reload, we need to establish the active connection config using th e url param.');
+    const { processRequest } = await useEngine();
+    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '/' } as ListNodesOptions)) as ListNodesResult; // TODO: use of !.
+});
+
+// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): void {
+    activeConnectionNodeConfig.value = connectionNodeConfig;
+}
 
 // // EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
 // const connectorConfig = shallowRef();
@@ -76,16 +88,7 @@ const dataSource = computed(
 </script>
 
 <template>
-    <!-- <Grid class="flex-1 pb-20" :data-source="dataSource" :row-height="150" :target-column-width="350">
-        <template #default="{ row }">
-            {{ row.name }}
-        </template>
-    </Grid> -->
-    <GridDetailPanel :items="listNodesResult.connectionNodeConfigs || []" max-detail-width="400px" @select-item="console.log($event)">
-        <template #list-item-default="{ item }">
-            <Card v-if="item" :label="item.label" />
-        </template>
-
+    <GridDetailPanel :data-source="dataSource" max-list-width="400px" @select-item="selectConnectionNode($event)">
         <template #list-item-compact="{ item }">
             <Tile v-if="item" :label="item.label" />
         </template>
@@ -96,5 +99,4 @@ const dataSource = computed(
             <div class="p-4">Select a node...</div>
         </template>
     </GridDetailPanel>
-    <!-- <RouterLink :to="{ name: 'auditContent', query: { ...$route.query, wbView: 'auditContent' } }" @click="$emit('task-completed', taskLocalisedConfig)">Next...</RouterLink> -->
 </template>

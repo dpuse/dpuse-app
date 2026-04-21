@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { shallowRef, watch } from 'vue';
+import { computed, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
@@ -8,6 +8,7 @@ import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/co
 
 // Local Framework
 import { connectionConfigs } from '@/state/session';
+import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/translations';
 import { localiseConfigs } from '@dpuse/dpuse-shared/locale';
 import { activeConnectionConfig, activeDataViewConfig } from '@/state/establishDataViews';
@@ -30,6 +31,11 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: TaskLocalisedConfig] }>();
 const connectionLocalisedConfigs = shallowRef<ConnectionLocalisedConfig[]>([]);
 const route = useRoute();
 const router = useRouter();
+
+const dataSource = computed<DataSource<ConnectionLocalisedConfig>>(() => ({
+    rowCount: connectionLocalisedConfigs.value.length,
+    getRows: (start, end): Promise<ConnectionLocalisedConfig[]> => Promise.resolve(connectionLocalisedConfigs.value.slice(start, end))
+}));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -73,7 +79,7 @@ function selectConnection(connectionLocalisedConfig: ConnectionLocalisedConfig):
 </script>
 
 <template>
-    <GridDetailPanel :items="connectionLocalisedConfigs || []" max-detail-width="400px" @select-item="selectConnection($event)">
+    <GridDetailPanel :data-source="dataSource" max-detail-width="400px" @select-item="selectConnection($event)">
         <template #list-item-default="{ item }">
             <Card v-if="item" :label="item.label" />
         </template>
