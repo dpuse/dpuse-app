@@ -1,17 +1,17 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.800",
+    "version": "0.0.801",
     "private": true,
     "type": "module",
     "engines": {
         "node": "^20.19.0 || >=22.12.0"
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^0.3.631",
+        "@dpuse/dpuse-shared": "^0.3.632",
         "@formkit/drag-and-drop": "^0.5.3",
         "@tailwindcss/vite": "^4.2.2",
-        "@tanstack/ai-client": "^0.7.10",
+        "@tanstack/ai-client": "^0.7.11",
         "@tanstack/vue-table": "^8.21.3",
         "@tanstack/vue-virtual": "^3.13.24",
         "@teamhanko/hanko-frontend-sdk": "^2.6.0",
@@ -23,7 +23,7 @@
         "web-vitals": "^5.2.0"
     },
     "devDependencies": {
-        "@cloudflare/vite-plugin": "^1.32.3",
+        "@cloudflare/vite-plugin": "^1.33.0",
         "@cloudflare/workers-types": "^4.20260420.1",
         "@dpuse/dpuse-development": "^0.3.491",
         "@playwright/test": "^1.59.1",
@@ -60,7 +60,7 @@
         "vite-plugin-vue-devtools": "^8.1.1",
         "vitest": "^4.1.4",
         "vue-tsc": "^3.2.7",
-        "wrangler": "^4.83.0"
+        "wrangler": "^4.84.0"
     },
     "scripts": {
         "dev": "vite",
