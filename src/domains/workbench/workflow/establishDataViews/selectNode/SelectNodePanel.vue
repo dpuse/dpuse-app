@@ -5,24 +5,26 @@ import { computed, onMounted, shallowRef, watch } from 'vue';
 
 // DPUse Framework
 import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
+import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { ListNodesOptions, ListNodesResult } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import { getConnection } from '@/state/session';
+import { localeId } from '@/translations';
 import { useEngine } from '@/services/useEngine';
 import { activeConnectionConfig, activeConnectionNodeConfig } from '@/state/establishDataViews';
+import { connectionConfigs, getLocalisedConnection } from '@/state/session';
 
 // Local Components - Static
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
-import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
+import type { TaskConfig } from '../EstablishDataViewsLayout.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
-const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
+const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
-defineEmits<{ 'task-completed': [taskLocalisedConfig: TaskLocalisedConfig] }>();
+defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -42,23 +44,33 @@ const dataSource = computed(
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(async () => {
-    console.log(1111, route.query.conId, activeConnectionConfig.value);
-    if (activeConnectionConfig.value == null) {
-        activeConnectionConfig.value = getConnection(route.query.conId as string | undefined);
-        throw new Error('Must be a reload, we need to establish the active connection config using th e url param.');
-    }
-    const { processRequest } = await useEngine();
-    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '/' } as ListNodesOptions)) as ListNodesResult; // TODO: use of !.
-});
+// onMounted(async () => {
+//     if (activeConnectionConfig.value == null) {
+//         activeConnectionConfig.value = getConnection(route.query.conId as string | undefined);
+//         console.log(1234, route.query.conId, activeConnectionConfig.value);
+//         throw new Error('Must be a reload, we need to establish the active connection config using th e url param.');
+//     }
+//     const { processRequest } = await useEngine();
+//     listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '/' } as ListNodesOptions)) as ListNodesResult; // TODO: use of !.
+// });
+
+watch(
+    connectionConfigs,
+    async (newConnectionConfigs) => {
+        if (activeConnectionConfig.value == null) {
+            activeConnectionConfig.value = getLocalisedConnection(route.query.conId as string | undefined, localeId.value);
+        }
+        const { processRequest } = await useEngine();
+        listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '/' } as ListNodesOptions)) as ListNodesResult; // TODO: use of !.
+    },
+    { immediate: true }
+);
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): void {
     activeConnectionNodeConfig.value = connectionNodeConfig;
 }
-
-watch(activeConnectionConfig, (newActiveConnectionConfig) => console.log(2222, newActiveConnectionConfig));
 
 // // EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
 // const connectorConfig = shallowRef();

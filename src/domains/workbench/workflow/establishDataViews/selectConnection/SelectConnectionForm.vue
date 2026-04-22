@@ -3,7 +3,8 @@
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
-import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/connection';
+import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
+import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Framework
 import T from '@/translations/domains/workbench/workflow/establishDataViews/selectConnection/SelectConnectionForm.json';
@@ -15,7 +16,7 @@ import ContentScroller from '~/src/components/layout/contentScroller/ContentScro
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
-const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: ConnectionLocalisedConfig }>();
+const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> }>();
 
 const emit = defineEmits<{ submit: [] }>();
 

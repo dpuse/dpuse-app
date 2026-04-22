@@ -4,48 +4,48 @@ import { computed, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
-import type { ConnectionLocalisedConfig } from '@dpuse/dpuse-shared/component/connection';
+import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
+import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Framework
 import { connectionConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/translations';
-import { localiseConfigs } from '@dpuse/dpuse-shared/locale';
 import { activeConnectionConfig, activeDataViewConfig } from '@/state/establishDataViews';
 
 // Local Components - Static
 import Card from '@/components/ui/card/Card.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
-import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
+import type { TaskConfig } from '../EstablishDataViewsLayout.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
-const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
+const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
-defineEmits<{ 'task-completed': [taskLocalisedConfig: TaskLocalisedConfig] }>();
+defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const connectionLocalisedConfigs = shallowRef<ConnectionLocalisedConfig[]>([]);
+const connectionLocalisedConfigs = shallowRef<LocalisedConfig<ConnectionConfig>[]>([]);
 const route = useRoute();
 const router = useRouter();
 
-const dataSource = computed<DataSource<ConnectionLocalisedConfig>>(() => ({
+const dataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
     rowCount: connectionLocalisedConfigs.value.length,
-    getRows: (start, end): Promise<ConnectionLocalisedConfig[]> => Promise.resolve(connectionLocalisedConfigs.value.slice(start, end))
+    getRows: (start, end): Promise<LocalisedConfig<ConnectionConfig>[]> => Promise.resolve(connectionLocalisedConfigs.value.slice(start, end))
 }));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.value = localiseConfigs<ConnectionLocalisedConfig>(newConnectionConfigs, localeId.value)), {
+watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.value = localiseConfigs<ConnectionConfig>(newConnectionConfigs, localeId.value)), {
     immediate: true
 });
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function selectConnection(connectionLocalisedConfig: ConnectionLocalisedConfig): void {
+function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
     activeConnectionConfig.value = connectionLocalisedConfig;
     activeDataViewConfig.value =
         activeDataViewConfig.value === undefined

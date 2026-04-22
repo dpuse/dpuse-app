@@ -1,11 +1,13 @@
 <script setup lang="ts">
+// DPUse Framework
+import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+
 // Local Framework
-import type { TaskLocalisedConfig } from '../EstablishDataViewsLayout.vue';
+import type { TaskConfig } from '../EstablishDataViewsLayout.vue';
 
 // Properties, Slots & Emits
-const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalisedConfig }>();
-
-defineEmits<{ 'task-completed': [taskLocalisedConfig: TaskLocalisedConfig] }>();
+const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
+defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 </script>
 
 <template>

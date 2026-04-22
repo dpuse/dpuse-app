@@ -1,14 +1,17 @@
 // External Dependencies
-import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
+import type { BenchtopOptionConfig } from '@/types/workbench';
 import { shallowRef } from 'vue';
+
+// DPUse Framework
+import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const activeBenchtopOptionConfig = shallowRef<BenchtopOptionLocalisedConfig | undefined>();
+export const activeBenchtopOptionConfig = shallowRef<LocalisedConfig<BenchtopOptionConfig> | undefined>();
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // TODO: Could this be set automatically via url param?
-export function setActiveBenchtop(config: BenchtopOptionLocalisedConfig): void {
+export function setActiveBenchtop(config: LocalisedConfig<BenchtopOptionConfig>): void {
     activeBenchtopOptionConfig.value = config;
 }

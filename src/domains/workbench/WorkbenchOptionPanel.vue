@@ -1,6 +1,9 @@
 <script setup lang="ts">
+// DPUse Framework
+import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+
 // Local Framework
-import type { BenchtopOptionLocalisedConfig } from '@/types/workbench';
+import type { BenchtopOptionConfig } from '@/types/workbench';
 import { setActiveBenchtop } from '@/state/activeBenchtop';
 import T from '@/translations/domains/workbench/WorkbenchOptionBarContent.json';
 import { t } from '@/translations';
@@ -20,8 +23,8 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleComplete(config?: BenchtopOptionLocalisedConfig): void {
-    if (config) setActiveBenchtop(config);
+function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
+    if (config != null) setActiveBenchtop(config);
     emit('continue');
 }
 </script>

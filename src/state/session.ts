@@ -18,6 +18,7 @@ import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 import { localeId } from '../translations';
 import { reportAppError } from '@/observability/errorTracking';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
+import { type LocaleId, localiseConfig, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -122,8 +123,10 @@ export function destroyFlow(): void {
     hankoFlowCleanupFunction = undefined;
 }
 
-export function getConnection(id: string | undefined): ConnectionConfig | undefined {
-    return connectionConfigs.value.find((connectionConfig) => connectionConfig.id === id);
+export function getLocalisedConnection(id: string | undefined, localeId: LocaleId): LocalisedConfig<ConnectionConfig> | undefined {
+    const connectionConfig = connectionConfigs.value.find((connectionConfig) => connectionConfig.id === id);
+    if (connectionConfig == null) return;
+    return localiseConfig<ConnectionConfig>(connectionConfig, localeId);
 }
 
 export async function signOut(): Promise<void> {

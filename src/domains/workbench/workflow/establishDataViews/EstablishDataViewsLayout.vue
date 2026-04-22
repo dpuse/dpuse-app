@@ -5,7 +5,7 @@ import { useRoute } from 'vue-router';
 import { computed, ref, shallowRef, watch } from 'vue';
 
 // DPUse Framework
-import { type LocaleLabel, localiseConfigs } from '@dpuse/dpuse-shared/locale';
+import { type LocaleLabel, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Framework
 import { activeDataViewConfig } from '@/state/establishDataViews';
@@ -18,14 +18,13 @@ import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-interface TaskConfig {
+export interface TaskConfig {
     id: string;
     label: LocaleLabel;
     description: LocaleLabel;
     number: number;
     enableUpTo: number;
 }
-export type TaskLocalisedConfig = Omit<TaskConfig, 'label' | 'description'> & { label: string; description: string };
 const TASK_CONFIGS: TaskConfig[] = [
     { id: 'selectConnection', number: 1, enableUpTo: 1, label: { en: 'Select Connection' }, description: {} },
     { id: 'selectNode', number: 2, enableUpTo: 2, label: { en: 'Select Node' }, description: {} },
@@ -40,7 +39,7 @@ const TASK_CONFIGS: TaskConfig[] = [
 const route = useRoute();
 
 const enableTasksUpTo = ref(TASK_CONFIGS.find((config) => config.id === route.query.wbView)?.enableUpTo ?? 0); // TODO: This also needs to check the actual state of the data view.
-const taskLocalisedConfigs = shallowRef<TaskLocalisedConfig[]>([]);
+const taskLocalisedConfigs = shallowRef<LocalisedConfig<TaskConfig>[]>([]);
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -48,11 +47,11 @@ const activeTaskLocalisedConfig = computed(() => TASK_CONFIGS.find((config) => c
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(localeId, (newLocaleId) => (taskLocalisedConfigs.value = localiseConfigs<TaskLocalisedConfig>(TASK_CONFIGS, newLocaleId)), { immediate: true });
+watch(localeId, (newLocaleId) => (taskLocalisedConfigs.value = localiseConfigs<TaskConfig>(TASK_CONFIGS, newLocaleId)), { immediate: true });
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function updateTaskProgression(taskLocalisedConfig: TaskLocalisedConfig): void {
+function updateTaskProgression(taskLocalisedConfig: LocalisedConfig<TaskConfig>): void {
     enableTasksUpTo.value = taskLocalisedConfig.enableUpTo;
 }
 </script>
