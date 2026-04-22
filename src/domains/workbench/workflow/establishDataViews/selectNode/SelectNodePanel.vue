@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
-import { computed, onMounted, shallowRef } from 'vue';
+import { useRoute } from 'vue-router';
+import { computed, onMounted, shallowRef, watch } from 'vue';
 
 // DPUse Framework
 import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
@@ -8,6 +9,7 @@ import type { ListNodesOptions, ListNodesResult } from '@dpuse/dpuse-shared/comp
 
 // Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
+import { getConnection } from '@/state/session';
 import { useEngine } from '@/services/useEngine';
 import { activeConnectionConfig, activeConnectionNodeConfig } from '@/state/establishDataViews';
 
@@ -22,9 +24,10 @@ const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: TaskLocalised
 
 defineEmits<{ 'task-completed': [taskLocalisedConfig: TaskLocalisedConfig] }>();
 
-// State
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const listNodesResult = shallowRef<ListNodesResult | undefined>();
+const route = useRoute();
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -40,7 +43,11 @@ const dataSource = computed(
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(async () => {
-    if (activeConnectionConfig.value == null) throw new Error('Must be a reload, we need to establish the active connection config using th e url param.');
+    console.log(1111, route.query.conId, activeConnectionConfig.value);
+    if (activeConnectionConfig.value == null) {
+        activeConnectionConfig.value = getConnection(route.query.conId as string | undefined);
+        throw new Error('Must be a reload, we need to establish the active connection config using th e url param.');
+    }
     const { processRequest } = await useEngine();
     listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '/' } as ListNodesOptions)) as ListNodesResult; // TODO: use of !.
 });
@@ -50,6 +57,8 @@ onMounted(async () => {
 function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): void {
     activeConnectionNodeConfig.value = connectionNodeConfig;
 }
+
+watch(activeConnectionConfig, (newActiveConnectionConfig) => console.log(2222, newActiveConnectionConfig));
 
 // // EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
 // const connectorConfig = shallowRef();

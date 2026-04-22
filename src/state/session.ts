@@ -122,6 +122,10 @@ export function destroyFlow(): void {
     hankoFlowCleanupFunction = undefined;
 }
 
+export function getConnection(id: string | undefined): ConnectionConfig | undefined {
+    return connectionConfigs.value.find((connectionConfig) => connectionConfig.id === id);
+}
+
 export async function signOut(): Promise<void> {
     await hankoInstance?.logout();
 }

@@ -8,7 +8,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { initialiseServices } from '@/state/session';
 import { isBusy } from '@/state/appProgress';
 import { load } from '@/utils/component';
-import T from '@/translations/App.json';
+import T from './App.json';
 import { t } from '@/translations';
 import { contentScrollTop, displayIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
 

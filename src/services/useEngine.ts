@@ -16,7 +16,7 @@ const ENGINE_STORAGE_URL_PREFIX = 'https://engine-eu.dpuse.app';
 let activeEngineVersion: string | undefined;
 let engineWorker: EngineWorker | undefined;
 
-// Engine Composable ───────────────────────────────────────────────────────────────────────────────────────────────────
+// Composable ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function useEngine(): Promise<EngineWorker> {
     // "useEngine" is not invoked until all modules have been registered in session. So "engineConfig" will be populated.

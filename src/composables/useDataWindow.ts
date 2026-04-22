@@ -23,7 +23,7 @@ type DataWindow<T> = {
     getRow: (dataIndex: number) => T | undefined;
 };
 
-// Data Window Composable ──────────────────────────────────────────────────────────────────────────────────────────────
+// Composable ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function useDataWindow<T>({
     scrollElement,
