@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { computed, onMounted, shallowRef, watch } from 'vue';
+import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
@@ -28,6 +28,7 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const textViewerElement = useTemplateRef<HTMLDivElement>('textViewer');
 const listNodesResult = shallowRef<ListNodesResult | undefined>();
 const route = useRoute();
 const router = useRouter();
@@ -50,6 +51,8 @@ onMounted(async () => {
         const { processRequest } = await useEngine();
         listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '/' } as ListNodesOptions)) as ListNodesResult;
     }
+
+    if (textViewerElement.value) textViewerElement.value.textContent = 'Some text data...';
 });
 
 watch(connectionConfigs, async () => {
@@ -68,41 +71,6 @@ watch(connectionConfigs, async () => {
 function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): void {
     activeConnectionNodeConfig.value = connectionNodeConfig;
 }
-
-// // EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
-// const connectorConfig = shallowRef();
-// const connectionConfig = shallowRef();
-
-// watch(
-//     connectorConfigs,
-//     async (newConnectorConfigs) => {
-//         if (newConnectorConfigs == null) return;
-//         connectorConfig.value = newConnectorConfigs.find((config) => config.id === 'dpuse-connector-file-store-emulator');
-//         if (connectorConfig.value == null) return;
-//         connectionConfig.value = constructConnectionConfig(connectorConfig.value);
-//         const { processRequest } = await useEngine();
-//         listNodesResult.value = await processRequest('listNodes', connectionConfig.value, { folderPath: '/' } as ListNodesOptions);
-//     },
-//     { immediate: true }
-// );
-
-// function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
-//     return {
-//         id: connectorConfig.id,
-//         label: connectorConfig.label,
-//         description: {},
-//         authorisation: {},
-//         connectorConfig,
-//         icon: connectorConfig.icon,
-//         iconDark: null,
-//         lastVerifiedAt: 0,
-//         lastUpdatedAt: null,
-//         notation: undefined,
-//         status: null,
-//         statusId: connectorConfig.statusId,
-//         typeId: 'connectorConnection'
-//     };
-// }
 </script>
 
 <template>
@@ -111,7 +79,11 @@ function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): void 
             <Tile v-if="item" :label="item.label" />
         </template>
 
-        <template #detail="{ item }">{{ item }}</template>
+        <template #detail="{ item }">
+            <div class="flex-1 overflow-auto overflow-x-scroll overscroll-none p-4">
+                <pre><code ref="textViewer" >{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}</code></pre>
+            </div>
+        </template>
 
         <template #no-selection>
             <div class="p-4">Select a node...</div>

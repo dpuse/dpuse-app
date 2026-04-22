@@ -39,7 +39,7 @@ function selectItem(item: T): void {
 <template>
     <div class="flex flex-1 overflow-y-hidden">
         <!-- Grid -->
-        <div v-if="displayIsWide || !activeItem" class="flex flex-1 flex-col" :style="{ maxWidth: maxListWidth != null && displayIsWide ? maxListWidth : undefined }">
+        <div v-if="displayIsWide || !activeItem" class="h-full flex-1" :style="{ maxWidth: maxListWidth != null && displayIsWide ? maxListWidth : undefined }">
             <Grid class="flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
                 <template v-if="slots['list-item-default']" #default="{ row }">
                     <Button class="h-full" variant="listItem" @click="selectItem(row as T)">
@@ -58,10 +58,10 @@ function selectItem(item: T): void {
         <!-- Detail -->
         <div
             v-if="displayIsWide || activeItem"
-            class="bg-backdrop border-boundary flex flex-1 flex-col border-l"
+            class="bg-backdrop border-boundary h-full flex-1 border-l"
             :style="{ maxWidth: maxDetailWidth != null && displayIsWide ? maxDetailWidth : undefined }"
         >
-            <div v-if="activeItem" class="flex flex-col overflow-y-hidden">
+            <div v-if="activeItem" class="flex h-full flex-col overflow-hidden">
                 <div class="border-separator mx-4 flex h-12 flex-none items-center gap-x-1 border-b">
                     <Button v-if="!displayIsWide" variant="iconSmall" @click="activeItem = undefined">
                         <ArrowBigLeftIcon stroke-width="1.25" />
