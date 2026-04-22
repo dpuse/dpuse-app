@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
-import { useRoute } from 'vue-router';
 import { computed, onMounted, shallowRef, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
 import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
@@ -30,6 +30,7 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 
 const listNodesResult = shallowRef<ListNodesResult | undefined>();
 const route = useRoute();
+const router = useRouter();
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -44,27 +45,23 @@ const dataSource = computed(
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// onMounted(async () => {
-//     if (activeConnectionConfig.value == null) {
-//         activeConnectionConfig.value = getConnection(route.query.conId as string | undefined);
-//         console.log(1234, route.query.conId, activeConnectionConfig.value);
-//         throw new Error('Must be a reload, we need to establish the active connection config using th e url param.');
-//     }
-//     const { processRequest } = await useEngine();
-//     listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '/' } as ListNodesOptions)) as ListNodesResult; // TODO: use of !.
-// });
-
-watch(
-    connectionConfigs,
-    async (newConnectionConfigs) => {
-        if (activeConnectionConfig.value == null) {
-            activeConnectionConfig.value = getLocalisedConnection(route.query.conId as string | undefined, localeId.value);
-        }
+onMounted(async () => {
+    if (activeConnectionConfig.value != null) {
         const { processRequest } = await useEngine();
-        listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '/' } as ListNodesOptions)) as ListNodesResult; // TODO: use of !.
-    },
-    { immediate: true }
-);
+        listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '/' } as ListNodesOptions)) as ListNodesResult;
+    }
+});
+
+watch(connectionConfigs, async () => {
+    if (activeConnectionConfig.value == null) {
+        activeConnectionConfig.value = getLocalisedConnection(route.query.conId as string | undefined, localeId.value);
+        if (activeConnectionConfig.value == null) {
+            router.replace({ name: 'selectConnection', query: { ...route.query, conId: undefined } });
+        }
+    }
+    const { processRequest } = await useEngine();
+    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '/' } as ListNodesOptions)) as ListNodesResult;
+});
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
