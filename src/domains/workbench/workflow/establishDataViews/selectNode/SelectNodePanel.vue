@@ -82,7 +82,7 @@ function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): void 
 
         <template #detail="{ item }">
             <div class="flex h-full flex-col">
-                <div class="border-boundary flex-1 overflow-auto overscroll-none border-x bg-[#fdfdfd] pb-16 text-sm">
+                <div class="border-boundary flex-1 overflow-auto overscroll-none border-x bg-[#fdfdfd] pb-16 text-sm [-webkit-overflow-scrolling:touch]">
                     <pre><code ref="textViewer">{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}</code></pre>
                 </div>
 
