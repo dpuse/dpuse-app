@@ -83,7 +83,7 @@ async function handleSubmit(): Promise<void> {
             <div>version: {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
         </ContentScroller>
 
-        <div class="border-separator flex flex-none justify-end border-t pt-2 pb-4">
+        <div class="border-separator flex flex-none justify-end border-t pt-3 pb-4">
             <Button
                 :class="connectionLocalisedConfig == null ? 'cursor-not-allowed opacity-50' : undefined"
                 :disabled="connectionLocalisedConfig == null"

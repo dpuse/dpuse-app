@@ -30,7 +30,7 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
 </script>
 
 <template>
-    <aside class="border-boundary bg-backdrop flex h-full w-16.25 flex-col border-r pt-[calc(env(safe-area-inset-top)+55px)] pb-18.5">
+    <aside class="border-boundary bg-backdrop flex h-full w-16.25 flex-col border-r pt-[calc(env(safe-area-inset-top)+55px)] pb-16">
         <!-- Separator -->
         <div class="bg-separator mx-3 h-px" />
 
