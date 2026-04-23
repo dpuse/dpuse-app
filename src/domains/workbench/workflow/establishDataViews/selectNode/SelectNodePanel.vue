@@ -81,7 +81,7 @@ function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): void 
 
         <template #detail="{ item }">
             <pre>
-              <code ref="textViewer" >{{ item }}{{ item }}</code>
+              <code ref="textViewer" >{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}</code>
             </pre>
         </template>
 
