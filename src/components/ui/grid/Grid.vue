@@ -35,8 +35,8 @@ const resizeObserver = new ResizeObserver((entries) => {
         columnCount.value = 1;
         columnWidth.value = width;
     } else {
-        columnCount.value = Math.max(Math.floor((width - 16) / targetColumnWidth), 1);
-        columnWidth.value = Math.floor((width - 16) / columnCount.value);
+        columnCount.value = Math.max(Math.floor(width / targetColumnWidth), 1);
+        columnWidth.value = Math.floor(width / columnCount.value);
     }
 });
 const { virtualRows, totalRowCount, getRow } = useDataWindow({

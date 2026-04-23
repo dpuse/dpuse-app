@@ -44,8 +44,8 @@ async function handleSubmit(): Promise<void> {
 </script>
 
 <template>
-    <form class="flex h-full flex-col overflow-y-hidden" @submit.prevent="handleSubmit">
-        <ContentScroller class="flex flex-1 flex-col px-4 pb-4">
+    <form class="flex h-full flex-col" @submit.prevent="handleSubmit">
+        <ContentScroller class="flex flex-1 flex-col">
             <strong>Connection:</strong>
             <div>id: {{ connectionLocalisedConfig.id }}</div>
             <div>label: {{ connectionLocalisedConfig.label }}</div>
@@ -83,7 +83,7 @@ async function handleSubmit(): Promise<void> {
             <div>version: {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
         </ContentScroller>
 
-        <div class="mx-4 flex flex-none justify-end border-t border-zinc-200 pt-4 pb-4 dark:border-zinc-700">
+        <div class="border-separator flex flex-none justify-end border-t pt-2 pb-4">
             <Button
                 :class="connectionLocalisedConfig == null ? 'cursor-not-allowed opacity-50' : undefined"
                 :disabled="connectionLocalisedConfig == null"

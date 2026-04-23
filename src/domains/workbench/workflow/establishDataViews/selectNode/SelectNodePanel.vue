@@ -16,6 +16,7 @@ import { activeConnectionConfig, activeConnectionNodeConfig } from '@/state/esta
 import { connectionConfigs, getLocalisedConnection } from '@/state/session';
 
 // Local Components - Static
+import Button from '@/components/ui/button/Button.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import type { TaskConfig } from '../EstablishDataViewsLayout.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
@@ -76,17 +77,23 @@ function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): void 
 <template>
     <GridDetailPanel class="flex-1" :data-source="dataSource" max-list-width="400px" @select-item="selectConnectionNode($event)">
         <template #list-item-compact="{ item }">
-            <Tile v-if="item" :label="item.label" />
+            <Tile v-if="item" class="min-w-0 truncate" :label="item.label" />
         </template>
 
         <template #detail="{ item }">
-            <pre>
-              <code ref="textViewer" >{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}</code>
-            </pre>
+            <div class="flex h-full flex-col">
+                <div class="border-boundary flex-1 overflow-auto overscroll-none border-x bg-[#fdfdfd] pb-16 text-sm">
+                    <pre><code ref="textViewer">{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}</code></pre>
+                </div>
+
+                <div class="border-separator flex flex-none justify-end border-t pt-2 pb-4">
+                    <Button type="submit" variant="primary"> Next </Button>
+                </div>
+            </div>
         </template>
 
         <template #no-selection>
-            <div class="p-4">Select a node...</div>
+            <div class="pt-4">Select a node...</div>
         </template>
     </GridDetailPanel>
 </template>
