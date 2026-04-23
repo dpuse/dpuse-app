@@ -74,15 +74,15 @@ function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): void 
 </script>
 
 <template>
-    <GridDetailPanel :data-source="dataSource" max-list-width="400px" @select-item="selectConnectionNode($event)">
+    <GridDetailPanel class="flex-1" :data-source="dataSource" max-list-width="400px" @select-item="selectConnectionNode($event)">
         <template #list-item-compact="{ item }">
             <Tile v-if="item" :label="item.label" />
         </template>
 
         <template #detail="{ item }">
-            <div class="flex-1 overflow-auto overflow-x-scroll overscroll-none p-4">
-                <pre><code ref="textViewer" >{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}</code></pre>
-            </div>
+            <pre>
+              <code ref="textViewer" >{{ item }}{{ item }}</code>
+            </pre>
         </template>
 
         <template #no-selection>

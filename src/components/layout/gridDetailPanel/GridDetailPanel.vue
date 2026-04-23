@@ -30,6 +30,10 @@ const activeItem = shallowRef<T | undefined>();
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
+    return { maxWidth: maxWidth != null && displayIsWide.value ? maxWidth : undefined };
+}
+
 function selectItem(item: T): void {
     activeItem.value = item;
     emit('select-item', item);
@@ -37,31 +41,25 @@ function selectItem(item: T): void {
 </script>
 
 <template>
-    <div class="flex flex-1 overflow-y-hidden">
+    <div class="flex flex-1 overflow-hidden">
         <!-- Grid -->
-        <div v-if="displayIsWide || !activeItem" class="h-full flex-1" :style="{ maxWidth: maxListWidth != null && displayIsWide ? maxListWidth : undefined }">
-            <Grid class="flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
-                <template v-if="slots['list-item-default']" #default="{ row }">
-                    <Button class="h-full" variant="listItem" @click="selectItem(row as T)">
-                        <slot name="list-item-default" :item="row as T" />
-                    </Button>
-                </template>
+        <Grid v-if="displayIsWide || !activeItem" class="flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350" :style="getPaneStyle(maxListWidth)">
+            <template v-if="slots['list-item-default']" #default="{ row }">
+                <Button class="h-full" variant="listItem" @click="selectItem(row as T)">
+                    <slot name="list-item-default" :item="row as T" />
+                </Button>
+            </template>
 
-                <template #compact="{ row }">
-                    <Button class="h-full" variant="listItem" @click="selectItem(row as T)">
-                        <slot name="list-item-compact" :item="row as T" />
-                    </Button>
-                </template>
-            </Grid>
-        </div>
+            <template v-if="slots['list-item-compact']" #compact="{ row }">
+                <Button class="h-full" variant="listItem" @click="selectItem(row as T)">
+                    <slot name="list-item-compact" :item="row as T" />
+                </Button>
+            </template>
+        </Grid>
 
         <!-- Detail -->
-        <div
-            v-if="displayIsWide || activeItem"
-            class="bg-backdrop border-boundary h-full flex-1 border-l"
-            :style="{ maxWidth: maxDetailWidth != null && displayIsWide ? maxDetailWidth : undefined }"
-        >
-            <div v-if="activeItem" class="flex h-full flex-col overflow-hidden">
+        <div v-if="displayIsWide || activeItem" class="bg-backdrop border-boundary min-w-0 flex-1 border-l" :style="getPaneStyle(maxDetailWidth)">
+            <div v-if="activeItem" class="flex h-full flex-col">
                 <div class="border-separator mx-4 flex h-12 flex-none items-center gap-x-1 border-b">
                     <Button v-if="!displayIsWide" variant="iconSmall" @click="activeItem = undefined">
                         <ArrowBigLeftIcon stroke-width="1.25" />
@@ -69,10 +67,12 @@ function selectItem(item: T): void {
                     {{ activeItem?.label ?? 'Unknown' }}
                 </div>
 
-                <slot name="detail" :item="activeItem" />
+                <div class="flex-1 overflow-auto overscroll-none">
+                    <slot name="detail" :item="activeItem" />
+                </div>
             </div>
 
-            <div v-else>
+            <div v-else class="h-full overflow-auto overscroll-none">
                 <slot name="no-selection" />
             </div>
         </div>
