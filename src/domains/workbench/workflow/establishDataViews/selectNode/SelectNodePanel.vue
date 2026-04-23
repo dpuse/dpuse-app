@@ -1,13 +1,13 @@
 <script setup lang="ts">
 // External Dependencies
-import { computed, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
 import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import type { PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
+import type { ParsingRecord, PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
 
 // Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -30,11 +30,13 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const textViewerElement = useTemplateRef<HTMLDivElement>('textViewer');
+const activeTabId = ref<'table' | 'text'>('text');
 const listNodesResult = shallowRef<ListNodesResult | undefined>();
+const parsedRecords = shallowRef<ParsingRecord[]>([]);
 const route = useRoute();
 const router = useRouter();
 const text = ref<string | undefined>();
+const textViewerElement = useTemplateRef<HTMLDivElement>('textViewer');
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -72,14 +74,23 @@ watch(connectionConfigs, async () => {
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
-    activeConnectionNodeConfig.value = connectionNodeConfig;
+    text.value = undefined;
+    await nextTick();
 
-    const { processRequest } = await useEngine();
-    // '/ENGAGEMENT_START_EVENTS_202405121858.csv' or '/WDI_Data.csv'
-    const previewObjectOptions: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: '/ENGAGEMENT_START_EVENTS_202405121858.csv' };
-    const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, previewObjectOptions)) as PreviewConfig;
-    console.log(2222, previewConfig);
-    text.value = previewConfig.text;
+    console.log(1111, connectionNodeConfig);
+    if (connectionNodeConfig.typeId === 'folder') {
+        activeConnectionNodeConfig.value = undefined;
+    } else {
+        activeConnectionNodeConfig.value = connectionNodeConfig;
+        const { processRequest } = await useEngine();
+        const path = `${connectionNodeConfig.folderPath}${connectionNodeConfig.name}.${connectionNodeConfig.extension}`;
+        const previewObjectOptions: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path };
+        const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, previewObjectOptions)) as PreviewConfig;
+
+        console.log(2222, previewConfig);
+        text.value = previewConfig.text;
+        parsedRecords.value = previewConfig.parsedRecords;
+    }
 }
 </script>
 
@@ -89,14 +100,21 @@ async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig):
             <Tile v-if="item" class="min-w-0 truncate" :label="item.label" />
         </template>
 
-        <template #detail="{ item }">
+        <template #detail>
             <div class="flex h-full flex-col">
-                <div class="border-boundary flex-1 overflow-auto overscroll-none border-x bg-[#fdfdfd] text-sm">
+                <div v-if="activeTabId === 'table'" class="border-boundary flex-1 overflow-auto overscroll-none border-x bg-zinc-200 text-sm">{{ parsedRecords }}</div>
+
+                <div v-else class="border-boundary flex-1 overflow-auto overscroll-none border-x bg-[#fdfdfd] text-sm">
                     <pre><code ref="textViewer">{{ text }}</code></pre>
                 </div>
 
-                <div class="border-separator flex flex-none justify-end border-t pt-3 pb-4">
-                    <Button type="submit" variant="primary">Next</Button>
+                <div class="border-separator flex h-16.25 max-h-40 flex-none justify-end gap-x-2 border-t">
+                    <div class="flex">
+                        <div @click="activeTabId = 'table'">Table</div>
+                        <div @click="activeTabId = 'text'">Text</div>
+                    </div>
+                    <div class="overflow-y-auto overscroll-y-none">{{ activeConnectionNodeConfig }}</div>
+                    <Button class="mt-3 mb-4" type="submit" variant="primary">Next</Button>
                 </div>
             </div>
         </template>
