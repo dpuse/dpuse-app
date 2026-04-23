@@ -1,12 +1,13 @@
 <script setup lang="ts">
 // External Dependencies
-import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
 import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import type { ListNodesOptions, ListNodesResult } from '@dpuse/dpuse-shared/component/module/connector';
+import type { PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
+import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -33,6 +34,7 @@ const textViewerElement = useTemplateRef<HTMLDivElement>('textViewer');
 const listNodesResult = shallowRef<ListNodesResult | undefined>();
 const route = useRoute();
 const router = useRouter();
+const text = ref<string | undefined>();
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -69,8 +71,15 @@ watch(connectionConfigs, async () => {
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): void {
+async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
     activeConnectionNodeConfig.value = connectionNodeConfig;
+
+    const { processRequest } = await useEngine();
+    // '/ENGAGEMENT_START_EVENTS_202405121858.csv' or '/WDI_Data.csv'
+    const previewObjectOptions: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: '/ENGAGEMENT_START_EVENTS_202405121858.csv' };
+    const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, previewObjectOptions)) as PreviewConfig;
+    console.log(2222, previewConfig);
+    text.value = previewConfig.text;
 }
 </script>
 
@@ -83,7 +92,7 @@ function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): void 
         <template #detail="{ item }">
             <div class="flex h-full flex-col">
                 <div class="border-boundary flex-1 overflow-auto overscroll-none border-x bg-[#fdfdfd] text-sm">
-                    <pre><code ref="textViewer">{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}{{ item }}</code></pre>
+                    <pre><code ref="textViewer">{{ text }}</code></pre>
                 </div>
 
                 <div class="border-separator flex flex-none justify-end border-t pt-3 pb-4">
