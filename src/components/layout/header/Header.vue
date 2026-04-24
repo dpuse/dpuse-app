@@ -1,9 +1,10 @@
 <script setup lang="ts">
 // Local Framework
+import type { Breadcrumb } from '@/types/breadcrumb';
 import { displayIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // Properties, Slots & Emits
-const { breadcrumbs, title, to } = defineProps<{ breadcrumbs?: { id: string; label: string; to?: string }[]; title: string; to?: string }>();
+const { breadcrumbs, title, to } = defineProps<{ breadcrumbs?: Breadcrumb[]; title: string; to?: string }>();
 </script>
 
 <template>

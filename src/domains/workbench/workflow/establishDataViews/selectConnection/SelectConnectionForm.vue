@@ -12,7 +12,7 @@ import { t } from '@/translations';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import ContentScroller from '~/src/components/layout/contentScroller/ContentScroller.vue';
+import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
