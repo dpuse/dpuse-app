@@ -2,7 +2,7 @@
 // Local Framework
 import T from './WorkflowHomeLayout.json';
 import { t } from '@/state/locale';
-import { useWorkflowOptionConfigs } from '@/composables/useWorkflowOptionConfigs';
+import { useWorkflowOptionConfigs } from '~/src/domains/workbench/useWorkflowOptionConfigs';
 
 // Local Components - Static
 import Card from '@/components/ui/card/Card.vue';

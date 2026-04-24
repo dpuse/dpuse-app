@@ -7,7 +7,7 @@ import type { BenchtopOptionConfig } from '@/types/workbench';
 import { setActiveBenchtop } from '@/state/activeBenchtop';
 import T from './WorkbenchOptionPanel.json';
 import { t } from '@/state/locale';
-import { useWorkflowOptionConfigs } from '@/composables/useWorkflowOptionConfigs';
+import { useWorkflowOptionConfigs } from '~/src/domains/workbench/useWorkflowOptionConfigs';
 
 // Local Components - Static
 import HomeIcon from '@/components/icons/HomeIcon.vue';
