@@ -13,8 +13,8 @@ import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, Retrieve
 
 // Local Framework
 import { reportAppError } from '@/observability/errorTracking';
-import { t } from '@/translations';
-import T from '@/translations/domains/workbench/workflow/contextualiseData/EventQueryList.json';
+import { t } from '@/state/locale';
+import T from './EventQueryList.json';
 import { useEngine } from '@/services/useEngine';
 import { eventQueryConfigs, localMetaStoreConnectionConfig } from '@/state/session';
 

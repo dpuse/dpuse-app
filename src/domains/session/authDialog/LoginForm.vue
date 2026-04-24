@@ -5,7 +5,7 @@ import { onUnmounted, ref } from 'vue';
 
 // Local Framework
 import T from './LoginForm.json';
-import { t } from '@/translations';
+import { t } from '@/state/locale';
 
 // Local Components - Static
 import AppleLogo from '@/components/logos/AppleLogo.vue';

@@ -6,7 +6,7 @@ import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef,
 
 // Local Framework
 import { displayIsWide } from '@/state/appLayout';
-import { t } from '@/translations';
+import { t } from '@/state/locale';
 import T from './AccountDialog.json';
 
 // Local Components - Static

@@ -13,8 +13,8 @@ import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, Retrieve
 import { activeDataViewConfig } from '@/state/establishDataViews';
 import type { DataSource } from '@/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';
-import { t } from '@/translations';
-import T from '@/translations/domains/workbench/workflow/establishDataViews/DataViewList.json';
+import { t } from '@/state/locale';
+import T from './DataViewList.json';
 import { useEngine } from '@/services/useEngine';
 import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/session';
 

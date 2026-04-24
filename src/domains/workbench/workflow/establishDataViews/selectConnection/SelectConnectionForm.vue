@@ -7,8 +7,8 @@ import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection'
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Framework
-import T from '@/translations/domains/workbench/workflow/establishDataViews/selectConnection/SelectConnectionForm.json';
-import { t } from '@/translations';
+import T from './SelectConnectionForm.json';
+import { t } from '@/state/locale';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';

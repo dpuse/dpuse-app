@@ -14,8 +14,8 @@ import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, Retrieve
 // Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';
-import { t } from '@/translations';
-import T from '@/translations/domains/workbench/workflow/assembleDimensions/DimensionList.json';
+import { t } from '@/state/locale';
+import T from './DimensionList.json';
 import { useEngine } from '@/services/useEngine';
 import { dimensionConfigs, localMetaStoreConnectionConfig } from '@/state/session';
 

@@ -8,8 +8,8 @@ import { useRoute, useRouter } from 'vue-router';
 // Local Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
-import T from '@/translations/domains/session/authDialog/LoginForm.json';
-import { t } from '@/translations';
+import T from './LoginForm.json';
+import { t } from '@/state/locale';
 import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
 // Local Components - Static

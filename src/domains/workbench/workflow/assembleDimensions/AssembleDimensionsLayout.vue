@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Local Framework
-import { t } from '@/translations';
-import T from '@/translations/domains/workbench/workflow/assembleDimensions/AssembleDimensionsLayout.json';
+import { t } from '@/state/locale';
+import T from './AssembleDimensionsLayout.json';
 
 // Local Components - Static
 import Header from '@/components/layout/header/Header.vue';

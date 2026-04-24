@@ -6,7 +6,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 
 // Local Framework
 import type { BenchtopOptionConfig } from '@/types/workbench';
-import { localeId } from '@/translations';
+import { localeId } from '@/state/locale';
 import workflowOptionData from '~/knowledge/workbench/benchtops/workflow/workflowOptions.json';
 
 // Composable ──────────────────────────────────────────────────────────────────────────────────────────────────────────

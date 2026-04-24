@@ -12,7 +12,7 @@ import type { ParsingRecord, PreviewConfig } from '@dpuse/dpuse-shared/component
 // Local Framework
 import type { Breadcrumb } from '@/types/breadcrumb';
 import type { DataSource } from '@/composables/useDataWindow';
-import { localeId } from '@/translations';
+import { localeId } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 import { activeConnectionConfig, activeConnectionNodeConfig } from '@/state/establishDataViews';
 import { connectionConfigs, getLocalisedConnection } from '@/state/session';

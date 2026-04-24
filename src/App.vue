@@ -9,7 +9,7 @@ import { initialiseServices } from '@/state/session';
 import { isBusy } from '@/state/appProgress';
 import { load } from '@/utils/component';
 import T from './App.json';
-import { t } from '@/translations';
+import { t } from '@/state/locale';
 import { contentScrollTop, displayIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // Local Components - Static

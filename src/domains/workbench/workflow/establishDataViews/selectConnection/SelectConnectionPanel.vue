@@ -10,7 +10,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // Local Framework
 import { connectionConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
-import { localeId } from '@/translations';
+import { localeId } from '@/state/locale';
 import { activeConnectionConfig, activeDataViewConfig } from '@/state/establishDataViews';
 
 // Local Components - Static

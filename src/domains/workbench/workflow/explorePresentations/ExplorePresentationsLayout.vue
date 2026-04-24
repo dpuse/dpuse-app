@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Local Framework
-import { t } from '@/translations';
-import T from '@/translations/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.json';
+import { t } from '@/state/locale';
+import T from './ExplorePresentationsLayout.json';
 
 // Local Components - Static
 import Header from '@/components/layout/header/Header.vue';

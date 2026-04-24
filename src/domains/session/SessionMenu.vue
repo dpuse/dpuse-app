@@ -11,7 +11,7 @@ import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 import { displayIsWide } from '@/state/appLayout';
 import T from './SessionMenu.json';
 import { isAuthenticated, signOut } from '@/state/session';
-import { localeId, t } from '@/translations';
+import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';

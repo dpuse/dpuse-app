@@ -4,7 +4,7 @@ import { ref } from 'vue';
 
 // Local Framework
 import T from './PasswordForm.json';
-import { t } from '@/translations';
+import { t } from '@/state/locale';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';

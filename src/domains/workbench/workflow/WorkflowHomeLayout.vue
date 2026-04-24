@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Local Framework
 import T from './WorkflowHomeLayout.json';
-import { t } from '@/translations';
+import { t } from '@/state/locale';
 import { useWorkflowOptionConfigs } from '@/composables/useWorkflowOptionConfigs';
 
 // Local Components - Static

@@ -9,8 +9,8 @@ import { type LocaleLabel, localiseConfigs, type LocalisedConfig } from '@dpuse/
 
 // Local Framework
 import { activeDataViewConfig } from '@/state/establishDataViews';
-import T from '@/translations/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.json';
-import { localeId, t } from '@/translations';
+import T from './EstablishDataViewsLayout.json';
+import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
 import Header from '@/components/layout/header/Header.vue';

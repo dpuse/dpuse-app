@@ -6,7 +6,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { BenchtopOptionConfig } from '@/types/workbench';
 import { setActiveBenchtop } from '@/state/activeBenchtop';
 import T from './WorkbenchOptionPanel.json';
-import { t } from '@/translations';
+import { t } from '@/state/locale';
 import { useWorkflowOptionConfigs } from '@/composables/useWorkflowOptionConfigs';
 
 // Local Components - Static
