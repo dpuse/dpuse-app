@@ -3,7 +3,7 @@
 import { ref } from 'vue';
 
 // Local Framework
-import T from '@/translations/domains/session/authDialog/PasswordForm.json';
+import T from './PasswordForm.json';
 import { t } from '@/translations';
 
 // Local Components - Static

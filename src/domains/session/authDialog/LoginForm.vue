@@ -4,7 +4,7 @@ import { UserRoundKeyIcon } from 'lucide-vue-next';
 import { onUnmounted, ref } from 'vue';
 
 // Local Framework
-import T from '@/translations/domains/session/authDialog/LoginForm.json';
+import T from './LoginForm.json';
 import { t } from '@/translations';
 
 // Local Components - Static

@@ -9,7 +9,7 @@ import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
 // Local Framework
 import { displayIsWide } from '@/state/appLayout';
-import T from '@/translations/domains/session/SessionMenu.json';
+import T from './SessionMenu.json';
 import { isAuthenticated, signOut } from '@/state/session';
 import { localeId, t } from '@/translations';
 

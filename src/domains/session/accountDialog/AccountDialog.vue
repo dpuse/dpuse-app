@@ -7,7 +7,7 @@ import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef,
 // Local Framework
 import { displayIsWide } from '@/state/appLayout';
 import { t } from '@/translations';
-import T from '@/translations/domains/session/accountDialog/AccountDialog.json';
+import T from './AccountDialog.json';
 
 // Local Components - Static
 import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
