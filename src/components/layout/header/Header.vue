@@ -3,10 +3,10 @@
 import { displayIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // Local Components - Static
-import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
+import Breadcrumbs, { type BreadcrumbConfig } from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 
 // Properties, Slots & Emits
-const { breadcrumbs, title, to } = defineProps<{ breadcrumbs?: { id: string; label: string; to?: string }[]; title: string; to?: string }>();
+const { breadcrumbs, title, to } = defineProps<{ breadcrumbs?: BreadcrumbConfig[]; title: string; to?: string }>();
 </script>
 
 <template>

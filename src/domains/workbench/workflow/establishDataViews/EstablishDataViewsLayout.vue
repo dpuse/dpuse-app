@@ -68,7 +68,7 @@ function updateTaskProgression(taskLocalisedConfig: LocalisedConfig<TaskConfig>)
                     v-for="taskLocalisedConfig in taskLocalisedConfigs"
                     :key="taskLocalisedConfig.id"
                     :aria-selected="activeTaskLocalisedConfig.id === taskLocalisedConfig.id"
-                    class="border-y-2 border-t-transparent pb-1 leading-tight"
+                    class="border-y-2 border-t-transparent px-2 pb-1 leading-tight"
                     :class="{
                         'border-b-blue-500': activeTaskLocalisedConfig.id === taskLocalisedConfig.id,
                         'border-b-zinc-500': activeTaskLocalisedConfig.id !== taskLocalisedConfig.id && taskLocalisedConfig.number <= enableTasksUpTo,
