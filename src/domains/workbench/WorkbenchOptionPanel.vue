@@ -3,11 +3,11 @@
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Framework
-import type { BenchtopOptionConfig } from '@/types/workbench';
+import type { BenchtopOptionConfig } from '~/src/domains/workbench/workbench';
 import { setActiveBenchtop } from '@/state/activeBenchtop';
 import T from './WorkbenchOptionPanel.json';
 import { t } from '@/state/locale';
-import { useWorkflowOptionConfigs } from '~/src/domains/workbench/useWorkflowOptionConfigs';
+import { useWorkflowOptionConfigs } from '~/src/domains/workbench/workflow/useWorkflowOptionConfigs';
 
 // Local Components - Static
 import HomeIcon from '@/components/icons/HomeIcon.vue';

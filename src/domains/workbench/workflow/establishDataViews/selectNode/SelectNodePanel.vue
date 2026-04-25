@@ -10,7 +10,7 @@ import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@d
 import type { ParsingRecord, PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
 
 // Local Framework
-import type { Breadcrumb } from '@/types/breadcrumb';
+import type { Breadcrumb } from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';

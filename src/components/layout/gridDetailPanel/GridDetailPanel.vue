@@ -4,14 +4,14 @@ import { ArrowBigLeftIcon } from 'lucide-vue-next';
 import { ref, shallowRef } from 'vue';
 
 // Local Framework
-import type { Breadcrumb } from '@/types/breadcrumb';
 import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
-import type { Tab } from '@/types/tab';
 
 // Local Components - Static
-import Button from '../../ui/button/Button.vue';
-import Grid from '../../ui/grid/Grid.vue';
+import Button from '@/components/ui/button/Button.vue';
+import Grid from '@/components/ui/grid/Grid.vue';
+import type { Tab } from '@/components/ui/tabs/Tabs.vue';
+import Breadcrumbs, { type Breadcrumb } from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
