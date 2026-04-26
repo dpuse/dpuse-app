@@ -6,6 +6,7 @@ import { ref, type Ref } from 'vue';
 export interface BreadcrumbConfig {
     id: string;
     label: string;
+    disabled?: boolean;
     to?: string;
 }
 
@@ -13,6 +14,7 @@ type Breadcrumbs<T extends BreadcrumbConfig> = {
     breadcrumbs: Ref<T[]>;
     add: (item: T) => void;
     clearAfterIndex: (index: number) => void;
+    removeLast: () => void;
 };
 
 // Composable ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -29,5 +31,9 @@ export function useBreadcrumbs<T extends BreadcrumbConfig>(initialItems: T[] = [
         breadcrumbs.value = breadcrumbs.value.slice(0, index + 1);
     }
 
-    return { breadcrumbs, add, clearAfterIndex };
+    function removeLast(): void {
+        breadcrumbs.value = breadcrumbs.value.slice(0, -1);
+    }
+
+    return { breadcrumbs, add, clearAfterIndex, removeLast };
 }

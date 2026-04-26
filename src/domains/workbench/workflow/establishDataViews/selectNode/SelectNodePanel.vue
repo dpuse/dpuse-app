@@ -47,7 +47,7 @@ const text = ref<string | undefined>();
 const textViewerElement = useTemplateRef<HTMLDivElement>('textViewer');
 
 const homeBreadcrumb = { id: 'home', label: 'Home' } as ConnectionNodeConfig;
-const { add, breadcrumbs, clearAfterIndex } = useBreadcrumbs<ConnectionNodeConfig>([homeBreadcrumb]);
+const { add, breadcrumbs, clearAfterIndex, removeLast } = useBreadcrumbs<ConnectionNodeConfig>([homeBreadcrumb]);
 
 const { tabs } = useTabs([
     { id: 'table', label: 'Table' },
@@ -68,6 +68,11 @@ const elapsed = computed(() => (lifetime.value == null ? 0 : ((lifetime.value - 
 const formattedExpiryTime = computed(() => {
     if (expiresAt.value == null) return '';
     return new Date(expiresAt.value).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
+});
+
+const actionableBreadcrumbs = computed(() => {
+    const disableFromIndex = activeItem.value == null ? breadcrumbs.value.length - 1 : breadcrumbs.value.length - 2;
+    return breadcrumbs.value.map((item, index) => ({ ...item, disabled: index >= disableFromIndex }));
 });
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -123,9 +128,12 @@ async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig):
     await nextTick();
 
     if (connectionNodeConfig.typeId === 'folder') {
+        if (activeItem.value != null) {
+            activeItem.value = undefined;
+            activeConnectionNodeConfig.value = undefined;
+            removeLast();
+        }
         add(connectionNodeConfig);
-        activeItem.value = undefined;
-        activeConnectionNodeConfig.value = undefined;
         const { processRequest } = await useEngine();
         const path = `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`;
         listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: path } as ListNodesOptions)) as ListNodesResult;
@@ -154,9 +162,10 @@ function selectTab(tabConfig: TabConfig): void {
         <!-- Body -->
         <GridDetailPanel v-model:active-item="activeItem" class="flex-1" :data-source="dataSource" max-list-width="400px" @select-item="selectConnectionNode($event)">
             <template #header>
-                <div class="border-separator flex h-full items-center justify-between border-b text-sm">
-                    <Breadcrumbs class="flex flex-none py-2" :items="breadcrumbs" @select="selectBreadcrumb" />
-                    <Tabs class="h-full" :items="tabs" @select="selectTab">
+                <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
+                    <Breadcrumbs class="min-w-0 flex-1 py-2" :items="actionableBreadcrumbs" @select="selectBreadcrumb" />
+
+                    <Tabs class="ml-4 h-full flex-none shrink-0" :items="tabs" @select="selectTab">
                         <template #default="{ item }">{{ item.label }}</template>
                     </Tabs>
                 </div>
@@ -168,7 +177,7 @@ function selectTab(tabConfig: TabConfig): void {
 
             <template #detail>
                 <div class="flex h-full flex-col">
-                    <div v-if="activeTabId === 'table'" class="border-boundary flex-1 overflow-auto overscroll-none border-x bg-zinc-200 text-sm">{{ parsedRecords }}</div>
+                    <div v-if="activeTabId === 'table'" class="border-boundary bg-backdrop flex-1 overflow-auto overscroll-none border-x text-sm">{{ parsedRecords }}</div>
 
                     <div v-else class="border-separator flex-1 overflow-auto overscroll-none border-x px-0.5 text-sm">
                         <pre><code ref="textViewer">{{ text }}</code></pre>
@@ -191,7 +200,7 @@ function selectTab(tabConfig: TabConfig): void {
             </template>
 
             <template #no-selection>
-                <div class="flex h-full items-center justify-center bg-zinc-50 pt-[5%]">Select a node...</div>
+                <div class="bg-backdrop flex h-full items-center justify-center pt-[5%]">Select a node...</div>
             </template>
         </GridDetailPanel>
     </div>

@@ -8,15 +8,18 @@ defineEmits<{ select: [index: number, item: T] }>();
 </script>
 
 <template>
-    <div v-if="items" class="flex">
+    <div v-if="items" class="flex min-w-0 overflow-hidden">
         <!-- TODO: Is there enough room around breadcrumbs to effectively tap on touch devices? -->
         <component
-            :is="item.to ? 'RouterLink' : 'div'"
+            :is="item.to != null && !item.disabled ? 'RouterLink' : item.disabled ? 'div' : 'button'"
             v-for="(item, index) in items"
             :key="item.id"
-            :to="{ name: item.to, query: { ...$route.query, wbView: item.to } }"
+            :aria-disabled="item.disabled || undefined"
             class="min-w-0 truncate"
-            @click="$emit('select', index, item)"
+            :class="item.disabled ? 'text-zinc-400' : 'text-zinc-700 hover:text-zinc-950'"
+            :to="item.to == null || item.disabled ? undefined : { name: item.to, query: { ...$route.query, wbView: item.to } }"
+            :type="item.to == null && !item.disabled ? 'button' : undefined"
+            @click="item.disabled ? undefined : $emit('select', index, item)"
         >
             <span v-if="index > 0" class="mx-1">&gt;</span>{{ item.label }}
         </component>
