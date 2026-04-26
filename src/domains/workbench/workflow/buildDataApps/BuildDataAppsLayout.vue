@@ -10,36 +10,15 @@ import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcru
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 
-// EXPERIMENTAL
-import '@svar-ui/vue-grid/style.css';
-import { Grid, Willow } from '@svar-ui/vue-grid';
-
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const { breadcrumbs } = useBreadcrumbs<BreadcrumbConfig>([{ id: 'benchtop', label: t(T, 'wb.label') }]);
-
-// EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const data = [
-    { id: 1, name: 'Alice', role: 'Developer', status: 'Active' },
-    { id: 2, name: 'Bob', role: 'Designer', status: 'Away' }
-];
-
-const columns = [
-    { id: 'name', header: 'Name', width: 150 },
-    { id: 'role', header: 'Role', width: 120 },
-    { id: 'status', header: 'Status', width: 100 }
-];
 </script>
 
 <template>
     <LayoutShell>
         <Header :breadcrumbs="breadcrumbs" :title="t(T, 'Build_Data_Apps')" />
 
-        <!-- <RouterView /> -->
-
-        <Willow>
-            <Grid :data="data" :columns="columns" />
-        </Willow>
+        <RouterView />
     </LayoutShell>
 </template>

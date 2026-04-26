@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.831",
+    "version": "0.0.832",
     "private": true,
     "type": "module",
     "engines": {
@@ -10,13 +10,11 @@
     "dependencies": {
         "@dpuse/dpuse-shared": "^0.3.649",
         "@formkit/drag-and-drop": "^0.5.3",
-        "@svar-ui/vue-grid": "^2.6.0",
         "@tailwindcss/vite": "^4.2.4",
         "@tanstack/ai-client": "^0.7.14",
         "@tanstack/vue-table": "^8.21.3",
         "@tanstack/vue-virtual": "^3.13.24",
         "@teamhanko/hanko-frontend-sdk": "^2.6.0",
-        "codemirror": "^6.0.2",
         "lucide-vue-next": "^1.0.0",
         "marked": "^18.0.2",
         "tailwindcss": "^4.2.4",
