@@ -3,14 +3,21 @@
 import { t } from '@/state/locale';
 import T from './AssembleDimensionsLayout.json';
 
+// Local Framework
+import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
+
 // Local Components - Static
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
+
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const { breadcrumbs } = useBreadcrumbs<BreadcrumbConfig>([{ id: 'benchtop', label: t(T, 'wb.label') }]);
 </script>
 
 <template>
     <LayoutShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label') }]" :title="t(T, 'Assemble_Dimensions')" />
+        <Header :breadcrumbs="breadcrumbs" :title="t(T, 'Assemble_Dimensions')" />
 
         <RouterView />
     </LayoutShell>

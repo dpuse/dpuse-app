@@ -3,14 +3,22 @@
 import { t } from '@/state/locale';
 import T from './BuildDataAppsLayout.json';
 
+// Local Framework
+import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
+
 // Local Components - Static
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 
-//
-
+// EXPERIMENTAL
 import '@svar-ui/vue-grid/style.css';
 import { Grid, Willow } from '@svar-ui/vue-grid';
+
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const { breadcrumbs } = useBreadcrumbs<BreadcrumbConfig>([{ id: 'benchtop', label: t(T, 'wb.label') }]);
+
+// EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const data = [
     { id: 1, name: 'Alice', role: 'Developer', status: 'Active' },
@@ -26,7 +34,7 @@ const columns = [
 
 <template>
     <LayoutShell>
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label') }]" :title="t(T, 'Build_Data_Apps')" />
+        <Header :breadcrumbs="breadcrumbs" :title="t(T, 'Build_Data_Apps')" />
 
         <!-- <RouterView /> -->
 

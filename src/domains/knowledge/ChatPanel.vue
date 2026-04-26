@@ -3,6 +3,9 @@
 import { ref } from 'vue';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 
+// Local Framework
+import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
+
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Header from '@/components/layout/header/Header.vue';
@@ -11,7 +14,11 @@ import Header from '@/components/layout/header/Header.vue';
 
 const { title } = defineProps<{ title: string }>();
 
-// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const { breadcrumbs } = useBreadcrumbs<BreadcrumbConfig>([{ id: 'knowledge', label: 'Knowledge' }]);
+
+// EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Chat state (kept here so it persists across view switches)
 const messages = ref<{ id: number; text: string }[]>([]);
@@ -29,13 +36,11 @@ function runTest(): void {
         })
         .catch((error) => console.log('error', error));
 }
-
-// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 </script>
 
 <template>
     <div>
-        <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="title" />
+        <Header :breadcrumbs="breadcrumbs" :title="title" />
 
         <div class="flex flex-1 flex-col overflow-y-hidden p-4">
             <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto pb-4 font-light wrap-break-word">

@@ -4,7 +4,7 @@ import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 
 // Properties, Slots & Emits
 const { items = [] } = defineProps<{ items?: T[] }>();
-defineEmits<{ select: [index: number] }>();
+defineEmits<{ select: [index: number, item: T] }>();
 </script>
 
 <template>
@@ -16,7 +16,7 @@ defineEmits<{ select: [index: number] }>();
             :key="item.id"
             :to="{ name: item.to, query: { ...$route.query, wbView: item.to } }"
             class="min-w-0 truncate"
-            @click="$emit('select', index)"
+            @click="$emit('select', index, item)"
         >
             <span v-if="index > 0" class="mx-1">&gt;</span>{{ item.label }}
         </component>

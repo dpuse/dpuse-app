@@ -5,6 +5,9 @@ import { SendHorizonalIcon } from 'lucide-vue-next';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
 import { onMounted, ref } from 'vue';
 
+// Local Framework
+import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
+
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Header from '@/components/layout/header/Header.vue';
@@ -13,7 +16,11 @@ import Header from '@/components/layout/header/Header.vue';
 
 const { title } = defineProps<{ title: string }>();
 
-// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const { breadcrumbs } = useBreadcrumbs<BreadcrumbConfig>([{ id: 'knowledge', label: 'Knowledge' }]);
+
+// EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Chat state (kept here so it persists across view switches)
 const userText = ref<string | undefined>();
@@ -57,13 +64,11 @@ onMounted(() => {
 async function runTest(): Promise<void> {
     await client.sendMessage('What should I search for to find the latest developments in renewable energy?');
 }
-
-// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 </script>
 
 <template>
     <div>
-        <Header :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="title" />
+        <Header :breadcrumbs="breadcrumbs" :title="title" />
 
         <div class="flex flex-1 flex-col overflow-y-hidden px-4">
             <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">

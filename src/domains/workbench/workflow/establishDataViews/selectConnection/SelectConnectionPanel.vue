@@ -28,6 +28,7 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const activeItem = shallowRef<LocalisedConfig<ConnectionConfig> | undefined>();
 const connectionLocalisedConfigs = shallowRef<LocalisedConfig<ConnectionConfig>[]>([]);
 const route = useRoute();
 const router = useRouter();
@@ -46,6 +47,7 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
+    activeItem.value = connectionLocalisedConfig;
     activeConnectionConfig.value = connectionLocalisedConfig;
     activeDataViewConfig.value =
         activeDataViewConfig.value === undefined
@@ -79,7 +81,7 @@ function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionC
 </script>
 
 <template>
-    <GridDetailPanel :data-source="dataSource" max-detail-width="400px" @select-item="selectConnection($event)">
+    <GridDetailPanel v-model:active-item="activeItem" :data-source="dataSource" max-detail-width="400px" @select-item="selectConnection($event)">
         <template #list-item-default="{ item }">
             <Card v-if="item" :label="item.label" />
         </template>

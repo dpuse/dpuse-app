@@ -38,6 +38,7 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 
 type TabId = 'table' | 'text';
 const activeTabId = ref<TabId>('text');
+const activeItem = shallowRef<ConnectionNodeConfig | undefined>();
 const listNodesResult = shallowRef<ListNodesResult | undefined>();
 const parsedRecords = shallowRef<ParsingRecord[]>([]);
 const route = useRoute();
@@ -104,14 +105,17 @@ watch(
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function selectBreadcrumb(index: number): Promise<void> {
+async function selectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
+    activeItem.value = undefined;
+    activeConnectionNodeConfig.value = undefined;
     text.value = undefined;
     await nextTick();
 
     clearAfterIndex(index);
 
     const { processRequest } = await useEngine();
-    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '' } as ListNodesOptions)) as ListNodesResult;
+    const path = connectionNodeConfig.id === 'home' ? '' : `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`;
+    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: path } as ListNodesOptions)) as ListNodesResult;
 }
 
 async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
@@ -120,12 +124,14 @@ async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig):
 
     if (connectionNodeConfig.typeId === 'folder') {
         add(connectionNodeConfig);
+        activeItem.value = undefined;
         activeConnectionNodeConfig.value = undefined;
         const { processRequest } = await useEngine();
         const path = `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`;
         listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: path } as ListNodesOptions)) as ListNodesResult;
     } else {
         add(connectionNodeConfig);
+        activeItem.value = connectionNodeConfig;
         activeConnectionNodeConfig.value = connectionNodeConfig;
         const { processRequest } = await useEngine();
         const extension = connectionNodeConfig.extension == null ? '' : `.${connectionNodeConfig.extension}`;
@@ -146,7 +152,7 @@ function selectTab(tabConfig: TabConfig): void {
 <template>
     <div class="flex flex-1 flex-col overflow-hidden">
         <!-- Body -->
-        <GridDetailPanel class="flex-1" :data-source="dataSource" max-list-width="400px" @select-item="selectConnectionNode($event)">
+        <GridDetailPanel v-model:active-item="activeItem" class="flex-1" :data-source="dataSource" max-list-width="400px" @select-item="selectConnectionNode($event)">
             <template #header>
                 <div class="border-separator flex h-full items-center justify-between border-b text-sm">
                     <Breadcrumbs class="flex flex-none py-2" :items="breadcrumbs" @select="selectBreadcrumb" />

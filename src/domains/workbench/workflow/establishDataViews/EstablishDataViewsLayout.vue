@@ -2,19 +2,23 @@
 // External Dependencies
 import { PlusIcon } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
-import { computed, ref, shallowRef, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 // DPUse Framework
 import { type LocaleLabel, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Framework
-import { activeDataViewConfig } from '@/state/establishDataViews';
 import T from './EstablishDataViewsLayout.json';
+
+import { activeDataViewConfig } from '@/state/establishDataViews';
+import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import { localeId, t } from '@/state/locale';
+import { type StepConfig, useSteps } from '@/composables/useSteps';
 
 // Local Components - Static
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
+import Steps from '@/components/ui/steps/Steps.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -25,6 +29,9 @@ export interface TaskConfig {
     number: number;
     enableUpTo: number;
 }
+
+interface TaskStepConfig extends LocalisedConfig<TaskConfig>, StepConfig {}
+
 const TASK_CONFIGS: TaskConfig[] = [
     { id: 'selectConnection', number: 1, enableUpTo: 1, label: { en: 'Select Connection' }, description: {} },
     { id: 'selectNode', number: 2, enableUpTo: 2, label: { en: 'Select Node' }, description: {} },
@@ -36,10 +43,12 @@ const TASK_CONFIGS: TaskConfig[] = [
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const { breadcrumbs } = useBreadcrumbs<BreadcrumbConfig>([{ id: 'benchtop', label: t(T, 'wb.label'), to: 'workflow' }]);
+const { steps } = useSteps<TaskStepConfig>();
+
 const route = useRoute();
 
 const enableTasksUpTo = ref(TASK_CONFIGS.find((config) => config.id === route.query.wbView)?.enableUpTo ?? 0); // TODO: This also needs to check the actual state of the data view.
-const taskLocalisedConfigs = shallowRef<LocalisedConfig<TaskConfig>[]>([]);
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -47,7 +56,17 @@ const activeTaskLocalisedConfig = computed(() => TASK_CONFIGS.find((config) => c
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(localeId, (newLocaleId) => (taskLocalisedConfigs.value = localiseConfigs<TaskConfig>(TASK_CONFIGS, newLocaleId)), { immediate: true });
+watch(
+    [enableTasksUpTo, localeId],
+    ([newEnableTasksUpTo, newLocaleId]) => {
+        steps.value = localiseConfigs<TaskConfig>(TASK_CONFIGS, newLocaleId).map((taskLocalisedConfig) => ({
+            ...taskLocalisedConfig,
+            disabled: taskLocalisedConfig.number > newEnableTasksUpTo,
+            to: taskLocalisedConfig.id
+        }));
+    },
+    { immediate: true }
+);
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -59,30 +78,18 @@ function updateTaskProgression(taskLocalisedConfig: LocalisedConfig<TaskConfig>)
 <template>
     <LayoutShell>
         <!-- Header -->
-        <Header :breadcrumbs="[{ id: 'benchtop', label: t(T, 'wb.label'), to: 'workflow' }]" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" />
+        <Header :breadcrumbs="breadcrumbs" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" />
 
         <!-- Task Action Bar -->
         <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
-            <div v-if="activeTaskLocalisedConfig" class="flex gap-x-3 overflow-x-auto overscroll-x-none text-[15px]">
-                <RouterLink
-                    v-for="taskLocalisedConfig in taskLocalisedConfigs"
-                    :key="taskLocalisedConfig.id"
-                    :aria-selected="activeTaskLocalisedConfig.id === taskLocalisedConfig.id"
-                    class="border-y-2 border-t-transparent px-2 pb-1 leading-tight"
-                    :class="{
-                        'border-b-blue-500': activeTaskLocalisedConfig.id === taskLocalisedConfig.id,
-                        'border-b-zinc-500': activeTaskLocalisedConfig.id !== taskLocalisedConfig.id && taskLocalisedConfig.number <= enableTasksUpTo,
-                        'border-b-zinc-200': activeTaskLocalisedConfig.id !== taskLocalisedConfig.id && taskLocalisedConfig.number > enableTasksUpTo
-                    }"
-                    role="tab"
-                    :to="{ name: taskLocalisedConfig.id, query: { ...route.query, wbView: taskLocalisedConfig.id } }"
-                >
+            <Steps v-if="activeTaskLocalisedConfig" :active-step-id="activeTaskLocalisedConfig.id" :items="steps">
+                <template #default="{ item }">
                     <div>
-                        <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }} {{ taskLocalisedConfig.number }}</div>
-                        <span class="text-sm">{{ taskLocalisedConfig.label }}</span>
+                        <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }} {{ item.number }}</div>
+                        <span class="text-sm">{{ item.label }}</span>
                     </div>
-                </RouterLink>
-            </div>
+                </template>
+            </Steps>
 
             <RouterLink
                 v-else

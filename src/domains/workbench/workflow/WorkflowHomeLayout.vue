@@ -4,6 +4,9 @@ import T from './WorkflowHomeLayout.json';
 import { t } from '@/state/locale';
 import { useWorkflowOptionConfigs } from '~/src/domains/workbench/workflow/useWorkflowOptionConfigs';
 
+// Local Framework
+import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
+
 // Local Components - Static
 import Card from '@/components/ui/card/Card.vue';
 import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
@@ -12,13 +15,15 @@ import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const { breadcrumbs } = useBreadcrumbs<BreadcrumbConfig>([{ id: 'workbench', label: t(T, 'wb.label') }]);
+
 const workflowOptionConfigs = useWorkflowOptionConfigs();
 </script>
 
 <template>
     <LayoutShell>
         <!-- Header -->
-        <Header :breadcrumbs="[{ id: 'workbench', label: t(T, 'wb.label') }]" class="dpuse-workbench-prose w-full" data-testid="header" :title="t(T, 'wb.wf.label')" />
+        <Header :breadcrumbs="breadcrumbs" class="dpuse-workbench-prose w-full" data-testid="header" :title="t(T, 'wb.wf.label')" />
 
         <!-- Workflow Steps -->
         <ContentScroller class="pb-16">

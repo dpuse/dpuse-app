@@ -1,7 +1,4 @@
 <script setup lang="ts" generic="T extends { id: string; label: string }">
-// External Dependencies
-import { shallowRef } from 'vue';
-
 // Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
@@ -26,7 +23,7 @@ const emit = defineEmits<{ 'select-item': [item: T] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeItem = shallowRef<T | undefined>();
+const activeItem = defineModel<T | undefined>('activeItem');
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -35,7 +32,6 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
 }
 
 function selectItem(item: T): void {
-    activeItem.value = item;
     emit('select-item', item);
 }
 </script>
