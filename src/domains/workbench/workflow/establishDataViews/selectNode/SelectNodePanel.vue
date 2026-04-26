@@ -165,7 +165,7 @@ function selectTab(tabConfig: TabConfig): void {
                 <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
                     <Breadcrumbs class="min-w-0 flex-1 py-2" :items="actionableBreadcrumbs" @select="selectBreadcrumb" />
 
-                    <Tabs class="ml-4 h-full flex-none shrink-0" :items="tabs" @select="selectTab">
+                    <Tabs class="ml-4 h-full flex-none shrink-0" :active-item-id="activeTabId" :items="tabs" @select="selectTab">
                         <template #default="{ item }">{{ item.label }}</template>
                     </Tabs>
                 </div>
