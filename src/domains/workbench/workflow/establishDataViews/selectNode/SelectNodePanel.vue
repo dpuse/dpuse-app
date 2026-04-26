@@ -13,8 +13,10 @@ import type { ParsingRecord, PreviewConfig } from '@dpuse/dpuse-shared/component
 // Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
+import type { TabConfig } from '@/composables/useTabs';
 import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import { useEngine } from '@/services/useEngine';
+import { useTabs } from '@/composables/useTabs';
 import { activeConnectionConfig, activeConnectionNodeConfig } from '@/state/establishDataViews';
 import { connectionConfigs, expiresAt, expiresIn, getLocalisedConnection, lifetime } from '@/state/session';
 
@@ -22,9 +24,9 @@ import { connectionConfigs, expiresAt, expiresIn, getLocalisedConnection, lifeti
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 import Button from '@/components/ui/button/Button.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
+import Tabs from '@/components/ui/tabs/Tabs.vue';
 import type { TaskConfig } from '../EstablishDataViewsLayout.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
-import Tabs, { type TabConfig } from '@/components/ui/tabs/Tabs.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
@@ -46,7 +48,7 @@ const textViewerElement = useTemplateRef<HTMLDivElement>('textViewer');
 const homeBreadcrumb = { id: 'home', label: 'Home' } as ConnectionNodeConfig;
 const { add, breadcrumbs, clearAfterIndex } = useBreadcrumbs<ConnectionNodeConfig>([homeBreadcrumb]);
 
-const tabs = ref<TabConfig[]>([
+const { tabs } = useTabs([
     { id: 'table', label: 'Table' },
     { id: 'text', label: 'Text' }
 ]);
@@ -102,7 +104,10 @@ watch(
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function selectBreadcrumb(index: number, item: ConnectionNodeConfig): Promise<void> {
+async function selectBreadcrumb(index: number): Promise<void> {
+    text.value = undefined;
+    await nextTick();
+
     clearAfterIndex(index);
 
     const { processRequest } = await useEngine();

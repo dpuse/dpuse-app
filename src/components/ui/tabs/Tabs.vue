@@ -1,10 +1,6 @@
 <script setup lang="ts">
-// Types
-export interface TabConfig {
-    id: string;
-    label: string;
-    to?: string;
-}
+// Local Framework
+import type { TabConfig } from '@/composables/useTabs';
 
 // Properties, Slots & Emits
 const { items = [] } = defineProps<{ items?: TabConfig[] }>();

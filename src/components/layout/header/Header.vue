@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends BreadcrumbConfig">
 // Local Framework
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import { displayIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
@@ -7,7 +7,7 @@ import { displayIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 
 // Properties, Slots & Emits
-const { breadcrumbs, title, to } = defineProps<{ breadcrumbs?: BreadcrumbConfig[]; title: string; to?: string }>();
+const { breadcrumbs, title, to } = defineProps<{ breadcrumbs?: T[]; title: string; to?: string }>();
 </script>
 
 <template>
@@ -15,7 +15,7 @@ const { breadcrumbs, title, to } = defineProps<{ breadcrumbs?: BreadcrumbConfig[
         <!-- Content indented from left and right when display is compact, to allow for logos. -->
         <div class="border-separator flex h-14 flex-col justify-center border-b text-lg font-light" :class="{ 'px-12': !displayIsWide || !workbenchPaneIsVisible }">
             <!-- Breadcrumbs -->
-            <Breadcrumbs class="w-full truncate text-xs" :class="{ 'text-center': !displayIsWide }" :items="breadcrumbs" />
+            <Breadcrumbs class="w-full truncate text-xs" :class="{ 'justify-center': !displayIsWide }" :items="breadcrumbs" />
 
             <!-- Title -->
             <component
