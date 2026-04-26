@@ -73,6 +73,13 @@ function selectItem(item: T): void {
 
             <!-- Detail -->
             <div v-if="displayIsWide || activeItem" class="mr-4 min-w-0 flex-1" :class="{ 'ml-4': !displayIsWide }" :style="getPaneStyle(maxDetailWidth)">
+                <!-- <div class="border-separator flex h-12 min-w-0 flex-none items-center gap-x-1 border-b">
+                    <Button v-if="!displayIsWide" variant="iconSmall" @click="activeItem = undefined">
+                        <ArrowBigLeftIcon stroke-width="1.25" />
+                    </Button>
+                    <span class="min-w-0 flex-1 truncate">{{ activeItem?.label ?? 'Unknown' }}</span>
+                </div> -->
+
                 <div v-if="activeItem" class="h-full">
                     <slot name="detail" :item="activeItem" />
                 </div>

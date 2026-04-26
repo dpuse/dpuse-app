@@ -1,14 +1,10 @@
-<script setup lang="ts">
-// Types
-export interface BreadcrumbConfig {
-    id: string;
-    label: string;
-    to?: string;
-}
+<script setup lang="ts" generic="T extends BreadcrumbConfig">
+// Local Framework
+import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 
 // Properties, Slots & Emits
-const { items = [] } = defineProps<{ items?: BreadcrumbConfig[] }>();
-defineEmits<{ select: [breadcrumb: BreadcrumbConfig] }>();
+const { items = [] } = defineProps<{ items?: T[] }>();
+defineEmits<{ select: [index: number, breadcrumb: T] }>();
 </script>
 
 <template>
@@ -20,7 +16,7 @@ defineEmits<{ select: [breadcrumb: BreadcrumbConfig] }>();
             :key="item.id"
             :to="{ name: item.to, query: { ...$route.query, wbView: item.to } }"
             class="min-w-0 truncate"
-            @click="$emit('select', item)"
+            @click="$emit('select', index, item)"
         >
             <span v-if="index > 0" class="mx-1">&gt;</span>{{ item.label }}
         </component>

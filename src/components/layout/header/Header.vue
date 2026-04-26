@@ -1,9 +1,10 @@
 <script setup lang="ts">
 // Local Framework
+import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import { displayIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // Local Components - Static
-import Breadcrumbs, { type BreadcrumbConfig } from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
+import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 
 // Properties, Slots & Emits
 const { breadcrumbs, title, to } = defineProps<{ breadcrumbs?: BreadcrumbConfig[]; title: string; to?: string }>();

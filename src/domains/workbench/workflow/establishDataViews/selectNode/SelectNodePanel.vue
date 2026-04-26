@@ -13,16 +13,17 @@ import type { ParsingRecord, PreviewConfig } from '@dpuse/dpuse-shared/component
 // Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
+import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import { useEngine } from '@/services/useEngine';
 import { activeConnectionConfig, activeConnectionNodeConfig } from '@/state/establishDataViews';
-import { connectionConfigs, getLocalisedConnection } from '@/state/session';
+import { connectionConfigs, expiresAt, expiresIn, getLocalisedConnection, lifetime } from '@/state/session';
 
 // Local Components - Static
+import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 import Button from '@/components/ui/button/Button.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import type { TaskConfig } from '../EstablishDataViewsLayout.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
-import Breadcrumbs, { type BreadcrumbConfig } from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 import Tabs, { type TabConfig } from '@/components/ui/tabs/Tabs.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
@@ -42,7 +43,8 @@ const router = useRouter();
 const text = ref<string | undefined>();
 const textViewerElement = useTemplateRef<HTMLDivElement>('textViewer');
 
-const breadcrumbs = ref<BreadcrumbConfig[]>([{ id: 'home', label: 'Home' }]);
+const homeBreadcrumb = { id: 'home', label: 'Home' } as ConnectionNodeConfig;
+const { add, breadcrumbs, clearAfterIndex } = useBreadcrumbs<ConnectionNodeConfig>([homeBreadcrumb]);
 
 const tabs = ref<TabConfig[]>([
     { id: 'table', label: 'Table' },
@@ -56,6 +58,13 @@ const connectionNodeConfigs = computed<ConnectionNodeConfig[]>(() => listNodesRe
 const dataSource = shallowRef<DataSource<ConnectionNodeConfig>>({
     rowCount: 0,
     getRows: (): Promise<ConnectionNodeConfig[]> => Promise.resolve([])
+});
+
+const elapsed = computed(() => (lifetime.value == null ? 0 : ((lifetime.value - (expiresIn.value ?? 0)) / lifetime.value) * 100));
+
+const formattedExpiryTime = computed(() => {
+    if (expiresAt.value == null) return '';
+    return new Date(expiresAt.value).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
 });
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -93,7 +102,9 @@ watch(
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function selectBreadcrumb(breadcrumbConfig: BreadcrumbConfig): Promise<void> {
+async function selectBreadcrumb(index: number, item: ConnectionNodeConfig): Promise<void> {
+    clearAfterIndex(index);
+
     const { processRequest } = await useEngine();
     listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '' } as ListNodesOptions)) as ListNodesResult;
 }
@@ -103,12 +114,13 @@ async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig):
     await nextTick();
 
     if (connectionNodeConfig.typeId === 'folder') {
+        add(connectionNodeConfig);
         activeConnectionNodeConfig.value = undefined;
         const { processRequest } = await useEngine();
         const path = `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`;
         listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: path } as ListNodesOptions)) as ListNodesResult;
     } else {
-        breadcrumbs.value[1] = connectionNodeConfig;
+        add(connectionNodeConfig);
         activeConnectionNodeConfig.value = connectionNodeConfig;
         const { processRequest } = await useEngine();
         const extension = connectionNodeConfig.extension == null ? '' : `.${connectionNodeConfig.extension}`;
@@ -151,11 +163,17 @@ function selectTab(tabConfig: TabConfig): void {
                         <pre><code ref="textViewer">{{ text }}</code></pre>
                     </div>
 
-                    <div class="border-separator flex h-16.25 flex-none flex-col border-t">
-                        <div class="border-separator h-2.75 w-full flex-none border-x border-b bg-zinc-50"></div>
-                        <div class="flex max-h-40 flex-1 justify-end gap-x-2 overflow-hidden">
+                    <div class="border-boundary flex h-16.25 flex-none flex-col overflow-hidden border-t">
+                        <!-- -->
+                        <div class="border-separator relative h-4 w-full flex-none border-x bg-[#fdfdfd] text-xs">
+                            <div class="absolute top-0 bottom-0 left-0 bg-green-200" :style="{ width: `${elapsed}%` }"></div>
+                            <div class="relative pl-1 text-zinc-600">Expires at {{ formattedExpiryTime }}</div>
+                        </div>
+
+                        <!-- -->
+                        <div class="border-boundary flex flex-1 justify-end gap-x-2 overflow-hidden border-t">
                             <div class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
-                            <Button class="max-h-10" type="submit" variant="primary">Next</Button>
+                            <Button class="mt-1 max-h-10" type="submit" variant="primary">Next</Button>
                         </div>
                     </div>
                 </div>
