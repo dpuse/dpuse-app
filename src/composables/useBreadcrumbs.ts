@@ -6,7 +6,7 @@ import { type Component, ref, type Ref } from 'vue';
 export interface BreadcrumbConfig {
     id: string;
     label: string;
-    icon?: Component;
+    icon?: unknown;
     to?: string;
 }
 

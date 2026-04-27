@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import type { ColumnDef } from '@tanstack/vue-table';
-import { computed, nextTick, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, markRaw, nextTick, onMounted, ref, shallowRef, useTemplateRef, watch, type Component } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
@@ -11,7 +11,6 @@ import type { PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
-import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
 import type { TabConfig } from '@/composables/useTabs';
@@ -59,9 +58,7 @@ const router = useRouter();
 const text = ref<string | undefined>();
 const textViewerElement = useTemplateRef<HTMLDivElement>('textViewer');
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-const homeBreadcrumb: ConnectionNodeConfig = { id: 'home', icon: HomeIcon, label: 'Home' };
+const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as ConnectionNodeConfig;
 const { add, breadcrumbs, clearAfterIndex, removeLast } = useBreadcrumbs<ConnectionNodeConfig>([homeBreadcrumb]);
 
 const { tabs } = useTabs([
@@ -104,7 +101,7 @@ watch(connectionConfigs, async () => {
         }
     }
     const { processRequest } = await useEngine();
-    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '' } as ListNodesOptions)) as ListNodesResult;
+    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value!, { folderPath: '' } as ListNodesOptions)) as ListNodesResult;
 });
 
 watch(
@@ -133,7 +130,7 @@ async function selectBreadcrumb(index: number, connectionNodeConfig: ConnectionN
     if (selectedItem != null && folderPath === selectedItem.folderPath) return;
 
     const { processRequest } = await useEngine();
-    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath } as ListNodesOptions)) as ListNodesResult;
+    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value!, { folderPath } as ListNodesOptions)) as ListNodesResult;
 }
 
 async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
@@ -149,7 +146,7 @@ async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig):
         add(connectionNodeConfig);
         const { processRequest } = await useEngine();
         const path = getFolderPath(connectionNodeConfig);
-        listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: path } as ListNodesOptions)) as ListNodesResult;
+        listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value!, { folderPath: path } as ListNodesOptions)) as ListNodesResult;
     } else {
         add(connectionNodeConfig);
         activeItem.value = connectionNodeConfig;
@@ -158,7 +155,7 @@ async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig):
         const extension = connectionNodeConfig.extension == null ? '' : `.${connectionNodeConfig.extension}`;
         const path = `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}${extension}`;
         const previewObjectOptions: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path };
-        const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, previewObjectOptions)) as PreviewConfig;
+        const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value!, previewObjectOptions)) as PreviewConfig;
 
         text.value = previewConfig.text;
 
