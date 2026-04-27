@@ -7,8 +7,8 @@ import { useRoute, useRouter } from 'vue-router';
 // DPUse Framework
 import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
-import type { ParsingRecord, PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
 
 // Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -39,11 +39,20 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 
 type TabId = 'table' | 'text';
 const activeTabId = ref<TabId>('text');
+
 const activeItem = shallowRef<ConnectionNodeConfig | undefined>();
+
 const listNodesResult = shallowRef<ListNodesResult | undefined>();
-const parsedRecords = shallowRef<ParsingRecord[]>([]);
+
+const previewTableColumnDefinitions = shallowRef<ColumnDef<Record<string, string | null>>[]>([]);
+const previewTableDataSource = shallowRef<DataSource<Record<string, string | null>>>({
+    rowCount: 0,
+    getRows: (): Promise<Record<string, string | null>[]> => Promise.resolve([])
+});
+
 const route = useRoute();
 const router = useRouter();
+
 const text = ref<string | undefined>();
 const textViewerElement = useTemplateRef<HTMLDivElement>('textViewer');
 
@@ -108,12 +117,6 @@ watch(
     },
     { immediate: true }
 );
-
-const previewTableColumnDefinitions = shallowRef<ColumnDef<Record<string, string | null>>[]>([]);
-const previewTableDataSource = shallowRef<DataSource<Record<string, string | null>>>({
-    rowCount: 0,
-    getRows: (): Promise<Record<string, string | null>[]> => Promise.resolve([])
-});
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
