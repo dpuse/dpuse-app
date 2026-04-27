@@ -59,6 +59,7 @@ const router = useRouter();
 const text = ref<string | undefined>();
 const textViewerElement = useTemplateRef<HTMLDivElement>('textViewer');
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 const homeBreadcrumb: ConnectionNodeConfig = { id: 'home', icon: HomeIcon, label: 'Home' };
 const { add, breadcrumbs, clearAfterIndex, removeLast } = useBreadcrumbs<ConnectionNodeConfig>([homeBreadcrumb]);
