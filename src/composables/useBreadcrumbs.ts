@@ -6,7 +6,6 @@ import { ref, type Ref } from 'vue';
 export interface BreadcrumbConfig {
     id: string;
     label: string;
-    disabled?: boolean;
     to?: string;
 }
 
