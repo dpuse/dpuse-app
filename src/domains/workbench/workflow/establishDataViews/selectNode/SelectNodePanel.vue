@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { ArrowBigLeftIcon } from 'lucide-vue-next';
+import type { ColumnDef } from '@tanstack/vue-table';
 import { computed, nextTick, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -24,6 +24,7 @@ import { connectionConfigs, expiresAt, expiresIn, getLocalisedConnection, lifeti
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 import Button from '@/components/ui/button/Button.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
+import Table from '@/components/ui/table/Table.vue';
 import Tabs from '@/components/ui/tabs/Tabs.vue';
 import type { TaskConfig } from '../EstablishDataViewsLayout.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
@@ -73,6 +74,12 @@ const formattedExpiryTime = computed(() => {
 const actionableBreadcrumbs = computed(() => {
     const disableFromIndex = activeItem.value == null ? breadcrumbs.value.length - 1 : breadcrumbs.value.length - 2;
     return breadcrumbs.value.map((item, index) => ({ ...item, disabled: index >= disableFromIndex }));
+});
+
+const previewTableColumnDefinitions = shallowRef<ColumnDef<Record<string, unknown>>[]>([]);
+const previewTableDataSource = shallowRef<DataSource<Record<string, unknown>>>({
+    rowCount: 0,
+    getRows: (): Promise<Record<string, unknown>[]> => Promise.resolve([])
 });
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -147,6 +154,10 @@ async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig):
         const previewObjectOptions: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path };
         const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, previewObjectOptions)) as PreviewConfig;
 
+        previewTableColumnDefinitions.value = previewConfig.columnConfigs.map<ColumnDef<Record<string, unknown>>>((config) => ({
+            accessorKey: 'id',
+            header: config.label.en ?? 'label'
+        }));
         text.value = previewConfig.text;
         parsedRecords.value = previewConfig.parsedRecords;
     }
@@ -177,7 +188,8 @@ function selectTab(tabConfig: TabConfig): void {
 
             <template #detail>
                 <div class="flex h-full flex-col">
-                    <div v-if="activeTabId === 'table'" class="border-boundary bg-backdrop flex-1 overflow-auto overscroll-none border-x text-sm">{{ parsedRecords }}</div>
+                    <!-- <div v-if="activeTabId === 'table'" class="border-boundary bg-backdrop flex-1 overflow-auto overscroll-none border-x text-sm">{{ parsedRecords }}</div> -->
+                    <Table v-if="activeTabId === 'table'" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
                     <div v-else class="border-separator flex-1 overflow-auto overscroll-none border-x px-0.5 text-sm">
                         <pre><code ref="textViewer">{{ text }}</code></pre>
