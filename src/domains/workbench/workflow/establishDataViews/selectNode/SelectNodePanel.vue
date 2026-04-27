@@ -11,6 +11,7 @@ import type { PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
+import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
 import type { TabConfig } from '@/composables/useTabs';
@@ -24,6 +25,7 @@ import { connectionConfigs, expiresAt, expiresIn, getLocalisedConnection, lifeti
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 import Button from '@/components/ui/button/Button.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
+import HomeIcon from '@/components/icons/HomeIcon.vue';
 import Table from '@/components/ui/table/Table.vue';
 import Tabs from '@/components/ui/tabs/Tabs.vue';
 import type { TaskConfig } from '../EstablishDataViewsLayout.vue';
@@ -38,6 +40,7 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 type TabId = 'table' | 'text';
+
 const activeTabId = ref<TabId>('text');
 
 const activeItem = shallowRef<ConnectionNodeConfig | undefined>();
@@ -56,7 +59,8 @@ const router = useRouter();
 const text = ref<string | undefined>();
 const textViewerElement = useTemplateRef<HTMLDivElement>('textViewer');
 
-const homeBreadcrumb = { id: 'home', label: 'Home' } as ConnectionNodeConfig;
+// @ts-expect-error
+const homeBreadcrumb: ConnectionNodeConfig = { id: 'home', icon: HomeIcon, label: 'Home' };
 const { add, breadcrumbs, clearAfterIndex, removeLast } = useBreadcrumbs<ConnectionNodeConfig>([homeBreadcrumb]);
 
 const { tabs } = useTabs([
@@ -183,7 +187,8 @@ function selectTab(tabConfig: TabConfig): void {
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function getFolderPath(connectionNodeConfig: ConnectionNodeConfig): string {
-    return connectionNodeConfig.id === 'home' ? '' : `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`;
+    if (!('folderPath' in connectionNodeConfig) || !('name' in connectionNodeConfig)) return '';
+    return `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`;
 }
 </script>
 

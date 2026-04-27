@@ -1,11 +1,12 @@
 // External Dependencies
-import { ref, type Ref } from 'vue';
+import { type Component, ref, type Ref } from 'vue';
 
 // Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface BreadcrumbConfig {
     id: string;
     label: string;
+    icon?: Component;
     to?: string;
 }
 
