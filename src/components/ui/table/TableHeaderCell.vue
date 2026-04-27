@@ -11,6 +11,7 @@ const { header } = defineProps<{ header: Header<T, unknown> }>();
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const menuElement = useTemplateRef<HTMLDivElement>('menu');
+
 const menuOpen = ref(false);
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -20,7 +21,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick));
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Close menu when clicking outside
+// Close menu when clicking outside.
 function onDocumentClick(event: MouseEvent): void {
     if (menuElement.value && !menuElement.value.contains(event.target as Node)) {
         menuOpen.value = false;

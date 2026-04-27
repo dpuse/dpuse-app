@@ -8,6 +8,7 @@ import { computed, ref, watch } from 'vue';
 import { type LocaleLabel, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Framework
+import { displayIsWide } from '~/src/state/appLayout';
 import T from './EstablishDataViewsLayout.json';
 
 import { activeDataViewConfig } from '@/state/establishDataViews';
@@ -19,7 +20,6 @@ import { type StepConfig, useSteps } from '@/composables/useSteps';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 import Steps from '@/components/ui/steps/Steps.vue';
-import { displayIsWide } from '~/src/state/appLayout';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -33,13 +33,19 @@ export interface TaskConfig {
 
 interface TaskStepConfig extends LocalisedConfig<TaskConfig>, StepConfig {}
 
+// const TASK_CONFIGS: TaskConfig[] = [
+//     { id: 'selectConnection', number: 1, enableUpTo: 1, label: { en: 'Select Connection' }, description: {} },
+//     { id: 'selectNode', number: 2, enableUpTo: 2, label: { en: 'Select Node' }, description: {} },
+//     { id: 'auditContent', number: 3, enableUpTo: 6, label: { en: 'Audit Content' }, description: {} },
+//     { id: 'auditRelationships', number: 4, enableUpTo: 6, label: { en: 'Audit Relationships' }, description: {} }, // TODO: 'Relationships' could be renamed to 'Links'.
+//     { id: 'transform', number: 5, enableUpTo: 6, label: { en: 'Transform' }, description: {} },
+//     { id: 'investigate', number: 6, enableUpTo: 6, label: { en: 'Investigate' }, description: {} }
+// ];
 const TASK_CONFIGS: TaskConfig[] = [
     { id: 'selectConnection', number: 1, enableUpTo: 1, label: { en: 'Select Connection' }, description: {} },
     { id: 'selectNode', number: 2, enableUpTo: 2, label: { en: 'Select Node' }, description: {} },
-    { id: 'auditContent', number: 3, enableUpTo: 6, label: { en: 'Audit Content' }, description: {} },
-    { id: 'auditRelationships', number: 4, enableUpTo: 6, label: { en: 'Audit Links' }, description: {} },
-    { id: 'transform', number: 5, enableUpTo: 6, label: { en: 'Transform' }, description: {} },
-    { id: 'investigate', number: 6, enableUpTo: 6, label: { en: 'Investigate' }, description: {} }
+    { id: 'auditContent', number: 3, enableUpTo: 4, label: { en: 'Audit Content' }, description: {} },
+    { id: 'exploreData', number: 4, enableUpTo: 4, label: { en: 'Explore Data' }, description: {} }
 ];
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -90,7 +96,7 @@ function updateTaskProgression(taskLocalisedConfig: LocalisedConfig<TaskConfig>)
                         <span class="text-sm">{{ item.label }}</span>
                     </div>
                     <div v-else>
-                        <span class="text-sm wrap-anywhere [hyphens:auto]">{{ item.number }}.&nbsp;{{ item.label }}</span>
+                        <span class="text-sm [hyphens:auto]">{{ item.number }}.&nbsp;{{ item.label }}</span>
                     </div>
                 </template>
             </Steps>

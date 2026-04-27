@@ -1,5 +1,5 @@
 // External Dependencies
-import { type Component, ref, type Ref } from 'vue';
+import { ref, type Ref } from 'vue';
 
 // Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

@@ -11,10 +11,10 @@ defineEmits<{ select: [index: number, item: T] }>();
 </script>
 
 <template>
-    <div class="flex h-9.25 min-w-0 items-center overflow-hidden">
+    <div class="flex min-w-0 items-center overflow-hidden">
         <template v-for="(item, index) in items" :key="item.id">
             <!-- Separator -->
-            <span v-if="index > 0" class="flex-none text-zinc-400">/</span>
+            <span v-if="index > 0" class="mx-1.5 flex-none text-zinc-400">/</span>
 
             <!-- Body -->
             <component
@@ -22,7 +22,7 @@ defineEmits<{ select: [index: number, item: T] }>();
                 v-bind="index < items.length - 1 && item.to == null ? { variant: 'minimal' } : {}"
                 :aria-disabled="index === items.length - 1 || undefined"
                 :aria-label="item.label"
-                class="flex h-full items-center px-1.5"
+                class="flex h-full items-center"
                 :class="[
                     item.icon ? 'flex-none' : 'max-w-full min-w-0 overflow-hidden',
                     index === items.length - 1
