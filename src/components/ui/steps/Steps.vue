@@ -17,7 +17,7 @@ defineEmits<{ select: [step: StepConfig] }>();
             v-for="item in items"
             :key="item.id"
             :aria-selected="activeStepId === item.id"
-            class="border-y-2 border-t-transparent px-2 pb-1 leading-tight"
+            class="border-y-2 border-t-transparent pb-1 leading-tight"
             :class="{
                 'border-b-blue-500': activeStepId === item.id,
                 'border-b-zinc-500': activeStepId !== item.id && !item.disabled,

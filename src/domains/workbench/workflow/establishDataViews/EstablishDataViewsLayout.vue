@@ -19,6 +19,7 @@ import { type StepConfig, useSteps } from '@/composables/useSteps';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 import Steps from '@/components/ui/steps/Steps.vue';
+import { displayIsWide } from '~/src/state/appLayout';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -84,9 +85,12 @@ function updateTaskProgression(taskLocalisedConfig: LocalisedConfig<TaskConfig>)
         <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
             <Steps v-if="activeTaskLocalisedConfig" :active-step-id="activeTaskLocalisedConfig.id" :items="steps">
                 <template #default="{ item }">
-                    <div>
+                    <div v-if="displayIsWide">
                         <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }} {{ item.number }}</div>
                         <span class="text-sm">{{ item.label }}</span>
+                    </div>
+                    <div v-else>
+                        <span class="text-sm wrap-anywhere [hyphens:auto]">{{ item.number }}.&nbsp;{{ item.label }}</span>
                     </div>
                 </template>
             </Steps>
