@@ -13,7 +13,7 @@ import Table from '@/components/ui/table/Table.vue';
 const CATEGORIES = ['Alpha', 'Beta', 'Gamma', 'Delta'] as const;
 const TOTAL_ROWS = 100_000;
 
-const COLUMN_DEFINITIONS: ColumnDef<Record<string, unknown>>[] = [
+const COLUMN_DEFINITIONS: ColumnDef<Record<string, number | string | null>>[] = [
     { accessorKey: 'id', header: 'ID', size: 120 },
     { accessorKey: 'name', header: 'Name', size: 120 },
     { accessorKey: 'category', header: 'Category', size: 120 },

@@ -76,12 +76,6 @@ const actionableBreadcrumbs = computed(() => {
     return breadcrumbs.value.map((item, index) => ({ ...item, disabled: index >= disableFromIndex }));
 });
 
-const previewTableColumnDefinitions = shallowRef<ColumnDef<Record<string, unknown>>[]>([]);
-const previewTableDataSource = shallowRef<DataSource<Record<string, unknown>>>({
-    rowCount: 0,
-    getRows: (): Promise<Record<string, unknown>[]> => Promise.resolve([])
-});
-
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(async () => {
@@ -114,6 +108,12 @@ watch(
     },
     { immediate: true }
 );
+
+const previewTableColumnDefinitions = shallowRef<ColumnDef<Record<string, string | null>>[]>([]);
+const previewTableDataSource = shallowRef<DataSource<Record<string, string | null>>>({
+    rowCount: 0,
+    getRows: (): Promise<Record<string, string | null>[]> => Promise.resolve([])
+});
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -154,12 +154,24 @@ async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig):
         const previewObjectOptions: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path };
         const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, previewObjectOptions)) as PreviewConfig;
 
-        previewTableColumnDefinitions.value = previewConfig.columnConfigs.map<ColumnDef<Record<string, unknown>>>((config) => ({
-            accessorKey: 'id',
-            header: config.label.en ?? 'label'
-        }));
         text.value = previewConfig.text;
-        parsedRecords.value = previewConfig.parsedRecords;
+
+        const previewColumnKeys = previewConfig.columnConfigs.map((config, index) => config.label.en ?? String(index));
+
+        previewTableColumnDefinitions.value = previewColumnKeys.map<ColumnDef<Record<string, string | null>>>((columnKey) => ({
+            accessorKey: columnKey,
+            header: columnKey
+        }));
+
+        const dataOffset = 1;
+        const previewRows = previewConfig.parsedRecords
+            .slice(dataOffset)
+            .map((record) => Object.fromEntries(record.map((cell, index) => [previewColumnKeys[index] ?? String(index), cell.value])) as Record<string, string | null>);
+
+        previewTableDataSource.value = {
+            rowCount: previewRows.length,
+            getRows: (start: number, end: number): Promise<Record<string, string | null>[]> => Promise.resolve(previewRows.slice(start, end))
+        };
     }
 }
 
