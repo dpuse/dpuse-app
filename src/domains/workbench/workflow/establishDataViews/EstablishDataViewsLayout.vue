@@ -37,7 +37,7 @@ const TASK_CONFIGS: TaskConfig[] = [
     { id: 'selectConnection', number: 1, enableUpTo: 1, label: { en: 'Select Connection' }, description: {} },
     { id: 'selectNode', number: 2, enableUpTo: 2, label: { en: 'Select Node' }, description: {} },
     { id: 'auditContent', number: 3, enableUpTo: 6, label: { en: 'Audit Content' }, description: {} },
-    { id: 'auditRelationships', number: 4, enableUpTo: 6, label: { en: 'Audit Relationships' }, description: {} },
+    { id: 'auditRelationships', number: 4, enableUpTo: 6, label: { en: 'Audit Links' }, description: {} },
     { id: 'transform', number: 5, enableUpTo: 6, label: { en: 'Transform' }, description: {} },
     { id: 'investigate', number: 6, enableUpTo: 6, label: { en: 'Investigate' }, description: {} }
 ];
