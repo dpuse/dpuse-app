@@ -199,7 +199,7 @@ function getFolderPath(connectionNodeConfig: ConnectionNodeConfig): string {
         <GridDetailPanel v-model:active-item="activeItem" class="flex-1" :data-source="dataSource" max-list-width="400px" @select-item="selectConnectionNode($event)">
             <template #header>
                 <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
-                    <Breadcrumbs class="min-w-0 flex-1 py-2" :items="breadcrumbs" @select="selectBreadcrumb" />
+                    <Breadcrumbs class="flex-1" :items="breadcrumbs" @select="selectBreadcrumb" />
 
                     <Tabs class="ml-4 h-full flex-none shrink-0" :active-item-id="activeTabId" :items="tabs" @select="selectTab">
                         <template #default="{ item }">{{ item.label }}</template>

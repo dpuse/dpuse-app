@@ -58,6 +58,7 @@ export type VariantTypeId =
     | 'iconSmall'
     | 'listItem'
     | 'listitemDestructive'
+    | 'minimal'
     | 'neutral'
     | 'outline'
     | 'positive'
@@ -96,6 +97,8 @@ const variantClasses = computed((): (string | string[] | Record<string, string> 
             return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.75 [&>svg]:size-[26px]'];
         case 'iconSmall':
             return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.25 [&>svg]:size-5'];
+        case 'minimal':
+            return [];
         default:
             return [COMMON_RECTANGLE_CLASSES, COMMON_NEUTRAL_CLASSES];
     }
