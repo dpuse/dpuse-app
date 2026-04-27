@@ -27,8 +27,9 @@ export interface TaskConfig {
     id: string;
     label: LocaleLabel;
     description: LocaleLabel;
-    number: number;
     enableUpTo: number;
+    number: number;
+    verb?: LocaleLabel;
 }
 
 interface TaskStepConfig extends LocalisedConfig<TaskConfig>, StepConfig {}
@@ -42,10 +43,10 @@ interface TaskStepConfig extends LocalisedConfig<TaskConfig>, StepConfig {}
 //     { id: 'investigate', number: 6, enableUpTo: 6, label: { en: 'Investigate' }, description: {} }
 // ];
 const TASK_CONFIGS: TaskConfig[] = [
-    { id: 'selectConnection', number: 1, enableUpTo: 1, label: { en: 'Select Connection' }, description: {} },
-    { id: 'selectNode', number: 2, enableUpTo: 2, label: { en: 'Select Node' }, description: {} },
-    { id: 'auditContent', number: 3, enableUpTo: 4, label: { en: 'Audit Content' }, description: {} },
-    { id: 'exploreData', number: 4, enableUpTo: 4, label: { en: 'Explore Data' }, description: {} }
+    { id: 'selectConnection', number: 1, label: { en: 'Connection' }, description: {}, enableUpTo: 1, verb: { en: 'Select' } },
+    { id: 'selectNode', number: 2, label: { en: 'Node' }, description: {}, enableUpTo: 2, verb: { en: 'Select' } },
+    { id: 'auditContent', number: 3, label: { en: 'Content' }, description: {}, enableUpTo: 4, verb: { en: 'Audit' } },
+    { id: 'exploreData', number: 4, label: { en: 'Data' }, description: {}, enableUpTo: 4, verb: { en: 'Explore' } }
 ];
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -71,6 +72,7 @@ watch(
             disabled: taskLocalisedConfig.number > newEnableTasksUpTo,
             to: taskLocalisedConfig.id
         }));
+        console.log(steps.value);
     },
     { immediate: true }
 );
@@ -96,7 +98,8 @@ function updateTaskProgression(taskLocalisedConfig: LocalisedConfig<TaskConfig>)
                         <span class="text-sm">{{ item.label }}</span>
                     </div>
                     <div v-else>
-                        <span class="text-sm [hyphens:auto]">{{ item.number }}.&nbsp;{{ item.label }}</span>
+                        <span class="hidden text-sm [hyphens:auto] sm:block">{{ item.number }}.&nbsp;{{ item.verb }} {{ item.label }}</span>
+                        <span class="block text-sm [hyphens:auto] sm:hidden">{{ item.number }}.&nbsp;{{ item.label }}</span>
                     </div>
                 </template>
             </Steps>

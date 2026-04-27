@@ -2,7 +2,7 @@
 // Local Framework
 import type { StepConfig } from '@/composables/useSteps';
 
-type StepSlotConfig = StepConfig & { label?: unknown; number?: unknown };
+type StepSlotConfig = StepConfig & { label?: unknown; number?: unknown; verb?: string };
 
 // Properties, Slots & Emits
 const { activeStepId, items = [] } = defineProps<{ activeStepId?: string; items?: StepConfig[] }>();

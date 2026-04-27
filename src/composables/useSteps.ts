@@ -7,6 +7,7 @@ export interface StepConfig {
     id: string;
     disabled?: boolean;
     to?: string;
+    verb?: string;
 }
 
 type Steps<T extends StepConfig> = {
