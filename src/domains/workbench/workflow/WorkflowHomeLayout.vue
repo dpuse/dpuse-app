@@ -26,8 +26,8 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
         <Header :breadcrumbs="breadcrumbs" class="dpuse-workbench-prose w-full" data-testid="header" :title="t(T, 'wb.wf.label')" />
 
         <!-- Workflow Steps -->
-        <ContentScroller class="pb-16">
-            <div class="dpuse-workbench-prose grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 p-4">
+        <ContentScroller class="mr-4 pb-16">
+            <div class="dpuse-workbench-prose grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 py-4 pl-4">
                 <RouterLink v-for="config in workflowOptionConfigs" :key="config.id" :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }">
                     <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                 </RouterLink>
