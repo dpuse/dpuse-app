@@ -11,7 +11,7 @@ defineEmits<{ select: [step: StepConfig] }>();
 </script>
 
 <template>
-    <div v-if="items" class="flex gap-x-2 overflow-x-auto overscroll-x-none text-[15px]">
+    <div v-if="items" class="flex gap-x-4 overflow-x-auto overscroll-x-none text-[15px]">
         <component
             :is="item.to != null && !item.disabled ? 'RouterLink' : 'div'"
             v-for="item in items"

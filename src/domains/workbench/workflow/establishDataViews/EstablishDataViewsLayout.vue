@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { PlusIcon } from 'lucide-vue-next';
-import { useRoute } from 'vue-router';
+import { useRoute, type LocationQueryValue } from 'vue-router';
 import { computed, ref, watch } from 'vue';
 
 // DPUse Framework
@@ -52,17 +52,20 @@ const TASK_CONFIGS: TaskConfig[] = [
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const { breadcrumbs } = useBreadcrumbs<BreadcrumbConfig>([{ id: 'benchtop', label: t(T, 'wb.label'), to: 'workflow' }]);
-const { steps } = useSteps<TaskStepConfig>();
+
+const enableTasksUpTo = ref(0); // TODO: This also needs to check the actual state of the data view.
 
 const route = useRoute();
 
-const enableTasksUpTo = ref(TASK_CONFIGS.find((config) => config.id === route.query.wbView)?.enableUpTo ?? 0); // TODO: This also needs to check the actual state of the data view.
+const { steps } = useSteps<TaskStepConfig>();
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeTaskLocalisedConfig = computed(() => TASK_CONFIGS.find((config) => config.id === route.query.wbView));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+watch(route, (newRoute) => setEnabledTasks(newRoute.query.wbView), { immediate: true });
 
 watch(
     [enableTasksUpTo, localeId],
@@ -81,6 +84,13 @@ watch(
 
 function updateTaskProgression(taskLocalisedConfig: LocalisedConfig<TaskConfig>): void {
     enableTasksUpTo.value = taskLocalisedConfig.enableUpTo;
+}
+
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function setEnabledTasks(wbView: LocationQueryValue | LocationQueryValue[]): void {
+    const pendingEnableTasksUpTo = TASK_CONFIGS.find((config) => config.id === wbView)?.enableUpTo ?? 0;
+    if (pendingEnableTasksUpTo > enableTasksUpTo.value) enableTasksUpTo.value = pendingEnableTasksUpTo;
 }
 </script>
 
