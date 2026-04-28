@@ -165,7 +165,7 @@ async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig):
         previewMessage.value =
             previewPercentage.value == null
                 ? `Previewed ${formatNumberAsStorageSize(previewSize)} (total size unknown).`
-                : `Previewed ${formatNumberAsStorageSize(previewSize)} of ${formatNumberAsStorageSize(nodeSize)} (${formatNumberAsDecimalNumber(previewPercentage.value)}%).`;
+                : `Previewed ${formatNumberAsStorageSize(previewSize)} of ${formatNumberAsStorageSize(nodeSize)} (${formatNumberAsDecimalNumber(previewPercentage.value, 2, 0)}%).`;
         text.value = previewConfig.text;
 
         const previewColumnKeys = previewConfig.columnConfigs.map((config, index) => config.label.en ?? String(index));
