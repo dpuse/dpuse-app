@@ -63,7 +63,7 @@ function selectDropdownItem(event: Event): void {
         </select>
 
         <!-- Render as tabs on medium, or larger, screens. -->
-        <div class="hidden h-full items-stretch gap-x-2 sm:flex">
+        <div class="hidden h-full items-stretch gap-x-4 sm:flex">
             <!-- TODO: Is there enough room around tabs to effectively tap on touch devices? -->
             <component
                 :is="item.to ? 'RouterLink' : 'div'"

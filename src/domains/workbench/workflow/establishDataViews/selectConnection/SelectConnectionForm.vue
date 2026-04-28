@@ -17,7 +17,6 @@ import ContentScroller from '@/components/layout/contentScroller/ContentScroller
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
 const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> }>();
-
 const emit = defineEmits<{ submit: [] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────

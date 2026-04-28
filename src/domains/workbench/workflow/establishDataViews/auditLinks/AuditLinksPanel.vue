@@ -12,7 +12,6 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 
 <template>
     <div class="px-4 pt-1">
-        <div>Audit relationships...</div>
-        <RouterLink :to="{ name: 'transform', query: { ...$route.query, wbView: 'transform' } }" @click="$emit('task-completed', taskLocalisedConfig)">Next...</RouterLink>
+        <div>Audit links will be implemented in a future release...</div>
     </div>
 </template>

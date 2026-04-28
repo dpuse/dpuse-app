@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // External Dependencies
 import { PlusIcon } from 'lucide-vue-next';
-import { useRoute, type LocationQueryValue } from 'vue-router';
 import { computed, ref, watch } from 'vue';
+import { type LocationQueryValue, useRoute } from 'vue-router';
 
 // DPUse Framework
 import { type LocaleLabel, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
@@ -44,7 +44,7 @@ interface TaskStepConfig extends LocalisedConfig<TaskConfig>, StepConfig {}
 const TASK_CONFIGS: TaskConfig[] = [
     { id: 'selectConnection', number: 1, label: { en: 'Connection' }, description: {}, enableUpTo: 1, verb: { en: 'Select' } },
     { id: 'selectNode', number: 2, label: { en: 'Node' }, description: {}, enableUpTo: 2, verb: { en: 'Select' } },
-    { id: 'auditContent', number: 3, label: { en: 'Content' }, description: {}, enableUpTo: 5, verb: { en: 'Audit' } },
+    { id: 'auditContent', number: 3, label: { en: 'Content' }, description: {}, enableUpTo: 3, verb: { en: 'Audit' } },
     { id: 'auditLinks', number: 4, label: { en: 'Links' }, description: {}, enableUpTo: 5, verb: { en: 'Audit' } },
     { id: 'exploreData', number: 5, label: { en: 'Data' }, description: {}, enableUpTo: 5, verb: { en: 'Explore' } }
 ];
@@ -53,11 +53,11 @@ const TASK_CONFIGS: TaskConfig[] = [
 
 const { breadcrumbs } = useBreadcrumbs<BreadcrumbConfig>([{ id: 'benchtop', label: t(T, 'wb.label'), to: 'workflow' }]);
 
-const enableTasksUpTo = ref(0); // TODO: This also needs to check the actual state of the data view.
-
 const route = useRoute();
 
 const { steps } = useSteps<TaskStepConfig>();
+
+const tasksEnabledToNumber = ref(initialiseEnabledTasks());
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -65,17 +65,16 @@ const activeTaskLocalisedConfig = computed(() => TASK_CONFIGS.find((config) => c
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(route, (newRoute) => setEnabledTasks(newRoute.query.wbView), { immediate: true });
+watch(route, (newRoute) => setEnabledTasks(newRoute.query.wbView));
 
 watch(
-    [enableTasksUpTo, localeId],
-    ([newEnableTasksUpTo, newLocaleId]) => {
+    [tasksEnabledToNumber, localeId],
+    ([newTasksEnabledToNumber, newLocaleId]) => {
         steps.value = localiseConfigs<TaskConfig>(TASK_CONFIGS, newLocaleId).map((taskLocalisedConfig) => ({
             ...taskLocalisedConfig,
-            disabled: taskLocalisedConfig.number > newEnableTasksUpTo,
+            disabled: taskLocalisedConfig.number > newTasksEnabledToNumber,
             to: taskLocalisedConfig.id
         }));
-        console.log(steps.value);
     },
     { immediate: true }
 );
@@ -83,14 +82,19 @@ watch(
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function updateTaskProgression(taskLocalisedConfig: LocalisedConfig<TaskConfig>): void {
-    enableTasksUpTo.value = taskLocalisedConfig.enableUpTo;
+    tasksEnabledToNumber.value = taskLocalisedConfig.enableUpTo;
 }
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+function initialiseEnabledTasks(): number {
+    // TODO: This also needs to check the actual state of the data view.
+    return TASK_CONFIGS.find((config) => config.id === route.query.wbView)?.enableUpTo ?? 0;
+}
+
 function setEnabledTasks(wbView: LocationQueryValue | LocationQueryValue[]): void {
     const pendingEnableTasksUpTo = TASK_CONFIGS.find((config) => config.id === wbView)?.enableUpTo ?? 0;
-    if (pendingEnableTasksUpTo > enableTasksUpTo.value) enableTasksUpTo.value = pendingEnableTasksUpTo;
+    if (pendingEnableTasksUpTo > tasksEnabledToNumber.value) tasksEnabledToNumber.value = pendingEnableTasksUpTo;
 }
 </script>
 

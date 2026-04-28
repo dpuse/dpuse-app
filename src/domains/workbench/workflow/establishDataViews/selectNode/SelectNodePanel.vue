@@ -8,6 +8,7 @@ import { useRoute, useRouter } from 'vue-router';
 import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
+import { formatNumberAsDecimalNumber, formatNumberAsStorageSize } from '@dpuse/dpuse-shared/utilities';
 import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local Framework
@@ -18,7 +19,7 @@ import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import { useEngine } from '@/services/useEngine';
 import { useTabs } from '@/composables/useTabs';
 import { activeConnectionConfig, activeConnectionNodeConfig } from '@/state/establishDataViews';
-import { connectionConfigs, expiresAt, expiresIn, getLocalisedConnection, lifetime } from '@/state/session';
+import { connectionConfigs, getLocalisedConnection } from '@/state/session';
 
 // Local Components - Static
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
@@ -34,7 +35,7 @@ import Tile from '@/components/ui/tile/Tile.vue';
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
-defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+const emit = defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -46,6 +47,8 @@ const activeItem = shallowRef<ConnectionNodeConfig | undefined>();
 
 const listNodesResult = shallowRef<ListNodesResult | undefined>();
 
+const previewPercentage = ref(0);
+const previewMessage = ref<string>();
 const previewTableColumnDefinitions = shallowRef<ColumnDef<Record<string, string | null>>[]>([]);
 const previewTableDataSource = shallowRef<DataSource<Record<string, string | null>>>({
     rowCount: 0,
@@ -63,7 +66,8 @@ const { add, breadcrumbs, clearAfterIndex, removeLast } = useBreadcrumbs<Connect
 
 const { tabs } = useTabs([
     { id: 'table', label: 'Table' },
-    { id: 'text', label: 'Text' }
+    { id: 'text', label: 'Text' },
+    { id: 'details', label: 'Details' }
 ]);
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -73,13 +77,6 @@ const connectionNodeConfigs = computed<ConnectionNodeConfig[]>(() => listNodesRe
 const dataSource = shallowRef<DataSource<ConnectionNodeConfig>>({
     rowCount: 0,
     getRows: (): Promise<ConnectionNodeConfig[]> => Promise.resolve([])
-});
-
-const elapsed = computed(() => (lifetime.value == null ? 0 : ((lifetime.value - (expiresIn.value ?? 0)) / lifetime.value) * 100));
-
-const formattedExpiryTime = computed(() => {
-    if (expiresAt.value == null) return '';
-    return new Date(expiresAt.value).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
 });
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -106,16 +103,21 @@ watch(connectionConfigs, async () => {
 
 watch(
     connectionNodeConfigs,
-    (connectionNodes) => {
+    (newConnectionNodeConfigs) => {
         dataSource.value = {
-            rowCount: connectionNodes.length,
-            getRows: (start: number, end: number): Promise<ConnectionNodeConfig[]> => Promise.resolve(connectionNodes.slice(start, end))
+            rowCount: newConnectionNodeConfigs.length,
+            getRows: (start: number, end: number): Promise<ConnectionNodeConfig[]> => Promise.resolve(newConnectionNodeConfigs.slice(start, end))
         };
     },
     { immediate: true }
 );
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function handleSubmit(): Promise<void> {
+    emit('task-completed', taskLocalisedConfig);
+    await router.push({ name: 'auditContent', query: { ...route.query, wbView: 'auditContent' } });
+}
 
 async function selectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
     const selectedItem = activeItem.value;
@@ -157,6 +159,13 @@ async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig):
         const previewObjectOptions: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path };
         const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value!, previewObjectOptions)) as PreviewConfig;
 
+        const previewSize = previewConfig.size ?? 0;
+        const nodeSize = connectionNodeConfig.size ?? 0;
+        previewPercentage.value = nodeSize > 0 ? (previewSize / nodeSize) * 100 : 0;
+        previewMessage.value =
+            previewPercentage.value == null
+                ? `Previewed ${formatNumberAsStorageSize(previewSize)} (total size unknown).`
+                : `Previewed ${formatNumberAsStorageSize(previewSize)} of ${formatNumberAsStorageSize(nodeSize)} (${formatNumberAsDecimalNumber(previewPercentage.value)}%).`;
         text.value = previewConfig.text;
 
         const previewColumnKeys = previewConfig.columnConfigs.map((config, index) => config.label.en ?? String(index));
@@ -210,7 +219,11 @@ function getFolderPath(connectionNodeConfig: ConnectionNodeConfig): string {
 
             <template #detail>
                 <div class="flex h-full flex-col">
-                    <!-- <div v-if="activeTabId === 'table'" class="border-boundary bg-backdrop flex-1 overflow-auto overscroll-none border-x text-sm">{{ parsedRecords }}</div> -->
+                    <div class="border-separator relative h-4 w-full flex-none border-x bg-[#fdfdfd] text-xs">
+                        <div class="absolute top-0 bottom-0 left-0 bg-green-200" :style="{ width: `${previewPercentage}%` }"></div>
+                        <div class="relative pl-1 text-zinc-600">{{ previewMessage }}</div>
+                    </div>
+
                     <Table v-if="activeTabId === 'table'" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
                     <div v-else class="border-separator flex-1 overflow-auto overscroll-none border-x px-0.5 text-sm">
@@ -219,16 +232,12 @@ function getFolderPath(connectionNodeConfig: ConnectionNodeConfig): string {
 
                     <div class="border-boundary flex h-16.25 flex-none flex-col overflow-hidden border-t">
                         <!-- -->
-                        <div class="border-separator relative h-4 w-full flex-none border-x bg-[#fdfdfd] text-xs">
-                            <div class="absolute top-0 bottom-0 left-0 bg-green-200" :style="{ width: `${elapsed}%` }"></div>
-                            <div class="relative pl-1 text-zinc-600">Expires at {{ formattedExpiryTime }}</div>
-                        </div>
 
                         <!-- -->
-                        <div class="border-boundary flex flex-1 justify-end gap-x-2 overflow-hidden border-t">
+                        <form class="border-boundary flex flex-1 justify-end gap-x-2 overflow-hidden border-t" @submit.prevent="handleSubmit">
                             <div class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
                             <Button class="mt-1 max-h-10" type="submit" variant="primary">Next</Button>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </template>

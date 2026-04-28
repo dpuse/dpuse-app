@@ -17,9 +17,10 @@ const DataViewList = load('establishDataViews', () => import('@/domains/workbenc
 const SelectConnectionPanel = load('selectConnection', () => import('@/domains/workbench/workflow/establishDataViews/selectConnection/SelectConnectionPanel.vue'));
 const SelectNodePanel = load('selectNode', () => import('@/domains/workbench/workflow/establishDataViews/selectNode/SelectNodePanel.vue'));
 const AuditContentPanel = load('auditContent', () => import('@/domains/workbench/workflow/establishDataViews/auditContent/AuditContentPanel.vue'));
-const AuditRelationshipsPanel = load('auditRelationships', () => import('@/domains/workbench/workflow/establishDataViews/auditRelationships/AuditRelationshipsPanel.vue'));
-const TransformPanel = load('transform', () => import('@/domains/workbench/workflow/establishDataViews/transform/TransformPanel.vue'));
-const InvestigatePanel = load('investigate', () => import('@/domains/workbench/workflow/establishDataViews/investigate/InvestigatePanel.vue'));
+const AuditLinksPanel = load('auditLinks', () => import('@/domains/workbench/workflow/establishDataViews/auditLinks/AuditLinksPanel.vue'));
+const ExploreData = load('investigate', () => import('@/domains/workbench/workflow/establishDataViews/exploreData/ExploreData.vue'));
+// const TransformPanel = load('transform', () => import('@/domains/workbench/workflow/establishDataViews/transform/TransformPanel.vue'));
+// const InvestigatePanel = load('investigate', () => import('@/domains/workbench/workflow/establishDataViews/investigate/InvestigatePanel.vue'));
 
 const AssembleDimensionsLayout = load('assembleDimensions', () => import('@/domains/workbench/workflow/assembleDimensions/AssembleDimensionsLayout.vue'));
 const DimensionList = load('assembleDimensions', () => import('@/domains/workbench/workflow/assembleDimensions/DimensionList.vue'));
@@ -55,9 +56,10 @@ export const APP_ROUTES = [
                                     { name: 'selectConnection', path: 'selectConnection', component: SelectConnectionPanel },
                                     { name: 'selectNode', path: 'selectNode', component: SelectNodePanel },
                                     { name: 'auditContent', path: 'auditContent', component: AuditContentPanel },
-                                    { name: 'auditRelationships', path: 'auditRelationships', component: AuditRelationshipsPanel },
-                                    { name: 'transform', path: 'transform', component: TransformPanel },
-                                    { name: 'investigate', path: 'investigate', component: InvestigatePanel }
+                                    { name: 'auditLinks', path: 'auditLinks', component: AuditLinksPanel },
+                                    { name: 'exploreData', path: 'investigate', component: ExploreData }
+                                    // { name: 'transform', path: 'transform', component: TransformPanel },
+                                    // { name: 'investigate', path: 'investigate', component: InvestigatePanel }
                                 ]
                             }
                         ]
