@@ -8,7 +8,6 @@ import { computed, ref, watch } from 'vue';
 import { type LocaleLabel, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Framework
-import { displayIsWide } from '~/src/state/appLayout';
 import T from './EstablishDataViewsLayout.json';
 
 import { activeDataViewConfig } from '@/state/establishDataViews';
@@ -45,8 +44,9 @@ interface TaskStepConfig extends LocalisedConfig<TaskConfig>, StepConfig {}
 const TASK_CONFIGS: TaskConfig[] = [
     { id: 'selectConnection', number: 1, label: { en: 'Connection' }, description: {}, enableUpTo: 1, verb: { en: 'Select' } },
     { id: 'selectNode', number: 2, label: { en: 'Node' }, description: {}, enableUpTo: 2, verb: { en: 'Select' } },
-    { id: 'auditContent', number: 3, label: { en: 'Content' }, description: {}, enableUpTo: 4, verb: { en: 'Audit' } },
-    { id: 'exploreData', number: 4, label: { en: 'Data' }, description: {}, enableUpTo: 4, verb: { en: 'Explore' } }
+    { id: 'auditContent', number: 3, label: { en: 'Content' }, description: {}, enableUpTo: 5, verb: { en: 'Audit' } },
+    { id: 'auditLinks', number: 4, label: { en: 'Relationships' }, description: {}, enableUpTo: 5, verb: { en: 'Audit' } },
+    { id: 'exploreData', number: 5, label: { en: 'Data' }, description: {}, enableUpTo: 5, verb: { en: 'Explore' } }
 ];
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -93,15 +93,9 @@ function updateTaskProgression(taskLocalisedConfig: LocalisedConfig<TaskConfig>)
         <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
             <Steps v-if="activeTaskLocalisedConfig" :active-step-id="activeTaskLocalisedConfig.id" :items="steps">
                 <template #default="{ item }">
-                    <!-- <div v-if="displayIsWide">
-                        <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }}&nbsp;{{ item.number }}</div>
-                        <span class="text-sm">{{ item.verb }} {{ item.label }}</span>
-                    </div>
-                    <div v-else> -->
                     <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }}&nbsp;{{ item.number }}</div>
                     <span class="block text-sm sm:hidden"> {{ item.label }}</span>
                     <span class="hidden text-sm sm:block">{{ item.verb }} {{ item.label }}</span>
-                    <!-- </div> -->
                 </template>
             </Steps>
 
