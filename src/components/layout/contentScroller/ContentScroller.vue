@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// Notes: The 'scrollbar-gutter' style setting may be important on windows machines?
+
 // External Dependencies
 import { onBeforeUnmount, useTemplateRef, watch } from 'vue';
 
@@ -19,7 +21,12 @@ watch(knowledgePaneIsVisible, (newKnowledgePanelIsVisible) => {
 </script>
 
 <template>
-    <div ref="scroller" class="flex-1 overflow-y-auto overscroll-y-none" @scroll.passive="contentScrollTop = ($event.target as HTMLElement).scrollTop ?? 0">
+    <div
+        ref="scroller"
+        class="flex-1 overflow-y-auto overscroll-y-none"
+        style="scrollbar-gutter: stable"
+        @scroll.passive="contentScrollTop = ($event.target as HTMLElement).scrollTop ?? 0"
+    >
         <slot />
     </div>
 </template>

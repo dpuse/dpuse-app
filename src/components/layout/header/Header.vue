@@ -11,7 +11,7 @@ const { breadcrumbs, title, to } = defineProps<{ breadcrumbs?: T[]; title: strin
 </script>
 
 <template>
-    <header class="mt-[env(safe-area-inset-top)] flex-none px-4">
+    <header class="mt-[env(safe-area-inset-top)] flex-none">
         <!-- Content indented from left and right when display is compact, to allow for logos. -->
         <div class="border-separator flex h-14 flex-col justify-center border-b text-lg font-light" :class="{ 'px-12': !displayIsWide || !workbenchPaneIsVisible }">
             <!-- Breadcrumbs -->

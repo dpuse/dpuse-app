@@ -104,7 +104,7 @@ function setEnabledTasks(wbView: LocationQueryValue | LocationQueryValue[]): voi
         <Header :breadcrumbs="breadcrumbs" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" />
 
         <!-- Task Action Bar -->
-        <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
+        <nav class="border-separator flex flex-none items-center justify-between border-b">
             <Steps v-if="activeTaskLocalisedConfig" :active-step-id="activeTaskLocalisedConfig.id" :items="steps">
                 <template #default="{ item }">
                     <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }}&nbsp;{{ item.number }}</div>

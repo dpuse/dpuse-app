@@ -168,7 +168,7 @@ function scrollFromY(clientY: number): void {
     top: 0;
     right: 0;
     bottom: 0;
-    width: 20px;
+    width: 16px;
     z-index: 20;
     touch-action: none;
 }
@@ -194,9 +194,10 @@ function scrollFromY(clientY: number): void {
 
 .scrubber-thumb {
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 12px;
+    /* left: 50%;
+    transform: translateX(-50%); */
+    right: 0;
+    width: 13px;
     border-radius: 6px;
     pointer-events: none;
     display: flex;

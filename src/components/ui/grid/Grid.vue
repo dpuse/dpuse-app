@@ -62,8 +62,8 @@ onUnmounted(() => resizeObserver.disconnect());
 </script>
 
 <template>
-    <div class="relative flex h-full flex-col overflow-y-hidden">
-        <div ref="scroller" class="flex-1 overflow-y-auto" role="list" style="overscroll-behavior: none; -webkit-overflow-scrolling: touch">
+    <div class="relative flex h-full flex-col pr-4">
+        <div ref="scroller" class="flex-1 overflow-y-auto overscroll-y-none pb-16" role="list" style="-webkit-overflow-scrolling: touch">
             <div :style="{ height: totalRowCount + 'px', position: 'relative' }">
                 <div
                     v-for="virtualRow in virtualRows"
@@ -74,7 +74,7 @@ onUnmounted(() => resizeObserver.disconnect());
                     <template v-for="columnOffset in columnOffsets" :key="columnOffset">
                         <!-- Skip cells beyond the last data item (last row may be partially filled) -->
                         <div v-if="virtualRow.index * columnCount + columnOffset < dataSource.rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
-                            <div class="h-full pl-4" :class="isCompact ? 'pt-2' : 'pt-4'">
+                            <div class="h-full" :class="[columnOffset === 0 ? 'pl-0' : 'pl-4', isCompact ? 'pt-2' : 'pt-4']">
                                 <slot
                                     v-if="isCompact && getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
                                     name="compact"

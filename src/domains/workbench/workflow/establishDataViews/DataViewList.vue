@@ -117,13 +117,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 </script>
 
 <template>
-    <Grid
-        v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
-        class="flex-1 pr-4"
-        :data-source="dataSource"
-        :row-height="150"
-        :target-column-width="350"
-    >
+    <Grid v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0" class="flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
         <template #default="{ row }">
             <RouterLink
                 v-if="row"
