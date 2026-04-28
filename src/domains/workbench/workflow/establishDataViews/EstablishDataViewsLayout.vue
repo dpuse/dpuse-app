@@ -33,7 +33,7 @@ export interface TaskConfig {
 
 interface TaskStepConfig extends LocalisedConfig<TaskConfig>, StepConfig {}
 
-// const TASK_CONFIGS: TaskConfig[] = [
+// const TASK_CONFIGS: TaskConfig[] = [ // TODO: Prior configuration, retained for reference purposes.
 //     { id: 'selectConnection', number: 1, enableUpTo: 1, label: { en: 'Select Connection' }, description: {} },
 //     { id: 'selectNode', number: 2, enableUpTo: 2, label: { en: 'Select Node' }, description: {} },
 //     { id: 'auditContent', number: 3, enableUpTo: 6, label: { en: 'Audit Content' }, description: {} },
@@ -45,7 +45,7 @@ const TASK_CONFIGS: TaskConfig[] = [
     { id: 'selectConnection', number: 1, label: { en: 'Connection' }, description: {}, enableUpTo: 1, verb: { en: 'Select' } },
     { id: 'selectNode', number: 2, label: { en: 'Node' }, description: {}, enableUpTo: 2, verb: { en: 'Select' } },
     { id: 'auditContent', number: 3, label: { en: 'Content' }, description: {}, enableUpTo: 5, verb: { en: 'Audit' } },
-    { id: 'auditLinks', number: 4, label: { en: 'Relationships' }, description: {}, enableUpTo: 5, verb: { en: 'Audit' } },
+    { id: 'auditLinks', number: 4, label: { en: 'Links' }, description: {}, enableUpTo: 5, verb: { en: 'Audit' } },
     { id: 'exploreData', number: 5, label: { en: 'Data' }, description: {}, enableUpTo: 5, verb: { en: 'Explore' } }
 ];
 
