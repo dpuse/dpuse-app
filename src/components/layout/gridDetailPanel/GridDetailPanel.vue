@@ -1,4 +1,7 @@
 <script setup lang="ts" generic="T">
+// External Dependencies
+import { ArrowBigLeftIcon } from 'lucide-vue-next';
+
 // Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
@@ -44,8 +47,8 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
         <!-- Body -->
         <div class="flex h-full overflow-hidden">
             <!-- Grid -->
-            <div class="relative flex-1" :style="getPaneStyle(maxListWidth)">
-                <Grid v-if="displayIsWide || !activeItem" class="mr-4 flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
+            <div v-if="displayIsWide || !activeItem" class="relative flex-1" :style="getPaneStyle(maxListWidth)">
+                <Grid class="mr-4 flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
                     <template v-if="slots['list-item-default']" #default="{ row }">
                         <Button class="h-full" variant="listItem" @click="$emit('select-item', row)">
                             <slot name="list-item-default" :item="row" />
@@ -64,8 +67,20 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
 
             <!-- Detail -->
             <div v-if="displayIsWide || activeItem" class="mr-4 min-w-0 flex-1" :class="{ 'ml-4': !displayIsWide }" :style="getPaneStyle(maxDetailWidth)">
-                <div v-if="activeItem" class="h-full">
-                    <slot name="detail" :item="activeItem" />
+                <div v-if="activeItem" class="flex h-full flex-col">
+                    <!-- Detail Header -->
+                    <div class="border-separator ml-4 flex h-10 items-center gap-x-2 border-b">
+                        <Button v-if="!displayIsWide" variant="iconLarge" @click="activeItem = undefined">
+                            <ArrowBigLeftIcon class="flex-none" :stroke-width="1.25" />
+                        </Button>
+
+                        <span>Header title goes here...</span>
+                    </div>
+
+                    <!-- Detail Body -->
+                    <div class="flex-1 overflow-hidden">
+                        <slot name="detail" :item="activeItem" />
+                    </div>
                 </div>
 
                 <div v-else class="h-full">

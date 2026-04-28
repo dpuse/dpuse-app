@@ -45,7 +45,7 @@ async function handleSubmit(): Promise<void> {
 
 <template>
     <form class="border-separator bg-backdrop relative flex h-full flex-col border-l pl-4" @submit.prevent="handleSubmit">
-        <ContentScroller class="flex flex-1 flex-col pt-4 pb-16">
+        <ContentScroller class="flex flex-1 flex-col pt-2 pb-16">
             <strong>Connection:</strong>
             <div>id: {{ connectionLocalisedConfig.id }}</div>
             <div>label: {{ connectionLocalisedConfig.label }}</div>
