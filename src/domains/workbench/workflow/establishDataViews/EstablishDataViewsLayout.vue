@@ -93,14 +93,15 @@ function updateTaskProgression(taskLocalisedConfig: LocalisedConfig<TaskConfig>)
         <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
             <Steps v-if="activeTaskLocalisedConfig" :active-step-id="activeTaskLocalisedConfig.id" :items="steps">
                 <template #default="{ item }">
-                    <div v-if="displayIsWide">
-                        <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }} {{ item.number }}</div>
-                        <span class="text-sm">{{ item.label }}</span>
+                    <!-- <div v-if="displayIsWide">
+                        <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }}&nbsp;{{ item.number }}</div>
+                        <span class="text-sm">{{ item.verb }} {{ item.label }}</span>
                     </div>
-                    <div v-else>
-                        <span class="hidden text-sm [hyphens:auto] sm:block">{{ item.number }}.&nbsp;{{ item.verb }} {{ item.label }}</span>
-                        <span class="block text-sm [hyphens:auto] sm:hidden">{{ item.number }}.&nbsp;{{ item.label }}</span>
-                    </div>
+                    <div v-else> -->
+                    <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }}&nbsp;{{ item.number }}</div>
+                    <span class="block text-sm sm:hidden"> {{ item.label }}</span>
+                    <span class="hidden text-sm sm:block">{{ item.verb }} {{ item.label }}</span>
+                    <!-- </div> -->
                 </template>
             </Steps>
 
