@@ -69,8 +69,8 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
             <div v-if="displayIsWide || activeItem" class="mr-4 min-w-0 flex-1" :class="{ 'ml-4': !displayIsWide }" :style="getPaneStyle(maxDetailWidth)">
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
-                    <div class="border-separator ml-4 flex h-10 items-center gap-x-2 border-b">
-                        <Button v-if="!displayIsWide" variant="iconLarge" @click="activeItem = undefined">
+                    <div class="border-separator flex h-10 items-center gap-x-1 border-b">
+                        <Button v-if="!displayIsWide" variant="iconSmall" @click="activeItem = undefined">
                             <ArrowBigLeftIcon class="flex-none" :stroke-width="1.25" />
                         </Button>
 
