@@ -5,11 +5,13 @@ import { displayIsWide } from '@/state/appLayout';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
+import FloatingButton from '~/src/components/ui/button/FloatingButton.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
-const { dataSource, maxListWidth, maxDetailWidth } = defineProps<{ dataSource: DataSource<T>; maxListWidth?: string; maxDetailWidth?: string }>();
+type Properties = { dataSource: DataSource<T>; enableAddAction?: boolean; maxListWidth?: string; maxDetailWidth?: string };
+const { dataSource, enableAddAction = false, maxListWidth, maxDetailWidth } = defineProps<Properties>();
 
 const slots = defineSlots<{
     'header'(): unknown;
@@ -42,26 +44,23 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
         <!-- Body -->
         <div class="flex h-full overflow-hidden">
             <!-- Grid -->
-            <Grid
-                v-if="displayIsWide || !activeItem"
-                class="mr-4 flex-1"
-                :data-source="dataSource"
-                :row-height="150"
-                :target-column-width="350"
-                :style="getPaneStyle(maxListWidth)"
-            >
-                <template v-if="slots['list-item-default']" #default="{ row }">
-                    <Button class="h-full" variant="listItem" @click="$emit('select-item', row)">
-                        <slot name="list-item-default" :item="row" />
-                    </Button>
-                </template>
+            <div class="relative flex-1" :style="getPaneStyle(maxListWidth)">
+                <Grid v-if="displayIsWide || !activeItem" class="mr-4 flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
+                    <template v-if="slots['list-item-default']" #default="{ row }">
+                        <Button class="h-full" variant="listItem" @click="$emit('select-item', row)">
+                            <slot name="list-item-default" :item="row" />
+                        </Button>
+                    </template>
 
-                <template v-if="slots['list-item-compact']" #compact="{ row }">
-                    <Button class="h-full" variant="listItem" @click="$emit('select-item', row)">
-                        <slot name="list-item-compact" :item="row" />
-                    </Button>
-                </template>
-            </Grid>
+                    <template v-if="slots['list-item-compact']" #compact="{ row }">
+                        <Button class="h-full" variant="listItem" @click="$emit('select-item', row)">
+                            <slot name="list-item-compact" :item="row" />
+                        </Button>
+                    </template>
+                </Grid>
+
+                <FloatingButton v-if="enableAddAction" variant="add" />
+            </div>
 
             <!-- Detail -->
             <div v-if="displayIsWide || activeItem" class="mr-4 min-w-0 flex-1" :class="{ 'ml-4': !displayIsWide }" :style="getPaneStyle(maxDetailWidth)">

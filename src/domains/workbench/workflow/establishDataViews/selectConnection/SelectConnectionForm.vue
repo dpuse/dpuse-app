@@ -13,6 +13,7 @@ import { t } from '@/state/locale';
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
+import FloatingButton from '~/src/components/ui/button/FloatingButton.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
@@ -43,8 +44,8 @@ async function handleSubmit(): Promise<void> {
 </script>
 
 <template>
-    <form class="flex h-full flex-col" @submit.prevent="handleSubmit">
-        <ContentScroller class="flex flex-1 flex-col">
+    <form class="border-separator bg-backdrop relative flex h-full flex-col border-l pl-4" @submit.prevent="handleSubmit">
+        <ContentScroller class="flex flex-1 flex-col pt-4 pb-16">
             <strong>Connection:</strong>
             <div>id: {{ connectionLocalisedConfig.id }}</div>
             <div>label: {{ connectionLocalisedConfig.label }}</div>
@@ -82,7 +83,7 @@ async function handleSubmit(): Promise<void> {
             <div>version: {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
         </ContentScroller>
 
-        <div class="border-separator flex flex-none justify-end border-t pt-3 pb-4">
+        <!-- <div class="border-separator flex flex-none justify-end border-t pt-3 pb-4">
             <Button
                 :class="connectionLocalisedConfig == null ? 'cursor-not-allowed opacity-50' : undefined"
                 :disabled="connectionLocalisedConfig == null"
@@ -91,6 +92,8 @@ async function handleSubmit(): Promise<void> {
             >
                 {{ t(T, 'Next') }}
             </Button>
-        </div>
+        </div> -->
+
+        <FloatingButton class="right-0!" variant="next" @click="$emit('submit')" />
     </form>
 </template>

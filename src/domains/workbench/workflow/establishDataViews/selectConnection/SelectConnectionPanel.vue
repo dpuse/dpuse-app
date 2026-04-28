@@ -17,6 +17,7 @@ import { activeConnectionConfig, activeDataViewConfig } from '@/state/establishD
 import Card from '@/components/ui/card/Card.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
+import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import type { TaskConfig } from '../EstablishDataViewsLayout.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 
@@ -81,7 +82,7 @@ function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionC
 </script>
 
 <template>
-    <GridDetailPanel v-model:active-item="activeItem" :data-source="dataSource" max-detail-width="400px" @select-item="selectConnection($event)">
+    <GridDetailPanel v-model:active-item="activeItem" :data-source="dataSource" enable-add-action max-detail-width="400px" @select-item="selectConnection($event)">
         <template #list-item-default="{ item }">
             <Card v-if="item" :label="item.label" />
         </template>
@@ -95,7 +96,7 @@ function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionC
         </template>
 
         <template #no-selection>
-            <div class="p-4">Select a connection...</div>
+            <SelectPlaceholder :message="'Select a connection from the list on the left.'" />
         </template>
     </GridDetailPanel>
 </template>
