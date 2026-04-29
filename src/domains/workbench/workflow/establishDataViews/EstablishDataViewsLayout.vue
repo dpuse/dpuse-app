@@ -45,15 +45,15 @@ const route = useRoute();
 
 const stepLocalisedConfigs = shallowRef<LocalisedConfig<StepConfig>[]>([]);
 
-const stepsEnabledToNumber = ref(initialiseEnabledTasks());
+const stepsEnabledToNumber = ref(initialiseEnabledSteps());
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeTaskLocalisedConfig = computed(() => STEP_CONFIGS.find((config) => config.id === route.query.wbView));
+const activeStepLocalisedConfig = computed(() => STEP_CONFIGS.find((config) => config.id === route.query.wbView));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(route, (newRoute) => setEnabledTasks(newRoute.query.wbView));
+watch(route, (newRoute) => setEnabledSteps(newRoute.query.wbView));
 
 watch(
     [stepsEnabledToNumber, localeId],
@@ -68,20 +68,20 @@ watch(
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function updateTaskProgression(stepLocalisedConfig: LocalisedConfig<StepConfig>): void {
+function updateStepProgression(stepLocalisedConfig: LocalisedConfig<StepConfig>): void {
     stepsEnabledToNumber.value = stepLocalisedConfig.enableUpTo;
 }
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function initialiseEnabledTasks(): number {
+function initialiseEnabledSteps(): number {
     // TODO: This also needs to check the actual state of the data view.
     return STEP_CONFIGS.find((config) => config.id === route.query.wbView)?.enableUpTo ?? 0;
 }
 
-function setEnabledTasks(wbView: LocationQueryValue | LocationQueryValue[]): void {
-    const pendingEnableTasksUpTo = STEP_CONFIGS.find((config) => config.id === wbView)?.enableUpTo ?? 0;
-    if (pendingEnableTasksUpTo > stepsEnabledToNumber.value) stepsEnabledToNumber.value = pendingEnableTasksUpTo;
+function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): void {
+    const pendingEnableStepsUpTo = STEP_CONFIGS.find((config) => config.id === wbView)?.enableUpTo ?? 0;
+    if (pendingEnableStepsUpTo > stepsEnabledToNumber.value) stepsEnabledToNumber.value = pendingEnableStepsUpTo;
 }
 </script>
 
@@ -90,11 +90,11 @@ function setEnabledTasks(wbView: LocationQueryValue | LocationQueryValue[]): voi
         <!-- Header -->
         <Header class="pr-4" :breadcrumbs="breadcrumbs" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" />
 
-        <!-- Task Action Bar -->
+        <!-- Step Action Bar -->
         <nav class="border-separator mr-4 flex flex-none items-center justify-between border-b">
-            <Steps v-if="activeTaskLocalisedConfig" :active-step-id="activeTaskLocalisedConfig.id" :items="stepLocalisedConfigs">
+            <Steps v-if="activeStepLocalisedConfig" :active-step-id="activeStepLocalisedConfig.id" :items="stepLocalisedConfigs">
                 <template #default="{ item }">
-                    <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }}&nbsp;{{ item.number }}</div>
+                    <div class="text-muted text-xs font-medium">{{ t(T, 'Step') }}&nbsp;{{ item.number }}</div>
                     <span class="block text-sm sm:hidden"> {{ item.label }}</span>
                     <span class="hidden text-sm sm:block">{{ item.verb }} {{ item.label }}</span>
                 </template>
@@ -112,10 +112,10 @@ function setEnabledTasks(wbView: LocationQueryValue | LocationQueryValue[]): voi
             </RouterLink>
         </nav>
 
-        <!-- Data View List or Active Task Panel -->
+        <!-- Data View List or Active Step Panel -->
         <div class="flex flex-1 flex-col overflow-hidden">
             <RouterView v-slot="{ Component }">
-                <component :is="Component" :step-localised-config="activeTaskLocalisedConfig" @step-completed="updateTaskProgression" />
+                <component :is="Component" :step-localised-config="activeStepLocalisedConfig" @step-completed="updateStepProgression" />
             </RouterView>
         </div>
     </LayoutShell>

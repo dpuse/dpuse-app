@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T">
+<script setup lang="ts" generic="T extends { label: string }">
 // External Dependencies
 import { ArrowBigLeftIcon } from 'lucide-vue-next';
 
@@ -66,7 +66,7 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
             </div>
 
             <!-- Detail Pane -->
-            <div v-if="displayIsWide || activeItem" class="mr-4 min-w-0 flex-1" :class="{ 'ml-4': !displayIsWide }" :style="getPaneStyle(maxDetailWidth)">
+            <div v-if="displayIsWide || activeItem" class="mr-4 min-w-0 flex-1" :class="{ 'border-separator border-l pl-4': displayIsWide }" :style="getPaneStyle(maxDetailWidth)">
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
                     <div class="border-separator flex h-10 items-center gap-x-1 border-b">
@@ -74,7 +74,7 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
                             <ArrowBigLeftIcon class="flex-none" :stroke-width="1.25" />
                         </Button>
 
-                        <span>Header title goes here...</span>
+                        <span>{{ activeItem.label }}</span>
                     </div>
 
                     <!-- Detail Body -->
