@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// Local Framework
+// Local (App) Framework
 import { t } from '@/state/locale';
 import T from './ContextualiseDataLayout.json';
 
-// Local Framework
+// Local (App) Framework
 import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
 
 // Local Components - Static

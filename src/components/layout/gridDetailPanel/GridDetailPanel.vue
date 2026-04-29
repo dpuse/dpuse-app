@@ -2,13 +2,13 @@
 // External Dependencies
 import { ArrowBigLeftIcon } from 'lucide-vue-next';
 
-// Local Framework
+// Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import FloatingButton from '~/src/components/ui/button/FloatingButton.vue';
+import FloatingButton from '@/components/ui/button/FloatingButton.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
@@ -45,10 +45,10 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
         </header>
 
         <!-- Body -->
-        <div class="flex h-full overflow-hidden">
-            <!-- Grid -->
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Grid Pane -->
             <div v-if="displayIsWide || !activeItem" class="relative flex-1" :style="getPaneStyle(maxListWidth)">
-                <Grid class="mr-4 flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
+                <Grid class="flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
                     <template v-if="slots['list-item-default']" #default="{ row }">
                         <Button class="h-full" variant="listItem" @click="$emit('select-item', row)">
                             <slot name="list-item-default" :item="row" />
@@ -65,7 +65,7 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
                 <FloatingButton v-if="enableAddAction" variant="add" />
             </div>
 
-            <!-- Detail -->
+            <!-- Detail Pane -->
             <div v-if="displayIsWide || activeItem" class="mr-4 min-w-0 flex-1" :class="{ 'ml-4': !displayIsWide }" :style="getPaneStyle(maxDetailWidth)">
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->

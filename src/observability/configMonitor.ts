@@ -7,7 +7,7 @@ import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
-// Local Framework
+// Local (App) Framework
 import { connectionConfigs, connectorConfigs, contextConfig, engineConfig, localMetaStoreConnectionConfig, presenterConfigs, toolConfigs } from '@/state/session';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────

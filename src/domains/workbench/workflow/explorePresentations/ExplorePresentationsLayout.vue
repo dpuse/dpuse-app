@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Local Framework
+// Local (App) Framework
 import { t } from '@/state/locale';
 import T from './ExplorePresentationsLayout.json';
 import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';

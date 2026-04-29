@@ -2,12 +2,12 @@
 // DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local Framework
-import type { TaskConfig } from '../EstablishDataViewsLayout.vue';
+// Local Components - Static
+import type { StepConfig } from '@/components/ui/steps/Steps.vue';
 
 // Properties, Slots & Emits
-const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
-defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<StepConfig> }>();
+defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConfig<StepConfig>] }>();
 </script>
 
 <template>

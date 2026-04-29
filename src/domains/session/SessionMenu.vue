@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 // DPUse Framework
 import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
-// Local Framework
+// Local (App) Framework
 import { displayIsWide } from '@/state/appLayout';
 import T from './SessionMenu.json';
 import { isAuthenticated, signOut } from '@/state/session';

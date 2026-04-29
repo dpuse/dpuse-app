@@ -9,7 +9,7 @@ import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
 import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions, UpsertRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
-// Local Framework
+// Local (App) Framework
 import { activeDataViewConfig } from '@/state/establishDataViews';
 import type { DataSource } from '@/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';

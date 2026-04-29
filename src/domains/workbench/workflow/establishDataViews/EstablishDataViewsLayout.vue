@@ -1,39 +1,27 @@
 <script setup lang="ts">
 // External Dependencies
 import { PlusIcon } from 'lucide-vue-next';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import { type LocationQueryValue, useRoute } from 'vue-router';
 
 // DPUse Framework
-import { type LocaleLabel, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local Framework
-import T from './EstablishDataViewsLayout.json';
-
+// Local (App) Framework
 import { activeDataViewConfig } from '@/state/establishDataViews';
+import T from './EstablishDataViewsLayout.json';
 import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import { localeId, t } from '@/state/locale';
-import { type StepConfig, useSteps } from '@/composables/useSteps';
 
 // Local Components - Static
+import Button from '@/components/ui/button/Button.vue';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
-import Steps from '@/components/ui/steps/Steps.vue';
+import Steps, { type StepConfig } from '@/components/ui/steps/Steps.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export interface TaskConfig {
-    id: string;
-    label: LocaleLabel;
-    description: LocaleLabel;
-    enableUpTo: number;
-    number: number;
-    verb?: LocaleLabel;
-}
-
-interface TaskStepConfig extends LocalisedConfig<TaskConfig>, StepConfig {}
-
-// const TASK_CONFIGS: TaskConfig[] = [ // TODO: Prior configuration, retained for reference purposes.
+// const STEP_CONFIGS: StepConfig[] = [ // TODO: Prior configuration, retained for reference purposes.
 //     { id: 'selectConnection', number: 1, enableUpTo: 1, label: { en: 'Select Connection' }, description: {} },
 //     { id: 'selectNode', number: 2, enableUpTo: 2, label: { en: 'Select Node' }, description: {} },
 //     { id: 'auditContent', number: 3, enableUpTo: 6, label: { en: 'Audit Content' }, description: {} },
@@ -41,12 +29,12 @@ interface TaskStepConfig extends LocalisedConfig<TaskConfig>, StepConfig {}
 //     { id: 'transform', number: 5, enableUpTo: 6, label: { en: 'Transform' }, description: {} },
 //     { id: 'investigate', number: 6, enableUpTo: 6, label: { en: 'Investigate' }, description: {} }
 // ];
-const TASK_CONFIGS: TaskConfig[] = [
-    { id: 'selectConnection', number: 1, label: { en: 'Connection' }, description: {}, enableUpTo: 1, verb: { en: 'Select' } },
-    { id: 'selectNode', number: 2, label: { en: 'Node' }, description: {}, enableUpTo: 2, verb: { en: 'Select' } },
-    { id: 'auditContent', number: 3, label: { en: 'Content' }, description: {}, enableUpTo: 3, verb: { en: 'Audit' } },
-    { id: 'auditLinks', number: 4, label: { en: 'Links' }, description: {}, enableUpTo: 5, verb: { en: 'Audit' } },
-    { id: 'exploreData', number: 5, label: { en: 'Data' }, description: {}, enableUpTo: 5, verb: { en: 'Explore' } }
+const STEP_CONFIGS: StepConfig[] = [
+    { id: 'selectConnection', number: 1, label: { en: 'Connection' }, description: {}, disabled: true, enableUpTo: 1, verb: { en: 'Select' } },
+    { id: 'selectNode', number: 2, label: { en: 'Node' }, description: {}, disabled: true, enableUpTo: 2, verb: { en: 'Select' } },
+    { id: 'auditContent', number: 3, label: { en: 'Content' }, description: {}, disabled: true, enableUpTo: 3, verb: { en: 'Audit' } },
+    { id: 'auditLinks', number: 4, label: { en: 'Links' }, description: {}, disabled: true, enableUpTo: 5, verb: { en: 'Audit' } },
+    { id: 'exploreData', number: 5, label: { en: 'Data' }, description: {}, disabled: true, enableUpTo: 5, verb: { en: 'Explore' } }
 ];
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -55,25 +43,24 @@ const { breadcrumbs } = useBreadcrumbs<BreadcrumbConfig>([{ id: 'benchtop', labe
 
 const route = useRoute();
 
-const { steps } = useSteps<TaskStepConfig>();
+const stepLocalisedConfigs = shallowRef<LocalisedConfig<StepConfig>[]>([]);
 
-const tasksEnabledToNumber = ref(initialiseEnabledTasks());
+const stepsEnabledToNumber = ref(initialiseEnabledTasks());
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeTaskLocalisedConfig = computed(() => TASK_CONFIGS.find((config) => config.id === route.query.wbView));
+const activeTaskLocalisedConfig = computed(() => STEP_CONFIGS.find((config) => config.id === route.query.wbView));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(route, (newRoute) => setEnabledTasks(newRoute.query.wbView));
 
 watch(
-    [tasksEnabledToNumber, localeId],
-    ([newTasksEnabledToNumber, newLocaleId]) => {
-        steps.value = localiseConfigs<TaskConfig>(TASK_CONFIGS, newLocaleId).map((taskLocalisedConfig) => ({
-            ...taskLocalisedConfig,
-            disabled: taskLocalisedConfig.number > newTasksEnabledToNumber,
-            to: taskLocalisedConfig.id
+    [stepsEnabledToNumber, localeId],
+    ([newStepsEnabledToNumber, newLocaleId]) => {
+        stepLocalisedConfigs.value = localiseConfigs<StepConfig>(STEP_CONFIGS, newLocaleId).map((stepLocalisedConfig) => ({
+            ...stepLocalisedConfig,
+            disabled: stepLocalisedConfig.number > newStepsEnabledToNumber
         }));
     },
     { immediate: true }
@@ -81,31 +68,31 @@ watch(
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function updateTaskProgression(taskLocalisedConfig: LocalisedConfig<TaskConfig>): void {
-    tasksEnabledToNumber.value = taskLocalisedConfig.enableUpTo;
+function updateTaskProgression(stepLocalisedConfig: LocalisedConfig<StepConfig>): void {
+    stepsEnabledToNumber.value = stepLocalisedConfig.enableUpTo;
 }
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function initialiseEnabledTasks(): number {
     // TODO: This also needs to check the actual state of the data view.
-    return TASK_CONFIGS.find((config) => config.id === route.query.wbView)?.enableUpTo ?? 0;
+    return STEP_CONFIGS.find((config) => config.id === route.query.wbView)?.enableUpTo ?? 0;
 }
 
 function setEnabledTasks(wbView: LocationQueryValue | LocationQueryValue[]): void {
-    const pendingEnableTasksUpTo = TASK_CONFIGS.find((config) => config.id === wbView)?.enableUpTo ?? 0;
-    if (pendingEnableTasksUpTo > tasksEnabledToNumber.value) tasksEnabledToNumber.value = pendingEnableTasksUpTo;
+    const pendingEnableTasksUpTo = STEP_CONFIGS.find((config) => config.id === wbView)?.enableUpTo ?? 0;
+    if (pendingEnableTasksUpTo > stepsEnabledToNumber.value) stepsEnabledToNumber.value = pendingEnableTasksUpTo;
 }
 </script>
 
 <template>
-    <LayoutShell>
+    <LayoutShell class="pl-4">
         <!-- Header -->
-        <Header :breadcrumbs="breadcrumbs" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" />
+        <Header class="pr-4" :breadcrumbs="breadcrumbs" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" />
 
         <!-- Task Action Bar -->
-        <nav class="border-separator flex flex-none items-center justify-between border-b">
-            <Steps v-if="activeTaskLocalisedConfig" :active-step-id="activeTaskLocalisedConfig.id" :items="steps">
+        <nav class="border-separator mr-4 flex flex-none items-center justify-between border-b">
+            <Steps v-if="activeTaskLocalisedConfig" :active-step-id="activeTaskLocalisedConfig.id" :items="stepLocalisedConfigs">
                 <template #default="{ item }">
                     <div class="text-muted text-xs font-medium">{{ t(T, 'Task') }}&nbsp;{{ item.number }}</div>
                     <span class="block text-sm sm:hidden"> {{ item.label }}</span>
@@ -119,14 +106,16 @@ function setEnabledTasks(wbView: LocationQueryValue | LocationQueryValue[]): voi
                 :to="{ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } }"
                 @click="activeDataViewConfig = undefined"
             >
-                <PlusIcon stroke-width="1.25" />
+                <Button variant="iconSmall">
+                    <PlusIcon stroke-width="1.25" />
+                </Button>
             </RouterLink>
         </nav>
 
         <!-- Data View List or Active Task Panel -->
         <div class="flex flex-1 flex-col overflow-hidden">
             <RouterView v-slot="{ Component }">
-                <component :is="Component" :task-localised-config="activeTaskLocalisedConfig" @task-completed="updateTaskProgression" />
+                <component :is="Component" :step-localised-config="activeTaskLocalisedConfig" @step-completed="updateTaskProgression" />
             </RouterView>
         </div>
     </LayoutShell>

@@ -6,13 +6,13 @@ import { useRoute, useRouter } from 'vue-router';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local Framework
+// Local (App) Framework
 import T from './SelectConnectionForm.json';
 import { t } from '@/state/locale';
 
 // Local Components - Static
 import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
-import FloatingButton from '~/src/components/ui/button/FloatingButton.vue';
+import FloatingButton from '@/components/ui/button/FloatingButton.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 

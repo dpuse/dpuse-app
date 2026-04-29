@@ -5,7 +5,7 @@ import { SendHorizonalIcon } from 'lucide-vue-next';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
 import { onMounted, ref } from 'vue';
 
-// Local Framework
+// Local (App) Framework
 import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
 
 // Local Components - Static

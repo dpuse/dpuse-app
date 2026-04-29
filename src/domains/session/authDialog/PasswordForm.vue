@@ -2,7 +2,7 @@
 // External Dependencies
 import { ref } from 'vue';
 
-// Local Framework
+// Local (App) Framework
 import T from './PasswordForm.json';
 import { t } from '@/state/locale';
 

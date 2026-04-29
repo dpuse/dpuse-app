@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 import { ArrowBigLeftIcon, LoaderCircleIcon } from 'lucide-vue-next';
 import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 
-// Local Framework
+// Local (App) Framework
 import { displayIsWide } from '@/state/appLayout';
 import { t } from '@/state/locale';
 import T from './AccountDialog.json';

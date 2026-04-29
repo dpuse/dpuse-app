@@ -1,4 +1,4 @@
-// Local Framework
+// Local (App) Framework
 import { version } from '~/package.json';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────

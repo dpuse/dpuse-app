@@ -3,7 +3,7 @@
 // External Dependencies
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior, START_LOCATION } from 'vue-router';
 
-// Local Framework
+// Local (App) Framework
 import { load } from '@/utils/component';
 import { completeNavigation, startNavigation } from '@/state/appProgress';
 

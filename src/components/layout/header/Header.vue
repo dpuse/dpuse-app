@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends BreadcrumbConfig">
-// Local Framework
+// Local (App) Framework
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import { displayIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
@@ -14,10 +14,10 @@ const { breadcrumbs, title, to } = defineProps<{ breadcrumbs?: T[]; title: strin
     <header class="mt-[env(safe-area-inset-top)] flex-none">
         <!-- Content indented from left and right when display is compact, to allow for logos. -->
         <div class="border-separator flex h-14 flex-col justify-center border-b text-lg font-light" :class="{ 'px-12': !displayIsWide || !workbenchPaneIsVisible }">
-            <!-- Breadcrumbs -->
+            <!-- Breadcrumbs Row -->
             <Breadcrumbs class="w-full truncate text-xs" :class="{ 'justify-center': !displayIsWide }" :items="breadcrumbs" />
 
-            <!-- Title -->
+            <!-- Title Row -->
             <component
                 :is="to && to !== $route.query.wbView ? 'RouterLink' : 'div'"
                 :to="{ name: to, query: { ...$route.query, wbView: to } }"

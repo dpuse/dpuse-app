@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// Local Framework
-import { useWorkflowOptionConfigs } from '~/src/domains/workbench/workflow/useWorkflowOptionConfigs';
+// Local (App) Framework
+import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkflowOptionConfigs';
 
 // Local Components - Static
 import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';

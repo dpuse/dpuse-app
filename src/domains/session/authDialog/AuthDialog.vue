@@ -5,7 +5,7 @@ import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State 
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-// Local Framework
+// Local (App) Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
 import T from './LoginForm.json';

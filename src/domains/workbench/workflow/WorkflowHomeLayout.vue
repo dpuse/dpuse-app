@@ -1,10 +1,8 @@
 <script setup lang="ts">
-// Local Framework
+// Local (App) Framework
 import T from './WorkflowHomeLayout.json';
 import { t } from '@/state/locale';
-import { useWorkflowOptionConfigs } from '~/src/domains/workbench/workflow/useWorkflowOptionConfigs';
-
-// Local Framework
+import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkflowOptionConfigs';
 import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
 
 // Local Components - Static
@@ -21,9 +19,9 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
 </script>
 
 <template>
-    <LayoutShell class="dpuse-workbench-prose">
+    <LayoutShell class="dpuse-workbench-prose px-4">
         <!-- Header -->
-        <Header :breadcrumbs="breadcrumbs" class="w-full" data-testid="header" :title="t(T, 'wb.wf.label')" />
+        <Header :breadcrumbs="breadcrumbs" data-testid="header" :title="t(T, 'wb.wf.label')" />
 
         <!-- Workflow Steps -->
         <ContentScroller class="pt-4 pb-16">

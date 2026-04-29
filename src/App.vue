@@ -4,7 +4,7 @@ import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
-// Local Framework
+// Local (App) Framework
 import { initialiseServices } from '@/state/session';
 import { isBusy } from '@/state/appProgress';
 import { load } from '@/utils/component';

@@ -3,7 +3,7 @@
 import { UserRoundKeyIcon } from 'lucide-vue-next';
 import { onUnmounted, ref } from 'vue';
 
-// Local Framework
+// Local (App) Framework
 import T from './LoginForm.json';
 import { t } from '@/state/locale';
 

@@ -14,7 +14,7 @@ import type { EventQueryConfig } from '@dpuse/dpuse-shared/component/eventQuery'
 import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
-// Local Framework
+// Local (App) Framework
 import { localeId } from './locale';
 import { reportAppError } from '@/observability/errorTracking';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';

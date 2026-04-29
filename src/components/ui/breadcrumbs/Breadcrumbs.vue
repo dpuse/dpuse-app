@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends BreadcrumbConfig">
-// Local Framework
+// Local (App) Framework
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 
 // Local Components - Static

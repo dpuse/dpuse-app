@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Local Framework
+// Local (App) Framework
 import { displayIsWide } from '@/state/appLayout';
 
 // Local Components - Static

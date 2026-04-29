@@ -25,10 +25,10 @@ export interface BenchtopOptionConfig {
     color: string;
     icon: string;
     step: number;
-    tasks: BenchtopOptionTaskConfig[];
+    tasks: BenchtopOptionStepConfig[];
 }
 
-interface BenchtopOptionTaskConfig {
+interface BenchtopOptionStepConfig {
     id: string;
     label: LocaleLabel;
     description: LocaleLabel;

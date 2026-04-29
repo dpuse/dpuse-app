@@ -3,7 +3,7 @@
 import { ref } from 'vue';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 
-// Local Framework
+// Local (App) Framework
 import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
 
 // Local Components - Static

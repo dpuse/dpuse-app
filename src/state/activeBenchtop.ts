@@ -1,5 +1,5 @@
 // External Dependencies
-import type { BenchtopOptionConfig } from '~/src/domains/workbench/workbench';
+import type { BenchtopOptionConfig } from '@/domains/workbench/workbench';
 import { shallowRef } from 'vue';
 
 // DPUse Framework

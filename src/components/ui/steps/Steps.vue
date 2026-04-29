@@ -1,19 +1,26 @@
 <script setup lang="ts">
-// Local Framework
-import type { StepConfig } from '@/composables/useSteps';
-
-type StepSlotConfig = StepConfig & { label?: unknown; number?: unknown; verb?: string };
+// Local (App) Framework
+import type { LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Properties, Slots & Emits
-const { activeStepId, items = [] } = defineProps<{ activeStepId?: string; items?: StepConfig[] }>();
-defineSlots<{ 'default'(properties: { item: StepSlotConfig }): unknown }>();
-defineEmits<{ select: [step: StepConfig] }>();
+export interface StepConfig {
+    id: string;
+    label: LocaleLabel;
+    description: LocaleLabel;
+    disabled: boolean;
+    enableUpTo: number;
+    number: number;
+    verb?: LocaleLabel;
+}
+const { activeStepId, items = [] } = defineProps<{ activeStepId?: string; items?: LocalisedConfig<StepConfig>[] }>();
+defineSlots<{ 'default'(properties: { item: LocalisedConfig<StepConfig> }): unknown }>();
+defineEmits<{ select: [stepConfig: LocalisedConfig<StepConfig>] }>();
 </script>
 
 <template>
     <div v-if="items" class="flex gap-x-4 overflow-x-auto overscroll-x-none text-[15px]">
         <component
-            :is="item.to != null && !item.disabled ? 'RouterLink' : 'div'"
+            :is="item.id != null && !item.disabled ? 'RouterLink' : 'div'"
             v-for="item in items"
             :key="item.id"
             :aria-selected="activeStepId === item.id"
@@ -23,7 +30,7 @@ defineEmits<{ select: [step: StepConfig] }>();
                 'border-b-zinc-500': activeStepId !== item.id && !item.disabled,
                 'border-b-zinc-200': activeStepId !== item.id && item.disabled
             }"
-            :to="item.to == null || item.disabled ? undefined : { name: item.to, query: { ...$route.query, wbView: item.to } }"
+            :to="item.id == null || item.disabled ? undefined : { name: item.id, query: { ...$route.query, wbView: item.id } }"
             role="tab"
             @click="$emit('select', item)"
         >

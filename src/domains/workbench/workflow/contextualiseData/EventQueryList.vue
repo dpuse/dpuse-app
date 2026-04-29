@@ -11,7 +11,7 @@ import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
 import type { EventQueryConfig } from '@dpuse/dpuse-shared/component/eventQuery';
 import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
-// Local Framework
+// Local (App) Framework
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import T from './EventQueryList.json';

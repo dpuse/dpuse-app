@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local Framework
+// Local (App) Framework
 import { connectionConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
@@ -18,26 +18,28 @@ import Card from '@/components/ui/card/Card.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
-import type { TaskConfig } from '../EstablishDataViewsLayout.vue';
+import type { StepConfig } from '@/components/ui/steps/Steps.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
-const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
+const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<StepConfig> }>();
 
-defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConfig<StepConfig>] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeItem = shallowRef<LocalisedConfig<ConnectionConfig> | undefined>();
+
 const connectionLocalisedConfigs = shallowRef<LocalisedConfig<ConnectionConfig>[]>([]);
-const route = useRoute();
-const router = useRouter();
 
 const dataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
     rowCount: connectionLocalisedConfigs.value.length,
     getRows: (start, end): Promise<LocalisedConfig<ConnectionConfig>[]> => Promise.resolve(connectionLocalisedConfigs.value.slice(start, end))
 }));
+
+const route = useRoute();
+const router = useRouter();
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -92,7 +94,7 @@ function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionC
         </template>
 
         <template #detail="{ item }">
-            <SelectConnectionForm :connection-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
+            <SelectConnectionForm :connection-localised-config="item" @submit="$emit('step-completed', stepLocalisedConfig)" />
         </template>
 
         <template #no-selection>

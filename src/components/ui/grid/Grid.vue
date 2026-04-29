@@ -2,7 +2,7 @@
 // External Dependencies
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
-// Local Framework
+// Local (App) Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // Local Components - Static

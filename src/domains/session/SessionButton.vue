@@ -3,7 +3,7 @@
 import { LoaderCircleIcon } from 'lucide-vue-next';
 import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } from 'vue';
 
-// Local Framework
+// Local (App) Framework
 import { displayIsWide } from '@/state/appLayout';
 import { isAuthenticated } from '@/state/session';
 

@@ -17,7 +17,7 @@ import {
 } from 'lucide-vue-next';
 import { type Component, computed, ref } from 'vue';
 
-// Local Framework
+// Local (App) Framework
 import { useSelectColumnSort } from './useSelectColumnSort';
 
 // Local Components - Static

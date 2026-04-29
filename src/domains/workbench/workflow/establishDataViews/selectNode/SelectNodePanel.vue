@@ -11,7 +11,7 @@ import type { PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import { formatNumberAsDecimalNumber, formatNumberAsStorageSize } from '@dpuse/dpuse-shared/utilities';
 import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
-// Local Framework
+// Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
 import type { TabConfig } from '@/composables/useTabs';
@@ -26,16 +26,16 @@ import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 import Button from '@/components/ui/button/Button.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
+import type { StepConfig } from '@/components/ui/steps/Steps.vue';
 import Table from '@/components/ui/table/Table.vue';
 import Tabs from '@/components/ui/tabs/Tabs.vue';
-import type { TaskConfig } from '../EstablishDataViewsLayout.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
-const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
+const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<StepConfig> }>();
 
-const emit = defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+const emit = defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConfig<StepConfig>] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -115,7 +115,7 @@ watch(
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
-    emit('task-completed', taskLocalisedConfig);
+    emit('step-completed', stepLocalisedConfig);
     await router.push({ name: 'auditContent', query: { ...route.query, wbView: 'auditContent' } });
 }
 
