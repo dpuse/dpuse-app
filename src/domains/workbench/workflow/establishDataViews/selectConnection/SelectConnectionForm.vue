@@ -43,7 +43,7 @@ async function handleSubmit(): Promise<void> {
 </script>
 
 <template>
-    <form class="relative flex h-full flex-col" @submit.prevent="handleSubmit">
+    <form class="relative flex h-full flex-col pl-4" @submit.prevent="handleSubmit">
         <ContentScroller class="flex flex-1 flex-col pt-2 pb-16">
             <strong>Connection:</strong>
             <div>id: {{ connectionLocalisedConfig.id }}</div>

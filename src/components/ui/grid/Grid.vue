@@ -20,8 +20,8 @@ type Properties = {
 const { dataSource, rowHeight = 48, targetColumnWidth, cacheBlockSize, maxBlocksInCache } = defineProps<Properties>();
 
 const slots = defineSlots<{
-    compact?(properties: { index: number; row: T }): unknown;
-    default?(properties: { index: number; row: T }): unknown;
+    compact?(properties: { index: number; item: T }): unknown;
+    default?(properties: { index: number; item: T }): unknown;
 }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -74,16 +74,16 @@ onUnmounted(() => resizeObserver.disconnect());
                     <template v-for="columnOffset in columnOffsets" :key="columnOffset">
                         <!-- Skip cells beyond the last data item (last row may be partially filled) -->
                         <div v-if="virtualRow.index * columnCount + columnOffset < dataSource.rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
-                            <div class="h-full" :class="[columnOffset === 0 ? 'pl-0' : 'pl-4', isCompact ? 'pt-2' : 'pt-4']">
+                            <div class="h-full" :class="[columnOffset === 0 ? 'pl-4' : 'pl-4', isCompact ? 'pt-2' : 'pt-4']">
                                 <slot
                                     v-if="isCompact && getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
                                     name="compact"
-                                    :row="getRow(virtualRow.index * columnCount + columnOffset) as T"
+                                    :item="getRow(virtualRow.index * columnCount + columnOffset) as T"
                                     :index="virtualRow.index * columnCount + columnOffset"
                                 />
                                 <slot
                                     v-else-if="getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
-                                    :row="getRow(virtualRow.index * columnCount + columnOffset) as T"
+                                    :item="getRow(virtualRow.index * columnCount + columnOffset) as T"
                                     :index="virtualRow.index * columnCount + columnOffset"
                                 />
                                 <div v-else class="flex h-full items-center px-3">

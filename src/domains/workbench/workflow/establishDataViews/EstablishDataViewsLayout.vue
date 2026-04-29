@@ -86,12 +86,13 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
 </script>
 
 <template>
-    <LayoutShell class="pl-4">
+    <LayoutShell>
         <!-- Header -->
-        <Header class="pr-4" :breadcrumbs="breadcrumbs" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" />
+        <Header class="px-4" :breadcrumbs="breadcrumbs" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" />
 
-        <!-- Step Action Bar -->
-        <nav class="border-separator mr-4 flex flex-none items-center justify-between border-b">
+        <!-- Action Bar -->
+        <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
+            <!-- Steps -->
             <Steps v-if="activeStepLocalisedConfig" :active-step-id="activeStepLocalisedConfig.id" :items="stepLocalisedConfigs">
                 <template #default="{ item }">
                     <div class="text-muted text-xs font-medium">{{ t(T, 'Step') }}&nbsp;{{ item.number }}</div>
@@ -100,6 +101,7 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
                 </template>
             </Steps>
 
+            <!-- Add Action -->
             <RouterLink
                 v-else
                 class="ml-auto py-2"

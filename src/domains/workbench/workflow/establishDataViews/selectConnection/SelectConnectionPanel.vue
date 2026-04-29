@@ -29,8 +29,6 @@ defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConfig<StepConfig
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeItem = shallowRef<LocalisedConfig<ConnectionConfig> | undefined>();
-
 const connectionLocalisedConfigs = shallowRef<LocalisedConfig<ConnectionConfig>[]>([]);
 
 const dataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
@@ -50,8 +48,6 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
-    activeItem.value = connectionLocalisedConfig;
-    activeConnectionConfig.value = connectionLocalisedConfig;
     activeDataViewConfig.value =
         activeDataViewConfig.value === undefined
             ? {
@@ -84,9 +80,9 @@ function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionC
 </script>
 
 <template>
-    <GridDetailPanel v-model:active-item="activeItem" :data-source="dataSource" enable-add-action max-detail-width="400px" @select-item="selectConnection($event)">
+    <GridDetailPanel v-model="activeConnectionConfig" :data-source="dataSource" enable-add-action max-detail-width="400px" @select="selectConnection">
         <template #list-item-default="{ item }">
-            <Card v-if="item" :label="item.label" />
+            <Card v-if="item" :icon="item.icon ?? undefined" :label="item.label" />
         </template>
 
         <template #list-item-compact="{ item }">

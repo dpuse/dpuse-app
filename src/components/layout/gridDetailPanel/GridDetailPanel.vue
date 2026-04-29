@@ -1,6 +1,7 @@
 <script setup lang="ts" generic="T extends { label: string }">
 // External Dependencies
 import { ArrowBigLeftIcon } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -24,16 +25,24 @@ const slots = defineSlots<{
     'no-selection'(): unknown;
 }>();
 
-defineEmits<{ 'select-item': [item: T] }>();
+const emit = defineEmits<{ select: [item: T] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeItem = defineModel<T | undefined>('activeItem');
+const activeItem = defineModel<T | undefined>();
+
+const detailPaneIsVisible = ref(false);
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
     return { maxWidth: maxWidth != null && displayIsWide.value ? maxWidth : undefined };
+}
+
+function selectItem(row: T): void {
+    emit('select', row);
+    activeItem.value = row;
+    detailPaneIsVisible.value = true;
 }
 </script>
 
@@ -47,17 +56,17 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
         <!-- Body -->
         <div class="flex flex-1 overflow-hidden">
             <!-- Grid Pane -->
-            <div v-if="displayIsWide || !activeItem" class="relative flex-1" :style="getPaneStyle(maxListWidth)">
+            <div v-if="displayIsWide || !detailPaneIsVisible" class="relative flex-1" :style="getPaneStyle(maxListWidth)">
                 <Grid class="flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
-                    <template v-if="slots['list-item-default']" #default="{ row }">
-                        <Button class="h-full" variant="listItem" @click="$emit('select-item', row)">
-                            <slot name="list-item-default" :item="row" />
+                    <template v-if="slots['list-item-default']" #default="{ item }">
+                        <Button class="h-full" variant="listItem" @click="selectItem(item)">
+                            <slot name="list-item-default" :item="item" />
                         </Button>
                     </template>
 
-                    <template v-if="slots['list-item-compact']" #compact="{ row }">
-                        <Button class="h-full" variant="listItem" @click="$emit('select-item', row)">
-                            <slot name="list-item-compact" :item="row" />
+                    <template v-if="slots['list-item-compact']" #compact="{ item }">
+                        <Button class="h-full" variant="listItem" @click="selectItem(item)">
+                            <slot name="list-item-compact" :item="item" />
                         </Button>
                     </template>
                 </Grid>
@@ -66,11 +75,16 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
             </div>
 
             <!-- Detail Pane -->
-            <div v-if="displayIsWide || activeItem" class="mr-4 min-w-0 flex-1" :class="{ 'border-separator border-l pl-4': displayIsWide }" :style="getPaneStyle(maxDetailWidth)">
+            <div
+                v-if="displayIsWide || detailPaneIsVisible"
+                class="mr-4 min-w-0 flex-1"
+                :class="{ 'border-separator border-l': displayIsWide }"
+                :style="getPaneStyle(maxDetailWidth)"
+            >
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
-                    <div class="border-separator flex h-10 items-center gap-x-1 border-b">
-                        <Button v-if="!displayIsWide" variant="iconSmall" @click="activeItem = undefined">
+                    <div class="border-separator ml-4 flex h-10 items-center gap-x-1 border-b">
+                        <Button v-if="!displayIsWide" variant="iconSmall" @click="detailPaneIsVisible = false">
                             <ArrowBigLeftIcon class="flex-none" :stroke-width="1.25" />
                         </Button>
 
