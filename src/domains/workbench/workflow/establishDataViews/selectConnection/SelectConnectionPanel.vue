@@ -86,7 +86,7 @@ function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionC
         </template>
 
         <template #list-item-compact="{ item }">
-            <Tile v-if="item" :label="item.label" />
+            <Tile v-if="item" :icon="item.icon ?? undefined" :label="item.label" />
         </template>
 
         <template #detail="{ item }">

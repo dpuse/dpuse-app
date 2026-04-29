@@ -5,5 +5,8 @@ const { icon, iconColor, label } = defineProps<Properties>();
 </script>
 
 <template>
-    <div class="px-4">{{ label }}</div>
+    <div class="flex items-center gap-x-1 px-2">
+        <div v-if="icon" style="height: 22px; width: 22px" v-html="icon"></div>
+        <div>{{ label }}</div>
+    </div>
 </template>
