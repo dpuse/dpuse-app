@@ -96,8 +96,8 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
         :row-height="150"
         :target-column-width="350"
     >
-        <template #default="{ row }">
-            <Card v-if="row" :label="row.label as string" />
+        <template #default="{ item }">
+            <Card v-if="item" :label="item.label as string" />
         </template>
     </Grid>
 
