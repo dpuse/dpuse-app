@@ -136,6 +136,7 @@ async function selectBreadcrumb(index: number, connectionNodeConfig: ConnectionN
 }
 
 async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
+    console.log(1234);
     text.value = undefined;
     await nextTick();
 
@@ -202,7 +203,7 @@ function getFolderPath(connectionNodeConfig: ConnectionNodeConfig): string {
 <template>
     <div class="flex flex-1 flex-col overflow-hidden">
         <!-- Body -->
-        <GridDetailPanel v-model="activeItem" class="flex-1" :data-source="dataSource" max-list-width="400px" @select-item="selectConnectionNode($event)">
+        <GridDetailPanel v-model="activeItem" class="flex-1" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
             <template #header>
                 <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
                     <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" @select="selectBreadcrumb" />
@@ -217,7 +218,7 @@ function getFolderPath(connectionNodeConfig: ConnectionNodeConfig): string {
                 <Tile v-if="item" class="min-w-0 truncate" :label="item.label" />
             </template>
 
-            <template #detail>
+            <template #detail="{ item }">
                 <div class="flex h-full flex-col">
                     <div class="border-separator relative h-4 w-full flex-none border-x bg-[#fdfdfd] text-xs">
                         <div class="absolute top-0 bottom-0 left-0 bg-green-200" :style="{ width: `${previewPercentage}%` }"></div>
