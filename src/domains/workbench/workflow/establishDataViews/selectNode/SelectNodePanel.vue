@@ -25,7 +25,6 @@ import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
-import Button from '@/components/ui/button/Button.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
@@ -172,11 +171,6 @@ function getFolderPath(connectionNodeConfig: ConnectionNodeConfig): string {
     return `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`;
 }
 
-function getNodeKey(connectionNodeConfig: ConnectionNodeConfig): string {
-    if (connectionNodeConfig.typeId === 'folder') return `folder:${getFolderPath(connectionNodeConfig)}`;
-    return `node:${getObjectPath(connectionNodeConfig)}`;
-}
-
 function getObjectPath(connectionNodeConfig: ConnectionNodeConfig): string {
     const extension = connectionNodeConfig.extension == null ? '' : `.${connectionNodeConfig.extension}`;
     return `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}${extension}`;
@@ -201,10 +195,13 @@ function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewC
     const previewSize = previewConfig.size ?? 0;
     const nodeSize = connectionNodeConfig.size ?? 0;
     previewPercentage.value = nodeSize > 0 ? (previewSize / nodeSize) * 100 : 0;
-    previewMessage.value =
-        previewPercentage.value == null
-            ? `Previewing ${formatNumberAsStorageSize(previewSize)} (total size unknown).`
-            : `Previewing ${formatNumberAsStorageSize(previewSize)} of ${formatNumberAsStorageSize(nodeSize)} (${formatNumberAsDecimalNumber(previewPercentage.value, 2, 0)}%).`;
+    if (nodeSize === 0) {
+        previewMessage.value = `Preview: ${formatNumberAsStorageSize(previewSize)} (total size unknown).`;
+    } else if (previewSize === nodeSize) {
+        previewMessage.value = `Preview: ${formatNumberAsStorageSize(previewSize)} (entire file).`;
+    } else {
+        previewMessage.value = `Preview: ${formatNumberAsStorageSize(previewSize)} of ${formatNumberAsStorageSize(nodeSize)} (${formatNumberAsDecimalNumber(previewPercentage.value, 2, 0)}%).`;
+    }
     text.value = previewConfig.text;
 
     const previewColumnKeys = previewConfig.columnConfigs.map((config, index) => config.label.en ?? String(index));
@@ -236,14 +233,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 <template>
     <div class="flex flex-1 flex-col overflow-hidden">
         <!-- Body -->
-        <GridDetailPanel
-            :active-item="activeItem"
-            class="flex-1"
-            :data-source="dataSource"
-            :get-item-key="getNodeKey"
-            max-list-width="400px"
-            @select="selectConnectionNode($event)"
-        >
+        <GridDetailPanel :active-item="activeItem" class="flex-1" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
             <template #header>
                 <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
                     <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" @select="selectBreadcrumb" />
