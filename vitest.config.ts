@@ -40,6 +40,7 @@ export default defineConfig({
     test: {
         environment: 'jsdom',
         exclude: [...configDefaults.exclude, 'e2e/**'],
+        setupFiles: ['./src/__tests__/setup.ts'],
         root: fileURLToPath(new URL('./', import.meta.url))
     }
 });

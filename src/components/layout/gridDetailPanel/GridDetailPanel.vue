@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends { label: string }">
 // External Dependencies
 import { ArrowBigLeftIcon } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { nextTick, ref, watch } from 'vue';
 
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -14,8 +14,15 @@ import Grid from '@/components/ui/grid/Grid.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { dataSource: DataSource<T>; enableAddAction?: boolean; maxListWidth?: string; maxDetailWidth?: string };
-const { dataSource, enableAddAction = false, maxListWidth, maxDetailWidth } = defineProps<Properties>();
+type Properties = {
+    activeItem?: T;
+    dataSource: DataSource<T>;
+    enableAddAction?: boolean;
+    getItemKey?: (item: T) => string;
+    maxListWidth?: string;
+    maxDetailWidth?: string;
+};
+const { activeItem, dataSource, enableAddAction = false, getItemKey, maxListWidth, maxDetailWidth } = defineProps<Properties>();
 
 const slots = defineSlots<{
     'header'(): unknown;
@@ -29,8 +36,6 @@ const emit = defineEmits<{ select: [item: T] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeItem = defineModel<T | undefined>();
-
 const detailPaneIsVisible = ref(false);
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -39,10 +44,25 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
     return { maxWidth: maxWidth != null && displayIsWide.value ? maxWidth : undefined };
 }
 
-function selectItem(row: T): void {
+function isActiveItem(item: T): boolean {
+    if (activeItem == null) return false;
+    if (getItemKey == null) return activeItem === item;
+    return getItemKey(activeItem) === getItemKey(item);
+}
+
+watch(
+    () => activeItem,
+    (newActiveItem) => {
+        if (newActiveItem == null) {
+            detailPaneIsVisible.value = false;
+        }
+    }
+);
+
+async function selectItem(row: T): Promise<void> {
     emit('select', row);
-    activeItem.value = row;
-    detailPaneIsVisible.value = true;
+    await nextTick();
+    detailPaneIsVisible.value = activeItem != null;
 }
 </script>
 
@@ -56,16 +76,16 @@ function selectItem(row: T): void {
         <!-- Body -->
         <div class="flex flex-1 overflow-hidden">
             <!-- Grid Pane -->
-            <div v-if="displayIsWide || !detailPaneIsVisible" class="relative flex-1" :style="getPaneStyle(maxListWidth)">
+            <div v-if="displayIsWide || !detailPaneIsVisible" class="relative flex-1 overflow-hidden" :style="getPaneStyle(maxListWidth)">
                 <Grid class="flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
                     <template v-if="slots['list-item-default']" #default="{ item }">
-                        <Button class="h-full" variant="listItem" @click="selectItem(item)">
+                        <Button class="h-full" :is-active="isActiveItem(item)" variant="listItem" @click="selectItem(item)">
                             <slot name="list-item-default" :item="item" />
                         </Button>
                     </template>
 
                     <template v-if="slots['list-item-compact']" #compact="{ item }">
-                        <Button class="h-full" variant="listItem" @click="selectItem(item)">
+                        <Button class="h-full" :is-active="isActiveItem(item)" variant="listItem" @click="selectItem(item)">
                             <slot name="list-item-compact" :item="item" />
                         </Button>
                     </template>
@@ -83,12 +103,12 @@ function selectItem(row: T): void {
             >
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
-                    <div class="border-separator ml-4 flex h-10 items-center gap-x-1 border-b">
+                    <div class="border-separator ml-4 flex h-10 items-center gap-x-1 overflow-hidden border-b">
                         <Button v-if="!displayIsWide" variant="iconSmall" @click="detailPaneIsVisible = false">
                             <ArrowBigLeftIcon class="flex-none" :stroke-width="1.25" />
                         </Button>
 
-                        <span>{{ activeItem.label }}</span>
+                        <span class="min-w-0 truncate">{{ activeItem.label }}</span>
                     </div>
 
                     <!-- Detail Body -->

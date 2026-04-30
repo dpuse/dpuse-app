@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import type { ColumnDef } from '@tanstack/vue-table';
-import { computed, markRaw, nextTick, onMounted, ref, shallowRef, useTemplateRef, watch, type Component } from 'vue';
+import { computed, markRaw, onMounted, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
@@ -13,13 +13,13 @@ import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@d
 
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import { localeId } from '@/state/locale';
+import T from './SelectNodePanel.json';
 import type { TabConfig } from '@/composables/useTabs';
-import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import { useEngine } from '@/services/useEngine';
 import { useTabs } from '@/composables/useTabs';
 import { activeConnectionConfig, activeConnectionNodeConfig } from '@/state/establishDataViews';
 import { connectionConfigs, getLocalisedConnection } from '@/state/session';
+import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
@@ -40,12 +40,13 @@ const emit = defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConf
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 type TabId = 'table' | 'text';
-
 const activeTabId = ref<TabId>('text');
 
 const activeItem = shallowRef<ConnectionNodeConfig | undefined>();
+const currentFolderNodes = shallowRef<ConnectionNodeConfig[]>([]);
 
 const listNodesResult = shallowRef<ListNodesResult | undefined>();
+const previewRequestId = ref(0);
 
 const previewPercentage = ref(0);
 const previewMessage = ref<string>();
@@ -59,10 +60,8 @@ const route = useRoute();
 const router = useRouter();
 
 const text = ref<string | undefined>();
-const textViewerElement = useTemplateRef<HTMLDivElement>('textViewer');
 
 const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as ConnectionNodeConfig;
-const { add, breadcrumbs, clearAfterIndex, removeLast } = useBreadcrumbs<ConnectionNodeConfig>([homeBreadcrumb]);
 
 const { tabs } = useTabs([
     { id: 'table', label: 'Table' },
@@ -72,22 +71,29 @@ const { tabs } = useTabs([
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const breadcrumbs = computed<ConnectionNodeConfig[]>(() => {
+    if (activeItem.value == null) return [homeBreadcrumb, ...currentFolderNodes.value];
+    return [homeBreadcrumb, ...currentFolderNodes.value, activeItem.value];
+});
+
 const connectionNodeConfigs = computed<ConnectionNodeConfig[]>(() => listNodesResult.value?.connectionNodeConfigs ?? []);
 
-const dataSource = shallowRef<DataSource<ConnectionNodeConfig>>({
-    rowCount: 0,
-    getRows: (): Promise<ConnectionNodeConfig[]> => Promise.resolve([])
+const currentFolderPath = computed<string>(() => {
+    const currentFolderNode = currentFolderNodes.value.at(-1);
+    return currentFolderNode == null ? '' : getFolderPath(currentFolderNode);
 });
+
+const dataSource = computed<DataSource<ConnectionNodeConfig>>(() => ({
+    rowCount: connectionNodeConfigs.value.length,
+    getRows: (start: number, end: number): Promise<ConnectionNodeConfig[]> => Promise.resolve(connectionNodeConfigs.value.slice(start, end))
+}));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(async () => {
     if (activeConnectionConfig.value != null) {
-        const { processRequest } = await useEngine();
-        listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath: '' } as ListNodesOptions)) as ListNodesResult;
+        await loadFolderNodes('');
     }
-
-    if (textViewerElement.value) textViewerElement.value.textContent = 'Some text data...';
 });
 
 watch(connectionConfigs, async () => {
@@ -97,20 +103,27 @@ watch(connectionConfigs, async () => {
             router.replace({ name: 'selectConnection', query: { ...route.query, conId: undefined } });
         }
     }
-    const { processRequest } = await useEngine();
-    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value!, { folderPath: '' } as ListNodesOptions)) as ListNodesResult;
+    currentFolderNodes.value = [];
+    activeItem.value = undefined;
+    activeConnectionNodeConfig.value = undefined;
+    await loadFolderNodes('');
 });
 
-watch(
-    connectionNodeConfigs,
-    (newConnectionNodeConfigs) => {
-        dataSource.value = {
-            rowCount: newConnectionNodeConfigs.length,
-            getRows: (start: number, end: number): Promise<ConnectionNodeConfig[]> => Promise.resolve(newConnectionNodeConfigs.slice(start, end))
-        };
-    },
-    { immediate: true }
-);
+watch(activeItem, async (newActiveItem) => {
+    const currentRequestId = ++previewRequestId.value;
+
+    activeConnectionNodeConfig.value = newActiveItem;
+    resetPreviewState();
+
+    if (newActiveItem == null) return;
+
+    const { processRequest } = await useEngine();
+    const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value!, getPreviewObjectOptions(newActiveItem))) as PreviewConfig;
+
+    if (currentRequestId !== previewRequestId.value || activeItem.value !== newActiveItem) return;
+
+    applyPreviewConfig(newActiveItem, previewConfig);
+});
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -119,73 +132,30 @@ async function handleSubmit(): Promise<void> {
     await router.push({ name: 'auditContent', query: { ...route.query, wbView: 'auditContent' } });
 }
 
-async function selectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
-    const selectedItem = activeItem.value;
+async function selectBreadcrumb(index: number): Promise<void> {
+    if (index === breadcrumbs.value.length - 1) return;
+
     activeItem.value = undefined;
-    activeConnectionNodeConfig.value = undefined;
-    text.value = undefined;
-    await nextTick();
 
-    clearAfterIndex(index);
+    if (index <= 0) {
+        currentFolderNodes.value = [];
+        await loadFolderNodes('');
+        return;
+    }
 
-    const folderPath = getFolderPath(connectionNodeConfig);
-    if (selectedItem != null && folderPath === selectedItem.folderPath) return;
-
-    const { processRequest } = await useEngine();
-    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value!, { folderPath } as ListNodesOptions)) as ListNodesResult;
+    currentFolderNodes.value = currentFolderNodes.value.slice(0, index);
+    await loadFolderNodes(currentFolderPath.value);
 }
 
 async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
-    console.log(1234);
-    text.value = undefined;
-    await nextTick();
-
     if (connectionNodeConfig.typeId === 'folder') {
-        if (activeItem.value != null) {
-            activeItem.value = undefined;
-            activeConnectionNodeConfig.value = undefined;
-            removeLast();
-        }
-        add(connectionNodeConfig);
-        const { processRequest } = await useEngine();
-        const path = getFolderPath(connectionNodeConfig);
-        listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value!, { folderPath: path } as ListNodesOptions)) as ListNodesResult;
-    } else {
-        add(connectionNodeConfig);
-        activeItem.value = connectionNodeConfig;
-        activeConnectionNodeConfig.value = connectionNodeConfig;
-        const { processRequest } = await useEngine();
-        const extension = connectionNodeConfig.extension == null ? '' : `.${connectionNodeConfig.extension}`;
-        const path = `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}${extension}`;
-        const previewObjectOptions: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path };
-        const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value!, previewObjectOptions)) as PreviewConfig;
-
-        const previewSize = previewConfig.size ?? 0;
-        const nodeSize = connectionNodeConfig.size ?? 0;
-        previewPercentage.value = nodeSize > 0 ? (previewSize / nodeSize) * 100 : 0;
-        previewMessage.value =
-            previewPercentage.value == null
-                ? `Previewed ${formatNumberAsStorageSize(previewSize)} (total size unknown).`
-                : `Previewed ${formatNumberAsStorageSize(previewSize)} of ${formatNumberAsStorageSize(nodeSize)} (${formatNumberAsDecimalNumber(previewPercentage.value, 2, 0)}%).`;
-        text.value = previewConfig.text;
-
-        const previewColumnKeys = previewConfig.columnConfigs.map((config, index) => config.label.en ?? String(index));
-
-        previewTableColumnDefinitions.value = previewColumnKeys.map<ColumnDef<Record<string, string | null>>>((columnKey) => ({
-            accessorKey: columnKey,
-            header: columnKey
-        }));
-
-        const dataOffset = 1;
-        const previewRows = previewConfig.parsedRecords
-            .slice(dataOffset)
-            .map((record) => Object.fromEntries(record.map((cell, index) => [previewColumnKeys[index] ?? String(index), cell.value])) as Record<string, string | null>);
-
-        previewTableDataSource.value = {
-            rowCount: previewRows.length,
-            getRows: (start: number, end: number): Promise<Record<string, string | null>[]> => Promise.resolve(previewRows.slice(start, end))
-        };
+        currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
+        activeItem.value = undefined;
+        await loadFolderNodes(currentFolderPath.value);
+        return;
     }
+
+    activeItem.value = connectionNodeConfig;
 }
 
 function selectTab(tabConfig: TabConfig): void {
@@ -198,12 +168,79 @@ function getFolderPath(connectionNodeConfig: ConnectionNodeConfig): string {
     if (!('folderPath' in connectionNodeConfig) || !('name' in connectionNodeConfig)) return '';
     return `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`;
 }
+
+function getNodeKey(connectionNodeConfig: ConnectionNodeConfig): string {
+    if (connectionNodeConfig.typeId === 'folder') return `folder:${getFolderPath(connectionNodeConfig)}`;
+    return `node:${getObjectPath(connectionNodeConfig)}`;
+}
+
+function getObjectPath(connectionNodeConfig: ConnectionNodeConfig): string {
+    const extension = connectionNodeConfig.extension == null ? '' : `.${connectionNodeConfig.extension}`;
+    return `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}${extension}`;
+}
+
+function getPreviewObjectOptions(connectionNodeConfig: ConnectionNodeConfig): PreviewObjectOptions {
+    return { chunkSize: undefined, extension: undefined, path: getObjectPath(connectionNodeConfig) };
+}
+
+function resetPreviewState(): void {
+    previewPercentage.value = 0;
+    previewMessage.value = undefined;
+    previewTableColumnDefinitions.value = [];
+    previewTableDataSource.value = {
+        rowCount: 0,
+        getRows: (): Promise<Record<string, string | null>[]> => Promise.resolve([])
+    };
+    text.value = undefined;
+}
+
+function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewConfig: PreviewConfig): void {
+    const previewSize = previewConfig.size ?? 0;
+    const nodeSize = connectionNodeConfig.size ?? 0;
+    previewPercentage.value = nodeSize > 0 ? (previewSize / nodeSize) * 100 : 0;
+    previewMessage.value =
+        previewPercentage.value == null
+            ? `Previewed ${formatNumberAsStorageSize(previewSize)} (total size unknown).`
+            : `Previewed ${formatNumberAsStorageSize(previewSize)} of ${formatNumberAsStorageSize(nodeSize)} (${formatNumberAsDecimalNumber(previewPercentage.value, 2, 0)}%).`;
+    text.value = previewConfig.text;
+
+    const previewColumnKeys = previewConfig.columnConfigs.map((config, index) => config.label.en ?? String(index));
+
+    previewTableColumnDefinitions.value = previewColumnKeys.map<ColumnDef<Record<string, string | null>>>((columnKey) => ({
+        accessorKey: columnKey,
+        header: columnKey
+    }));
+
+    const dataOffset = 1;
+    const previewRows = previewConfig.parsedRecords
+        .slice(dataOffset)
+        .map((record) => Object.fromEntries(record.map((cell, index) => [previewColumnKeys[index] ?? String(index), cell.value])) as Record<string, string | null>);
+
+    previewTableDataSource.value = {
+        rowCount: previewRows.length,
+        getRows: (start: number, end: number): Promise<Record<string, string | null>[]> => Promise.resolve(previewRows.slice(start, end))
+    };
+}
+
+async function loadFolderNodes(folderPath: string): Promise<void> {
+    if (activeConnectionConfig.value == null) return;
+
+    const { processRequest } = await useEngine();
+    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath } as ListNodesOptions)) as ListNodesResult;
+}
 </script>
 
 <template>
     <div class="flex flex-1 flex-col overflow-hidden">
         <!-- Body -->
-        <GridDetailPanel v-model="activeItem" class="flex-1" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
+        <GridDetailPanel
+            :active-item="activeItem"
+            class="flex-1"
+            :data-source="dataSource"
+            :get-item-key="getNodeKey"
+            max-list-width="400px"
+            @select="selectConnectionNode($event)"
+        >
             <template #header>
                 <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
                     <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" @select="selectBreadcrumb" />
@@ -215,10 +252,10 @@ function getFolderPath(connectionNodeConfig: ConnectionNodeConfig): string {
             </template>
 
             <template #list-item-compact="{ item }">
-                <Tile v-if="item" class="min-w-0 truncate" :label="item.label" />
+                <Tile v-if="item" :label="item.label" />
             </template>
 
-            <template #detail="{ item }">
+            <template #detail>
                 <div class="flex h-full flex-col">
                     <div class="border-separator relative h-4 w-full flex-none border-x bg-[#fdfdfd] text-xs">
                         <div class="absolute top-0 bottom-0 left-0 bg-green-200" :style="{ width: `${previewPercentage}%` }"></div>
@@ -237,14 +274,14 @@ function getFolderPath(connectionNodeConfig: ConnectionNodeConfig): string {
                         <!-- -->
                         <form class="border-boundary flex flex-1 justify-end gap-x-2 overflow-hidden border-t" @submit.prevent="handleSubmit">
                             <div class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
-                            <Button class="mt-1 max-h-10" type="submit" variant="primary">Next</Button>
+                            <Button class="mt-1 max-h-10" type="submit" variant="primary">{{ t(T, 'next') }}</Button>
                         </form>
                     </div>
                 </div>
             </template>
 
             <template #no-selection>
-                <div class="bg-backdrop flex h-full items-center justify-center pt-[5%]">Select a node...</div>
+                <div class="bg-backdrop flex h-full items-center justify-center pt-[5%]">{{ t(T, 'selectNode') }}</div>
             </template>
         </GridDetailPanel>
     </div>

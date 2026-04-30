@@ -85,18 +85,19 @@ const variantClasses = computed((): (string | string[] | Record<string, string> 
         case 'listItem':
             return [
                 COMMON_ITEM_CLASSES,
+                'min-w-0 overflow-hidden',
                 'bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300',
                 'dark:bg-zinc-300/10 dark:hover:bg-zinc-300/20 dark:active:bg-zinc-300/30 dark:focus-visible:ring-zinc-500',
                 isActive ? 'bg-zinc-200 dark:hover:bg-zinc-300/30' : undefined
             ];
         case 'listitemDestructive':
-            return [COMMON_ITEM_CLASSES, COMMON_DESTRUCTIVE_CLASSES, isActive ? 'bg-red-300 dark:bg-red-400/40' : undefined];
+            return [COMMON_ITEM_CLASSES, 'min-w-0 overflow-hidden', COMMON_DESTRUCTIVE_CLASSES, isActive ? 'bg-red-300 dark:bg-red-400/40' : undefined];
         case 'avatar':
-            return [COMMON_GRAPHIC_CLASSES, COMMON_AVATAR_CLASSES, '[&>img]:rounded-full'];
+            return [COMMON_GRAPHIC_CLASSES, COMMON_AVATAR_CLASSES, '[&_img]:rounded-full'];
         case 'iconLarge':
-            return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.75 [&>svg]:size-[26px]'];
+            return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.75 [&_svg]:size-[26px]'];
         case 'iconSmall':
-            return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.25 [&>svg]:size-5'];
+            return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.25 [&_svg]:size-5'];
         case 'minimal':
             return [];
         default:

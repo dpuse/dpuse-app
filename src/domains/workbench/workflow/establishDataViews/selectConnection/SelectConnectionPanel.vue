@@ -48,6 +48,7 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
+    activeConnectionConfig.value = connectionLocalisedConfig;
     activeDataViewConfig.value =
         activeDataViewConfig.value === undefined
             ? {
@@ -80,7 +81,14 @@ function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionC
 </script>
 
 <template>
-    <GridDetailPanel v-model="activeConnectionConfig" :data-source="dataSource" enable-add-action max-detail-width="400px" @select="selectConnection">
+    <GridDetailPanel
+        :active-item="activeConnectionConfig"
+        :data-source="dataSource"
+        :get-item-key="(item) => item.id"
+        enable-add-action
+        max-detail-width="400px"
+        @select="selectConnection"
+    >
         <template #list-item-default="{ item }">
             <Card v-if="item" :icon="item.icon ?? undefined" :label="item.label" />
         </template>
