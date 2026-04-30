@@ -267,8 +267,13 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 
                     <Table v-if="activeTabId === 'table'" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
-                    <OverlayScrollbarsComponent v-else class="min-h-0 flex-1 overscroll-none" defer :options="{ scrollbars: { autoHide: 'leave', theme: 'os-theme-dark' } }">
-                        <div class="border-separator border-x px-0.5 text-sm">
+                    <OverlayScrollbarsComponent
+                        v-else
+                        class="border-separator min-h-0 flex-1 overscroll-none border-x pb-16"
+                        defer
+                        :options="{ scrollbars: { autoHide: 'leave', theme: 'os-theme-dark' } }"
+                    >
+                        <div class="px-0.5 text-sm">
                             <pre><code ref="textViewer">{{ text }}</code></pre>
                         </div>
                     </OverlayScrollbarsComponent>
@@ -288,3 +293,9 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
         </GridDetailPanel>
     </div>
 </template>
+
+<style scoped>
+:deep(.os-viewport) {
+    overscroll-behavior: none;
+}
+</style>
