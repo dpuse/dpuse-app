@@ -267,7 +267,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 
                     <Table v-if="activeTabId === 'table'" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
-                    <OverlayScrollbarsComponent v-else class="min-h-0 flex-1" defer :options="{ scrollbars: { autoHide: 'leave', theme: 'os-theme-dark' } }">
+                    <OverlayScrollbarsComponent v-else class="min-h-0 flex-1 overscroll-none" defer :options="{ scrollbars: { autoHide: 'leave', theme: 'os-theme-dark' } }">
                         <div class="border-separator border-x px-0.5 text-sm">
                             <pre><code ref="textViewer">{{ text }}</code></pre>
                         </div>
