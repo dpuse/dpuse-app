@@ -1,6 +1,9 @@
 <script setup lang="ts" generic="T">
 // External Dependencies
-import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import 'overlayscrollbars/overlayscrollbars.css';
+import type { OverlayScrollbars } from 'overlayscrollbars';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
+import { computed, onUnmounted, ref, shallowRef } from 'vue';
 
 // Local (App) Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
@@ -28,7 +31,7 @@ const slots = defineSlots<{
 
 const columnCount = ref(1);
 const columnWidth = ref(0);
-const scrollElement = useTemplateRef<HTMLDivElement>('scroller');
+const scrollElement = shallowRef<HTMLElement | null>(null);
 const resizeObserver = new ResizeObserver((entries) => {
     const width = entries[0]!.contentRect.width;
     if (!slots.default || targetColumnWidth == null) {
@@ -57,13 +60,18 @@ const isCompact = computed(() => !slots.default || (!!slots.compact && columnCou
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(() => resizeObserver.observe(scrollElement.value!));
+// onMounted(() => resizeObserver.observe(scrollElement.value!));
 onUnmounted(() => resizeObserver.disconnect());
+
+function handleOsInitialized(instance: OverlayScrollbars): void {
+    scrollElement.value = instance.elements().viewport;
+    resizeObserver.observe(instance.elements().viewport);
+}
 </script>
 
 <template>
     <div class="relative flex h-full flex-col pr-4">
-        <div ref="scroller" class="flex-1 overflow-y-auto overscroll-y-none pb-16" role="list" style="-webkit-overflow-scrolling: touch">
+        <OverlayScrollbarsComponent class="flex-1" defer :options="{ scrollbars: { autoHide: 'leave' } }" role="list" @os-initialized="handleOsInitialized">
             <div :style="{ height: totalRowCount + 'px', position: 'relative' }">
                 <div
                     v-for="virtualRow in virtualRows"
@@ -94,7 +102,7 @@ onUnmounted(() => resizeObserver.disconnect());
                     </template>
                 </div>
             </div>
-        </div>
+        </OverlayScrollbarsComponent>
 
         <ScrollThumb :scroll-element="scrollElement" :row-count="dataSource.rowCount" />
     </div>

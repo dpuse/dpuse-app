@@ -7,7 +7,7 @@ import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 export type DataSource<T = unknown> = { rowCount: number; getRows: (startRow: number, endRow: number) => Promise<T[]> };
 
 type Options<T> = {
-    scrollElement: Readonly<ShallowRef<HTMLDivElement | null>>;
+    scrollElement: Readonly<ShallowRef<HTMLElement | null>>;
     dataSource: () => DataSource<T>;
     count?: () => number; // Virtual row count. Defaults to dataSource().rowCount (1 virtual row per data row).
     getDataIndexes?: (virtualRowIndex: number) => number[]; // Maps a virtual row index to data row indexes for block fetching. Defaults to identity (1:1).

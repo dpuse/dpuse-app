@@ -194,9 +194,10 @@ function scrollFromY(clientY: number): void {
 
 .scrubber-thumb {
     position: absolute;
+    background: white;
     /* left: 50%;
     transform: translateX(-50%); */
-    right: 0;
+    right: 15px;
     width: 13px;
     border-radius: 6px;
     pointer-events: none;
