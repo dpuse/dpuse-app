@@ -7,7 +7,7 @@ const { message } = defineProps<{ message: string }>();
 </script>
 
 <template>
-    <div class="flex h-full flex-col items-center px-4 pt-[10%]">
+    <div class="flex h-full flex-col items-center px-4 pt-10">
         <div class="text-muted flex items-center gap-x-1.5">
             <MousePointerClickIcon class="size-10 flex-none" :stroke-width="0.75" />
             <div class="pt-1.5 text-[15px] leading-snug font-normal">{{ message }}</div>

@@ -42,7 +42,9 @@ try {
             createScriptURL: (url: string): string => {
                 if (url.startsWith('blob:')) return url;
                 throw new Error(`Blocked TrustedScriptURL: ${url}`);
-            }
+            },
+            // Allow OverlayScrollbars to inject its scrollbar DOM via innerHTML.
+            createHTML: (html: string): string => html
         });
     }
 

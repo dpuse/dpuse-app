@@ -18,11 +18,10 @@ type Properties = {
     activeItem?: T;
     dataSource: DataSource<T>;
     enableAddAction?: boolean;
-    getItemKey?: (item: T) => string;
     maxListWidth?: string;
     maxDetailWidth?: string;
 };
-const { activeItem, dataSource, enableAddAction = false, getItemKey, maxListWidth, maxDetailWidth } = defineProps<Properties>();
+const { activeItem, dataSource, enableAddAction = false, maxListWidth, maxDetailWidth } = defineProps<Properties>();
 
 const slots = defineSlots<{
     'header'(): unknown;
@@ -38,26 +37,20 @@ const emit = defineEmits<{ select: [item: T] }>();
 
 const detailPaneIsVisible = ref(false);
 
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+
+watch(
+    () => activeItem,
+    (newActiveItem) => {
+        if (newActiveItem == null) detailPaneIsVisible.value = false;
+    }
+);
+
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
     return { maxWidth: maxWidth != null && displayIsWide.value ? maxWidth : undefined };
 }
-
-function isActiveItem(item: T): boolean {
-    if (activeItem == null) return false;
-    if (getItemKey == null) return activeItem === item;
-    return getItemKey(activeItem) === getItemKey(item);
-}
-
-watch(
-    () => activeItem,
-    (newActiveItem) => {
-        if (newActiveItem == null) {
-            detailPaneIsVisible.value = false;
-        }
-    }
-);
 
 async function selectItem(row: T): Promise<void> {
     emit('select', row);
@@ -79,13 +72,13 @@ async function selectItem(row: T): Promise<void> {
             <div v-if="displayIsWide || !detailPaneIsVisible" class="relative flex-1 overflow-hidden" :style="getPaneStyle(maxListWidth)">
                 <Grid class="flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
                     <template v-if="slots['list-item-default']" #default="{ item }">
-                        <Button class="h-full" :is-active="isActiveItem(item)" variant="listItem" @click="selectItem(item)">
+                        <Button class="h-full" :is-active="activeItem === item" variant="listItem" @click="selectItem(item)">
                             <slot name="list-item-default" :item="item" />
                         </Button>
                     </template>
 
                     <template v-if="slots['list-item-compact']" #compact="{ item }">
-                        <Button class="h-full" :is-active="isActiveItem(item)" variant="listItem" @click="selectItem(item)">
+                        <Button class="h-full" :is-active="activeItem === item" variant="listItem" @click="selectItem(item)">
                             <slot name="list-item-compact" :item="item" />
                         </Button>
                     </template>

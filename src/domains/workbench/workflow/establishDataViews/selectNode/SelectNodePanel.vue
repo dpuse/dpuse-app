@@ -1,6 +1,8 @@
 <script setup lang="ts">
 // External Dependencies
+import 'overlayscrollbars/overlayscrollbars.css';
 import type { ColumnDef } from '@tanstack/vue-table';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
 import { computed, markRaw, onMounted, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -26,6 +28,7 @@ import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 import Button from '@/components/ui/button/Button.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
+import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import type { StepConfig } from '@/components/ui/steps/Steps.vue';
 import Table from '@/components/ui/table/Table.vue';
 import Tabs from '@/components/ui/tabs/Tabs.vue';
@@ -256,32 +259,31 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
             </template>
 
             <template #detail>
-                <div class="flex h-full flex-col">
-                    <div class="border-separator relative h-4 w-full flex-none border-x bg-[#fdfdfd] text-xs">
+                <div class="flex h-full flex-col pl-4">
+                    <div class="border-separator relative flex h-5 w-full flex-none items-center border-x border-b bg-amber-50 text-xs">
                         <div class="absolute top-0 bottom-0 left-0 bg-green-200" :style="{ width: `${previewPercentage}%` }"></div>
                         <div class="relative pl-1 text-zinc-600">{{ previewMessage }}</div>
                     </div>
 
                     <Table v-if="activeTabId === 'table'" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
-                    <div v-else class="border-separator flex-1 overflow-auto overscroll-none border-x px-0.5 text-sm">
-                        <pre><code ref="textViewer">{{ text }}</code></pre>
-                    </div>
+                    <OverlayScrollbarsComponent v-else class="min-h-0 flex-1" defer :options="{ scrollbars: { autoHide: 'leave', theme: 'os-theme-dark' } }">
+                        <div class="border-separator border-x px-0.5 text-sm">
+                            <pre><code ref="textViewer">{{ text }}</code></pre>
+                        </div>
+                    </OverlayScrollbarsComponent>
 
-                    <div class="border-boundary flex h-16.25 flex-none flex-col overflow-hidden border-t">
-                        <!-- -->
-
-                        <!-- -->
+                    <!-- <div class="border-boundary flex h-16.25 flex-none flex-col overflow-hidden border-t">
                         <form class="border-boundary flex flex-1 justify-end gap-x-2 overflow-hidden border-t" @submit.prevent="handleSubmit">
                             <div class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
                             <Button class="mt-1 max-h-10" type="submit" variant="primary">{{ t(T, 'next') }}</Button>
                         </form>
-                    </div>
+                    </div> -->
                 </div>
             </template>
 
             <template #no-selection>
-                <div class="bg-backdrop flex h-full items-center justify-center pt-[5%]">{{ t(T, 'selectNode') }}</div>
+                <SelectPlaceholder :message="'Select a connection node from the list on the left.'" />
             </template>
         </GridDetailPanel>
     </div>
