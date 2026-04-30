@@ -96,12 +96,12 @@ async function selectItem(row: T): Promise<void> {
             >
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
-                    <div class="border-separator ml-4 flex h-10 items-center gap-x-1 overflow-hidden border-b">
-                        <Button v-if="!displayIsWide" variant="iconSmall" @click="detailPaneIsVisible = false">
+                    <div class="border-separator ml-4 flex h-10 items-center justify-between gap-x-1 overflow-hidden border-b">
+                        <span class="min-w-0 truncate text-sm">{{ activeItem.label }}</span>
+
+                        <Button variant="iconSmall" @click="detailPaneIsVisible = false">
                             <ArrowBigLeftIcon class="flex-none" :stroke-width="1.25" />
                         </Button>
-
-                        <span class="min-w-0 truncate">{{ activeItem.label }}</span>
                     </div>
 
                     <!-- Detail Body -->

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import 'overlayscrollbars/overlayscrollbars.css';
 import type { ColumnDef } from '@tanstack/vue-table';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
 import { computed, markRaw, onMounted, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -31,6 +29,7 @@ import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vu
 import type { StepConfig } from '@/components/ui/steps/Steps.vue';
 import Table from '@/components/ui/table/Table.vue';
 import Tabs from '@/components/ui/tabs/Tabs.vue';
+import TextViewer from '@/components/ui/textViewer/TextViewer.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
@@ -257,16 +256,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 
                     <Table v-if="activeTabId === 'table'" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
-                    <OverlayScrollbarsComponent
-                        v-if="activeTabId === 'text'"
-                        class="border-separator min-h-0 flex-1 overscroll-none border-x pb-16"
-                        defer
-                        :options="{ scrollbars: { autoHide: 'leave' } }"
-                    >
-                        <div class="px-0.5 text-sm">
-                            <pre><code ref="textViewer">{{ text }}</code></pre>
-                        </div>
-                    </OverlayScrollbarsComponent>
+                    <TextViewer v-if="activeTabId === 'text'" :text="text" />
 
                     <div v-else>
                         <div class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
