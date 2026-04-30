@@ -203,8 +203,8 @@ function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewC
     previewPercentage.value = nodeSize > 0 ? (previewSize / nodeSize) * 100 : 0;
     previewMessage.value =
         previewPercentage.value == null
-            ? `Previewed ${formatNumberAsStorageSize(previewSize)} (total size unknown).`
-            : `Previewed ${formatNumberAsStorageSize(previewSize)} of ${formatNumberAsStorageSize(nodeSize)} (${formatNumberAsDecimalNumber(previewPercentage.value, 2, 0)}%).`;
+            ? `Previewing ${formatNumberAsStorageSize(previewSize)} (total size unknown).`
+            : `Previewing ${formatNumberAsStorageSize(previewSize)} of ${formatNumberAsStorageSize(nodeSize)} (${formatNumberAsDecimalNumber(previewPercentage.value, 2, 0)}%).`;
     text.value = previewConfig.text;
 
     const previewColumnKeys = previewConfig.columnConfigs.map((config, index) => config.label.en ?? String(index));
@@ -268,22 +268,19 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                     <Table v-if="activeTabId === 'table'" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
                     <OverlayScrollbarsComponent
-                        v-else
+                        v-if="activeTabId === 'text'"
                         class="border-separator min-h-0 flex-1 overscroll-none border-x pb-16"
                         defer
-                        :options="{ scrollbars: { autoHide: 'leave', theme: 'os-theme-dark' } }"
+                        :options="{ scrollbars: { autoHide: 'leave' } }"
                     >
                         <div class="px-0.5 text-sm">
                             <pre><code ref="textViewer">{{ text }}</code></pre>
                         </div>
                     </OverlayScrollbarsComponent>
 
-                    <!-- <div class="border-boundary flex h-16.25 flex-none flex-col overflow-hidden border-t">
-                        <form class="border-boundary flex flex-1 justify-end gap-x-2 overflow-hidden border-t" @submit.prevent="handleSubmit">
-                            <div class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
-                            <Button class="mt-1 max-h-10" type="submit" variant="primary">{{ t(T, 'next') }}</Button>
-                        </form>
-                    </div> -->
+                    <div v-else>
+                        <div class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
+                    </div>
                 </div>
             </template>
 
