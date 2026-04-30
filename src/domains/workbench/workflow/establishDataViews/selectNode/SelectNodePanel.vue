@@ -295,7 +295,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 </template>
 
 <style scoped>
-:deep(.os-viewport) {
+:deep([data-overlayscrollbars-viewport]) {
     overscroll-behavior: none;
 }
 </style>
