@@ -24,6 +24,7 @@ import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
+import FloatingButton from '@/components/ui/button/FloatingButton.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
@@ -262,6 +263,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                     <div v-else>
                         <div class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
                     </div>
+                    <FloatingButton class="right-0!" variant="next" @click="handleSubmit" />
                 </div>
             </template>
 
