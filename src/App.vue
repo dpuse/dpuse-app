@@ -254,7 +254,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </div>
 
         <!-- Session button - always visible, independent of pane state -->
-        <div class="fixed bottom-4 left-[calc(env(safe-area-inset-left)+12px)] z-40">
+        <div class="bottom--[calc(env(safe-area-inset-bottom)+16px)] fixed left-[calc(env(safe-area-inset-left)+12px)] z-40">
             <SessionButton :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
         </div>
 
@@ -311,6 +311,8 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         >
             <KnowledgeLayout class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
         </div>
+
+        <div class="fixed inset-x-0 bottom-0 h-[env(safe-area-inset-bottom)] bg-linear-to-b from-red-100 to-red-100" />
     </div>
 </template>
 
