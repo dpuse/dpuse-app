@@ -197,11 +197,11 @@ function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewC
     const nodeSize = connectionNodeConfig.size ?? 0;
     previewPercentage.value = nodeSize > 0 ? (previewSize / nodeSize) * 100 : 0;
     if (nodeSize === 0) {
-        previewMessage.value = `${formatNumberAsStorageSize(previewSize)} (total size unknown).`;
+        previewMessage.value = `Previewing ${formatNumberAsStorageSize(previewSize)} (total size unknown).`;
     } else if (previewSize === nodeSize) {
-        previewMessage.value = `${formatNumberAsStorageSize(previewSize)} (entire file).`;
+        previewMessage.value = `Previewing ${formatNumberAsStorageSize(previewSize)} (entire file).`;
     } else {
-        previewMessage.value = `${formatNumberAsStorageSize(previewSize)} of ${formatNumberAsStorageSize(nodeSize)} (${formatNumberAsDecimalNumber(previewPercentage.value, 2, 0)}%).`;
+        previewMessage.value = `Previewing ${formatNumberAsStorageSize(previewSize)} of ${formatNumberAsStorageSize(nodeSize)} (${formatNumberAsDecimalNumber(previewPercentage.value, 2, 0)}%).`;
     }
     text.value = previewConfig.text;
 
