@@ -255,7 +255,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </div>
 
         <!-- Session button - always visible, independent of pane state -->
-        <div class="fixed bottom-[calc(env(safe-area-inset-bottom)+24px)] left-[calc(env(safe-area-inset-left)+12px)] z-40">
+        <div class="fixed bottom-[calc(env(safe-area-inset-bottom)+0px)] left-[calc(env(safe-area-inset-left)+12px)] z-40">
             <SessionButton :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
         </div>
 

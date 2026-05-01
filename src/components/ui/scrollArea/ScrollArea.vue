@@ -79,10 +79,10 @@ function onViewportScroll(): void {
 </template>
 
 <style scoped>
-/* :deep(.os-scrollbar-horizontal) {
+:deep(.os-scrollbar-horizontal) {
     bottom: env(safe-area-inset-bottom) !important;
 }
 :deep(.os-scrollbar-vertical) {
     bottom: env(safe-area-inset-bottom) !important;
-} */
+}
 </style>
