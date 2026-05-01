@@ -80,9 +80,9 @@ function onViewportScroll(): void {
 
 <style scoped>
 :deep(.os-scrollbar-horizontal) {
-    bottom: env(safe-area-inset-bottom) !important;
+    bottom: calc(min(env(safe-area-inset-bottom), 16px) + 8px) !important;
 }
 :deep(.os-scrollbar-vertical) {
-    bottom: env(safe-area-inset-bottom) !important;
+    bottom: calc(min(env(safe-area-inset-bottom), 16px) + 8px) !important;
 }
 </style>
