@@ -314,7 +314,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </div>
 
         <!-- ??? -->
-        <div class="from-surface/95 fixed inset-x-0 bottom-0 h-[env(safe-area-inset-bottom)] bg-linear-to-b to-transparent" />
+        <div class="from-surface/95 fixed inset-x-0 bottom-0 h-[env(safe-area-inset-bottom)] bg-linear-to-t to-transparent" />
     </div>
 </template>
 
