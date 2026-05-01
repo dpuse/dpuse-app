@@ -264,7 +264,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                         <div class="relative pl-1 text-zinc-600">{{ previewMessage }}</div>
                     </div>
 
-                    <FloatingButton class="fixed right-[calc(env(safe-area-inset-left)+12px)]! bottom-10" variant="next" @click="handleSubmit" />
+                    <FloatingButton class="fixed right-[calc(env(safe-area-inset-left)+12px)]! bottom-12" variant="next" @click="handleSubmit" />
                 </div>
             </template>
 
