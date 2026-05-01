@@ -104,6 +104,6 @@ function handleOsInitialized(instance: OverlayScrollbars): void {
             </div>
         </OverlayScrollbarsComponent>
 
-        <ScrollThumb :scroll-element="scrollElement" :row-count="dataSource.rowCount" />
+        <!-- <ScrollThumb :scroll-element="scrollElement" :row-count="dataSource.rowCount" /> -->
     </div>
 </template>
