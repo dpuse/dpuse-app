@@ -256,13 +256,14 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                         <div class="relative pl-1 text-zinc-600">{{ previewMessage }}</div>
                     </div>
 
-                    <Table v-if="activeTabId === 'table'" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
+                    <Table v-if="activeTabId === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
-                    <TextViewer v-if="activeTabId === 'text'" :text="text" />
+                    <TextViewer v-if="activeTabId === 'text'" class="flex-1" :text="text" />
 
-                    <div v-else>
+                    <div v-else class="flex-1">
                         <div class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
                     </div>
+
                     <FloatingButton class="right-0!" variant="next" @click="handleSubmit" />
                 </div>
             </template>
