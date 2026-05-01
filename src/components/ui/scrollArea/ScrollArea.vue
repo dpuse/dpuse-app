@@ -70,10 +70,16 @@ function onViewportScroll(): void {
 
         <div
             v-if="isDragging && rowCount > 0"
-            class="pointer-events-none absolute right-10 z-20 rounded-full bg-zinc-800 px-3 py-1.5 text-sm font-semibold text-zinc-50 select-none dark:bg-zinc-200 dark:text-zinc-800"
+            class="pointer-events-none absolute right-14 z-20 rounded-full bg-zinc-800 px-3 py-1.5 text-sm font-semibold text-zinc-50 select-none dark:bg-zinc-200 dark:text-zinc-800"
             :style="{ top: labelOffsetY + 'px', transform: 'translateY(-50%)' }"
         >
             {{ currentRow.toLocaleString() }}
         </div>
     </div>
 </template>
+
+<style scoped>
+:deep(.os-scrollbar-vertical) {
+    bottom: env(safe-area-inset-bottom) !important;
+}
+</style>
