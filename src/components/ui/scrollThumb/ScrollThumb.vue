@@ -171,6 +171,7 @@ function scrollFromY(clientY: number): void {
     width: 16px;
     z-index: 20;
     touch-action: none;
+    cursor: pointer;
 }
 
 .scrubber-label {

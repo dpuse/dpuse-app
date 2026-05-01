@@ -13,6 +13,7 @@ import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@d
 
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
+import { displayIsWide } from '@/state/appLayout';
 import T from './SelectNodePanel.json';
 import type { TabConfig } from '@/composables/useTabs';
 import { useEngine } from '@/services/useEngine';
@@ -74,7 +75,7 @@ const { tabs } = useTabs([
 
 const breadcrumbs = computed<ConnectionNodeConfig[]>(() => {
     if (activeItem.value == null) return [homeBreadcrumb, ...currentFolderNodes.value];
-    return [homeBreadcrumb, ...currentFolderNodes.value, activeItem.value];
+    return [homeBreadcrumb, ...currentFolderNodes.value];
 });
 
 const connectionNodeConfigs = computed<ConnectionNodeConfig[]>(() => listNodesResult.value?.connectionNodeConfigs ?? []);
@@ -134,9 +135,9 @@ async function handleSubmit(): Promise<void> {
 }
 
 async function selectBreadcrumb(index: number): Promise<void> {
-    if (index === breadcrumbs.value.length - 1) return;
-
     activeItem.value = undefined;
+
+    if (index === breadcrumbs.value.length - 1) return;
 
     if (index <= 0) {
         currentFolderNodes.value = [];
@@ -235,7 +236,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
         <GridDetailPanel :active-item="activeItem" class="flex-1" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
             <template #header>
                 <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
-                    <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" @select="selectBreadcrumb" />
+                    <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeItem == null" @select="selectBreadcrumb" />
 
                     <Tabs class="ml-4 h-full flex-none shrink-0" :active-item-id="activeTabId" :items="tabs" @select="selectTab">
                         <template #default="{ item }">{{ item.label }}</template>
