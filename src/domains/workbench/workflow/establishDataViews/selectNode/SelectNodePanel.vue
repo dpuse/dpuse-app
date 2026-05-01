@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import type { ColumnDef } from '@tanstack/vue-table';
+import { XIcon } from 'lucide-vue-next';
 import { computed, markRaw, onMounted, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -24,6 +25,7 @@ import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
+import Button from '@/components/ui/button/Button.vue';
 import FloatingButton from '@/components/ui/button/FloatingButton.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
@@ -150,7 +152,12 @@ async function selectBreadcrumb(index: number): Promise<void> {
     await loadFolderNodes(currentFolderPath.value);
 }
 
-async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
+async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig | undefined): Promise<void> {
+    if (connectionNodeConfig == null) {
+        activeItem.value = undefined;
+        return;
+    }
+
     if (connectionNodeConfig.typeId === 'folder') {
         currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
         activeItem.value = undefined;

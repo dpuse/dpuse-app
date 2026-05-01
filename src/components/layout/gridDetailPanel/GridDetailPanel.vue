@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends { label: string }">
 // External Dependencies
-// import { ArrowBigLeftIcon } from 'lucide-vue-next';
+import { XIcon } from 'lucide-vue-next';
 import { nextTick, ref, watch } from 'vue';
 
 // Local (App) Framework
@@ -31,7 +31,7 @@ const slots = defineSlots<{
     'no-selection'(): unknown;
 }>();
 
-const emit = defineEmits<{ select: [item: T] }>();
+const emit = defineEmits<{ select: [item: T | undefined] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -102,6 +102,15 @@ async function selectItem(row: T): Promise<void> {
                         <!-- <Button variant="iconSmall" @click="detailPaneIsVisible = false">
                             <ArrowBigLeftIcon class="flex-none" :stroke-width="1.25" />
                         </Button> -->
+                        <Button
+                            variant="iconSmall"
+                            @click="
+                                detailPaneIsVisible = false;
+                                $emit('select', undefined);
+                            "
+                        >
+                            <XIcon stroke-width="1.25" />
+                        </Button>
                     </div>
 
                     <!-- Detail Body -->
