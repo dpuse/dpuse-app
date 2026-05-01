@@ -265,7 +265,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                     </div>
 
                     <FloatingButton
-                        class="fixed right-[calc(env(safe-area-inset-left)+12px)]! bottom-[calc(env(safe-area-inset-bottom)+0px)]"
+                        class="fixed right-[calc(env(safe-area-inset-left)+12px)]! bottom-[calc(env(safe-area-inset-bottom)+16px)]"
                         variant="next"
                         @click="handleSubmit"
                     />
@@ -279,8 +279,8 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
     </div>
 </template>
 
-<style scoped>
+<!-- <style scoped>
 :deep([data-overlayscrollbars-viewport]) {
     overscroll-behavior: none;
 }
-</style>
+</style> -->

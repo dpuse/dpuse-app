@@ -78,11 +78,15 @@ function onViewportScroll(): void {
     </div>
 </template>
 
-<!-- <style scoped>
-:deep(.os-scrollbar-horizontal) {
+<style scoped>
+:deep([data-overlayscrollbars-viewport]) {
+    overscroll-behavior: none;
+}
+
+/* :deep(.os-scrollbar-horizontal) {
     bottom: calc(min(env(safe-area-inset-bottom), 16px) + 8px) !important;
 }
 :deep(.os-scrollbar-vertical) {
     bottom: calc(min(env(safe-area-inset-bottom), 16px) + 8px) !important;
-}
-</style> -->
+} */
+</style>
