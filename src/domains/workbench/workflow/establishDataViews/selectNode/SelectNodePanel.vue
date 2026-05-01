@@ -259,7 +259,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                         <div class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
                     </div>
 
-                    <div class="border-separator relative flex h-6 w-full flex-none items-center justify-center border-x border-t bg-amber-50 text-xs">
+                    <div class="border-separator relative flex h-7 w-full flex-none items-center justify-center border-x border-t bg-amber-50 text-xs">
                         <div class="absolute top-0 bottom-0 left-0 bg-green-200" :style="{ width: `${previewPercentage}%` }"></div>
                         <div class="relative pl-1 text-zinc-600">{{ previewMessage }}</div>
                     </div>
