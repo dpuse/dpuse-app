@@ -5,7 +5,7 @@ import type { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
 import { onUnmounted, ref } from 'vue';
 
-// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
+// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────,
 
 const { rowCount = 0 } = defineProps<{ rowCount?: number }>();
 
@@ -59,13 +59,18 @@ function onViewportScroll(): void {
 
 <template>
     <div class="relative">
-        <OverlayScrollbarsComponent class="h-full" defer :options="{ scrollbars: { autoHide: 'leave' } }" @os-initialized="handleInitialised">
+        <OverlayScrollbarsComponent
+            class="h-full"
+            defer
+            :options="{ scrollbars: { autoHide: 'scroll', autoHideSuspend: true, dragScroll: true, visibility: 'auto' } }"
+            @os-initialized="handleInitialised"
+        >
             <slot />
         </OverlayScrollbarsComponent>
 
         <div
             v-if="isDragging && rowCount > 0"
-            class="pointer-events-none absolute right-4 z-20 rounded-full bg-zinc-800 px-3 py-1.5 text-sm font-semibold text-zinc-50 select-none dark:bg-zinc-200 dark:text-zinc-800"
+            class="pointer-events-none absolute right-10 z-20 rounded-full bg-zinc-800 px-3 py-1.5 text-sm font-semibold text-zinc-50 select-none dark:bg-zinc-200 dark:text-zinc-800"
             :style="{ top: labelOffsetY + 'px', transform: 'translateY(-50%)' }"
         >
             {{ currentRow.toLocaleString() }}
