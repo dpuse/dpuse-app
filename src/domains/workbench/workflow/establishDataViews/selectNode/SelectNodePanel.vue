@@ -197,11 +197,11 @@ function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewC
     const nodeSize = connectionNodeConfig.size ?? 0;
     previewPercentage.value = nodeSize > 0 ? (previewSize / nodeSize) * 100 : 0;
     if (nodeSize === 0) {
-        previewMessage.value = `Previewing ${formatNumberAsStorageSize(previewSize)} (total size unknown).`;
+        previewMessage.value = `Previewing ${formatNumberAsStorageSize(previewSize)} (total size unknown)`;
     } else if (previewSize === nodeSize) {
-        previewMessage.value = `Previewing ${formatNumberAsStorageSize(previewSize)} (entire file).`;
+        previewMessage.value = `Previewing ${formatNumberAsStorageSize(previewSize)} (entire file)`;
     } else {
-        previewMessage.value = `Previewing ${formatNumberAsStorageSize(previewSize)} of ${formatNumberAsStorageSize(nodeSize)} (${formatNumberAsDecimalNumber(previewPercentage.value, 2, 0)}%).`;
+        previewMessage.value = `Previewing ${formatNumberAsStorageSize(previewSize)} of ${formatNumberAsStorageSize(nodeSize)} (${formatNumberAsDecimalNumber(previewPercentage.value, 1, 0)}%)`;
     }
     text.value = previewConfig.text;
 
@@ -239,9 +239,9 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                 <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
                     <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeItem == null" @select="selectBreadcrumb" />
 
-                    <Tabs class="ml-4 h-full flex-none shrink-0" :active-item-id="activeTabId" :items="tabs" @select="selectTab">
+                    <!-- <Tabs class="ml-4 h-full flex-none shrink-0" :active-item-id="activeTabId" :items="tabs" @select="selectTab">
                         <template #default="{ item }">{{ item.label }}</template>
-                    </Tabs>
+                    </Tabs> -->
                 </div>
             </template>
 
@@ -264,11 +264,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                         <div class="relative pl-1 text-zinc-600">{{ previewMessage }}</div>
                     </div>
 
-                    <FloatingButton
-                        class="fixed right-[calc(env(safe-area-inset-left)+12px)]! bottom-[calc(env(safe-area-inset-bottom)+16px)]"
-                        variant="next"
-                        @click="handleSubmit"
-                    />
+                    <FloatingButton class="fixed right-[calc(env(safe-area-inset-left)+12px)]! bottom-10" variant="next" @click="handleSubmit" />
                 </div>
             </template>
 

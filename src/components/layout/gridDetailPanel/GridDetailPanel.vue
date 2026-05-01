@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends { label: string }">
 // External Dependencies
-import { ArrowBigLeftIcon } from 'lucide-vue-next';
+// import { ArrowBigLeftIcon } from 'lucide-vue-next';
 import { nextTick, ref, watch } from 'vue';
 
 // Local (App) Framework
@@ -99,9 +99,9 @@ async function selectItem(row: T): Promise<void> {
                     <div class="border-separator ml-4 flex h-10 items-center justify-between gap-x-1 overflow-hidden border-b">
                         <span class="min-w-0 truncate text-sm">{{ activeItem.label }}</span>
 
-                        <Button variant="iconSmall" @click="detailPaneIsVisible = false">
+                        <!-- <Button variant="iconSmall" @click="detailPaneIsVisible = false">
                             <ArrowBigLeftIcon class="flex-none" :stroke-width="1.25" />
-                        </Button>
+                        </Button> -->
                     </div>
 
                     <!-- Detail Body -->
