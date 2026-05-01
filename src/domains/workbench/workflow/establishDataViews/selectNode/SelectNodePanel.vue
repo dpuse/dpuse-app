@@ -251,11 +251,6 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 
             <template #detail>
                 <div class="flex h-full flex-col pl-4">
-                    <div class="border-separator relative flex h-5 w-full flex-none items-center border-x border-b bg-amber-50 text-xs">
-                        <div class="absolute top-0 bottom-0 left-0 bg-green-200" :style="{ width: `${previewPercentage}%` }"></div>
-                        <div class="relative pl-1 text-zinc-600">{{ previewMessage }}</div>
-                    </div>
-
                     <Table v-if="activeTabId === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
                     <TextViewer v-if="activeTabId === 'text'" class="flex-1" :text="text" />
@@ -264,7 +259,16 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                         <div class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
                     </div>
 
-                    <FloatingButton class="right-0!" variant="next" @click="handleSubmit" />
+                    <div class="border-separator relative flex h-5 w-full flex-none items-center border-x border-t bg-amber-50 text-xs">
+                        <div class="absolute top-0 bottom-0 left-0 bg-green-200" :style="{ width: `${previewPercentage}%` }"></div>
+                        <div class="relative pl-1 text-zinc-600">{{ previewMessage }}</div>
+                    </div>
+
+                    <FloatingButton
+                        class="fixed right-[calc(env(safe-area-inset-left)+12px)]! bottom-[calc(env(safe-area-inset-bottom)+24px)]"
+                        variant="next"
+                        @click="handleSubmit"
+                    />
                 </div>
             </template>
 
