@@ -206,6 +206,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 
 <template>
     <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
+        <!-- ??? -->
         <div class="to-surface/95 fixed inset-x-0 top-0 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent" />
 
         <!-- Navigation progress bar. Always visible. -->
@@ -254,7 +255,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </div>
 
         <!-- Session button - always visible, independent of pane state -->
-        <div class="bottom--[calc(env(safe-area-inset-bottom)+16px)] fixed left-[calc(env(safe-area-inset-left)+12px)] z-40">
+        <div class="fixed bottom-[calc(env(safe-area-inset-bottom)+16px)] left-[calc(env(safe-area-inset-left)+12px)] z-40">
             <SessionButton :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
         </div>
 
@@ -312,7 +313,8 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             <KnowledgeLayout class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
         </div>
 
-        <div class="fixed inset-x-0 bottom-0 h-[env(safe-area-inset-bottom)] bg-linear-to-b from-red-100 to-red-100" />
+        <!-- ??? -->
+        <div class="from-surface/95 fixed inset-x-0 bottom-0 h-[env(safe-area-inset-bottom)] bg-linear-to-b to-transparent" />
     </div>
 </template>
 
