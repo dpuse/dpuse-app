@@ -40,7 +40,7 @@ const resizeObserver = new ResizeObserver((entries) => {
         columnWidth.value = Math.floor(width / columnCount.value);
     }
 });
-const { virtualRows, totalRowCount, getRow } = useDataWindow({
+const { virtualRows, totalSize, getRow } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
     count: () => Math.ceil(dataSource.rowCount / columnCount.value),
@@ -69,8 +69,8 @@ function handleInitialised(viewport: HTMLElement): void {
 </script>
 
 <template>
-    <ScrollArea class="h-full" role="list" :row-count="totalRowCount" @initialised="handleInitialised">
-        <div :style="{ height: totalRowCount + 'px', position: 'relative' }">
+    <ScrollArea class="h-full px-4" role="list" :row-count="dataSource.rowCount" @initialised="handleInitialised">
+        <div :style="{ height: totalSize + 'px', position: 'relative' }">
             <div
                 v-for="virtualRow in virtualRows"
                 :key="virtualRow.index"
@@ -80,7 +80,7 @@ function handleInitialised(viewport: HTMLElement): void {
                 <template v-for="columnOffset in columnOffsets" :key="columnOffset">
                     <!-- Skip cells beyond the last data item (last row may be partially filled) -->
                     <div v-if="virtualRow.index * columnCount + columnOffset < dataSource.rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
-                        <div class="h-full px-4" :class="[isCompact ? 'pt-2' : 'pt-4']">
+                        <div class="h-full" :class="[isCompact ? 'pt-2' : 'pt-4']">
                             <slot
                                 v-if="isCompact && getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
                                 name="compact"

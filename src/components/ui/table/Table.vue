@@ -58,7 +58,7 @@ const columnVirtualizer = useVirtualizer({
 
 // State - Rows ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const { virtualRows, totalRowCount, visibleRowData } = useDataWindow({
+const { virtualRows, totalSize, visibleRowData } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
     cacheBlockSize: () => cacheBlockSize,
@@ -184,7 +184,7 @@ onBeforeUnmount(() => toolbarObserver?.disconnect());
                 </div>
 
                 <!-- Virtual rows spacer -->
-                <div class="relative" :style="{ height: totalRowCount + 'px' }">
+                <div class="relative" :style="{ height: totalSize + 'px' }">
                     <div
                         v-for="(vRow, i) in virtualRows"
                         :key="vRow.index"

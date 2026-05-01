@@ -18,7 +18,7 @@ type Options<T> = {
 
 type DataWindow<T> = {
     virtualRows: ComputedRef<VirtualItem[]>;
-    totalRowCount: ComputedRef<number>;
+    totalSize: ComputedRef<number>;
     visibleRowData: ComputedRef<(T | undefined)[]>;
     getRow: (dataIndex: number) => T | undefined;
 };
@@ -72,7 +72,7 @@ export function useDataWindow<T>({
     // Row Virtualizer: Derived State ──────────────────────────────────────────────────────────────────────────────────
 
     const virtualRows = computed(() => virtualizer.value.getVirtualItems());
-    const totalRowCount = computed(() => virtualizer.value.getTotalSize());
+    const totalSize = computed(() => virtualizer.value.getTotalSize());
     const visibleRowData = computed((): T[] => {
         void blockCacheVersion.value; // Only recomputes when `virtualRows` or `blockCacheVersion` changes — never on resize.
         return virtualRows.value.map((virtualRow) => getRow(virtualRow.index)) as T[];
@@ -148,5 +148,5 @@ export function useDataWindow<T>({
         blockLruOrder.push(blockIndex);
     }
 
-    return { virtualRows, totalRowCount, visibleRowData, getRow };
+    return { virtualRows, totalSize, visibleRowData, getRow };
 }
