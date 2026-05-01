@@ -62,7 +62,7 @@ function onViewportScroll(): void {
         <OverlayScrollbarsComponent
             class="h-full"
             defer
-            :options="{ scrollbars: { autoHide: 'scroll', autoHideSuspend: true, dragScroll: true, visibility: 'auto' } }"
+            :options="{ scrollbars: { autoHide: 'leave', autoHideSuspend: true, dragScroll: true, visibility: 'auto' } }"
             @os-initialized="handleInitialised"
         >
             <slot />
@@ -78,11 +78,11 @@ function onViewportScroll(): void {
     </div>
 </template>
 
-<style scoped>
+<!-- <style scoped>
 :deep(.os-scrollbar-horizontal) {
     bottom: calc(min(env(safe-area-inset-bottom), 16px) + 8px) !important;
 }
 :deep(.os-scrollbar-vertical) {
     bottom: calc(min(env(safe-area-inset-bottom), 16px) + 8px) !important;
 }
-</style>
+</style> -->
