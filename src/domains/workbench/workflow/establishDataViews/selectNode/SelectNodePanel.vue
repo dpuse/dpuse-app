@@ -267,13 +267,17 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                     </div>
 
                     <div
-                        class="border-separator relative flex h-[calc(max(env(safe-area-inset-bottom),20px)+1px)] w-full flex-none items-center justify-center border-x border-t bg-zinc-50 text-xs"
+                        class="border-separator bg-backdrop relative flex h-[calc(max(env(safe-area-inset-bottom),20px)+1px)] w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"
                     >
-                        <div class="absolute top-0 bottom-0 left-0 bg-green-200" :style="{ width: `${previewPercentage}%` }"></div>
-                        <div class="relative pl-1 text-zinc-600">{{ previewMessage }}</div>
+                        <div class="absolute top-0 bottom-px left-0 bg-green-200 dark:bg-green-500/30" :style="{ width: `${previewPercentage}%` }"></div>
+                        <div class="text-muted relative pl-1">{{ previewMessage }}</div>
                     </div>
 
-                    <FloatingButton class="fixed right-[calc(env(safe-area-inset-left)+12px)]! bottom-12" variant="next" @click="handleSubmit" />
+                    <FloatingButton
+                        class="fixed right-[calc(env(safe-area-inset-left)+32px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)]"
+                        variant="next"
+                        @click="handleSubmit"
+                    />
                 </div>
             </template>
 

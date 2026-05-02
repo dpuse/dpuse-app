@@ -1,14 +1,14 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.901",
+    "version": "0.0.902",
     "private": true,
     "type": "module",
     "engines": {
         "node": "^20.19.0 || >=22.12.0"
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^0.3.658",
+        "@dpuse/dpuse-shared": "^0.3.659",
         "@formkit/drag-and-drop": "^0.5.3",
         "@tailwindcss/vite": "^4.2.4",
         "@tanstack/ai-client": "^0.8.0",
@@ -26,7 +26,7 @@
     },
     "devDependencies": {
         "@cloudflare/vite-plugin": "^1.35.0",
-        "@cloudflare/workers-types": "^4.20260501.1",
+        "@cloudflare/workers-types": "^4.20260502.1",
         "@dpuse/dpuse-development": "^0.3.497",
         "@playwright/test": "^1.59.1",
         "@tsconfig/node24": "^24.0.4",
@@ -52,7 +52,7 @@
         "eslint-plugin-vuejs-accessibility": "^2.5.0",
         "jiti": "^2.6.1",
         "jsdom": "^29.1.1",
-        "npm-check-updates": "^22.0.1",
+        "npm-check-updates": "^22.1.0",
         "npm-run-all2": "^8.0.4",
         "prettier": "3.8.3",
         "prettier-plugin-tailwindcss": "^0.8.0",
