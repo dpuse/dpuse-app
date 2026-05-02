@@ -35,7 +35,7 @@ body {
     --boundary: var(--color-zinc-100);
     --separator: var(--color-zinc-200);
     --content: var(--color-zinc-800);
-    --muted: var(--color-zinc-500);
+    --muted: var(--color-zinc-400);
 }
 
 .dark {
@@ -47,7 +47,7 @@ body {
     --boundary: var(--color-zinc-700);
     --separator: var(--color-zinc-700);
     --content: var(--color-zinc-300);
-    --muted: var(--color-zinc-400);
+    --muted: var(--color-zinc-500);
 }
 
 @layer utilities {

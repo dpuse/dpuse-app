@@ -24,17 +24,33 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<StepConfig>] }>();
             v-for="item in items"
             :key="item.id"
             :aria-selected="activeStepId === item.id"
-            class="border-y-2 border-t-transparent pb-1 leading-tight"
+            class="border-y-2 border-b-transparent py-1 leading-tight"
             :class="{
-                'border-b-blue-500': activeStepId === item.id,
-                'border-b-zinc-500': activeStepId !== item.id && !item.disabled,
-                'border-b-zinc-200': activeStepId !== item.id && item.disabled
+                'border-t-blue-400 dark:border-t-sky-500': activeStepId === item.id || !item.disabled,
+                'border-t-zinc-300 dark:border-t-zinc-600': item.disabled
             }"
             :to="item.id == null || item.disabled ? undefined : { name: item.id, query: { ...$route.query, wbView: item.id } }"
             role="tab"
             @click="$emit('select', item)"
         >
-            <slot :item="item" />
+            <div
+                class="hidden text-xs font-medium sm:block"
+                :class="{
+                    'text-blue-600 dark:text-sky-400': activeStepId === item.id || !item.disabled,
+                    'text-muted': item.disabled
+                }"
+            >
+                Step&nbsp;{{ item.number }}
+            </div>
+            <div
+                :class="{
+                    'text-zinc-800 dark:text-zinc-300': activeStepId === item.id || !item.disabled,
+                    'text-zinc-500 dark:text-zinc-400': item.disabled
+                }"
+            >
+                <span class="block text-sm sm:hidden"> {{ item.label }}</span>
+                <span class="hidden text-sm sm:block">{{ item.verb }} {{ item.label }}</span>
+            </div>
         </component>
     </div>
 </template>

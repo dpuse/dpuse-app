@@ -61,7 +61,7 @@ const router = useRouter();
 
 const text = ref<string | undefined>();
 
-// TODO: Fix this icon data type issue.
+// TODO: Fix this icon data type compatibility issue.
 const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as unknown as ConnectionNodeConfig;
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────

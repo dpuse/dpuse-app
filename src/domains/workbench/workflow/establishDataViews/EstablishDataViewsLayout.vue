@@ -93,13 +93,7 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
         <!-- Action Bar -->
         <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
             <!-- Steps -->
-            <Steps v-if="activeStepLocalisedConfig" :active-step-id="activeStepLocalisedConfig.id" :items="stepLocalisedConfigs">
-                <template #default="{ item }">
-                    <div class="text-muted text-xs font-medium">{{ t(T, 'Step') }}&nbsp;{{ item.number }}</div>
-                    <span class="block text-sm sm:hidden"> {{ item.label }}</span>
-                    <span class="hidden text-sm sm:block">{{ item.verb }} {{ item.label }}</span>
-                </template>
-            </Steps>
+            <Steps v-if="activeStepLocalisedConfig" :active-step-id="activeStepLocalisedConfig.id" :items="stepLocalisedConfigs" />
 
             <!-- Add Action -->
             <RouterLink

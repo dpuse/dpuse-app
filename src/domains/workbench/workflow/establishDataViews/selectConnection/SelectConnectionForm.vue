@@ -84,6 +84,7 @@ async function handleSubmit(): Promise<void> {
 
         <FloatingButton
             class="right-[calc(env(safe-area-inset-left)+16px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)]"
+            :type-label="'Connection'"
             variant="next"
             :verb="'Select'"
             @click="$emit('submit')"
