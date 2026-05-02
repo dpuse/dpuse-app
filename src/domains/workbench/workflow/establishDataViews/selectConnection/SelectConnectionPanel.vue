@@ -84,11 +84,11 @@ function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionC
 <template>
     <GridDetailPanel :active-item="activeConnectionConfig" :data-source="dataSource" enable-add-action max-detail-width="400px" @select="selectConnection">
         <template #list-item-default="{ item }">
-            <Card v-if="item" :icon="item.icon ?? undefined" :label="item.label" />
+            <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
         </template>
 
         <template #list-item-compact="{ item }">
-            <Tile v-if="item" :icon="item.icon ?? undefined" :label="item.label" />
+            <Tile v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
         </template>
 
         <template #detail="{ item }">

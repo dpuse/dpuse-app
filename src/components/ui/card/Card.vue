@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // Properties, Slots & Emits
 type Badge = { id: string; color?: string; label: string };
-type Properties = { badges?: Badge[]; icon?: string; iconColor?: string; label: string; overline?: string };
-const { badges = [], icon, iconColor, label, overline } = defineProps<Properties>();
+type Properties = { badges?: Badge[]; icon?: string; iconDark?: string; iconColor?: string; label: string; overline?: string };
+const { badges = [], icon, iconDark, iconColor, label, overline } = defineProps<Properties>();
 </script>
 
 <template>
@@ -22,9 +22,11 @@ const { badges = [], icon, iconColor, label, overline } = defineProps<Properties
             </template>
         </div>
 
-        <div class="flex size-10 items-center justify-center rounded-md">
-            <div v-if="icon" aria-hidden="true" class="w-9" :style="iconColor ? { color: iconColor } : undefined" v-html="icon" />
+        <div v-if="icon || iconDark" class="flex size-10 items-center justify-center rounded-md">
+            <div aria-hidden="true" class="block w-9 dark:hidden" :style="iconColor ? { color: iconColor } : undefined" v-html="icon || iconDark" />
+            <div aria-hidden="true" class="hidden w-9 dark:block" v-html="iconDark || icon" />
         </div>
+
         <div class="flex flex-col">
             <div v-if="overline" class="text-muted text-xs font-normal">{{ overline }}</div>
             <div>{{ label }}</div>
