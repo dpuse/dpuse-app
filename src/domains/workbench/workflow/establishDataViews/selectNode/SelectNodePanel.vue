@@ -236,11 +236,11 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 
             <template #detail>
                 <div class="flex h-full flex-col pl-4">
-                    <Table v-if="activeTabId === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
+                    <Table v-show="activeTabId === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
-                    <TextViewer v-else-if="activeTabId === 'text'" class="flex-1" :text="text" />
+                    <TextViewer v-show="activeTabId === 'text'" class="flex-1" :text="text" />
 
-                    <div v-else class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
+                    <div v-show="activeTabId === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
 
                     <div
                         class="border-separator bg-backdrop relative flex h-[calc(max(env(safe-area-inset-bottom),20px)+1px)] w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"
@@ -265,6 +265,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                             >
                                 {{ t(T, 'tab.table') }}
                             </button>
+
                             <button
                                 type="button"
                                 class="relative -ml-px inline-flex items-center px-2 py-2 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 focus:z-10"
@@ -278,6 +279,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                             >
                                 {{ t(T, 'tab.text') }}
                             </button>
+
                             <button
                                 type="button"
                                 class="relative -ml-px inline-flex items-center px-2 py-2 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 focus:z-10"
@@ -291,8 +293,10 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                             >
                                 {{ t(T, 'tab.details') }}
                             </button>
+
                             <!-- Divider -->
                             <span class="relative z-10 -ml-px inline-flex w-px self-stretch bg-blue-400 dark:bg-blue-500" aria-hidden="true"></span>
+
                             <!-- Action button (accent cap) -->
                             <button
                                 type="button"
