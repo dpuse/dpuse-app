@@ -82,6 +82,11 @@ async function handleSubmit(): Promise<void> {
             <div>version: {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
         </ContentScroller>
 
-        <FloatingButton class="right-0!" variant="next" @click="$emit('submit')" />
+        <FloatingButton
+            class="right-[calc(env(safe-area-inset-left)+16px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)]"
+            variant="next"
+            :verb="'Select'"
+            @click="$emit('submit')"
+        />
     </form>
 </template>

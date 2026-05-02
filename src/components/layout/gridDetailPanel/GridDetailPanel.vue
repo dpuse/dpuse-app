@@ -14,13 +14,7 @@ import Grid from '@/components/ui/grid/Grid.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
-type Properties = {
-    activeItem?: T;
-    dataSource: DataSource<T>;
-    enableAddAction?: boolean;
-    maxListWidth?: string;
-    maxDetailWidth?: string;
-};
+type Properties = { activeItem?: T; dataSource: DataSource<T>; enableAddAction?: boolean; maxListWidth?: string; maxDetailWidth?: string };
 const { activeItem, dataSource, enableAddAction = false, maxListWidth, maxDetailWidth } = defineProps<Properties>();
 
 const slots = defineSlots<{
@@ -84,7 +78,11 @@ async function selectItem(row: T): Promise<void> {
                     </template>
                 </Grid>
 
-                <FloatingButton v-if="enableAddAction" variant="add" />
+                <FloatingButton
+                    v-if="enableAddAction"
+                    class="right-[calc(env(safe-area-inset-left)+32px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)]"
+                    variant="add"
+                />
             </div>
 
             <!-- Detail Pane -->

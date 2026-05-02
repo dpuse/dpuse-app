@@ -274,8 +274,9 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                     </div>
 
                     <FloatingButton
-                        class="fixed right-[calc(env(safe-area-inset-left)+32px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)]"
+                        class="right-[calc(env(safe-area-inset-left)+32px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)]"
                         variant="next"
+                        :verb="'Select'"
                         @click="handleSubmit"
                     />
                 </div>
