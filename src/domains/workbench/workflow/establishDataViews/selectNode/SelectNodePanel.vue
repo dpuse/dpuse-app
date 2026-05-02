@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
+import { ArrowBigRightIcon } from 'lucide-vue-next';
 import type { ColumnDef } from '@tanstack/vue-table';
-import { ArrowBigRightIcon, XIcon } from 'lucide-vue-next';
 import { computed, markRaw, onMounted, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -16,22 +16,18 @@ import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@d
 import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
 import T from './SelectNodePanel.json';
-import type { TabConfig } from '@/composables/useTabs';
 import { useEngine } from '@/services/useEngine';
-import { useTabs } from '@/composables/useTabs';
 import { activeConnectionConfig, activeConnectionNodeConfig } from '@/state/establishDataViews';
 import { connectionConfigs, getLocalisedConnection } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
-import Button from '@/components/ui/button/Button.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import type { StepConfig } from '@/components/ui/steps/Steps.vue';
 import Table from '@/components/ui/table/Table.vue';
-import Tabs from '@/components/ui/tabs/Tabs.vue';
 import TextViewer from '@/components/ui/textViewer/TextViewer.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 
@@ -67,18 +63,9 @@ const text = ref<string | undefined>();
 
 const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as ConnectionNodeConfig;
 
-const { tabs } = useTabs([
-    { id: 'table', label: 'Table' },
-    { id: 'text', label: 'Text' },
-    { id: 'details', label: 'Details' }
-]);
-
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const breadcrumbs = computed<ConnectionNodeConfig[]>(() => {
-    if (activeItem.value == null) return [homeBreadcrumb, ...currentFolderNodes.value];
-    return [homeBreadcrumb, ...currentFolderNodes.value];
-});
+const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...currentFolderNodes.value]);
 
 const connectionNodeConfigs = computed<ConnectionNodeConfig[]>(() => listNodesResult.value?.connectionNodeConfigs ?? []);
 
@@ -167,10 +154,6 @@ async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
     activeItem.value = connectionNodeConfig;
 }
 
-function selectTab(tabConfig: TabConfig): void {
-    activeTabId.value = tabConfig.id as TabId;
-}
-
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function getFolderPath(connectionNodeConfig: ConnectionNodeConfig): string {
@@ -244,10 +227,6 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
             <template #header>
                 <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
                     <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeItem == null" @select="selectBreadcrumb" />
-
-                    <!-- <Tabs class="ml-4 h-full flex-none shrink-0" :active-item-id="activeTabId" :items="tabs" @select="selectTab">
-                        <template #default="{ item }">{{ item.label }}</template>
-                    </Tabs> -->
                 </div>
             </template>
 
@@ -259,11 +238,9 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                 <div class="flex h-full flex-col pl-4">
                     <Table v-if="activeTabId === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
-                    <TextViewer v-if="activeTabId === 'text'" class="flex-1" :text="text" />
+                    <TextViewer v-else-if="activeTabId === 'text'" class="flex-1" :text="text" />
 
-                    <div v-else class="flex-1">
-                        <div class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
-                    </div>
+                    <div v-else class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
 
                     <div
                         class="border-separator bg-backdrop relative flex h-[calc(max(env(safe-area-inset-bottom),20px)+1px)] w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"
@@ -277,38 +254,56 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                             <!-- View mode buttons -->
                             <button
                                 type="button"
-                                class="relative inline-flex items-center rounded-l-full bg-white py-2 pr-2 pl-3 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 focus:z-10"
-                                :class="activeTabId === 'table' ? 'font-semibold text-blue-600' : ''"
+                                class="relative inline-flex items-center rounded-l-full py-2 pr-2 pl-3 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 focus:z-10"
+                                :class="
+                                    activeTabId === 'table'
+                                        ? 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-600'
+                                        : 'bg-white hover:bg-gray-50 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                "
+                                :aria-pressed="activeTabId === 'table'"
                                 @click="activeTabId = 'table'"
                             >
-                                Table
+                                {{ t(T, 'tab.table') }}
                             </button>
                             <button
                                 type="button"
-                                class="relative -ml-px inline-flex items-center bg-white px-2 py-2 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 focus:z-10"
-                                :class="activeTabId === 'text' ? 'font-semibold text-blue-600' : ''"
+                                class="relative -ml-px inline-flex items-center px-2 py-2 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 focus:z-10"
+                                :class="
+                                    activeTabId === 'text'
+                                        ? 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-600'
+                                        : 'bg-white hover:bg-gray-50 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                "
+                                :aria-pressed="activeTabId === 'text'"
                                 @click="activeTabId = 'text'"
                             >
-                                Text
+                                {{ t(T, 'tab.text') }}
                             </button>
                             <button
                                 type="button"
-                                class="relative -ml-px inline-flex items-center bg-white px-2 py-2 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 focus:z-10"
-                                :class="activeTabId === 'details' ? 'font-semibold text-blue-600' : ''"
+                                class="relative -ml-px inline-flex items-center px-2 py-2 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 focus:z-10"
+                                :class="
+                                    activeTabId === 'details'
+                                        ? 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-600'
+                                        : 'bg-white hover:bg-gray-50 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+                                "
+                                :aria-pressed="activeTabId === 'details'"
                                 @click="activeTabId = 'details'"
                             >
-                                Details
+                                {{ t(T, 'tab.details') }}
                             </button>
                             <!-- Divider -->
-                            <span class="relative -ml-px inline-flex w-px self-stretch bg-gray-300 dark:bg-gray-600" aria-hidden="true"></span>
+                            <span class="relative z-10 -ml-px inline-flex w-px self-stretch bg-blue-400 dark:bg-blue-500" aria-hidden="true"></span>
                             <!-- Action button (accent cap) -->
                             <button
                                 type="button"
                                 class="relative -ml-px inline-flex items-center gap-x-1 rounded-r-full border border-blue-400 bg-blue-50 py-2 pr-3 pl-2.5 text-xs text-blue-600 hover:bg-blue-100 focus:z-10 dark:border-blue-500 dark:bg-blue-950 dark:text-blue-400 dark:hover:bg-blue-900"
                                 @click="handleSubmit"
                             >
-                                <span>Select</span>
-                                <ArrowBigRightIcon class="size-4" :stroke-width="1.25" />
+                                <div class="flex flex-col items-end leading-none">
+                                    <span>{{ t(T, 'select') }}</span>
+                                    <span>{{ t(T, 'node') }}</span>
+                                </div>
+                                <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
                             </button>
                         </span>
                     </div>
