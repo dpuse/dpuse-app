@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import type { ColumnDef } from '@tanstack/vue-table';
-import { XIcon } from 'lucide-vue-next';
+import { ArrowBigRightIcon, XIcon } from 'lucide-vue-next';
 import { computed, markRaw, onMounted, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -26,7 +26,6 @@ import { localeId, t } from '@/state/locale';
 // Local Components - Static
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 import Button from '@/components/ui/button/Button.vue';
-import FloatingButton from '@/components/ui/button/FloatingButton.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
@@ -44,7 +43,7 @@ const emit = defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConf
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-type TabId = 'table' | 'text';
+type TabId = 'table' | 'text' | 'details';
 const activeTabId = ref<TabId>('text');
 
 const activeItem = shallowRef<ConnectionNodeConfig | undefined>();
@@ -273,29 +272,45 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                         <div class="text-muted relative pl-1">{{ previewMessage }}</div>
                     </div>
 
-                    <div class="justify-right fixed right-[calc(env(safe-area-inset-left)+32px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)] flex gap-x-4">
-                        <span class="isolate inline-flex rounded-full shadow-xs">
+                    <div class="justify-right fixed right-[calc(env(safe-area-inset-left)+32px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)]">
+                        <span class="isolate inline-flex h-10 rounded-full shadow-md">
+                            <!-- View mode buttons -->
                             <button
                                 type="button"
-                                class="relative inline-flex items-center rounded-l-full bg-white px-3 py-2 text-sm font-semibold text-gray-900 inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 focus:z-10"
+                                class="relative inline-flex items-center rounded-l-full bg-white py-2 pr-2 pl-3 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 focus:z-10"
+                                :class="activeTabId === 'table' ? 'font-semibold text-blue-600' : ''"
+                                @click="activeTabId = 'table'"
                             >
                                 Table
                             </button>
                             <button
                                 type="button"
-                                class="relative -ml-px inline-flex items-center bg-white px-3 py-2 text-sm font-semibold text-gray-900 inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 focus:z-10"
+                                class="relative -ml-px inline-flex items-center bg-white px-2 py-2 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 focus:z-10"
+                                :class="activeTabId === 'text' ? 'font-semibold text-blue-600' : ''"
+                                @click="activeTabId = 'text'"
                             >
                                 Text
                             </button>
                             <button
                                 type="button"
-                                class="relative -ml-px inline-flex items-center rounded-r-full bg-white px-3 py-2 text-sm font-semibold text-gray-900 inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 focus:z-10"
+                                class="relative -ml-px inline-flex items-center bg-white px-2 py-2 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 focus:z-10"
+                                :class="activeTabId === 'details' ? 'font-semibold text-blue-600' : ''"
+                                @click="activeTabId = 'details'"
                             >
                                 Details
                             </button>
+                            <!-- Divider -->
+                            <span class="relative -ml-px inline-flex w-px self-stretch bg-gray-300 dark:bg-gray-600" aria-hidden="true"></span>
+                            <!-- Action button (accent cap) -->
+                            <button
+                                type="button"
+                                class="relative -ml-px inline-flex items-center gap-x-1 rounded-r-full border border-blue-400 bg-blue-50 py-2 pr-3 pl-2.5 text-xs text-blue-600 hover:bg-blue-100 focus:z-10 dark:border-blue-500 dark:bg-blue-950 dark:text-blue-400 dark:hover:bg-blue-900"
+                                @click="handleSubmit"
+                            >
+                                <span>Select</span>
+                                <ArrowBigRightIcon class="size-4" :stroke-width="1.25" />
+                            </button>
                         </span>
-
-                        <FloatingButton class="" variant="next" :verb="'Select'" @click="handleSubmit" />
                     </div>
                 </div>
             </template>
