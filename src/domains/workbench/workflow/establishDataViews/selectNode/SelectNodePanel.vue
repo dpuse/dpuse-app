@@ -250,7 +250,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                         <div class="text-muted relative pl-1">{{ previewMessage }}</div>
                     </div>
 
-                    <div class="justify-right fixed right-[calc(env(safe-area-inset-left)+16px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)]">
+                    <div class="justify-right fixed right-[calc(env(safe-area-inset-left)+12px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)]">
                         <span class="isolate inline-flex h-10 rounded-full shadow-md">
                             <!-- View mode buttons -->
                             <button
@@ -321,3 +321,12 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
         </GridDetailPanel>
     </div>
 </template>
+
+<style scoped>
+/* :deep(.os-scrollbar-horizontal) {
+    bottom: calc(min(env(safe-area-inset-bottom), 16px) + 28px) !important;
+} */
+:deep(.os-scrollbar-vertical) {
+    bottom: calc(min(env(safe-area-inset-bottom), 86px) + 88px) !important;
+}
+</style>

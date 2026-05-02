@@ -84,9 +84,9 @@ function onViewportScroll(): void {
 }
 
 /* :deep(.os-scrollbar-horizontal) {
-    bottom: calc(min(env(safe-area-inset-bottom), 16px) + 8px) !important;
+    bottom: calc(min(env(safe-area-inset-bottom), 16px) + 28px) !important;
 }
 :deep(.os-scrollbar-vertical) {
-    bottom: calc(min(env(safe-area-inset-bottom), 16px) + 8px) !important;
+    bottom: calc(min(env(safe-area-inset-bottom), 16px) + 28px) !important;
 } */
 </style>
