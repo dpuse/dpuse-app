@@ -273,12 +273,30 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                         <div class="text-muted relative pl-1">{{ previewMessage }}</div>
                     </div>
 
-                    <FloatingButton
-                        class="right-[calc(env(safe-area-inset-left)+32px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)]"
-                        variant="next"
-                        :verb="'Select'"
-                        @click="handleSubmit"
-                    />
+                    <div class="justify-right fixed right-[calc(env(safe-area-inset-left)+32px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)] flex gap-x-4">
+                        <span class="isolate inline-flex rounded-full shadow-xs">
+                            <button
+                                type="button"
+                                class="relative inline-flex items-center rounded-l-full bg-white px-3 py-2 text-sm font-semibold text-gray-900 inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 focus:z-10"
+                            >
+                                Table
+                            </button>
+                            <button
+                                type="button"
+                                class="relative -ml-px inline-flex items-center bg-white px-3 py-2 text-sm font-semibold text-gray-900 inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 focus:z-10"
+                            >
+                                Text
+                            </button>
+                            <button
+                                type="button"
+                                class="relative -ml-px inline-flex items-center rounded-r-full bg-white px-3 py-2 text-sm font-semibold text-gray-900 inset-ring-1 inset-ring-gray-300 hover:bg-gray-50 focus:z-10"
+                            >
+                                Details
+                            </button>
+                        </span>
+
+                        <FloatingButton class="" variant="next" :verb="'Select'" @click="handleSubmit" />
+                    </div>
                 </div>
             </template>
 
@@ -288,9 +306,3 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
         </GridDetailPanel>
     </div>
 </template>
-
-<!-- <style scoped>
-:deep([data-overlayscrollbars-viewport]) {
-    overscroll-behavior: none;
-}
-</style> -->
