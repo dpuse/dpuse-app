@@ -22,8 +22,9 @@ const { badges = [], icon, iconColor, label, overline } = defineProps<Properties
             </template>
         </div>
 
-        <div v-if="icon" aria-hidden="true" style="height: 32px; width: 32px" :style="iconColor ? { color: iconColor } : undefined" v-html="icon" />
-
+        <div class="flex size-10 items-center justify-center rounded-md">
+            <div v-if="icon" aria-hidden="true" class="w-9" :style="iconColor ? { color: iconColor } : undefined" v-html="icon" />
+        </div>
         <div class="flex flex-col">
             <div v-if="overline" class="text-muted text-xs font-normal">{{ overline }}</div>
             <div>{{ label }}</div>
