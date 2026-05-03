@@ -12,7 +12,7 @@ import { t } from '@/state/locale';
 
 // Local Components - Static
 import FloatingButton from '@/components/ui/button/FloatingButton.vue';
-import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
+import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 

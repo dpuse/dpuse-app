@@ -9,7 +9,7 @@ import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcru
 import Card from '@/components/ui/card/Card.vue';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
-import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
+import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

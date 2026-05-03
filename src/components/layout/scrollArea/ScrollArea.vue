@@ -3,7 +3,10 @@
 import 'overlayscrollbars/overlayscrollbars.css';
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
-import { onUnmounted, ref } from 'vue';
+import { onUnmounted, ref, watch } from 'vue';
+
+// Local (App) Framework
+import { contentScrollPosition, knowledgePaneIsVisible } from '@/state/appLayout';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────,
 
@@ -20,6 +23,10 @@ const currentRow = ref(1);
 const labelOffsetY = ref(0);
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+watch(knowledgePaneIsVisible, (visible) => {
+    if (!visible) contentScrollPosition.value = 0;
+});
 
 onUnmounted(() => {
     osHandleElement?.removeEventListener('pointerdown', onHandlePointerDown);
@@ -51,6 +58,7 @@ function onDocumentPointerUp(): void {
 function onViewportScroll(): void {
     const element = scrollElement;
     if (!element) return;
+    if (knowledgePaneIsVisible.value) contentScrollPosition.value = element.scrollTop;
     const maxScroll = element.scrollHeight - element.clientHeight;
     if (maxScroll <= 0) return;
     const ratio = element.scrollTop / maxScroll;

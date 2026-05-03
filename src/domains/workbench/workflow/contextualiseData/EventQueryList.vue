@@ -23,7 +23,7 @@ import Button from '@/components/ui/button/Button.vue';
 import Card from '@/components/ui/card/Card.vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import Grid from '@/components/ui/grid/Grid.vue';
-import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
+import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));

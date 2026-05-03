@@ -7,7 +7,7 @@ const MEDIA_QUERY = globalThis.matchMedia('(min-width: 768px)');
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const contentScrollTop = ref(0);
+export const contentScrollPosition = ref(0);
 export const displayIsWide = ref(MEDIA_QUERY.matches);
 export const knowledgePaneIsVisible = ref(false); // The pane is actually rendered (visible) in the layout right now.
 export const workbenchPaneIsVisible = ref(false); // The pane is actually rendered (visible) in the layout right now.

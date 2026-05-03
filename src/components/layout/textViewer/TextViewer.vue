@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Local Components - Static
-import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
+import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Properties, Slots & Emits
 const { text, paddingBottom = '64px' } = defineProps<{ text?: string; paddingBottom?: string }>(); // 64px = 16px + 40px + 8px.

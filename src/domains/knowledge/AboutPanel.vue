@@ -3,7 +3,7 @@
 import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkflowOptionConfigs';
 
 // Local Components - Static
-import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
+import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 

@@ -10,7 +10,7 @@ import { isBusy } from '@/state/appProgress';
 import { load } from '@/utils/component';
 import T from './App.json';
 import { t } from '@/state/locale';
-import { contentScrollTop, displayIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
+import { contentScrollPosition, displayIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // Local Components - Static
 import BusyMask from '@/components/layout/busyMask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
@@ -219,7 +219,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <Button
             :aria-label="t(T, 'wb.toggle.label.aria')"
             class="bg-surface pl- fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full!"
-            :class="{ 'shadow-md': !displayIsWide && contentScrollTop > 0 }"
+            :class="{ 'shadow-md': !displayIsWide && contentScrollPosition > 0 }"
             variant="iconLarge"
             @click="toggleWorkbenchAppPane()"
         >
@@ -246,7 +246,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             <Button
                 :aria-label="t(T, 'k.toggle.label.aria')"
                 class="bg-surface rounded-full!"
-                :class="{ 'shadow-md': !displayIsWide && contentScrollTop > 0 }"
+                :class="{ 'shadow-md': !displayIsWide && contentScrollPosition > 0 }"
                 variant="iconLarge"
                 @click="toggleKnowledgeAppPane()"
             >
