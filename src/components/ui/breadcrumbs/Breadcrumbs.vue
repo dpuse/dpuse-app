@@ -8,7 +8,7 @@ import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 
-// Properties, Slots & Emits
+// Options, Properties, Slots & Emits
 const { items = [], disableLast = true } = defineProps<{ items?: T[]; disableLast?: boolean }>();
 defineEmits<{ select: [index: number, item: T] }>();
 

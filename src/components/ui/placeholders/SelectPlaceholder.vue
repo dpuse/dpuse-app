@@ -2,7 +2,7 @@
 // External Dependencies
 import { MousePointerClickIcon } from 'lucide-vue-next';
 
-// Properties, Slots & Emits
+// Options, Properties, Slots & Emits
 const { message } = defineProps<{ message: string }>();
 </script>
 

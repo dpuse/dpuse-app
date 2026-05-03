@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Properties, Slots & Emits
+// Options, Properties, Slots & Emits
 const { icon, iconDark, label } = defineProps<{ icon?: string; iconDark?: string; label: string; overline?: string }>();
 </script>
 

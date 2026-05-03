@@ -12,7 +12,7 @@ import T from './EstablishDataViewsLayout.json';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
-import FloatingStepButton from '@/components/ui/button/FloatingStepButton.vue';
+import FloatingActionButton from '@/components/ui/button/FloatingActionButton.vue';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 import Steps, { type StepConfig } from '@/components/ui/steps/Steps.vue';
@@ -107,7 +107,7 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
                 :to="{ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } }"
                 @click="activeDataViewConfig = undefined"
             >
-                <FloatingStepButton class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)" :type-label="'Data View'" variant="add" :verb="'Add'" />
+                <FloatingActionButton class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)" :type-label="'Data View'" variant="add" :verb="'Add'" />
             </RouterLink>
         </div>
     </LayoutShell>

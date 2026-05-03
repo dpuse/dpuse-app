@@ -5,7 +5,7 @@ import { displayIsWide } from '@/state/appLayout';
 // Local Components - Static
 import WorkbenchOptionPanel from './WorkbenchOptionPanel.vue';
 
-// Properties, Slots & Emits
+// Options, Properties, Slots & Emits
 defineEmits<{ continue: [] }>();
 </script>
 

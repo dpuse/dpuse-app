@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Sourced from Hanko social connections settings panel.
 
-// Properties, Slots & Emits
+// Options, Properties, Slots & Emits
 const { isDark } = defineProps<{ isDark?: boolean }>();
 </script>
 

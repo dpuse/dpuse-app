@@ -5,7 +5,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // Local Components - Static
 import type { StepConfig } from '@/components/ui/steps/Steps.vue';
 
-// Properties, Slots & Emits
+// Options, Properties, Slots & Emits
 const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<StepConfig> }>();
 defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConfig<StepConfig>] }>();
 </script>

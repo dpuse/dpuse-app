@@ -3,9 +3,9 @@ import { ref } from 'vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const APPEARANCE_OBSERVER = new MutationObserver(handleAppearanceChange);
 const MEDIA_QUERY = globalThis.matchMedia('(min-width: 768px)');
 const LANDSCAPE_QUERY = globalThis.matchMedia('(orientation: landscape)');
-const APPEARANCE_OBSERVER = new MutationObserver(handleAppearanceChange);
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

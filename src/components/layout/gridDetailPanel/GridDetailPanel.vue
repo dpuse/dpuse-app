@@ -9,7 +9,7 @@ import { displayIsWide } from '@/state/appLayout';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import FloatingStepButton from '@/components/ui/button/FloatingStepButton.vue';
+import FloatingActionButton from '@/components/ui/button/FloatingActionButton.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
@@ -62,7 +62,7 @@ async function selectItem(row: T): Promise<void> {
 
         <!-- Body -->
         <div class="flex flex-1 overflow-hidden">
-            <!-- Grid Pane -->
+            <!-- Grid (Left) Pane -->
             <div v-show="displayIsWide || !detailPaneIsVisible" class="relative flex-1 overflow-hidden" :style="getPaneStyle(maxListWidth)">
                 <Grid class="mr-4 flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
                     <template v-if="slots['list-item-default']" #default="{ item }">
@@ -78,7 +78,7 @@ async function selectItem(row: T): Promise<void> {
                     </template>
                 </Grid>
 
-                <FloatingStepButton
+                <FloatingActionButton
                     v-if="enableAddAction"
                     class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
                     :type-label="'Connection'"
@@ -87,19 +87,23 @@ async function selectItem(row: T): Promise<void> {
                 />
             </div>
 
-            <!-- Detail Pane -->
+            <!-- Detail (Right) Pane -->
             <div
                 v-if="displayIsWide || detailPaneIsVisible"
                 class="mr-4 min-w-0 flex-1"
                 :class="{ 'border-separator border-l': displayIsWide }"
                 :style="getPaneStyle(maxDetailWidth)"
             >
+                <!-- Detail Panel -->
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
-                    <div class="border-separator ml-4 flex h-10 items-center justify-between gap-x-1 overflow-hidden border-b">
-                        <div v-if="activeItem.icon" aria-hidden="true" style="width: 22px" v-html="activeItem.icon" />
-                        <span class="min-w-0 truncate text-sm">{{ activeItem.label }}</span>
+                    <div class="border-separator ml-4 flex h-10 items-center gap-x-1 border-b">
+                        <span v-if="activeItem.icon" aria-hidden="true" class="size-6 flex-none" v-html="activeItem.icon" />
+
+                        <span class="ml-1 min-w-0 truncate">{{ activeItem.label }}</span>
+
                         <Button
+                            class="ml-auto"
                             variant="iconSmall"
                             @click="
                                 detailPaneIsVisible = false;
@@ -116,6 +120,7 @@ async function selectItem(row: T): Promise<void> {
                     </div>
                 </div>
 
+                <!-- No Selection -->
                 <div v-else class="h-full">
                     <slot name="no-selection" />
                 </div>

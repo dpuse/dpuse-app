@@ -2,7 +2,7 @@
 // External Dependencies
 import { ArrowBigRightIcon, PlusIcon } from 'lucide-vue-next';
 
-// Properties, Slots & Emits
+// Options, Properties, Slots & Emits
 const { typeLabel, variant, verb } = defineProps<{ typeLabel?: string; variant: 'add' | 'step'; verb?: string }>();
 </script>
 
@@ -21,7 +21,7 @@ const { typeLabel, variant, verb } = defineProps<{ typeLabel?: string; variant: 
             <span v-if="typeLabel" class="text-xs leading-none">{{ typeLabel }}</span>
         </div>
 
-        <!-- Icon -->
+        <!-- Trailing Icon -->
         <PlusIcon v-if="variant === 'add'" />
         <ArrowBigRightIcon v-else class="size-5" :stroke-width="1.25" />
     </button>

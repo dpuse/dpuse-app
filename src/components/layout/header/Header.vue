@@ -2,7 +2,7 @@
 // Local (App) Framework
 import { displayIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
-// Properties, Slots & Emits
+// Options, Properties, Slots & Emits
 const { overline, overlineTo, title, titleTo } = defineProps<{ overline: string; overlineTo?: string; title: string; titleTo?: string }>();
 </script>
 

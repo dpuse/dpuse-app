@@ -2,7 +2,7 @@
 // Local (App) Framework
 import type { LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Properties, Slots & Emits
+// Options, Properties, Slots & Emits
 export interface StepConfig {
     id: string;
     label: LocaleLabel;

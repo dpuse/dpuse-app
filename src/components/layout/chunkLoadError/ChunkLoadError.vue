@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Properties, Slots & Emits
+// Options, Properties, Slots & Emits
 const { chunkName, error } = defineProps<{ chunkName?: string; error: unknown }>();
 </script>
 

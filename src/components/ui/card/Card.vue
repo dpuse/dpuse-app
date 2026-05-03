@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Properties, Slots & Emits
+// Options, Properties, Slots & Emits
 type Badge = { id: string; color?: string; label: string };
 type Properties = { badges?: Badge[]; icon?: string; iconDark?: string; iconColor?: string; label: string; overline?: string };
 const { badges = [], icon, iconDark, iconColor, label, overline } = defineProps<Properties>();
