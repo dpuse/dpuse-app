@@ -218,7 +218,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
             :aria-label="t(T, 'wb.toggle.label.aria')"
-            class="bg-surface pl- fixed top-[calc(env(safe-area-inset-top)+7px)] left-[calc(env(safe-area-inset-left)+12px)] z-40 rounded-full!"
+            class="bg-surface pl- fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full!"
             :class="{ 'shadow-md': !displayIsWide && contentScrollTop > 0 }"
             variant="iconLarge"
             @click="toggleWorkbenchAppPane()"
@@ -227,7 +227,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </Button>
 
         <!-- Knowledge toggle fixed in top right corner. Always visible. -->
-        <div class="fixed top-[calc(env(safe-area-inset-top)+7px)] right-[calc(env(safe-area-inset-right)+12px)] z-40 flex">
+        <div class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-40 flex">
             <nav v-if="displayIsWide || knowledgeOptionBarIsVisible">
                 <Button :aria-label="t(T, 'k.select.about.aria')" variant="iconLarge" @click="selectKnowledgePanel('about')">
                     <InfoIcon aria-hidden="true" :stroke-width="1.25" />
@@ -255,7 +255,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </div>
 
         <!-- Session button - always visible, independent of pane state -->
-        <div class="fixed bottom-[calc(max(env(safe-area-inset-bottom),21px)+16px)] left-[calc(env(safe-area-inset-left)+12px)] z-40">
+        <div class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-40">
             <SessionButton :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
         </div>
 
@@ -312,9 +312,6 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         >
             <KnowledgeLayout class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
         </div>
-
-        <!-- ??? -->
-        <!-- <div class="from-surface/95 fixed inset-x-0 bottom-0 h-[env(safe-area-inset-bottom)] bg-linear-to-t to-transparent" /> -->
     </div>
 </template>
 

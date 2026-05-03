@@ -11,8 +11,8 @@ import T from './SelectConnectionForm.json';
 import { t } from '@/state/locale';
 
 // Local Components - Static
-import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 import FloatingButton from '@/components/ui/button/FloatingButton.vue';
+import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
@@ -44,7 +44,7 @@ async function handleSubmit(): Promise<void> {
 
 <template>
     <form class="relative flex h-full flex-col pl-4" @submit.prevent="handleSubmit">
-        <ContentScroller class="flex flex-1 flex-col pt-2 pb-16">
+        <ScrollArea class="flex flex-1 flex-col">
             <strong>Connection:</strong>
             <div>id: {{ connectionLocalisedConfig.id }}</div>
             <div>label: {{ connectionLocalisedConfig.label }}</div>
@@ -80,14 +80,8 @@ async function handleSubmit(): Promise<void> {
             <div>vendorDocumentationURL: {{ connectionLocalisedConfig?.connectorConfig.vendorDocumentationURL }}</div>
             <div>vendorHomeURL: {{ connectionLocalisedConfig?.connectorConfig.vendorHomeURL }}</div>
             <div>version: {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
-        </ContentScroller>
+        </ScrollArea>
 
-        <FloatingButton
-            class="right-[calc(env(safe-area-inset-left)+16px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)]"
-            :type-label="'Connection'"
-            variant="next"
-            :verb="'Select'"
-            @click="$emit('submit')"
-        />
+        <FloatingButton class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)" :type-label="'Connection'" variant="next" :verb="'Select'" @click="$emit('submit')" />
     </form>
 </template>

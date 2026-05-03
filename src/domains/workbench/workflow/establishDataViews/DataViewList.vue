@@ -20,8 +20,8 @@ import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/session
 
 // Local Components - Static
 import Card from '@/components/ui/card/Card.vue';
-import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
+import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
 
 // Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));
@@ -125,7 +125,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         </template>
     </Grid>
 
-    <ContentScroller v-else-if="dataViewRetrievalIsActive" class="pb-16">
+    <ScrollArea v-else-if="dataViewRetrievalIsActive">
         <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
-    </ContentScroller>
+    </ScrollArea>
 </template>

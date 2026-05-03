@@ -22,8 +22,8 @@ import { dimensionConfigs, localMetaStoreConnectionConfig } from '@/state/sessio
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Card from '@/components/ui/card/Card.vue';
-import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
+import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
 
 // Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));
@@ -100,7 +100,7 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
         </template>
     </Grid>
 
-    <ContentScroller v-else-if="dimensionRetrievalIsActive" class="pb-16">
+    <ScrollArea v-else-if="dimensionRetrievalIsActive">
         <EmptyPlaceholder :message-item-label="t(T, 'dimensions')" :description-item-label="t(T, 'dimension')" :action-item-label="t(T, 'Dimension')" />
-    </ContentScroller>
+    </ScrollArea>
 </template>

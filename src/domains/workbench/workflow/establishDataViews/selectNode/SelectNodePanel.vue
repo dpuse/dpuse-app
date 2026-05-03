@@ -28,7 +28,7 @@ import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import type { StepConfig } from '@/components/ui/steps/Steps.vue';
 import Table from '@/components/ui/table/Table.vue';
-import TextViewer from '@/components/ui/textViewer/TextViewer.vue';
+import TextViewer from '@/components/layout/textViewer/TextViewer.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
@@ -244,13 +244,13 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                     <div v-show="activeTabId === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
 
                     <div
-                        class="border-separator bg-backdrop relative flex h-[calc(max(env(safe-area-inset-bottom),20px)+1px)] w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"
+                        class="border-separator bg-backdrop relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"
                     >
                         <div class="absolute top-0 bottom-px left-0 bg-green-200 dark:bg-green-500/30" :style="{ width: `${previewPercentage}%` }"></div>
                         <div class="text-muted relative pl-1">{{ previewMessage }}</div>
                     </div>
 
-                    <div class="justify-right fixed right-[calc(env(safe-area-inset-left)+12px)] bottom-[calc(max(env(safe-area-inset-bottom),21px)+16px)]">
+                    <div class="justify-right fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)">
                         <span class="isolate inline-flex h-10 rounded-full shadow-md">
                             <!-- View mode buttons -->
                             <button
@@ -327,6 +327,6 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
     bottom: calc(8px + 40px) !important;
 } */
 :deep(.os-scrollbar-vertical) {
-    bottom: calc(16px + 40px + 8px) !important;
+    bottom: var(--spacing-vertical-scroll-bottom-inset) !important;
 }
 </style>

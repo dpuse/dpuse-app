@@ -8,7 +8,7 @@ const { typeLabel, variant, verb } = defineProps<{ typeLabel?: string; variant: 
 
 <template>
     <button
-        class="absolute flex h-10 items-center gap-x-1 rounded-full p-1.75 shadow-md"
+        class="fixed flex h-10 items-center gap-x-1 rounded-full p-1.75 shadow-md"
         :class="
             variant === 'next'
                 ? 'border border-blue-400 bg-blue-50 text-blue-600 hover:bg-blue-100 dark:border-blue-500 dark:bg-blue-950 dark:text-blue-400 dark:hover:bg-blue-900'

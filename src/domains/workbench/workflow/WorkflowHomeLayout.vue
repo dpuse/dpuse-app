@@ -7,9 +7,9 @@ import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcru
 
 // Local Components - Static
 import Card from '@/components/ui/card/Card.vue';
-import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
+import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -24,12 +24,12 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
         <Header :breadcrumbs="breadcrumbs" data-testid="header" :title="t(T, 'wb.wf.label')" />
 
         <!-- Workflow Steps -->
-        <ContentScroller class="pt-4 pb-16">
+        <ScrollArea class="flex-1">
             <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4">
                 <RouterLink v-for="config in workflowOptionConfigs" :key="config.id" :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }">
                     <Card :icon="config.icon" :icon-color="config.color" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                 </RouterLink>
             </div>
-        </ContentScroller>
+        </ScrollArea>
     </LayoutShell>
 </template>

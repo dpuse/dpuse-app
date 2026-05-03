@@ -17,6 +17,9 @@ body {
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+    /* Reserves space at bottom of scroll area: '16px' for horizontal scroll bar; '40px' for floating buttons; '8px' for padding above floating buttons. ) */
+    --spacing-vertical-scroll-bottom-inset: 64px;
+
     --color-backdrop: var(--backdrop); /* Sidebar (secondary) background */
     --color-surface: var(--surface); /* Content (primary) background */
     --color-card: var(--card); /* Card background */
@@ -27,11 +30,20 @@ body {
 }
 
 :root {
+    /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '21px' for optional status bar; '16px' for horizontal scroll bar. */
+    --safe-bottom-offset: calc(max(env(safe-area-inset-bottom), 21px) + 16px);
+    /* Floating button screen top offset: 'safe-area-inset-top'; '7px' for gutter. */
+    --safe-top-offset: calc(env(safe-area-inset-top) + 7px);
+    /* Floating button screen left offset: 'safe-area-inset-left'; '12px' for gutter. */
+    --safe-left-offset: calc(env(safe-area-inset-left) + 12px);
+    /* Floating button screen right offset: 'safe-area-inset-right'; '12px' for gutter. */
+    --safe-right-offset: calc(env(safe-area-inset-right) + 12px);
+    /* Status bar height: 'safe-area-inset-bottom' or '21px'. */
+    --status-bar-height: calc(max(env(safe-area-inset-bottom), 21px));
+
     --backdrop: #fdfdfd;
     --surface: var(--color-white);
     --card: #fdfdfd;
-    /* --boundary: color-mix(in srgb, var(--color-zinc-200) 50%, transparent); */
-    /* --separator: color-mix(in srgb, var(--color-zinc-200) 75%, transparent); */
     --boundary: var(--color-zinc-100);
     --separator: var(--color-zinc-200);
     --content: var(--color-zinc-800);
@@ -42,8 +54,6 @@ body {
     --backdrop: var(--color-zinc-900);
     --surface: var(--color-zinc-950);
     --card: var(--color-zinc-900);
-    /* --boundary: color-mix(in srgb, var(--color-white) 10%, transparent); */
-    /* --separator: color-mix(in srgb, var(--color-white) 10%, transparent); */
     --boundary: var(--color-zinc-700);
     --separator: var(--color-zinc-700);
     --content: var(--color-zinc-300);

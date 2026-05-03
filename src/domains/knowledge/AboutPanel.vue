@@ -3,7 +3,7 @@
 import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkflowOptionConfigs';
 
 // Local Components - Static
-import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
+import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -11,7 +11,7 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
 </script>
 
 <template>
-    <ContentScroller class="pb-16">
+    <ScrollArea>
         <article class="bg-white py-24 sm:py-32">
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <!-- Hero Section -->
@@ -46,5 +46,5 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
                 </div>
             </div>
         </article>
-    </ContentScroller>
+    </ScrollArea>
 </template>

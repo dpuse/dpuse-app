@@ -43,9 +43,11 @@ function handleInitialised(instance: OverlayScrollbars): void {
 function onHandlePointerDown(): void {
     isDragging.value = true;
 }
+
 function onDocumentPointerUp(): void {
     isDragging.value = false;
 }
+
 function onViewportScroll(): void {
     const element = scrollElement;
     if (!element) return;
@@ -58,7 +60,7 @@ function onViewportScroll(): void {
 </script>
 
 <template>
-    <div class="relative">
+    <div class="relative min-h-0 min-w-0">
         <OverlayScrollbarsComponent
             class="h-full"
             defer
@@ -82,11 +84,4 @@ function onViewportScroll(): void {
 :deep([data-overlayscrollbars-viewport]) {
     overscroll-behavior: none;
 }
-
-/* :deep(.os-scrollbar-horizontal) {
-    bottom: calc(min(env(safe-area-inset-bottom), 16px) + 28px) !important;
-}
-:deep(.os-scrollbar-vertical) {
-    bottom: calc(min(env(safe-area-inset-bottom), 16px) + 28px) !important;
-} */
 </style>

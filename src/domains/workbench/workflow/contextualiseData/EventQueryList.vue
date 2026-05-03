@@ -21,9 +21,9 @@ import { eventQueryConfigs, localMetaStoreConnectionConfig } from '@/state/sessi
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Card from '@/components/ui/card/Card.vue';
-import ContentScroller from '@/components/layout/contentScroller/ContentScroller.vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import Grid from '@/components/ui/grid/Grid.vue';
+import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
 
 // Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));
@@ -101,7 +101,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
         </template>
     </Grid>
 
-    <ContentScroller v-else-if="eventQueryRetrievalIsActive" class="pb-16">
+    <ScrollArea v-else-if="eventQueryRetrievalIsActive">
         <EmptyPlaceholder :message-item-label="t(T, 'event_queries')" :description-item-label="t(T, 'event_query')" :action-item-label="t(T, 'Event_Query')" />
-    </ContentScroller>
+    </ScrollArea>
 </template>

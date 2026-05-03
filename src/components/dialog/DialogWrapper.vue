@@ -35,7 +35,7 @@ async function handleCloseDialog(): Promise<void> {
                 >
                     <!-- Close Button -->
                     <Button
-                        class="absolute top-[calc(env(safe-area-inset-top)+12px)] right-[calc(env(safe-area-inset-right)+12px)] md:top-3 md:right-3"
+                        class="absolute top-[calc(env(safe-area-inset-top)+12px)] right-(--safe-right-offset) md:top-3 md:right-3"
                         variant="iconLarge"
                         @click="handleCloseDialog"
                     >
