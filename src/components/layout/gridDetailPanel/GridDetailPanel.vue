@@ -8,8 +8,8 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
 
 // Local Components - Static
+import AddButton from '@/components/ui/button/AddButton.vue';
 import Button from '@/components/ui/button/Button.vue';
-import FloatingButton from '@/components/ui/button/FloatingButton.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
@@ -78,11 +78,7 @@ async function selectItem(row: T): Promise<void> {
                     </template>
                 </Grid>
 
-                <FloatingButton
-                    v-if="enableAddAction"
-                    class="right-[calc(env(safe-area-inset-left)+32px)] bottom-[max(calc(env(safe-area-inset-bottom)+16px),20px+16px)]"
-                    variant="add"
-                />
+                <AddButton v-if="enableAddAction" class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)" />
             </div>
 
             <!-- Detail Pane -->
