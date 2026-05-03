@@ -88,7 +88,7 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
 <template>
     <LayoutShell>
         <!-- Header -->
-        <Header class="px-4" :breadcrumbs="breadcrumbs" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" />
+        <Header class="px-4" :overline="t(T, 'wb.label')" overline-to="workflow" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" />
 
         <!-- Action Bar -->
         <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">

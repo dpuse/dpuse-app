@@ -1,26 +1,29 @@
-<script setup lang="ts" generic="T extends BreadcrumbConfig">
+<script setup lang="ts">
 // Local (App) Framework
-import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import { displayIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
-// Local Components - Static
-import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
-
 // Properties, Slots & Emits
-const { breadcrumbs, title, to } = defineProps<{ breadcrumbs?: T[]; title: string; to?: string }>();
+const { overline, overlineTo, title, titleTo } = defineProps<{ overline: string; overlineTo?: string; title: string; titleTo?: string }>();
 </script>
 
 <template>
     <header class="mt-[env(safe-area-inset-top)] flex-none">
         <!-- Content indented from left and right when display is compact, to allow for logos. -->
         <div class="border-separator flex h-14 flex-col justify-center border-b text-lg font-light" :class="{ 'px-12': !displayIsWide || !workbenchPaneIsVisible }">
-            <!-- Breadcrumbs Row -->
-            <Breadcrumbs class="w-full truncate text-xs" :class="{ 'justify-center': !displayIsWide }" :items="breadcrumbs" />
+            <!-- Overline Row -->
+            <component
+                :is="overlineTo && overlineTo !== $route.query.wbView ? 'RouterLink' : 'div'"
+                :to="{ name: overlineTo, query: { ...$route.query, wbView: overlineTo } }"
+                class="w-full truncate text-xs"
+                :class="{ 'text-center': !displayIsWide }"
+            >
+                {{ overline }}
+            </component>
 
             <!-- Title Row -->
             <component
-                :is="to && to !== $route.query.wbView ? 'RouterLink' : 'div'"
-                :to="{ name: to, query: { ...$route.query, wbView: to } }"
+                :is="titleTo && titleTo !== $route.query.wbView ? 'RouterLink' : 'div'"
+                :to="{ name: titleTo, query: { ...$route.query, wbView: titleTo } }"
                 class="w-full truncate"
                 :class="{ 'text-center': !displayIsWide }"
             >

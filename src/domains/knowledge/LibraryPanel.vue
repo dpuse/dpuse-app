@@ -68,7 +68,7 @@ async function runTest(): Promise<void> {
 
 <template>
     <div>
-        <Header :breadcrumbs="breadcrumbs" :title="title" />
+        <Header class="mx-4" :overline="'Knowledge'" :title="title" />
 
         <div class="flex flex-1 flex-col overflow-y-hidden px-4">
             <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">

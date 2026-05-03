@@ -4,7 +4,7 @@ import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // Local (App) Framework
-import type { TabConfig } from '@/composables/useTabs';
+import type { TabConfig } from '~/src/composables/useTabsReMoVe';
 
 // Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
 
