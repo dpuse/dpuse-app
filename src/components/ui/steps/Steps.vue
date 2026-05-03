@@ -34,7 +34,7 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<StepConfig>] }>();
             @click="$emit('select', item)"
         >
             <div
-                class="hidden text-xs font-medium sm:block"
+                class="text-xs font-medium"
                 :class="{
                     'text-blue-600 dark:text-sky-400': activeStepId === item.id || !item.disabled,
                     'text-muted': item.disabled
