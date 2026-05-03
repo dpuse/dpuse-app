@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends { icon?: string | null; label: string }">
+<script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; label: string }">
 // External Dependencies
 import { XIcon } from 'lucide-vue-next';
 import { nextTick, ref, watch } from 'vue';
@@ -98,10 +98,16 @@ async function selectItem(row: T): Promise<void> {
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
                     <div class="border-separator ml-4 flex h-10 items-center gap-x-1 border-b">
-                        <span v-if="activeItem.icon" aria-hidden="true" class="size-6 flex-none" v-html="activeItem.icon" />
+                        <!-- Icon -->
+                        <div class="flex size-7 items-center justify-center">
+                            <div v-if="activeItem.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="activeItem.icon || activeItem.iconDark" />
+                            <div v-if="activeItem.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="activeItem.iconDark || activeItem.icon" />
+                        </div>
 
+                        <!-- Label -->
                         <span class="ml-1 min-w-0 truncate">{{ activeItem.label }}</span>
 
+                        <!-- Close -->
                         <Button
                             class="ml-auto"
                             variant="iconSmall"
