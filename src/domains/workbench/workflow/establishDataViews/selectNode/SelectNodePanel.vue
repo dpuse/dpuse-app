@@ -247,7 +247,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                         class="border-separator bg-backdrop relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"
                     >
                         <div class="absolute top-0 bottom-px left-0 bg-green-200 dark:bg-green-500/30" :style="{ width: `${previewPercentage}%` }"></div>
-                        <div class="text-muted relative pl-1">{{ previewMessage }}</div>
+                        <div class="relative pl-1">{{ previewMessage }}</div>
                     </div>
 
                     <div class="justify-right fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)">

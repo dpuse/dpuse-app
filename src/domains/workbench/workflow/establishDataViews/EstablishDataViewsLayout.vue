@@ -10,7 +10,6 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // Local (App) Framework
 import { activeDataViewConfig } from '@/state/establishDataViews';
 import T from './EstablishDataViewsLayout.json';
-import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
@@ -21,25 +20,15 @@ import Steps, { type StepConfig } from '@/components/ui/steps/Steps.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// const STEP_CONFIGS: StepConfig[] = [ // TODO: Prior configuration, retained for reference purposes.
-//     { id: 'selectConnection', number: 1, enableUpTo: 1, label: { en: 'Select Connection' }, description: {} },
-//     { id: 'selectNode', number: 2, enableUpTo: 2, label: { en: 'Select Node' }, description: {} },
-//     { id: 'auditContent', number: 3, enableUpTo: 6, label: { en: 'Audit Content' }, description: {} },
-//     { id: 'auditRelationships', number: 4, enableUpTo: 6, label: { en: 'Audit Relationships' }, description: {} }, // TODO: 'Relationships' could be renamed to 'Links'.
-//     { id: 'transform', number: 5, enableUpTo: 6, label: { en: 'Transform' }, description: {} },
-//     { id: 'investigate', number: 6, enableUpTo: 6, label: { en: 'Investigate' }, description: {} }
-// ];
 const STEP_CONFIGS: StepConfig[] = [
     { id: 'selectConnection', number: 1, label: { en: 'Connection' }, description: {}, disabled: true, enableUpTo: 1, verb: { en: 'Select' } },
     { id: 'selectNode', number: 2, label: { en: 'Node' }, description: {}, disabled: true, enableUpTo: 2, verb: { en: 'Select' } },
     { id: 'auditContent', number: 3, label: { en: 'Content' }, description: {}, disabled: true, enableUpTo: 3, verb: { en: 'Audit' } },
-    { id: 'auditLinks', number: 4, label: { en: 'Links' }, description: {}, disabled: true, enableUpTo: 5, verb: { en: 'Audit' } },
-    { id: 'exploreData', number: 5, label: { en: 'Data' }, description: {}, disabled: true, enableUpTo: 5, verb: { en: 'Explore' } }
+    // { id: 'auditLinks', number: 4, label: { en: 'Links' }, description: {}, disabled: true, enableUpTo: 5, verb: { en: 'Audit' } }, // TODO: Could be named 'Relationships'?
+    { id: 'exploreData', number: 4, label: { en: 'Data' }, description: {}, disabled: true, enableUpTo: 5, verb: { en: 'Explore' } } // TODO, Could be split into 'Transform' and 'Investigate'.
 ];
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const { breadcrumbs } = useBreadcrumbs<BreadcrumbConfig>([{ id: 'benchtop', label: t(T, 'wb.label'), to: 'workflow' }]);
 
 const route = useRoute();
 
