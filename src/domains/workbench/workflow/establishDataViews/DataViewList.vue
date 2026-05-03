@@ -118,14 +118,15 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 </script>
 
 <template>
-    <div v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0" class="flex h-full min-h-0 flex-col">
-        <Grid class="pb-vertical-scroll-bottom-screen-inset mr-4" :data-source="dataSource" :row-height="150" :target-column-width="350">
+    <div v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0" class="relative flex flex-1 flex-col overflow-hidden">
+        <Grid class="pb-vertical-scroll-bottom-screen-inset mr-4 flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
             <template #default="{ item }">
                 <RouterLink :to="{ name: 'selectNode', params: { dataViewId: item.id }, query: { ...$route.query, wbView: 'selectNode' } }" @click="activeDataViewConfig = item">
                     <Card :icon="item.icon ?? undefined" :label="item.label as string" />
                 </RouterLink>
             </template>
         </Grid>
+
         <AddButton class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)" />
     </div>
 
