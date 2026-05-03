@@ -18,8 +18,8 @@ body {
 
 @theme inline {
     /* Reserves space at bottom of scroll area: '16px' for horizontal scroll bar; '40px' for floating buttons; '8px' for padding above floating buttons. ) */
-    --spacing-vertical-scroll-bottom-inset-1: 64px;
-    --spacing-vertical-scroll-bottom-inset-2: 64px;
+    --spacing-vertical-scroll-bottom-embedded-inset: var(--vertical-scroll-bottom-embedded-inset);
+    --spacing-vertical-scroll-bottom-screen-inset: var(--vertical-scroll-bottom-screen-inset);
 
     --color-backdrop: var(--backdrop); /* Sidebar (secondary) background */
     --color-surface: var(--surface); /* Content (primary) background */
@@ -41,6 +41,10 @@ body {
     --safe-right-offset: calc(env(safe-area-inset-right) + 12px);
     /* Status bar height: 'safe-area-inset-bottom' or '21px'. */
     --status-bar-height: calc(max(env(safe-area-inset-bottom), 21px));
+
+    /* Scroll area bottom inset: '16px' for horizontal scroll bar; '40px' for floating buttons; '8px' for padding above floating buttons. */
+    --vertical-scroll-bottom-embedded-inset: 64px;
+    --vertical-scroll-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 21px) + 64px);
 
     --backdrop: #fdfdfd;
     --surface: var(--color-white);

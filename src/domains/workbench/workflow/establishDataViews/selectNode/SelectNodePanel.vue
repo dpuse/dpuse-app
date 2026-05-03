@@ -327,6 +327,6 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
     bottom: calc(8px + 40px) !important;
 } */
 :deep(.os-scrollbar-vertical) {
-    bottom: var(--spacing-vertical-scroll-bottom-inset-1) !important;
+    bottom: var(--spacing-vertical-scroll-bottom-embedded-inset) !important;
 }
 </style>

@@ -17,6 +17,10 @@ import { localeId, t } from '@/state/locale';
 import Button from '@/components/ui/button/Button.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const APPEARANCE_KEY = 'dpuse-appearance';
+
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const emit = defineEmits<{ continue: [] }>();
@@ -52,7 +56,7 @@ function handleReloadApplication(): void {
 function handleSetAppearance(mode: 'dark' | 'light' | 'auto'): void {
     const prefersDark = globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = mode === 'dark' || (mode === 'auto' && prefersDark);
-    localStorage.setItem('dpuse-appearance', mode);
+    localStorage.setItem(APPEARANCE_KEY, mode);
     document.documentElement.classList.toggle('dark', isDark);
     nextTick().then(() => emit('continue'));
 }

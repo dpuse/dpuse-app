@@ -6,13 +6,17 @@ import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
 import { onUnmounted, ref, watch } from 'vue';
 
 // Local (App) Framework
-import { contentScrollPosition, knowledgePaneIsVisible } from '@/state/appLayout';
+import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/state/appLayout';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 defineOptions({ inheritAttrs: false });
 
-const { rowCount = 0 } = defineProps<{ rowCount?: number }>();
+const {
+    autoHide = 'scroll',
+    autoHideSuspend = false,
+    rowCount = 0
+} = defineProps<{ autoHide?: 'scroll' | 'never' | 'move' | 'leave'; autoHideSuspend?: boolean; rowCount?: number }>();
 
 const emit = defineEmits<{ initialised: [ScrollbarElements: HTMLElement] }>();
 
@@ -75,7 +79,15 @@ function onViewportScroll(): void {
             v-bind="$attrs"
             class="h-full"
             defer
-            :options="{ scrollbars: { autoHide: 'leave', autoHideSuspend: false, dragScroll: true, visibility: 'auto' } }"
+            :options="{
+                scrollbars: {
+                    autoHide,
+                    autoHideSuspend,
+                    dragScroll: true,
+                    theme: isDarkMode ? 'os-theme-light' : 'os-theme-dark',
+                    visibility: 'auto'
+                }
+            }"
             @os-initialized="handleInitialised"
         >
             <slot />
