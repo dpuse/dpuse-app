@@ -8,8 +8,8 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
 
 // Local Components - Static
-import AddButton from '@/components/ui/button/AddButton.vue';
 import Button from '@/components/ui/button/Button.vue';
+import FloatingStepButton from '@/components/ui/button/FloatingStepButton.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
@@ -64,7 +64,7 @@ async function selectItem(row: T): Promise<void> {
         <div class="flex flex-1 overflow-hidden">
             <!-- Grid Pane -->
             <div v-show="displayIsWide || !detailPaneIsVisible" class="relative flex-1 overflow-hidden" :style="getPaneStyle(maxListWidth)">
-                <Grid class="flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
+                <Grid class="mr-4 flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
                     <template v-if="slots['list-item-default']" #default="{ item }">
                         <Button class="h-full" :is-active="activeItem === item" variant="listItem" @click="selectItem(item)">
                             <slot name="list-item-default" :item="item" />
@@ -78,7 +78,13 @@ async function selectItem(row: T): Promise<void> {
                     </template>
                 </Grid>
 
-                <AddButton v-if="enableAddAction" class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)" />
+                <FloatingStepButton
+                    v-if="enableAddAction"
+                    class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
+                    :type-label="'Connection'"
+                    variant="add"
+                    :verb="'Add'"
+                />
             </div>
 
             <!-- Detail Pane -->

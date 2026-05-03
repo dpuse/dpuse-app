@@ -11,7 +11,7 @@ import T from './SelectConnectionForm.json';
 import { t } from '@/state/locale';
 
 // Local Components - Static
-import FloatingButton from '@/components/ui/button/FloatingButton.vue';
+import FloatingStepButton from '@/components/ui/button/FloatingStepButton.vue';
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
@@ -82,6 +82,6 @@ async function handleSubmit(): Promise<void> {
             <div>version: {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
         </ScrollArea>
 
-        <FloatingButton class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)" :type-label="'Connection'" variant="next" :verb="'Select'" @click="$emit('submit')" />
+        <FloatingStepButton class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)" :type-label="'Connection'" variant="step" :verb="'Select'" @click="$emit('submit')" />
     </form>
 </template>
