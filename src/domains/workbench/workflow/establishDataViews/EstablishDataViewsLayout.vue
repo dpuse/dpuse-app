@@ -13,6 +13,7 @@ import T from './EstablishDataViewsLayout.json';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
+import AddButton from '@/components/ui/button/AddButton.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
@@ -98,10 +99,12 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
         </nav> -->
 
         <!-- Data View List or Active Step Panel -->
-        <div class="flex flex-1 flex-col overflow-hidden">
+        <div class="relative flex flex-1 flex-col overflow-hidden">
             <RouterView v-slot="{ Component }">
                 <component :is="Component" :step-localised-config="activeStepLocalisedConfig" @step-completed="updateStepProgression" />
             </RouterView>
+
+            <AddButton class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)" />
         </div>
     </LayoutShell>
 </template>

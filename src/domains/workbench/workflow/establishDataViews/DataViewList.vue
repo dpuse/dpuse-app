@@ -19,7 +19,6 @@ import { useEngine } from '@/services/useEngine';
 import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/session';
 
 // Local Components - Static
-import AddButton from '@/components/ui/button/AddButton.vue';
 import Card from '@/components/ui/card/Card.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
@@ -61,10 +60,30 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         const options: UpsertRecordsOptions = {
             path: '/dpuMetaStore/dataViews',
             records: [
-                { id: '1', label: 'One' },
-                { id: '2', label: 'Two' },
-                { id: '3', label: 'Three' },
-                { id: '4', label: 'Four' }
+                {
+                    id: '1',
+                    label: 'One',
+                    icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
+                    iconColor: '#4d83e0'
+                },
+                {
+                    id: '2',
+                    label: 'Two',
+                    icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
+                    iconColor: '#4d83e0'
+                },
+                {
+                    id: '3',
+                    label: 'Three',
+                    icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
+                    iconColor: '#4d83e0'
+                },
+                {
+                    id: '4',
+                    label: 'Four',
+                    icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
+                    iconColor: '#4d83e0'
+                }
             ]
         };
         await processRequest('upsertRecords', connectionConfig, options, (data: EngineCallbackData) => {
@@ -118,17 +137,19 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 </script>
 
 <template>
-    <div v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0" class="relative flex flex-1 flex-col overflow-hidden">
-        <Grid class="pb-vertical-scroll-bottom-screen-inset mr-4 flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
-            <template #default="{ item }">
-                <RouterLink :to="{ name: 'selectNode', params: { dataViewId: item.id }, query: { ...$route.query, wbView: 'selectNode' } }" @click="activeDataViewConfig = item">
-                    <Card :icon="item.icon ?? undefined" :label="item.label as string" />
-                </RouterLink>
-            </template>
-        </Grid>
-
-        <AddButton class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)" />
-    </div>
+    <Grid
+        v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
+        class="pb-vertical-scroll-bottom-screen-inset mr-4 flex-1"
+        :data-source="dataSource"
+        :row-height="150"
+        :target-column-width="350"
+    >
+        <template #default="{ item }">
+            <RouterLink :to="{ name: 'selectNode', params: { dataViewId: item.id }, query: { ...$route.query, wbView: 'selectNode' } }" @click="activeDataViewConfig = item">
+                <Card :icon="item.icon ?? undefined" icon-color="#4d83e0" :label="item.label as string" />
+            </RouterLink>
+        </template>
+    </Grid>
 
     <ScrollArea v-else-if="dataViewRetrievalIsActive">
         <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
