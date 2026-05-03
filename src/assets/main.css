@@ -18,7 +18,8 @@ body {
 
 @theme inline {
     /* Reserves space at bottom of scroll area: '16px' for horizontal scroll bar; '40px' for floating buttons; '8px' for padding above floating buttons. ) */
-    --spacing-vertical-scroll-bottom-inset: 64px;
+    --spacing-vertical-scroll-bottom-inset-1: 64px;
+    --spacing-vertical-scroll-bottom-inset-2: 64px;
 
     --color-backdrop: var(--backdrop); /* Sidebar (secondary) background */
     --color-surface: var(--surface); /* Content (primary) background */

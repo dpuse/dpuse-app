@@ -8,7 +8,7 @@ const { text } = defineProps<{ text?: string }>();
 
 <template>
     <ScrollArea class="border-separator min-h-0 border-x">
-        <div class="pb-vertical-scroll-bottom-inset px-0.5 text-sm">
+        <div class="pb-vertical-scroll-bottom-inset-1 px-0.5 text-sm">
             <pre><code ref="textViewer">{{ text }}</code></pre>
         </div>
     </ScrollArea>

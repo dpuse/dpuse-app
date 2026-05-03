@@ -70,7 +70,7 @@ function onViewportScroll(): void {
 <template>
     <div class="relative min-h-0 min-w-0">
         <OverlayScrollbarsComponent
-            class="h-full"
+            class="pb-vertical-scroll-bottom-inset-2 h-full pt-4"
             defer
             :options="{ scrollbars: { autoHide: 'leave', autoHideSuspend: true, dragScroll: true, visibility: 'auto' } }"
             @os-initialized="handleInitialised"
