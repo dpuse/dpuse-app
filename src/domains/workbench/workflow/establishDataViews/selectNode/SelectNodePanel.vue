@@ -31,7 +31,7 @@ import Table from '@/components/ui/table/Table.vue';
 import TextViewer from '@/components/layout/textViewer/TextViewer.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 
-// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<StepConfig> }>();
 

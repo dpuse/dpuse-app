@@ -9,7 +9,7 @@ import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 // Local Components - Static
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
-// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     dataSource: DataSource<T>;

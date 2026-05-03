@@ -13,7 +13,7 @@ import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkfl
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 
-// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const emit = defineEmits<{ continue: [] }>();
 

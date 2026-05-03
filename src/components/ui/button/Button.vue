@@ -47,7 +47,7 @@ const COMMON_OUTLINE_CLASSES = [
     'dark:hover:bg-zinc-300/20 dark:active:bg-zinc-300/30 dark:focus-visible:ring-zinc-500'
 ];
 
-// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 export type VariantTypeId =
     | 'avatar'

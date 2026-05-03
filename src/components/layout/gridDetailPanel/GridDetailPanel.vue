@@ -12,7 +12,7 @@ import AddButton from '@/components/ui/button/AddButton.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 
-// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 type Properties = { activeItem?: T; dataSource: DataSource<T>; enableAddAction?: boolean; maxListWidth?: string; maxDetailWidth?: string };
 const { activeItem, dataSource, enableAddAction = false, maxListWidth, maxDetailWidth } = defineProps<Properties>();

@@ -17,7 +17,7 @@ import { localeId, t } from '@/state/locale';
 import Button from '@/components/ui/button/Button.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 
-// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const emit = defineEmits<{ continue: [] }>();
 

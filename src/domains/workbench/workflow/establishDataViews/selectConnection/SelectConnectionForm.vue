@@ -14,7 +14,7 @@ import { t } from '@/state/locale';
 import FloatingButton from '@/components/ui/button/FloatingButton.vue';
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
-// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> }>();
 const emit = defineEmits<{ submit: [] }>();

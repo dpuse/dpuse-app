@@ -12,7 +12,7 @@ import Button from '@/components/ui/button/Button.vue';
 import DialogMask from '@/components/dialog/DialogMask.vue';
 import SessionMenu from '@/domains/session/SessionMenu.vue';
 
-// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const { workbenchOptionBarIsVisible } = defineProps<{ workbenchOptionBarIsVisible: boolean }>();
 

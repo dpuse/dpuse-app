@@ -8,7 +8,9 @@ import { onUnmounted, ref, watch } from 'vue';
 // Local (App) Framework
 import { contentScrollPosition, knowledgePaneIsVisible } from '@/state/appLayout';
 
-// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────,
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+
+defineOptions({ inheritAttrs: false });
 
 const { rowCount = 0 } = defineProps<{ rowCount?: number }>();
 
@@ -70,9 +72,10 @@ function onViewportScroll(): void {
 <template>
     <div class="relative min-h-0 min-w-0">
         <OverlayScrollbarsComponent
-            class="pb-vertical-scroll-bottom-inset-2 h-full pt-4"
+            v-bind="$attrs"
+            class="h-full"
             defer
-            :options="{ scrollbars: { autoHide: 'leave', autoHideSuspend: true, dragScroll: true, visibility: 'auto' } }"
+            :options="{ scrollbars: { autoHide: 'leave', autoHideSuspend: false, dragScroll: true, visibility: 'auto' } }"
             @os-initialized="handleInitialised"
         >
             <slot />

@@ -21,7 +21,7 @@ import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vu
 import type { StepConfig } from '@/components/ui/steps/Steps.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 
-// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<StepConfig> }>();
 

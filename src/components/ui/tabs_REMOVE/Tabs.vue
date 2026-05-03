@@ -6,7 +6,7 @@ import { useRoute, useRouter } from 'vue-router';
 // Local (App) Framework
 import type { TabConfig } from '~/src/composables/useTabsReMoVe';
 
-// Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const { activeItemId, items } = defineProps<{ activeItemId?: string; items: TabConfig[] }>();
 defineSlots<{ 'default'(properties: { item: TabConfig }): unknown }>();
