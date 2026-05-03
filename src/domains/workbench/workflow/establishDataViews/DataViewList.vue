@@ -19,6 +19,7 @@ import { useEngine } from '@/services/useEngine';
 import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/session';
 
 // Local Components - Static
+import AddButton from '@/components/ui/button/AddButton.vue';
 import Card from '@/components/ui/card/Card.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
@@ -117,13 +118,16 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 </script>
 
 <template>
-    <Grid v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0" class="flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
-        <template #default="{ item }">
-            <RouterLink :to="{ name: 'selectNode', params: { dataViewId: item.id }, query: { ...$route.query, wbView: 'selectNode' } }" @click="activeDataViewConfig = item">
-                <Card :icon="item.icon ?? undefined" :label="item.label as string" />
-            </RouterLink>
-        </template>
-    </Grid>
+    <div v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0" class="flex h-full min-h-0 flex-col">
+        <Grid class="pb-vertical-scroll-bottom-screen-inset mr-4" :data-source="dataSource" :row-height="150" :target-column-width="350">
+            <template #default="{ item }">
+                <RouterLink :to="{ name: 'selectNode', params: { dataViewId: item.id }, query: { ...$route.query, wbView: 'selectNode' } }" @click="activeDataViewConfig = item">
+                    <Card :icon="item.icon ?? undefined" :label="item.label as string" />
+                </RouterLink>
+            </template>
+        </Grid>
+        <AddButton class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)" />
+    </div>
 
     <ScrollArea v-else-if="dataViewRetrievalIsActive">
         <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />

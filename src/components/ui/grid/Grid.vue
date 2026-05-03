@@ -1,6 +1,5 @@
 <script setup lang="ts" generic="T">
 // External Dependencies
-import 'overlayscrollbars/overlayscrollbars.css';
 import { computed, onUnmounted, ref, shallowRef } from 'vue';
 
 // Local (App) Framework
@@ -69,7 +68,7 @@ function handleInitialised(viewport: HTMLElement): void {
 </script>
 
 <template>
-    <ScrollArea class="h-full pr-4" role="list" :row-count="dataSource.rowCount" @initialised="handleInitialised">
+    <ScrollArea class="h-full" role="list" :row-count="dataSource.rowCount" @initialised="handleInitialised">
         <div :style="{ height: totalSize + 'px', position: 'relative' }">
             <div
                 v-for="virtualRow in virtualRows"

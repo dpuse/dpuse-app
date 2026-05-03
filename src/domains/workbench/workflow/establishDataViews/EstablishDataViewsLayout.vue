@@ -77,14 +77,14 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
 <template>
     <LayoutShell>
         <!-- Header -->
-        <Header class="px-4" :overline="t(T, 'wb.label')" overline-to="workflow" :title="t(T, 'Establish_Data_Views')" to="establishDataViews" />
+        <Header class="px-4" :overline="t(T, 'wb.label')" overline-to="workflow" :title="t(T, 'Establish_Data_Views')" title-to="establishDataViews" />
 
         <!-- Action Bar -->
-        <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
-            <!-- Steps -->
+        <!-- <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
+            <! -- Steps -- >
             <Steps v-if="activeStepLocalisedConfig" :active-step-id="activeStepLocalisedConfig.id" :items="stepLocalisedConfigs" />
 
-            <!-- Add Action -->
+            <! -- Add Action -- >
             <RouterLink
                 v-else
                 class="ml-auto py-2"
@@ -95,7 +95,7 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
                     <PlusIcon stroke-width="1.25" />
                 </Button>
             </RouterLink>
-        </nav>
+        </nav> -->
 
         <!-- Data View List or Active Step Panel -->
         <div class="flex flex-1 flex-col overflow-hidden">
