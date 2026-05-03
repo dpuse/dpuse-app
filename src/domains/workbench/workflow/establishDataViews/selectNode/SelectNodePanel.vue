@@ -250,7 +250,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                         <div class="text-muted relative pl-1">{{ previewMessage }}</div>
                     </div>
 
-                    <div class="justify-right fixed right-[calc(env(safe-area-inset-left)+12px)] bottom-[calc(max(env(safe-area-inset-bottom),21px)+12px)]">
+                    <div class="justify-right fixed right-[calc(env(safe-area-inset-left)+12px)] bottom-[calc(max(env(safe-area-inset-bottom),21px)+16px)]">
                         <span class="isolate inline-flex h-10 rounded-full shadow-md">
                             <!-- View mode buttons -->
                             <button
@@ -327,6 +327,6 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
     bottom: calc(8px + 40px) !important;
 } */
 :deep(.os-scrollbar-vertical) {
-    bottom: calc(12px + 40px + 8px) !important;
+    bottom: calc(16px + 40px + 8px) !important;
 }
 </style>
