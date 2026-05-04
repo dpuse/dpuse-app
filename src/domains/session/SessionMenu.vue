@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon, XIcon } from 'lucide-vue-next';
+import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from 'lucide-vue-next';
 import { nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -15,6 +15,7 @@ import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
+import CloseButton from '@/components/ui/button/CloseButton.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -91,40 +92,23 @@ async function toggleFullscreen(): Promise<void> {
         :class="
             displayIsWide
                 ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] overflow-y-auto overscroll-y-none rounded-md border py-4'
-                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] max-w-lg overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t pt-6 pb-8'
+                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] max-w-lg overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t py-8'
         "
     >
-        <Button v-if="!displayIsWide" class="absolute top-2 right-3" variant="iconLarge" @click="emit('continue')">
-            <XIcon stroke-width="1.25" />
-        </Button>
+        <CloseButton v-if="!displayIsWide" @click="emit('continue')" />
 
         <!-- Appearance -->
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Appearance') }}</div>
         <div class="mt-1 flex gap-x-2">
-            <Button
-                class="flex flex-col items-center text-xs"
-                :class="{ 'bg-zinc-200 dark:bg-zinc-600': currentAppearance === 'auto' }"
-                variant="iconSmall"
-                @click="handleSetAppearance('auto')"
-            >
+            <Button class="flex flex-col items-center text-xs" :is-active="currentAppearance === 'auto'" variant="iconSmall" @click="handleSetAppearance('auto')">
                 <MonitorIcon class="size-4.5!" />{{ t(T, 'System') }}
             </Button>
 
-            <Button
-                class="flex flex-col items-center text-xs"
-                :class="{ 'bg-zinc-200 dark:bg-zinc-600': currentAppearance === 'light' }"
-                variant="iconSmall"
-                @click="handleSetAppearance('light')"
-            >
+            <Button class="flex flex-col items-center text-xs" :is-active="currentAppearance === 'light'" variant="iconSmall" @click="handleSetAppearance('light')">
                 <SunIcon class="size-4.5!" />{{ t(T, 'Light') }}
             </Button>
 
-            <Button
-                class="flex flex-col items-center text-xs"
-                :class="{ 'bg-zinc-200 dark:bg-zinc-600': currentAppearance === 'dark' }"
-                variant="iconSmall"
-                @click="handleSetAppearance('dark')"
-            >
+            <Button class="flex flex-col items-center text-xs" :is-active="currentAppearance === 'dark'" variant="iconSmall" @click="handleSetAppearance('dark')">
                 <MoonIcon class="size-4.5!" />{{ t(T, 'Dark') }}
             </Button>
         </div>
@@ -143,7 +127,7 @@ async function toggleFullscreen(): Promise<void> {
             v-for="lang in SUPPORTED_LANGUAGES"
             :key="lang.id"
             class="mt-1 flex w-full flex-none items-center gap-x-2 text-sm"
-            :class="{ 'bg-zinc-200 dark:bg-zinc-600': localeId === lang.id }"
+            :is-active="localeId === lang.id"
             variant="listItem"
             @click="handleSetLanguage(lang.id)"
         >
