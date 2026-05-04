@@ -321,12 +321,3 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
         </GridDetailPanel>
     </div>
 </template>
-
-<style scoped>
-/* :deep(.os-scrollbar-horizontal) {
-    bottom: calc(8px + 40px) !important;
-} */
-:deep(.os-scrollbar-vertical) {
-    bottom: var(--spacing-vertical-scroll-bottom-embedded-inset) !important;
-}
-</style>

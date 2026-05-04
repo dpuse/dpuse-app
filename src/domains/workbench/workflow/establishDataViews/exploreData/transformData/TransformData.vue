@@ -18,11 +18,11 @@ import {
 import { type Component, computed, ref } from 'vue';
 
 // Local (App) Framework
-import { useSelectColumnSort } from '../transform/useSelectColumnSort';
+import { useSelectColumnSort } from './useSelectColumnSort';
 
 // Local Components - Static
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
-import SortableColumnTile from '../transform/ColumnPill.vue';
+import SortableColumnTile from './ColumnPill.vue';
 
 // Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -238,7 +238,7 @@ const sql = computed((): string => {
 
 <template>
     <!-- eslint-disable vue/no-bare-strings-in-template -->
-    <ScrollArea>
+    <ScrollArea class="mx-4" scroll-area-inset="screen">
         <!-- Columns (Select) -->
         <section class="border-separator mt-4 rounded-md border">
             <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
