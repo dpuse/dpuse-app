@@ -24,7 +24,9 @@ body {
     --color-backdrop: var(--backdrop); /* Sidebar (secondary) background */
     --color-surface: var(--surface); /* Content (primary) background */
     --color-card: var(--card); /* Card background */
+    --color-card-hover: var(--card-hover); /* Card background (hover) */
     --color-boundary: var(--boundary); /* Border/outline */
+    --color-boundary-hover: var(--boundary-hover); /* Border/outline (hover) */
     --color-separator: var(--separator); /* Divider/separator */
     --color-content: var(--content); /* Text/icons (default/primary) */
     --color-muted: var(--muted); /* Text/icons (light/secondary) */
@@ -49,9 +51,11 @@ body {
     --backdrop: #fdfdfd;
     --surface: var(--color-white);
     --card: #fdfdfd;
+    --card-hover: var(--color-zinc-100);
     --boundary: var(--color-zinc-100);
+    --boundary-hover: var(--color-zinc-300);
     --separator: var(--color-zinc-200);
-    --content: var(--color-zinc-800);
+    --content: var(--color-zinc-600);
     --muted: var(--color-zinc-500);
 }
 
@@ -59,7 +63,9 @@ body {
     --backdrop: var(--color-zinc-900);
     --surface: var(--color-zinc-950);
     --card: var(--color-zinc-900);
+    --card-hover: var(--color-zinc-800);
     --boundary: var(--color-zinc-700);
+    --boundary-hover: var(--color-zinc-500);
     --separator: var(--color-zinc-700);
     --content: var(--color-zinc-300);
     --muted: var(--color-zinc-400);
