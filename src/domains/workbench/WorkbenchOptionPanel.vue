@@ -32,7 +32,7 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
 
 <template>
     <aside
-        class="border-boundary bg-backdrop flex h-full w-16.25 flex-col border-r pt-[calc(env(safe-area-inset-top)+55px)] pb-(--vertical-scroll-bottom-screen-inset) pl-[env(safe-area-inset-left)]"
+        class="border-boundary bg-backdrop flex h-full w-[calc(env(safe-area-inset-left)+4.0625rem)] flex-col border-r pt-[calc(env(safe-area-inset-top)+55px)] pb-(--vertical-scroll-bottom-screen-inset) pl-[env(safe-area-inset-left)]"
     >
         <!-- Separator -->
         <div class="bg-separator mx-3 h-px flex-none" />
