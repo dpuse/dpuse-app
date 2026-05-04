@@ -62,7 +62,7 @@ body {
     --boundary: var(--color-zinc-700);
     --separator: var(--color-zinc-700);
     --content: var(--color-zinc-300);
-    --muted: var(--color-zinc-500);
+    --muted: var(--color-zinc-400);
 }
 
 @layer utilities {
