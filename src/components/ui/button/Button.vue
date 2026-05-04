@@ -88,7 +88,7 @@ const variantClasses = computed((): (string | string[] | Record<string, string> 
                 'min-w-0 py-1 px-2 overflow-hidden',
                 'bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300',
                 'dark:bg-zinc-300/10 dark:hover:bg-zinc-300/20 dark:active:bg-zinc-300/30 dark:focus-visible:ring-zinc-500',
-                isActive ? 'bg-blue-100! dark:bg-blue-300/20! cursor-default! pointer-events-none!' : undefined
+                isActive ? 'bg-blue-50! dark:bg-blue-300/20! cursor-default! pointer-events-none!' : undefined
             ];
         case 'listitemDestructive':
             return [COMMON_ITEM_CLASSES, 'min-w-0 overflow-hidden', COMMON_DESTRUCTIVE_CLASSES, isActive ? 'bg-red-300 dark:bg-red-400/40' : undefined];
@@ -101,7 +101,7 @@ const variantClasses = computed((): (string | string[] | Record<string, string> 
                 COMMON_GRAPHIC_CLASSES,
                 COMMON_ICON_CLASSES,
                 'bg-zinc-50 py-2 px-2.5 [&_svg]:size-5 dark:bg-zinc-300/10',
-                isActive ? 'bg-blue-100! dark:bg-blue-300/20! cursor-default! pointer-events-none!' : undefined
+                isActive ? 'bg-blue-50! dark:bg-blue-300/20! cursor-default! pointer-events-none!' : undefined
             ];
         case 'minimal':
             return [];
