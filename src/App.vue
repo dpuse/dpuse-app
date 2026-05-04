@@ -207,7 +207,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 <template>
     <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
         <!-- ??? -->
-        <div class="to-surface/95 fixed inset-x-0 top-0 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent" />
+        <div class="fixed inset-x-0 top-0 h-[env(safe-area-inset-top)] bg-linear-to-t from-red-100 to-red-500/95" />
 
         <!-- Navigation progress bar. Always visible. -->
         <ProgressBar />
@@ -289,7 +289,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             <WorkbenchOptionBar v-if="displayIsWide" class="overflow-y-hidden" @continue="closeOptionBarOnNarrowDisplay()" />
 
             <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
-            <div class="h-full overflow-hidden" :class="{ 'col-start-2': displayIsWide }">
+            <div class="overflow-y-hidden" :class="{ 'col-start-2': displayIsWide }">
                 <RouterView v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">
                         <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
