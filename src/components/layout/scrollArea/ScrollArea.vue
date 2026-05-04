@@ -77,7 +77,7 @@ function onViewportScroll(): void {
             :options="{
                 scrollbars: {
                     autoHide,
-                    autoHideDelay: 800,
+                    autoHideDelay: 750,
                     autoHideSuspend,
                     dragScroll: true,
                     theme: isDarkMode ? 'os-theme-light' : 'os-theme-dark',
@@ -100,6 +100,7 @@ function onViewportScroll(): void {
 </template>
 
 <style scoped>
+/* Disable overscroll. */
 :deep([data-overlayscrollbars-viewport]) {
     overscroll-behavior: none;
 }
