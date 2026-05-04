@@ -7,7 +7,7 @@ const { badges = [], description, icon, iconDark, iconColor, label, overline } =
 
 <template>
     <div
-        class="bg-card outline-boundary hover:bg-card-hover hover:outline-boundary-hover relative flex h-full w-full cursor-pointer flex-col gap-y-4 rounded-lg p-4 font-light outline -outline-offset-1 transition-colors"
+        class="bg-card outline-boundary hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover relative flex h-full w-full cursor-pointer flex-col gap-y-4 rounded-lg p-4 font-light outline -outline-offset-1 transition-[colors,transform] active:scale-[0.98]"
     >
         <!-- Badges -->
         <div v-if="badges.length > 0" class="absolute top-0 right-0 flex gap-x-1 pt-1.5 pr-1.5">

@@ -77,6 +77,7 @@ function onViewportScroll(): void {
             :options="{
                 scrollbars: {
                     autoHide,
+                    autoHideDelay: 800,
                     autoHideSuspend,
                     dragScroll: true,
                     theme: isDarkMode ? 'os-theme-light' : 'os-theme-dark',
