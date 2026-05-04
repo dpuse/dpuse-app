@@ -9,7 +9,7 @@ import { displayIsWide } from '@/state/appLayout';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import FloatingActionButton from '@/components/ui/button/FloatingActionButton.vue';
+import FloatingActionButton from '@/components/layout/floatingActionButton/FloatingActionButton.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
@@ -54,9 +54,9 @@ async function selectItem(row: T): Promise<void> {
 </script>
 
 <template>
-    <div class="flex flex-1 flex-col overflow-hidden">
+    <div class="flex h-full flex-col overflow-hidden">
         <!-- Header -->
-        <header class="mx-4">
+        <header class="mx-4 flex-none">
             <slot name="header" />
         </header>
 
@@ -64,7 +64,7 @@ async function selectItem(row: T): Promise<void> {
         <div class="flex flex-1 overflow-hidden">
             <!-- Grid (Left) Pane -->
             <div v-show="displayIsWide || !detailPaneIsVisible" class="relative flex-1 overflow-hidden" :style="getPaneStyle(maxListWidth)">
-                <Grid class="mr-4 flex-1" :data-source="dataSource" :row-height="150" :target-column-width="350">
+                <Grid class="mr-4" :data-source="dataSource" :row-height="83" :target-column-width="350">
                     <template v-if="slots['list-item-default']" #default="{ item }">
                         <Button class="h-full" :is-active="activeItem === item" variant="listItem" @click="selectItem(item)">
                             <slot name="list-item-default" :item="item" />
@@ -80,8 +80,8 @@ async function selectItem(row: T): Promise<void> {
 
                 <FloatingActionButton
                     v-if="enableAddAction"
-                    class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
-                    :type-label="'Connection'"
+                    class="absolute right-3 bottom-(--safe-bottom-offset)"
+                    :component-type-label="'Connection'"
                     variant="add"
                     :verb="'Add'"
                 />

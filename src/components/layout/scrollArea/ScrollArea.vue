@@ -10,8 +10,6 @@ import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/sta
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-defineOptions({ inheritAttrs: false });
-
 const {
     autoHide = 'scroll',
     autoHideSuspend = false,
@@ -74,9 +72,8 @@ function onViewportScroll(): void {
 </script>
 
 <template>
-    <div class="relative min-h-0 min-w-0">
+    <div class="relative h-full min-h-0 min-w-0">
         <OverlayScrollbarsComponent
-            v-bind="$attrs"
             class="h-full"
             defer
             :options="{

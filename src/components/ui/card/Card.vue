@@ -22,14 +22,16 @@ const { badges = [], icon, iconDark, iconColor, label, overline } = defineProps<
             </template>
         </div>
 
-        <div v-if="icon || iconDark" class="flex size-10 items-center justify-center rounded-md">
-            <div aria-hidden="true" class="block w-9 dark:hidden" :style="iconColor ? { color: iconColor } : undefined" v-html="icon || iconDark" />
-            <div aria-hidden="true" class="hidden w-9 dark:block" v-html="iconDark || icon" />
-        </div>
+        <div class="flex items-center gap-x-2">
+            <div v-if="icon || iconDark" class="flex size-8 flex-none items-center justify-center rounded-md">
+                <div aria-hidden="true" class="block w-full dark:hidden" :style="iconColor ? { color: iconColor } : undefined" v-html="icon || iconDark" />
+                <div aria-hidden="true" class="hidden w-full dark:block" v-html="iconDark || icon" />
+            </div>
 
-        <div class="flex flex-col">
-            <div v-if="overline" class="text-muted text-xs font-normal">{{ overline }}</div>
-            <div>{{ label }}</div>
+            <div class="flex flex-col overflow-x-hidden">
+                <div v-if="overline" class="text-muted min-w-0 truncate text-xs leading-tight font-normal">{{ overline }}</div>
+                <div class="min-w-0 truncate text-[16px] leading-tight">{{ label }}</div>
+            </div>
         </div>
     </div>
 </template>

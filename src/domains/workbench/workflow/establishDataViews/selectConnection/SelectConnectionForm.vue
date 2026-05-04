@@ -11,7 +11,7 @@ import T from './SelectConnectionForm.json';
 import { t } from '@/state/locale';
 
 // Local Components - Static
-import FloatingActionButton from '@/components/ui/button/FloatingActionButton.vue';
+import FloatingActionButton from '@/components/layout/floatingActionButton/FloatingActionButton.vue';
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
@@ -44,7 +44,7 @@ async function handleSubmit(): Promise<void> {
 
 <template>
     <form class="relative flex h-full flex-col pl-4" @submit.prevent="handleSubmit">
-        <ScrollArea class="flex flex-1 flex-col">
+        <ScrollArea class="flex-1">
             <strong>Connection:</strong>
             <div>id: {{ connectionLocalisedConfig.id }}</div>
             <div>label: {{ connectionLocalisedConfig.label }}</div>
@@ -83,8 +83,8 @@ async function handleSubmit(): Promise<void> {
         </ScrollArea>
 
         <FloatingActionButton
-            class="right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
-            :type-label="'Connection'"
+            class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
+            :component-type-label="'Connection'"
             variant="step"
             :verb="'Select'"
             @click="$emit('submit')"

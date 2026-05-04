@@ -34,7 +34,7 @@ const activeView = computed(() => {
 </script>
 
 <template>
-    <div class="flex h-full min-w-0 flex-1 flex-col">
+    <div class="flex h-full min-w-0 flex-col">
         <component
             :is="activeView.component"
             :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]"

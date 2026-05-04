@@ -62,25 +62,31 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
             records: [
                 {
                     id: '1',
-                    label: 'One',
+                    label: 'Data View 1',
                     icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
                     iconColor: '#4d83e0'
                 },
                 {
                     id: '2',
-                    label: 'Two',
+                    label: 'Data View 2',
                     icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
                     iconColor: '#4d83e0'
                 },
                 {
                     id: '3',
-                    label: 'Three',
+                    label: 'Data View 3',
                     icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
                     iconColor: '#4d83e0'
                 },
                 {
                     id: '4',
-                    label: 'Four',
+                    label: 'Data View 4',
+                    icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
+                    iconColor: '#4d83e0'
+                },
+                {
+                    id: '5',
+                    label: 'Data View 5',
                     icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
                     iconColor: '#4d83e0'
                 }
@@ -141,7 +147,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
         class="pb-vertical-scroll-bottom-screen-inset mr-4 flex-1"
         :data-source="dataSource"
-        :row-height="150"
+        :row-height="83"
         :target-column-width="350"
     >
         <template #default="{ item }">
