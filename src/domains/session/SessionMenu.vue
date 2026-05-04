@@ -100,7 +100,7 @@ async function toggleFullscreen(): Promise<void> {
 
         <!-- Appearance -->
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Appearance') }}</div>
-        <div class="flex gap-x-2">
+        <div class="mt-1 flex gap-x-2">
             <Button
                 class="flex flex-col items-center text-xs"
                 :class="{ 'bg-zinc-200 dark:bg-zinc-600': currentAppearance === 'auto' }"
