@@ -11,6 +11,7 @@ import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkfl
 
 // Local Components - Static
 import HomeIcon from '@/components/icons/HomeIcon.vue';
+import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
@@ -30,13 +31,13 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
 </script>
 
 <template>
-    <aside class="border-boundary bg-backdrop flex h-full w-16.25 flex-col border-r pt-[calc(env(safe-area-inset-top)+55px)] pb-16">
+    <aside class="border-boundary bg-backdrop flex h-full w-16.25 flex-col border-r pt-[calc(env(safe-area-inset-top)+55px)] pb-(--vertical-scroll-bottom-screen-inset)">
         <!-- Separator -->
-        <div class="bg-separator mx-3 h-px" />
+        <div class="bg-separator mx-3 h-px flex-none" />
 
         <!-- Benchtop options scroller -->
-        <div class="flex flex-1 flex-col items-center gap-y-2 overflow-y-auto overscroll-y-none py-2">
-            <div class="flex flex-1 flex-col items-center gap-y-2">
+        <ScrollArea class="flex-1">
+            <div class="flex flex-col items-center gap-y-2 py-2">
                 <RouterLink
                     :aria-label="t(T, 'home.aria')"
                     class="dpuse-lg rounded-md p-1.75 transition-[background-color] duration-150 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:hover:bg-zinc-500/40 dark:focus-visible:outline-zinc-400"
@@ -59,7 +60,7 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
                     <div aria-hidden="true" :style="{ color: `${config.color}` }" v-html="config.icon" />
                 </RouterLink>
             </div>
-        </div>
+        </ScrollArea>
 
         <Separator class="mx-3" />
     </aside>
