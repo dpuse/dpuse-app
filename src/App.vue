@@ -207,7 +207,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 <template>
     <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
         <!-- ??? -->
-        <div class="fixed inset-x-0 top-0 h-20 bg-linear-to-t from-red-100 to-red-500/95" />
+        <div class="fixed inset-x-0 top-0 z-50 h-20 bg-linear-to-t from-red-100 to-red-500/95" />
 
         <!-- Navigation progress bar. Always visible. -->
         <ProgressBar />
@@ -301,7 +301,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <!-- Vertical Splitter - Only visible if display is wide and both panes are visible. -->
         <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
 
-        <!-- Right Pane - Knowledge panel and option bar (wide only). -->
+        <!-- Right Pane - Knowledge panel and option bar. -->
         <div
             v-if="knowledgePaneActivated"
             v-show="knowledgePaneIsVisible"
