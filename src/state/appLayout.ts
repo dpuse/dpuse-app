@@ -13,6 +13,7 @@ export const contentScrollPosition = ref(0);
 export const displayIsWide = ref(MEDIA_QUERY.matches);
 export const isDarkMode = ref(document.documentElement.classList.contains('dark'));
 export const isLandscape = ref(LANDSCAPE_QUERY.matches);
+export const isPWA = globalThis.matchMedia('(display-mode: standalone)').matches || globalThis.matchMedia('(display-mode: fullscreen)').matches;
 export const knowledgePaneIsVisible = ref(false); // The knowledge pane is actually rendered (visible) in the layout right now.
 export const workbenchPaneIsVisible = ref(false); // The workbench pane is actually rendered (visible) in the layout right now.
 

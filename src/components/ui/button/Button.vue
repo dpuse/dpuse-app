@@ -85,7 +85,7 @@ const variantClasses = computed((): (string | string[] | Record<string, string> 
         case 'listItem':
             return [
                 COMMON_ITEM_CLASSES,
-                'min-w-0 overflow-hidden',
+                'min-w-0 py-1 px-2 overflow-hidden',
                 'bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300',
                 'dark:bg-zinc-300/10 dark:hover:bg-zinc-300/20 dark:active:bg-zinc-300/30 dark:focus-visible:ring-zinc-500',
                 isActive ? 'bg-zinc-200 dark:hover:bg-zinc-300/30' : undefined

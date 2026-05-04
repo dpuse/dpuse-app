@@ -8,8 +8,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
 // Local (App) Framework
-import { displayIsWide } from '@/state/appLayout';
 import T from './SessionMenu.json';
+import { displayIsWide, isPWA } from '@/state/appLayout';
 import { isAuthenticated, signOut } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
@@ -27,9 +27,9 @@ const emit = defineEmits<{ continue: [] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const currentAppearance = ref(localStorage.getItem(APPEARANCE_KEY) ?? 'auto');
 const fullScreenIsSupported = document.fullscreenEnabled;
 const isFullscreen = ref(!!document.fullscreenElement);
-const isPWA = globalThis.matchMedia('(display-mode: standalone)').matches || globalThis.matchMedia('(display-mode: fullscreen)').matches;
 const route = useRoute();
 const router = useRouter();
 
@@ -57,6 +57,7 @@ function handleSetAppearance(mode: 'dark' | 'light' | 'auto'): void {
     const prefersDark = globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = mode === 'dark' || (mode === 'auto' && prefersDark);
     localStorage.setItem(APPEARANCE_KEY, mode);
+    currentAppearance.value = mode;
     document.documentElement.classList.toggle('dark', isDark);
     nextTick().then(() => emit('continue'));
 }
@@ -89,8 +90,8 @@ async function toggleFullscreen(): Promise<void> {
         class="border-boundary bg-surface flex flex-col overflow-y-auto overscroll-y-none px-4 shadow-md"
         :class="
             displayIsWide
-                ? 'fixed bottom-19.25 left-3 max-h-[calc(100vh-5.8125rem)] overflow-y-auto overscroll-y-none rounded-md border py-4'
-                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80vh] max-w-lg overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t pt-6 pb-8'
+                ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] overflow-y-auto overscroll-y-none rounded-md border py-4'
+                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] max-w-lg overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t pt-6 pb-8'
         "
     >
         <Button v-if="!displayIsWide" class="absolute top-2 right-3" variant="iconLarge" @click="emit('continue')">
@@ -100,18 +101,37 @@ async function toggleFullscreen(): Promise<void> {
         <!-- Appearance -->
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Appearance') }}</div>
         <div class="flex gap-x-2">
-            <Button class="flex flex-col items-center text-xs" variant="iconSmall" @click="handleSetAppearance('dark')"> <MoonIcon class="size-4.5!" />{{ t(T, 'Dark') }} </Button>
-
-            <Button class="flex flex-col items-center text-xs" variant="iconSmall" @click="handleSetAppearance('light')"> <SunIcon class="size-4.5!" />{{ t(T, 'Light') }} </Button>
-
-            <Button class="flex flex-col items-center text-xs" variant="iconSmall" @click="handleSetAppearance('auto')">
+            <Button
+                class="flex flex-col items-center text-xs"
+                :class="{ 'bg-zinc-200 dark:bg-zinc-600': currentAppearance === 'auto' }"
+                variant="iconSmall"
+                @click="handleSetAppearance('auto')"
+            >
                 <MonitorIcon class="size-4.5!" />{{ t(T, 'System') }}
+            </Button>
+
+            <Button
+                class="flex flex-col items-center text-xs"
+                :class="{ 'bg-zinc-200 dark:bg-zinc-600': currentAppearance === 'light' }"
+                variant="iconSmall"
+                @click="handleSetAppearance('light')"
+            >
+                <SunIcon class="size-4.5!" />{{ t(T, 'Light') }}
+            </Button>
+
+            <Button
+                class="flex flex-col items-center text-xs"
+                :class="{ 'bg-zinc-200 dark:bg-zinc-600': currentAppearance === 'dark' }"
+                variant="iconSmall"
+                @click="handleSetAppearance('dark')"
+            >
+                <MoonIcon class="size-4.5!" />{{ t(T, 'Dark') }}
             </Button>
         </div>
 
         <!-- Fullscreen -->
         <Separator v-if="fullScreenIsSupported" class="my-2.5" />
-        <Button v-if="fullScreenIsSupported" class="flex items-center gap-x-2 text-sm" variant="listItem" @click="handleToggleWindowExpansion">
+        <Button v-if="fullScreenIsSupported" class="flex flex-none items-center gap-x-2 text-sm" variant="listItem" @click="handleToggleWindowExpansion">
             <template v-if="isFullscreen"><ShrinkIcon class="size-4.5!" />{{ t(T, 'Collapse_window') }}</template>
             <template v-else><ExpandIcon class="size-4.5!" />{{ t(T, 'Expand_window') }}</template>
         </Button>
@@ -119,9 +139,16 @@ async function toggleFullscreen(): Promise<void> {
         <!-- Language -->
         <Separator class="my-2.5" />
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Language') }}</div>
-        <Button v-for="lang in SUPPORTED_LANGUAGES" :key="lang.id" class="mt-1 flex w-full items-center gap-x-2 text-sm" variant="listItem" @click="handleSetLanguage(lang.id)">
+        <Button
+            v-for="lang in SUPPORTED_LANGUAGES"
+            :key="lang.id"
+            class="mt-1 flex w-full flex-none items-center gap-x-2 text-sm"
+            :class="{ 'bg-zinc-200 dark:bg-zinc-600': localeId === lang.id }"
+            variant="listItem"
+            @click="handleSetLanguage(lang.id)"
+        >
             <!-- See https://flagpedia.net/index. -->
-            <img :src="`/flags/${lang.flag}.webp`" class="h-3.5 w-5 object-cover" :alt="lang.label" />
+            <img :src="`/flags/${lang.flag}.svg`" class="h-4 w-5.5 object-fill ring-1 ring-black/10 dark:ring-white/10" :alt="lang.label" />
             <div>{{ lang.label }}</div>
         </Button>
 
@@ -130,8 +157,8 @@ async function toggleFullscreen(): Promise<void> {
         <Button v-if="isAuthenticated" class="min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>
 
         <!-- Reload -->
-        <Separator class="my-2.5" />
-        <Button class="min-w-50 justify-start" variant="guarded" @click="handleReloadApplication">{{ t(T, 'Reload_application') }}</Button>
+        <Separator v-if="isPWA" class="my-2.5" />
+        <Button v-if="isPWA" class="min-w-50 justify-start" variant="guarded" @click="handleReloadApplication">{{ t(T, 'Reload_application') }}</Button>
 
         <!-- Sign In / Sign Out -->
         <Separator class="my-2.5" />
