@@ -125,13 +125,13 @@ async function toggleFullscreen(): Promise<void> {
             <div>{{ lang.label }}</div>
         </Button>
 
-        <!-- Reload -->
-        <Separator v-if="isPWA" class="my-2.5" />
-        <Button v-if="isPWA" class="min-w-50 justify-start" @click="handleReloadApplication">{{ t(T, 'Reload_application') }}</Button>
-
         <!-- Manage Account -->
         <Separator v-if="isAuthenticated" class="my-2.5" />
         <Button v-if="isAuthenticated" class="min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>
+
+        <!-- Reload -->
+        <Separator class="my-2.5" />
+        <Button class="min-w-50 justify-start" variant="guarded" @click="handleReloadApplication">{{ t(T, 'Reload_application') }}</Button>
 
         <!-- Sign In / Sign Out -->
         <Separator class="my-2.5" />

@@ -276,7 +276,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </Transition>
 
         <!-- Workbench option bar - narrow display overlay, rendered at top level so it's accessible regardless of whether the workbench pane is active. -->
-        <WorkbenchOptionBar v-if="!displayIsWide && workbenchOptionBarIsVisible" @continue="closeOptionBarOnNarrowDisplay()" />
+        <WorkbenchOptionBar v-if="!displayIsWide" :is-visible="workbenchOptionBarIsVisible" @continue="closeOptionBarOnNarrowDisplay()" />
 
         <!-- Left Pane - Workbench option bar (wide only) and panel. -->
         <main
