@@ -14,7 +14,7 @@ const { overline, overlineTo, title, titleTo } = defineProps<{ overline: string;
             <component
                 :is="overlineTo && overlineTo !== $route.query.wbView ? 'RouterLink' : 'div'"
                 :to="{ name: overlineTo, query: { ...$route.query, wbView: overlineTo } }"
-                class="w-full truncate text-xs"
+                class="w-full truncate text-[13px] leading-tight"
                 :class="{ 'text-center': !displayIsWide }"
             >
                 {{ overline }}
@@ -24,7 +24,7 @@ const { overline, overlineTo, title, titleTo } = defineProps<{ overline: string;
             <component
                 :is="titleTo && titleTo !== $route.query.wbView ? 'RouterLink' : 'div'"
                 :to="{ name: titleTo, query: { ...$route.query, wbView: titleTo } }"
-                class="w-full truncate"
+                class="w-full truncate leading-snug"
                 :class="{ 'text-center': !displayIsWide }"
             >
                 {{ title }}

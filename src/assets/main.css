@@ -50,9 +50,9 @@ body {
 
     --backdrop: #fdfdfd;
     --surface: var(--color-white);
-    --card: #fdfdfd;
+    --card: var(--color-zinc-50);
     --card-hover: var(--color-zinc-100);
-    --boundary: var(--color-zinc-100);
+    --boundary: var(--color-zinc-200);
     --boundary-hover: var(--color-zinc-300);
     --separator: var(--color-zinc-200);
     --content: var(--color-zinc-600);
