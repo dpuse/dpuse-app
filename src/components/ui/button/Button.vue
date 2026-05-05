@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { computed } from 'vue';
-import { RouterLink, type RouteLocationRaw } from 'vue-router';
+import { type RouteLocationRaw, RouterLink } from 'vue-router';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -46,7 +46,7 @@ const COMMON_OUTLINE_CLASSES = [
 export type ButtonShape = 'icon' | 'minimal' | 'rectangle';
 export type ButtonVariant = 'destructive' | 'ghost' | 'guarded' | 'neutral' | 'outline' | 'positive' | 'primary'; // TODO: Check actual usage of 'ghost', 'positive' and 'destructive'.
 export type ButtonSize = 'lg' | 'sm';
-type ButtonType = 'button' | 'reset' | 'submit';
+type ButtonType = 'button' | 'reset' | 'submit'; // TODO: 'reset' and 'submit' are not used.
 type Properties = { shape?: ButtonShape; variant?: ButtonVariant; size?: ButtonSize; isActive?: boolean; type?: ButtonType; to?: RouteLocationRaw };
 const { shape = 'rectangle', variant = 'neutral', size = 'lg', isActive = false, type = 'button', to } = defineProps<Properties>();
 
@@ -87,12 +87,7 @@ const classes = computed((): (string | string[] | undefined)[] => {
 </script>
 
 <template>
-    <component
-        :is="to ? RouterLink : 'button'"
-        class="transition-[background-color] duration-150 focus-visible:outline-none"
-        :class="classes"
-        v-bind="to ? { to } : { type }"
-    >
+    <component :is="to ? RouterLink : 'button'" class="transition-[background-color] duration-150 focus-visible:outline-none" :class="classes" v-bind="to ? { to } : { type }">
         <slot />
     </component>
 </template>
