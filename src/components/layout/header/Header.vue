@@ -7,24 +7,22 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
 </script>
 
 <template>
-    <header class="mt-[env(safe-area-inset-top)] flex-none">
+    <header
+        class="mt-[env(safe-area-inset-top)] flex h-14 flex-none flex-col justify-center text-lg font-light"
+        :class="{ 'px-12': !displayIsWide || !workbenchPaneIsVisible, 'pr-44': displayIsWide && workbenchPaneIsVisible && !knowledgePaneIsVisible }"
+    >
         <!-- Content indented from left and right to allow for logos when display is narrow.
              Content indented from right to allow for knowledge bar when display is wide.
              NOTE: If width of logos or knowledge bar changes, the following settings need to be adjusted accordingly. -->
-        <div
-            class="flex h-14 flex-col justify-center text-lg font-light"
-            :class="{ 'px-12': !displayIsWide || !workbenchPaneIsVisible, 'pr-44': displayIsWide && workbenchPaneIsVisible && !knowledgePaneIsVisible }"
+
+        <component
+            :is="to && to !== $route.query.wbView ? 'RouterLink' : 'div'"
+            :to="{ name: to, query: { ...$route.query, wbView: to } }"
+            class="min-w-0 truncate leading-snug"
+            :class="{ 'text-center': !displayIsWide, 'cursor-pointer text-blue-900 dark:text-blue-200 hover:underline hover:underline-offset-2 hover:decoration-blue-900/40 dark:hover:decoration-blue-200/40': to && to !== $route.query.wbView }"
         >
-            <!-- Overline & Title -->
-            <component
-                :is="to && to !== $route.query.wbView ? 'RouterLink' : 'div'"
-                :to="{ name: to, query: { ...$route.query, wbView: to } }"
-                class="min-w-0 truncate leading-snug"
-                :class="{ 'text-center': !displayIsWide }"
-            >
-                <div class="truncate text-[13px] leading-tight">{{ overline }}</div>
-                <div class="truncate leading-snug">{{ title }}</div>
-            </component>
-        </div>
+            <div class="truncate text-[13px] leading-tight">{{ overline }}</div>
+            <div class="truncate leading-snug">{{ title }}</div>
+        </component>
     </header>
 </template>
