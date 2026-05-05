@@ -2,13 +2,12 @@
 // External Dependencies
 import { computed } from 'vue';
 
-// Local Components
+// Local Components - Static
 import Button from './Button.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 export type ListItemVariant = 'destructive' | 'neutral';
-
 const { variant = 'neutral', isActive = false } = defineProps<{
     variant?: ListItemVariant;
     isActive?: boolean;

@@ -2,7 +2,7 @@
 // External Dependencies
 import { ArrowBigRightIcon, PlusIcon } from 'lucide-vue-next';
 
-// Local Components
+// Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 
 // Options, Properties, Slots & Emits

@@ -43,17 +43,11 @@ const COMMON_OUTLINE_CLASSES = [
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 export type ButtonShape = 'icon' | 'minimal' | 'rectangle';
-export type ButtonVariant = 'destructive' | 'ghost' | 'guarded' | 'neutral' | 'outline' | 'positive' | 'primary';
+export type ButtonVariant = 'destructive' | 'ghost' | 'guarded' | 'neutral' | 'outline' | 'positive' | 'primary'; // TODO: Check actual usage of 'ghost', 'positive' and 'destructive'.
 export type ButtonSize = 'lg' | 'sm';
 type ButtonType = 'button' | 'reset' | 'submit';
-
-const { shape = 'rectangle', variant = 'neutral', size = 'lg', isActive = false, type = 'button' } = defineProps<{
-    shape?: ButtonShape;
-    variant?: ButtonVariant;
-    size?: ButtonSize;
-    isActive?: boolean;
-    type?: ButtonType;
-}>();
+type Properties = { shape?: ButtonShape; variant?: ButtonVariant; size?: ButtonSize; isActive?: boolean; type?: ButtonType };
+const { shape = 'rectangle', variant = 'neutral', size = 'lg', isActive = false, type = 'button' } = defineProps<Properties>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

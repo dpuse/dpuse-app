@@ -131,7 +131,7 @@ async function toggleFullscreen(): Promise<void> {
             :is-active="localeId === lang.id"
             @click="handleSetLanguage(lang.id)"
         >
-            <!-- See https://flagpedia.net/index. -->
+            <!-- See https://github.com/lipis/flag-icons. -->
             <img :src="`/flags/${lang.flag}.svg`" class="h-4 w-5.5 object-fill ring-1 ring-black/10 dark:ring-white/10" :alt="lang.label" />
             <div>{{ lang.label }}</div>
         </ListItemButton>
