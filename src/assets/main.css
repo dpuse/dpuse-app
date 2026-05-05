@@ -4,6 +4,7 @@
 html {
     overscroll-behavior-y: none;
     font-size: 1rem; /* 16px is default */
+    touch-action: manipulation; /* disables double-tap zoom (iOS rotation bug) while preserving pinch-zoom */
 }
 @media (max-width: 768px) {
     html {
@@ -12,6 +13,7 @@ html {
 }
 body {
     overscroll-behavior-y: none;
+    touch-action: manipulation;
 }
 
 @custom-variant dark (&:is(.dark *));
