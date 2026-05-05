@@ -10,8 +10,8 @@ import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/sta
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { autoHide?: 'scroll' | 'never' | 'move' | 'leave'; autoHideSuspend?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen'; touchAction?: 'auto' | 'pan-y' };
-const { autoHide = 'scroll', autoHideSuspend = false, rowCount = 0, scrollAreaInset, touchAction = 'auto' } = defineProps<Properties>();
+type Properties = { autoHide?: 'scroll' | 'never' | 'move' | 'leave'; autoHideSuspend?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen' };
+const { autoHide = 'scroll', autoHideSuspend = false, rowCount = 0, scrollAreaInset } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [ScrollbarElements: HTMLElement] }>();
 
@@ -44,7 +44,6 @@ function handleInitialised(instance: OverlayScrollbars): void {
     osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
     document.addEventListener('pointerup', onDocumentPointerUp);
     viewport.addEventListener('scroll', onViewportScroll, { passive: true });
-    if (touchAction !== 'auto') viewport.style.touchAction = touchAction;
 
     emit('initialised', scrollElement);
 }
@@ -104,6 +103,7 @@ function onViewportScroll(): void {
 /* Disable overscroll. */
 :deep([data-overlayscrollbars-viewport]) {
     overscroll-behavior: none;
+    touch-action: pan-y;
 }
 
 :deep(.embedded) {
