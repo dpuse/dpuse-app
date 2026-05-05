@@ -10,7 +10,7 @@ import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 
 <template>
     <LayoutShell>
-        <Header class="mx-4" :overline="t(T, 'wb.label')" overline-to="workflow" :title="t(T, 'Contextualise_Data')" />
+        <Header class="mx-4" :overline="t(T, 'wb.label')" :title="t(T, 'Contextualise_Data')" to="workflow" />
 
         <RouterView />
     </LayoutShell>

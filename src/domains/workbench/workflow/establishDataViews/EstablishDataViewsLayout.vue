@@ -39,6 +39,8 @@ const stepsEnabledToNumber = ref(initialiseEnabledSteps());
 
 const activeStepLocalisedConfig = computed(() => STEP_CONFIGS.find((config) => config.id === route.query.wbView));
 
+const backRouteName = computed(() => (route.query.wbView === 'establishDataViews' ? 'workflow' : 'establishDataViews'));
+
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(route, (newRoute) => setEnabledSteps(newRoute.query.wbView));
@@ -76,8 +78,7 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
 <template>
     <LayoutShell>
         <!-- Header -->
-        <Header class="px-4" :overline="t(T, 'wb.label')" overline-to="workflow" :title="t(T, 'Establish_Data_Views')" title-to="establishDataViews" />
-
+        <Header class="px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Establish_Data_Views')" :to="backRouteName" />
         <!-- Action Bar -->
         <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
             <!-- Steps -->
