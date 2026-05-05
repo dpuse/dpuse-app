@@ -5,12 +5,16 @@ import { computed } from 'vue';
 // Local Components - Static
 import Button from './Button.vue';
 
+// Local (App) Framework
+import type { RouteLocationRaw } from 'vue-router';
+
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 export type ListItemVariant = 'destructive' | 'neutral';
-const { variant = 'neutral', isActive = false } = defineProps<{
+const { variant = 'neutral', isActive = false, to } = defineProps<{
     variant?: ListItemVariant;
     isActive?: boolean;
+    to?: RouteLocationRaw;
 }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -32,7 +36,7 @@ const classes = computed(() => [
 </script>
 
 <template>
-    <Button shape="minimal" :class="classes">
+    <Button shape="minimal" :class="classes" :to="to">
         <slot />
     </Button>
 </template>

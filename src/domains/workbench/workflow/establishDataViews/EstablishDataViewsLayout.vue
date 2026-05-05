@@ -83,18 +83,6 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
         <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
             <!-- Steps -->
             <Steps v-if="activeStepLocalisedConfig" :active-step-id="activeStepLocalisedConfig.id" :items="stepLocalisedConfigs" />
-
-            <!-- Add Action -->
-            <!-- <RouterLink
-                v-else
-                class="ml-auto py-2"
-                :to="{ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } }"
-                @click="activeDataViewConfig = undefined"
-            >
-                <Button variant="iconSmall">
-                    <PlusIcon stroke-width="1.25" />
-                </Button>
-            </RouterLink> -->
         </nav>
 
         <!-- Data View List or Active Step Panel -->
@@ -103,13 +91,15 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
                 <component :is="Component" :step-localised-config="activeStepLocalisedConfig" @step-completed="updateStepProgression" />
             </RouterView>
 
-            <RouterLink
+            <FloatingActionButton
                 v-if="route.query.wbView === 'establishDataViews'"
+                class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
+                :component-type-label="'Data View'"
                 :to="{ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } }"
+                variant="add"
+                :verb="'Add'"
                 @click="activeDataViewConfig = undefined"
-            >
-                <FloatingActionButton class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)" :component-type-label="'Data View'" variant="add" :verb="'Add'" />
-            </RouterLink>
+            />
         </div>
     </LayoutShell>
 </template>

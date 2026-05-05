@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { computed } from 'vue';
+import { RouterLink, type RouteLocationRaw } from 'vue-router';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -46,8 +47,8 @@ export type ButtonShape = 'icon' | 'minimal' | 'rectangle';
 export type ButtonVariant = 'destructive' | 'ghost' | 'guarded' | 'neutral' | 'outline' | 'positive' | 'primary'; // TODO: Check actual usage of 'ghost', 'positive' and 'destructive'.
 export type ButtonSize = 'lg' | 'sm';
 type ButtonType = 'button' | 'reset' | 'submit';
-type Properties = { shape?: ButtonShape; variant?: ButtonVariant; size?: ButtonSize; isActive?: boolean; type?: ButtonType };
-const { shape = 'rectangle', variant = 'neutral', size = 'lg', isActive = false, type = 'button' } = defineProps<Properties>();
+type Properties = { shape?: ButtonShape; variant?: ButtonVariant; size?: ButtonSize; isActive?: boolean; type?: ButtonType; to?: RouteLocationRaw };
+const { shape = 'rectangle', variant = 'neutral', size = 'lg', isActive = false, type = 'button', to } = defineProps<Properties>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -86,7 +87,12 @@ const classes = computed((): (string | string[] | undefined)[] => {
 </script>
 
 <template>
-    <button class="transition-[background-color] duration-150 focus-visible:outline-none" :class="classes" :type="type">
+    <component
+        :is="to ? RouterLink : 'button'"
+        class="transition-[background-color] duration-150 focus-visible:outline-none"
+        :class="classes"
+        v-bind="to ? { to } : { type }"
+    >
         <slot />
-    </button>
+    </component>
 </template>

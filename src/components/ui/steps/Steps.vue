@@ -2,6 +2,9 @@
 // Local (App) Framework
 import type { LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
+// Local Components - Static
+import Button from '@/components/ui/button/Button.vue';
+
 // Options, Properties, Slots & Emits
 export interface StepConfig {
     id: string;
@@ -20,16 +23,17 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<StepConfig>] }>();
 <template>
     <div v-if="items" class="flex gap-x-4 overflow-x-auto overscroll-x-none text-[15px]">
         <component
-            :is="item.id != null && !item.disabled ? 'RouterLink' : 'div'"
+            :is="item.disabled ? 'div' : Button"
             v-for="item in items"
             :key="item.id"
+            :to="!item.disabled && item.id != null ? { name: item.id, query: { ...$route.query, wbView: item.id } } : undefined"
             :aria-selected="activeStepId === item.id"
+            shape="minimal"
             class="border-y-4 border-b-transparent pt-1 leading-tight"
             :class="{
                 'border-t-blue-400 dark:border-t-sky-500': activeStepId === item.id || !item.disabled,
                 'border-t-zinc-300 dark:border-t-zinc-600': item.disabled
             }"
-            :to="item.id == null || item.disabled ? undefined : { name: item.id, query: { ...$route.query, wbView: item.id } }"
             role="tab"
             @click="$emit('select', item)"
         >

@@ -15,27 +15,26 @@ defineEmits<{ select: [index: number, item: T] }>();
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const enrichedItems = computed(() =>
-    items.map((item, index) => {
-        const isDisabled = index === items.length - 1 && disableLast;
-        const isLink = !isDisabled && item.to != null;
-        const isButton = !isDisabled && item.to == null;
-        return { item, isDisabled, isLink, isButton };
-    })
+    items.map((item, index) => ({
+        item,
+        isDisabled: index === items.length - 1 && disableLast
+    }))
 );
 </script>
 
 <template>
     <div class="flex min-w-0 items-center overflow-hidden">
-        <template v-for="({ item, isDisabled, isLink, isButton }, index) in enrichedItems" :key="item.id">
+        <template v-for="({ item, isDisabled }, index) in enrichedItems" :key="item.id">
             <!-- Breadcrumb Separator -->
             <span v-if="index > 0" class="mx-1.5 flex-none text-zinc-400">/</span>
 
             <!-- Breadcrumb Body -->
             <component
-                :is="isLink ? 'RouterLink' : isButton ? Button : 'div'"
-                v-bind="isButton ? { variant: 'minimal' } : {}"
+                :is="isDisabled ? 'div' : Button"
+                :to="!isDisabled && item.to != null ? { name: item.to, query: { ...$route.query, wbView: item.to } } : undefined"
                 :aria-disabled="isDisabled || undefined"
                 :aria-label="item.label"
+                shape="minimal"
                 class="flex items-center"
                 :class="[
                     item.icon ? 'flex-none' : 'max-w-full min-w-0 overflow-hidden',
@@ -43,7 +42,6 @@ const enrichedItems = computed(() =>
                         ? 'cursor-default text-zinc-500 dark:text-zinc-500'
                         : 'cursor-pointer text-blue-800 transition-colors hover:text-blue-600 focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:outline-none dark:text-blue-400 dark:hover:text-blue-300 dark:focus-visible:ring-blue-500'
                 ]"
-                :to="isLink ? { name: item.to, query: { ...$route.query, wbView: item.to } } : undefined"
                 @click="!isDisabled ? $emit('select', index, item) : undefined"
             >
                 <!-- Display as icon. -->

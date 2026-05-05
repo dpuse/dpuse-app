@@ -3,6 +3,7 @@
 import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkflowOptionConfigs';
 
 // Local Components - Static
+import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -27,7 +28,7 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
                 <!-- ??? Section -->
                 <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
                     <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-                        <RouterLink v-for="config in workflowOptionConfigs" :key="config.id" class="flex flex-col" :to="{ name: config.id, query: $route.query }">
+                        <Button v-for="config in workflowOptionConfigs" :key="config.id" shape="minimal" class="flex flex-col" :to="{ name: config.id, query: $route.query }">
                             <dt class="flex items-center gap-x-3 text-base/7 font-semibold text-gray-900">
                                 <!-- <component :is="feature.icon" class="size-5 flex-none text-indigo-600" aria-hidden="true" /> -->
                                 <div aria-hidden="true" style="height: 32px; width: 32px" :style="config.color ? { color: config.color } : undefined" v-html="config.icon" />
@@ -41,7 +42,7 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
                                         > -->
                                 </p>
                             </dd>
-                        </RouterLink>
+                        </Button>
                     </dl>
                 </div>
             </div>

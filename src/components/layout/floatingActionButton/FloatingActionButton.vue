@@ -5,13 +5,17 @@ import { ArrowBigRightIcon, PlusIcon } from 'lucide-vue-next';
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 
+// Local (App) Framework
+import type { RouteLocationRaw } from 'vue-router';
+
 // Options, Properties, Slots & Emits
-const { componentTypeLabel, variant, verb } = defineProps<{ componentTypeLabel?: string; variant: 'add' | 'step'; verb?: string }>();
+const { componentTypeLabel, variant, verb, to } = defineProps<{ componentTypeLabel?: string; variant: 'add' | 'step'; verb?: string; to?: RouteLocationRaw }>();
 </script>
 
 <template>
     <Button
         shape="minimal"
+        :to="to"
         class="flex h-10 min-w-10 items-center justify-center gap-x-1 rounded-full p-1.75 shadow-md focus-visible:ring-2"
         :class="
             variant === 'step'

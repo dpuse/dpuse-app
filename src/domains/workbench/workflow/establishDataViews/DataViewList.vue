@@ -19,6 +19,7 @@ import { useEngine } from '@/services/useEngine';
 import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/session';
 
 // Local Components - Static
+import Button from '@/components/ui/button/Button.vue';
 import Card from '@/components/ui/card/Card.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
@@ -151,9 +152,9 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
         :target-column-width="350"
     >
         <template #default="{ item }">
-            <RouterLink :to="{ name: 'selectNode', params: { dataViewId: item.id }, query: { ...$route.query, wbView: 'selectNode' } }" @click="activeDataViewConfig = item">
+            <Button shape="minimal" :to="{ name: 'selectNode', params: { dataViewId: item.id }, query: { ...$route.query, wbView: 'selectNode' } }" @click="activeDataViewConfig = item">
                 <Card :icon="item.icon ?? undefined" icon-color="#4d83e0" :label="item.label as string" />
-            </RouterLink>
+            </Button>
         </template>
     </Grid>
 
