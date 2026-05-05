@@ -1,13 +1,43 @@
 <script setup lang="ts">
+// External Dependencies
+import { ref } from 'vue';
+
 // Options, Properties, Slots & Emits
 type Badge = { id: string; color?: string; label: string };
 type Properties = { badges?: Badge[]; description?: string; icon?: string; iconDark?: string; iconColor?: string; label: string; overline?: string };
 const { badges = [], description, icon, iconDark, iconColor, label, overline } = defineProps<Properties>();
+
+// Touch press state — delayed so scroll gestures don't trigger the active visual
+const isPressed = ref(false);
+let touchStartY = 0;
+let pressTimer: ReturnType<typeof setTimeout> | null = null;
+
+function onTouchStart(e: TouchEvent) {
+    touchStartY = e.touches[0].clientY;
+    pressTimer = setTimeout(() => { isPressed.value = true; }, 80);
+}
+
+function onTouchMove(e: TouchEvent) {
+    if (Math.abs(e.touches[0].clientY - touchStartY) > 5) {
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+        isPressed.value = false;
+    }
+}
+
+function onTouchEnd() {
+    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+    isPressed.value = false;
+}
 </script>
 
 <template>
     <div
-        class="bg-card outline-boundary hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover relative flex h-full w-full cursor-pointer flex-col gap-y-4 rounded-lg p-4 font-light outline -outline-offset-1 transition-[colors,transform] active:scale-[0.98]"
+        class="bg-card outline-boundary hover:bg-card-hover hover:outline-boundary-hover relative flex h-full w-full cursor-pointer flex-col gap-y-4 rounded-lg p-4 font-light outline -outline-offset-1 transition-[colors,transform]"
+        :class="{ 'bg-card-hover scale-[0.98]': isPressed }"
+        @touchstart="onTouchStart"
+        @touchmove="onTouchMove"
+        @touchend="onTouchEnd"
+        @touchcancel="onTouchEnd"
     >
         <!-- Badges -->
         <div v-if="badges.length > 0" class="absolute top-0 right-0 flex gap-x-1 pt-1.5 pr-1.5">
