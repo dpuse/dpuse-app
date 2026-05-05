@@ -7,17 +7,19 @@ html {
 }
 @media (max-width: 768px) {
     html {
-        font-size: 1rem; /* 18px on small devices */
+        font-size: 1rem; /* 16px, same as default */
     }
 }
 body {
     overscroll-behavior-y: none;
 }
 
+/* Use class-based dark mode (parent has .dark) instead of prefers-color-scheme. */
 @custom-variant dark (&:is(.dark *));
 
+/* Theme variables. */
 @theme inline {
-    /* Reserves space at bottom of scroll area: '16px' for horizontal scroll bar; '40px' for floating buttons; '8px' for padding above floating buttons. ) */
+    /* Tailwind spacing tokens for scroll area bottom insets. */
     --spacing-vertical-scroll-bottom-embedded-inset: var(--vertical-scroll-bottom-embedded-inset);
     --spacing-vertical-scroll-bottom-screen-inset: var(--vertical-scroll-bottom-screen-inset);
 
@@ -32,6 +34,7 @@ body {
     --color-muted: var(--muted); /* Text/icons (light/secondary) */
 }
 
+/* Variables and light mode colors. */
 :root {
     /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '21px' for optional status bar; '16px' for horizontal scroll bar. */
     --safe-bottom-offset: calc(max(env(safe-area-inset-bottom), 21px) + 16px);
@@ -48,6 +51,7 @@ body {
     --vertical-scroll-bottom-embedded-inset: 64px;
     --vertical-scroll-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 21px) + 64px);
 
+    /* Light mode colors. */
     --backdrop: #fdfdfd;
     --surface: var(--color-white);
     --card: var(--color-zinc-50);
@@ -59,6 +63,7 @@ body {
     --muted: var(--color-zinc-500);
 }
 
+/* Dark mode colors. */
 .dark {
     --backdrop: var(--color-zinc-900);
     --surface: var(--color-zinc-950);
@@ -71,13 +76,14 @@ body {
     --muted: var(--color-zinc-400);
 }
 
+/* Content column: left margin scales with viewport width (clamped 0–5rem), max-width 56rem, right margin absorbs remaining space. */
 @layer utilities {
-    /* Centred content column: left-aligned with a responsive margin and capped width. */
     .dpuse-workbench-prose {
         @apply mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] max-w-4xl;
     }
 }
 
+/* Tailwind omits pointer cursor on buttons by default; restore expected behavior. */
 @layer base {
     button:not(:disabled),
     [role='button']:not(:disabled) {
@@ -85,6 +91,7 @@ body {
     }
 }
 
+/* Prevent iOS Safari from auto-zooming into form fields on focus. */
 @supports (-webkit-touch-callout: none) {
     @media (hover: none) and (pointer: coarse) {
         input,
