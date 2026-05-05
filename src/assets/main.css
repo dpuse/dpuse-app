@@ -84,11 +84,6 @@ body {
         cursor: pointer;
         touch-action: manipulation;
     }
-
-    .overflow-y-auto,
-    .overflow-y-scroll {
-        touch-action: pan-y;
-    }
 }
 
 @supports (-webkit-touch-callout: none) {
