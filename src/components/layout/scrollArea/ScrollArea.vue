@@ -10,8 +10,8 @@ import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/sta
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { autoHide?: 'scroll' | 'never' | 'move' | 'leave'; autoHideSuspend?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen' };
-const { autoHide = 'scroll', autoHideSuspend = false, rowCount = 0, scrollAreaInset } = defineProps<Properties>();
+type Properties = { autoHide?: 'scroll' | 'never' | 'move' | 'leave'; autoHideSuspend?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen'; touchAction?: 'auto' | 'pan-y' };
+const { autoHide = 'scroll', autoHideSuspend = false, rowCount = 0, scrollAreaInset, touchAction = 'auto' } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [ScrollbarElements: HTMLElement] }>();
 
@@ -73,6 +73,7 @@ function onViewportScroll(): void {
         <OverlayScrollbarsComponent
             class="h-full"
             :class="scrollAreaInset"
+            :style="{ touchAction }"
             defer
             :options="{
                 scrollbars: {
