@@ -6,7 +6,6 @@ import { computed } from 'vue';
 
 const COMMON_RECTANGLE_CLASSES = 'rounded-md text-[15px] leading-6 focus-visible:ring-2 dark:text-zinc-300 px-3 py-1.5';
 const COMMON_GRAPHIC_CLASSES = 'focus-visible:ring-2';
-const COMMON_ITEM_CLASSES = 'rounded-md text-[15px] leading-6 focus-visible:ring-2 dark:text-zinc-300 w-full text-left';
 
 const COMMON_DESTRUCTIVE_CLASSES = [
     'bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-900 focus-visible:ring-red-300',
@@ -28,15 +27,9 @@ const COMMON_NEUTRAL_CLASSES = [
     'bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 text-zinc-900 focus-visible:ring-zinc-300',
     'dark:bg-zinc-300/20 dark:hover:bg-zinc-300/30 dark:active:bg-zinc-300/40 dark:focus-visible:ring-zinc-500'
 ];
-
 const COMMON_GHOST_CLASSES = [
     'bg-transparent hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300',
     'dark:hover:bg-zinc-300/20 dark:active:bg-zinc-300/30 dark:focus-visible:ring-zinc-500'
-];
-const COMMON_AVATAR_CLASSES = [
-    'dpuse-avatar border rounded-full ring-2 ring-offset-0 ring-transparent',
-    'border-separator hover:ring-zinc-300 active:ring-zinc-400 focus-visible:ring-zinc-300',
-    'dark:border-zinc-400 dark:hover:ring-zinc-600 dark:active:ring-zinc-500 dark:focus-visible:ring-zinc-600'
 ];
 const COMMON_ICON_CLASSES = [
     'rounded-md hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300 dark:hover:bg-zinc-300/20 dark:active:bg-zinc-300/30 dark:focus-visible:ring-zinc-500'
@@ -49,26 +42,36 @@ const COMMON_OUTLINE_CLASSES = [
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-export type VariantTypeId =
-    | 'avatar'
-    | 'destructive'
-    | 'ghost'
-    | 'guarded'
-    | 'iconLarge'
-    | 'iconSmall'
-    | 'listItem'
-    | 'listitemDestructive'
-    | 'minimal'
-    | 'neutral'
-    | 'outline'
-    | 'positive'
-    | 'primary';
+export type ButtonShape = 'icon' | 'minimal' | 'rectangle';
+export type ButtonVariant = 'destructive' | 'ghost' | 'guarded' | 'neutral' | 'outline' | 'positive' | 'primary';
+export type ButtonSize = 'lg' | 'sm';
 type ButtonType = 'button' | 'reset' | 'submit';
-const { isActive = false, type = 'button', variant = 'neutral' } = defineProps<{ isActive?: boolean; type?: ButtonType; variant?: VariantTypeId }>();
+
+const { shape = 'rectangle', variant = 'neutral', size = 'lg', isActive = false, type = 'button' } = defineProps<{
+    shape?: ButtonShape;
+    variant?: ButtonVariant;
+    size?: ButtonSize;
+    isActive?: boolean;
+    type?: ButtonType;
+}>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const variantClasses = computed((): (string | string[] | Record<string, string> | undefined)[] => {
+const classes = computed((): (string | string[] | undefined)[] => {
+    if (shape === 'minimal') return [];
+
+    if (shape === 'icon') {
+        if (size === 'sm') {
+            return [
+                COMMON_GRAPHIC_CLASSES,
+                COMMON_ICON_CLASSES,
+                'bg-zinc-50 py-2 px-2.5 [&_svg]:size-5 dark:bg-zinc-300/10',
+                isActive ? 'bg-blue-50! dark:bg-blue-300/20! cursor-default! pointer-events-none!' : undefined
+            ];
+        }
+        return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.75 [&_svg]:size-[26px]'];
+    }
+
     switch (variant) {
         case 'primary':
             return [COMMON_RECTANGLE_CLASSES, COMMON_PRIMARY_CLASSES];
@@ -82,29 +85,6 @@ const variantClasses = computed((): (string | string[] | Record<string, string> 
             return [COMMON_RECTANGLE_CLASSES, COMMON_GHOST_CLASSES];
         case 'outline':
             return [COMMON_RECTANGLE_CLASSES, COMMON_OUTLINE_CLASSES];
-        case 'listItem':
-            return [
-                COMMON_ITEM_CLASSES,
-                'min-w-0 py-1 px-2 overflow-hidden',
-                'bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300',
-                'dark:bg-zinc-300/10 dark:hover:bg-zinc-300/20 dark:active:bg-zinc-300/30 dark:focus-visible:ring-zinc-500',
-                isActive ? 'bg-blue-50! dark:bg-blue-300/20! cursor-default! pointer-events-none!' : undefined
-            ];
-        case 'listitemDestructive':
-            return [COMMON_ITEM_CLASSES, 'min-w-0 overflow-hidden', COMMON_DESTRUCTIVE_CLASSES, isActive ? 'bg-red-300 dark:bg-red-400/40' : undefined];
-        case 'avatar':
-            return [COMMON_GRAPHIC_CLASSES, COMMON_AVATAR_CLASSES, '[&_img]:rounded-full'];
-        case 'iconLarge':
-            return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.75 [&_svg]:size-[26px]'];
-        case 'iconSmall':
-            return [
-                COMMON_GRAPHIC_CLASSES,
-                COMMON_ICON_CLASSES,
-                'bg-zinc-50 py-2 px-2.5 [&_svg]:size-5 dark:bg-zinc-300/10',
-                isActive ? 'bg-blue-50! dark:bg-blue-300/20! cursor-default! pointer-events-none!' : undefined
-            ];
-        case 'minimal':
-            return [];
         default:
             return [COMMON_RECTANGLE_CLASSES, COMMON_NEUTRAL_CLASSES];
     }
@@ -112,7 +92,7 @@ const variantClasses = computed((): (string | string[] | Record<string, string> 
 </script>
 
 <template>
-    <button class="transition-[background-color] duration-150 focus-visible:outline-none" :class="variantClasses" :type="type">
+    <button class="transition-[background-color] duration-150 focus-visible:outline-none" :class="classes" :type="type">
         <slot />
     </button>
 </template>

@@ -8,7 +8,7 @@ import { displayIsWide } from '@/state/appLayout';
 import { isAuthenticated } from '@/state/session';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
+import AvatarButton from '@/components/ui/button/AvatarButton.vue';
 import DialogMask from '@/components/dialog/DialogMask.vue';
 import SessionMenu from '@/domains/session/SessionMenu.vue';
 
@@ -82,11 +82,10 @@ function onMenuAfterLeave(): void {}
             <SessionMenu v-if="sessionMenuIsVisible" ref="sessionMenuReference" @continue="handleClose" />
         </Transition>
 
-        <Button
+        <AvatarButton
             aria-label="Toggle session panel"
             class="dpuse-outside-click-ignore relative h-10 w-10"
             :class="{ 'bg-surface shadow-md': !displayIsWide && !workbenchOptionBarIsVisible }"
-            variant="avatar"
             @click="sessionMenuIsVisible = !sessionMenuIsVisible"
         >
             <Transition name="fade">
@@ -112,7 +111,7 @@ function onMenuAfterLeave(): void {}
                     <LoaderCircleIcon key="loader" class="size-5 animate-spin text-neutral-300" />
                 </div>
             </Transition>
-        </Button>
+        </AvatarButton>
     </div>
 </template>
 

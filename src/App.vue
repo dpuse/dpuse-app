@@ -220,7 +220,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             :aria-label="t(T, 'wb.toggle.label.aria')"
             class="bg-surface pl- fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full!"
             :class="{ 'shadow-md': !displayIsWide && contentScrollPosition > 0 }"
-            variant="iconLarge"
+            shape="icon"
             @click="toggleWorkbenchAppPane()"
         >
             <DPUseLogo />
@@ -229,15 +229,15 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <!-- Knowledge toggle fixed in top right corner. Always visible. -->
         <div class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-40 flex">
             <nav v-if="displayIsWide || knowledgeOptionBarIsVisible">
-                <Button :aria-label="t(T, 'k.select.about.aria')" variant="iconLarge" @click="selectKnowledgePanel('about')">
+                <Button :aria-label="t(T, 'k.select.about.aria')" shape="icon" @click="selectKnowledgePanel('about')">
                     <InfoIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
 
-                <Button :aria-label="t(T, 'k.select.about.aria')" variant="iconLarge" @click="selectKnowledgePanel('library')">
+                <Button :aria-label="t(T, 'k.select.about.aria')" shape="icon" @click="selectKnowledgePanel('library')">
                     <LibraryBigIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
 
-                <Button :aria-label="t(T, 'k.select.about.aria')" variant="iconLarge" @click="selectKnowledgePanel('chat')">
+                <Button :aria-label="t(T, 'k.select.about.aria')" shape="icon" @click="selectKnowledgePanel('chat')">
                     <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
             </nav>
@@ -247,7 +247,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
                 :aria-label="t(T, 'k.toggle.label.aria')"
                 class="bg-surface rounded-full!"
                 :class="{ 'shadow-md': !displayIsWide && contentScrollPosition > 0 }"
-                variant="iconLarge"
+                shape="icon"
                 @click="toggleKnowledgeAppPane()"
             >
                 <KnowledgeLogo />

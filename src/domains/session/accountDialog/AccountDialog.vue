@@ -11,11 +11,12 @@ import T from './AccountDialog.json';
 
 // Local Components - Static
 import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
-import Button, { type VariantTypeId } from '@/components/ui/button/Button.vue';
+import Button from '@/components/ui/button/Button.vue';
+import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string; variant?: VariantTypeId };
+type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string; isDestructive?: boolean };
 const OPTION_CONFIGS: OptionLocalisedConfig[] = [
     { id: 'profile', type: 'label', label: 'Profile' },
     { id: 'managePersonalDetails', icon: '', label: 'Personal details', title: 'Manage Personal Details' },
@@ -30,7 +31,7 @@ const OPTION_CONFIGS: OptionLocalisedConfig[] = [
     { id: 'development', type: 'label', label: 'Development' },
     { id: 'generateToken', icon: '', label: 'API token' },
     { id: 'criticalActions', type: 'label', label: 'Critical Actions' },
-    { id: 'deleteAccount', icon: '', label: 'Delete account', variant: 'listitemDestructive' }
+    { id: 'deleteAccount', icon: '', label: 'Delete account', isDestructive: true }
 ];
 const OPTION_COMPONENT_MAP: Record<string, Component> = {
     managePersonalDetails: defineAsyncComponent(() => import('./ManagePersonalDetailsPanel.vue')),
@@ -103,15 +104,15 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
             <div class="flex flex-1 flex-col gap-y-1">
                 <template v-for="optionConfig in OPTION_CONFIGS" :key="optionConfig.id">
                     <div v-if="optionConfig.type === 'label'" class="text-muted mt-3 text-xs font-medium">{{ optionConfig.label }}</div>
-                    <Button
+                    <ListItemButton
                         v-else
                         class="inline-flex min-w-50 justify-start"
                         :is-active="route.name === optionConfig.id && displayIsWide"
-                        :variant="optionConfig.variant ? optionConfig.variant : 'listItem'"
+                        :variant="optionConfig.isDestructive ? 'destructive' : 'neutral'"
                         @click="activeOptionConfig = optionConfig"
                     >
                         {{ optionConfig.label }}
-                    </Button>
+                    </ListItemButton>
                 </template>
             </div>
 
@@ -124,7 +125,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 
         <div v-if="displayIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
             <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b">
-                <Button v-if="!displayIsWide" variant="iconSmall" @click="handleBack">
+                <Button v-if="!displayIsWide" shape="icon" size="sm" @click="handleBack">
                     <ArrowBigLeftIcon stroke-width="1.25" />
                 </Button>
                 {{ activeOptionConfig!.title }}

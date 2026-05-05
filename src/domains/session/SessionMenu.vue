@@ -16,6 +16,7 @@ import { localeId, t } from '@/state/locale';
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import CloseButton from '@/components/ui/button/CloseButton.vue';
+import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -95,46 +96,45 @@ async function toggleFullscreen(): Promise<void> {
                 : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] max-w-lg overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t py-8'
         "
     >
-        <CloseButton v-if="!displayIsWide" @click="emit('continue')" />
+        <CloseButton v-if="!displayIsWide" class="absolute top-2 right-3" @click="emit('continue')" />
 
         <!-- Appearance -->
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Appearance') }}</div>
         <div class="mt-1 flex gap-x-2">
-            <Button class="flex flex-col items-center text-xs" :is-active="currentAppearance === 'auto'" variant="iconSmall" @click="handleSetAppearance('auto')">
+            <Button class="flex flex-col items-center text-xs" :is-active="currentAppearance === 'auto'" shape="icon" size="sm" @click="handleSetAppearance('auto')">
                 <MonitorIcon class="size-4.5!" />{{ t(T, 'System') }}
             </Button>
 
-            <Button class="flex flex-col items-center text-xs" :is-active="currentAppearance === 'light'" variant="iconSmall" @click="handleSetAppearance('light')">
+            <Button class="flex flex-col items-center text-xs" :is-active="currentAppearance === 'light'" shape="icon" size="sm" @click="handleSetAppearance('light')">
                 <SunIcon class="size-4.5!" />{{ t(T, 'Light') }}
             </Button>
 
-            <Button class="flex flex-col items-center text-xs" :is-active="currentAppearance === 'dark'" variant="iconSmall" @click="handleSetAppearance('dark')">
+            <Button class="flex flex-col items-center text-xs" :is-active="currentAppearance === 'dark'" shape="icon" size="sm" @click="handleSetAppearance('dark')">
                 <MoonIcon class="size-4.5!" />{{ t(T, 'Dark') }}
             </Button>
         </div>
 
         <!-- Fullscreen -->
         <Separator v-if="fullScreenIsSupported" class="my-2.5" />
-        <Button v-if="fullScreenIsSupported" class="flex flex-none items-center gap-x-2 text-sm" variant="listItem" @click="handleToggleWindowExpansion">
+        <ListItemButton v-if="fullScreenIsSupported" class="flex flex-none items-center gap-x-2 text-sm" @click="handleToggleWindowExpansion">
             <template v-if="isFullscreen"><ShrinkIcon class="size-4.5!" />{{ t(T, 'Collapse_window') }}</template>
             <template v-else><ExpandIcon class="size-4.5!" />{{ t(T, 'Expand_window') }}</template>
-        </Button>
+        </ListItemButton>
 
         <!-- Language -->
         <Separator class="my-2.5" />
         <div class="text-muted mb-1 text-sm">{{ t(T, 'Language') }}</div>
-        <Button
+        <ListItemButton
             v-for="lang in SUPPORTED_LANGUAGES"
             :key="lang.id"
             class="mt-1 flex w-full flex-none items-center gap-x-2 text-sm"
             :is-active="localeId === lang.id"
-            variant="listItem"
             @click="handleSetLanguage(lang.id)"
         >
             <!-- See https://flagpedia.net/index. -->
             <img :src="`/flags/${lang.flag}.svg`" class="h-4 w-5.5 object-fill ring-1 ring-black/10 dark:ring-white/10" :alt="lang.label" />
             <div>{{ lang.label }}</div>
-        </Button>
+        </ListItemButton>
 
         <!-- Manage Account -->
         <Separator v-if="isAuthenticated" class="my-2.5" />
