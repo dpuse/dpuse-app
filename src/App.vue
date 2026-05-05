@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -93,24 +93,7 @@ router
         activeAppPaneId.value = 'workbench';
     });
 
-onMounted(() => {
-    initialiseServices();
-
-    // iOS Safari PWA: prevent zoom re-trigger on orientation change.
-    // When the user zooms out then rotates, Safari can re-apply zoom. Temporarily locking
-    // maximum-scale during the orientation reflow prevents this, then restores pinch-zoom.
-    const viewportMeta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement | null;
-    if (viewportMeta) {
-        const lockedContent = 'width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1';
-        const unlockedContent = 'width=device-width, initial-scale=1.0, viewport-fit=cover';
-        const onOrientationChange = (): void => {
-            viewportMeta.content = lockedContent;
-            setTimeout(() => { viewportMeta.content = unlockedContent; }, 300);
-        };
-        globalThis.addEventListener('orientationchange', onOrientationChange);
-        onUnmounted(() => globalThis.removeEventListener('orientationchange', onOrientationChange));
-    }
-});
+onMounted(() => initialiseServices());
 
 watch(displayIsWide, (newDisplayIsWide) => {
     if (activeAppPaneId.value != null) establishActiveAppPaneId(newDisplayIsWide);

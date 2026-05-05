@@ -82,6 +82,12 @@ body {
     button:not(:disabled),
     [role='button']:not(:disabled) {
         cursor: pointer;
+        touch-action: manipulation;
+    }
+
+    .overflow-y-auto,
+    .overflow-y-scroll {
+        touch-action: pan-y;
     }
 }
 

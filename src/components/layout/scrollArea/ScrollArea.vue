@@ -103,6 +103,7 @@ function onViewportScroll(): void {
 /* Disable overscroll. */
 :deep([data-overlayscrollbars-viewport]) {
     overscroll-behavior: none;
+    touch-action: pan-y;
 }
 
 :deep(.embedded) {

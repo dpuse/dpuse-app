@@ -77,3 +77,7 @@ npm run test:e2e -- --debug
 ```sh
 npm run lint
 ```
+
+### Issues
+
+- Zoom rotation issue on iOS Safari. Zoom or double click, reset, then rotate device, reset values will be lost. Only way to correct is to close and restart the app.
