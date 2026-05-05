@@ -44,6 +44,7 @@ function handleInitialised(instance: OverlayScrollbars): void {
     osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
     document.addEventListener('pointerup', onDocumentPointerUp);
     viewport.addEventListener('scroll', onViewportScroll, { passive: true });
+    if (touchAction !== 'auto') viewport.style.touchAction = touchAction;
 
     emit('initialised', scrollElement);
 }
@@ -73,7 +74,6 @@ function onViewportScroll(): void {
         <OverlayScrollbarsComponent
             class="h-full"
             :class="scrollAreaInset"
-            :style="{ touchAction }"
             defer
             :options="{
                 scrollbars: {
