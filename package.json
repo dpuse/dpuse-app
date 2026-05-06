@@ -1,14 +1,14 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.991",
+    "version": "0.0.992",
     "private": true,
     "type": "module",
     "engines": {
         "node": "^20.19.0 || >=22.12.0"
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^0.3.661",
+        "@dpuse/dpuse-shared": "^0.3.662",
         "@formkit/drag-and-drop": "^0.5.3",
         "@tailwindcss/vite": "^4.2.4",
         "@tanstack/ai-client": "^0.8.0",
@@ -20,13 +20,13 @@
         "overlayscrollbars": "^2.15.1",
         "overlayscrollbars-vue": "^0.5.9",
         "tailwindcss": "^4.2.4",
-        "vue": "^3.5.33",
+        "vue": "^3.5.34",
         "vue-router": "^5.0.6",
         "web-vitals": "^5.2.0"
     },
     "devDependencies": {
-        "@cloudflare/vite-plugin": "^1.35.0",
-        "@cloudflare/workers-types": "^4.20260502.1",
+        "@cloudflare/vite-plugin": "^1.36.0",
+        "@cloudflare/workers-types": "^4.20260506.1",
         "@dpuse/dpuse-development": "^0.3.497",
         "@playwright/test": "^1.59.1",
         "@tsconfig/node24": "^24.0.4",
@@ -48,9 +48,9 @@
         "eslint-plugin-security": "^4.0.0",
         "eslint-plugin-sonarjs": "^4.0.3",
         "eslint-plugin-unicorn": "^63.0.0",
-        "eslint-plugin-vue": "~10.9.0",
+        "eslint-plugin-vue": "~10.9.1",
         "eslint-plugin-vuejs-accessibility": "^2.5.0",
-        "jiti": "^2.6.1",
+        "jiti": "^2.7.0",
         "jsdom": "^29.1.1",
         "npm-check-updates": "^22.1.0",
         "npm-run-all2": "^8.0.4",
@@ -61,8 +61,8 @@
         "vite": "^8.0.10",
         "vite-plugin-vue-devtools": "^8.1.1",
         "vitest": "^4.1.5",
-        "vue-tsc": "^3.2.7",
-        "wrangler": "^4.87.0"
+        "vue-tsc": "^3.2.8",
+        "wrangler": "^4.88.0"
     },
     "scripts": {
         "dev": "vite",

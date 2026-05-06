@@ -5,7 +5,7 @@ import { type ComponentPublicInstance, computed, onMounted, onUnmounted, ref } f
 
 // Local (App) Framework
 import { displayIsWide } from '@/state/appLayout';
-import { isAuthenticated } from '@/state/session';
+import { expiresIn, isAuthenticated, lifetime } from '@/state/session';
 
 // Local Components - Static
 import AvatarButton from '@/components/ui/button/AvatarButton.vue';
@@ -25,6 +25,12 @@ const sessionMenuIsVisible = ref(false);
 const avatarUrl = ref('');
 const emailAddress = 'terrell.jm@gmail.com';
 const error = ref(false);
+
+const RING_CIRCUMFERENCE = 2 * Math.PI * 18; // r=18 on 40×40 viewBox
+const elapsed = computed(() => {
+    if (lifetime.value == null || lifetime.value === 0) return 0;
+    return ((lifetime.value - (expiresIn.value ?? 0)) / lifetime.value) * 100;
+});
 
 const initials = computed(() => {
     const local = emailAddress.split('@')[0] ?? '';
@@ -97,7 +103,7 @@ function onMenuAfterLeave(): void {}
 
                 <!-- Session is NOT authenticated. Show user silhouette. -->
                 <div v-else-if="isAuthenticated === false" class="bg-surface absolute inset-0 flex items-center justify-center rounded-full">
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="size-8 text-subtle/60">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="text-subtle/60 size-8">
                         <path
                             fill-rule="evenodd"
                             d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
@@ -111,6 +117,25 @@ function onMenuAfterLeave(): void {}
                     <LoaderCircleIcon key="loader" class="size-5 animate-spin text-neutral-300" />
                 </div>
             </Transition>
+
+            <!-- Circular session-time ring: amber = elapsed (background), green = remaining (foreground) -->
+            <svg v-if="isAuthenticated === true" class="pointer-events-none absolute inset-0 size-full -rotate-90" viewBox="0 0 40 40" aria-hidden="true">
+                <!-- Amber background ring — always full, reveals as green retreats -->
+                <circle cx="20" cy="20" r="18" fill="none" stroke="#f59e0b" stroke-width="3" />
+                <!-- Green foreground — remaining time, starts at 12 o'clock, shrinks from tail -->
+                <circle
+                    cx="20"
+                    cy="20"
+                    r="18"
+                    fill="none"
+                    stroke="#22c55e"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    :stroke-dasharray="RING_CIRCUMFERENCE"
+                    :stroke-dashoffset="(RING_CIRCUMFERENCE * elapsed) / 100"
+                    style="transition: stroke-dashoffset 1s linear"
+                />
+            </svg>
         </AvatarButton>
     </div>
 </template>

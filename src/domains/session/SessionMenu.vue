@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from 'lucide-vue-next';
-import { nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
@@ -10,7 +10,7 @@ import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 // Local (App) Framework
 import T from './SessionMenu.json';
 import { displayIsWide, isPWA } from '@/state/appLayout';
-import { isAuthenticated, signOut } from '@/state/session';
+import { expiresAt, expiresIn, isAuthenticated, lifetime, signOut } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
@@ -18,6 +18,7 @@ import Button from '@/components/ui/button/Button.vue';
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
+import { formatNumberAsDuration } from '@dpuse/dpuse-shared/utilities';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -34,6 +35,14 @@ const fullScreenIsSupported = document.fullscreenEnabled;
 const isFullscreen = ref(!!document.fullscreenElement);
 const route = useRoute();
 const router = useRouter();
+
+const elapsed = computed(() => (lifetime.value ? ((lifetime.value - (expiresIn.value || 0)) / lifetime.value) * 100 : 0));
+
+const xxx = computed(() => formatNumberAsDuration(expiresIn.value));
+const formattedExpiryTime = computed(() => {
+    if (!expiresAt.value) return '';
+    return new Date(expiresAt.value).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
+});
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -146,6 +155,12 @@ async function toggleFullscreen(): Promise<void> {
 
         <!-- Sign In / Sign Out -->
         <Separator class="my-2.5" />
+
+        <div v-if="isAuthenticated" class="border-boundary relative mb-1 flex w-full items-center justify-center overflow-hidden rounded-full border bg-amber-500 text-xs">
+            <div class="absolute top-0 bottom-0 left-0 bg-green-100 transition-[width] duration-1000 ease-linear" :style="{ width: `${100 - elapsed}%` }"></div>
+            <div class="relative z-10">Expires in {{ xxx }}</div>
+        </div>
+
         <Button v-if="isAuthenticated" class="min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</Button>
         <Button v-else class="min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</Button>
     </div>
