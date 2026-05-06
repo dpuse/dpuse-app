@@ -22,7 +22,7 @@ async function handleCloseDialog(): Promise<void> {
 </script>
 
 <template>
-    <div class="fixed inset-0 z-60 flex items-center justify-center">
+    <div class="fixed inset-0 z-50 flex items-center justify-center">
         <DialogMask />
 
         <Suspense>
