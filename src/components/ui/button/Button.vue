@@ -13,7 +13,7 @@ const COMMON_DESTRUCTIVE_CLASSES = [
     'dark:bg-red-400/20 dark:hover:bg-red-400/30 dark:active:bg-red-400/40 dark:focus-visible:ring-red-500'
 ];
 const COMMON_GUARDED_CLASSES = [
-    'bg-orange-100 hover:bg-orange-200 active:bg-orange-300 text-orange-900 focus-visible:ring-orange-300',
+    'bg-amber-100 hover:bg-amber-200 active:bg-amber-300 text-amber-900 focus-visible:ring-amber-300',
     'dark:bg-amber-300/20 dark:hover:bg-amber-300/30 dark:active:bg-amber-300/40 dark:focus-visible:ring-amber-500'
 ];
 const COMMON_PRIMARY_CLASSES = [

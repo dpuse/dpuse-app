@@ -20,7 +20,7 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
             class="min-w-0"
             :class="{
                 'text-center': !displayIsWide,
-                'cursor-pointer text-blue-900 hover:underline hover:decoration-blue-900/40 hover:underline-offset-2 dark:text-blue-200 dark:hover:decoration-blue-200/40':
+                'cursor-pointer text-blue-800 hover:underline hover:decoration-blue-800/40 hover:underline-offset-2 dark:text-blue-300 dark:hover:decoration-blue-300/40':
                     to && to !== $route.query.wbView
             }"
             :to="{ name: to, query: { ...$route.query, wbView: to } }"
