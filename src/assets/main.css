@@ -5,13 +5,8 @@ html {
     overscroll-behavior-y: none;
     font-size: 1rem; /* 16px is default */
 }
-@media (max-width: 768px) {
-    html {
-        font-size: 1rem; /* 16px, same as default */
-    }
-}
 body {
-    overscroll-behavior-y: none;
+    overscroll-behavior-y: none; /* belt-and-suspenders for older Safari */
 }
 
 /* Use class-based dark mode (parent has .dark) instead of prefers-color-scheme. */
@@ -40,19 +35,16 @@ body {
 
 /* Variables and light mode colors. */
 :root {
-    /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '21px' for optional status bar; '16px' for horizontal scroll bar. */
-    --safe-bottom-offset: calc(max(env(safe-area-inset-bottom), 21px) + 16px);
-    /* Floating button screen top offset: 'safe-area-inset-top'; '7px' for gutter. */
-    --safe-top-offset: calc(env(safe-area-inset-top) + 7px);
-    /* Floating button screen left offset: 'safe-area-inset-left'; '12px' for gutter. */
-    --safe-left-offset: calc(env(safe-area-inset-left) + 12px);
-    /* Floating button screen right offset: 'safe-area-inset-right'; '12px' for gutter. */
-    --safe-right-offset: calc(env(safe-area-inset-right) + 12px);
-    /* Status bar height: 'safe-area-inset-bottom' or '21px'. */
-    --status-bar-height: calc(max(env(safe-area-inset-bottom), 21px));
+    --safe-bottom-offset: calc(
+        max(env(safe-area-inset-bottom), 21px) + 16px
+    ); /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '21px' for optional status bar; '16px' for horizontal scroll bar. */
+    --safe-top-offset: calc(env(safe-area-inset-top) + 7px); /* Floating button screen top offset: 'safe-area-inset-top'; '7px' for gutter. */
+    --safe-left-offset: calc(env(safe-area-inset-left) + 12px); /* Floating button screen left offset: 'safe-area-inset-left'; '12px' for gutter. */
+    --safe-right-offset: calc(env(safe-area-inset-right) + 12px); /* Floating button screen right offset: 'safe-area-inset-right'; '12px' for gutter. */
 
-    /* Scroll area bottom inset: '16px' for horizontal scroll bar; '40px' for floating buttons; '8px' for padding above floating buttons. */
-    --vertical-scroll-bottom-embedded-inset: 64px;
+    --status-bar-height: calc(max(env(safe-area-inset-bottom), 21px)); /* Status bar height: 'safe-area-inset-bottom' or '21px'. */
+
+    --vertical-scroll-bottom-embedded-inset: 64px; /* Scroll area bottom inset: '16px' for horizontal scroll bar; '40px' for floating buttons; '8px' for padding above floating buttons. */
     --vertical-scroll-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 21px) + 64px);
 
     /* Light mode colors. */
@@ -114,7 +106,41 @@ body {
     }
 }
 
-/* Vue Transition - Horizontal slide left to right. */
+/* Vue Transition - Dialog fade (App.vue modal/drawer overlay). */
+.dialog-enter-active,
+.dialog-leave-active {
+    transition: opacity 0.15s ease;
+}
+.dialog-enter-from,
+.dialog-leave-to {
+    opacity: 0;
+}
+
+/* Vue Transition - Route fade (App.vue page-level route transition). */
+.route-fade-enter-active,
+.route-fade-leave-active {
+    transition: opacity 0.15s ease;
+}
+.route-fade-enter-from,
+.route-fade-leave-to {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dialog-enter-active,
+    .dialog-leave-active,
+    .route-fade-enter-active,
+    .route-fade-leave-active {
+        transition: none;
+    }
+}
+
+/*
+ * Vue Transition - Horizontal slide left to right.
+ * Two-class pattern: outer selector fades the wrapper (opacity), inner
+ * .dpuse-horizontal-slide-ltr-element selector slides the content (transform).
+ * Decoupling the two allows independent timing without compositing issues.
+ */
 .horizontal-slide-ltr-enter-active,
 .horizontal-slide-ltr-leave-active {
     transition: opacity 220ms ease-in-out;
@@ -131,8 +157,21 @@ body {
 .horizontal-slide-ltr-leave-to .dpuse-horizontal-slide-ltr-element {
     transform: translateX(-100%);
 }
+@media (prefers-reduced-motion: reduce) {
+    .horizontal-slide-ltr-enter-active,
+    .horizontal-slide-ltr-leave-active {
+        transition: none;
+    }
+    .horizontal-slide-ltr-enter-active .dpuse-horizontal-slide-ltr-element,
+    .horizontal-slide-ltr-leave-active .dpuse-horizontal-slide-ltr-element {
+        transition: none;
+    }
+}
 
-/* Vue Transition - Horizontal slide right to left. */
+/*
+ * Vue Transition - Horizontal slide right to left.
+ * Same two-class pattern as horizontal-slide-ltr above.
+ */
 .horizontal-slide-rtl-enter-active,
 .horizontal-slide-rtl-leave-active {
     transition: opacity 220ms ease-in-out;
@@ -148,4 +187,14 @@ body {
 .horizontal-slide-rtl-enter-from .dpuse-horizontal-slide-rtl-element,
 .horizontal-slide-rtl-leave-to .dpuse-horizontal-slide-rtl-element {
     transform: translateX(100%);
+}
+@media (prefers-reduced-motion: reduce) {
+    .horizontal-slide-rtl-enter-active,
+    .horizontal-slide-rtl-leave-active {
+        transition: none;
+    }
+    .horizontal-slide-rtl-enter-active .dpuse-horizontal-slide-rtl-element,
+    .horizontal-slide-rtl-leave-active .dpuse-horizontal-slide-rtl-element {
+        transition: none;
+    }
 }

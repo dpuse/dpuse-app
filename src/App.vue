@@ -291,7 +291,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
             <div class="overflow-y-hidden" :class="{ 'col-start-2': displayIsWide }">
                 <RouterView v-slot="{ Component }">
-                    <Transition name="fade" mode="out-in">
+                    <Transition name="route-fade" mode="out-in">
                         <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
                     </Transition>
                 </RouterView>
@@ -314,25 +314,3 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </div>
     </div>
 </template>
-
-<style scoped>
-.dialog-enter-active,
-.dialog-leave-active {
-    transition: opacity 0.15s ease;
-}
-
-.dialog-enter-from,
-.dialog-leave-to {
-    opacity: 0;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.15s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-    opacity: 0;
-}
-</style>
