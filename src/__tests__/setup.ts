@@ -4,15 +4,15 @@ Object.defineProperty(globalThis, 'matchMedia', {
         matches: false,
         media: query,
         onchange: null,
-        addEventListener: () => undefined,
-        removeEventListener: () => undefined,
-        addListener: () => undefined,
-        removeListener: () => undefined,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
         dispatchEvent: () => false
     })
 });
 
 Object.defineProperty(globalThis, 'scrollTo', {
     writable: true,
-    value: () => undefined
+    value: () => {}
 });

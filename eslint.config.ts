@@ -1,6 +1,6 @@
 // External Dependencies
 import { globalIgnores } from 'eslint/config';
-import pluginImport from 'eslint-plugin-import';
+import pluginImport from 'eslint-plugin-import-x';
 import pluginPlaywright from 'eslint-plugin-playwright';
 import pluginSecurity from 'eslint-plugin-security';
 import pluginUnicorn from 'eslint-plugin-unicorn';
@@ -17,8 +17,8 @@ export default defineConfigWithVueTs(
         name: 'app/files-to-lint',
         files: ['**/*.{vue,ts,mts,tsx}'],
         settings: {
-            'import/core-modules': ['@dpuse/dpuse-shared/errors', 'eslint/config'],
-            'import/resolver': { typescript: { project: ['./tsconfig.json'] } }
+            'import-x/core-modules': ['@dpuse/dpuse-shared/errors', 'eslint/config'],
+            'import-x/resolver': { typescript: { project: ['./tsconfig.json'] } }
         }
     },
 
@@ -50,7 +50,7 @@ export default defineConfigWithVueTs(
             '@typescript-eslint/restrict-template-expressions': ['warn', { allowNumber: true }],
             '@typescript-eslint/strict-boolean-expressions': 'warn',
 
-            'import/no-duplicates': 'warn',
+            'import-x/no-duplicates': 'warn',
             'sort-imports': ['warn', { allowSeparatedGroups: true, ignoreCase: true, memberSyntaxSortOrder: ['none', 'all', 'single', 'multiple'] }],
 
             'security/detect-object-injection': 'off',
