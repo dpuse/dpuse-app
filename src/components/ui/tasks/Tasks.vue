@@ -4,9 +4,11 @@ import type { LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
+import { t } from '@/state/locale';
+import T from './Tasks.json';
 
 // Options, Properties, Slots & Emits
-export interface StepConfig {
+export interface TaskConfig {
     id: string;
     label: LocaleLabel;
     description: LocaleLabel;
@@ -15,9 +17,9 @@ export interface StepConfig {
     number: number;
     verb?: LocaleLabel;
 }
-const { activeStepId, items = [] } = defineProps<{ activeStepId?: string; items?: LocalisedConfig<StepConfig>[] }>();
-defineSlots<{ 'default'(properties: { item: LocalisedConfig<StepConfig> }): unknown }>();
-defineEmits<{ select: [stepConfig: LocalisedConfig<StepConfig>] }>();
+const { activeStepId, items = [] } = defineProps<{ activeStepId?: string; items?: LocalisedConfig<TaskConfig>[] }>();
+defineSlots<{ 'default'(properties: { item: LocalisedConfig<TaskConfig> }): unknown }>();
+defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
 </script>
 
 <template>
@@ -44,8 +46,11 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<StepConfig>] }>();
                     'text-muted': item.disabled
                 }"
             >
-                Step&nbsp;{{ item.number }}
+                <!-- {{ t(T, 'task') }}&nbsp;{{ item.number }} -->
+                <span class="block text-xs sm:hidden">{{ item.verb }}</span>
+                <span class="hidden text-xs sm:block">{{ t(T, 'task') }}&nbsp;{{ item.number }}</span>
             </div>
+
             <div
                 :class="{
                     'text-zinc-800 dark:text-zinc-300': activeStepId === item.id || !item.disabled,

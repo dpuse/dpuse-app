@@ -48,6 +48,7 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
 }
 
 async function selectItem(row: T): Promise<void> {
+    console.log(222);
     emit('select', row);
     await nextTick();
     detailPaneIsVisible.value = activeItem != null;
@@ -67,9 +68,9 @@ async function selectItem(row: T): Promise<void> {
             <div v-show="displayIsWide || !detailPaneIsVisible" class="relative flex-1 overflow-hidden" :style="getPaneStyle(maxListWidth)">
                 <Grid class="mr-4" :data-source="dataSource" :row-height="83" :target-column-width="350">
                     <template v-if="slots['list-item-default']" #default="{ item }">
-                        <ListItemButton class="h-full" :is-active="activeItem === item" @click="selectItem(item)">
+                        <Button class="h-full w-full" :is-active="activeItem === item" shape="minimal" @click="selectItem(item)">
                             <slot name="list-item-default" :item="item" />
-                        </ListItemButton>
+                        </Button>
                     </template>
 
                     <template v-if="slots['list-item-compact']" #compact="{ item }">

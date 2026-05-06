@@ -17,9 +17,13 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
 
         <component
             :is="to && to !== $route.query.wbView ? 'RouterLink' : 'div'"
+            class="min-w-0"
+            :class="{
+                'text-center': !displayIsWide,
+                'cursor-pointer text-blue-900 hover:underline hover:decoration-blue-900/40 hover:underline-offset-2 dark:text-blue-200 dark:hover:decoration-blue-200/40':
+                    to && to !== $route.query.wbView
+            }"
             :to="{ name: to, query: { ...$route.query, wbView: to } }"
-            class="min-w-0 truncate leading-snug"
-            :class="{ 'text-center': !displayIsWide, 'cursor-pointer text-blue-900 dark:text-blue-200 hover:underline hover:underline-offset-2 hover:decoration-blue-900/40 dark:hover:decoration-blue-200/40': to && to !== $route.query.wbView }"
         >
             <div class="truncate text-[13px] leading-tight">{{ overline }}</div>
             <div class="truncate leading-snug">{{ title }}</div>

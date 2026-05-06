@@ -27,6 +27,7 @@ const router = useRouter();
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
+    console.log(333);
     emit('submit');
     await router.push({ name: 'selectNode', query: { ...route.query, wbView: 'selectNode' } });
 }
@@ -87,7 +88,7 @@ async function handleSubmit(): Promise<void> {
             :component-type-label="'Connection'"
             variant="step"
             :verb="'Select'"
-            @click="$emit('submit')"
+            @click="handleSubmit"
         />
     </form>
 </template>

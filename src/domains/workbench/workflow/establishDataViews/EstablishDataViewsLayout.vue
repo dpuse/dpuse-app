@@ -15,11 +15,11 @@ import { localeId, t } from '@/state/locale';
 import FloatingActionButton from '@/components/layout/floatingActionButton/FloatingActionButton.vue';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
-import Steps, { type StepConfig } from '@/components/ui/steps/Steps.vue';
+import Tasks, { type TaskConfig } from '@/components/ui/tasks/Tasks.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const STEP_CONFIGS: StepConfig[] = [
+const STEP_CONFIGS: TaskConfig[] = [
     { id: 'selectConnection', number: 1, label: { en: 'Connection' }, description: {}, disabled: true, enableUpTo: 1, verb: { en: 'Select' } },
     { id: 'selectNode', number: 2, label: { en: 'Node' }, description: {}, disabled: true, enableUpTo: 2, verb: { en: 'Select' } },
     { id: 'auditContent', number: 3, label: { en: 'Content' }, description: {}, disabled: true, enableUpTo: 3, verb: { en: 'Audit' } },
@@ -31,7 +31,7 @@ const STEP_CONFIGS: StepConfig[] = [
 
 const route = useRoute();
 
-const stepLocalisedConfigs = shallowRef<LocalisedConfig<StepConfig>[]>([]);
+const stepLocalisedConfigs = shallowRef<LocalisedConfig<TaskConfig>[]>([]);
 
 const stepsEnabledToNumber = ref(initialiseEnabledSteps());
 
@@ -48,7 +48,7 @@ watch(route, (newRoute) => setEnabledSteps(newRoute.query.wbView));
 watch(
     [stepsEnabledToNumber, localeId],
     ([newStepsEnabledToNumber, newLocaleId]) => {
-        stepLocalisedConfigs.value = localiseConfigs<StepConfig>(STEP_CONFIGS, newLocaleId).map((stepLocalisedConfig) => ({
+        stepLocalisedConfigs.value = localiseConfigs<TaskConfig>(STEP_CONFIGS, newLocaleId).map((stepLocalisedConfig) => ({
             ...stepLocalisedConfig,
             disabled: stepLocalisedConfig.number > newStepsEnabledToNumber
         }));
@@ -58,7 +58,7 @@ watch(
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function updateStepProgression(stepLocalisedConfig: LocalisedConfig<StepConfig>): void {
+function updateStepProgression(stepLocalisedConfig: LocalisedConfig<TaskConfig>): void {
     stepsEnabledToNumber.value = stepLocalisedConfig.enableUpTo;
 }
 
@@ -81,8 +81,8 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
         <Header class="px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Establish_Data_Views')" :to="backRouteName" />
         <!-- Action Bar -->
         <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
-            <!-- Steps -->
-            <Steps v-if="activeStepLocalisedConfig" :active-step-id="activeStepLocalisedConfig.id" :items="stepLocalisedConfigs" />
+            <!-- Tasks -->
+            <Tasks v-if="activeStepLocalisedConfig" :active-step-id="activeStepLocalisedConfig.id" :items="stepLocalisedConfigs" />
         </nav>
 
         <!-- Data View List or Active Step Panel -->

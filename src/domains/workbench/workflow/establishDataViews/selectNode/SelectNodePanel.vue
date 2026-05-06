@@ -26,16 +26,16 @@ import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
-import type { StepConfig } from '@/components/ui/steps/Steps.vue';
 import Table from '@/components/ui/table/Table.vue';
+import type { TaskConfig } from '@/components/ui/tasks/Tasks.vue';
 import TextViewer from '@/components/layout/textViewer/TextViewer.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<StepConfig> }>();
+const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
-const emit = defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConfig<StepConfig>] }>();
+const emit = defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

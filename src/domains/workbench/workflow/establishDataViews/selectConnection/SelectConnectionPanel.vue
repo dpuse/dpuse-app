@@ -18,14 +18,14 @@ import Card from '@/components/ui/card/Card.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
-import type { StepConfig } from '@/components/ui/steps/Steps.vue';
+import type { TaskConfig } from '@/components/ui/tasks/Tasks.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<StepConfig> }>();
+const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
-defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConfig<StepConfig>] }>();
+defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -48,6 +48,7 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
+    console.log(1234);
     activeConnectionConfig.value = connectionLocalisedConfig;
     if (connectionLocalisedConfig == null) return;
     activeDataViewConfig.value =
