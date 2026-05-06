@@ -80,7 +80,7 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
 </script>
 
 <template>
-    <div class="border-separator mx-4 flex flex-none border-b py-1">
+    <div class="mx-4 flex flex-none border-b border-separator py-1">
         <div class="flex-1"></div>
 
         <Button @click="router.push({ name: '???', query: $route.query })">

@@ -7,7 +7,7 @@ const { badges = [], description, icon, iconDark, iconColor, label, overline } =
 
 <template>
     <div
-        class="bg-card outline-boundary hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover relative flex h-full w-full cursor-pointer flex-col gap-y-4 rounded-lg p-4 font-light outline -outline-offset-1 transition-colors"
+        class="relative flex h-full w-full cursor-pointer flex-col gap-y-4 rounded-lg bg-card p-4 font-light outline -outline-offset-1 outline-boundary transition-colors hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover"
     >
         <!-- <div
         class="bg-card outline-boundary hover:bg-card-hover hover:outline-boundary-hover active:opacity-75 relative flex h-full w-full cursor-pointer flex-col gap-y-4 rounded-lg p-4 font-light outline -outline-offset-1 transition-colors"
@@ -36,13 +36,13 @@ const { badges = [], description, icon, iconDark, iconColor, label, overline } =
             </div>
 
             <div class="flex flex-col overflow-x-hidden">
-                <div v-if="overline" class="text-muted min-w-0 truncate text-xs leading-tight font-normal">{{ overline }}</div>
+                <div v-if="overline" class="min-w-0 truncate text-xs leading-tight font-normal text-muted">{{ overline }}</div>
                 <div class="min-w-0 truncate text-[16px] leading-tight">{{ label }}</div>
             </div>
         </div>
 
         <!-- Description -->
-        <div v-if="description" class="text-muted line-clamp-2 text-sm">
+        <div v-if="description" class="line-clamp-2 text-sm text-muted">
             {{ description }}
         </div>
     </div>

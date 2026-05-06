@@ -10,8 +10,8 @@ import { displayIsWide } from '@/state/appLayout';
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import FloatingActionButton from '@/components/layout/floatingActionButton/FloatingActionButton.vue';
-import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
+import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -93,13 +93,13 @@ async function selectItem(row: T): Promise<void> {
             <div
                 v-if="displayIsWide || detailPaneIsVisible"
                 class="mr-4 min-w-0 flex-1"
-                :class="{ 'border-separator border-l': displayIsWide }"
+                :class="{ 'border-l border-separator': displayIsWide }"
                 :style="getPaneStyle(maxDetailWidth)"
             >
                 <!-- Detail Panel -->
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
-                    <div class="border-separator ml-4 flex h-10 items-center gap-x-1 border-b">
+                    <div class="ml-4 flex h-10 items-center gap-x-1 border-b border-separator">
                         <!-- Icon -->
                         <div class="flex size-7 items-center justify-center">
                             <div v-if="activeItem.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="activeItem.icon || activeItem.iconDark" />

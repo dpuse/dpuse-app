@@ -1,3 +1,5 @@
+// TODO: Uninstalled 'vite-plugin-vue-devtools' from 'devDependencies'.
+
 // External Dependencies
 import { cloudflare } from '@cloudflare/vite-plugin';
 import { defineConfig } from 'vite';

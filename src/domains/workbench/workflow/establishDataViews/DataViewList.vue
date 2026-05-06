@@ -146,7 +146,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 <template>
     <Grid
         v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
-        class="pb-vertical-scroll-bottom-screen-inset mr-4 flex-1"
+        class="mr-4 flex-1 pb-vertical-scroll-bottom-screen-inset"
         :data-source="dataSource"
         :row-height="83"
         :target-column-width="350"

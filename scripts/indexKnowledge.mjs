@@ -2,7 +2,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { readFile } from 'node:fs/promises';
 
-async function main() {
+async function main(): void {
     const accountId = process.env['CLOUDFLARE_ACCOUNT_ID1'];
     const apiToken = process.env['CLOUDFLARE_AI_API_TOKEN1'];
     const vectorIndex = 'datapos-knowledge';
@@ -10,7 +10,7 @@ async function main() {
     // 1. Load the markdown knowledge file
     const knowledgePath = path.resolve(process.cwd(), 'knowledge', 'module-states.md');
 
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+    // eslint-disable-next-line security/detect-non-literal-fs-filename --  Need to review approach.
     const fileContent = await readFile(knowledgePath, 'utf8');
 
     // For this POC, treat the entire file as a single chunk.
@@ -99,7 +99,7 @@ async function main() {
     console.log('Indexed knowledge into Vectorize index:', vectorIndex);
 }
 
- 
+
 main().catch((error) => {
     console.error(error);
     process.exitCode = 1;

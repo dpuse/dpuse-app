@@ -219,29 +219,29 @@ function typeIcon(name: string): Component {
 
 // Helpers - SQL Preview  ──────────────────────────────────────────────────────────────────────────────────────────────
 
-function condSql(c: Condition): string {
-    const rhs = ['IS NULL', 'IS NOT NULL'].includes(c.op) ? '' : ` '${c.value}'`;
-    return `${c.column} ${c.op}${rhs}`;
-}
+// function condSql(c: Condition): string {
+//     const rhs = ['IS NULL', 'IS NOT NULL'].includes(c.op) ? '' : ` '${c.value}'`;
+//     return `${c.column} ${c.op}${rhs}`;
+// }
 
-const sql = computed((): string => {
-    const lines: string[] = [];
-    const cols = query.value.select.length > 0 ? query.value.select.join(',\n       ') : '*';
-    lines.push(`SELECT ${cols}`);
-    if (query.value.where.length > 0) lines.push(`WHERE  ${query.value.where.map((c) => condSql(c)).join('\n   AND ')}`);
-    if (query.value.groupBy.length > 0) lines.push(`GROUP BY ${query.value.groupBy.join(', ')}`);
-    if (query.value.having.length > 0) lines.push(`HAVING ${query.value.having.map((c) => condSql(c)).join('\n    AND ')}`);
-    if (query.value.orderBy.length > 0) lines.push(`ORDER BY ${query.value.orderBy.map((o) => `${o.column} ${o.dir}`).join(', ')}`);
-    return lines.join('\n');
-});
+// const sql = computed((): string => {
+//     const lines: string[] = [];
+//     const cols = query.value.select.length > 0 ? query.value.select.join(',\n       ') : '*';
+//     lines.push(`SELECT ${cols}`);
+//     if (query.value.where.length > 0) lines.push(`WHERE  ${query.value.where.map((c) => condSql(c)).join('\n   AND ')}`);
+//     if (query.value.groupBy.length > 0) lines.push(`GROUP BY ${query.value.groupBy.join(', ')}`);
+//     if (query.value.having.length > 0) lines.push(`HAVING ${query.value.having.map((c) => condSql(c)).join('\n    AND ')}`);
+//     if (query.value.orderBy.length > 0) lines.push(`ORDER BY ${query.value.orderBy.map((o) => `${o.column} ${o.dir}`).join(', ')}`);
+//     return lines.join('\n');
+// });
 </script>
 
 <template>
     <!-- eslint-disable vue/no-bare-strings-in-template -->
     <ScrollArea class="mx-4" scroll-area-inset="screen">
         <!-- Columns (Select) -->
-        <section class="border-separator mt-4 rounded-md border">
-            <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
+        <section class="mt-4 rounded-md border border-separator">
+            <div class="flex items-center justify-between rounded-t-md border-b border-separator bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <span class="text-sm font-medium text-emphasis">Select Columns</span>
                 <div class="flex items-center gap-1">
                     <button
@@ -261,7 +261,7 @@ const sql = computed((): string => {
             </div>
 
             <!-- Search: only visible when open -->
-            <div v-if="clauseOpen.select && selectSearchOpen" class="border-separator border-b px-3 py-1.5">
+            <div v-if="clauseOpen.select && selectSearchOpen" class="border-b border-separator px-3 py-1.5">
                 <div class="relative">
                     <input
                         v-model="columnSearch"
@@ -311,16 +311,14 @@ const sql = computed((): string => {
                     >
                         No columns found
                     </p>
-                    <p v-if="!clauseOpen.select && selectVisibleItems.length === 0" key="__msg" class="col-span-full py-0.5 text-xs text-subtle">
-                        Displaying all columns
-                    </p>
+                    <p v-if="!clauseOpen.select && selectVisibleItems.length === 0" key="__msg" class="col-span-full py-0.5 text-xs text-subtle">Displaying all columns</p>
                 </TransitionGroup>
             </div>
         </section>
 
         <!-- Filter (Where)-->
-        <section class="border-separator mt-4 rounded-md border">
-            <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
+        <section class="mt-4 rounded-md border border-separator">
+            <div class="flex items-center justify-between rounded-t-md border-b border-separator bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-emphasis">Filter Rows</span>
                     <span v-if="query.where.length === 0" class="text-xs text-subtle">optional</span>
@@ -353,19 +351,19 @@ const sql = computed((): string => {
                 </div>
 
                 <!-- Condition builder -->
-                <div v-if="pickerOpen.where" class="border-separator rounded-lg border bg-white p-3 dark:bg-zinc-900">
+                <div v-if="pickerOpen.where" class="rounded-lg border border-separator bg-white p-3 dark:bg-zinc-900">
                     <div class="flex flex-col gap-2">
                         <select
                             v-model="whereDraft.column"
                             aria-label="Column"
-                            class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
                         >
                             <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
                         </select>
                         <select
                             v-model="whereDraft.op"
                             aria-label="Operator"
-                            class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
                         >
                             <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
                         </select>
@@ -373,7 +371,7 @@ const sql = computed((): string => {
                             v-if="!['IS NULL', 'IS NOT NULL'].includes(whereDraft.op)"
                             v-model="whereDraft.value"
                             aria-label="Value"
-                            class="border-separator h-9 w-full rounded-md border bg-white px-3 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            class="h-9 w-full rounded-md border border-separator bg-white px-3 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
                             placeholder="value…"
                             type="text"
                         />
@@ -407,8 +405,8 @@ const sql = computed((): string => {
         </section>
 
         <!-- Group (Group By) -->
-        <section class="border-separator mt-4 rounded-md border">
-            <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
+        <section class="mt-4 rounded-md border border-separator">
+            <div class="flex items-center justify-between rounded-t-md border-b border-separator bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-emphasis">Group Rows</span>
                     <span v-if="query.groupBy.length === 0" class="text-xs text-subtle">optional</span>
@@ -438,7 +436,7 @@ const sql = computed((): string => {
                 </div>
 
                 <!-- Column picker -->
-                <div v-if="pickerOpen.groupBy" class="border-separator mt-3 rounded-lg border bg-white p-3 dark:bg-zinc-900">
+                <div v-if="pickerOpen.groupBy" class="mt-3 rounded-lg border border-separator bg-white p-3 dark:bg-zinc-900">
                     <div class="grid grid-cols-2 gap-0.5">
                         <label
                             v-for="col in COLUMNS"
@@ -477,8 +475,8 @@ const sql = computed((): string => {
         </section>
 
         <!-- Group Filter (Having) -->
-        <section class="border-separator mt-4 rounded-md border">
-            <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
+        <section class="mt-4 rounded-md border border-separator">
+            <div class="flex items-center justify-between rounded-t-md border-b border-separator bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-emphasis">Filter Row Groups</span>
                     <span v-if="query.having.length === 0" class="text-xs text-subtle">optional</span>
@@ -511,19 +509,19 @@ const sql = computed((): string => {
                 </div>
 
                 <!-- Condition builder -->
-                <div v-if="pickerOpen.having" class="border-separator rounded-lg border bg-white p-3 dark:bg-zinc-900">
+                <div v-if="pickerOpen.having" class="rounded-lg border border-separator bg-white p-3 dark:bg-zinc-900">
                     <div class="flex flex-col gap-2">
                         <select
                             v-model="havingDraft.column"
                             aria-label="Column"
-                            class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
                         >
                             <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
                         </select>
                         <select
                             v-model="havingDraft.op"
                             aria-label="Operator"
-                            class="border-separator h-9 w-full rounded-md border bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
                         >
                             <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
                         </select>
@@ -531,7 +529,7 @@ const sql = computed((): string => {
                             v-if="!['IS NULL', 'IS NOT NULL'].includes(havingDraft.op)"
                             v-model="havingDraft.value"
                             aria-label="Value"
-                            class="border-separator h-9 w-full rounded-md border bg-white px-3 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            class="h-9 w-full rounded-md border border-separator bg-white px-3 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
                             placeholder="value…"
                             type="text"
                         />
@@ -565,8 +563,8 @@ const sql = computed((): string => {
         </section>
 
         <!--Sort (Order By) -->
-        <section class="border-separator mt-4 rounded-md border">
-            <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
+        <section class="mt-4 rounded-md border border-separator">
+            <div class="flex items-center justify-between rounded-t-md border-b border-separator bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-emphasis">Sort Rows</span>
                     <span v-if="query.orderBy.length === 0" class="text-xs text-subtle">optional</span>
@@ -605,7 +603,7 @@ const sql = computed((): string => {
                 </div>
 
                 <!-- Column picker -->
-                <div v-if="pickerOpen.orderBy" class="border-separator rounded-lg border bg-white p-3 dark:bg-zinc-900">
+                <div v-if="pickerOpen.orderBy" class="rounded-lg border border-separator bg-white p-3 dark:bg-zinc-900">
                     <div class="flex flex-col gap-0.5">
                         <button
                             v-for="col in COLUMNS"

@@ -226,7 +226,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
         <!-- Body -->
         <GridDetailPanel :active-item="activeItem" class="flex-1" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
             <template #header>
-                <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
+                <div class="flex h-full min-w-0 items-center border-b border-separator text-sm">
                     <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeItem == null" @select="selectBreadcrumb" />
                 </div>
             </template>
@@ -244,7 +244,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                     <div v-show="activeTabId === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
 
                     <div
-                        class="border-separator bg-backdrop relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"
+                        class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t border-separator bg-backdrop text-xs"
                     >
                         <div class="absolute top-0 bottom-px left-0 bg-green-200 dark:bg-green-500/30" :style="{ width: `${previewPercentage}%` }"></div>
                         <div class="relative pl-1">{{ previewMessage }}</div>

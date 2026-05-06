@@ -102,8 +102,8 @@ function onMenuAfterLeave(): void {}
                 </div>
 
                 <!-- Session is NOT authenticated. Show user silhouette. -->
-                <div v-else-if="isAuthenticated === false" class="bg-surface absolute inset-0 flex items-center justify-center rounded-full">
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="text-subtle/60 size-8">
+                <div v-else-if="isAuthenticated === false" class="absolute inset-0 flex items-center justify-center rounded-full bg-surface">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="size-8 text-subtle/60">
                         <path
                             fill-rule="evenodd"
                             d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
@@ -113,7 +113,7 @@ function onMenuAfterLeave(): void {}
                 </div>
 
                 <!-- Session authentication is pending. Show waiting icon. -->
-                <div v-else class="bg-surface absolute inset-0 flex items-center justify-center rounded-full">
+                <div v-else class="absolute inset-0 flex items-center justify-center rounded-full bg-surface">
                     <LoaderCircleIcon key="loader" class="size-5 animate-spin text-neutral-300" />
                 </div>
             </Transition>

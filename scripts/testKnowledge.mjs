@@ -1,6 +1,6 @@
 import process from 'node:process';
 
-async function embedText(accountId, apiToken, model, text) {
+async function embedText(accountId, apiToken, model, text): void {
     const embedUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`;
     const response = await fetch(embedUrl, {
         method: 'POST',
@@ -27,7 +27,7 @@ async function embedText(accountId, apiToken, model, text) {
     return vector;
 }
 
-async function main() {
+async function main(): void {
     const accountId = process.env['CLOUDFLARE_ACCOUNT_ID1'];
     const apiToken = process.env['CLOUDFLARE_AI_API_TOKEN1'];
     const vectorIndex = 'datapos-knowledge';
@@ -76,7 +76,7 @@ async function main() {
     }
 }
 
- 
+
 main().catch((error) => {
     console.error(error);
     process.exitCode = 1;

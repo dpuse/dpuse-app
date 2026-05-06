@@ -10,8 +10,8 @@ import { t } from '@/state/locale';
 import T from './AccountDialog.json';
 
 // Local Components - Static
-import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
 import Button from '@/components/ui/button/Button.vue';
+import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -75,7 +75,6 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
         if (displayIsWide.value) {
             return OPTION_CONFIGS[1];
         }
-        return;
     } else {
         const activeOptionConfig = OPTION_CONFIGS.find((config) => config.id === route.name);
         if (!activeOptionConfig) {
@@ -97,13 +96,13 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
             class="bg-surface text-content z-10 flex h-full max-h-full w-full max-w-full flex-col sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-3xl sm:max-w-[calc(100vw-2rem)] sm:-translate-x-1/2 sm:rounded-lg"
             tabindex="-1"
         > -->
-    <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light">{{ t(T, 'Manage_Account') }}</div>
+    <div class="mx-4 flex flex-none justify-start border-b border-separator py-4 text-lg font-light">{{ t(T, 'Manage_Account') }}</div>
 
     <div class="flex flex-1 overflow-y-hidden">
         <div v-if="displayIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 overflow-y-auto overscroll-y-none px-4 pb-6">
             <div class="flex flex-1 flex-col gap-y-1">
                 <template v-for="optionConfig in OPTION_CONFIGS" :key="optionConfig.id">
-                    <div v-if="optionConfig.type === 'label'" class="text-muted mt-3 text-xs font-medium">{{ optionConfig.label }}</div>
+                    <div v-if="optionConfig.type === 'label'" class="mt-3 text-xs font-medium text-muted">{{ optionConfig.label }}</div>
                     <ListItemButton
                         v-else
                         class="inline-flex min-w-50 justify-start"
@@ -124,7 +123,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
         </div>
 
         <div v-if="displayIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
-            <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b">
+            <div class="flex h-12 flex-none items-center gap-x-1 border-b border-separator">
                 <Button v-if="!displayIsWide" shape="icon" size="sm" @click="handleBack">
                     <ArrowBigLeftIcon stroke-width="1.25" />
                 </Button>
@@ -138,7 +137,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                 </template>
                 <template #fallback>
                     <div class="flex flex-1 items-center justify-center">
-                        <LoaderCircleIcon class="text-muted animate-spin" />
+                        <LoaderCircleIcon class="animate-spin text-muted" />
                     </div>
                 </template>
             </Suspense>

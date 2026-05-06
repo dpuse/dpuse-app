@@ -80,7 +80,7 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
         <!-- Header -->
         <Header class="px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Establish_Data_Views')" :to="backRouteName" />
         <!-- Action Bar -->
-        <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
+        <nav class="mx-4 flex flex-none items-center justify-between border-b border-separator">
             <!-- Tasks -->
             <Tasks v-if="activeStepLocalisedConfig" :active-step-id="activeStepLocalisedConfig.id" :items="stepLocalisedConfigs" />
         </nav>
