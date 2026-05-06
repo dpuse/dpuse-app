@@ -5,9 +5,6 @@ html {
     overscroll-behavior-y: none;
     font-size: 1rem; /* 16px is default */
 }
-body {
-    overscroll-behavior-y: none; /* belt-and-suspenders for older Safari */
-}
 
 /* Use class-based dark mode (parent has .dark) instead of prefers-color-scheme. */
 @custom-variant dark (&:is(.dark *));
