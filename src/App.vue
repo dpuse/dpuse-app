@@ -207,7 +207,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 <template>
     <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
         <!-- Mask - Semi-transparent mask over the top safe area, so scrolling content fades out beneath it. It is extended by 0.25rem to give it extra height. -->
-        <div class="to-surface/95 via-surface/80 fixed inset-x-0 top-0 z-50 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-25%" />
+        <div class="to-surface/95 via-surface/80 fixed inset-x-0 top-0 z-50 h-[calc(env(safe-area-inset-top)+0.25rem)] bg-linear-to-t from-transparent via-25%" />
 
         <!-- Navigation progress bar. Always visible. -->
         <ProgressBar />
@@ -255,7 +255,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </div>
 
         <!-- Session button - always visible, independent of pane state -->
-        <div class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-40">
+        <div class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-50">
             <SessionButton :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
         </div>
 
