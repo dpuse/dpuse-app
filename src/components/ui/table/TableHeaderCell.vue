@@ -31,13 +31,13 @@ function onDocumentClick(event: MouseEvent): void {
 
 <template>
     <div class="relative flex h-full items-center select-none">
-        <span class="flex-1 truncate px-3 text-xs font-medium tracking-wide text-zinc-500 uppercase dark:text-zinc-400">
+        <span class="flex-1 truncate px-3 text-xs font-medium tracking-wide text-muted uppercase">
             {{ String(header.column.columnDef.header) }}
         </span>
 
         <!-- Column options menu -->
         <div ref="menu" class="relative flex h-full items-center">
-            <button class="flex h-full items-center px-1.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200" @click.stop="menuOpen = !menuOpen">
+            <button class="flex h-full items-center px-1.5 text-subtle hover:text-zinc-600 dark:hover:text-zinc-200" @click.stop="menuOpen = !menuOpen">
                 <ChevronDown class="h-3 w-3" />
             </button>
 

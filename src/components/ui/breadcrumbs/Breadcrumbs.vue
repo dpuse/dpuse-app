@@ -26,7 +26,7 @@ const enrichedItems = computed(() =>
     <div class="flex min-w-0 items-center overflow-hidden">
         <template v-for="({ item, isDisabled }, index) in enrichedItems" :key="item.id">
             <!-- Breadcrumb Separator -->
-            <span v-if="index > 0" class="mx-1.5 flex-none text-zinc-400">/</span>
+            <span v-if="index > 0" class="mx-1.5 flex-none text-subtle">/</span>
 
             <!-- Breadcrumb Body -->
             <component
@@ -39,8 +39,8 @@ const enrichedItems = computed(() =>
                 :class="[
                     item.icon ? 'flex-none' : 'max-w-full min-w-0 overflow-hidden',
                     isDisabled
-                        ? 'cursor-default text-zinc-500 dark:text-zinc-500'
-                        : 'cursor-pointer text-blue-800 transition-colors hover:text-blue-600 focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:outline-none dark:text-blue-300 dark:hover:text-blue-200 dark:focus-visible:ring-blue-400'
+                        ? 'cursor-default text-muted'
+                        : 'cursor-pointer text-accent transition-colors hover:text-blue-600 focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:outline-none dark:hover:text-blue-200 dark:focus-visible:ring-blue-400'
                 ]"
                 @click="!isDisabled ? $emit('select', index, item) : undefined"
             >

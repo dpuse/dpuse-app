@@ -30,8 +30,12 @@ body {
     --color-boundary: var(--boundary); /* Border/outline */
     --color-boundary-hover: var(--boundary-hover); /* Border/outline (hover) */
     --color-separator: var(--separator); /* Divider/separator */
+    --color-overlay: var(--overlay); /* Modal/drawer scrim */
     --color-content: var(--content); /* Text/icons (default/primary) */
-    --color-muted: var(--muted); /* Text/icons (light/secondary) */
+    --color-muted: var(--muted); /* Text/icons (secondary) */
+    --color-subtle: var(--subtle); /* Text/icons (tertiary — decorative, structural) */
+    --color-emphasis: var(--emphasis); /* Text/icons (strong — headings, prominent labels) */
+    --color-accent: var(--accent); /* Text/icons (interactive — links, active states) */
 }
 
 /* Variables and light mode colors. */
@@ -59,8 +63,12 @@ body {
     --boundary: var(--color-zinc-200);
     --boundary-hover: var(--color-zinc-300);
     --separator: var(--color-zinc-200);
+    --overlay: rgb(39 39 42 / 0.5);
     --content: var(--color-zinc-600);
     --muted: var(--color-zinc-500);
+    --subtle: var(--color-zinc-400);
+    --emphasis: var(--color-zinc-700);
+    --accent: var(--color-blue-800);
 }
 
 /* Dark mode colors. */
@@ -72,8 +80,12 @@ body {
     --boundary: var(--color-zinc-700);
     --boundary-hover: var(--color-zinc-500);
     --separator: var(--color-zinc-700);
+    --overlay: rgb(63 63 70 / 0.4);
     --content: var(--color-zinc-300);
     --muted: var(--color-zinc-400);
+    --subtle: var(--color-zinc-500);
+    --emphasis: var(--color-zinc-200);
+    --accent: var(--color-blue-300);
 }
 
 /* Content column: left margin scales with viewport width (clamped 0–5rem), max-width 56rem, right margin absorbs remaining space. */

@@ -242,7 +242,7 @@ const sql = computed((): string => {
         <!-- Columns (Select) -->
         <section class="border-separator mt-4 rounded-md border">
             <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
-                <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Select Columns</span>
+                <span class="text-sm font-medium text-emphasis">Select Columns</span>
                 <div class="flex items-center gap-1">
                     <button
                         v-if="clauseOpen.select"
@@ -251,11 +251,11 @@ const sql = computed((): string => {
                         :title="selectSearchOpen ? 'Hide search' : 'Show search'"
                         @click="toggleSelectSearch"
                     >
-                        <SearchIcon class="size-4" :class="selectSearchOpen ? 'text-zinc-700 dark:text-zinc-200' : 'text-zinc-400'" />
+                        <SearchIcon class="size-4" :class="selectSearchOpen ? 'text-emphasis' : 'text-subtle'" />
                     </button>
                     <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.select = !clauseOpen.select">
-                        <ChevronUpIcon v-if="clauseOpen.select" class="size-5 text-zinc-400" />
-                        <ChevronDownIcon v-else class="size-5 text-zinc-400" />
+                        <ChevronUpIcon v-if="clauseOpen.select" class="size-5 text-subtle" />
+                        <ChevronDownIcon v-else class="size-5 text-subtle" />
                     </button>
                 </div>
             </div>
@@ -265,14 +265,14 @@ const sql = computed((): string => {
                 <div class="relative">
                     <input
                         v-model="columnSearch"
-                        class="dpuse-search-input w-full rounded-sm bg-zinc-100 px-2 py-1.5 pr-7 text-xs text-zinc-700 outline-none placeholder:text-zinc-400 dark:bg-zinc-700 dark:text-zinc-200"
+                        class="dpuse-search-input w-full rounded-sm bg-zinc-100 px-2 py-1.5 pr-7 text-xs text-zinc-700 outline-none placeholder:text-subtle dark:bg-zinc-700 dark:text-zinc-200"
                         placeholder="Search column names…"
                         type="search"
                         aria-label="Search column names"
                     />
                     <button
                         v-if="columnSearch.length > 0"
-                        class="absolute top-1/2 right-2 flex -translate-y-1/2 items-center justify-center p-0 text-zinc-400 hover:text-zinc-600 dark:text-zinc-300 dark:hover:text-zinc-100"
+                        class="absolute top-1/2 right-2 flex -translate-y-1/2 items-center justify-center p-0 text-subtle hover:text-zinc-600 dark:text-zinc-300 dark:hover:text-zinc-100"
                         type="button"
                         aria-label="Clear column search"
                         @click="columnSearch = ''"
@@ -307,11 +307,11 @@ const sql = computed((): string => {
                     <p
                         v-if="clauseOpen.select && selectSearchOpen && columnSearch.trim().length > 0 && filteredColumns.length === 0"
                         key="__not_found"
-                        class="col-span-full py-2 text-center text-xs text-zinc-400 dark:text-zinc-500"
+                        class="col-span-full py-2 text-center text-xs text-subtle"
                     >
                         No columns found
                     </p>
-                    <p v-if="!clauseOpen.select && selectVisibleItems.length === 0" key="__msg" class="col-span-full py-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                    <p v-if="!clauseOpen.select && selectVisibleItems.length === 0" key="__msg" class="col-span-full py-0.5 text-xs text-subtle">
                         Displaying all columns
                     </p>
                 </TransitionGroup>
@@ -322,16 +322,16 @@ const sql = computed((): string => {
         <section class="border-separator mt-4 rounded-md border">
             <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Filter Rows</span>
-                    <span v-if="query.where.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
+                    <span class="text-sm font-medium text-emphasis">Filter Rows</span>
+                    <span v-if="query.where.length === 0" class="text-xs text-subtle">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
                     <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add condition" @click="openPicker('where')">
                         <PlusIcon class="size-4 text-zinc-500" />
                     </button>
                     <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.where = !clauseOpen.where">
-                        <ChevronDownIcon v-if="clauseOpen.where" class="size-4 text-zinc-400" />
-                        <ChevronRightIcon v-else class="size-4 text-zinc-400" />
+                        <ChevronDownIcon v-if="clauseOpen.where" class="size-4 text-subtle" />
+                        <ChevronRightIcon v-else class="size-4 text-subtle" />
                     </button>
                 </div>
             </div>
@@ -340,13 +340,13 @@ const sql = computed((): string => {
                 <!-- Existing conditions -->
                 <div v-if="query.where.length > 0" class="mb-3 flex flex-col gap-2">
                     <div v-for="(cond, index) in query.where" :key="cond.id" class="flex items-center gap-2 text-xs">
-                        <span v-if="index > 0" class="w-7 flex-none text-right text-[10px] font-semibold text-zinc-400">AND</span>
+                        <span v-if="index > 0" class="w-7 flex-none text-right text-[10px] font-semibold text-subtle">AND</span>
                         <div class="flex flex-1 items-center gap-1.5 rounded-full bg-zinc-100 py-1.5 pr-1 pl-2.5 dark:bg-zinc-700">
                             <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
-                            <span class="text-zinc-400">{{ cond.op }}</span>
+                            <span class="text-subtle">{{ cond.op }}</span>
                             <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
                             <button class="ml-auto rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="removeCondition('where', cond.id)">
-                                <XIcon class="size-3 text-zinc-400" />
+                                <XIcon class="size-3 text-subtle" />
                             </button>
                         </div>
                     </div>
@@ -392,15 +392,15 @@ const sql = computed((): string => {
                     </div>
                 </div>
 
-                <span v-if="query.where.length === 0 && !pickerOpen.where" class="text-xs text-zinc-400 dark:text-zinc-500"> No filter — use + to add a condition </span>
+                <span v-if="query.where.length === 0 && !pickerOpen.where" class="text-xs text-subtle"> No filter — use + to add a condition </span>
             </div>
 
             <!-- Collapsed summary -->
             <div v-else-if="query.where.length > 0" class="flex flex-col gap-1 px-3 py-2">
                 <div v-for="(cond, index) in query.where" :key="cond.id" class="flex items-center gap-1.5 text-xs">
-                    <span v-if="index > 0" class="text-[10px] font-semibold text-zinc-400">AND</span>
+                    <span v-if="index > 0" class="text-[10px] font-semibold text-subtle">AND</span>
                     <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
-                    <span class="text-zinc-400">{{ cond.op }}</span>
+                    <span class="text-subtle">{{ cond.op }}</span>
                     <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
                 </div>
             </div>
@@ -410,16 +410,16 @@ const sql = computed((): string => {
         <section class="border-separator mt-4 rounded-md border">
             <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Group Rows</span>
-                    <span v-if="query.groupBy.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
+                    <span class="text-sm font-medium text-emphasis">Group Rows</span>
+                    <span v-if="query.groupBy.length === 0" class="text-xs text-subtle">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
                     <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add grouping" @click="openPicker('groupBy')">
                         <PlusIcon class="size-4 text-zinc-500" />
                     </button>
                     <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.groupBy = !clauseOpen.groupBy">
-                        <ChevronDownIcon v-if="clauseOpen.groupBy" class="size-4 text-zinc-400" />
-                        <ChevronRightIcon v-else class="size-4 text-zinc-400" />
+                        <ChevronDownIcon v-if="clauseOpen.groupBy" class="size-4 text-subtle" />
+                        <ChevronRightIcon v-else class="size-4 text-subtle" />
                     </button>
                 </div>
             </div>
@@ -427,7 +427,7 @@ const sql = computed((): string => {
             <div v-if="clauseOpen.groupBy" class="p-3">
                 <!-- Existing chips -->
                 <div class="flex flex-wrap gap-2">
-                    <span v-if="query.groupBy.length === 0 && !pickerOpen.groupBy" class="text-xs text-zinc-400 dark:text-zinc-500"> No grouping </span>
+                    <span v-if="query.groupBy.length === 0 && !pickerOpen.groupBy" class="text-xs text-subtle"> No grouping </span>
                     <div v-for="name in query.groupBy" :key="name" class="flex items-center gap-1 rounded-full py-1.5 pr-1 pl-2.5 text-xs select-none" :class="chipClass(name)">
                         <component :is="typeIcon(name)" class="size-3 flex-none opacity-60" />
                         <span class="font-mono">{{ name }}</span>
@@ -471,7 +471,7 @@ const sql = computed((): string => {
 
             <!-- Collapsed summary -->
             <div v-else class="flex flex-wrap gap-1.5 px-3 py-2">
-                <span v-if="query.groupBy.length === 0" class="text-xs text-zinc-400">—</span>
+                <span v-if="query.groupBy.length === 0" class="text-xs text-subtle">—</span>
                 <span v-for="name in query.groupBy" :key="name" class="rounded px-1.5 py-0.5 text-[11px]" :class="chipClass(name)">{{ name }}</span>
             </div>
         </section>
@@ -480,16 +480,16 @@ const sql = computed((): string => {
         <section class="border-separator mt-4 rounded-md border">
             <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Filter Row Groups</span>
-                    <span v-if="query.having.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
+                    <span class="text-sm font-medium text-emphasis">Filter Row Groups</span>
+                    <span v-if="query.having.length === 0" class="text-xs text-subtle">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
                     <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add having condition" @click="openPicker('having')">
                         <PlusIcon class="size-4 text-zinc-500" />
                     </button>
                     <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.having = !clauseOpen.having">
-                        <ChevronDownIcon v-if="clauseOpen.having" class="size-4 text-zinc-400" />
-                        <ChevronRightIcon v-else class="size-4 text-zinc-400" />
+                        <ChevronDownIcon v-if="clauseOpen.having" class="size-4 text-subtle" />
+                        <ChevronRightIcon v-else class="size-4 text-subtle" />
                     </button>
                 </div>
             </div>
@@ -498,13 +498,13 @@ const sql = computed((): string => {
                 <!-- Existing conditions -->
                 <div v-if="query.having.length > 0" class="mb-3 flex flex-col gap-2">
                     <div v-for="(cond, index) in query.having" :key="cond.id" class="flex items-center gap-2 text-xs">
-                        <span v-if="index > 0" class="w-7 flex-none text-right text-[10px] font-semibold text-zinc-400">AND</span>
+                        <span v-if="index > 0" class="w-7 flex-none text-right text-[10px] font-semibold text-subtle">AND</span>
                         <div class="flex flex-1 items-center gap-1.5 rounded-full bg-zinc-100 py-1.5 pr-1 pl-2.5 dark:bg-zinc-700">
                             <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
-                            <span class="text-zinc-400">{{ cond.op }}</span>
+                            <span class="text-subtle">{{ cond.op }}</span>
                             <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
                             <button class="ml-auto rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="removeCondition('having', cond.id)">
-                                <XIcon class="size-3 text-zinc-400" />
+                                <XIcon class="size-3 text-subtle" />
                             </button>
                         </div>
                     </div>
@@ -550,15 +550,15 @@ const sql = computed((): string => {
                     </div>
                 </div>
 
-                <span v-if="query.having.length === 0 && !pickerOpen.having" class="text-xs text-zinc-400 dark:text-zinc-500"> No filter — use + to add a condition </span>
+                <span v-if="query.having.length === 0 && !pickerOpen.having" class="text-xs text-subtle"> No filter — use + to add a condition </span>
             </div>
 
             <!-- Collapsed summary -->
             <div v-else-if="query.having.length > 0" class="flex flex-col gap-1 px-3 py-2">
                 <div v-for="(cond, index) in query.having" :key="cond.id" class="flex items-center gap-1.5 text-xs">
-                    <span v-if="index > 0" class="text-[10px] font-semibold text-zinc-400">AND</span>
+                    <span v-if="index > 0" class="text-[10px] font-semibold text-subtle">AND</span>
                     <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
-                    <span class="text-zinc-400">{{ cond.op }}</span>
+                    <span class="text-subtle">{{ cond.op }}</span>
                     <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
                 </div>
             </div>
@@ -568,16 +568,16 @@ const sql = computed((): string => {
         <section class="border-separator mt-4 rounded-md border">
             <div class="border-separator flex items-center justify-between rounded-t-md border-b bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Sort Rows</span>
-                    <span v-if="query.orderBy.length === 0" class="text-xs text-zinc-400 dark:text-zinc-500">optional</span>
+                    <span class="text-sm font-medium text-emphasis">Sort Rows</span>
+                    <span v-if="query.orderBy.length === 0" class="text-xs text-subtle">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
                     <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add sort column" @click="openPicker('orderBy')">
                         <PlusIcon class="size-4 text-zinc-500" />
                     </button>
                     <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.orderBy = !clauseOpen.orderBy">
-                        <ChevronDownIcon v-if="clauseOpen.orderBy" class="size-4 text-zinc-400" />
-                        <ChevronRightIcon v-else class="size-4 text-zinc-400" />
+                        <ChevronDownIcon v-if="clauseOpen.orderBy" class="size-4 text-subtle" />
+                        <ChevronRightIcon v-else class="size-4 text-subtle" />
                     </button>
                 </div>
             </div>
@@ -633,7 +633,7 @@ const sql = computed((): string => {
                     </div>
                 </div>
 
-                <span v-if="query.orderBy.length === 0 && !pickerOpen.orderBy" class="text-xs text-zinc-400 dark:text-zinc-500"> No sort order </span>
+                <span v-if="query.orderBy.length === 0 && !pickerOpen.orderBy" class="text-xs text-subtle"> No sort order </span>
             </div>
 
             <!-- Collapsed summary -->
@@ -652,11 +652,11 @@ const sql = computed((): string => {
                 type="button"
                 @click="sqlOpen = !sqlOpen"
             >
-                <ChevronDownIcon v-if="sqlOpen" class="size-4 flex-none text-zinc-400" />
-                <ChevronRightIcon v-else class="size-4 flex-none text-zinc-400" />
+                <ChevronDownIcon v-if="sqlOpen" class="size-4 flex-none text-subtle" />
+                <ChevronRightIcon v-else class="size-4 flex-none text-subtle" />
                 <span class="text-muted text-[11px] font-semibold tracking-wider uppercase">SQL Preview</span>
             </button>
-            <pre v-if="sqlOpen" class="overflow-x-auto px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">{{ sql }}</pre>
+            <pre v-if="sqlOpen" class="overflow-x-auto px-4 py-3 text-xs text-zinc-600 dark:text-subtle">{{ sql }}</pre>
         </div> -->
     <!-- </div> -->
 </template>
