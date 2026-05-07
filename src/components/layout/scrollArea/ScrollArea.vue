@@ -3,7 +3,7 @@
 import 'overlayscrollbars/overlayscrollbars.css';
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 
 // Local (App) Framework
 import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/state/appLayout';
@@ -38,20 +38,26 @@ onUnmounted(() => {
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(instance: OverlayScrollbars): void {
-    requestAnimationFrame(() => {
+    nextTick().then(() => {
         requestAnimationFrame(() => {
-            instance.update(true);
+            setTimeout(() => {
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        instance.update(true);
+                    });
+                });
+            }, 50);
         });
     });
 
     const { viewport, scrollbarVertical } = instance.elements();
     scrollElement = viewport;
     osHandleElement = scrollbarVertical.handle;
-    osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
-    document.addEventListener('pointerup', onDocumentPointerUp);
-    viewport.addEventListener('scroll', onViewportScroll, { passive: true });
+    // osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
+    // document.addEventListener('pointerup', onDocumentPointerUp);
+    // viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
-    emit('initialised', scrollElement);
+    // emit('initialised', scrollElement);
 }
 
 function onHandlePointerDown(): void {
