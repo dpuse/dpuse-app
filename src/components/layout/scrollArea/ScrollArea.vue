@@ -10,8 +10,8 @@ import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/sta
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { autoHide?: 'scroll' | 'never' | 'move' | 'leave'; autoHideSuspend?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen' };
-const { autoHide = 'scroll', autoHideSuspend = false, rowCount = 0, scrollAreaInset } = defineProps<Properties>();
+type Properties = { autoHide?: 'scroll' | 'never' | 'move' | 'leave'; autoHideSuspend?: boolean; defer?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen' };
+const { autoHide = 'scroll', autoHideSuspend = false, defer = true, rowCount = 0, scrollAreaInset } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [ScrollbarElements: HTMLElement] }>();
 
@@ -46,10 +46,6 @@ function handleInitialised(instance: OverlayScrollbars): void {
     viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
     emit('initialised', scrollElement);
-
-    // On Safari iOS reload the CSS bottom offset may not yet be applied when OS initialises,
-    // causing the handle to overflow the track. Force a remeasure on the next frame.
-    requestAnimationFrame(() => instance.update(true));
 }
 
 function onHandlePointerDown(): void {
@@ -77,7 +73,7 @@ function onViewportScroll(): void {
         <OverlayScrollbarsComponent
             class="h-full"
             :class="scrollAreaInset"
-            defer
+            :defer="defer"
             :options="{
                 scrollbars: {
                     autoHide,

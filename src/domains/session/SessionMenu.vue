@@ -121,6 +121,7 @@ async function toggleFullscreen(): Promise<void> {
 
         <!-- Fullscreen -->
         <Separator v-if="fullScreenIsSupported" class="my-2.5" />
+        <div class="text-muted mb-1 text-sm">Window</div>
         <ListItemButton v-if="fullScreenIsSupported" class="flex flex-none items-center gap-x-2 text-sm" @click="handleToggleWindowExpansion">
             <template v-if="isFullscreen"><ShrinkIcon class="size-4.5!" />{{ t(T, 'Collapse_window') }}</template>
             <template v-else><ExpandIcon class="size-4.5!" />{{ t(T, 'Expand_window') }}</template>
@@ -159,12 +160,12 @@ async function toggleFullscreen(): Promise<void> {
 
         <!-- Reload -->
         <!-- <Separator v-if="isPWA" class="my-2.5" /> -->
-        <Button class="min-w-50 justify-start" variant="guarded" @click="handleReloadApplication">{{ t(T, 'Reload') }}</Button>
+        <Button class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApplication">{{ t(T, 'Reload') }}</Button>
 
         <!-- Sign In / Sign Out -->
         <!-- <Separator class="my-2.5" /> -->
 
-        <Button v-if="isAuthenticated" class="min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</Button>
-        <Button v-else class="min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</Button>
+        <Button v-if="isAuthenticated" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</Button>
+        <Button v-else class="mt-2 min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</Button>
     </div>
 </template>
