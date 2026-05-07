@@ -76,7 +76,7 @@ function onViewportScroll(): void {
             defer
             :options="{
                 scrollbars: {
-                    autoHide,
+                    autoHide: 'never',
                     autoHideDelay: 750,
                     autoHideSuspend,
                     dragScroll: true,
