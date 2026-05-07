@@ -82,7 +82,7 @@ async function selectItem(row: T): Promise<void> {
 
                 <FloatingActionButton
                     v-if="enableAddAction"
-                    class="absolute right-3 bottom-(--safe-bottom-offset)"
+                    class="absolute bottom-(--safe-bottom-offset) left-1/2 -translate-x-1/2"
                     :component-type-label="'Connection'"
                     variant="add"
                     :verb="'Add'"
@@ -93,13 +93,13 @@ async function selectItem(row: T): Promise<void> {
             <div
                 v-if="displayIsWide || detailPaneIsVisible"
                 class="mr-4 min-w-0 flex-1"
-                :class="{ 'border-l border-separator': displayIsWide }"
+                :class="{ 'border-separator border-l': displayIsWide }"
                 :style="getPaneStyle(maxDetailWidth)"
             >
                 <!-- Detail Panel -->
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
-                    <div class="ml-4 flex h-10 items-center gap-x-1 border-b border-separator">
+                    <div class="border-separator ml-4 flex h-10 items-center gap-x-1 border-b">
                         <!-- Icon -->
                         <div class="flex size-7 items-center justify-center">
                             <div v-if="activeItem.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="activeItem.icon || activeItem.iconDark" />

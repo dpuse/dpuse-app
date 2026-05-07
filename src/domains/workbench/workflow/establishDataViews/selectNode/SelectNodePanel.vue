@@ -226,7 +226,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
         <!-- Body -->
         <GridDetailPanel :active-item="activeItem" class="flex-1" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
             <template #header>
-                <div class="flex h-full min-w-0 items-center border-b border-separator text-sm">
+                <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
                     <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeItem == null" @select="selectBreadcrumb" />
                 </div>
             </template>
@@ -236,7 +236,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
             </template>
 
             <template #detail>
-                <div class="flex h-full flex-col pl-4">
+                <div class="relative flex h-full flex-col pl-4">
                     <Table v-show="activeTabId === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
                     <TextViewer v-show="activeTabId === 'text'" class="flex-1" :text="text" />
@@ -244,13 +244,13 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                     <div v-show="activeTabId === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
 
                     <div
-                        class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t border-separator bg-backdrop text-xs"
+                        class="border-separator bg-backdrop relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"
                     >
                         <div class="absolute top-0 bottom-px left-0 bg-green-200 dark:bg-green-500/30" :style="{ width: `${previewPercentage}%` }"></div>
                         <div class="relative pl-1">{{ previewMessage }}</div>
                     </div>
 
-                    <div class="justify-right fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)">
+                    <div class="absolute bottom-(--safe-bottom-offset) left-1/2 -translate-x-1/2">
                         <span class="isolate inline-flex h-10 rounded-full shadow-md">
                             <!-- View mode buttons -->
                             <button

@@ -84,7 +84,7 @@ async function handleSubmit(): Promise<void> {
         </ScrollArea>
 
         <FloatingActionButton
-            class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
+            class="absolute bottom-(--safe-bottom-offset) left-1/2 -translate-x-1/2"
             :component-type-label="'Connection'"
             variant="step"
             :verb="'Select'"
