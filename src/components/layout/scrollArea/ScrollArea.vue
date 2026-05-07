@@ -3,7 +3,7 @@
 import 'overlayscrollbars/overlayscrollbars.css';
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
-import { onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 // Local (App) Framework
 import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/state/appLayout';
@@ -38,6 +38,12 @@ onUnmounted(() => {
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(instance: OverlayScrollbars): void {
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            instance.update(true);
+        });
+    });
+
     const { viewport, scrollbarVertical } = instance.elements();
     scrollElement = viewport;
     osHandleElement = scrollbarVertical.handle;
