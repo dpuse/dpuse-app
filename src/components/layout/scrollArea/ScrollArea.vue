@@ -39,6 +39,10 @@ onUnmounted(() => {
 
 function handleInitialised(instance: OverlayScrollbars): void {
     const { viewport, scrollbarVertical } = instance.elements();
+
+    scrollbarVertical.scrollbar.style.bottom = '48px';
+    instance.update(true);
+
     scrollElement = viewport;
     osHandleElement = scrollbarVertical.handle;
     osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
