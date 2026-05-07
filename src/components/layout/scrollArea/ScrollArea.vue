@@ -39,10 +39,20 @@ onUnmounted(() => {
 
 function handleInitialised(instance: OverlayScrollbars): void {
     requestAnimationFrame(() => {
-        const { handle } = instance.elements().scrollbarVertical;
+        requestAnimationFrame(() => {
+            const { handle } = instance.elements().scrollbarVertical;
 
-        handle.style.transform = 'translateY(0px)';
+            handle.style.transform = 'translateY(0px)';
 
+            instance.update(true);
+        });
+    });
+    const { handle } = instance.elements().scrollbarVertical;
+
+    handle.style.height = '';
+    handle.style.transform = '';
+
+    requestAnimationFrame(() => {
         instance.update(true);
     });
 
