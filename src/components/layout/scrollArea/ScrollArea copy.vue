@@ -77,11 +77,6 @@ onUnmounted(() => {
 // OverlayScrollbars init
 
 function handleInitialised(instance: OverlayScrollbars): void {
-    // IMPORTANT: next frame ensures iOS layout stabilisation
-    requestAnimationFrame(() => {
-        instance.update(true);
-    });
-
     const { viewport, scrollbarVertical } = instance.elements();
 
     scrollElement = viewport;
@@ -90,6 +85,16 @@ function handleInitialised(instance: OverlayScrollbars): void {
     osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
     document.addEventListener('pointerup', onDocumentPointerUp);
     viewport.addEventListener('scroll', onViewportScroll, { passive: true });
+
+    // 🔧 FIX: reset stale iOS handle state
+    const handle = scrollbarVertical.handle as HTMLElement;
+
+    handle.style.height = '';
+    handle.style.transform = '';
+
+    requestAnimationFrame(() => {
+        instance.update(true);
+    });
 
     emit('initialised', scrollElement);
 }
