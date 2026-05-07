@@ -46,6 +46,10 @@ function handleInitialised(instance: OverlayScrollbars): void {
     viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
     emit('initialised', scrollElement);
+
+    // On Safari iOS reload the CSS bottom offset may not yet be applied when OS initialises,
+    // causing the handle to overflow the track. Force a remeasure on the next frame.
+    requestAnimationFrame(() => instance.update(true));
 }
 
 function onHandlePointerDown(): void {

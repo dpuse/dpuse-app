@@ -94,7 +94,7 @@ async function toggleFullscreen(): Promise<void> {
 </script>
 <template>
     <div
-        class="flex flex-col overflow-y-auto overscroll-y-none border-boundary bg-surface px-4 shadow-md"
+        class="border-boundary bg-surface flex flex-col overflow-y-auto overscroll-y-none px-4 shadow-md"
         :class="
             displayIsWide
                 ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] overflow-y-auto overscroll-y-none rounded-md border py-4'
@@ -104,7 +104,7 @@ async function toggleFullscreen(): Promise<void> {
         <CloseButton v-if="!displayIsWide" class="absolute top-2 right-3" @click="emit('continue')" />
 
         <!-- Appearance -->
-        <div class="mb-1 text-sm text-muted">{{ t(T, 'Appearance') }}</div>
+        <div class="text-muted mb-1 text-sm">{{ t(T, 'Appearance') }}</div>
         <div class="mt-1 flex gap-x-2">
             <Button class="flex flex-col items-center text-xs" :is-active="currentAppearance === 'auto'" shape="icon" size="sm" @click="handleSetAppearance('auto')">
                 <MonitorIcon class="size-4.5!" />{{ t(T, 'System') }}
@@ -128,7 +128,7 @@ async function toggleFullscreen(): Promise<void> {
 
         <!-- Language -->
         <Separator class="my-2.5" />
-        <div class="mb-1 text-sm text-muted">{{ t(T, 'Language') }}</div>
+        <div class="text-muted mb-1 text-sm">{{ t(T, 'Language') }}</div>
         <ListItemButton
             v-for="lang in SUPPORTED_LANGUAGES"
             :key="lang.id"
@@ -141,21 +141,28 @@ async function toggleFullscreen(): Promise<void> {
             <div>{{ lang.label }}</div>
         </ListItemButton>
 
-        <!-- Manage Account -->
-        <Separator v-if="isAuthenticated" class="my-2.5" />
-        <Button v-if="isAuthenticated" class="min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>
-
-        <!-- Reload -->
-        <Separator v-if="isPWA" class="my-2.5" />
-        <Button v-if="isPWA" class="min-w-50 justify-start" variant="guarded" @click="handleReloadApplication">{{ t(T, 'Reload_application') }}</Button>
-
-        <!-- Sign In / Sign Out -->
+        <!-- Session -->
         <Separator class="my-2.5" />
+        <div class="text-muted mb-1 text-sm">Session</div>
 
-        <div v-if="isAuthenticated" class="relative mb-1 flex w-full items-center justify-center overflow-hidden rounded-full border border-boundary bg-amber-500 text-xs">
+        <div
+            v-if="isAuthenticated"
+            class="border-boundary relative mb-1 flex w-full flex-none items-center justify-center overflow-hidden rounded-full border bg-amber-500 text-xs"
+        >
             <div class="absolute top-0 bottom-0 left-0 bg-green-100 transition-[width] duration-1000 ease-linear" :style="{ width: `${100 - elapsed}%` }"></div>
             <div class="relative z-10">Expires in {{ formattedExpiresIn }}</div>
         </div>
+
+        <!-- Manage Account -->
+        <!-- <Separator v-if="isAuthenticated" class="my-2.5" /> -->
+        <Button v-if="isAuthenticated" class="min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>
+
+        <!-- Reload -->
+        <!-- <Separator v-if="!isPWA" class="my-2.5" /> -->
+        <Button v-if="!isPWA" class="min-w-50 justify-start" variant="guarded" @click="handleReloadApplication">{{ t(T, 'Reload') }}</Button>
+
+        <!-- Sign In / Sign Out -->
+        <!-- <Separator class="my-2.5" /> -->
 
         <Button v-if="isAuthenticated" class="min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</Button>
         <Button v-else class="min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</Button>
