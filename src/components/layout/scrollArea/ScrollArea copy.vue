@@ -86,14 +86,17 @@ function handleInitialised(instance: OverlayScrollbars): void {
     document.addEventListener('pointerup', onDocumentPointerUp);
     viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
-    // 🔧 FIX: reset stale iOS handle state
+    // 🔧 CRITICAL FIX: reset internal handle geometry state
     const handle = scrollbarVertical.handle as HTMLElement;
 
-    handle.style.height = '';
     handle.style.transform = '';
+    handle.style.height = '';
 
+    // force recompute AFTER iOS layout restore
     requestAnimationFrame(() => {
-        instance.update(true);
+        requestAnimationFrame(() => {
+            instance.update(); // ⚠️ NOT update(true)
+        });
     });
 
     emit('initialised', scrollElement);
