@@ -38,6 +38,14 @@ onUnmounted(() => {
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(instance: OverlayScrollbars): void {
+    requestAnimationFrame(() => {
+        const { handle } = instance.elements().scrollbarVertical;
+
+        handle.style.transform = 'translateY(0px)';
+
+        instance.update(true);
+    });
+
     const { viewport, scrollbarVertical } = instance.elements();
     scrollElement = viewport;
     osHandleElement = scrollbarVertical.handle;
