@@ -146,7 +146,7 @@ async function toggleFullscreen(): Promise<void> {
         <Separator class="my-2.5" />
         <div class="text-muted mb-1 text-sm">Session</div>
 
-        <div v-if="isAuthenticated" class="border-boundary relative mb-1 flex h-5 w-full flex-none overflow-hidden rounded-sm border text-xs">
+        <div v-if="isAuthenticated" class="relative mb-1 flex h-5 w-full flex-none overflow-hidden rounded-sm text-xs">
             <div class="bg-green-100 transition-[width] duration-1000 ease-linear dark:bg-green-300/30" :style="{ width: `${100 - elapsed}%` }" />
             <div class="bg-amber-100 transition-[width] duration-1000 ease-linear dark:bg-amber-300/30" :style="{ width: `${elapsed}%` }" />
             <div class="absolute inset-0 flex items-center justify-center">Expires in {{ formattedExpiresIn }}</div>
@@ -158,7 +158,7 @@ async function toggleFullscreen(): Promise<void> {
 
         <!-- Reload -->
         <!-- <Separator v-if="isPWA" class="my-2.5" /> -->
-        <Button class="mt-2 min-w-50 justify-start" variant="positive" @click="handleReloadApplication">{{ t(T, 'Reload') }}</Button>
+        <Button v-if="isPWA" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApplication">{{ t(T, 'Reload') }}</Button>
 
         <!-- Sign In / Sign Out -->
         <!-- <Separator class="my-2.5" /> -->
