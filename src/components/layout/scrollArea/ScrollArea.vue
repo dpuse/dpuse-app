@@ -126,8 +126,8 @@ function onViewportScroll(): void {
 }
 
 :deep(.screen) {
-    padding-top: 16px;
-    padding-bottom: var(--vertical-scroll-bottom-screen-inset);
+    /* padding-top: 16px; */
+    /* padding-bottom: var(--vertical-scroll-bottom-screen-inset); */
     .os-scrollbar-vertical {
         bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset)) !important;
     }
