@@ -119,8 +119,7 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
                 if (index === -1) {
                     pendingConnectorConfigs.push(moduleConfig as ConnectorConfig);
                 } else {
-                    // pendingConnectorConfigs[index] = moduleConfig as ConnectorConfig;
-                    console.info(`[dpuse:app] ⚠️ Configuration update received and NOT processed.`);
+                    pendingConnectorConfigs[index] = moduleConfig as ConnectorConfig;
                 }
                 if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Connector '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
