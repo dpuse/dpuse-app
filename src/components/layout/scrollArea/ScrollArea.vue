@@ -39,10 +39,6 @@ onUnmounted(() => {
 
 function handleInitialised(instance: OverlayScrollbars): void {
     const { viewport, scrollbarVertical } = instance.elements();
-
-    scrollbarVertical.scrollbar.style.bottom = '48px';
-    instance.update(true);
-
     scrollElement = viewport;
     osHandleElement = scrollbarVertical.handle;
     osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
@@ -73,7 +69,7 @@ function onViewportScroll(): void {
 </script>
 
 <template>
-    <div class="relative h-full min-h-0 min-w-0" style="bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset))">
+    <div class="relative h-full min-h-0 min-w-0">
         <OverlayScrollbarsComponent
             class="h-full"
             :class="scrollAreaInset"
@@ -113,7 +109,7 @@ function onViewportScroll(): void {
     padding-top: 8px;
     padding-bottom: var(--vertical-scroll-bottom-embedded-inset);
     .os-scrollbar-vertical {
-        bottom: calc(var(--spacing-vertical-scroll-bottom-embedded-inset));
+        padding-bottom: calc(var(--spacing-vertical-scroll-bottom-embedded-inset));
     }
 }
 
@@ -121,7 +117,7 @@ function onViewportScroll(): void {
     padding-top: 16px;
     padding-bottom: var(--vertical-scroll-bottom-screen-inset);
     .os-scrollbar-vertical {
-        /* bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset)); */
+        padding-bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset));
     }
 }
 </style>
