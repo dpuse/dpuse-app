@@ -14,7 +14,7 @@ const COMMON_DESTRUCTIVE_CLASSES = [
 ];
 const COMMON_GUARDED_CLASSES = [
     'bg-amber-100 hover:bg-amber-200 active:bg-amber-300 text-amber-900 focus-visible:ring-amber-300',
-    'dark:bg-amber-300/20 dark:hover:bg-amber-300/30 dark:active:bg-amber-300/40 dark:focus-visible:ring-amber-500'
+    'dark:bg-amber-300/30 dark:hover:bg-amber-300/30 dark:active:bg-amber-300/40 dark:focus-visible:ring-amber-500'
 ];
 const COMMON_PRIMARY_CLASSES = [
     'bg-blue-100 hover:bg-blue-200 active:bg-blue-300 text-blue-900 focus-visible:ring-blue-300',
@@ -22,7 +22,7 @@ const COMMON_PRIMARY_CLASSES = [
 ];
 const COMMON_POSITIVE_CLASSES = [
     'bg-green-100 hover:bg-green-200 active:bg-green-300 text-green-900 focus-visible:ring-green-300',
-    'dark:bg-green-300/20 dark:hover:bg-green-300/30 dark:active:bg-green-300/40 dark:focus-visible:ring-green-500'
+    'dark:bg-green-300/30 dark:hover:bg-green-300/30 dark:active:bg-green-300/40 dark:focus-visible:ring-green-500'
 ];
 const COMMON_NEUTRAL_CLASSES = [
     'bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 text-zinc-900 focus-visible:ring-zinc-300',

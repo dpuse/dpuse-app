@@ -48,7 +48,6 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
 }
 
 async function selectItem(row: T): Promise<void> {
-    console.log(222);
     emit('select', row);
     await nextTick();
     detailPaneIsVisible.value = activeItem != null;

@@ -38,7 +38,7 @@ const router = useRouter();
 
 const elapsed = computed(() => (lifetime.value == null ? 0 : ((lifetime.value - ((expiresIn.value ?? 0) || 0)) / lifetime.value) * 100));
 
-const formattedExpiresIn = computed(() => formatNumberAsDuration(expiresIn.value));
+const formattedExpiresIn = computed(() => formatNumberAsDuration(expiresIn.value, 'secs'));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -146,12 +146,10 @@ async function toggleFullscreen(): Promise<void> {
         <Separator class="my-2.5" />
         <div class="text-muted mb-1 text-sm">Session</div>
 
-        <div
-            v-if="isAuthenticated"
-            class="border-boundary relative mb-1 flex w-full flex-none items-center justify-center overflow-hidden rounded-full border bg-amber-500 text-xs"
-        >
-            <div class="absolute top-0 bottom-0 left-0 bg-green-100 transition-[width] duration-1000 ease-linear" :style="{ width: `${100 - elapsed}%` }"></div>
-            <div class="relative z-10">Expires in {{ formattedExpiresIn }}</div>
+        <div v-if="isAuthenticated" class="border-boundary relative mb-1 flex h-5 w-full flex-none overflow-hidden rounded-sm border text-xs">
+            <div class="bg-green-100 transition-[width] duration-1000 ease-linear dark:bg-green-300/30" :style="{ width: `${100 - elapsed}%` }" />
+            <div class="bg-amber-100 transition-[width] duration-1000 ease-linear dark:bg-amber-300/30" :style="{ width: `${elapsed}%` }" />
+            <div class="absolute inset-0 flex items-center justify-center">Expires in {{ formattedExpiresIn }}</div>
         </div>
 
         <!-- Manage Account -->
@@ -160,7 +158,7 @@ async function toggleFullscreen(): Promise<void> {
 
         <!-- Reload -->
         <!-- <Separator v-if="isPWA" class="my-2.5" /> -->
-        <Button class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApplication">{{ t(T, 'Reload') }}</Button>
+        <Button class="mt-2 min-w-50 justify-start" variant="positive" @click="handleReloadApplication">{{ t(T, 'Reload') }}</Button>
 
         <!-- Sign In / Sign Out -->
         <!-- <Separator class="my-2.5" /> -->

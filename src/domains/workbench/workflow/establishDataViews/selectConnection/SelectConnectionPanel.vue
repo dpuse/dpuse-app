@@ -48,7 +48,6 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
-    console.log(1234);
     activeConnectionConfig.value = connectionLocalisedConfig;
     if (connectionLocalisedConfig == null) return;
     activeDataViewConfig.value =
