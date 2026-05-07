@@ -3,7 +3,7 @@
 import 'overlayscrollbars/overlayscrollbars.css';
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
-import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import { onUnmounted, ref, watch } from 'vue';
 
 // Local (App) Framework
 import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/state/appLayout';
@@ -38,26 +38,14 @@ onUnmounted(() => {
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(instance: OverlayScrollbars): void {
-    nextTick().then(() => {
-        requestAnimationFrame(() => {
-            setTimeout(() => {
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        instance.update(true);
-                    });
-                });
-            }, 50);
-        });
-    });
-
     const { viewport, scrollbarVertical } = instance.elements();
     scrollElement = viewport;
     osHandleElement = scrollbarVertical.handle;
-    // osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
-    // document.addEventListener('pointerup', onDocumentPointerUp);
-    // viewport.addEventListener('scroll', onViewportScroll, { passive: true });
+    osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
+    document.addEventListener('pointerup', onDocumentPointerUp);
+    viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
-    // emit('initialised', scrollElement);
+    emit('initialised', scrollElement);
 }
 
 function onHandlePointerDown(): void {
@@ -81,7 +69,7 @@ function onViewportScroll(): void {
 </script>
 
 <template>
-    <div class="relative h-full min-h-0 min-w-0">
+    <div class="relative h-full min-h-0 min-w-0" style="bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset))">
         <OverlayScrollbarsComponent
             class="h-full"
             :class="scrollAreaInset"
@@ -121,15 +109,15 @@ function onViewportScroll(): void {
     padding-top: 8px;
     padding-bottom: var(--vertical-scroll-bottom-embedded-inset);
     .os-scrollbar-vertical {
-        bottom: calc(var(--spacing-vertical-scroll-bottom-embedded-inset)) !important;
+        bottom: calc(var(--spacing-vertical-scroll-bottom-embedded-inset));
     }
 }
 
 :deep(.screen) {
-    /* padding-top: 16px; */
-    /* padding-bottom: var(--vertical-scroll-bottom-screen-inset); */
+    padding-top: 16px;
+    padding-bottom: var(--vertical-scroll-bottom-screen-inset);
     .os-scrollbar-vertical {
-        bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset)) !important;
+        /* bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset)); */
     }
 }
 </style>
