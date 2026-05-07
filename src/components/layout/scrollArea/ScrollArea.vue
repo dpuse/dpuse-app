@@ -10,8 +10,8 @@ import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/sta
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { autoHide?: 'scroll' | 'never' | 'move' | 'leave'; autoHideSuspend?: boolean; defer?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen' };
-const { autoHide = 'scroll', autoHideSuspend = false, defer = true, rowCount = 0, scrollAreaInset } = defineProps<Properties>();
+type Properties = { autoHide?: 'scroll' | 'never' | 'move' | 'leave'; autoHideSuspend?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen' };
+const { autoHide = 'scroll', autoHideSuspend = false, rowCount = 0, scrollAreaInset } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [ScrollbarElements: HTMLElement] }>();
 
@@ -73,7 +73,7 @@ function onViewportScroll(): void {
         <OverlayScrollbarsComponent
             class="h-full"
             :class="scrollAreaInset"
-            :defer="defer"
+            defer
             :options="{
                 scrollbars: {
                     autoHide,
@@ -108,20 +108,16 @@ function onViewportScroll(): void {
 :deep(.embedded) {
     padding-top: 8px;
     padding-bottom: var(--vertical-scroll-bottom-embedded-inset);
-}
-
-:deep(.embedded .os-scrollbar.os-scrollbar-vertical) {
-    bottom: calc(var(--spacing-vertical-scroll-bottom-embedded-inset));
-    transition-property: opacity, visibility, top, right, left;
+    .os-scrollbar-vertical {
+        bottom: calc(var(--spacing-vertical-scroll-bottom-embedded-inset)) !important;
+    }
 }
 
 :deep(.screen) {
     padding-top: 16px;
     padding-bottom: var(--vertical-scroll-bottom-screen-inset);
-}
-
-:deep(.screen .os-scrollbar.os-scrollbar-vertical) {
-    bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset));
-    transition-property: opacity, visibility, top, right, left;
+    .os-scrollbar-vertical {
+        bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset)) !important;
+    }
 }
 </style>
