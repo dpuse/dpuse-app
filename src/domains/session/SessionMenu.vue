@@ -147,8 +147,8 @@ async function toggleFullscreen(): Promise<void> {
         <div class="text-muted mb-1 text-sm">Session</div>
 
         <div v-if="isAuthenticated" class="relative mb-1 flex h-5 w-full flex-none overflow-hidden rounded-sm text-xs">
-            <div class="bg-green-100 transition-[width] duration-1000 ease-linear dark:bg-green-300/30" :style="{ width: `${100 - elapsed}%` }" />
-            <div class="bg-amber-100 transition-[width] duration-1000 ease-linear dark:bg-amber-300/30" :style="{ width: `${elapsed}%` }" />
+            <div class="bg-green-200 transition-[width] duration-1000 ease-linear dark:bg-green-300/30" :style="{ width: `${100 - elapsed}%` }" />
+            <div class="bg-amber-200 transition-[width] duration-1000 ease-linear dark:bg-amber-300/30" :style="{ width: `${elapsed}%` }" />
             <div class="absolute inset-0 flex items-center justify-center">Expires in {{ formattedExpiresIn }}</div>
         </div>
 
