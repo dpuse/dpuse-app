@@ -56,6 +56,10 @@ function handleInitialised(instance: OverlayScrollbars): void {
     //     instance.update(true);
     // });
 
+    setTimeout(() => {
+        instance.update(true);
+    }, 2000);
+
     const { viewport, scrollbarVertical } = instance.elements();
     scrollElement = viewport;
     osHandleElement = scrollbarVertical.handle;
