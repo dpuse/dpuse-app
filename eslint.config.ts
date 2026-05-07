@@ -50,8 +50,8 @@ export default defineConfigWithVueTs(
     pluginRegexp.configs['flat/recommended'],
     pluginSecurity.configs.recommended,
     (pluginSonarJS.configs?.recommended ?? {}) as Linter.Config,
-    pluginUnicorn.configs.recommended,
     pluginTailwindCSS.configs.recommended,
+    pluginUnicorn.configs.recommended,
 
     { ...pluginPlaywright.configs['flat/recommended'], files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'] },
 
@@ -95,12 +95,12 @@ export default defineConfigWithVueTs(
             'unicorn/switch-case-braces': 'off',
             'unicorn/prefer-top-level-await': 'off',
 
-            'vuejs-accessibility/label-has-for': ['error', { required: { some: ['id', 'nesting'] } }],
-
             'vue/multi-word-component-names': 'off',
             'vue/no-bare-strings-in-template': ['off'],
             'vue/no-v-html': 'off',
-            'vue/require-default-prop': 'off'
+            'vue/require-default-prop': 'off',
+
+            'vuejs-accessibility/label-has-for': ['error', { required: { some: ['id', 'nesting'] } }]
         }
     }
 );
