@@ -108,16 +108,16 @@ function onViewportScroll(): void {
 :deep(.embedded) {
     padding-top: 8px;
     padding-bottom: var(--vertical-scroll-bottom-embedded-inset);
-    .os-scrollbar-vertical {
+    /* .os-scrollbar-vertical {
         bottom: calc(var(--spacing-vertical-scroll-bottom-embedded-inset));
-    }
+    } */
 }
 
 :deep(.screen) {
     padding-top: 16px;
     padding-bottom: var(--vertical-scroll-bottom-screen-inset);
-    .os-scrollbar-vertical {
-        /* bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset)); */
+    /* .os-scrollbar-vertical {
+        / * bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset)); * /
         .os-scrollbar-track {
             inset: 0 0 48px 0;
             background: red;
@@ -125,6 +125,6 @@ function onViewportScroll(): void {
                 background: blue;
             }
         }
-    }
+    } */
 }
 </style>
