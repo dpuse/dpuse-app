@@ -108,16 +108,20 @@ function onViewportScroll(): void {
 :deep(.embedded) {
     padding-top: 8px;
     padding-bottom: var(--vertical-scroll-bottom-embedded-inset);
-    .os-scrollbar-vertical {
-        bottom: calc(var(--spacing-vertical-scroll-bottom-embedded-inset));
-    }
+}
+
+:deep(.embedded .os-scrollbar.os-scrollbar-vertical) {
+    bottom: calc(var(--spacing-vertical-scroll-bottom-embedded-inset));
+    transition-property: opacity, visibility, top, right, left;
 }
 
 :deep(.screen) {
     padding-top: 16px;
     padding-bottom: var(--vertical-scroll-bottom-screen-inset);
-    .os-scrollbar-vertical {
-        bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset));
-    }
+}
+
+:deep(.screen .os-scrollbar.os-scrollbar-vertical) {
+    bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset));
+    transition-property: opacity, visibility, top, right, left;
 }
 </style>
