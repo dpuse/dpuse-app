@@ -174,9 +174,9 @@ function onViewportScroll(): void {
     padding-top: 16px;
     padding-bottom: var(--vertical-scroll-bottom-screen-inset);
     .os-scrollbar-vertical {
-        /* bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset)); */
+        bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset));
         .os-scrollbar-track {
-            inset: 0 0 48px 0;
+            /* inset: 0 0 48px 0; */
             background: red;
             .os-scrollbar-handle {
                 background: blue;
