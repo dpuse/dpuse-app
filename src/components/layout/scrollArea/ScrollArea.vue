@@ -11,7 +11,7 @@ import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/sta
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 type Properties = { autoHide?: 'scroll' | 'never' | 'move' | 'leave'; autoHideSuspend?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen' };
-const { autoHide = 'scroll', autoHideSuspend = false, rowCount = 0, scrollAreaInset } = defineProps<Properties>();
+const { autoHide = 'never', autoHideSuspend = true, rowCount = 0, scrollAreaInset } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [ScrollbarElements: HTMLElement] }>();
 
@@ -76,8 +76,8 @@ function onViewportScroll(): void {
             defer
             :options="{
                 scrollbars: {
-                    autoHide: 'never',
-                    autoHideDelay: 750,
+                    autoHide: autoHide,
+                    autoHideDelay: 1300,
                     autoHideSuspend,
                     dragScroll: true,
                     theme: isDarkMode ? 'os-theme-light' : 'os-theme-dark',
@@ -108,23 +108,10 @@ function onViewportScroll(): void {
 :deep(.embedded) {
     padding-top: 8px;
     padding-bottom: var(--vertical-scroll-bottom-embedded-inset);
-    /* .os-scrollbar-vertical {
-        bottom: calc(var(--spacing-vertical-scroll-bottom-embedded-inset));
-    } */
 }
 
 :deep(.screen) {
     padding-top: 16px;
     padding-bottom: var(--vertical-scroll-bottom-screen-inset);
-    /* .os-scrollbar-vertical {
-        / * bottom: calc(var(--spacing-vertical-scroll-bottom-screen-inset)); * /
-        .os-scrollbar-track {
-            inset: 0 0 48px 0;
-            background: red;
-            .os-scrollbar-handle {
-                background: blue;
-            }
-        }
-    } */
 }
 </style>

@@ -22,7 +22,7 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
         <Header :overline="t(T, 'wb.label')" data-testid="header" :title="t(T, 'wb.wf.label')" />
 
         <!-- Steps -->
-        <ScrollArea class="border-separator flex-1 border-t" scroll-area-inset="screen">
+        <ScrollArea class="border-separator flex-1 border-t" auto-hide="scroll" scroll-area-inset="screen">
             <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4">
                 <Button v-for="config in workflowOptionConfigs" :key="config.id" shape="minimal" :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }">
                     <Card

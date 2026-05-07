@@ -22,6 +22,7 @@ import { connectionConfigs, getLocalisedConnection } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
+import ActionCommandBar from '@/components/layout/actionCommandBar/ActionCommandBar.vue';
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
@@ -250,68 +251,23 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                         <div class="relative pl-1">{{ previewMessage }}</div>
                     </div>
 
-                    <div class="absolute bottom-(--safe-bottom-offset) left-1/2 -translate-x-1/2">
-                        <span class="isolate inline-flex h-10 rounded-full shadow-md">
-                            <!-- View mode buttons -->
-                            <button
-                                type="button"
-                                class="relative inline-flex items-center rounded-l-full py-2 pr-2 pl-3 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 focus:z-10"
-                                :class="
-                                    activeTabId === 'table'
-                                        ? 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-600'
-                                        : 'bg-white hover:bg-gray-50 dark:bg-zinc-800 dark:hover:bg-zinc-700'
-                                "
-                                :aria-pressed="activeTabId === 'table'"
-                                @click="activeTabId = 'table'"
-                            >
-                                {{ t(T, 'tab.table') }}
-                            </button>
-
-                            <button
-                                type="button"
-                                class="relative -ml-px inline-flex items-center px-2 py-2 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 focus:z-10"
-                                :class="
-                                    activeTabId === 'text'
-                                        ? 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-600'
-                                        : 'bg-white hover:bg-gray-50 dark:bg-zinc-800 dark:hover:bg-zinc-700'
-                                "
-                                :aria-pressed="activeTabId === 'text'"
-                                @click="activeTabId = 'text'"
-                            >
-                                {{ t(T, 'tab.text') }}
-                            </button>
-
-                            <button
-                                type="button"
-                                class="relative -ml-px inline-flex items-center px-2 py-2 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 focus:z-10"
-                                :class="
-                                    activeTabId === 'details'
-                                        ? 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-600'
-                                        : 'bg-white hover:bg-gray-50 dark:bg-zinc-800 dark:hover:bg-zinc-700'
-                                "
-                                :aria-pressed="activeTabId === 'details'"
-                                @click="activeTabId = 'details'"
-                            >
-                                {{ t(T, 'tab.details') }}
-                            </button>
-
-                            <!-- Divider -->
-                            <span class="relative z-10 -ml-px inline-flex w-px self-stretch bg-blue-400 dark:bg-blue-500" aria-hidden="true"></span>
-
-                            <!-- Action button (accent cap) -->
-                            <button
-                                type="button"
-                                class="relative -ml-px inline-flex items-center gap-x-1 rounded-r-full border border-blue-400 bg-blue-50 py-2 pr-3 pl-2.5 text-xs text-blue-600 hover:bg-blue-100 focus:z-10 dark:border-blue-500 dark:bg-blue-950 dark:text-blue-400 dark:hover:bg-blue-900"
-                                @click="handleSubmit"
-                            >
-                                <div class="flex flex-col items-end leading-none">
-                                    <span>{{ t(T, 'select') }}</span>
-                                    <span>{{ t(T, 'node') }}</span>
-                                </div>
-                                <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
-                            </button>
-                        </span>
-                    </div>
+                    <ActionCommandBar
+                        v-model="activeTabId"
+                        :tabs="[
+                            { id: 'table', label: t(T, 'tab.table') },
+                            { id: 'text', label: t(T, 'tab.text') },
+                            { id: 'details', label: t(T, 'tab.details') }
+                        ]"
+                        @action="handleSubmit"
+                    >
+                        <template #action>
+                            <div class="flex flex-col items-end leading-none">
+                                <span>{{ t(T, 'select') }}</span>
+                                <span>{{ t(T, 'node') }}</span>
+                            </div>
+                            <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
+                        </template>
+                    </ActionCommandBar>
                 </div>
             </template>
 
