@@ -23,7 +23,7 @@ import { type LocaleId, localiseConfig, type LocalisedConfig } from '@dpuse/dpus
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
-const EXPIRE_INTERVAL_SLOW = 300_000; // Milliseconds (5 minutes).
+const EXPIRE_INTERVAL_SLOW = 60_000; // Milliseconds (1 minute).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -93,6 +93,7 @@ watch(
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function initialiseServices(): void {
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     import('@teamhanko/hanko-frontend-sdk').then(({ Hanko }) => {
         hankoInstance = new Hanko(HANKO_API_URL);
         hankoInstance.onSessionCreated((sessionDetails) => establishSession('created', sessionDetails.claims));
@@ -129,6 +130,20 @@ export function getLocalisedConnection(id: string | undefined, localeId: LocaleI
     return localiseConfig<ConnectionConfig>(connectionConfig, localeId);
 }
 
+export function setSessionExpiryTimer(runQuickly: boolean = false): void {
+    clearSessionExpiryTimer();
+    if (runQuickly && expiresAt.value != null) {
+        expiresIn.value = Math.max(0, expiresAt.value - Date.now());
+    }
+    expiryTimer = globalThis.setInterval(
+        () => {
+            expiresIn.value = Math.max(0, (expiresAt.value ?? 0) - Date.now());
+            if (expiresIn.value <= 0) clearSessionExpiryTimer();
+        },
+        runQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW
+    );
+}
+
 export async function signOut(): Promise<void> {
     await hankoInstance?.logout();
 }
@@ -158,7 +173,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
             if (userId.value != null) module.initialise(userId.value);
         });
 
-        startSessionExpiryTimer();
+        setSessionExpiryTimer();
         identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value);
 
         if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Authenticated session established (${actionId}).`);
@@ -185,18 +200,13 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
     }
 }
 
-function startSessionExpiryTimer(runQuickly: boolean = false): void {
-    clearSessionExpiryTimer();
-    expiryTimer = globalThis.setInterval(
-        () => {
-            expiresIn.value = Math.max(0, (expiresAt.value ?? 0) - Date.now());
-            if (expiresIn.value <= 0) clearSessionExpiryTimer();
-        },
-        runQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW
-    );
-}
-
 function clearSessionExpiryTimer(): void {
     globalThis.clearInterval(expiryTimer);
     expiryTimer = undefined;
+}
+
+function handleVisibilityChange(): void {
+    if (document.visibilityState !== 'visible' || expiresAt.value == null) return;
+    expiresIn.value = Math.max(0, expiresAt.value - Date.now());
+    if (expiresIn.value <= 0) clearSessionExpiryTimer();
 }

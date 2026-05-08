@@ -47,7 +47,7 @@ html {
     /* Light mode colors. */
     --backdrop: #fdfdfd;
     --surface: var(--color-white);
-    --card: var(--color-zinc-50);
+    --card: #fcfcfc;
     --card-hover: var(--color-zinc-100);
     --boundary: var(--color-zinc-200);
     --boundary-hover: var(--color-zinc-300);

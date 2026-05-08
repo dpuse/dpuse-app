@@ -11,7 +11,7 @@ import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 // Local (App) Framework
 import T from './SessionMenu.json';
 import { displayIsWide, isPWA } from '@/state/appLayout';
-import { expiresIn, isAuthenticated, lifetime, signOut } from '@/state/session';
+import { expiresIn, isAuthenticated, lifetime, setSessionExpiryTimer, signOut } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
@@ -36,14 +36,25 @@ const isFullscreen = ref(!!document.fullscreenElement);
 const route = useRoute();
 const router = useRouter();
 
-const elapsed = computed(() => (lifetime.value == null ? 0 : ((lifetime.value - ((expiresIn.value ?? 0) || 0)) / lifetime.value) * 100));
+const elapsed = computed(() => {
+    if (lifetime.value == null || lifetime.value === 0) return 0;
+    return ((lifetime.value - (expiresIn.value ?? 0)) / lifetime.value) * 100;
+});
 
 const formattedExpiresIn = computed(() => formatNumberAsDuration(expiresIn.value, 'secs'));
+
+// Initialisation ──────────────────────────────────────────────────────────────────────────────────────────────────────
+
+setSessionExpiryTimer(true);
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => document.addEventListener('fullscreenchange', handleFullscreenChange));
-onUnmounted(() => document.removeEventListener('fullscreenchange', handleFullscreenChange));
+
+onUnmounted(() => {
+    setSessionExpiryTimer();
+    document.removeEventListener('fullscreenchange', handleFullscreenChange);
+});
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -94,7 +105,7 @@ async function toggleFullscreen(): Promise<void> {
 </script>
 <template>
     <div
-        class="border-boundary bg-surface flex flex-col overflow-y-auto overscroll-y-none px-4 shadow-md"
+        class="border-boundary bg-surface flex min-w-xs flex-col overflow-y-auto overscroll-y-none px-4 shadow-md"
         :class="
             displayIsWide
                 ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] overflow-y-auto overscroll-y-none rounded-md border py-4'
@@ -103,33 +114,53 @@ async function toggleFullscreen(): Promise<void> {
     >
         <CloseButton v-if="!displayIsWide" class="absolute top-2 right-3" @click="emit('continue')" />
 
-        <!-- Appearance -->
-        <div class="text-muted mb-1 text-sm">{{ t(T, 'Appearance') }}</div>
-        <div class="mt-1 flex gap-x-2">
-            <Button class="flex flex-col items-center text-xs" :is-active="currentAppearance === 'auto'" shape="icon" size="sm" @click="handleSetAppearance('auto')">
-                <MonitorIcon class="size-4.5!" />{{ t(T, 'System') }}
-            </Button>
+        <!-- Display -->
+        <div class="text-muted mb-1 text-sm">{{ t(T, 'Display') }}</div>
+        <div class="mt-1 flex gap-x-4">
+            <div class="flex flex-1 flex-col gap-y-1">
+                <div class="flex items-center gap-x-1.5">
+                    <div class="border-boundary h-px flex-1 border-t" />
+                    <div class="text-muted text-xs">{{ t(T, 'Appearance') }}</div>
+                    <div class="border-boundary h-px flex-1 border-t" />
+                </div>
+                <div class="flex gap-x-2">
+                    <Button class="flex flex-1 flex-col items-center text-xs" :is-active="currentAppearance === 'auto'" shape="icon" size="sm" @click="handleSetAppearance('auto')">
+                        <MonitorIcon class="size-4.5!" />{{ t(T, 'System') }}
+                    </Button>
 
-            <Button class="flex flex-col items-center text-xs" :is-active="currentAppearance === 'light'" shape="icon" size="sm" @click="handleSetAppearance('light')">
-                <SunIcon class="size-4.5!" />{{ t(T, 'Light') }}
-            </Button>
+                    <Button
+                        class="flex flex-1 flex-col items-center text-xs"
+                        :is-active="currentAppearance === 'light'"
+                        shape="icon"
+                        size="sm"
+                        @click="handleSetAppearance('light')"
+                    >
+                        <SunIcon class="size-4.5!" />{{ t(T, 'Light') }}
+                    </Button>
 
-            <Button class="flex flex-col items-center text-xs" :is-active="currentAppearance === 'dark'" shape="icon" size="sm" @click="handleSetAppearance('dark')">
-                <MoonIcon class="size-4.5!" />{{ t(T, 'Dark') }}
-            </Button>
+                    <Button class="flex flex-1 flex-col items-center text-xs" :is-active="currentAppearance === 'dark'" shape="icon" size="sm" @click="handleSetAppearance('dark')">
+                        <MoonIcon class="size-4.5!" />{{ t(T, 'Dark') }}
+                    </Button>
+                </div>
+            </div>
+
+            <div v-if="fullScreenIsSupported" class="flex flex-none flex-col gap-y-1">
+                <div class="flex items-center gap-x-1.5">
+                    <div class="border-boundary h-px flex-1 border-t" />
+                    <div class="text-muted text-xs">{{ t(T, 'Full_screen') }}</div>
+                    <div class="border-boundary h-px flex-1 border-t" />
+                </div>
+                <Button class="flex flex-col items-center text-xs" shape="icon" size="sm" @click="handleToggleWindowExpansion">
+                    <ShrinkIcon v-if="isFullscreen" class="size-4.5!" />
+                    <ExpandIcon v-else class="size-4.5!" />
+                    {{ isFullscreen ? t(T, 'Collapse') : t(T, 'Expand') }}
+                </Button>
+            </div>
         </div>
 
-        <!-- Fullscreen -->
-        <Separator v-if="fullScreenIsSupported" class="my-2.5" />
-        <div class="text-muted mb-1 text-sm">Window</div>
-        <ListItemButton v-if="fullScreenIsSupported" class="flex flex-none items-center gap-x-2 text-sm" @click="handleToggleWindowExpansion">
-            <template v-if="isFullscreen"><ShrinkIcon class="size-4.5!" />{{ t(T, 'Collapse_window') }}</template>
-            <template v-else><ExpandIcon class="size-4.5!" />{{ t(T, 'Expand_window') }}</template>
-        </ListItemButton>
-
         <!-- Language -->
-        <Separator class="my-2.5" />
-        <div class="text-muted mb-1 text-sm">{{ t(T, 'Language') }}</div>
+        <!-- <Separator class="my-2.5" /> -->
+        <div class="text-muted mt-4 mb-1 text-sm">{{ t(T, 'Language') }}</div>
         <ListItemButton
             v-for="lang in SUPPORTED_LANGUAGES"
             :key="lang.id"
@@ -143,14 +174,19 @@ async function toggleFullscreen(): Promise<void> {
         </ListItemButton>
 
         <!-- Session -->
-        <Separator class="my-2.5" />
-        <div class="text-muted mb-1 text-sm">Session</div>
+        <!-- <Separator class="my-2.5" /> -->
+        <!-- <div class="mb-1.5 flex items-baseline justify-between">
+            <div class="text-muted text-sm">Session</div>
+        </div> -->
+        <div class="text-muted mt-4 mb-1 text-sm">Session</div>
 
-        <div v-if="isAuthenticated" class="relative mb-1 flex h-5 w-full flex-none overflow-hidden rounded-sm text-xs">
-            <div class="bg-green-200 transition-[width] duration-1000 ease-linear dark:bg-green-300/30" :style="{ width: `${100 - elapsed}%` }" />
-            <div class="bg-amber-200 transition-[width] duration-1000 ease-linear dark:bg-amber-300/30" :style="{ width: `${elapsed}%` }" />
-            <div class="absolute inset-0 flex items-center justify-center">Expires in {{ formattedExpiresIn }}</div>
-        </div>
+        <template v-if="isAuthenticated">
+            <div class="text-muted text-xs">Expires in {{ formattedExpiresIn }}</div>
+            <div class="mb-1 flex h-1.5 w-full flex-none overflow-hidden rounded-full">
+                <div class="bg-green-500 transition-[width] duration-1000 ease-linear" :style="{ width: `${100 - elapsed}%` }" />
+                <div class="bg-amber-500 transition-[width] duration-1000 ease-linear" :style="{ width: `${elapsed}%` }" />
+            </div>
+        </template>
 
         <!-- Manage Account -->
         <!-- <Separator v-if="isAuthenticated" class="my-2.5" /> -->
