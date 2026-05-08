@@ -109,19 +109,19 @@ async function toggleFullscreen(): Promise<void> {
         :class="
             displayIsWide
                 ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] overflow-y-auto overscroll-y-none rounded-md border py-4'
-                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] max-w-lg overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t py-8'
+                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] max-w-lg overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t pt-13 pb-8'
         "
     >
         <CloseButton v-if="!displayIsWide" class="absolute top-2 right-3" @click="emit('continue')" />
 
         <!-- Display -->
-        <div class="text-muted mb-1 text-sm">{{ t(T, 'Display') }}</div>
-        <div class="mt-1 flex gap-x-4">
-            <div class="flex flex-1 flex-col gap-y-1">
-                <div class="flex items-center gap-x-1.5">
-                    <div class="border-boundary h-px flex-1 border-t" />
-                    <div class="text-muted text-xs">{{ t(T, 'Appearance') }}</div>
-                    <div class="border-boundary h-px flex-1 border-t" />
+        <div class="flex gap-x-4">
+            <div class="flex flex-1 flex-col">
+                <div class="flex flex-col">
+                    <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
+                    <div class="text-muted text-sm">{{ t(T, 'Appearance') }}</div>
+                    <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
+                    <Separator class="mt-1 mb-2 flex-none" />
                 </div>
                 <div class="flex gap-x-2">
                     <Button class="flex flex-1 flex-col items-center text-xs" :is-active="currentAppearance === 'auto'" shape="icon" size="sm" @click="handleSetAppearance('auto')">
@@ -144,12 +144,9 @@ async function toggleFullscreen(): Promise<void> {
                 </div>
             </div>
 
-            <div v-if="fullScreenIsSupported" class="flex flex-none flex-col gap-y-1">
-                <div class="flex items-center gap-x-1.5">
-                    <div class="border-boundary h-px flex-1 border-t" />
-                    <div class="text-muted text-xs">{{ t(T, 'Full_screen') }}</div>
-                    <div class="border-boundary h-px flex-1 border-t" />
-                </div>
+            <div v-if="fullScreenIsSupported" class="flex flex-none flex-col">
+                <div class="text-muted text-sm">{{ t(T, 'Full_screen') }}</div>
+                <Separator class="mt-1 mb-2 flex-none" />
                 <Button class="flex flex-col items-center text-xs" shape="icon" size="sm" @click="handleToggleWindowExpansion">
                     <ShrinkIcon v-if="isFullscreen" class="size-4.5!" />
                     <ExpandIcon v-else class="size-4.5!" />
@@ -158,9 +155,9 @@ async function toggleFullscreen(): Promise<void> {
             </div>
         </div>
 
-        <!-- Language -->
-        <!-- <Separator class="my-2.5" /> -->
-        <div class="text-muted mt-4 mb-1 text-sm">{{ t(T, 'Language') }}</div>
+        <!-- Languages -->
+        <div class="text-muted mt-4 text-sm">{{ t(T, 'Language') }}</div>
+        <Separator class="mt-1 mb-2" />
         <ListItemButton
             v-for="lang in SUPPORTED_LANGUAGES"
             :key="lang.id"
@@ -174,12 +171,10 @@ async function toggleFullscreen(): Promise<void> {
         </ListItemButton>
 
         <!-- Session -->
-        <!-- <Separator class="my-2.5" /> -->
-        <!-- <div class="mb-1.5 flex items-baseline justify-between">
-            <div class="text-muted text-sm">Session</div>
-        </div> -->
-        <div class="text-muted mt-4 mb-1 text-sm">Session</div>
+        <div class="text-muted mt-4 text-sm">Session</div>
+        <Separator class="mt-1 mb-2" />
 
+        <!-- Expiry Timer -->
         <template v-if="isAuthenticated">
             <div class="text-muted text-xs">Expires in {{ formattedExpiresIn }}</div>
             <div class="mb-1 flex h-1.5 w-full flex-none overflow-hidden rounded-full">
@@ -189,16 +184,12 @@ async function toggleFullscreen(): Promise<void> {
         </template>
 
         <!-- Manage Account -->
-        <!-- <Separator v-if="isAuthenticated" class="my-2.5" /> -->
         <Button v-if="isAuthenticated" class="mt-2 min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>
 
         <!-- Reload -->
-        <!-- <Separator v-if="isPWA" class="my-2.5" /> -->
         <Button v-if="isPWA" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApplication">{{ t(T, 'Reload') }}</Button>
 
         <!-- Sign In / Sign Out -->
-        <!-- <Separator class="my-2.5" /> -->
-
         <Button v-if="isAuthenticated" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</Button>
         <Button v-else class="mt-2 min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</Button>
     </div>
