@@ -18,6 +18,7 @@ import { localeId, t } from '@/state/locale';
 import Button from '@/components/ui/button/Button.vue';
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
+import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -104,110 +105,120 @@ async function toggleFullscreen(): Promise<void> {
 }
 </script>
 <template>
-    <div
+    <!-- <div
         class="border-boundary bg-surface flex max-w-sm min-w-xs flex-col overflow-y-auto overscroll-y-none shadow-md"
         :class="
             displayIsWide
                 ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] overflow-y-auto overscroll-y-none rounded-md border'
                 : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t'
         "
+    > -->
+    <div
+        class="border-boundary bg-surface flex h-full max-w-sm min-w-xs flex-col shadow-md"
+        :class="
+            displayIsWide
+                ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] overflow-y-auto overscroll-y-none rounded-md border'
+                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t'
+        "
     >
-        <div class="bg-backdrop border-b-boundary flex items-center justify-between border-b px-4 pt-3 pb-2">
+        <div class="bg-card border-b-boundary flex flex-none items-center justify-between border-b px-4 pt-3 pb-2">
             <span class="text-lg">Session</span>
             <CloseButton @click="emit('continue')" />
         </div>
 
-        <div class="flex flex-col px-4 pt-2 pb-6">
-            <!-- Display -->
-            <div class="mt-1 flex gap-x-6">
-                <div class="flex flex-1 flex-col">
-                    <div class="flex flex-col">
-                        <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
-                        <div class="text-muted text-sm font-semibold">{{ t(T, 'Appearance') }}</div>
-                        <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
+        <ScrollArea class="flex-1">
+            <div class="flex flex-col px-4 pt-2 pb-6">
+                <!-- Display -->
+                <div class="mt-1 flex gap-x-6">
+                    <div class="flex flex-1 flex-col">
+                        <div class="flex flex-col">
+                            <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
+                            <div class="text-muted text-sm font-semibold">{{ t(T, 'Appearance') }}</div>
+                            <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
+                            <Separator class="mt-1 mb-2.25 flex-none" />
+                        </div>
+                        <div class="flex gap-x-2">
+                            <Button
+                                class="flex flex-1 flex-col items-center text-xs"
+                                :is-active="currentAppearance === 'auto'"
+                                shape="icon"
+                                size="sm"
+                                @click="handleSetAppearance('auto')"
+                            >
+                                <MonitorIcon class="size-4.5!" />{{ t(T, 'System') }}
+                            </Button>
+
+                            <Button
+                                class="flex flex-1 flex-col items-center text-xs"
+                                :is-active="currentAppearance === 'light'"
+                                shape="icon"
+                                size="sm"
+                                @click="handleSetAppearance('light')"
+                            >
+                                <SunIcon class="size-4.5!" />{{ t(T, 'Light') }}
+                            </Button>
+
+                            <Button
+                                class="flex flex-1 flex-col items-center text-xs"
+                                :is-active="currentAppearance === 'dark'"
+                                shape="icon"
+                                size="sm"
+                                @click="handleSetAppearance('dark')"
+                            >
+                                <MoonIcon class="size-4.5!" />{{ t(T, 'Dark') }}
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div v-if="fullScreenIsSupported" class="flex flex-none flex-col">
+                        <div class="text-muted text-sm font-semibold">{{ t(T, 'Full_screen') }}</div>
                         <Separator class="mt-1 mb-2.25 flex-none" />
-                    </div>
-                    <div class="flex gap-x-2">
-                        <Button
-                            class="flex flex-1 flex-col items-center text-xs"
-                            :is-active="currentAppearance === 'auto'"
-                            shape="icon"
-                            size="sm"
-                            @click="handleSetAppearance('auto')"
-                        >
-                            <MonitorIcon class="size-4.5!" />{{ t(T, 'System') }}
-                        </Button>
-
-                        <Button
-                            class="flex flex-1 flex-col items-center text-xs"
-                            :is-active="currentAppearance === 'light'"
-                            shape="icon"
-                            size="sm"
-                            @click="handleSetAppearance('light')"
-                        >
-                            <SunIcon class="size-4.5!" />{{ t(T, 'Light') }}
-                        </Button>
-
-                        <Button
-                            class="flex flex-1 flex-col items-center text-xs"
-                            :is-active="currentAppearance === 'dark'"
-                            shape="icon"
-                            size="sm"
-                            @click="handleSetAppearance('dark')"
-                        >
-                            <MoonIcon class="size-4.5!" />{{ t(T, 'Dark') }}
+                        <Button class="flex flex-col items-center text-xs" shape="icon" size="sm" @click="handleToggleWindowExpansion">
+                            <ShrinkIcon v-if="isFullscreen" class="size-4.5!" />
+                            <ExpandIcon v-else class="size-4.5!" />
+                            {{ isFullscreen ? t(T, 'Collapse') : t(T, 'Expand') }}
                         </Button>
                     </div>
                 </div>
 
-                <div v-if="fullScreenIsSupported" class="flex flex-none flex-col">
-                    <div class="text-muted text-sm font-semibold">{{ t(T, 'Full_screen') }}</div>
-                    <Separator class="mt-1 mb-2.25 flex-none" />
-                    <Button class="flex flex-col items-center text-xs" shape="icon" size="sm" @click="handleToggleWindowExpansion">
-                        <ShrinkIcon v-if="isFullscreen" class="size-4.5!" />
-                        <ExpandIcon v-else class="size-4.5!" />
-                        {{ isFullscreen ? t(T, 'Collapse') : t(T, 'Expand') }}
-                    </Button>
-                </div>
+                <!-- Languages -->
+                <div class="text-muted mt-4 text-sm font-semibold">{{ t(T, 'Language') }}</div>
+                <Separator class="mt-1 mb-1.25" />
+                <ListItemButton
+                    v-for="lang in SUPPORTED_LANGUAGES"
+                    :key="lang.id"
+                    class="mt-1 flex w-full flex-none items-center gap-x-2 text-sm"
+                    :is-active="localeId === lang.id"
+                    @click="handleSetLanguage(lang.id)"
+                >
+                    <!-- See https://github.com/lipis/flag-icons. -->
+                    <img :src="`/flags/${lang.flag}.svg`" class="h-4 w-5.5 object-fill ring-1 ring-black/10 dark:ring-white/10" :alt="lang.label" />
+                    <div>{{ lang.label }}</div>
+                </ListItemButton>
+
+                <!-- Session -->
+                <div class="text-muted mt-4 text-sm font-semibold">State</div>
+                <Separator class="mt-1 mb-2" />
+
+                <!-- Expiry Timer -->
+                <template v-if="isAuthenticated">
+                    <div class="text-muted text-xs">Expires in {{ formattedExpiresIn }}</div>
+                    <div class="mb-1 flex h-1.5 w-full flex-none overflow-hidden rounded-full">
+                        <div class="bg-green-500 transition-[width] duration-1000 ease-linear" :style="{ width: `${100 - elapsed}%` }" />
+                        <div class="bg-amber-500 transition-[width] duration-1000 ease-linear" :style="{ width: `${elapsed}%` }" />
+                    </div>
+                </template>
+
+                <!-- Manage Account -->
+                <Button v-if="isAuthenticated" class="mt-2 min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>
+
+                <!-- Reload -->
+                <Button v-if="isPWA" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApplication">{{ t(T, 'Reload') }}</Button>
+
+                <!-- Sign In / Sign Out -->
+                <Button v-if="isAuthenticated" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</Button>
+                <Button v-else class="mt-2 min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</Button>
             </div>
-
-            <!-- Languages -->
-            <div class="text-muted mt-4 text-sm font-semibold">{{ t(T, 'Language') }}</div>
-            <Separator class="mt-1 mb-1.25" />
-            <ListItemButton
-                v-for="lang in SUPPORTED_LANGUAGES"
-                :key="lang.id"
-                class="mt-1 flex w-full flex-none items-center gap-x-2 text-sm"
-                :is-active="localeId === lang.id"
-                @click="handleSetLanguage(lang.id)"
-            >
-                <!-- See https://github.com/lipis/flag-icons. -->
-                <img :src="`/flags/${lang.flag}.svg`" class="h-4 w-5.5 object-fill ring-1 ring-black/10 dark:ring-white/10" :alt="lang.label" />
-                <div>{{ lang.label }}</div>
-            </ListItemButton>
-
-            <!-- Session -->
-            <div class="text-muted mt-4 text-sm font-semibold">State</div>
-            <Separator class="mt-1 mb-2" />
-
-            <!-- Expiry Timer -->
-            <template v-if="isAuthenticated">
-                <div class="text-muted text-xs">Expires in {{ formattedExpiresIn }}</div>
-                <div class="mb-1 flex h-1.5 w-full flex-none overflow-hidden rounded-full">
-                    <div class="bg-green-500 transition-[width] duration-1000 ease-linear" :style="{ width: `${100 - elapsed}%` }" />
-                    <div class="bg-amber-500 transition-[width] duration-1000 ease-linear" :style="{ width: `${elapsed}%` }" />
-                </div>
-            </template>
-
-            <!-- Manage Account -->
-            <Button v-if="isAuthenticated" class="mt-2 min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>
-
-            <!-- Reload -->
-            <Button v-if="isPWA" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApplication">{{ t(T, 'Reload') }}</Button>
-
-            <!-- Sign In / Sign Out -->
-            <Button v-if="isAuthenticated" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</Button>
-            <Button v-else class="mt-2 min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</Button>
-        </div>
+        </ScrollArea>
     </div>
 </template>
