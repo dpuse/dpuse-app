@@ -117,11 +117,11 @@ async function toggleFullscreen(): Promise<void> {
         class="border-boundary bg-surface flex h-full max-w-sm min-w-xs flex-col shadow-md"
         :class="
             displayIsWide
-                ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] overflow-y-auto overscroll-y-none rounded-md border'
-                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t'
+                ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] rounded-md border'
+                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] rounded-t-md border-x border-t'
         "
     >
-        <div class="bg-card border-b-boundary flex flex-none items-center justify-between border-b px-4 pt-3 pb-2">
+        <div class="bg-card border-b-boundary flex flex-none items-center justify-between rounded-t-md border-b px-4 pt-3 pb-2">
             <span class="text-lg">Session</span>
             <CloseButton @click="emit('continue')" />
         </div>
