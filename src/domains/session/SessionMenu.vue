@@ -112,7 +112,7 @@ async function toggleFullscreen(): Promise<void> {
                 : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] overflow-y-auto overscroll-y-none rounded-t-2xl border-x border-t'
         "
     >
-        <div class="bg-backdrop border-b-separator flex items-center justify-between border-b px-4 pt-3 pb-2">
+        <div class="bg-backdrop border-b-boundary flex items-center justify-between border-b px-4 pt-3 pb-2">
             <span class="text-lg">Session</span>
             <CloseButton @click="emit('continue')" />
         </div>
@@ -123,7 +123,7 @@ async function toggleFullscreen(): Promise<void> {
                 <div class="flex flex-1 flex-col">
                     <div class="flex flex-col">
                         <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
-                        <div class="text-muted text-sm">{{ t(T, 'Appearance') }}</div>
+                        <div class="text-muted text-sm font-medium">{{ t(T, 'Appearance') }}</div>
                         <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
                         <Separator class="mt-1 mb-2.25 flex-none" />
                     </div>
@@ -172,7 +172,7 @@ async function toggleFullscreen(): Promise<void> {
             </div>
 
             <!-- Languages -->
-            <div class="text-muted mt-4 text-sm">{{ t(T, 'Language') }}</div>
+            <div class="text-muted mt-4 text-sm font-medium">{{ t(T, 'Language') }}</div>
             <Separator class="mt-1 mb-1.25" />
             <ListItemButton
                 v-for="lang in SUPPORTED_LANGUAGES"
@@ -187,7 +187,7 @@ async function toggleFullscreen(): Promise<void> {
             </ListItemButton>
 
             <!-- Session -->
-            <div class="text-muted mt-4 text-sm">Session</div>
+            <div class="text-muted mt-4 text-sm font-medium">State</div>
             <Separator class="mt-1 mb-2" />
 
             <!-- Expiry Timer -->
