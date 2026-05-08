@@ -186,9 +186,7 @@ async function toggleFullscreen(): Promise<void> {
                 <div>{{ lang.label }}</div>
             </ListItemButton>
 
-            <!-- Session -->
-            <div class="text-muted mt-4 text-sm font-semibold">State</div>
-            <Separator class="mt-1 mb-2" />
+            <Separator class="mt-4 mb-2" />
 
             <!-- Expiry Timer -->
             <template v-if="isAuthenticated">
