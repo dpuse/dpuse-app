@@ -123,7 +123,7 @@ async function toggleFullscreen(): Promise<void> {
                 <div class="flex flex-1 flex-col">
                     <div class="flex flex-col">
                         <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
-                        <div class="text-muted text-sm font-medium">{{ t(T, 'Appearance') }}</div>
+                        <div class="text-muted text-sm font-semibold">{{ t(T, 'Appearance') }}</div>
                         <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
                         <Separator class="mt-1 mb-2.25 flex-none" />
                     </div>
@@ -161,7 +161,7 @@ async function toggleFullscreen(): Promise<void> {
                 </div>
 
                 <div v-if="fullScreenIsSupported" class="flex flex-none flex-col">
-                    <div class="text-muted text-sm">{{ t(T, 'Full_screen') }}</div>
+                    <div class="text-muted text-sm font-semibold">{{ t(T, 'Full_screen') }}</div>
                     <Separator class="mt-1 mb-2.25 flex-none" />
                     <Button class="flex flex-col items-center text-xs" shape="icon" size="sm" @click="handleToggleWindowExpansion">
                         <ShrinkIcon v-if="isFullscreen" class="size-4.5!" />
@@ -172,7 +172,7 @@ async function toggleFullscreen(): Promise<void> {
             </div>
 
             <!-- Languages -->
-            <div class="text-muted mt-4 text-sm font-medium">{{ t(T, 'Language') }}</div>
+            <div class="text-muted mt-4 text-sm font-semibold">{{ t(T, 'Language') }}</div>
             <Separator class="mt-1 mb-1.25" />
             <ListItemButton
                 v-for="lang in SUPPORTED_LANGUAGES"
@@ -187,7 +187,7 @@ async function toggleFullscreen(): Promise<void> {
             </ListItemButton>
 
             <!-- Session -->
-            <div class="text-muted mt-4 text-sm font-medium">State</div>
+            <div class="text-muted mt-4 text-sm font-semibold">State</div>
             <Separator class="mt-1 mb-2" />
 
             <!-- Expiry Timer -->

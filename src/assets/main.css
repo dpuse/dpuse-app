@@ -49,7 +49,7 @@ html {
     --surface: var(--color-white);
     --card: #fcfcfc;
     --card-hover: var(--color-zinc-100);
-    --boundary: var(--color-zinc-200);
+    --boundary: var(--color-zinc-100);
     --boundary-hover: var(--color-zinc-300);
     --separator: var(--color-zinc-200);
     --overlay: rgb(39 39 42 / 0.75);
@@ -66,7 +66,7 @@ html {
     --surface: var(--color-zinc-950);
     --card: var(--color-zinc-900);
     --card-hover: var(--color-zinc-800);
-    --boundary: var(--color-zinc-700);
+    --boundary: var(--color-zinc-800);
     --boundary-hover: var(--color-zinc-500);
     --separator: var(--color-zinc-700);
     --overlay: rgb(63 63 70 / 0.75);
