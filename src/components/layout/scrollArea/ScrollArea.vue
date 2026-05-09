@@ -18,7 +18,7 @@ const emit = defineEmits<{ initialised: [ScrollbarElements: HTMLElement] }>();
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 let scrollElement: HTMLElement | null = null;
-let osHandleElement: Element | null = null;
+// let osHandleElement: Element | null = null;
 const isDragging = ref(false);
 const currentRow = ref(1);
 const labelOffsetY = ref(0);
@@ -26,46 +26,46 @@ const labelOffsetY = ref(0);
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onUnmounted(() => {
-    osHandleElement?.removeEventListener('pointerdown', onHandlePointerDown);
-    document.removeEventListener('pointerup', onDocumentPointerUp);
-    scrollElement?.removeEventListener('scroll', onViewportScroll);
+    // osHandleElement?.removeEventListener('pointerdown', onHandlePointerDown);
+    // document.removeEventListener('pointerup', onDocumentPointerUp);
+    // scrollElement?.removeEventListener('scroll', onViewportScroll);
 });
 
-watch(knowledgePaneIsVisible, (visible) => {
-    // if (!visible) contentScrollPosition.value = 0;
-});
+// watch(knowledgePaneIsVisible, (visible) => {
+//     // if (!visible) contentScrollPosition.value = 0;
+// });
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(instance: OverlayScrollbars): void {
     const { viewport, scrollbarVertical } = instance.elements();
     scrollElement = viewport;
-    osHandleElement = scrollbarVertical.handle;
-    osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
-    document.addEventListener('pointerup', onDocumentPointerUp);
-    viewport.addEventListener('scroll', onViewportScroll, { passive: true });
+    // osHandleElement = scrollbarVertical.handle;
+    // osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
+    // document.addEventListener('pointerup', onDocumentPointerUp);
+    // viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
     emit('initialised', scrollElement);
 }
 
-function onHandlePointerDown(): void {
-    isDragging.value = true;
-}
+// function onHandlePointerDown(): void {
+//     isDragging.value = true;
+// }
 
-function onDocumentPointerUp(): void {
-    isDragging.value = false;
-}
+// function onDocumentPointerUp(): void {
+//     isDragging.value = false;
+// }
 
-function onViewportScroll(): void {
-    const element = scrollElement;
-    if (!element) return;
-    // if (knowledgePaneIsVisible.value) contentScrollPosition.value = element.scrollTop;
-    const maxScroll = element.scrollHeight - element.clientHeight;
-    if (maxScroll <= 0) return;
-    const ratio = element.scrollTop / maxScroll;
-    currentRow.value = Math.max(1, Math.round(ratio * rowCount));
-    labelOffsetY.value = ratio * (element.clientHeight - 40) + 20;
-}
+// function onViewportScroll(): void {
+//     const element = scrollElement;
+//     if (!element) return;
+//     // if (knowledgePaneIsVisible.value) contentScrollPosition.value = element.scrollTop;
+//     const maxScroll = element.scrollHeight - element.clientHeight;
+//     if (maxScroll <= 0) return;
+//     const ratio = element.scrollTop / maxScroll;
+//     currentRow.value = Math.max(1, Math.round(ratio * rowCount));
+//     labelOffsetY.value = ratio * (element.clientHeight - 40) + 20;
+// }
 </script>
 <template>
     <div class="relative flex min-h-0 min-w-0 flex-1 flex-col">
