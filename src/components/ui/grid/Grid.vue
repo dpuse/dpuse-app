@@ -73,6 +73,7 @@ watch(
 function handleInitialised(viewport: HTMLElement): void {
     console.log('### Grid ScrollArea Initialised');
     scrollElement.value = viewport;
+    resizeObserver.disconnect();
     resizeObserver.observe(viewport);
     dw.value = useDataWindow({
         scrollElement,
@@ -87,8 +88,9 @@ function handleInitialised(viewport: HTMLElement): void {
 </script>
 
 <template>
-    <ScrollArea ref="scrollArea" :key="dataSource.rowCount" class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
-        <div :style="{ height: dw?.totalSize + 'px', position: 'relative' }">
+    <ScrollArea ref="scrollArea" class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
+        {{ dataSource.id }}
+        <div :key="dataSource.id" :style="{ height: dw?.totalSize + 'px', position: 'relative' }">
             <div
                 v-for="virtualRow in dw?.virtualRows"
                 :key="virtualRow.index"

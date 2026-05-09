@@ -47,6 +47,7 @@ const activeItem = shallowRef<ConnectionNodeConfig | undefined>();
 const currentFolderNodes = shallowRef<ConnectionNodeConfig[]>([]);
 
 const listNodesResult = shallowRef<ListNodesResult | undefined>();
+const dataSourceKey = ref(0);
 const previewRequestId = ref(0);
 
 const previewPercentage = ref(0);
@@ -77,6 +78,7 @@ const currentFolderPath = computed<string>(() => {
 });
 
 const dataSource = computed<DataSource<ConnectionNodeConfig>>(() => ({
+    id: String(dataSourceKey.value),
     rowCount: connectionNodeConfigs.value.length,
     getRows: (start: number, end: number): Promise<ConnectionNodeConfig[]> => Promise.resolve(connectionNodeConfigs.value.slice(start, end))
 }));
@@ -225,6 +227,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 
     const { processRequest } = await useEngine();
     listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath } as ListNodesOptions)) as ListNodesResult;
+    dataSourceKey.value++;
     console.log(5555);
 }
 </script>
