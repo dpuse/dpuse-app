@@ -223,57 +223,55 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 </script>
 
 <template>
-    <div class="flex flex-col">
-        <!-- Body -->
-        <GridDetailPanel :active-item="activeItem" class="h-full flex-1" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
-            <template #header>
-                <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
-                    <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeItem == null" @select="selectBreadcrumb" />
+    <!-- Body -->
+    <GridDetailPanel :active-item="activeItem" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
+        <template #header>
+            <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
+                <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeItem == null" @select="selectBreadcrumb" />
+            </div>
+        </template>
+
+        <template #list-item-compact="{ item }">
+            <Tile v-if="item" :label="item.label" />
+        </template>
+
+        <template #detail>
+            <div class="relative flex h-full flex-col pl-4">
+                <Table v-show="activeTabId === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
+
+                <TextViewer v-show="activeTabId === 'text'" class="flex-1" :text="text" />
+
+                <div v-show="activeTabId === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
+
+                <div
+                    class="border-separator bg-backdrop relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"
+                >
+                    <div class="absolute top-0 bottom-px left-0 bg-green-200 dark:bg-green-500/30" :style="{ width: `${previewPercentage}%` }"></div>
+                    <div class="relative pl-1">{{ previewMessage }}</div>
                 </div>
-            </template>
 
-            <template #list-item-compact="{ item }">
-                <Tile v-if="item" :label="item.label" />
-            </template>
+                <ActionCommandBar
+                    v-model="activeTabId"
+                    :tabs="[
+                        { id: 'table', label: t(T, 'tab.table') },
+                        { id: 'text', label: t(T, 'tab.text') },
+                        { id: 'details', label: t(T, 'tab.details') }
+                    ]"
+                    @action="handleSubmit"
+                >
+                    <template #action>
+                        <div class="flex flex-col items-end leading-none">
+                            <span>{{ t(T, 'select') }}</span>
+                            <span>{{ t(T, 'node') }}</span>
+                        </div>
+                        <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
+                    </template>
+                </ActionCommandBar>
+            </div>
+        </template>
 
-            <template #detail>
-                <div class="relative flex h-full flex-col pl-4">
-                    <Table v-show="activeTabId === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
-
-                    <TextViewer v-show="activeTabId === 'text'" class="flex-1" :text="text" />
-
-                    <div v-show="activeTabId === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
-
-                    <div
-                        class="border-separator bg-backdrop relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"
-                    >
-                        <div class="absolute top-0 bottom-px left-0 bg-green-200 dark:bg-green-500/30" :style="{ width: `${previewPercentage}%` }"></div>
-                        <div class="relative pl-1">{{ previewMessage }}</div>
-                    </div>
-
-                    <ActionCommandBar
-                        v-model="activeTabId"
-                        :tabs="[
-                            { id: 'table', label: t(T, 'tab.table') },
-                            { id: 'text', label: t(T, 'tab.text') },
-                            { id: 'details', label: t(T, 'tab.details') }
-                        ]"
-                        @action="handleSubmit"
-                    >
-                        <template #action>
-                            <div class="flex flex-col items-end leading-none">
-                                <span>{{ t(T, 'select') }}</span>
-                                <span>{{ t(T, 'node') }}</span>
-                            </div>
-                            <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
-                        </template>
-                    </ActionCommandBar>
-                </div>
-            </template>
-
-            <template #no-selection>
-                <SelectPlaceholder :message="'Select a connection node from the list on the left.'" />
-            </template>
-        </GridDetailPanel>
-    </div>
+        <template #no-selection>
+            <SelectPlaceholder :message="'Select a connection node from the list on the left.'" />
+        </template>
+    </GridDetailPanel>
 </template>
