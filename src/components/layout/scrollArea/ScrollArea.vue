@@ -80,7 +80,7 @@ function onViewportScroll(): void {
 }
 </script>
 <template>
-    <div class="relative min-h-0 min-w-0">
+    <div class="relative h-full min-h-0 min-w-0">
         <OverlayScrollbarsComponent
             :class="['h-full', scrollAreaInset]"
             defer
