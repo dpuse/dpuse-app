@@ -142,17 +142,20 @@ async function selectBreadcrumb(index: number): Promise<void> {
 
 async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig | undefined): Promise<void> {
     if (connectionNodeConfig == null) {
+        console.log(2222);
         activeItem.value = undefined;
         return;
     }
 
     if (connectionNodeConfig.typeId === 'folder') {
+        console.log(3333);
         currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
         activeItem.value = undefined;
         await loadFolderNodes(currentFolderPath.value);
         return;
     }
 
+    console.log(4444);
     activeItem.value = connectionNodeConfig;
 }
 
@@ -219,6 +222,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 
     const { processRequest } = await useEngine();
     listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath } as ListNodesOptions)) as ListNodesResult;
+    console.log(5555);
 }
 </script>
 

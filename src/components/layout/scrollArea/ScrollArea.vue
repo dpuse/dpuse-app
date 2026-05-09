@@ -17,7 +17,6 @@ const emit = defineEmits<{ initialised: [ScrollbarElements: HTMLElement] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-let osInstance: OverlayScrollbars | null = null;
 let scrollElement: HTMLElement | null = null;
 let osHandleElement: Element | null = null;
 const isDragging = ref(false);
@@ -35,12 +34,20 @@ onUnmounted(() => {
 watch(knowledgePaneIsVisible, (visible) => {
     if (!visible) contentScrollPosition.value = 0;
 });
+let myInstance: OverlayScrollbars | undefined;
+watch(
+    () => rowCount,
+    () => {
+        console.log(9999);
+        myInstance?.update(true);
+    }
+);
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(instance: OverlayScrollbars): void {
-    osInstance = instance;
     const { viewport, scrollbarVertical } = instance.elements();
+    myInstance = instance;
     scrollElement = viewport;
     osHandleElement = scrollbarVertical.handle;
     osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
@@ -49,8 +56,6 @@ function handleInitialised(instance: OverlayScrollbars): void {
 
     emit('initialised', scrollElement);
 }
-
-defineExpose({ update: () => osInstance?.update(true) });
 
 function onHandlePointerDown(): void {
     isDragging.value = true;

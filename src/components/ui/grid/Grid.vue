@@ -26,7 +26,6 @@ const slots = defineSlots<{
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const scrollAreaRef = ref<InstanceType<typeof ScrollArea> | null>(null);
 const columnCount = ref(1);
 const columnWidth = ref(0);
 const scrollElement = shallowRef<HTMLElement | null>(null);
@@ -59,8 +58,10 @@ const isCompact = computed(() => !slots.default || (!!slots.compact && columnCou
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onUnmounted(() => resizeObserver.disconnect());
-
-watch(totalSize, () => scrollAreaRef.value?.update());
+watch(
+    () => dataSource,
+    () => console.log(8888)
+);
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -71,7 +72,7 @@ function handleInitialised(viewport: HTMLElement): void {
 </script>
 
 <template>
-    <ScrollArea ref="scrollAreaRef" class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
+    <ScrollArea class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
         <div :style="{ height: totalSize + 'px', position: 'relative' }">
             <div
                 v-for="virtualRow in virtualRows"

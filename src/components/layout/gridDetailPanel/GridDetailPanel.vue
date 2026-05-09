@@ -35,6 +35,10 @@ const detailPaneIsVisible = ref(false);
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
+    () => dataSource,
+    () => console.log(7777)
+);
+watch(
     () => activeItem,
     (newActiveItem) => {
         if (newActiveItem == null) detailPaneIsVisible.value = false;
@@ -48,6 +52,7 @@ function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
 }
 
 async function selectItem(row: T): Promise<void> {
+    console.log(1111);
     emit('select', row);
     await nextTick();
     detailPaneIsVisible.value = activeItem != null;
