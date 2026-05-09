@@ -17,6 +17,7 @@ const emit = defineEmits<{ initialised: [ScrollbarElements: HTMLElement] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+let osInstance: OverlayScrollbars | null = null;
 let scrollElement: HTMLElement | null = null;
 let osHandleElement: Element | null = null;
 const isDragging = ref(false);
@@ -38,6 +39,7 @@ watch(knowledgePaneIsVisible, (visible) => {
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(instance: OverlayScrollbars): void {
+    osInstance = instance;
     const { viewport, scrollbarVertical } = instance.elements();
     scrollElement = viewport;
     osHandleElement = scrollbarVertical.handle;
@@ -47,6 +49,8 @@ function handleInitialised(instance: OverlayScrollbars): void {
 
     emit('initialised', scrollElement);
 }
+
+defineExpose({ update: () => osInstance?.update(true) });
 
 function onHandlePointerDown(): void {
     isDragging.value = true;

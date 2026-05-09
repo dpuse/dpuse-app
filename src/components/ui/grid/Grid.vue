@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T">
 // External Dependencies
-import { computed, onUnmounted, ref, shallowRef } from 'vue';
+import { computed, onUnmounted, ref, shallowRef, watch } from 'vue';
 
 // Local (App) Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
@@ -26,6 +26,7 @@ const slots = defineSlots<{
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const scrollAreaRef = ref<InstanceType<typeof ScrollArea> | null>(null);
 const columnCount = ref(1);
 const columnWidth = ref(0);
 const scrollElement = shallowRef<HTMLElement | null>(null);
@@ -59,6 +60,8 @@ const isCompact = computed(() => !slots.default || (!!slots.compact && columnCou
 
 onUnmounted(() => resizeObserver.disconnect());
 
+watch(totalSize, () => scrollAreaRef.value?.update());
+
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(viewport: HTMLElement): void {
@@ -68,7 +71,7 @@ function handleInitialised(viewport: HTMLElement): void {
 </script>
 
 <template>
-    <ScrollArea class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
+    <ScrollArea ref="scrollAreaRef" class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
         <div :style="{ height: totalSize + 'px', position: 'relative' }">
             <div
                 v-for="virtualRow in virtualRows"

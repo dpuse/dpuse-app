@@ -223,7 +223,6 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 </script>
 
 <template>
-    <!-- Body -->
     <GridDetailPanel :active-item="activeItem" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
         <template #header>
             <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
