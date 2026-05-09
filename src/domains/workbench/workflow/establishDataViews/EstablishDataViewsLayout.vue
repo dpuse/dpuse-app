@@ -79,8 +79,9 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
     <LayoutShell>
         <!-- Header -->
         <Header class="px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Establish_Data_Views')" :to="backRouteName" />
+
         <!-- Action Bar -->
-        <nav class="mx-4 flex flex-none items-center justify-between border-b border-separator">
+        <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
             <!-- Tasks -->
             <Tasks v-if="activeStepLocalisedConfig" :active-step-id="activeStepLocalisedConfig.id" :items="stepLocalisedConfigs" />
         </nav>
@@ -88,7 +89,7 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
         <!-- Data View List or Active Step Panel -->
         <div class="relative flex flex-1 flex-col overflow-hidden">
             <RouterView v-slot="{ Component }">
-                <component :is="Component" :step-localised-config="activeStepLocalisedConfig" @step-completed="updateStepProgression" />
+                <component :is="Component" class="h-full" :step-localised-config="activeStepLocalisedConfig" @step-completed="updateStepProgression" />
             </RouterView>
 
             <FloatingActionButton
