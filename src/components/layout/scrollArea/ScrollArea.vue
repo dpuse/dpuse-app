@@ -39,6 +39,7 @@ watch(
     () => rowCount,
     async () => {
         console.log(9999);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         await nextTick();
         requestAnimationFrame(() => myInstance?.update(true));
         // myInstance?.update(true);
