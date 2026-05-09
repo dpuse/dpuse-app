@@ -67,10 +67,11 @@ function onViewportScroll(): void {
     labelOffsetY.value = ratio * (element.clientHeight - 40) + 20;
 }
 </script>
+
 <template>
-    <div class="relative flex flex-1 flex-col min-h-0 min-w-0">
+    <div class="relative h-full min-h-0 min-w-0">
         <OverlayScrollbarsComponent
-            class="flex-1 min-h-0"
+            class="h-full"
             :class="scrollAreaInset"
             defer
             :options="{

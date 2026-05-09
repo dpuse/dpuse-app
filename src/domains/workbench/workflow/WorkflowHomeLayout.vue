@@ -17,7 +17,7 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
 </script>
 
 <template>
-    <LayoutShell class="dpuse-workbench-prose px-4">
+    <LayoutShell class="dpuse-workbench-prose">
         <!-- Header -->
         <Header :overline="t(T, 'wb.label')" data-testid="header" :title="t(T, 'wb.wf.label')" />
 
