@@ -24,7 +24,7 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
 
         <!-- Workflow Steps -->
         <Separator class="mx-4" />
-        <ScrollArea class="flex-1" scroll-area-inset="screen" @initialised="console.log(2288)">
+        <ScrollArea class="flex-1" scroll-area-inset="screen" @initialised="console.log('### WorkflowHomeLayout ScrollArea Initialised')">
             <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
                 <Button
                     v-for="config in workflowOptionConfigs"

@@ -63,16 +63,15 @@ onUnmounted(() => resizeObserver.disconnect());
 watch(
     () => dataSource,
     async (newDataSource) => {
-        console.log(8888, newDataSource, await newDataSource.getRows(0, 5));
+        console.log(2222, newDataSource, scrollArea.value);
         scrollArea.value?.update();
-    },
-    { immediate: true }
+    }
 );
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(viewport: HTMLElement): void {
-    console.log(9876);
+    console.log('### Grid ScrollArea Initialised');
     scrollElement.value = viewport;
     resizeObserver.observe(viewport);
     dw.value = useDataWindow({

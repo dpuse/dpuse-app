@@ -80,6 +80,9 @@ const dataSource = computed<DataSource<ConnectionNodeConfig>>(() => ({
     rowCount: connectionNodeConfigs.value.length,
     getRows: (start: number, end: number): Promise<ConnectionNodeConfig[]> => Promise.resolve(connectionNodeConfigs.value.slice(start, end))
 }));
+watch(dataSource, (newDataSource) => {
+    console.log(1111, newDataSource);
+});
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

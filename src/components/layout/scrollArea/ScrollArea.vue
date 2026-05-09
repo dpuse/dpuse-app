@@ -28,8 +28,7 @@ const labelOffsetY = ref(0);
 const overlayscrollbarsReference = ref();
 
 onMounted(() => {
-    console.log(5555, overlayscrollbarsReference.value);
-    const instance = OverlayScrollbars(
+    OverlayScrollbars(
         overlayscrollbarsReference.value!,
         {
             scrollbars: {
@@ -43,11 +42,11 @@ onMounted(() => {
         },
         {
             initialized(instance) {
-                console.log(111);
+                console.log('ScrollArea initialised');
                 handleInitialised(instance);
             },
             updated() {
-                console.log(222);
+                console.log('ScrollArea Updated');
             }
         }
     );
@@ -63,28 +62,16 @@ watch(knowledgePaneIsVisible, (visible) => {
     if (!visible) contentScrollPosition.value = 0;
 });
 let myInstance: OverlayScrollbars | undefined;
-watch(
-    () => rowCount,
-    async () => {
-        console.log(9999);
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        await nextTick();
-        requestAnimationFrame(() => myInstance?.update(true));
-        // myInstance?.update(true);
-    }
-);
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 defineExpose({
     update: (force?: boolean) => {
-        console.log('bbbb');
         myInstance?.update(force ?? false);
     }
 });
 
 function handleInitialised(instance: OverlayScrollbars): void {
-    console.log('zzzz');
     const { viewport, scrollbarVertical } = instance.elements();
     myInstance = instance;
     scrollElement = viewport;
@@ -93,9 +80,7 @@ function handleInitialised(instance: OverlayScrollbars): void {
     // document.addEventListener('pointerup', onDocumentPointerUp);
     // viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
-    console.log('yyyy', scrollElement);
     emit('initialised', scrollElement);
-    console.log('xxxx', scrollElement);
 }
 
 // function onHandlePointerDown(): void {
@@ -153,7 +138,7 @@ function handleInitialised(instance: OverlayScrollbars): void {
 </template> -->
 
 <template>
-    <div ref="overlayscrollbarsReference" class="" :class="[scrollAreaInset]" data-overlayscrollbars-initialize>
+    <div ref="overlayscrollbarsReference" :class="[scrollAreaInset]" data-overlayscrollbars-initialize>
         <slot />
     </div>
 </template>
