@@ -3,7 +3,7 @@
 import 'overlayscrollbars/overlayscrollbars.css';
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
-import { onUnmounted, ref, watch } from 'vue';
+import { nextTick, onUnmounted, ref, watch } from 'vue';
 
 // Local (App) Framework
 import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/state/appLayout';
@@ -37,8 +37,9 @@ watch(knowledgePaneIsVisible, (visible) => {
 let myInstance: OverlayScrollbars | undefined;
 watch(
     () => rowCount,
-    () => {
+    async () => {
         console.log(9999);
+        await nextTick();
         myInstance?.update(true);
     }
 );
