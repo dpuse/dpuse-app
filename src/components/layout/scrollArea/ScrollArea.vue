@@ -32,7 +32,7 @@ onUnmounted(() => {
 });
 
 watch(knowledgePaneIsVisible, (visible) => {
-    if (!visible) contentScrollPosition.value = 0;
+    // if (!visible) contentScrollPosition.value = 0;
 });
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -59,7 +59,7 @@ function onDocumentPointerUp(): void {
 function onViewportScroll(): void {
     const element = scrollElement;
     if (!element) return;
-    if (knowledgePaneIsVisible.value) contentScrollPosition.value = element.scrollTop;
+    // if (knowledgePaneIsVisible.value) contentScrollPosition.value = element.scrollTop;
     const maxScroll = element.scrollHeight - element.clientHeight;
     if (maxScroll <= 0) return;
     const ratio = element.scrollTop / maxScroll;
