@@ -9,7 +9,10 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
 <template>
     <header
         class="mt-[env(safe-area-inset-top)] flex h-14 flex-none flex-col justify-center text-lg font-light"
-        :class="{ 'px-12': !displayIsWide || !workbenchPaneIsVisible, 'pr-44': displayIsWide && workbenchPaneIsVisible && !knowledgePaneIsVisible }"
+        :class="{
+            'px-14': !displayIsWide || !workbenchPaneIsVisible,
+            'pr-44 pl-4': displayIsWide && workbenchPaneIsVisible && !knowledgePaneIsVisible
+        }"
     >
         <!-- Content indented from left and right to allow for logos when display is narrow.
              Content indented from right to allow for knowledge bar when display is wide.
@@ -20,7 +23,7 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
             class="min-w-0"
             :class="{
                 'text-center': !displayIsWide,
-                'cursor-pointer text-accent hover:underline hover:decoration-blue-800/40 hover:underline-offset-2 dark:hover:decoration-blue-300/40':
+                'text-accent cursor-pointer hover:underline hover:decoration-blue-800/40 hover:underline-offset-2 dark:hover:decoration-blue-300/40':
                     to && to !== $route.query.wbView
             }"
             :to="{ name: to, query: { ...$route.query, wbView: to } }"

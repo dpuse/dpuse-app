@@ -205,9 +205,9 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 </script>
 
 <template>
-    <div class="fixed inset-0 flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content">
+    <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
         <!-- Mask - Semi-transparent mask over the top safe area, so scrolling content fades out beneath it. It is extended by 0.25rem to give it extra height. -->
-        <div class="fixed inset-x-0 top-0 z-50 h-[calc(env(safe-area-inset-top)+0.25rem)] bg-linear-to-t from-transparent via-surface/80 via-25% to-surface/95" />
+        <div class="via-surface/80 to-surface/95 fixed inset-x-0 top-0 z-50 h-[calc(env(safe-area-inset-top)+0.25rem)] bg-linear-to-t from-transparent via-25%" />
 
         <!-- Navigation progress bar. Always visible. -->
         <ProgressBar />
@@ -218,7 +218,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
             :aria-label="t(T, 'wb.toggle.label.aria')"
-            class="pl- fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full! bg-surface"
+            class="bg-surface fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full!"
             :class="{ 'shadow-md': !displayIsWide && contentScrollPosition > 0 }"
             shape="icon"
             @click="toggleWorkbenchAppPane()"
@@ -245,7 +245,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             <!-- TODO: <Button :disabled="!workbenchPaneIsVisible" variant="iconLarge" @click="toggleKnowledgeAppPane()"> -->
             <Button
                 :aria-label="t(T, 'k.toggle.label.aria')"
-                class="rounded-full! bg-surface"
+                class="bg-surface rounded-full!"
                 :class="{ 'shadow-md': !displayIsWide && contentScrollPosition > 0 }"
                 shape="icon"
                 @click="toggleKnowledgeAppPane()"

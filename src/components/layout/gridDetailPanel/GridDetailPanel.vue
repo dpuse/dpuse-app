@@ -65,7 +65,7 @@ async function selectItem(row: T): Promise<void> {
         <div class="flex flex-1 overflow-hidden">
             <!-- Grid (Left) Pane -->
             <div v-show="displayIsWide || !detailPaneIsVisible" class="relative flex-1 overflow-hidden" :style="getPaneStyle(maxListWidth)">
-                <Grid class="mr-4" :data-source="dataSource" :row-height="83" :target-column-width="350">
+                <Grid :data-source="dataSource" :row-height="83" :target-column-width="350">
                     <template v-if="slots['list-item-default']" #default="{ item }">
                         <Button class="h-full w-full" :is-active="activeItem === item" shape="minimal" @click="selectItem(item)">
                             <slot name="list-item-default" :item="item" />

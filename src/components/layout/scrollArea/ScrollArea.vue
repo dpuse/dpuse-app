@@ -25,14 +25,14 @@ const labelOffsetY = ref(0);
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(knowledgePaneIsVisible, (visible) => {
-    if (!visible) contentScrollPosition.value = 0;
-});
-
 onUnmounted(() => {
     osHandleElement?.removeEventListener('pointerdown', onHandlePointerDown);
     document.removeEventListener('pointerup', onDocumentPointerUp);
     scrollElement?.removeEventListener('scroll', onViewportScroll);
+});
+
+watch(knowledgePaneIsVisible, (visible) => {
+    if (!visible) contentScrollPosition.value = 0;
 });
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -68,9 +68,9 @@ function onViewportScroll(): void {
 }
 </script>
 <template>
-    <div class="relative flex flex-1 flex-col min-h-0 min-w-0">
+    <div class="relative flex min-h-0 min-w-0 flex-1 flex-col">
         <OverlayScrollbarsComponent
-            class="flex-1 min-h-0"
+            class="min-h-0 flex-1"
             :class="scrollAreaInset"
             defer
             :options="{
@@ -104,13 +104,15 @@ function onViewportScroll(): void {
     overscroll-behavior: none;
 }
 
+/* Padding for instances nested inside another component (does not extend to the bottom of the screen). */
 :deep(.embedded) {
-    padding-top: 8px;
+    padding-right: 16px;
     padding-bottom: var(--vertical-scroll-bottom-embedded-inset);
 }
 
+/* Padding for instances that extend to the bottom of the screen. */
 :deep(.screen) {
-    padding-top: 16px;
+    padding-right: 16px;
     padding-bottom: var(--vertical-scroll-bottom-screen-inset);
 }
 </style>

@@ -10,6 +10,7 @@ import Card from '@/components/ui/card/Card.vue';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
+import Separator from '~/src/components/ui/separator/Separator.vue';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -21,10 +22,17 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
         <!-- Header -->
         <Header :overline="t(T, 'wb.label')" data-testid="header" :title="t(T, 'wb.wf.label')" />
 
-        <!-- Steps -->
-        <ScrollArea class="border-separator flex-1 border-t" scroll-area-inset="screen">
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4">
-                <Button v-for="config in workflowOptionConfigs" :key="config.id" shape="minimal" :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }">
+        <!-- Workflow Steps -->
+        <Separator class="mx-4" />
+        <ScrollArea class="flex-1" scroll-area-inset="screen">
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
+                <Button
+                    v-for="config in workflowOptionConfigs"
+                    :key="config.id"
+                    class="mt-4 ml-4"
+                    shape="minimal"
+                    :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
+                >
                     <Card
                         :description="config.description"
                         :icon="config.icon"

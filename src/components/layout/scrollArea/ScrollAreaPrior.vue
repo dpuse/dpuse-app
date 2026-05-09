@@ -105,11 +105,13 @@ function onViewportScroll(): void {
     overscroll-behavior: none;
 }
 
+/* Padding for instances nested inside another component. */
 :deep(.embedded) {
     padding-top: 8px;
     padding-bottom: var(--vertical-scroll-bottom-embedded-inset);
 }
 
+/* Padding for instances that extend to the bottom of the screen. */
 :deep(.screen) {
     padding-top: 16px;
     padding-bottom: var(--vertical-scroll-bottom-screen-inset);
