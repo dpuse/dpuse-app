@@ -70,8 +70,7 @@ function onViewportScroll(): void {
 <template>
     <div class="relative flex min-h-0 min-w-0 flex-1 flex-col">
         <OverlayScrollbarsComponent
-            class="min-h-0 flex-1"
-            :class="scrollAreaInset"
+            :class="['h-full', scrollAreaInset]"
             defer
             :options="{
                 scrollbars: {

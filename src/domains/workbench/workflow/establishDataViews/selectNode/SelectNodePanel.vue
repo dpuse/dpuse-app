@@ -225,7 +225,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 <template>
     <div class="flex flex-1 flex-col overflow-hidden">
         <!-- Body -->
-        <GridDetailPanel :active-item="activeItem" class="h-full flex-1" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
+        <GridDetailPanel :active-item="activeItem" class="flex-1" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
             <template #header>
                 <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
                     <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeItem == null" @select="selectBreadcrumb" />
