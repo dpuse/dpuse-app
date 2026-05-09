@@ -87,7 +87,7 @@ function handleInitialised(viewport: HTMLElement): void {
 </script>
 
 <template>
-    <ScrollArea ref="scrollArea" class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
+    <ScrollArea ref="scrollArea" :key="dataSource.rowCount" class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
         <div :style="{ height: dw?.totalSize + 'px', position: 'relative' }">
             <div
                 v-for="virtualRow in dw?.virtualRows"
