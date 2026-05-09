@@ -233,7 +233,11 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 </script>
 
 <template>
-    <GridDetailPanel :active-item="activeItem" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
+    <div class="h-full overflow-y-auto overscroll-y-none">
+        <div v-for="config in connectionNodeConfigs" :key="config.id" @click="selectConnectionNode(config)">{{ config.label }}</div>
+    </div>
+
+    <!-- <GridDetailPanel :active-item="activeItem" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
         <template #header>
             <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
                 <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeItem == null" @select="selectBreadcrumb" />
@@ -282,5 +286,5 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
         <template #no-selection>
             <SelectPlaceholder :message="'Select a connection node from the list on the left.'" />
         </template>
-    </GridDetailPanel>
+    </GridDetailPanel> -->
 </template>
