@@ -66,8 +66,32 @@ let myInstance: OverlayScrollbars | undefined;
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 defineExpose({
-    update: (force?: boolean) => {
-        myInstance?.update(force ?? false);
+    update: async (force?: boolean) => {
+        // myInstance?.update(force ?? false);
+        myInstance?.destroy();
+        await nextTick();
+        OverlayScrollbars(
+            overlayscrollbarsReference.value!,
+            {
+                scrollbars: {
+                    autoHide: autoHide,
+                    autoHideDelay: 1300,
+                    autoHideSuspend: autoHideSuspend,
+                    dragScroll: true,
+                    theme: isDarkMode.value ? 'os-theme-light' : 'os-theme-dark',
+                    visibility: 'auto'
+                }
+            },
+            {
+                initialized(instance) {
+                    console.log('ScrollArea initialised');
+                    handleInitialised(instance);
+                },
+                updated() {
+                    console.log('ScrollArea Updated');
+                }
+            }
+        );
     }
 });
 
