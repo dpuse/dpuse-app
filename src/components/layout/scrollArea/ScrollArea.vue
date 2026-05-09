@@ -40,7 +40,8 @@ watch(
     async () => {
         console.log(9999);
         await nextTick();
-        myInstance?.update(true);
+        requestAnimationFrame(() => myInstance?.update(true));
+        // myInstance?.update(true);
     }
 );
 
