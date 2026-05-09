@@ -68,34 +68,34 @@ function handleInitialised(instance: OverlayScrollbars): void {
 // }
 </script>
 <template>
-    <div class="relative flex min-h-0 min-w-0 flex-1 flex-col">
-        <OverlayScrollbarsComponent
-            class="min-h-0 flex-1"
-            :class="scrollAreaInset"
-            defer
-            :options="{
-                scrollbars: {
-                    autoHide: autoHide,
-                    autoHideDelay: 1300,
-                    autoHideSuspend,
-                    dragScroll: true,
-                    theme: isDarkMode ? 'os-theme-light' : 'os-theme-dark',
-                    visibility: 'auto'
-                }
-            }"
-            @os-initialized="handleInitialised"
-        >
-            <slot />
-        </OverlayScrollbarsComponent>
+    <!-- <div class="relative flex min-h-0 min-w-0 flex-1 flex-col"> -->
+    <OverlayScrollbarsComponent
+        class="h-full min-h-0 flex-1"
+        :class="scrollAreaInset"
+        defer
+        :options="{
+            scrollbars: {
+                autoHide: autoHide,
+                autoHideDelay: 1300,
+                autoHideSuspend,
+                dragScroll: true,
+                theme: isDarkMode ? 'os-theme-light' : 'os-theme-dark',
+                visibility: 'auto'
+            }
+        }"
+        @os-initialized="handleInitialised"
+    >
+        <slot />
+    </OverlayScrollbarsComponent>
 
-        <div
-            v-if="isDragging && rowCount > 0"
-            class="pointer-events-none absolute right-14 z-20 rounded-full bg-zinc-800 px-3 py-1.5 text-sm font-semibold text-zinc-50 select-none dark:bg-zinc-200 dark:text-zinc-800"
-            :style="{ top: labelOffsetY + 'px', transform: 'translateY(-50%)' }"
-        >
-            {{ currentRow.toLocaleString() }}
-        </div>
+    <div
+        v-if="isDragging && rowCount > 0"
+        class="pointer-events-none absolute right-14 z-20 rounded-full bg-zinc-800 px-3 py-1.5 text-sm font-semibold text-zinc-50 select-none dark:bg-zinc-200 dark:text-zinc-800"
+        :style="{ top: labelOffsetY + 'px', transform: 'translateY(-50%)' }"
+    >
+        {{ currentRow.toLocaleString() }}
     </div>
+    <!-- </div> -->
 </template>
 
 <style scoped>
