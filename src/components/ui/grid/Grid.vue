@@ -68,9 +68,9 @@ watch(
     () => dataSource,
     () => {
         console.log('### GRID: DATA SOURCE CHANGED', dataSource, scrollAreaReference);
-        localKey.value++;
         scrollAreaReference.value?.refresh();
         rows.value = virtualRows.value;
+        localKey.value++;
     }
 );
 
