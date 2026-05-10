@@ -38,7 +38,7 @@ let scrollElement: HTMLElement | null = null;
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 let osInstance: OverlayScrollbars;
-async function handleInitialised(instance: OverlayScrollbars): Promise<void> {
+function handleInitialised(instance: OverlayScrollbars): void {
     osInstance = instance;
     // console.log('### SCROLL AREA: STARTING INITIALISATION', rowCount, scrollAreaInset);
     const { viewport, scrollbarVertical } = instance.elements();
@@ -48,7 +48,8 @@ async function handleInitialised(instance: OverlayScrollbars): Promise<void> {
     // document.addEventListener('pointerup', onDocumentPointerUp);
     // viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
-    await nextTick();
+    // await nextTick();
+    void scrollElement.getBoundingClientRect(); // forces synchronous layout on WebKit
     emit('initialised', scrollElement);
     // console.log('### SCROLL AREA: ENDING INITIALISATION');
 }

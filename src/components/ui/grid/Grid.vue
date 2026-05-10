@@ -62,20 +62,20 @@ const isCompact = computed(() => !slots.default || (!!slots.compact && columnCou
 
 onUnmounted(() => resizeObserver.disconnect());
 
-watch(
-    () => dataSource,
-    async () => {
-        console.log('### GRID: DATA SOURCE CHANGED', dataSource, scrollAreaReference);
-        // scrollAreaReference.value?.refresh();
-        // await nextTick();
-        // requestAnimationFrame(() => {
-        //     requestAnimationFrame(() => {
-        scrollAreaReference.value?.refresh();
-        //         // void scrollAreaReference.value?.$el.offsetHeight;
-        //     });
-        // });
-    }
-);
+// watch(
+//     () => dataSource,
+//     async () => {
+//         console.log('### GRID: DATA SOURCE CHANGED', dataSource, scrollAreaReference);
+//         // scrollAreaReference.value?.refresh();
+//         // await nextTick();
+//         // requestAnimationFrame(() => {
+//         //     requestAnimationFrame(() => {
+//         //         scrollAreaReference.value?.refresh();
+//         //         // void scrollAreaReference.value?.$el.offsetHeight;
+//         //     });
+//         // });
+//     }
+// );
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
