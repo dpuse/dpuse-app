@@ -41,8 +41,6 @@ let osInstance: OverlayScrollbars;
 function handleInitialised(instance: OverlayScrollbars): void {
     osInstance = instance;
     console.log('### SCROLL AREA: STARTING INITIALISATION', rowCount, scrollAreaInset);
-    const { viewport, scrollbarVertical } = instance.elements();
-    scrollElement = viewport;
     // osHandleElement = scrollbarVertical.handle;
     // osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
     // document.addEventListener('pointerup', onDocumentPointerUp);
@@ -53,6 +51,8 @@ function handleInitialised(instance: OverlayScrollbars): void {
         void scrollElement?.getBoundingClientRect(); // forces synchronous layout on WebKit
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
+                const { viewport, scrollbarVertical } = instance.elements();
+                scrollElement = viewport;
                 emit('initialised', scrollElement!);
             });
         });
