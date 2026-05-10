@@ -6,13 +6,6 @@ html {
     font-size: 1rem; /* 16px is default */
 }
 
-.os-host,
-.os-viewport {
-    -webkit-overflow-scrolling: touch;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-}
-
 /* Use class-based dark mode (parent has .dark) instead of prefers-color-scheme. */
 @custom-variant dark (&:is(.dark *));
 
