@@ -49,8 +49,10 @@ function handleInitialised(instance: OverlayScrollbars): void {
     // viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
     // await nextTick();
-    void scrollElement.getBoundingClientRect(); // forces synchronous layout on WebKit
-    emit('initialised', scrollElement);
+    nextTick().then(() => {
+        void scrollElement?.getBoundingClientRect(); // forces synchronous layout on WebKit
+        emit('initialised', scrollElement!);
+    });
     // console.log('### SCROLL AREA: ENDING INITIALISATION');
 }
 
