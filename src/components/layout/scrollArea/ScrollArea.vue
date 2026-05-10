@@ -37,8 +37,6 @@ let scrollElement: HTMLElement | null = null;
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const localKey = ref(1);
-
 let osInstance: OverlayScrollbars;
 function handleInitialised(instance: OverlayScrollbars): void {
     osInstance = instance;
@@ -59,8 +57,7 @@ function handleInitialised(instance: OverlayScrollbars): void {
 async function refresh(): Promise<void> {
     console.log('### SCROLL AREA: REFRESHING');
 
-    localKey.value++;
-    osInstance.update();
+    osInstance.update(true);
 }
 
 defineExpose({ refresh });
