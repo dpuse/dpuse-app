@@ -147,7 +147,7 @@ async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
     }
 
     if (connectionNodeConfig.typeId === 'folder') {
-        console.log('### SELECT FOLDER', connectionNodeConfig);
+        console.log('### SELECT NODE: SELECT FOLDER', connectionNodeConfig);
         currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
         activeItem.value = undefined;
         await loadFolderNodes(currentFolderPath.value);
@@ -220,7 +220,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 
     const { processRequest } = await useEngine();
     listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath } as ListNodesOptions)) as ListNodesResult;
-    console.log('### FOLDERS LOADED', listNodesResult.value);
+    console.log('### SELECT NODE: FOLDERS LOADED', listNodesResult.value);
 }
 </script>
 

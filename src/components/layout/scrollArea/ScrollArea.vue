@@ -31,14 +31,14 @@ let scrollElement: HTMLElement | null = null;
 //     scrollElement?.removeEventListener('scroll', onViewportScroll);
 // });
 
-watch(knowledgePaneIsVisible, (visible) => {
-    if (!visible) contentScrollPosition.value = 0;
-});
+// watch(knowledgePaneIsVisible, (visible) => {
+//     if (!visible) contentScrollPosition.value = 0;
+// });
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(instance: OverlayScrollbars): void {
-    console.log('### SCROLLAREA STARTING INITIALISATION', rowCount, scrollAreaInset);
+    console.log('### SCROLL AREA: STARTING INITIALISATION', rowCount, scrollAreaInset);
     const { viewport, scrollbarVertical } = instance.elements();
     scrollElement = viewport;
     // osHandleElement = scrollbarVertical.handle;
@@ -47,7 +47,7 @@ function handleInitialised(instance: OverlayScrollbars): void {
     // viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
     emit('initialised', scrollElement);
-    console.log('### SCROLLAREA ENDING INITIALISATION');
+    console.log('### SCROLL AREA: ENDING INITIALISATION');
 }
 
 // function onHandlePointerDown(): void {

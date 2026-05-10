@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T">
 // External Dependencies
-import { computed, onUnmounted, ref, shallowRef } from 'vue';
+import { computed, onUnmounted, ref, shallowRef, watch } from 'vue';
 
 // Local (App) Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
@@ -59,10 +59,17 @@ const isCompact = computed(() => !slots.default || (!!slots.compact && columnCou
 
 onUnmounted(() => resizeObserver.disconnect());
 
+watch(
+    () => dataSource,
+    () => {
+        console.log('### GRID: DATA SOURCE CHANGED', dataSource);
+    }
+);
+
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(viewport: HTMLElement): void {
-    console.log('### GRID RECEIVED SCROLLAREA INITIALISED');
+    console.log('### GRID: RECEIVED SCROLL AREA INITIALISED');
     scrollElement.value = viewport;
     resizeObserver.observe(viewport);
 }
