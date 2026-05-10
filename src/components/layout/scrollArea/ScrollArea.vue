@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, useTemplateRef, ref } from 'vue';
+import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { autoHide?: string; autoHideSuspend?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen' };
-const { scrollAreaInset } = defineProps<Properties>();
+type Properties = { autoHide?: string; autoHideSuspend?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen'; scrollbarAlwaysVisible?: boolean };
+const { scrollAreaInset, scrollbarAlwaysVisible = false } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [scrollElement: HTMLElement] }>();
 
@@ -28,9 +28,9 @@ let hideTimer: ReturnType<typeof setTimeout> | null = null;
 // Scrollbar calculations ──────────────────────────────────────────────────────────────────────────────────────────────
 
 function updateThumbs(): void {
-    const el = scrollElement.value;
-    if (!el) return;
-    const { scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth } = el;
+    const element = scrollElement.value;
+    if (!element) return;
+    const { scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth } = element;
 
     const vRatio = clientHeight / scrollHeight;
     const hRatio = clientWidth / scrollWidth;
@@ -54,7 +54,8 @@ const thumbsShown = ref(false);
 
 function showThumbs(): void {
     thumbsShown.value = true;
-    if (hideTimer) clearTimeout(hideTimer);
+    if (scrollbarAlwaysVisible) return;
+    if (hideTimer != null) clearTimeout(hideTimer);
     hideTimer = setTimeout(() => {
         thumbsShown.value = false;
     }, 1500);
@@ -162,13 +163,14 @@ onMounted(() => {
     element.addEventListener('scroll', onScroll, { passive: true });
     resizeObserver.observe(element);
     updateThumbs();
+    if (scrollbarAlwaysVisible) thumbsShown.value = true;
     emit('initialised', element);
 });
 
 onUnmounted(() => {
     scrollElement.value?.removeEventListener('scroll', onScroll);
     resizeObserver.disconnect();
-    if (hideTimer) clearTimeout(hideTimer);
+    if (hideTimer != null) clearTimeout(hideTimer);
 });
 
 // Exposed API ─────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -186,6 +188,7 @@ defineExpose({ refresh });
             <slot />
         </div>
 
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div
             v-if="vVisible"
             ref="vTrack"
@@ -203,6 +206,7 @@ defineExpose({ refresh });
             />
         </div>
 
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div
             v-if="hVisible"
             ref="hTrack"
