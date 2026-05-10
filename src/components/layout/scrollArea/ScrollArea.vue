@@ -71,7 +71,6 @@ function onViewportScroll(): void {
     <!-- <div class="relative min-h-0 min-w-0"> -->
     <OverlayScrollbarsComponent
         :class="[scrollAreaInset]"
-        :defer="false"
         :options="{
             scrollbars: {
                 autoHide: autoHide,
