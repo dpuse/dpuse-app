@@ -7,9 +7,9 @@ const { text, paddingBottom = '64px' } = defineProps<{ text?: string; paddingBot
 </script>
 
 <template>
-    <ScrollArea class="border-x border-separator">
+    <ScrollArea class="border-separator border-x" scrollbar-always-visible>
         <div class="px-0.5 text-sm" :style="{ paddingBottom }">
-            <pre><code ref="textViewer">{{ text }}</code></pre>
+            <pre><code>{{ text }}</code></pre>
         </div>
     </ScrollArea>
 </template>

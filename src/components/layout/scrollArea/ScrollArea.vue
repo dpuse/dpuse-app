@@ -162,8 +162,12 @@ onMounted(() => {
     if (!element) return;
     element.addEventListener('scroll', onScroll, { passive: true });
     resizeObserver.observe(element);
-    updateThumbs();
-    if (scrollbarAlwaysVisible) thumbsShown.value = true;
+    if (scrollbarAlwaysVisible) {
+        requestAnimationFrame(() => {
+            updateThumbs();
+            thumbsShown.value = true;
+        });
+    }
     emit('initialised', element);
 });
 
