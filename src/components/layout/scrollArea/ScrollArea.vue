@@ -3,7 +3,6 @@
 import 'overlayscrollbars/overlayscrollbars.css';
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
-import { watch } from 'vue';
 
 // Local (App) Framework
 import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/state/appLayout';
@@ -31,9 +30,9 @@ let scrollElement: HTMLElement | null = null;
 //     scrollElement?.removeEventListener('scroll', onViewportScroll);
 // });
 
-watch(knowledgePaneIsVisible, (visible) => {
-    if (!visible) contentScrollPosition.value = 0;
-});
+// watch(knowledgePaneIsVisible, (visible) => {
+//     if (!visible) contentScrollPosition.value = 0;
+// });
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -56,16 +55,16 @@ function handleInitialised(instance: OverlayScrollbars): void {
 //     isDragging.value = false;
 // }
 
-function onViewportScroll(): void {
-    const element = scrollElement;
-    if (!element) return;
-    if (knowledgePaneIsVisible.value) contentScrollPosition.value = element.scrollTop;
-    //     const maxScroll = element.scrollHeight - element.clientHeight;
-    //     if (maxScroll <= 0) return;
-    //     const ratio = element.scrollTop / maxScroll;
-    //     currentRow.value = Math.max(1, Math.round(ratio * rowCount));
-    //     labelOffsetY.value = ratio * (element.clientHeight - 40) + 20;
-}
+// function onViewportScroll(): void {
+//     const element = scrollElement;
+//     if (!element) return;
+//     if (knowledgePaneIsVisible.value) contentScrollPosition.value = element.scrollTop;
+//     const maxScroll = element.scrollHeight - element.clientHeight;
+//     if (maxScroll <= 0) return;
+//     const ratio = element.scrollTop / maxScroll;
+//     currentRow.value = Math.max(1, Math.round(ratio * rowCount));
+//     labelOffsetY.value = ratio * (element.clientHeight - 40) + 20;
+// }
 </script>
 <template>
     <!-- <div class="relative min-h-0 min-w-0"> -->
