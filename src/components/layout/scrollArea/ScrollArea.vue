@@ -41,8 +41,8 @@ function updateThumbs(): void {
     vThumbHeight.value = Math.max(vRatio * clientHeight, 32);
     hThumbWidth.value = Math.max(hRatio * clientWidth, 32);
 
-    const vTrackHeight = clientHeight - (hVisible.value ? 8 : 0);
-    const hTrackWidth = clientWidth - (vVisible.value ? 8 : 0);
+    const vTrackHeight = clientHeight - (hVisible.value ? 16 : 0);
+    const hTrackWidth = clientWidth - (vVisible.value ? 16 : 0);
 
     vThumbTop.value = (scrollTop / (scrollHeight - clientHeight)) * (vTrackHeight - vThumbHeight.value);
     hThumbLeft.value = (scrollLeft / (scrollWidth - clientWidth)) * (hTrackWidth - hThumbWidth.value);
@@ -81,8 +81,8 @@ function startDrag(axis: 'v' | 'h', startEvent: PointerEvent | TouchEvent): void
     const startScrollLeft = element.scrollLeft;
 
     const { scrollHeight, scrollWidth, clientHeight, clientWidth } = element;
-    const vTrackHeight = clientHeight - (hVisible.value ? 8 : 0);
-    const hTrackWidth = clientWidth - (vVisible.value ? 8 : 0);
+    const vTrackHeight = clientHeight - (hVisible.value ? 16 : 0);
+    const hTrackWidth = clientWidth - (vVisible.value ? 16 : 0);
     const vScale = (scrollHeight - clientHeight) / (vTrackHeight - vThumbHeight.value);
     const hScale = (scrollWidth - clientWidth) / (hTrackWidth - hThumbWidth.value);
 
@@ -277,17 +277,20 @@ defineExpose({ refresh });
 }
 
 .scrollbar-track-v {
+    background: blue;
     top: 0;
-    right: 2px;
-    width: 6px;
-    bottom: 0;
+    right: 0;
+    width: 16px;
+    bottom: 12px;
+    cursor: pointer;
 }
 
 .scrollbar-track-h {
+    background: red;
     bottom: 0;
     left: 0;
-    right: 0;
-    height: 24px;
+    right: 12px;
+    height: 16px;
     cursor: pointer;
 }
 
@@ -301,6 +304,11 @@ defineExpose({ refresh });
     background-color: var(--subtle, rgba(0, 0, 0, 0.35));
     cursor: pointer;
     transition: background-color 0.15s ease;
+}
+
+.scrollbar-track-v .scrollbar-thumb {
+    width: 6px;
+    left: calc(50% - 3px);
 }
 
 .scrollbar-track-h .scrollbar-thumb {
