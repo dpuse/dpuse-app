@@ -43,7 +43,7 @@ function handleInitialised(instance: OverlayScrollbars): void {
     // osHandleElement = scrollbarVertical.handle;
     // osHandleElement.addEventListener('pointerdown', onHandlePointerDown);
     // document.addEventListener('pointerup', onDocumentPointerUp);
-    viewport.addEventListener('scroll', onViewportScroll, { passive: true });
+    // viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
     emit('initialised', scrollElement);
 }
