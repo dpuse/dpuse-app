@@ -291,7 +291,7 @@ defineExpose({ refresh });
 }
 
 .scrollbar-track-v {
-    /* background: blue; */
+    background: aliceblue;
     top: 0;
     right: 0;
     width: 44px;
@@ -300,7 +300,7 @@ defineExpose({ refresh });
 }
 
 .scrollbar-track-h {
-    /* background: red; */
+    background: aliceblue;
     bottom: 0;
     left: 0;
     right: 0;
