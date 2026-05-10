@@ -39,7 +39,9 @@ let scrollElement: HTMLElement | null = null;
 
 const localKey = ref(1);
 
+let osInstance: OverlayScrollbars;
 function handleInitialised(instance: OverlayScrollbars): void {
+    osInstance = instance;
     console.log('### SCROLL AREA: STARTING INITIALISATION', rowCount, scrollAreaInset);
     const { viewport, scrollbarVertical } = instance.elements();
     scrollElement = viewport;
@@ -58,6 +60,7 @@ async function refresh(): Promise<void> {
     console.log('### SCROLL AREA: REFRESHING');
 
     localKey.value++;
+    osInstance.update();
 }
 
 defineExpose({ refresh });
