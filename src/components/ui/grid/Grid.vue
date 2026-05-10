@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T">
 // External Dependencies
-import { computed, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, onUnmounted, ref, shallowRef } from 'vue';
 
 // Local (App) Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
@@ -28,7 +28,6 @@ const slots = defineSlots<{
 
 const columnCount = ref(1);
 const columnWidth = ref(0);
-const scrollArea = useTemplateRef<InstanceType<typeof ScrollArea>>('scrollArea');
 const scrollElement = shallowRef<HTMLElement | null>(null);
 const resizeObserver = new ResizeObserver((entries) => {
     const width = entries[0]!.contentRect.width;
@@ -40,16 +39,15 @@ const resizeObserver = new ResizeObserver((entries) => {
         columnWidth.value = Math.floor(width / columnCount.value);
     }
 });
-const dw = ref();
-// const { virtualRows, totalSize, getRow } = useDataWindow({
-//     scrollElement,
-//     dataSource: () => dataSource,
-//     count: () => Math.ceil(dataSource.rowCount / columnCount.value),
-//     getDataIndexes: (virtualRowIndex) => Array.from({ length: columnCount.value }, (_, col) => virtualRowIndex * columnCount.value + col),
-//     estimateSize: () => (!slots.default || (slots.compact && columnCount.value === 1) ? 48 : rowHeight),
-//     cacheBlockSize: cacheBlockSize == null ? undefined : (): number => cacheBlockSize,
-//     maxBlocksInCache: maxBlocksInCache == null ? undefined : (): number => maxBlocksInCache
-// });
+const { virtualRows, totalSize, getRow } = useDataWindow({
+    scrollElement,
+    dataSource: () => dataSource,
+    count: () => Math.ceil(dataSource.rowCount / columnCount.value),
+    getDataIndexes: (virtualRowIndex) => Array.from({ length: columnCount.value }, (_, col) => virtualRowIndex * columnCount.value + col),
+    estimateSize: () => (!slots.default || (slots.compact && columnCount.value === 1) ? 48 : rowHeight),
+    cacheBlockSize: cacheBlockSize == null ? undefined : (): number => cacheBlockSize,
+    maxBlocksInCache: maxBlocksInCache == null ? undefined : (): number => maxBlocksInCache
+});
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -60,38 +58,20 @@ const isCompact = computed(() => !slots.default || (!!slots.compact && columnCou
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onUnmounted(() => resizeObserver.disconnect());
-watch(
-    () => dataSource,
-    async (newDataSource) => {
-        console.log(2222, newDataSource, scrollArea.value);
-        scrollArea.value?.update();
-    }
-);
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(viewport: HTMLElement): void {
-    console.log('### Grid ScrollArea Initialised');
     scrollElement.value = viewport;
-    resizeObserver.disconnect();
     resizeObserver.observe(viewport);
-    dw.value = useDataWindow({
-        scrollElement,
-        dataSource: () => dataSource,
-        count: () => Math.ceil(dataSource.rowCount / columnCount.value),
-        getDataIndexes: (virtualRowIndex) => Array.from({ length: columnCount.value }, (_, col) => virtualRowIndex * columnCount.value + col),
-        estimateSize: () => (!slots.default || (slots.compact && columnCount.value === 1) ? 48 : rowHeight),
-        cacheBlockSize: cacheBlockSize == null ? undefined : (): number => cacheBlockSize,
-        maxBlocksInCache: maxBlocksInCache == null ? undefined : (): number => maxBlocksInCache
-    });
 }
 </script>
 
 <template>
-    <ScrollArea ref="scrollArea" class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
-        <div :style="{ height: dw?.totalSize + 'px', position: 'relative' }">
+    <ScrollArea class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
+        <div :style="{ height: totalSize + 'px', position: 'relative' }">
             <div
-                v-for="virtualRow in dw?.virtualRows"
+                v-for="virtualRow in virtualRows"
                 :key="virtualRow.index"
                 class="absolute top-0 left-0 flex"
                 :style="{ transform: `translateY(${virtualRow.start}px)`, height: `${virtualRow.size}px`, width: `${rowWidth}px` }"
@@ -101,14 +81,14 @@ function handleInitialised(viewport: HTMLElement): void {
                     <div v-if="virtualRow.index * columnCount + columnOffset < dataSource.rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
                         <div class="h-full pl-4" :class="[isCompact ? 'pt-2' : 'pt-4']">
                             <slot
-                                v-if="isCompact && dw.getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
+                                v-if="isCompact && getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
                                 name="compact"
-                                :item="dw.getRow(virtualRow.index * columnCount + columnOffset) as T"
+                                :item="getRow(virtualRow.index * columnCount + columnOffset) as T"
                                 :index="virtualRow.index * columnCount + columnOffset"
                             />
                             <slot
-                                v-else-if="dw.getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
-                                :item="dw.getRow(virtualRow.index * columnCount + columnOffset) as T"
+                                v-else-if="getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
+                                :item="getRow(virtualRow.index * columnCount + columnOffset) as T"
                                 :index="virtualRow.index * columnCount + columnOffset"
                             />
                             <div v-else class="flex h-full items-center px-3">

@@ -33,16 +33,12 @@ const dataViewRetrievalIsActive = ref(false);
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const dataSource = computed((): DataSource<DataViewConfig> => {
-    console.log(5678, dataViewConfigs.value);
-    return {
+const dataSource = computed(
+    (): DataSource<DataViewConfig> => ({
         rowCount: dataViewConfigs.value?.length ?? 0,
-        getRows: (start: number, end: number): Promise<DataViewConfig[]> => {
-            console.log(1234, (dataViewConfigs.value ?? []).slice(start, end));
-            return Promise.resolve((dataViewConfigs.value ?? []).slice(start, end));
-        }
-    };
-});
+        getRows: (start: number, end: number): Promise<DataViewConfig[]> => Promise.resolve((dataViewConfigs.value ?? []).slice(start, end))
+    })
+);
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -148,13 +144,7 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 </script>
 
 <template>
-    <Grid
-        v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
-        class="bg-green-100"
-        :data-source="dataSource"
-        :row-height="83"
-        :target-column-width="350"
-    >
+    <Grid v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0" class="flex-1" :data-source="dataSource" :row-height="83" :target-column-width="350">
         <template #default="{ item }">
             <Button
                 shape="minimal"
