@@ -61,21 +61,21 @@ const isCompact = computed(() => !slots.default || (!!slots.compact && columnCou
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onUnmounted(() => resizeObserver.disconnect());
-const localKey = ref(1);
-const rows = ref<VirtualItem[]>([]);
+// const localKey = ref(1);
+// const rows = ref<VirtualItem[]>([]);
 
 watch(
     () => dataSource,
     async () => {
         console.log('### GRID: DATA SOURCE CHANGED', dataSource, scrollAreaReference);
         // scrollAreaReference.value?.refresh();
-        localKey.value++;
-        rows.value = virtualRows.value;
+        // localKey.value++;
+        // rows.value = virtualRows.value;
         await nextTick();
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-                scrollAreaReference.value?.refresh();
-                void scrollAreaReference.value?.$el.offsetHeight;
+                // scrollAreaReference.value?.refresh();
+                // void scrollAreaReference.value?.$el.offsetHeight;
             });
         });
     }
@@ -84,7 +84,6 @@ watch(
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(viewport: HTMLElement): void {
-    console.log('### GRID: RECEIVED SCROLL AREA INITIALISED');
     scrollElement.value = viewport;
     resizeObserver.observe(viewport);
 }
