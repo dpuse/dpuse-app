@@ -43,7 +43,8 @@ try {
             createScriptURL: (url: string): string => {
                 if (url.startsWith('blob:')) return url;
                 throw new Error(`Blocked TrustedScriptURL: ${url}`);
-            }
+            },
+            createHTML: (string) => string
         });
         // Provide OverlayScrollbars its own scoped policy so it can safely use innerHTML
         // without the default policy needing a permissive createHTML handler.
