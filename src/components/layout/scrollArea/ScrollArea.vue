@@ -85,7 +85,6 @@ defineExpose({ refresh });
     <!-- <div class="relative min-h-0 min-w-0"> -->
     <OverlayScrollbarsComponent
         :class="[scrollAreaInset]"
-        defer
         :options="{
             scrollbars: {
                 autoHide: autoHide,
