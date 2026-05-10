@@ -3,7 +3,7 @@
 import 'overlayscrollbars/overlayscrollbars.css';
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
-import { onUnmounted, ref, watch } from 'vue';
+import { nextTick, onUnmounted, ref, watch } from 'vue';
 
 // Local (App) Framework
 import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/state/appLayout';
@@ -37,6 +37,8 @@ let scrollElement: HTMLElement | null = null;
 
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const localKey = ref(1);
+
 function handleInitialised(instance: OverlayScrollbars): void {
     console.log('### SCROLL AREA: STARTING INITIALISATION', rowCount, scrollAreaInset);
     const { viewport, scrollbarVertical } = instance.elements();
@@ -49,6 +51,16 @@ function handleInitialised(instance: OverlayScrollbars): void {
     emit('initialised', scrollElement);
     console.log('### SCROLL AREA: ENDING INITIALISATION');
 }
+
+// Exposed API ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function refresh(): Promise<void> {
+    console.log('### SCROLL AREA: REFRESHING');
+
+    localKey.value++;
+}
+
+defineExpose({ refresh });
 
 // function onHandlePointerDown(): void {
 //     isDragging.value = true;
@@ -73,6 +85,7 @@ function handleInitialised(instance: OverlayScrollbars): void {
     <!-- <div class="relative min-h-0 min-w-0"> -->
     <OverlayScrollbarsComponent
         :class="[scrollAreaInset]"
+        :key="localKey"
         defer
         :options="{
             scrollbars: {

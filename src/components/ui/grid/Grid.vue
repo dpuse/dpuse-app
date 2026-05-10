@@ -7,6 +7,7 @@ import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // Local Components - Static
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
+import type { ComponentExposed } from 'vue-component-type-helpers';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -26,6 +27,7 @@ const slots = defineSlots<{
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const scrollAreaReference = ref<ComponentExposed<typeof ScrollArea> | null>(null);
 const columnCount = ref(1);
 const columnWidth = ref(0);
 const scrollElement = shallowRef<HTMLElement | null>(null);
@@ -62,7 +64,8 @@ onUnmounted(() => resizeObserver.disconnect());
 watch(
     () => dataSource,
     () => {
-        console.log('### GRID: DATA SOURCE CHANGED', dataSource);
+        console.log('### GRID: DATA SOURCE CHANGED', dataSource, scrollAreaReference);
+        scrollAreaReference.value?.refresh();
     }
 );
 
@@ -76,7 +79,7 @@ function handleInitialised(viewport: HTMLElement): void {
 </script>
 
 <template>
-    <ScrollArea class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
+    <ScrollArea ref="scrollAreaReference" class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
         <div :style="{ height: totalSize + 'px', position: 'relative' }">
             <div
                 v-for="virtualRow in virtualRows"
