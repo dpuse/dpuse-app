@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T">
 // External Dependencies
-import { computed, onUnmounted, ref, shallowRef, watch } from 'vue';
+import { computed, nextTick, onUnmounted, ref, shallowRef, watch } from 'vue';
 
 // Local (App) Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
@@ -66,12 +66,17 @@ const rows = ref<VirtualItem[]>([]);
 
 watch(
     () => dataSource,
-    () => {
+    async () => {
         console.log('### GRID: DATA SOURCE CHANGED', dataSource, scrollAreaReference);
         scrollAreaReference.value?.refresh();
         localKey.value++;
         rows.value = virtualRows.value;
-        scrollAreaReference.value?.refresh();
+        await nextTick();
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                scrollAreaReference.value?.refresh();
+            });
+        });
     }
 );
 
