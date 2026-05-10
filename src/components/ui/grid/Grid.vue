@@ -80,6 +80,7 @@ watch(
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(viewport: HTMLElement): void {
+    console.log('### GRID: SCROLL AREA INITIALISED');
     scrollElement.value = viewport;
     resizeObserver.observe(viewport);
 }

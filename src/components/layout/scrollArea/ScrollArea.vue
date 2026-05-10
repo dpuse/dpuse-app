@@ -52,6 +52,10 @@ function handleInitialised(instance: OverlayScrollbars): void {
     console.log('### SCROLL AREA: ENDING INITIALISATION');
 }
 
+function handleUpdated(instance: OverlayScrollbars, onUpdatedArgs: any): void {
+    console.log('### SCROLL AREA: STARTING UPDATING', rowCount, scrollAreaInset, onUpdatedArgs);
+}
+
 // Exposed API ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function refresh(): Promise<void> {
@@ -97,6 +101,7 @@ defineExpose({ refresh });
             }
         }"
         @os-initialized="handleInitialised"
+        @os-updated="handleUpdated"
     >
         <slot />
     </OverlayScrollbarsComponent>
