@@ -69,10 +69,10 @@ watch(
         console.log('### GRID: DATA SOURCE CHANGED', dataSource, scrollAreaReference);
         // scrollAreaReference.value?.refresh();
         // localKey.value++;
-        // await nextTick();
+        await nextTick();
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-                // scrollAreaReference.value?.refresh();
+                scrollAreaReference.value?.refresh();
                 // void scrollAreaReference.value?.$el.offsetHeight;
             });
         });
