@@ -154,6 +154,10 @@ function onHTrackPointerDown(event: PointerEvent): void {
 // Resize observer ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const resizeObserver = new ResizeObserver(updateThumbs);
+const contentObserver = new MutationObserver(() => {
+    updateThumbs();
+    if (scrollbarAlwaysVisible) thumbsShown.value = true;
+});
 
 // Lifecycle ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -162,18 +166,17 @@ onMounted(() => {
     if (!element) return;
     element.addEventListener('scroll', onScroll, { passive: true });
     resizeObserver.observe(element);
-    if (scrollbarAlwaysVisible) {
-        requestAnimationFrame(() => {
-            updateThumbs();
-            thumbsShown.value = true;
-        });
-    }
+    for (const child of element.children) resizeObserver.observe(child);
+    contentObserver.observe(element, { childList: true, subtree: false });
+    updateThumbs();
+    if (scrollbarAlwaysVisible) thumbsShown.value = true;
     emit('initialised', element);
 });
 
 onUnmounted(() => {
     scrollElement.value?.removeEventListener('scroll', onScroll);
     resizeObserver.disconnect();
+    contentObserver.disconnect();
     if (hideTimer != null) clearTimeout(hideTimer);
 });
 
