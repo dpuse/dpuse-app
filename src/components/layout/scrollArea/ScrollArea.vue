@@ -10,8 +10,8 @@ import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/sta
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { autoHide?: 'scroll' | 'never' | 'move' | 'leave'; autoHideSuspend?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen' };
-const { autoHide = 'scroll', autoHideSuspend = false, rowCount = 0, scrollAreaInset } = defineProps<Properties>();
+type Properties = { autoHide?: 'scroll' | 'never' | 'move' | 'leave'; autoHideSuspend?: boolean; defer?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen' };
+const { autoHide = 'scroll', autoHideSuspend = false, defer = false, rowCount = 0, scrollAreaInset } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [ScrollbarElements: HTMLElement] }>();
 
@@ -57,7 +57,7 @@ function handleInitialised(instance: OverlayScrollbars): void {
 async function refresh(): Promise<void> {
     console.log('### SCROLL AREA: REFRESHING');
 
-    osInstance.update(true);
+    // osInstance.update(true);
 }
 
 defineExpose({ refresh });
@@ -85,6 +85,7 @@ defineExpose({ refresh });
     <!-- <div class="relative min-h-0 min-w-0"> -->
     <OverlayScrollbarsComponent
         :class="[scrollAreaInset]"
+        :defer="defer"
         :options="{
             scrollbars: {
                 autoHide: autoHide,
