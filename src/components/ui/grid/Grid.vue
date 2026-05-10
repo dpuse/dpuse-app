@@ -8,6 +8,7 @@ import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 // Local Components - Static
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 import type { ComponentExposed } from 'vue-component-type-helpers';
+import type { VirtualItem } from '@tanstack/vue-virtual';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -61,6 +62,7 @@ const isCompact = computed(() => !slots.default || (!!slots.compact && columnCou
 
 onUnmounted(() => resizeObserver.disconnect());
 const localKey = ref(1);
+const rows = ref<VirtualItem[]>([]);
 
 watch(
     () => dataSource,
@@ -68,6 +70,7 @@ watch(
         console.log('### GRID: DATA SOURCE CHANGED', dataSource, scrollAreaReference);
         localKey.value++;
         scrollAreaReference.value?.refresh();
+        rows.value = virtualRows.value;
     }
 );
 
@@ -84,7 +87,7 @@ function handleInitialised(viewport: HTMLElement): void {
     <ScrollArea ref="scrollAreaReference" :key="localKey" class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
         <div :style="{ height: totalSize + 'px', position: 'relative' }">
             <div
-                v-for="virtualRow in virtualRows"
+                v-for="virtualRow in rows ?? []"
                 :key="virtualRow.index"
                 class="absolute top-0 left-0 flex"
                 :style="{ transform: `translateY(${virtualRow.start}px)`, height: `${virtualRow.size}px`, width: `${rowWidth}px` }"
