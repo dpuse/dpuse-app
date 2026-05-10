@@ -284,10 +284,11 @@ defineExpose({ refresh });
 }
 
 .scrollbar-track-h {
-    bottom: 2px;
+    bottom: 0;
     left: 0;
     right: 0;
-    height: 6px;
+    height: 24px;
+    cursor: pointer;
 }
 
 /* Thumbs */
@@ -304,7 +305,8 @@ defineExpose({ refresh });
 
 .scrollbar-track-h .scrollbar-thumb {
     width: auto;
-    height: 100%;
+    height: 6px;
+    top: calc(50% - 3px);
 }
 
 .scrollbar-thumb:hover,
