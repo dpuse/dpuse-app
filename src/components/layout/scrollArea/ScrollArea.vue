@@ -3,7 +3,6 @@
 import 'overlayscrollbars/overlayscrollbars.css';
 import type { OverlayScrollbars } from 'overlayscrollbars';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
-import { nextTick, onUnmounted, ref, watch } from 'vue';
 
 // Local (App) Framework
 import { contentScrollPosition, isDarkMode, knowledgePaneIsVisible } from '@/state/appLayout';
@@ -51,16 +50,6 @@ function handleInitialised(instance: OverlayScrollbars): void {
     emit('initialised', scrollElement);
     console.log('### SCROLL AREA: ENDING INITIALISATION');
 }
-
-// Exposed API ─────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-async function refresh(): Promise<void> {
-    console.log('### SCROLL AREA: REFRESHING');
-
-    // osInstance.update(true);
-}
-
-defineExpose({ refresh });
 
 // function onHandlePointerDown(): void {
 //     isDragging.value = true;

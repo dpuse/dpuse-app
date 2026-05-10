@@ -1,13 +1,12 @@
 <script setup lang="ts" generic="T">
 // External Dependencies
-import { computed, nextTick, onUnmounted, ref, shallowRef, watch } from 'vue';
+import { computed, onUnmounted, ref, shallowRef } from 'vue';
 
 // Local (App) Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // Local Components - Static
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
-import type { VirtualItem } from '@tanstack/vue-virtual';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 

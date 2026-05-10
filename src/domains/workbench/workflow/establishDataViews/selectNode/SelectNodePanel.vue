@@ -118,9 +118,6 @@ watch(activeItem, async (newActiveItem) => {
     applyPreviewConfig(newActiveItem, previewConfig);
 });
 
-watch(connectionNodeConfigs, () => console.log('### SELECT NODE: CONNECTION NODE CONFIGS CHANGED'));
-watch(dataSource, () => console.log('### SELECT NODE: DATA SOURCE CHANGED'));
-
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
