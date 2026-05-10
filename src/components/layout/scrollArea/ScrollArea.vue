@@ -38,9 +38,9 @@ let scrollElement: HTMLElement | null = null;
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 let osInstance: OverlayScrollbars;
-function handleInitialised(instance: OverlayScrollbars): void {
+async function handleInitialised(instance: OverlayScrollbars): Promise<void> {
     osInstance = instance;
-    console.log('### SCROLL AREA: STARTING INITIALISATION', rowCount, scrollAreaInset);
+    // console.log('### SCROLL AREA: STARTING INITIALISATION', rowCount, scrollAreaInset);
     const { viewport, scrollbarVertical } = instance.elements();
     scrollElement = viewport;
     // osHandleElement = scrollbarVertical.handle;
@@ -48,18 +48,18 @@ function handleInitialised(instance: OverlayScrollbars): void {
     // document.addEventListener('pointerup', onDocumentPointerUp);
     // viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
-    emit('initialised', scrollElement);
-    console.log('### SCROLL AREA: ENDING INITIALISATION');
+    await emit('initialised', scrollElement);
+    // console.log('### SCROLL AREA: ENDING INITIALISATION');
 }
 
-function handleUpdated(instance: OverlayScrollbars, onUpdatedArgs: any): void {
-    console.log('### SCROLL AREA: STARTING UPDATING', rowCount, scrollAreaInset, onUpdatedArgs);
+function handleUpdated(instance: OverlayScrollbars, onUpdatedArgs: unknown): void {
+    // console.log('### SCROLL AREA: STARTING UPDATING', rowCount, scrollAreaInset, onUpdatedArgs);
 }
 
 // Exposed API ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function refresh(): Promise<void> {
-    console.log('### SCROLL AREA: REFRESHING');
+    // console.log('### SCROLL AREA: REFRESHING');
 
     osInstance.update(true);
 }
