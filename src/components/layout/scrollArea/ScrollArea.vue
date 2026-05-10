@@ -44,14 +44,8 @@ function updateThumbs(): void {
     const vTrackHeight = clientHeight - (hVisible.value ? 44 : 0);
     const hTrackWidth = clientWidth - (vVisible.value ? 44 : 0);
 
-    vThumbTop.value = Math.max(0, Math.min(
-        (scrollTop / (scrollHeight - clientHeight)) * (vTrackHeight - vThumbHeight.value),
-        vTrackHeight - vThumbHeight.value
-    ));
-    hThumbLeft.value = Math.max(0, Math.min(
-        (scrollLeft / (scrollWidth - clientWidth)) * (hTrackWidth - hThumbWidth.value),
-        hTrackWidth - hThumbWidth.value
-    ));
+    vThumbTop.value = Math.max(0, Math.min((scrollTop / (scrollHeight - clientHeight)) * (vTrackHeight - vThumbHeight.value), vTrackHeight - vThumbHeight.value));
+    hThumbLeft.value = Math.max(0, Math.min((scrollLeft / (scrollWidth - clientWidth)) * (hTrackWidth - hThumbWidth.value), hTrackWidth - hThumbWidth.value));
 }
 
 // Auto-hide ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -223,13 +217,10 @@ defineExpose({ refresh });
             @touchstart="onVTrackTouchStart"
             @mouseenter="showThumbs"
         >
-            <div
-                ref="vThumb"
-                class="scrollbar-thumb"
-                :style="{ height: vThumbHeight + 'px', transform: `translateY(${vThumbTop}px)` }"
-            />
+            <div ref="vThumb" class="scrollbar-thumb" :style="{ height: vThumbHeight + 'px', transform: `translateY(${vThumbTop}px)` }" />
         </div>
 
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div
             v-if="hVisible"
             ref="hTrack"
@@ -240,11 +231,7 @@ defineExpose({ refresh });
             @touchstart="onHTrackTouchStart"
             @mouseenter="showThumbs"
         >
-            <div
-                ref="hThumb"
-                class="scrollbar-thumb"
-                :style="{ width: hThumbWidth + 'px', transform: `translateX(${hThumbLeft}px)` }"
-            />
+            <div ref="hThumb" class="scrollbar-thumb" :style="{ width: hThumbWidth + 'px', transform: `translateX(${hThumbLeft}px)` }" />
         </div>
     </div>
 </template>
@@ -282,7 +269,7 @@ defineExpose({ refresh });
 /* Tracks */
 .scrollbar-track {
     position: absolute;
-    border-radius: 9999px;
+    border-radius: 0;
     opacity: 0;
     transition: opacity 0.2s ease;
     pointer-events: auto;
@@ -293,7 +280,7 @@ defineExpose({ refresh });
 }
 
 .scrollbar-track-v {
-    background: blue;
+    /* background: blue; */
     top: 0;
     right: 0;
     width: 44px;
@@ -302,7 +289,7 @@ defineExpose({ refresh });
 }
 
 .scrollbar-track-h {
-    background: red;
+    /* background: red; */
     bottom: 0;
     left: 0;
     right: 0;
@@ -324,13 +311,15 @@ defineExpose({ refresh });
 
 .scrollbar-track-v .scrollbar-thumb {
     width: 6px;
-    left: calc(50% - 3px);
+    left: auto;
+    right: 2px;
 }
 
 .scrollbar-track-h .scrollbar-thumb {
     width: auto;
     height: 6px;
-    top: calc(50% - 3px);
+    top: auto;
+    bottom: 2px;
 }
 
 .scrollbar-thumb:hover,
