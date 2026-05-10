@@ -54,7 +54,17 @@ function handleInitialised(instance: OverlayScrollbars): void {
                 const { viewport, scrollbarVertical } = instance.elements();
                 scrollElement = viewport;
                 emit('initialised', scrollElement!);
-                instance.update(true);
+                nextTick().then(() => {
+                    void scrollElement?.getBoundingClientRect(); // forces synchronous layout on WebKit
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            // const { viewport, scrollbarVertical } = instance.elements();
+                            // scrollElement = viewport;
+                            // emit('initialised', scrollElement!);
+                            instance.update(true);
+                        });
+                    });
+                });
             });
         });
     });
