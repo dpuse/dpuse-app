@@ -94,7 +94,7 @@ function handleInitialised(viewport: HTMLElement): void {
     <ScrollArea ref="scrollAreaReference" class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
         <div :key="localKey" :style="{ height: totalSize + 'px', position: 'relative' }">
             <div
-                v-for="virtualRow in rows ?? []"
+                v-for="virtualRow in virtualRows"
                 :key="virtualRow.index"
                 class="absolute top-0 left-0 flex"
                 :style="{ transform: `translateY(${virtualRow.start}px)`, height: `${virtualRow.size}px`, width: `${rowWidth}px` }"
