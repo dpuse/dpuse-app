@@ -40,7 +40,7 @@ let scrollElement: HTMLElement | null = null;
 let osInstance: OverlayScrollbars;
 function handleInitialised(instance: OverlayScrollbars): void {
     osInstance = instance;
-    // console.log('### SCROLL AREA: STARTING INITIALISATION', rowCount, scrollAreaInset);
+    console.log('### SCROLL AREA: STARTING INITIALISATION', rowCount, scrollAreaInset);
     const { viewport, scrollbarVertical } = instance.elements();
     scrollElement = viewport;
     // osHandleElement = scrollbarVertical.handle;
