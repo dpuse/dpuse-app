@@ -75,6 +75,7 @@ watch(
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 scrollAreaReference.value?.refresh();
+                void scrollAreaReference.value?.$el.offsetHeight;
             });
         });
     }
