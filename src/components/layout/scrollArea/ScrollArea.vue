@@ -48,12 +48,14 @@ async function handleInitialised(instance: OverlayScrollbars): Promise<void> {
     // document.addEventListener('pointerup', onDocumentPointerUp);
     // viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
-    await emit('initialised', scrollElement);
+    await nextTick();
+    emit('initialised', scrollElement);
     // console.log('### SCROLL AREA: ENDING INITIALISATION');
 }
 
 function handleUpdated(instance: OverlayScrollbars, onUpdatedArgs: unknown): void {
     // console.log('### SCROLL AREA: STARTING UPDATING', rowCount, scrollAreaInset, onUpdatedArgs);
+    // instance.update(true);
 }
 
 // Exposed API ─────────────────────────────────────────────────────────────────────────────────────────────────────────
