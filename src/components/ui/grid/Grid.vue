@@ -60,11 +60,13 @@ const isCompact = computed(() => !slots.default || (!!slots.compact && columnCou
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onUnmounted(() => resizeObserver.disconnect());
+const localKey = ref(1);
 
 watch(
     () => dataSource,
     () => {
         console.log('### GRID: DATA SOURCE CHANGED', dataSource, scrollAreaReference);
+        localKey.value++;
         scrollAreaReference.value?.refresh();
     }
 );
@@ -79,7 +81,7 @@ function handleInitialised(viewport: HTMLElement): void {
 </script>
 
 <template>
-    <ScrollArea ref="scrollAreaReference" class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
+    <ScrollArea ref="scrollAreaReference" :key="localKey" class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
         <div :style="{ height: totalSize + 'px', position: 'relative' }">
             <div
                 v-for="virtualRow in virtualRows"
