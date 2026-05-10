@@ -62,7 +62,6 @@ const isCompact = computed(() => !slots.default || (!!slots.compact && columnCou
 
 onUnmounted(() => resizeObserver.disconnect());
 // const localKey = ref(1);
-// const rows = ref<VirtualItem[]>([]);
 
 watch(
     () => dataSource,
@@ -70,8 +69,7 @@ watch(
         console.log('### GRID: DATA SOURCE CHANGED', dataSource, scrollAreaReference);
         // scrollAreaReference.value?.refresh();
         // localKey.value++;
-        // rows.value = virtualRows.value;
-        await nextTick();
+        // await nextTick();
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 // scrollAreaReference.value?.refresh();
