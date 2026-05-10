@@ -41,11 +41,6 @@ watch(
     }
 );
 
-watch(
-    () => dataSource,
-    () => console.log('### GRID DETAIL: DATA SOURCE CHANGED')
-);
-
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
