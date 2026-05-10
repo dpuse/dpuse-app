@@ -8,7 +8,7 @@ import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 // Local Components - Static
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 import type { ComponentExposed } from 'vue-component-type-helpers';
-import type { VirtualItem } from '@tanstack/vue-virtual';
+// import type { VirtualItem } from '@tanstack/vue-virtual';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -80,7 +80,7 @@ onUnmounted(() => resizeObserver.disconnect());
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(viewport: HTMLElement): void {
-    console.log('### GRID: SCROLL AREA INITIALISED');
+    // console.log('### GRID: SCROLL AREA INITIALISED');
     scrollElement.value = viewport;
     resizeObserver.observe(viewport);
 }

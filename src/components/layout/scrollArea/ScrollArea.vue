@@ -40,7 +40,7 @@ let scrollElement: HTMLElement | null = null;
 let osInstance: OverlayScrollbars;
 function handleInitialised(instance: OverlayScrollbars): void {
     osInstance = instance;
-    console.log('### SCROLL AREA: STARTING INITIALISATION', rowCount, scrollAreaInset);
+    // console.log('### SCROLL AREA: STARTING INITIALISATION', rowCount, scrollAreaInset);
     const { viewport, scrollbarVertical } = instance.elements();
     scrollElement = viewport;
     // osHandleElement = scrollbarVertical.handle;
@@ -49,11 +49,11 @@ function handleInitialised(instance: OverlayScrollbars): void {
     // viewport.addEventListener('scroll', onViewportScroll, { passive: true });
 
     emit('initialised', scrollElement);
-    console.log('### SCROLL AREA: ENDING INITIALISATION');
+    // console.log('### SCROLL AREA: ENDING INITIALISATION');
 }
 
-function handleUpdated(instance: OverlayScrollbars, onUpdatedArgs: any): void {
-    console.log('### SCROLL AREA: STARTING UPDATING', rowCount, scrollAreaInset, onUpdatedArgs);
+function handleUpdated(instance: OverlayScrollbars, onUpdatedArgs: unknown): void {
+    // console.log('### SCROLL AREA: STARTING UPDATING', rowCount, scrollAreaInset, onUpdatedArgs);
 }
 
 // Exposed API ─────────────────────────────────────────────────────────────────────────────────────────────────────────
