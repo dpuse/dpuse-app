@@ -66,7 +66,7 @@ watch(
     () => dataSource,
     async () => {
         console.log('### GRID: DATA SOURCE CHANGED', dataSource, scrollAreaReference);
-        scrollAreaReference.value?.refresh();
+        // scrollAreaReference.value?.refresh();
         // await nextTick();
         // requestAnimationFrame(() => {
         //     requestAnimationFrame(() => {
