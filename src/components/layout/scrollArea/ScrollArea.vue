@@ -41,11 +41,17 @@ function updateThumbs(): void {
     vThumbHeight.value = Math.max(vRatio * clientHeight, 32);
     hThumbWidth.value = Math.max(hRatio * clientWidth, 32);
 
-    const vTrackHeight = clientHeight - (hVisible.value ? 16 : 0);
-    const hTrackWidth = clientWidth - (vVisible.value ? 16 : 0);
+    const vTrackHeight = clientHeight - (hVisible.value ? 44 : 0);
+    const hTrackWidth = clientWidth - (vVisible.value ? 44 : 0);
 
-    vThumbTop.value = (scrollTop / (scrollHeight - clientHeight)) * (vTrackHeight - vThumbHeight.value);
-    hThumbLeft.value = (scrollLeft / (scrollWidth - clientWidth)) * (hTrackWidth - hThumbWidth.value);
+    vThumbTop.value = Math.max(0, Math.min(
+        (scrollTop / (scrollHeight - clientHeight)) * (vTrackHeight - vThumbHeight.value),
+        vTrackHeight - vThumbHeight.value
+    ));
+    hThumbLeft.value = Math.max(0, Math.min(
+        (scrollLeft / (scrollWidth - clientWidth)) * (hTrackWidth - hThumbWidth.value),
+        hTrackWidth - hThumbWidth.value
+    ));
 }
 
 // Auto-hide ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -81,8 +87,8 @@ function startDrag(axis: 'v' | 'h', startEvent: PointerEvent | TouchEvent): void
     const startScrollLeft = element.scrollLeft;
 
     const { scrollHeight, scrollWidth, clientHeight, clientWidth } = element;
-    const vTrackHeight = clientHeight - (hVisible.value ? 16 : 0);
-    const hTrackWidth = clientWidth - (vVisible.value ? 16 : 0);
+    const vTrackHeight = clientHeight - (hVisible.value ? 44 : 0);
+    const hTrackWidth = clientWidth - (vVisible.value ? 44 : 0);
     const vScale = (scrollHeight - clientHeight) / (vTrackHeight - vThumbHeight.value);
     const hScale = (scrollWidth - clientWidth) / (hTrackWidth - hThumbWidth.value);
 
@@ -201,6 +207,7 @@ defineExpose({ refresh });
             ref="vTrack"
             class="scrollbar-track scrollbar-track-v"
             :class="{ 'scrollbar-visible': thumbsShown }"
+            :style="{ bottom: hVisible ? '44px' : '0' }"
             @pointerdown="onVTrackPointerDown"
             @mouseenter="showThumbs"
         >
@@ -219,6 +226,7 @@ defineExpose({ refresh });
             ref="hTrack"
             class="scrollbar-track scrollbar-track-h"
             :class="{ 'scrollbar-visible': thumbsShown }"
+            :style="{ right: vVisible ? '44px' : '0' }"
             @pointerdown="onHTrackPointerDown"
             @mouseenter="showThumbs"
         >
@@ -280,8 +288,8 @@ defineExpose({ refresh });
     background: blue;
     top: 0;
     right: 0;
-    width: 16px;
-    bottom: 12px;
+    width: 44px;
+    bottom: 0;
     cursor: pointer;
 }
 
@@ -289,8 +297,8 @@ defineExpose({ refresh });
     background: red;
     bottom: 0;
     left: 0;
-    right: 12px;
-    height: 16px;
+    right: 0;
+    height: 44px;
     cursor: pointer;
 }
 

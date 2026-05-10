@@ -11,7 +11,7 @@ const emit = defineEmits<{ 'update:modelValue': [id: string]; action: [] }>();
 </script>
 
 <template>
-    <div class="absolute bottom-(--safe-bottom-offset) left-1/2 -translate-x-1/2">
+    <div class="absolute bottom-[calc(var(--safe-bottom-offset)+44px)] left-1/2 -translate-x-1/2">
         <span class="isolate inline-flex h-10 rounded-full shadow-md">
             <!-- Tab buttons -->
             <button
