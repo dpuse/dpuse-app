@@ -47,7 +47,6 @@ const activeItem = shallowRef<ConnectionNodeConfig | undefined>();
 const currentFolderNodes = shallowRef<ConnectionNodeConfig[]>([]);
 
 const listNodesResult = shallowRef<ListNodesResult | undefined>();
-const dataSourceKey = ref(0);
 const previewRequestId = ref(0);
 
 const previewPercentage = ref(0);
@@ -78,13 +77,9 @@ const currentFolderPath = computed<string>(() => {
 });
 
 const dataSource = computed<DataSource<ConnectionNodeConfig>>(() => ({
-    id: String(dataSourceKey.value),
     rowCount: connectionNodeConfigs.value.length,
     getRows: (start: number, end: number): Promise<ConnectionNodeConfig[]> => Promise.resolve(connectionNodeConfigs.value.slice(start, end))
 }));
-watch(dataSource, (newDataSource) => {
-    console.log(1111, newDataSource);
-});
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -147,20 +142,18 @@ async function selectBreadcrumb(index: number): Promise<void> {
 
 async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig | undefined): Promise<void> {
     if (connectionNodeConfig == null) {
-        console.log(2222);
         activeItem.value = undefined;
         return;
     }
 
     if (connectionNodeConfig.typeId === 'folder') {
-        console.log(3333);
+        console.log('### SELECT FOLDER', connectionNodeConfig);
         currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
         activeItem.value = undefined;
         await loadFolderNodes(currentFolderPath.value);
         return;
     }
 
-    console.log(4444);
     activeItem.value = connectionNodeConfig;
 }
 
@@ -227,8 +220,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 
     const { processRequest } = await useEngine();
     listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath } as ListNodesOptions)) as ListNodesResult;
-    dataSourceKey.value++;
-    console.log(5555);
+    console.log('### FOLDERS LOADED', listNodesResult.value);
 }
 </script>
 
@@ -283,8 +275,4 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
             <SelectPlaceholder :message="'Select a connection node from the list on the left.'" />
         </template>
     </GridDetailPanel>
-
-    <!-- <div class="h-full overflow-y-auto overscroll-y-none">
-        <div v-for="config in connectionNodeConfigs" :key="config.id" @click="selectConnectionNode(config)">{{ config.label }}</div>
-    </div> -->
 </template>

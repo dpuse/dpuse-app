@@ -62,6 +62,7 @@ onUnmounted(() => resizeObserver.disconnect());
 // UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(viewport: HTMLElement): void {
+    console.log('### GRID RECEIVED SCROLLAREA INITIALISED');
     scrollElement.value = viewport;
     resizeObserver.observe(viewport);
 }
