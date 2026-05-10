@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.1126",
+    "version": "0.0.1127",
     "private": true,
     "type": "module",
     "engines": {
@@ -17,9 +17,6 @@
         "@teamhanko/hanko-frontend-sdk": "^2.6.0",
         "lucide-vue-next": "^1.0.0",
         "marked": "^18.0.3",
-        "overlayscrollbars": "^2.16.0",
-        "overlayscrollbars-vue": "^0.5.9",
-        "simplebar-vue": "^2.4.2",
         "tailwindcss": "^4.2.4",
         "vue": "^3.5.34",
         "vue-router": "^5.0.6",

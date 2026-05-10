@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import 'simplebar-vue/dist/simplebar.min.css';
-import SimpleBar from 'simplebar-vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, useTemplateRef } from 'vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -12,42 +10,37 @@ const emit = defineEmits<{ initialised: [scrollElement: HTMLElement] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const simplebarRef = ref<InstanceType<typeof SimpleBar> | null>(null);
+const scrollElement = useTemplateRef<HTMLElement>('scrollElement');
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
-    const el = (simplebarRef.value as any)?.scrollElement as HTMLElement | undefined;
-    if (el) emit('initialised', el);
+    if (scrollElement.value) emit('initialised', scrollElement.value);
 });
-
-// Exposed API ─────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function refresh(): void {
-    simplebarRef.value?.recalculate();
-}
-
-defineExpose({ refresh });
 </script>
 
 <template>
-    <SimpleBar ref="simplebarRef" :class="['scroll-area', scrollAreaInset]">
+    <div ref="scrollElement" :class="['scroll-area', scrollAreaInset]">
         <slot />
-    </SimpleBar>
+    </div>
 </template>
 
 <style scoped>
 .scroll-area {
+    overflow-y: auto;
+    overflow-x: auto;
+    min-height: 0;
+    min-width: 0;
     overscroll-behavior: none;
 }
 
 .embedded {
-    padding-right: 16px;
     padding-bottom: var(--vertical-scroll-bottom-embedded-inset);
+    padding-right: 16px;
 }
 
 .screen {
-    padding-right: 16px;
     padding-bottom: var(--vertical-scroll-bottom-screen-inset);
+    padding-right: 16px;
 }
 </style>

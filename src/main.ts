@@ -1,6 +1,5 @@
 // External Dependencies
 import { createApp } from 'vue';
-import { OverlayScrollbars } from 'overlayscrollbars';
 
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -43,16 +42,8 @@ try {
             createScriptURL: (url: string): string => {
                 if (url.startsWith('blob:')) return url;
                 throw new Error(`Blocked TrustedScriptURL: ${url}`);
-            },
-            createHTML: (string) => string
+            }
         });
-        // Provide OverlayScrollbars its own scoped policy so it can safely use innerHTML
-        // without the default policy needing a permissive createHTML handler.
-        OverlayScrollbars.trustedTypePolicy(
-            globalThis.trustedTypes.createPolicy('overlayscrollbars', {
-                createHTML: (html: string): string => html
-            })
-        );
     }
 
     // Create and mount application.

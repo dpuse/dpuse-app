@@ -70,7 +70,7 @@ watch(
         await nextTick();
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-                scrollAreaReference.value?.refresh();
+                // scrollAreaReference.value?.refresh();
                 // void scrollAreaReference.value?.$el.offsetHeight;
             });
         });
