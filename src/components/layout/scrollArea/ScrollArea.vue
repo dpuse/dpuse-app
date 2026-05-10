@@ -118,43 +118,54 @@ function startDrag(axis: 'v' | 'h', startEvent: PointerEvent | TouchEvent): void
     }
 }
 
-function onVThumbPointerDown(event: PointerEvent): void {
-    event.preventDefault();
-    startDrag('v', event);
-    showThumbs();
-}
-function onHThumbPointerDown(event: PointerEvent): void {
-    event.preventDefault();
-    startDrag('h', event);
-    showThumbs();
-}
-function onVThumbTouchStart(event: TouchEvent): void {
-    startDrag('v', event);
-    showThumbs();
-}
-function onHThumbTouchStart(event: TouchEvent): void {
-    startDrag('h', event);
-    showThumbs();
-}
-
-// Click on track ──────────────────────────────────────────────────────────────────────────────────────────────────────
-
 function onVTrackPointerDown(event: PointerEvent): void {
-    const element = scrollElement.value;
     const track = vTrack.value;
-    if (!element || !track || event.target === vThumb.value) return;
-    const rect = track.getBoundingClientRect();
-    const ratio = (event.clientY - rect.top - vThumbHeight.value / 2) / (rect.height - vThumbHeight.value);
-    element.scrollTop = ratio * (element.scrollHeight - element.clientHeight);
+    const element = scrollElement.value;
+    if (!track || !element) return;
+    const y = event.clientY - track.getBoundingClientRect().top;
+    if (y >= vThumbTop.value && y <= vThumbTop.value + vThumbHeight.value) {
+        event.preventDefault();
+        startDrag('v', event);
+    } else {
+        const ratio = (y - vThumbHeight.value / 2) / (track.getBoundingClientRect().height - vThumbHeight.value);
+        element.scrollTop = Math.max(0, Math.min(ratio, 1)) * (element.scrollHeight - element.clientHeight);
+    }
+    showThumbs();
 }
 
 function onHTrackPointerDown(event: PointerEvent): void {
-    const element = scrollElement.value;
     const track = hTrack.value;
-    if (!element || !track || event.target === hThumb.value) return;
-    const rect = track.getBoundingClientRect();
-    const ratio = (event.clientX - rect.left - hThumbWidth.value / 2) / (rect.width - hThumbWidth.value);
-    element.scrollLeft = ratio * (element.scrollWidth - element.clientWidth);
+    const element = scrollElement.value;
+    if (!track || !element) return;
+    const x = event.clientX - track.getBoundingClientRect().left;
+    if (x >= hThumbLeft.value && x <= hThumbLeft.value + hThumbWidth.value) {
+        event.preventDefault();
+        startDrag('h', event);
+    } else {
+        const ratio = (x - hThumbWidth.value / 2) / (track.getBoundingClientRect().width - hThumbWidth.value);
+        element.scrollLeft = Math.max(0, Math.min(ratio, 1)) * (element.scrollWidth - element.clientWidth);
+    }
+    showThumbs();
+}
+
+function onVTrackTouchStart(event: TouchEvent): void {
+    const track = vTrack.value;
+    if (!track) return;
+    const y = event.touches[0].clientY - track.getBoundingClientRect().top;
+    if (y >= vThumbTop.value && y <= vThumbTop.value + vThumbHeight.value) {
+        startDrag('v', event);
+    }
+    showThumbs();
+}
+
+function onHTrackTouchStart(event: TouchEvent): void {
+    const track = hTrack.value;
+    if (!track) return;
+    const x = event.touches[0].clientX - track.getBoundingClientRect().left;
+    if (x >= hThumbLeft.value && x <= hThumbLeft.value + hThumbWidth.value) {
+        startDrag('h', event);
+    }
+    showThumbs();
 }
 
 // Resize observer ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -209,18 +220,16 @@ defineExpose({ refresh });
             :class="{ 'scrollbar-visible': thumbsShown }"
             :style="{ bottom: hVisible ? '44px' : '0' }"
             @pointerdown="onVTrackPointerDown"
+            @touchstart="onVTrackTouchStart"
             @mouseenter="showThumbs"
         >
             <div
                 ref="vThumb"
                 class="scrollbar-thumb"
                 :style="{ height: vThumbHeight + 'px', transform: `translateY(${vThumbTop}px)` }"
-                @pointerdown.stop="onVThumbPointerDown"
-                @touchstart.stop="onVThumbTouchStart"
             />
         </div>
 
-        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div
             v-if="hVisible"
             ref="hTrack"
@@ -228,14 +237,13 @@ defineExpose({ refresh });
             :class="{ 'scrollbar-visible': thumbsShown }"
             :style="{ right: vVisible ? '44px' : '0' }"
             @pointerdown="onHTrackPointerDown"
+            @touchstart="onHTrackTouchStart"
             @mouseenter="showThumbs"
         >
             <div
                 ref="hThumb"
                 class="scrollbar-thumb"
                 :style="{ width: hThumbWidth + 'px', transform: `translateX(${hThumbLeft}px)` }"
-                @pointerdown.stop="onHThumbPointerDown"
-                @touchstart.stop="onHThumbTouchStart"
             />
         </div>
     </div>
