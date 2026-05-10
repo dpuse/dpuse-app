@@ -162,6 +162,15 @@ function onHTrackTouchStart(event: TouchEvent): void {
     showThumbs();
 }
 
+// Wheel forwarding ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function onTrackWheel(event: WheelEvent): void {
+    const element = scrollElement.value;
+    if (!element) return;
+    event.preventDefault();
+    element.scrollBy({ left: event.deltaX, top: event.deltaY });
+}
+
 // Resize observer ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const resizeObserver = new ResizeObserver(updateThumbs);
@@ -216,6 +225,7 @@ defineExpose({ refresh });
             @pointerdown="onVTrackPointerDown"
             @touchstart="onVTrackTouchStart"
             @mouseenter="showThumbs"
+            @wheel="onTrackWheel"
         >
             <div ref="vThumb" class="scrollbar-thumb" :style="{ height: vThumbHeight + 'px', transform: `translateY(${vThumbTop}px)` }" />
         </div>
@@ -230,6 +240,7 @@ defineExpose({ refresh });
             @pointerdown="onHTrackPointerDown"
             @touchstart="onHTrackTouchStart"
             @mouseenter="showThumbs"
+            @wheel="onTrackWheel"
         >
             <div ref="hThumb" class="scrollbar-thumb" :style="{ width: hThumbWidth + 'px', transform: `translateX(${hThumbLeft}px)` }" />
         </div>
@@ -306,7 +317,12 @@ defineExpose({ refresh });
     border-radius: 9999px;
     background-color: var(--subtle, rgba(0, 0, 0, 0.35));
     cursor: pointer;
-    transition: background-color 0.15s ease;
+    transition:
+        background-color 0.15s ease,
+        width 0.15s ease,
+        height 0.15s ease,
+        right 0.15s ease,
+        bottom 0.15s ease;
 }
 
 .scrollbar-track-v .scrollbar-thumb {
@@ -320,6 +336,16 @@ defineExpose({ refresh });
     height: 6px;
     top: auto;
     bottom: 2px;
+}
+
+.scrollbar-track-v:hover .scrollbar-thumb {
+    width: 10px;
+    right: 1px;
+}
+
+.scrollbar-track-h:hover .scrollbar-thumb {
+    height: 10px;
+    bottom: 1px;
 }
 
 .scrollbar-thumb:hover,
