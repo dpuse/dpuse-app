@@ -54,6 +54,7 @@ function handleInitialised(instance: OverlayScrollbars): void {
                 const { viewport, scrollbarVertical } = instance.elements();
                 scrollElement = viewport;
                 emit('initialised', scrollElement!);
+                instance.update(true);
             });
         });
     });
