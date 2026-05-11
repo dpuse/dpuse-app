@@ -3,7 +3,7 @@ import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { autoHide?: string; autoHideSuspend?: boolean; rowCount?: number; scrollAreaInset?: 'embedded' | 'screen'; scrollbarAlwaysVisible?: boolean };
+type Properties = { rowCount?: number; scrollAreaInset?: 'embedded' | 'screen'; scrollbarAlwaysVisible?: boolean };
 const { scrollAreaInset, scrollbarAlwaysVisible = false } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [scrollElement: HTMLElement] }>();
@@ -23,14 +23,23 @@ const hThumbWidth = ref(0);
 const vThumbTop = ref(0);
 const hThumbLeft = ref(0);
 
+const verticalThumbWidth = 6;
+const verticalThumbRightInset = 2;
+
 let hideTimer: ReturnType<typeof setTimeout> | null = null;
 
 // Scrollbar calculations ──────────────────────────────────────────────────────────────────────────────────────────────
+
+function getVerticalBottomInset(element: HTMLElement): number {
+    const inset = Number.parseFloat(getComputedStyle(element).paddingBottom);
+    return Number.isFinite(inset) ? inset : 0;
+}
 
 function updateThumbs(): void {
     const element = scrollElement.value;
     if (!element) return;
     const { scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth } = element;
+    const verticalBottomInset = getVerticalBottomInset(element);
 
     const vRatio = clientHeight / scrollHeight;
     const hRatio = clientWidth / scrollWidth;
@@ -41,8 +50,9 @@ function updateThumbs(): void {
     vThumbHeight.value = Math.max(vRatio * clientHeight, 32);
     hThumbWidth.value = Math.max(hRatio * clientWidth, 32);
 
-    const vTrackHeight = clientHeight - (hVisible.value ? 24 : 0);
-    const hTrackWidth = clientWidth - (vVisible.value ? 24 : 0);
+    const vTrackHeight = Math.max(0, clientHeight - verticalBottomInset);
+    const hTrackRightInset = vVisible.value ? verticalThumbWidth + verticalThumbRightInset : 0;
+    const hTrackWidth = clientWidth - hTrackRightInset;
 
     vThumbTop.value = Math.max(0, Math.min((scrollTop / (scrollHeight - clientHeight)) * (vTrackHeight - vThumbHeight.value), vTrackHeight - vThumbHeight.value));
     hThumbLeft.value = Math.max(0, Math.min((scrollLeft / (scrollWidth - clientWidth)) * (hTrackWidth - hThumbWidth.value), hTrackWidth - hThumbWidth.value));
@@ -81,8 +91,10 @@ function startDrag(axis: 'v' | 'h', startEvent: PointerEvent | TouchEvent): void
     const startScrollLeft = element.scrollLeft;
 
     const { scrollHeight, scrollWidth, clientHeight, clientWidth } = element;
-    const vTrackHeight = clientHeight - (hVisible.value ? 24 : 0);
-    const hTrackWidth = clientWidth - (vVisible.value ? 24 : 0);
+    const verticalBottomInset = getVerticalBottomInset(element);
+    const vTrackHeight = Math.max(0, clientHeight - verticalBottomInset);
+    const hTrackRightInset = vVisible.value ? verticalThumbWidth + verticalThumbRightInset : 0;
+    const hTrackWidth = clientWidth - hTrackRightInset;
     const vScale = (scrollHeight - clientHeight) / (vTrackHeight - vThumbHeight.value);
     const hScale = (scrollWidth - clientWidth) / (hTrackWidth - hThumbWidth.value);
 
@@ -221,7 +233,7 @@ defineExpose({ refresh });
             ref="vTrack"
             class="scrollbar-track scrollbar-track-v"
             :class="{ 'scrollbar-visible': thumbsShown }"
-            :style="{ bottom: hVisible ? '24px' : '0' }"
+            :style="{ bottom: scrollAreaInset === 'embedded' ? 'var(--vertical-scroll-bottom-embedded-inset)' : scrollAreaInset === 'screen' ? 'var(--vertical-scroll-bottom-screen-inset)' : '0px' }"
             @pointerdown="onVTrackPointerDown"
             @touchstart="onVTrackTouchStart"
             @mouseenter="showThumbs"
@@ -236,7 +248,7 @@ defineExpose({ refresh });
             ref="hTrack"
             class="scrollbar-track scrollbar-track-h"
             :class="{ 'scrollbar-visible': thumbsShown }"
-            :style="{ right: vVisible ? '24px' : '0' }"
+            :style="{ right: vVisible ? verticalThumbWidth + verticalThumbRightInset + 'px' : '0' }"
             @pointerdown="onHTrackPointerDown"
             @touchstart="onHTrackTouchStart"
             @mouseenter="showThumbs"

@@ -3,12 +3,12 @@
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Options, Properties, Slots & Emits
-const { text, paddingBottom = '64px' } = defineProps<{ text?: string; paddingBottom?: string }>(); // 64px = 16px + 40px + 8px.
+const { text } = defineProps<{ text?: string }>();
 </script>
 
 <template>
-    <ScrollArea class="border-separator border-x" scrollbar-always-visible>
-        <div class="px-0.5 text-sm" :style="{ paddingBottom }">
+    <ScrollArea class="border-separator border-x" scroll-area-inset="embedded" scrollbar-always-visible>
+        <div class="px-0.5 text-sm">
             <pre><code>{{ text }}</code></pre>
         </div>
     </ScrollArea>
