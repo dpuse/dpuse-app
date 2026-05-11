@@ -23,7 +23,7 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
 </script>
 
 <template>
-    <div v-if="items" class="flex gap-x-3 overflow-x-auto overscroll-x-none pt-2 text-[15px]">
+    <div v-if="items" class="flex gap-x-3 overflow-x-auto overscroll-x-none pt-2 -mt-2 text-[15px]">
         <component
             :is="item.disabled ? 'div' : Button"
             v-for="item in items"
