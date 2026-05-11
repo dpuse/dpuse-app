@@ -251,7 +251,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 
                 <ActionBar
                     v-model="activeTabId"
-                    class="absolute right-4 bottom-[calc(var(--safe-bottom-offset))]"
+                    class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
                     :tabs="[
                         { id: 'table', label: t(T, 'tab.table') },
                         { id: 'text', label: t(T, 'tab.text') },
