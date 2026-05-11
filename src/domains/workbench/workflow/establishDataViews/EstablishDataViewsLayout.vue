@@ -16,7 +16,7 @@ import { localeId, t } from '@/state/locale';
 import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
-import Tasks, { type TaskConfig } from '@/components/ui/tasks/Tasks.vue';
+import Tasks, { type TaskConfig } from '@/components/layout/tasks/Tasks.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 

@@ -131,7 +131,7 @@ async function selectItem(row: T): Promise<void> {
                 </div>
 
                 <!-- No Selection -->
-                <div v-else class="h-full">
+                <div v-else class="pt-4 pl-4">
                     <slot name="no-selection" />
                 </div>
             </div>

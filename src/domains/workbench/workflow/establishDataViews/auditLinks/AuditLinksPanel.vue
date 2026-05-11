@@ -3,7 +3,7 @@
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Components - Static
-import type { TaskConfig } from '@/components/ui/tasks/Tasks.vue';
+import type { TaskConfig } from '@/components/layout/tasks/Tasks.vue';
 
 // Options, Properties, Slots & Emits
 const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<TaskConfig> }>();
