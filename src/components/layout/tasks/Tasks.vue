@@ -38,7 +38,7 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
             @click="$emit('select', item)"
         >
             <div
-                class="absolute -top-px left-0 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded-full text-[9px] font-bold text-white"
+                class="absolute -top-px left-0 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded-full text-[9px] font-black text-white"
                 :class="{
                     'bg-[#3b82f6]': activeStepId === item.id || !item.disabled,
                     'bg-zinc-400 dark:bg-zinc-500': item.disabled
