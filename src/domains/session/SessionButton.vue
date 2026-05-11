@@ -119,10 +119,10 @@ function onMenuAfterLeave(): void {}
             </Transition>
 
             <!-- Circular session-time ring: amber = elapsed (background), green = remaining (foreground) -->
-            <svg v-if="isAuthenticated === true" class="pointer-events-none absolute inset-0 size-full -rotate-90" viewBox="0 0 40 40" aria-hidden="true">
-                <!-- Amber background ring — always full, reveals as green retreats -->
+            <!-- <svg v-if="isAuthenticated === true" class="pointer-events-none absolute inset-0 size-full -rotate-90" viewBox="0 0 40 40" aria-hidden="true">
+                <! -- Amber background ring — always full, reveals as green retreats -- >
                 <circle cx="20" cy="20" r="18" fill="none" class="stroke-amber-500" stroke-width="3" />
-                <!-- Green foreground — remaining time, starts at 12 o'clock, shrinks from tail -->
+                <! -- Green foreground — remaining time, starts at 12 o'clock, shrinks from tail -- >
                 <circle
                     cx="20"
                     cy="20"
@@ -135,7 +135,7 @@ function onMenuAfterLeave(): void {}
                     :stroke-dashoffset="(RING_CIRCUMFERENCE * elapsed) / 100"
                     style="transition: stroke-dashoffset 1s linear"
                 />
-            </svg>
+            </svg> -->
         </AvatarButton>
     </div>
 </template>

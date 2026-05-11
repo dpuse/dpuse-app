@@ -218,7 +218,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
             :aria-label="t(T, 'wb.toggle.label.aria')"
-            class="bg-surface fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full!"
+            class="fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full!"
             :class="{ 'shadow-md': !displayIsWide && contentScrollPosition > 0 }"
             shape="icon"
             @click="toggleWorkbenchAppPane()"

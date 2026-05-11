@@ -26,26 +26,26 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
             :is="item.disabled ? 'div' : Button"
             v-for="item in items"
             :key="item.id"
-            :to="!item.disabled && item.id != null ? { name: item.id, query: { ...$route.query, wbView: item.id } } : undefined"
             :aria-selected="activeStepId === item.id"
-            shape="minimal"
             class="relative border-y-2 border-b-transparent pt-1 leading-tight"
             :class="{
-                'border-t-[#3b82f6]': activeStepId === item.id || !item.disabled, // TODO: Tailwind hex colors are not the same as oklch colors? Need to update logos/icons with oklch colors if we are going to standardise.
+                'border-t-blue-400': activeStepId === item.id || !item.disabled, // TODO: Tailwind hex colors are not the same as oklch colors? Need to update logos/icons with oklch colors if we are going to standardise.
                 'border-t-zinc-400 dark:border-t-zinc-500': item.disabled
             }"
             role="tab"
+            shape="minimal"
+            :to="!item.disabled && item.id != null ? { name: item.id, query: { ...$route.query, wbView: item.id } } : undefined"
             @click="$emit('select', item)"
         >
-            <div
-                class="absolute -top-px left-0 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded-full text-[9px] font-black text-white"
+            <!-- <div
+                class="absolute -top-px left-0 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded-full text-[11px] text-white"
                 :class="{
-                    'bg-[#3b82f6]': activeStepId === item.id || !item.disabled,
+                    'bg-blue-500': activeStepId === item.id || !item.disabled,
                     'bg-zinc-400 dark:bg-zinc-500': item.disabled
                 }"
             >
                 {{ item.number }}
-            </div>
+            </div> -->
 
             <div
                 class="mt-1 mb-0.5 text-sm leading-tight"
