@@ -316,6 +316,8 @@ function clamp(value: number, min: number, max: number): number {
 <style scoped>
 .scroll-area-wrapper {
     position: relative;
+    display: flex;
+    flex-direction: column;
     min-height: 0;
     min-width: 0;
     overflow: hidden;
@@ -323,7 +325,8 @@ function clamp(value: number, min: number, max: number): number {
 
 .scroll-area {
     width: 100%;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     overflow: scroll;
     overscroll-behavior: none;
     scrollbar-width: none;
