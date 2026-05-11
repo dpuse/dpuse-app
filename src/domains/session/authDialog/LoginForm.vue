@@ -31,7 +31,7 @@ const observer = new MutationObserver(() => (isDark.value = document.documentEle
 observer.observe(document.documentElement, { attributeFilter: ['class'] });
 onUnmounted(() => observer.disconnect());
 
-// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
     await onTrigger(identifier.value);

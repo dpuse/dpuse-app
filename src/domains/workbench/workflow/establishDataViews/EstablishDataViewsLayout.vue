@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
+import { PlusIcon } from 'lucide-vue-next';
 import { computed, ref, shallowRef, watch } from 'vue';
 import { type LocationQueryValue, useRoute } from 'vue-router';
 
@@ -12,7 +13,7 @@ import T from './EstablishDataViewsLayout.json';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
-import FloatingActionButton from '@/components/layout/floatingActionButton/FloatingActionButton.vue';
+import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 import Tasks, { type TaskConfig } from '@/components/ui/tasks/Tasks.vue';
@@ -56,7 +57,7 @@ watch(
     { immediate: true }
 );
 
-// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function updateStepProgression(stepLocalisedConfig: LocalisedConfig<TaskConfig>): void {
     stepsEnabledToNumber.value = stepLocalisedConfig.enableUpTo;
@@ -92,15 +93,21 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
                 <component :is="Component" class="h-full" :step-localised-config="activeStepLocalisedConfig" @step-completed="updateStepProgression" />
             </RouterView>
 
-            <FloatingActionButton
+            <ActionBar
                 v-if="route.query.wbView === 'establishDataViews'"
                 class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
-                :component-type-label="'Data View'"
-                :to="{ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } }"
                 variant="add"
-                :verb="'Add'"
+                :to="{ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } }"
                 @click="activeDataViewConfig = undefined"
-            />
+            >
+                <template #action>
+                    <div class="flex flex-col items-end pl-1.25">
+                        <span class="text-xs leading-none">Add</span>
+                        <span class="text-xs leading-none">Data View</span>
+                    </div>
+                    <PlusIcon />
+                </template>
+            </ActionBar>
         </div>
     </LayoutShell>
 </template>

@@ -24,7 +24,7 @@ const emit = defineEmits<{ submit: [] }>();
 const route = useRoute();
 const router = useRouter();
 
-// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
     emit('submit');

@@ -10,7 +10,7 @@ const { autoComplete, id, label, labelHidden = false, placeholder, required = fa
 const modelValue = defineModel<string>();
 const generatedId = useId();
 
-// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInput(event: Event): void {
     modelValue.value = (event.target as HTMLInputElement).value;
@@ -23,7 +23,7 @@ function handleInput(event: Event): void {
         :id="id ?? generatedId"
         :name="id ?? generatedId"
         :autocomplete="autoComplete"
-        class="block rounded-md px-3 py-2 outline-1 -outline-offset-1 outline-separator placeholder:text-muted focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:focus:outline-indigo-500"
+        class="outline-separator placeholder:text-muted block rounded-md px-3 py-2 outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:focus:outline-indigo-500"
         :placeholder="placeholder"
         :required="required"
         :type="type"

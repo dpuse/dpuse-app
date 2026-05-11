@@ -10,7 +10,7 @@ const modelValue = defineModel<number>();
 
 const isDragging = ref(false);
 
-// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleDoubleClick(): void {
     modelValue.value = 50;
@@ -37,7 +37,7 @@ function handlePointerUp(): void {
 <template>
     <!-- TODO: May need to pass the tabindex. -->
     <div
-        class="h-full w-1 flex-none cursor-col-resize border-x border-boundary transition-colors hover:bg-separator"
+        class="border-boundary hover:bg-separator h-full w-1 flex-none cursor-col-resize border-x transition-colors"
         role="button"
         tabIndex="0"
         @pointerdown="handlePointerDown"

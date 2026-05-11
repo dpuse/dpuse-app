@@ -18,7 +18,7 @@ const pickerElement = useTemplateRef<HTMLDivElement>('picker');
 onMounted(() => document.addEventListener('click', onDocumentClick));
 onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick));
 
-// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function onDocumentClick(event: MouseEvent): void {
     if (pickerElement.value && !pickerElement.value.contains(event.target as Node)) {

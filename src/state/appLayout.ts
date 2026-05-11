@@ -30,7 +30,7 @@ if (import.meta.hot) {
     });
 }
 
-// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleAppearanceChange(): void {
     isDarkMode.value = document.documentElement.classList.contains('dark');

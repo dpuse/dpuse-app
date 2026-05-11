@@ -59,7 +59,7 @@ const isCompact = computed(() => !slots.default || (!!slots.compact && columnCou
 
 onUnmounted(() => resizeObserver.disconnect());
 
-// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleInitialised(viewport: HTMLElement): void {
     resizeObserver.disconnect();

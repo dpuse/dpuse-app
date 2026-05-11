@@ -58,7 +58,7 @@ onMounted(() => {
     //     .catch((error) => console.log(error));
 });
 
-// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const sessionMenuReference = useTemplateRef<InstanceType<typeof SessionMenu>>('sessionMenuReference');
 const handleDocumentPointerDown = (event: PointerEvent): void => {

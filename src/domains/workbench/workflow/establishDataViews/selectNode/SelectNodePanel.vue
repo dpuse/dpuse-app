@@ -22,7 +22,7 @@ import { connectionConfigs, getLocalisedConnection } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
-import ActionCommandBar from '@/components/layout/actionCommandBar/ActionCommandBar.vue';
+import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
@@ -118,7 +118,7 @@ watch(activeItem, async (newActiveItem) => {
     applyPreviewConfig(newActiveItem, previewConfig);
 });
 
-// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
     emit('step-completed', stepLocalisedConfig);
@@ -249,8 +249,9 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                     <div class="relative pl-1">{{ previewMessage }}</div>
                 </div>
 
-                <ActionCommandBar
+                <ActionBar
                     v-model="activeTabId"
+                    class="absolute right-4 bottom-[calc(var(--safe-bottom-offset))]"
                     :tabs="[
                         { id: 'table', label: t(T, 'tab.table') },
                         { id: 'text', label: t(T, 'tab.text') },
@@ -265,7 +266,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                         </div>
                         <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
                     </template>
-                </ActionCommandBar>
+                </ActionBar>
             </div>
         </template>
 

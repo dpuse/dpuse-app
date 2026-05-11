@@ -41,7 +41,7 @@ watch(
     }
 );
 
-// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
     return { maxWidth: maxWidth != null && displayIsWide.value ? maxWidth : undefined };

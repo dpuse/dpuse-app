@@ -157,7 +157,7 @@ function onAfterEnter(): void {
     container.style.transition = '';
 }
 
-// UI Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleCloseDialog(): Promise<void> {
     isClosing.value = true;
@@ -191,7 +191,7 @@ async function handleCloseDialog(): Promise<void> {
         <div
             role="dialog"
             aria-modal="true"
-            class="z-10 h-full max-h-full w-full max-w-full overflow-y-auto overscroll-y-none bg-surface text-content sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-sm sm:-translate-x-1/2 sm:rounded-lg"
+            class="bg-surface text-content z-10 h-full max-h-full w-full max-w-full overflow-y-auto overscroll-y-none sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-sm sm:-translate-x-1/2 sm:rounded-lg"
             tabindex="-1"
         >
             <!-- Close Button -->
@@ -219,7 +219,7 @@ async function handleCloseDialog(): Promise<void> {
                 </div>
 
                 <Separator class="mt-3 mb-2" />
-                <div class="text-center text-muted">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
+                <div class="text-muted text-center">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
             </div>
         </div>
     </div>
