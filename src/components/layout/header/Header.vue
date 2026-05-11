@@ -8,7 +8,7 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
 
 <template>
     <header
-        class="mt-[env(safe-area-inset-top)] flex h-14 flex-none flex-col justify-center text-lg font-light"
+        class="mt-[env(safe-area-inset-top)] flex h-13.75 flex-none flex-col justify-center text-lg font-light"
         :class="{
             'px-14': !displayIsWide || !workbenchPaneIsVisible,
             'pr-44 pl-4': displayIsWide && workbenchPaneIsVisible && !knowledgePaneIsVisible

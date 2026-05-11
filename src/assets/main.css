@@ -33,16 +33,16 @@ html {
 /* Variables and light mode colors. */
 :root {
     --safe-bottom-offset: calc(
-        max(env(safe-area-inset-bottom), 21px) + 16px
-    ); /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '21px' for optional status bar; '16px' for horizontal scroll bar. */
+        max(env(safe-area-inset-bottom), 21px) + 24px
+    ); /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '21px' for optional status bar; '24px' for horizontal scroll bar. */
     --safe-top-offset: calc(env(safe-area-inset-top) + 7px); /* Floating button screen top offset: 'safe-area-inset-top'; '7px' for gutter. */
     --safe-left-offset: calc(env(safe-area-inset-left) + 12px); /* Floating button screen left offset: 'safe-area-inset-left'; '12px' for gutter. */
     --safe-right-offset: calc(env(safe-area-inset-right) + 12px); /* Floating button screen right offset: 'safe-area-inset-right'; '12px' for gutter. */
 
     --status-bar-height: calc(max(env(safe-area-inset-bottom), 21px)); /* Status bar height: 'safe-area-inset-bottom' or '21px'. */
 
-    --vertical-scroll-bottom-embedded-inset: 64px; /* Scroll area bottom inset: '16px' for horizontal scroll bar; '40px' for floating buttons; '8px' for padding above floating buttons. */
-    --vertical-scroll-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 21px) + 64px);
+    --vertical-scroll-bottom-embedded-inset: 64px; /* Scroll area bottom inset: '24px' for horizontal scroll bar; '40px' for floating buttons; '8px' for padding above floating buttons. */
+    --vertical-scroll-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 21px) + 72px);
 
     /* Light mode colors. */
     --backdrop: #fdfdfd;

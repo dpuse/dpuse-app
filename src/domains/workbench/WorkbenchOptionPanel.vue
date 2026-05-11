@@ -33,10 +33,10 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
 
 <template>
     <aside
-        class="flex h-full w-[calc(env(safe-area-inset-left)+4.0625rem)] flex-col border-r border-boundary bg-backdrop pt-[calc(env(safe-area-inset-top)+55px)] pb-(--vertical-scroll-bottom-screen-inset) pl-[env(safe-area-inset-left)]"
+        class="border-boundary bg-backdrop flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-r pt-[calc(env(safe-area-inset-top)+55px)] pb-(--vertical-scroll-bottom-screen-inset) pl-[env(safe-area-inset-left)]"
     >
         <!-- Separator -->
-        <div class="mx-3 h-px flex-none bg-separator" />
+        <div class="bg-separator mx-3 h-px flex-none" />
 
         <!-- Benchtop options scroller -->
         <ScrollArea class="flex-1">
