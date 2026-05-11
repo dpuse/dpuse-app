@@ -4,8 +4,6 @@ import type { LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import { t } from '@/state/locale';
-import T from './Tasks.json';
 
 // Options, Properties, Slots & Emits
 export interface TaskConfig {
@@ -23,7 +21,7 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
 </script>
 
 <template>
-    <div v-if="items" class="-mt-1.5 flex gap-x-3 overflow-x-auto overscroll-x-none pt-2 text-[15px]">
+    <div class="-mt-1.5 flex gap-x-3 overflow-x-auto overscroll-x-none pt-2 text-[15px]">
         <component
             :is="item.disabled ? 'div' : Button"
             v-for="item in items"
@@ -33,7 +31,7 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
             shape="minimal"
             class="relative border-y-2 border-b-transparent pt-1 leading-tight"
             :class="{
-                'border-t-blue-500 dark:border-t-blue-400': activeStepId === item.id || !item.disabled,
+                'border-t-[#3b82f6]': activeStepId === item.id || !item.disabled, // TODO: Tailwind hex colors are not the same as oklch colors? Need to update logos/icons with oklch colors if we are going to standardise.
                 'border-t-zinc-400 dark:border-t-zinc-500': item.disabled
             }"
             role="tab"
@@ -42,7 +40,7 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
             <div
                 class="absolute -top-px left-0 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded-full text-[9px] font-bold text-white"
                 :class="{
-                    'bg-blue-500 dark:bg-blue-400': activeStepId === item.id || !item.disabled,
+                    'bg-[#3b82f6]': activeStepId === item.id || !item.disabled,
                     'bg-zinc-400 dark:bg-zinc-500': item.disabled
                 }"
             >
