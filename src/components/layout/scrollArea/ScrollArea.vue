@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { onMounted, onUnmounted, ref, useId, useTemplateRef } from 'vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -9,32 +9,38 @@ const { scrollAreaInset, scrollbarAlwaysVisible = false } = defineProps<Properti
 
 const emit = defineEmits<{ initialised: [scrollElement: HTMLElement] }>();
 
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const VERTICAL_THUMB_RIGHT_INSET = 2;
+const VERTICAL_THUMB_WIDTH = 6;
+
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const scrollElement = useTemplateRef<HTMLElement>('scrollElement');
-const vTrack = useTemplateRef<HTMLElement>('vTrack');
-const hTrack = useTemplateRef<HTMLElement>('hTrack');
-
-const vVisible = ref(false);
-const hVisible = ref(false);
-const vThumbHeight = ref(0);
-const hThumbWidth = ref(0);
-const vThumbTop = ref(0);
-const hThumbLeft = ref(0);
-
-const verticalThumbWidth = 6;
-const verticalThumbRightInset = 2;
-const verticalThumbRightOffset = verticalThumbWidth + verticalThumbRightInset;
+const scrollElementId = useId();
 
 let hideTimer: ReturnType<typeof setTimeout> | null = null;
 
-const thumbsShown = ref(false);
+const horizontalScrollPercent = ref(0);
+const horizontalThumbLeft = ref(0);
+const horizontalThumbWidth = ref(0);
+const horizontalTrack = useTemplateRef<HTMLElement>('horizontalTrack');
+const horizontalVisible = ref(false);
 
 const resizeObserver = new ResizeObserver(updateThumbs);
 const contentObserver = new MutationObserver(() => {
     updateThumbs();
     if (scrollbarAlwaysVisible) thumbsShown.value = true;
 });
+
+const thumbsShown = ref(false);
+
+const verticalScrollPercent = ref(0);
+const verticalThumbHeight = ref(0);
+const verticalThumbRightOffset = VERTICAL_THUMB_WIDTH + VERTICAL_THUMB_RIGHT_INSET;
+const verticalThumbTop = ref(0);
+const verticalTrack = useTemplateRef<HTMLElement>('verticalTrack');
+const verticalVisible = ref(false);
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -57,42 +63,61 @@ onUnmounted(() => {
     if (hideTimer != null) clearTimeout(hideTimer);
 });
 
-// Scrollbar calculations ──────────────────────────────────────────────────────────────────────────────────────────────
+// Drag Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function updateThumbs(): void {
+function handleVerticalTrackPointerDown(pointerEvent: PointerEvent): void {
+    const track = verticalTrack.value;
     const element = scrollElement.value;
-    if (!element) return;
-    const { scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth } = element;
-    const verticalBottomInset = getVerticalBottomInset(element);
-
-    const vRatio = clientHeight / scrollHeight;
-    const hRatio = clientWidth / scrollWidth;
-
-    vVisible.value = vRatio < 1;
-    hVisible.value = hRatio < 1;
-
-    vThumbHeight.value = Math.max(vRatio * clientHeight, 32);
-    hThumbWidth.value = Math.max(hRatio * clientWidth, 32);
-
-    const vTrackHeight = Math.max(0, clientHeight - verticalBottomInset);
-    const hTrackRightInset = vVisible.value ? verticalThumbRightOffset : 0;
-    const hTrackWidth = Math.max(0, clientWidth - hTrackRightInset);
-    const vTravel = getTrackTravel(vTrackHeight, vThumbHeight.value);
-    const hTravel = getTrackTravel(hTrackWidth, hThumbWidth.value);
-    const vScrollRange = getScrollableRange(scrollHeight, clientHeight);
-    const hScrollRange = getScrollableRange(scrollWidth, clientWidth);
-
-    vThumbTop.value = getThumbPosition(scrollTop, vScrollRange, vTravel);
-    hThumbLeft.value = getThumbPosition(scrollLeft, hScrollRange, hTravel);
+    if (!track || !element) return;
+    const y = pointerEvent.clientY - track.getBoundingClientRect().top;
+    if (y >= verticalThumbTop.value && y <= verticalThumbTop.value + verticalThumbHeight.value) {
+        pointerEvent.preventDefault();
+        startDrag('v', pointerEvent);
+    } else {
+        const travel = getTrackTravel(track.getBoundingClientRect().height, verticalThumbHeight.value);
+        const scrollRange = getScrollableRange(element.scrollHeight, element.clientHeight);
+        element.scrollTop = getScrollOffsetFromPointer(y, verticalThumbHeight.value, travel, scrollRange);
+    }
+    handleShowThumbs();
 }
 
-function getThumbPosition(scrollOffset: number, scrollRange: number, travel: number): number {
-    return scrollRange === 0 || travel === 0 ? 0 : clamp((scrollOffset / scrollRange) * travel, 0, travel);
+function handleHorizontalTrackPointerDown(pointerEvent: PointerEvent): void {
+    const track = horizontalTrack.value;
+    const element = scrollElement.value;
+    if (!track || !element) return;
+    const x = pointerEvent.clientX - track.getBoundingClientRect().left;
+    if (x >= horizontalThumbLeft.value && x <= horizontalThumbLeft.value + horizontalThumbWidth.value) {
+        pointerEvent.preventDefault();
+        startDrag('h', pointerEvent);
+    } else {
+        const travel = getTrackTravel(track.getBoundingClientRect().width, horizontalThumbWidth.value);
+        const scrollRange = getScrollableRange(element.scrollWidth, element.clientWidth);
+        element.scrollLeft = getScrollOffsetFromPointer(x, horizontalThumbWidth.value, travel, scrollRange);
+    }
+    handleShowThumbs();
 }
 
-// Auto-hide ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+function handleVerticalTrackTouchStart(touchEvent: TouchEvent): void {
+    const track = verticalTrack.value;
+    if (!track) return;
+    const y = touchEvent.touches[0].clientY - track.getBoundingClientRect().top;
+    if (y >= verticalThumbTop.value && y <= verticalThumbTop.value + verticalThumbHeight.value) {
+        startDrag('v', touchEvent);
+    }
+    handleShowThumbs();
+}
 
-function showThumbs(): void {
+function handleHorizontalTrackTouchStart(touchEvent: TouchEvent): void {
+    const track = horizontalTrack.value;
+    if (!track) return;
+    const x = touchEvent.touches[0].clientX - track.getBoundingClientRect().left;
+    if (x >= horizontalThumbLeft.value && x <= horizontalThumbLeft.value + horizontalThumbWidth.value) {
+        startDrag('h', touchEvent);
+    }
+    handleShowThumbs();
+}
+
+function handleShowThumbs(): void {
     thumbsShown.value = true;
     if (scrollbarAlwaysVisible) return;
     if (hideTimer != null) clearTimeout(hideTimer);
@@ -101,14 +126,11 @@ function showThumbs(): void {
     }, 1500);
 }
 
-// Scroll sync ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Drag Helpers ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleScroll(): void {
-    updateThumbs();
-    showThumbs();
+function getScrollOffsetFromPointer(pointerOffset: number, thumbLength: number, travel: number, scrollRange: number): number {
+    return scrollRange === 0 || travel === 0 ? 0 : clamp((pointerOffset - thumbLength / 2) / travel, 0, 1) * scrollRange;
 }
-
-// Drag: Helpers ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function startDrag(axis: 'v' | 'h', dragStartEvent: PointerEvent | TouchEvent): void {
     const element = scrollElement.value;
@@ -122,25 +144,25 @@ function startDrag(axis: 'v' | 'h', dragStartEvent: PointerEvent | TouchEvent): 
 
     const { scrollHeight, scrollWidth, clientHeight, clientWidth } = element;
     const verticalBottomInset = getVerticalBottomInset(element);
-    const vTrackHeight = Math.max(0, clientHeight - verticalBottomInset);
-    const hTrackRightInset = vVisible.value ? verticalThumbRightOffset : 0;
-    const hTrackWidth = Math.max(0, clientWidth - hTrackRightInset);
-    const vScrollRange = getScrollableRange(scrollHeight, clientHeight);
-    const hScrollRange = getScrollableRange(scrollWidth, clientWidth);
-    const vTravel = getTrackTravel(vTrackHeight, vThumbHeight.value);
-    const hTravel = getTrackTravel(hTrackWidth, hThumbWidth.value);
+    const verticalTrackHeight = Math.max(0, clientHeight - verticalBottomInset);
+    const horizontalTrackRightInset = verticalVisible.value ? verticalThumbRightOffset : 0;
+    const horizontalTrackWidth = Math.max(0, clientWidth - horizontalTrackRightInset);
+    const verticalScrollRange = getScrollableRange(scrollHeight, clientHeight);
+    const horizontalScrollRange = getScrollableRange(scrollWidth, clientWidth);
+    const verticalTravel = getTrackTravel(verticalTrackHeight, verticalThumbHeight.value);
+    const horizontalTravel = getTrackTravel(horizontalTrackWidth, horizontalThumbWidth.value);
 
-    if (axis === 'v' && (vTravel === 0 || vScrollRange === 0)) return;
-    if (axis === 'h' && (hTravel === 0 || hScrollRange === 0)) return;
+    if (axis === 'v' && (verticalTravel === 0 || verticalScrollRange === 0)) return;
+    if (axis === 'h' && (horizontalTravel === 0 || horizontalScrollRange === 0)) return;
 
-    const vScale = vTravel === 0 ? 0 : vScrollRange / vTravel;
-    const hScale = hTravel === 0 ? 0 : hScrollRange / hTravel;
+    const verticalScale = verticalTravel === 0 ? 0 : verticalScrollRange / verticalTravel;
+    const horizontalScale = horizontalTravel === 0 ? 0 : horizontalScrollRange / horizontalTravel;
 
     function handleDragMove(dragMoveEvent: PointerEvent | TouchEvent): void {
         const clientY = dragMoveEvent instanceof TouchEvent ? dragMoveEvent.touches[0].clientY : dragMoveEvent.clientY;
         const clientX = dragMoveEvent instanceof TouchEvent ? dragMoveEvent.touches[0].clientX : dragMoveEvent.clientX;
-        if (axis === 'v') element!.scrollTop = startScrollTop + (clientY - startY) * vScale;
-        else element!.scrollLeft = startScrollLeft + (clientX - startX) * hScale;
+        if (axis === 'v') element!.scrollTop = startScrollTop + (clientY - startY) * verticalScale;
+        else element!.scrollLeft = startScrollLeft + (clientX - startX) * horizontalScale;
     }
 
     function handleDragEnd(): void {
@@ -162,65 +184,14 @@ function startDrag(axis: 'v' | 'h', dragStartEvent: PointerEvent | TouchEvent): 
     }
 }
 
-// Drag: UI Helpers ────────────────────────────────────────────────────────────────────────────────────────────────────
+// Scroll Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleVTrackPointerDown(pointerEvent: PointerEvent): void {
-    const track = vTrack.value;
-    const element = scrollElement.value;
-    if (!track || !element) return;
-    const y = pointerEvent.clientY - track.getBoundingClientRect().top;
-    if (y >= vThumbTop.value && y <= vThumbTop.value + vThumbHeight.value) {
-        pointerEvent.preventDefault();
-        startDrag('v', pointerEvent);
-    } else {
-        const travel = getTrackTravel(track.getBoundingClientRect().height, vThumbHeight.value);
-        const scrollRange = getScrollableRange(element.scrollHeight, element.clientHeight);
-        element.scrollTop = getScrollOffsetFromPointer(y, vThumbHeight.value, travel, scrollRange);
-    }
-    showThumbs();
+function handleScroll(): void {
+    updateThumbs();
+    handleShowThumbs();
 }
 
-function handleHTrackPointerDown(pointerEvent: PointerEvent): void {
-    const track = hTrack.value;
-    const element = scrollElement.value;
-    if (!track || !element) return;
-    const x = pointerEvent.clientX - track.getBoundingClientRect().left;
-    if (x >= hThumbLeft.value && x <= hThumbLeft.value + hThumbWidth.value) {
-        pointerEvent.preventDefault();
-        startDrag('h', pointerEvent);
-    } else {
-        const travel = getTrackTravel(track.getBoundingClientRect().width, hThumbWidth.value);
-        const scrollRange = getScrollableRange(element.scrollWidth, element.clientWidth);
-        element.scrollLeft = getScrollOffsetFromPointer(x, hThumbWidth.value, travel, scrollRange);
-    }
-    showThumbs();
-}
-
-function handleVTrackTouchStart(touchEvent: TouchEvent): void {
-    const track = vTrack.value;
-    if (!track) return;
-    const y = touchEvent.touches[0].clientY - track.getBoundingClientRect().top;
-    if (y >= vThumbTop.value && y <= vThumbTop.value + vThumbHeight.value) {
-        startDrag('v', touchEvent);
-    }
-    showThumbs();
-}
-
-function handleHTrackTouchStart(touchEvent: TouchEvent): void {
-    const track = hTrack.value;
-    if (!track) return;
-    const x = touchEvent.touches[0].clientX - track.getBoundingClientRect().left;
-    if (x >= hThumbLeft.value && x <= hThumbLeft.value + hThumbWidth.value) {
-        startDrag('h', touchEvent);
-    }
-    showThumbs();
-}
-
-function getScrollOffsetFromPointer(pointerOffset: number, thumbLength: number, travel: number, scrollRange: number): number {
-    return scrollRange === 0 || travel === 0 ? 0 : clamp((pointerOffset - thumbLength / 2) / travel, 0, 1) * scrollRange;
-}
-
-// UI Helpers: Wheel forwarding ────────────────────────────────────────────────────────────────────────────────────────
+// Wheel Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleTrackWheel(wheelEvent: WheelEvent): void {
     const element = scrollElement.value;
@@ -229,36 +200,76 @@ function handleTrackWheel(wheelEvent: WheelEvent): void {
     element.scrollBy({ left: wheelEvent.deltaX, top: wheelEvent.deltaY });
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Shared Geometry Helpers ─────────────────────────────────────────────────────────────────────────────────────────────
 
-function clamp(value: number, min: number, max: number): number {
-    return Math.max(min, Math.min(value, max));
+function updateThumbs(): void {
+    const element = scrollElement.value;
+    if (!element) return;
+    const { scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth } = element;
+    const verticalBottomInset = getVerticalBottomInset(element);
+
+    const verticalRatio = clientHeight / scrollHeight;
+    const horizontalRatio = clientWidth / scrollWidth;
+
+    verticalVisible.value = verticalRatio < 1;
+    horizontalVisible.value = horizontalRatio < 1;
+
+    verticalThumbHeight.value = Math.max(verticalRatio * clientHeight, 32);
+    horizontalThumbWidth.value = Math.max(horizontalRatio * clientWidth, 32);
+
+    const verticalTrackHeight = Math.max(0, clientHeight - verticalBottomInset);
+    const horizontalTrackRightInset = verticalVisible.value ? verticalThumbRightOffset : 0;
+    const horizontalTrackWidth = Math.max(0, clientWidth - horizontalTrackRightInset);
+    const verticalTravel = getTrackTravel(verticalTrackHeight, verticalThumbHeight.value);
+    const horizontalTravel = getTrackTravel(horizontalTrackWidth, horizontalThumbWidth.value);
+    const verticalScrollRange = getScrollableRange(scrollHeight, clientHeight);
+    const horizontalScrollRange = getScrollableRange(scrollWidth, clientWidth);
+
+    verticalThumbTop.value = getThumbPosition(scrollTop, verticalScrollRange, verticalTravel);
+    horizontalThumbLeft.value = getThumbPosition(scrollLeft, horizontalScrollRange, horizontalTravel);
+
+    verticalScrollPercent.value = verticalScrollRange === 0 ? 0 : clamp((scrollTop / verticalScrollRange) * 100, 0, 100);
+    horizontalScrollPercent.value = horizontalScrollRange === 0 ? 0 : clamp((scrollLeft / horizontalScrollRange) * 100, 0, 100);
 }
 
-function getScrollableRange(scrollSize: number, clientSize: number): number {
-    return Math.max(0, scrollSize - clientSize);
-}
-
-function getTrackTravel(trackLength: number, thumbLength: number): number {
-    return Math.max(0, trackLength - thumbLength);
+function getThumbPosition(scrollOffset: number, scrollRange: number, travel: number): number {
+    return scrollRange === 0 || travel === 0 ? 0 : clamp((scrollOffset / scrollRange) * travel, 0, travel);
 }
 
 function getVerticalBottomInset(element: HTMLElement): number {
     const inset = Number.parseFloat(getComputedStyle(element).paddingBottom);
     return Number.isFinite(inset) ? inset : 0;
 }
+
+function getTrackTravel(trackLength: number, thumbLength: number): number {
+    return Math.max(0, trackLength - thumbLength);
+}
+
+function getScrollableRange(scrollSize: number, clientSize: number): number {
+    return Math.max(0, scrollSize - clientSize);
+}
+
+function clamp(value: number, min: number, max: number): number {
+    return Math.max(min, Math.min(value, max));
+}
 </script>
 
 <template>
     <div class="scroll-area-wrapper">
-        <div ref="scrollElement" :class="['scroll-area', scrollAreaInset]">
+        <div :id="scrollElementId" ref="scrollElement" :class="['scroll-area', scrollAreaInset]">
             <slot />
         </div>
 
-        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div
-            v-if="vVisible"
-            ref="vTrack"
+            v-if="verticalVisible"
+            ref="verticalTrack"
+            role="scrollbar"
+            tabindex="0"
+            aria-orientation="vertical"
+            :aria-controls="scrollElementId"
+            :aria-valuenow="Math.round(verticalScrollPercent)"
+            aria-valuemin="0"
+            aria-valuemax="100"
             class="scrollbar-track scrollbar-track-v"
             :class="{ 'scrollbar-visible': thumbsShown }"
             :style="{
@@ -269,27 +280,35 @@ function getVerticalBottomInset(element: HTMLElement): number {
                           ? 'var(--vertical-scroll-bottom-screen-inset)'
                           : '0px'
             }"
-            @pointerdown="handleVTrackPointerDown"
-            @touchstart="handleVTrackTouchStart"
-            @mouseenter="showThumbs"
+            @pointerdown="handleVerticalTrackPointerDown"
+            @touchstart="handleVerticalTrackTouchStart"
+            @mouseenter="handleShowThumbs"
+            @focusin="handleShowThumbs"
             @wheel="handleTrackWheel"
         >
-            <div class="scrollbar-thumb" :style="{ height: vThumbHeight + 'px', transform: `translateY(${vThumbTop}px)` }" />
+            <div class="scrollbar-thumb" :style="{ height: verticalThumbHeight + 'px', transform: `translateY(${verticalThumbTop}px)` }" />
         </div>
 
-        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div
-            v-if="hVisible"
-            ref="hTrack"
+            v-if="horizontalVisible"
+            ref="horizontalTrack"
+            role="scrollbar"
+            tabindex="0"
+            aria-orientation="horizontal"
+            :aria-controls="scrollElementId"
+            :aria-valuenow="Math.round(horizontalScrollPercent)"
+            aria-valuemin="0"
+            aria-valuemax="100"
             class="scrollbar-track scrollbar-track-h"
             :class="{ 'scrollbar-visible': thumbsShown }"
-            :style="{ right: vVisible ? verticalThumbRightOffset + 'px' : '0' }"
-            @pointerdown="handleHTrackPointerDown"
-            @touchstart="handleHTrackTouchStart"
-            @mouseenter="showThumbs"
+            :style="{ right: verticalVisible ? verticalThumbRightOffset + 'px' : '0' }"
+            @pointerdown="handleHorizontalTrackPointerDown"
+            @touchstart="handleHorizontalTrackTouchStart"
+            @mouseenter="handleShowThumbs"
+            @focusin="handleShowThumbs"
             @wheel="handleTrackWheel"
         >
-            <div class="scrollbar-thumb" :style="{ width: hThumbWidth + 'px', transform: `translateX(${hThumbLeft}px)` }" />
+            <div class="scrollbar-thumb" :style="{ width: horizontalThumbWidth + 'px', transform: `translateX(${horizontalThumbLeft}px)` }" />
         </div>
     </div>
 </template>
