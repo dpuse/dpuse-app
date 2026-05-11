@@ -214,12 +214,12 @@ function updateThumbs(): void {
     verticalVisible.value = verticalRatio < 1;
     horizontalVisible.value = horizontalRatio < 1;
 
-    verticalThumbHeight.value = Math.max(verticalRatio * clientHeight, 32);
-    horizontalThumbWidth.value = Math.max(horizontalRatio * clientWidth, 32);
-
     const verticalTrackHeight = Math.max(0, clientHeight - verticalBottomInset);
     const horizontalTrackRightInset = verticalVisible.value ? verticalThumbRightOffset : 0;
     const horizontalTrackWidth = Math.max(0, clientWidth - horizontalTrackRightInset);
+
+    verticalThumbHeight.value = Math.max(verticalRatio * verticalTrackHeight, 32);
+    horizontalThumbWidth.value = Math.max(horizontalRatio * horizontalTrackWidth, 32);
     const verticalTravel = getTrackTravel(verticalTrackHeight, verticalThumbHeight.value);
     const horizontalTravel = getTrackTravel(horizontalTrackWidth, horizontalThumbWidth.value);
     const verticalScrollRange = getScrollableRange(scrollHeight, clientHeight);
