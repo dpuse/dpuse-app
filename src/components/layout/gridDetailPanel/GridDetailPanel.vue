@@ -1,15 +1,15 @@
 <script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; label: string }">
 // External Dependencies
-import { XIcon } from 'lucide-vue-next';
 import { nextTick, ref, watch } from 'vue';
+import { PlusIcon, XIcon } from 'lucide-vue-next';
 
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
 
 // Local Components - Static
+import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
 import Button from '@/components/ui/button/Button.vue';
-import FloatingActionButton from '@/components/layout/floatingActionButton/FloatingActionButton.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 
@@ -79,13 +79,15 @@ async function selectItem(row: T): Promise<void> {
                     </template>
                 </Grid>
 
-                <FloatingActionButton
-                    v-if="enableAddAction"
-                    class="absolute bottom-(--safe-bottom-offset) left-1/2 -translate-x-1/2"
-                    :component-type-label="'Connection'"
-                    variant="add"
-                    :verb="'Add'"
-                />
+                <ActionBar v-if="enableAddAction" class="absolute right-4 bottom-(--safe-bottom-offset)" variant="add">
+                    <template #action>
+                        <div class="flex flex-col items-end pl-1.25">
+                            <span class="text-xs leading-none">Add</span>
+                            <span class="text-xs leading-none">Connection</span>
+                        </div>
+                        <PlusIcon />
+                    </template>
+                </ActionBar>
             </div>
 
             <!-- Detail (Right) Pane -->
@@ -98,7 +100,7 @@ async function selectItem(row: T): Promise<void> {
                 <!-- Detail Panel -->
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
-                    <div class="border-separator ml-4 flex h-10 items-center gap-x-1 border-b">
+                    <div class="border-separator ml-4 flex h-10 items-center gap-x-1 border-b text-sm">
                         <!-- Icon -->
                         <div class="flex size-7 items-center justify-center">
                             <div v-if="activeItem.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="activeItem.icon || activeItem.iconDark" />

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
+import { ArrowBigRightIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
@@ -11,7 +12,7 @@ import T from './SelectConnectionForm.json';
 import { t } from '@/state/locale';
 
 // Local Components - Static
-import FloatingActionButton from '@/components/layout/floatingActionButton/FloatingActionButton.vue';
+import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
@@ -82,12 +83,18 @@ async function handleSubmit(): Promise<void> {
             <div>version: {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
         </ScrollArea>
 
-        <FloatingActionButton
-            class="absolute bottom-(--safe-bottom-offset) left-1/2 -translate-x-1/2"
-            :component-type-label="'Connection'"
+        <ActionBar
+            class="absolute right-4 bottom-(--safe-bottom-offset)"
             variant="step"
-            :verb="'Select'"
-            @click="handleSubmit"
-        />
+            @action="handleSubmit"
+        >
+            <template #action>
+                <div class="flex flex-col items-end leading-none">
+                    <span>Select</span>
+                    <span>Connection</span>
+                </div>
+                <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
+            </template>
+        </ActionBar>
     </form>
 </template>
