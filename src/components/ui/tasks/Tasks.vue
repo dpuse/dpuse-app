@@ -23,7 +23,7 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
 </script>
 
 <template>
-    <div v-if="items" class="flex gap-x-3 overflow-x-auto overscroll-x-none pt-2 -mt-2 text-[15px]">
+    <div v-if="items" class="-mt-1.5 flex gap-x-3 overflow-x-auto overscroll-x-none pt-2 text-[15px]">
         <component
             :is="item.disabled ? 'div' : Button"
             v-for="item in items"
@@ -48,27 +48,15 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
             >
                 {{ item.number }}
             </div>
-            <div class="h-1" />
 
             <div
-                class="text-sm font-medium"
+                class="mt-1 mb-0.5 text-sm leading-tight"
                 :class="{
                     'text-accent': activeStepId === item.id || !item.disabled,
                     'text-muted': item.disabled
                 }"
             >
-                <span class="block sm:hidden">{{ item.verb }}</span>
-                <!-- <span class="hidden sm:block">{{ t(T, 'task') }}&nbsp;{{ item.number }}</span> -->
-            </div>
-
-            <div
-                class="text-sm"
-                :class="{
-                    'text-zinc-800 dark:text-zinc-300': activeStepId === item.id || !item.disabled,
-                    'text-muted': item.disabled
-                }"
-            >
-                <span class="block sm:hidden">{{ item.label }}</span>
+                <span class="block sm:hidden">{{ item.verb }}<br />{{ item.label }}</span>
                 <span class="hidden sm:block">{{ item.verb }} {{ item.label }}</span>
             </div>
         </component>
