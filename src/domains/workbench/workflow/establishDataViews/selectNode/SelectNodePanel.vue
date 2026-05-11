@@ -260,11 +260,11 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                     @action="handleSubmit"
                 >
                     <template #action>
-                        <div class="flex flex-col items-end leading-none">
+                        <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
+                        <div class="flex flex-col items-start leading-tight">
                             <span>{{ t(T, 'select') }}</span>
                             <span>{{ t(T, 'node') }}</span>
                         </div>
-                        <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
                     </template>
                 </ActionBar>
             </div>

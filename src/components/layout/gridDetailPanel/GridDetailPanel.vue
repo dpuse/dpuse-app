@@ -81,11 +81,11 @@ async function selectItem(row: T): Promise<void> {
 
                 <ActionBar v-if="enableAddAction" class="absolute right-4 bottom-(--safe-bottom-offset)" variant="add">
                     <template #action>
-                        <div class="flex flex-col items-end pl-1.25">
+                        <PlusIcon />
+                        <div class="flex flex-col items-start leading-tight">
                             <span class="text-xs leading-none">Add</span>
                             <span class="text-xs leading-none">Connection</span>
                         </div>
-                        <PlusIcon />
                     </template>
                 </ActionBar>
             </div>

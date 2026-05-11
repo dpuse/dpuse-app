@@ -83,17 +83,13 @@ async function handleSubmit(): Promise<void> {
             <div>version: {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
         </ScrollArea>
 
-        <ActionBar
-            class="absolute right-4 bottom-(--safe-bottom-offset)"
-            variant="step"
-            @action="handleSubmit"
-        >
+        <ActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" variant="step" @action="handleSubmit">
             <template #action>
-                <div class="flex flex-col items-end leading-none">
+                <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
+                <div class="flex flex-col items-start leading-tight">
                     <span>Select</span>
                     <span>Connection</span>
                 </div>
-                <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
             </template>
         </ActionBar>
     </form>
