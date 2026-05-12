@@ -83,11 +83,29 @@ export default defineConfigWithVueTs(
             'sonarjs/deprecation': 'off',
             'sonarjs/no-commented-code': 'warn',
             'sonarjs/no-dead-store': 'warn',
-            'sonarjs/no-selector-parameter': 'warn',
+            'sonarjs/no-selector-parameter': 'off',
             'sonarjs/no-unused-vars': 'warn',
             'sonarjs/unused-import': 'warn',
             'sonarjs/todo-tag': 'off',
             'sonarjs/void-use': 'off', // `void ref.value` is the Vue idiom for explicit dependency tracking in computed()
+
+            'tailwindcss/no-custom-classname': [
+                'warn',
+                {
+                    whitelist: [
+                        'bg-card',
+                        'bg-card-hover',
+                        'bg-surface',
+                        'border-separator',
+                        'outline-boundary',
+                        'outline-boundary-hover',
+                        'text-content',
+                        'text-muted',
+                        'to-surface/95',
+                        'via-surface/80'
+                    ]
+                }
+            ],
 
             'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['App.vue', 'DPUseLogo.vue' /*'src/components/icon(?:/.*)?'*/] }],
             'unicorn/no-null': 'off',

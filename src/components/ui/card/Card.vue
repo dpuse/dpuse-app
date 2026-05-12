@@ -1,14 +1,38 @@
 <script setup lang="ts">
-// Options, Properties, Slots & Emits
+// External Dependencies
+import { computed, ref } from 'vue';
+
+// Local (App) Framework
+import { isDarkMode } from '@/state/appLayout';
+
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+
 type Badge = { id: string; color?: string; label: string };
 type Properties = { badges?: Badge[]; description?: string; icon?: string; iconDark?: string; iconNeutral?: string; isCompact?: boolean; label: string; overline?: string };
 const { badges = [], description, icon, iconDark, iconNeutral, isCompact = false, label, overline } = defineProps<Properties>();
+
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const isHovering = ref(false);
+
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const displayIcon = computed(() => {
+    const hoverIcon = isDarkMode.value ? (iconDark ?? icon ?? iconNeutral) : (icon ?? iconDark ?? iconNeutral);
+    const defaultIcon = iconNeutral;
+    return isHovering.value ? hoverIcon : defaultIcon;
+});
 </script>
 
 <template>
     <div
         class="bg-card outline-boundary hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover relative flex h-full w-full cursor-pointer flex-col gap-y-4 font-light outline -outline-offset-1 transition-colors"
         :class="isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4'"
+        role="presentation"
+        @focusin="isHovering = true"
+        @focusout="isHovering = false"
+        @mouseenter="isHovering = true"
+        @mouseleave="isHovering = false"
     >
         <!-- Badges -->
         <div v-if="!isCompact" class="absolute top-0 right-0 flex gap-x-1 pt-1.5 pr-1.5">
@@ -28,9 +52,8 @@ const { badges = [], description, icon, iconDark, iconNeutral, isCompact = false
 
         <!-- Icon, Overline & Label -->
         <div class="flex items-center gap-x-2">
-            <div v-if="icon || iconDark || iconNeutral" class="flex flex-none items-center justify-center rounded-md" :class="isCompact ? 'size-6' : 'size-8'">
-                <div aria-hidden="true" class="block w-full text-zinc-400 dark:hidden dark:text-zinc-400" v-html="iconNeutral || icon || iconDark" />
-                <div aria-hidden="true" class="hidden w-full text-zinc-400 dark:block dark:text-zinc-400" v-html="iconNeutral || iconDark || icon" />
+            <div v-if="icon || iconDark || iconNeutral" class="flex flex-none items-center justify-center rounded-md text-zinc-400" :class="isCompact ? 'size-6' : 'size-8'">
+                <div aria-hidden="true" class="flex h-full w-full items-center justify-center" v-html="displayIcon" />
             </div>
 
             <div class="flex flex-col overflow-x-hidden">
