@@ -1,9 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { computed, ref } from 'vue';
-
-// Local (App) Framework
-import { isDarkMode } from '@/state/appLayout';
+import { ref } from 'vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -14,14 +11,6 @@ const { badges = [], description, icon, iconDark, iconNeutral, isCompact = false
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const isHovering = ref(false);
-
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const displayIcon = computed(() => {
-    const hoverIcon = isDarkMode.value ? (iconDark ?? icon ?? iconNeutral) : (icon ?? iconDark ?? iconNeutral);
-    const defaultIcon = iconNeutral;
-    return isHovering.value ? hoverIcon : defaultIcon;
-});
 </script>
 
 <template>
@@ -52,8 +41,11 @@ const displayIcon = computed(() => {
 
         <!-- Icon, Overline & Label -->
         <div class="flex items-center gap-x-2">
-            <div v-if="icon || iconDark || iconNeutral" class="flex flex-none items-center justify-center rounded-md text-zinc-400" :class="isCompact ? 'size-6' : 'size-8'">
-                <div aria-hidden="true" class="flex h-full w-full items-center justify-center" v-html="displayIcon" />
+            <div v-if="icon || iconDark || iconNeutral" class="flex flex-none items-center justify-center rounded-md" :class="isCompact ? 'size-6' : 'size-8'">
+                <div v-if="!isHovering" aria-hidden="true" class="block w-full text-zinc-400 dark:hidden dark:text-zinc-400" v-html="iconNeutral || icon || iconDark" />
+                <div v-if="!isHovering" aria-hidden="true" class="hidden w-full text-zinc-400 dark:block dark:text-zinc-400" v-html="iconNeutral || iconDark || icon" />
+                <div v-if="isHovering" aria-hidden="true" class="block w-full text-zinc-400 dark:hidden dark:text-zinc-400" v-html="icon || iconDark" />
+                <div v-if="isHovering" aria-hidden="true" class="hidden w-full text-zinc-400 dark:block dark:text-zinc-400" v-html="iconDark || icon" />
             </div>
 
             <div class="flex flex-col overflow-x-hidden">
