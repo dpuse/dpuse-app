@@ -97,6 +97,7 @@ export default defineConfigWithVueTs(
                         'bg-card-hover',
                         'bg-surface',
                         'border-separator',
+                        'border-b-boundary',
                         'outline-boundary',
                         'outline-boundary-hover',
                         'text-content',

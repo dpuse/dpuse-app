@@ -11,7 +11,11 @@ import type { RouteLocationRaw } from 'vue-router';
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 export type ListItemVariant = 'destructive' | 'neutral';
-const { variant = 'neutral', isActive = false, to } = defineProps<{
+const {
+    variant = 'neutral',
+    isActive = false,
+    to
+} = defineProps<{
     variant?: ListItemVariant;
     isActive?: boolean;
     to?: RouteLocationRaw;
@@ -30,7 +34,7 @@ const classes = computed(() => [
         : [
               'bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300',
               'dark:bg-zinc-300/10 dark:hover:bg-zinc-300/25 dark:active:bg-zinc-300/35 dark:focus-visible:ring-zinc-500',
-              isActive ? 'bg-blue-50! dark:bg-blue-300/30! cursor-default! pointer-events-none!' : undefined
+              isActive ? 'bg-blue-50! dark:bg-zinc-300/20! cursor-default! pointer-events-none!' : undefined
           ]
 ]);
 </script>

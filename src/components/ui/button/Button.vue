@@ -26,7 +26,7 @@ const COMMON_POSITIVE_CLASSES = [
 ];
 const COMMON_NEUTRAL_CLASSES = [
     'bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 text-zinc-900 focus-visible:ring-zinc-300',
-    'dark:bg-zinc-300/25 dark:hover:bg-zinc-300/35 dark:active:bg-zinc-300/45 dark:focus-visible:ring-zinc-500 dark:text-content'
+    'dark:bg-zinc-300/20 dark:hover:bg-zinc-300/35 dark:active:bg-zinc-300/45 dark:focus-visible:ring-zinc-500 dark:text-content'
 ];
 const COMMON_GHOST_CLASSES = [
     'bg-transparent hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300',
@@ -61,7 +61,7 @@ const classes = computed((): (string | string[] | undefined)[] => {
                 COMMON_GRAPHIC_CLASSES,
                 COMMON_ICON_CLASSES,
                 'bg-zinc-50 py-2 px-2.5 [&_svg]:size-5 dark:bg-zinc-300/10',
-                isActive ? 'bg-blue-50! dark:bg-blue-300/30! cursor-default! pointer-events-none!' : undefined
+                isActive ? 'bg-blue-50! dark:bg-zinc-300/25! cursor-default! pointer-events-none!' : undefined
             ];
         }
         return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.75 [&_svg]:size-[26px]'];
