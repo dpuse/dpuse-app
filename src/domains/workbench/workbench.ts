@@ -22,7 +22,6 @@ export interface BenchtopOptionConfig {
     id: string;
     label: LocaleLabel;
     description: LocaleLabel;
-    color: string;
     icon: string;
     step: number;
     tasks: BenchtopOptionStepConfig[];

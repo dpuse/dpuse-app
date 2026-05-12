@@ -191,13 +191,13 @@ async function toggleFullscreen(): Promise<void> {
                 <Separator class="mt-4 mb-2" />
 
                 <!-- Expiry Timer -->
-                <template v-if="isAuthenticated">
+                <!-- <template v-if="isAuthenticated">
                     <div class="text-muted text-xs">Expires in {{ formattedExpiresIn }}</div>
                     <div class="mb-1 flex h-1.5 w-full flex-none overflow-hidden rounded-full">
                         <div class="bg-green-500 transition-[width] duration-1000 ease-linear" :style="{ width: `${100 - elapsed}%` }" />
                         <div class="bg-amber-500 transition-[width] duration-1000 ease-linear" :style="{ width: `${elapsed}%` }" />
                     </div>
-                </template>
+                </template> -->
 
                 <!-- Manage Account -->
                 <Button v-if="isAuthenticated" class="mt-2 min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>

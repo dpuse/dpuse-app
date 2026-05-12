@@ -21,7 +21,7 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
 </script>
 
 <template>
-    <div class="-mt-1.5 flex gap-x-3 overflow-x-auto overscroll-x-none pt-2 text-[15px]">
+    <div class="flex gap-x-3 overflow-x-auto overscroll-x-none text-[15px]">
         <component
             :is="item.disabled ? 'div' : Button"
             v-for="item in items"
@@ -48,7 +48,7 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
             </div> -->
 
             <div
-                class="mt-1 mb-0.5 text-sm leading-tight"
+                class="mt-0.5 mb-2 text-sm leading-tight"
                 :class="{
                     'text-accent': activeStepId === item.id || !item.disabled,
                     'text-muted': item.disabled

@@ -33,13 +33,7 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
                     shape="minimal"
                     :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
                 >
-                    <Card
-                        :description="config.description"
-                        :icon="config.icon"
-                        :icon-color="config.color"
-                        :label="config.label"
-                        :overline="t(T, 'wb.wf.step', { number: config.step })"
-                    />
+                    <Card :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                 </Button>
             </div>
         </ScrollArea>

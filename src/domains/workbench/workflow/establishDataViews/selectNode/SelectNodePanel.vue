@@ -24,6 +24,7 @@ import { localeId, t } from '@/state/locale';
 // Local Components - Static
 import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
+import Card from '@/components/ui/card/Card.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/layout/placeholders/SelectPlaceholder.vue';
@@ -223,15 +224,20 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 </script>
 
 <template>
-    <GridDetailPanel :active-item="activeItem" :data-source="dataSource" max-list-width="400px" @select="selectConnectionNode($event)">
+    <GridDetailPanel :active-item="activeItem" :data-source="dataSource" :is-compact="true" max-list-width="400px" @select="selectConnectionNode($event)">
         <template #header>
             <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
                 <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeItem == null" @select="selectBreadcrumb" />
             </div>
         </template>
 
-        <template #list-item-compact="{ item }">
+        <!-- <template #list-item-compact="{ item }">
             <Tile v-if="item" :label="item.label" />
+        </template> -->
+
+        <template #list-item-default="{ item }">
+            <!-- <Tile v-if="item" :label="item.label" /> -->
+            <Card v-if="item" :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
         </template>
 
         <template #detail>

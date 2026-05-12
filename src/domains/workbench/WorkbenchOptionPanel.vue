@@ -45,7 +45,7 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
                     :aria-label="t(T, 'home.aria')"
                     shape="icon"
                     :to="{ name: 'workflow', query: { ...$route.query, wbView: 'workflow' } }"
-                    @click="handleComplete({ id: 'home', label: '', color: '', description: '', icon: '', step: 0, tasks: [] })"
+                    @click="handleComplete({ id: 'home', label: '', description: '', icon: '', step: 0, tasks: [] })"
                 >
                     <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
                 </Button>
@@ -58,7 +58,7 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
                     :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
                     @click="handleComplete(config)"
                 >
-                    <div aria-hidden="true" :style="{ color: `${config.color}` }" v-html="config.icon" />
+                    <div aria-hidden="true" v-html="config.icon" />
                 </Button>
             </div>
         </ScrollArea>

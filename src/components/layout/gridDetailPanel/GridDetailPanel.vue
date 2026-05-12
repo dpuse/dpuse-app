@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; label: string }">
+<script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; iconNeutral?: string | null; label: string }">
 // External Dependencies
 import { nextTick, ref, watch } from 'vue';
 import { PlusIcon, XIcon } from 'lucide-vue-next';
@@ -15,8 +15,8 @@ import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { activeItem?: T; dataSource: DataSource<T>; enableAddAction?: boolean; maxListWidth?: string; maxDetailWidth?: string };
-const { activeItem, dataSource, enableAddAction = false, maxListWidth, maxDetailWidth } = defineProps<Properties>();
+type Properties = { activeItem?: T; dataSource: DataSource<T>; enableAddAction?: boolean; isCompact?: boolean; maxListWidth?: string; maxDetailWidth?: string };
+const { activeItem, dataSource, enableAddAction = false, isCompact = false, maxListWidth, maxDetailWidth } = defineProps<Properties>();
 
 const slots = defineSlots<{
     'header'(): unknown;
@@ -65,17 +65,11 @@ async function selectItem(row: T): Promise<void> {
         <div class="flex flex-1 overflow-hidden">
             <!-- Grid (Left) Pane -->
             <div v-show="displayIsWide || !detailPaneIsVisible" class="relative flex-1 overflow-hidden" :style="getPaneStyle(maxListWidth)">
-                <Grid :data-source="dataSource" :row-height="83" :target-column-width="350">
-                    <template v-if="slots['list-item-default']" #default="{ item }">
+                <Grid :data-source="dataSource" :is-compact="isCompact" :row-height="83" :target-column-width="250">
+                    <template #default="{ item }">
                         <Button class="h-full w-full" :is-active="activeItem === item" shape="minimal" @click="selectItem(item)">
                             <slot name="list-item-default" :item="item" />
                         </Button>
-                    </template>
-
-                    <template v-if="slots['list-item-compact']" #compact="{ item }">
-                        <ListItemButton class="h-full" :is-active="activeItem === item" @click="selectItem(item)">
-                            <slot name="list-item-compact" :item="item" />
-                        </ListItemButton>
                     </template>
                 </Grid>
 
@@ -131,7 +125,7 @@ async function selectItem(row: T): Promise<void> {
                 </div>
 
                 <!-- No Selection -->
-                <div v-else class="pt-4 pl-4">
+                <div v-else class="mt-4 ml-4">
                     <slot name="no-selection" />
                 </div>
             </div>

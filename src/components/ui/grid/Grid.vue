@@ -11,18 +11,16 @@ import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
+    cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     dataSource: DataSource<T>;
+    isCompact?: boolean;
+    maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
     rowHeight?: number; // Row height in px. Default: 48.
     targetColumnWidth?: number; // When set, multiple items are shown per row based on available width.
-    cacheBlockSize?: number; // Rows fetched per request. Default: 100.
-    maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
 };
-const { dataSource, rowHeight = 48, targetColumnWidth, cacheBlockSize, maxBlocksInCache } = defineProps<Properties>();
+const { cacheBlockSize, dataSource, isCompact = false, maxBlocksInCache, rowHeight = 48, targetColumnWidth } = defineProps<Properties>();
 
-const slots = defineSlots<{
-    compact?(properties: { index: number; item: T }): unknown;
-    default?(properties: { index: number; item: T }): unknown;
-}>();
+defineSlots<{ default?(properties: { index: number; item: T }): unknown }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -31,7 +29,7 @@ const columnWidth = ref(0);
 const scrollElement = shallowRef<HTMLElement | null>(null);
 const resizeObserver = new ResizeObserver((entries) => {
     const width = entries[0]!.contentRect.width;
-    if (!slots.default || targetColumnWidth == null) {
+    if (isCompact || targetColumnWidth == null) {
         columnCount.value = 1;
         columnWidth.value = width;
     } else {
@@ -44,7 +42,7 @@ const { virtualRows, totalSize, getRow } = useDataWindow({
     dataSource: () => dataSource,
     count: () => Math.ceil(dataSource.rowCount / columnCount.value),
     getDataIndexes: (virtualRowIndex) => Array.from({ length: columnCount.value }, (_, col) => virtualRowIndex * columnCount.value + col),
-    estimateSize: () => (!slots.default || (slots.compact && columnCount.value === 1) ? 48 : rowHeight),
+    estimateSize: () => (isCompact ? 48 : rowHeight),
     cacheBlockSize: cacheBlockSize == null ? undefined : (): number => cacheBlockSize,
     maxBlocksInCache: maxBlocksInCache == null ? undefined : (): number => maxBlocksInCache
 });
@@ -53,7 +51,6 @@ const { virtualRows, totalSize, getRow } = useDataWindow({
 
 const rowWidth = computed(() => columnCount.value * columnWidth.value);
 const columnOffsets = computed(() => Array.from({ length: columnCount.value }, (_, index) => index));
-const isCompact = computed(() => !slots.default || (!!slots.compact && columnCount.value === 1));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -61,7 +58,7 @@ onUnmounted(() => resizeObserver.disconnect());
 
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleInitialised(viewport: HTMLElement): void {
+function handleScrollAreaInitialised(viewport: HTMLElement): void {
     resizeObserver.disconnect();
     scrollElement.value = viewport;
     resizeObserver.observe(viewport);
@@ -69,7 +66,7 @@ function handleInitialised(viewport: HTMLElement): void {
 </script>
 
 <template>
-    <ScrollArea class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleInitialised">
+    <ScrollArea class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleScrollAreaInitialised">
         <div :style="{ height: totalSize + 'px', position: 'relative' }">
             <div
                 v-for="virtualRow in virtualRows"
@@ -82,16 +79,11 @@ function handleInitialised(viewport: HTMLElement): void {
                     <div v-if="virtualRow.index * columnCount + columnOffset < dataSource.rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
                         <div class="h-full pl-4" :class="[isCompact ? 'pt-2' : 'pt-4']">
                             <slot
-                                v-if="isCompact && getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
-                                name="compact"
+                                v-if="getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
                                 :item="getRow(virtualRow.index * columnCount + columnOffset) as T"
                                 :index="virtualRow.index * columnCount + columnOffset"
                             />
-                            <slot
-                                v-else-if="getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
-                                :item="getRow(virtualRow.index * columnCount + columnOffset) as T"
-                                :index="virtualRow.index * columnCount + columnOffset"
-                            />
+
                             <div v-else class="flex h-full items-center px-3">
                                 <div class="h-4 w-3/4 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700" />
                             </div>

@@ -31,7 +31,7 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
                         <Button v-for="config in workflowOptionConfigs" :key="config.id" shape="minimal" class="flex flex-col" :to="{ name: config.id, query: $route.query }">
                             <dt class="flex items-center gap-x-3 text-base/7 font-semibold text-gray-900">
                                 <!-- <component :is="feature.icon" class="size-5 flex-none text-indigo-600" aria-hidden="true" /> -->
-                                <div aria-hidden="true" style="height: 32px; width: 32px" :style="config.color ? { color: config.color } : undefined" v-html="config.icon" />
+                                <div aria-hidden="true" style="height: 32px; width: 32px" v-html="config.icon" />
                                 {{ config.label }}
                             </dt>
                             <dd class="mt-4 flex flex-auto flex-col text-base/7 text-gray-600">
