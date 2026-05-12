@@ -17,7 +17,7 @@ import { activeConnectionConfig, activeDataViewConfig } from '@/state/establishD
 import Card from '@/components/ui/card/Card.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
-import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+import SelectPlaceholder from '@/components/layout/placeholders/SelectPlaceholder.vue';
 import type { TaskConfig } from '@/components/layout/tasks/Tasks.vue';
 import Tile from '@/components/ui/tile/Tile.vue';
 

@@ -26,7 +26,7 @@ import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
 import Breadcrumbs from '@/components/ui/breadcrumbs/Breadcrumbs.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
-import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+import SelectPlaceholder from '@/components/layout/placeholders/SelectPlaceholder.vue';
 import Table from '@/components/ui/table/Table.vue';
 import type { TaskConfig } from '@/components/layout/tasks/Tasks.vue';
 import TextViewer from '@/components/layout/textViewer/TextViewer.vue';

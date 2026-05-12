@@ -26,7 +26,7 @@ import Grid from '@/components/ui/grid/Grid.vue';
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Local Components - Dynamic
-const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));
+const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/layout/placeholders/EmptyPlaceholder.vue'));
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -81,7 +81,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
 </script>
 
 <template>
-    <div class="mx-4 flex flex-none border-b border-separator py-1">
+    <div class="border-separator mx-4 flex flex-none border-b py-1">
         <div class="flex-1"></div>
 
         <Button @click="router.push({ name: '???', query: route.query })">
