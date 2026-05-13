@@ -51,6 +51,7 @@ export default defineConfig({
                 " object-src 'none';" +
                 " script-src 'self' https://engine-eu.dpuse.app 'wasm-unsafe-eval' 'sha256-HSvgr//xBF8qoKsX1FPA79evG6rtxroRm2NegRE7MHs=';" +
                 " style-src 'self' 'unsafe-inline';" + // 'unsafe-inline' is required in dev mode as Vite injects Tailwind CSS as inline <style> elements for HMR. Hashes required in production are not required here because of 'unsafe-inline' setting.
+                // TODO: 'unsafe-inline is also required in production (_headers) for v-html svg inserts, Can this be handled using trusted types policy?
                 " worker-src 'self' blob:;" +
                 ' trusted-types default overlayscrollbars vue;' +
                 " require-trusted-types-for 'script';",
