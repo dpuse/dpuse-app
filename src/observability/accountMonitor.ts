@@ -5,13 +5,14 @@ const TIMEOUT_DELAY = 5000;
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-let accountId: string | undefined;
+export let accountId: string | undefined;
 let webSocket: WebSocket | undefined;
 let webSocketShutdown = false;
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function initialise(userId: string): void {
+    console.log('userId', userId);
     accountId = userId;
     if (!(webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN))) {
         webSocket = connectToWebSocket();
