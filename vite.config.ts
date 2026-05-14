@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
 
-// Vite Configuration ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// Configuration ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export default defineConfig({
     plugins: [vue(), /*vueDevTools(),*/ tailwindcss(), cloudflare()],
@@ -55,6 +55,7 @@ export default defineConfig({
             'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self), clipboard-read=(self), clipboard-write=(self)',
             'Referrer-Policy': 'strict-origin-when-cross-origin'
         },
+        // Configure localhost deployment to use 'https'. This is required for desktop Safari.
         https: {
             key: '../../localhost/localhost+1-key.pem',
             cert: '../../localhost/localhost+1.pem'
