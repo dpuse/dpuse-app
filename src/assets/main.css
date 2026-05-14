@@ -46,14 +46,14 @@ html {
 
     /* Light mode colors. */
     --backdrop: #fdfdfd;
-    --surface: var(--color-white);
+    --surface: var(--color-white); /* NOTE: Also 'index.html' and 'public/manifest.webmanifest'. */
     --card: #fbfbfb;
     --card-hover: var(--color-zinc-100);
     --boundary: var(--color-zinc-100);
     --boundary-hover: var(--color-zinc-300);
     --separator: var(--color-zinc-200);
     --overlay: rgb(39 39 42 / 0.75);
-    --content: var(--color-zinc-600);
+    --content: var(--color-zinc-600); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-500);
     --subtle: var(--color-zinc-400);
     --emphasis: var(--color-zinc-700);
@@ -63,14 +63,14 @@ html {
 /* Dark mode colors. */
 .dark {
     --backdrop: var(--color-zinc-900);
-    --surface: var(--color-zinc-950);
+    --surface: var(--color-zinc-950); /* NOTE: Also 'index.html'. */
     --card: var(--color-zinc-900);
     --card-hover: var(--color-zinc-800);
     --boundary: var(--color-zinc-800);
     --boundary-hover: var(--color-zinc-500);
     --separator: var(--color-zinc-700);
     --overlay: rgb(63 63 70 / 0.75);
-    --content: var(--color-zinc-300);
+    --content: var(--color-zinc-300); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-400);
     --subtle: var(--color-zinc-500);
     --emphasis: var(--color-zinc-200);

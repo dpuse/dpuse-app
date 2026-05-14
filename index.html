@@ -6,19 +6,22 @@
         <meta name="color-scheme" content="dark light" />
 
         <title>DPUse App</title>
-        <meta name="description" content="Data Positioning & Usage workbench." />
+        <meta name="application-name" content="DPUse" />
+        <meta name="description" content="Data Positioning & Usage application." />
 
-        <!-- <link rel="preconnect" href="https://static.cloudflareinsights.com" /> -->
-        <link rel="preconnect" href="https://auth.dpuse.app" />
+        <link rel="dns-prefetch" href="//auth.dpuse.app" />
+        <link rel="preconnect" href="https://auth.dpuse.app" crossorigin />
 
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="DPUse" />
 
-        <!-- NOTE: Following is white -->
+        <!-- No-media theme-color fallback. -->
+        <meta name="theme-color" content="#ffffff" />
+        <!-- NOTE: white, same as light 'surface' in main.css. -->
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-        <!-- NOTE: Following is zinc-950 -->
+        <!-- NOTE: zinc-950, same as dark 'surface' in main.css. Uncertain as to support for 'oklch' as of May, 2026. -->
         <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
 
         <link rel="manifest" href="/manifest.webmanifest" />
@@ -26,26 +29,26 @@
         <link rel="icon" href="/favicon.ico" sizes="48x48" />
         <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
-        <!-- <link rel="shortcut icon" href="/favicon.ico" /> -->
 
         <!-- Styles for ensuring prior appearance is restored on load. Stops flashing. -->
-        <!-- CSP requires style-src hash in production for content of following style block. See console error message for required hash. -->
+        <!-- CSP requires style-src hash in production for following style block. See console error message for required hash. -->
         <style>
             html {
-                background-color: #09090b; /* zinc-950 */
-                color: #d4d4d8; /* zinc-300 */
+                background-color: #ffffff; /* NOTE: white, same as light 'surface' in main.css. */
+                color: oklch(44.2% 0.017 285.786); /* NOTE: zinc-600, same as light 'content' in main.css. */
             }
 
-            @media (prefers-color-scheme: light) {
+            @media (prefers-color-scheme: dark) {
                 html {
-                    background-color: #ffffff; /* white */
-                    color: #27272a; /* zinc-800 */
+                    background-color: oklch(14.1% 0.005 285.823); /* NOTE: zinc-950, same as dark 'surface' in main.css. */
+                    color: oklch(87.1% 0.006 286.286); /* NOTE: zinc-300, same as dark 'content' in main.css. */
                 }
             }
         </style>
 
-        <!-- Ensure prior appearance is restored on load. Stops flashing. -->
-        <!-- CSP requires script-src hash in production for content of following script block. See console error message for required hash. -->
+        <!-- Ensure prior appearance is restored on load to stop flashing. -->
+        <!-- TODO: Add E2E tests for no light-flash on cold load and auto-theme switching on iOS Safari and Android Chrome. -->
+        <!-- CSP requires script-src hash in production for following script block. See console error message for required hash. -->
         <script>
             (function () {
                 try {
