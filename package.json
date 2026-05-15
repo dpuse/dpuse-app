@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.1188",
+    "version": "0.0.1189",
     "private": true,
     "type": "module",
     "engines": {
@@ -23,7 +23,7 @@
         "rete-connection-plugin": "^2.0.5",
         "rete-render-utils": "^2.0.3",
         "rete-vue-plugin": "^2.1.2",
-        "sigma": "^4.0.0-alpha.5",
+        "sigma": "^3.0.3",
         "tailwindcss": "^4.3.0",
         "vue": "^3.5.34",
         "vue-router": "^5.0.7",
