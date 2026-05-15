@@ -93,6 +93,7 @@ export default defineConfigWithVueTs(
                 'warn',
                 {
                     whitelist: [
+                        'bg-backdrop',
                         'bg-card',
                         'bg-card-hover',
                         'bg-surface',

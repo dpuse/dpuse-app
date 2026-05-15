@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -10,9 +11,9 @@ import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
 import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions, UpsertRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local (App) Framework
-import { activeDataViewConfig } from '@/state/establishDataViews';
 import type { DataSource } from '@/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';
+import { setActiveDataViewConfig } from '@/state/establishDataViews';
 import { t } from '@/state/locale';
 import T from './DataViewList.json';
 import { useEngine } from '@/services/useEngine';
@@ -31,6 +32,9 @@ const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/layout/
 
 const dataViewRetrievalIsActive = ref(false);
 
+const route = useRoute();
+const router = useRouter();
+
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dataSource = computed(
@@ -43,6 +47,29 @@ const dataSource = computed(
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDataViews(newConnectionConfig), { immediate: true });
+
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// <ActionBar
+//     v-if="route.query.wbView === 'establishDataViews'"
+//     class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
+//     variant="add"
+//     :to="{ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } }"
+//     @click="setActiveDataViewConfig()"
+// >
+//     <template #action>
+//         <PlusIcon />
+//         <div class="flex flex-col items-start leading-tight">
+//             <span class="text-xs leading-none">Add</span>
+//             <span class="text-xs leading-none">Data View</span>
+//         </div>
+//     </template>
+// </ActionBar>
+
+function handleAdd(): void {
+    setActiveDataViewConfig();
+    router.push({ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } });
+}
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -58,44 +85,44 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
             await processRequest('createObject', connectionConfig, createObjectOptions);
         }
 
-        const options: UpsertRecordsOptions = {
-            path: '/dpuMetaStore/dataViews',
-            records: [
-                {
-                    id: '1',
-                    label: 'Data View 1',
-                    icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
-                    iconColor: '#4d83e0'
-                },
-                {
-                    id: '2',
-                    label: 'Data View 2',
-                    icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
-                    iconColor: '#4d83e0'
-                },
-                {
-                    id: '3',
-                    label: 'Data View 3',
-                    icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
-                    iconColor: '#4d83e0'
-                },
-                {
-                    id: '4',
-                    label: 'Data View 4',
-                    icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
-                    iconColor: '#4d83e0'
-                },
-                {
-                    id: '5',
-                    label: 'Data View 5',
-                    icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
-                    iconColor: '#4d83e0'
-                }
-            ]
-        };
-        await processRequest('upsertRecords', connectionConfig, options, (data: EngineCallbackData) => {
-            console.log('UPSERT RECORDS', data);
-        });
+        // const options: UpsertRecordsOptions = {
+        //     path: '/dpuMetaStore/dataViews',
+        //     records: [
+        //         {
+        //             id: '1',
+        //             label: 'Data View 1',
+        //             icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
+        //             iconColor: '#4d83e0'
+        //         },
+        //         {
+        //             id: '2',
+        //             label: 'Data View 2',
+        //             icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
+        //             iconColor: '#4d83e0'
+        //         },
+        //         {
+        //             id: '3',
+        //             label: 'Data View 3',
+        //             icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
+        //             iconColor: '#4d83e0'
+        //         },
+        //         {
+        //             id: '4',
+        //             label: 'Data View 4',
+        //             icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
+        //             iconColor: '#4d83e0'
+        //         },
+        //         {
+        //             id: '5',
+        //             label: 'Data View 5',
+        //             icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
+        //             iconColor: '#4d83e0'
+        //         }
+        //     ]
+        // };
+        // await processRequest('upsertRecords', connectionConfig, options, (data: EngineCallbackData) => {
+        //     console.log('UPSERT RECORDS', data);
+        // });
 
         const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dataViews', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
         await processRequest('retrieveRecords', connectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
@@ -144,12 +171,19 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 </script>
 
 <template>
-    <Grid v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0" class="flex-1" :data-source="dataSource" :row-height="83" :target-column-width="350">
+    <Grid
+        v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
+        :data-source="dataSource"
+        :enable-add-action="true"
+        :row-height="83"
+        :target-column-width="350"
+        @add="handleAdd"
+    >
         <template #default="{ item }">
             <Button
                 shape="minimal"
                 :to="{ name: 'selectNode', params: { dataViewId: item.id }, query: { ...$route.query, wbView: 'selectNode' } }"
-                @click="activeDataViewConfig = item"
+                @click="setActiveDataViewConfig(item)"
             >
                 <Card :icon="item.icon ?? undefined" icon-color="#4d83e0" :label="item.label as string" />
             </Button>
@@ -159,4 +193,6 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
     <ScrollArea v-else-if="dataViewRetrievalIsActive">
         <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
     </ScrollArea>
+
+    <div v-else>Loading...</div>
 </template>

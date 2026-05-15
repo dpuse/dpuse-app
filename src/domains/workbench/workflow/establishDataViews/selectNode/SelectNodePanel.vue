@@ -17,7 +17,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
 import T from './SelectNodePanel.json';
 import { useEngine } from '@/services/useEngine';
-import { activeConnectionConfig, activeConnectionNodeConfig } from '@/state/establishDataViews';
+import { activeDataViewConfig, activeConnectionConfig, setConnectionNodeConfig } from '@/state/establishDataViews';
 import { connectionConfigs, getLocalisedConnection } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
@@ -31,7 +31,6 @@ import SelectPlaceholder from '@/components/layout/placeholders/SelectPlaceholde
 import Table from '@/components/ui/table/Table.vue';
 import type { TaskConfig } from '@/components/layout/tasks/Tasks.vue';
 import TextViewer from '@/components/layout/textViewer/TextViewer.vue';
-import Tile from '@/components/ui/tile/Tile.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -99,14 +98,14 @@ watch(connectionConfigs, async () => {
     }
     currentFolderNodes.value = [];
     activeItem.value = undefined;
-    activeConnectionNodeConfig.value = undefined;
+    setConnectionNodeConfig();
     await loadFolderNodes('');
 });
 
 watch(activeItem, async (newActiveItem) => {
     const currentRequestId = ++previewRequestId.value;
 
-    activeConnectionNodeConfig.value = newActiveItem;
+    setConnectionNodeConfig(newActiveItem);
     resetPreviewState();
 
     if (newActiveItem == null) return;
@@ -246,7 +245,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 
                 <TextViewer v-show="activeTabId === 'text'" class="flex-1" :text="text" />
 
-                <div v-show="activeTabId === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionNodeConfig }}</div>
+                <div v-show="activeTabId === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
 
                 <div
                     class="border-separator bg-backdrop relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"

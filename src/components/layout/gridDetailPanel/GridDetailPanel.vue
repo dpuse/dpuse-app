@@ -1,24 +1,22 @@
 <script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; iconNeutral?: string | null; label: string }">
 // External Dependencies
+import { XIcon } from 'lucide-vue-next';
 import { nextTick, ref, watch } from 'vue';
-import { PlusIcon, XIcon } from 'lucide-vue-next';
 
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
 
 // Local Components - Static
-import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
-import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 type Properties = { activeItem?: T; dataSource: DataSource<T>; enableAddAction?: boolean; isCompact?: boolean; maxListWidth?: string; maxDetailWidth?: string };
 const { activeItem, dataSource, enableAddAction = false, isCompact = false, maxListWidth, maxDetailWidth } = defineProps<Properties>();
 
-const slots = defineSlots<{
+defineSlots<{
     'header'(): unknown;
     'list-item-compact'(properties: { item: T }): unknown;
     'list-item-default'(properties: { item: T }): unknown;
@@ -26,7 +24,7 @@ const slots = defineSlots<{
     'no-selection'(): unknown;
 }>();
 
-const emit = defineEmits<{ select: [item: T | undefined] }>();
+const emit = defineEmits<{ add: []; select: [item: T | undefined] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -65,7 +63,7 @@ async function selectItem(row: T): Promise<void> {
         <div class="flex flex-1 overflow-hidden">
             <!-- Grid (Left) Pane -->
             <div v-show="displayIsWide || !detailPaneIsVisible" class="relative flex-1 overflow-hidden" :style="getPaneStyle(maxListWidth)">
-                <Grid :data-source="dataSource" :is-compact="isCompact" :row-height="83" :target-column-width="250">
+                <Grid :data-source="dataSource" :enable-add-action="enableAddAction" :is-compact="isCompact" :row-height="83" :target-column-width="250" @add="$emit('add')">
                     <template #default="{ item }">
                         <Button class="h-full w-full" :is-active="activeItem === item" shape="minimal" @click="selectItem(item)">
                             <slot name="list-item-default" :item="item" />
@@ -73,7 +71,7 @@ async function selectItem(row: T): Promise<void> {
                     </template>
                 </Grid>
 
-                <ActionBar v-if="enableAddAction" class="absolute right-4 bottom-(--safe-bottom-offset)" variant="add">
+                <!-- <ActionBar v-if="enableAddAction" class="absolute right-4 bottom-(--safe-bottom-offset)" variant="add">
                     <template #action>
                         <PlusIcon />
                         <div class="flex flex-col items-start leading-tight">
@@ -81,7 +79,7 @@ async function selectItem(row: T): Promise<void> {
                             <span class="text-xs leading-none">Connection</span>
                         </div>
                     </template>
-                </ActionBar>
+                </ActionBar> -->
             </div>
 
             <!-- Detail (Right) Pane -->

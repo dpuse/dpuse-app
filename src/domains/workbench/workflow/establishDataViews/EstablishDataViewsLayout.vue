@@ -1,19 +1,15 @@
 <script setup lang="ts">
 // External Dependencies
-import { PlusIcon } from 'lucide-vue-next';
 import { computed, ref, shallowRef, watch } from 'vue';
 import { type LocationQueryValue, useRoute } from 'vue-router';
 
 // DPUse Framework
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local (App) Framework
-import { activeDataViewConfig } from '@/state/establishDataViews';
 import T from './EstablishDataViewsLayout.json';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
-import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 import Tasks, { type TaskConfig } from '@/components/layout/tasks/Tasks.vue';
@@ -90,24 +86,9 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
         <!-- Data View List or Active Step Panel -->
         <div class="relative flex flex-1 flex-col overflow-hidden">
             <RouterView v-slot="{ Component }">
-                <component :is="Component" class="h-full" :step-localised-config="activeStepLocalisedConfig" @step-completed="updateStepProgression" />
+                <component :is="Component" v-if="route.name === 'establishDataViews'" class="h-full" />
+                <component :is="Component" v-else class="h-full" :step-localised-config="activeStepLocalisedConfig" @step-completed="updateStepProgression" />
             </RouterView>
-
-            <ActionBar
-                v-if="route.query.wbView === 'establishDataViews'"
-                class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
-                variant="add"
-                :to="{ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } }"
-                @click="activeDataViewConfig = undefined"
-            >
-                <template #action>
-                    <PlusIcon />
-                    <div class="flex flex-col items-start leading-tight">
-                        <span class="text-xs leading-none">Add</span>
-                        <span class="text-xs leading-none">Data View</span>
-                    </div>
-                </template>
-            </ActionBar>
         </div>
     </LayoutShell>
 </template>
