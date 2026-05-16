@@ -44,6 +44,7 @@ onMounted(() => {
     const RED = '#FA4F40';
     const BLUE = '#727EE0';
     const GREEN = '#5DB346';
+
     const STRING_SVG_ICON = `<svg
       fill="#ffffff"
       stroke-width="0"
@@ -57,13 +58,13 @@ onMounted(() => {
       ></path>
     </svg>`;
 
-    const USER_STRING = `<svg xmlns="http://www.w3.org/2000/svg"
-      height="200px"
-      width="200px" viewBox="0 0 64 64" role="img" aria-label="user icon">
-  <circle cx="32" cy="24" r="14" fill="#ffffff"/>
-  <path d="M10 58c2-12 11-20 22-20s20 8 22 20" fill="#ffffff"/>
-</svg>
-`;
+    // TODO: Requires 'blob:' to img csp in '_header' and 'vite.config.ts'.
+    const USER_STRING = `
+      <svg xmlns="http://www.w3.org/2000/svg" height="64" width="64" viewBox="0 0 64 64" role="img" aria-label="user icon">
+        <circle cx="32" cy="24" r="14" fill="#ffffff"/>
+        <path d="M10 58c2-12 11-20 22-20s20 8 22 20" fill="#ffffff"/>
+      </svg>`;
+
     function svgToDataURI(svg: string): string {
         const blob = new Blob([svg], { type: 'image/svg+xml' });
         return URL.createObjectURL(blob);

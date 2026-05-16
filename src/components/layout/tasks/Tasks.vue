@@ -15,7 +15,7 @@ export interface TaskConfig {
     number: number;
     verb?: LocaleLabel;
 }
-const { activeStepId, items = [] } = defineProps<{ activeStepId?: string; items?: LocalisedConfig<TaskConfig>[] }>();
+const { activeTaskId, items = [] } = defineProps<{ activeTaskId?: string; items?: LocalisedConfig<TaskConfig>[] }>();
 defineSlots<{ 'default'(properties: { item: LocalisedConfig<TaskConfig> }): unknown }>();
 defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
 </script>
@@ -26,10 +26,10 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
             :is="item.disabled ? 'div' : Button"
             v-for="item in items"
             :key="item.id"
-            :aria-selected="activeStepId === item.id"
+            :aria-selected="activeTaskId === item.id"
             class="relative border-y-2 border-b-transparent pt-1 leading-tight"
             :class="{
-                'border-t-blue-400': activeStepId === item.id || !item.disabled, // TODO: Tailwind hex colors are not the same as oklch colors? Need to update logos/icons with oklch colors if we are going to standardise.
+                'border-t-blue-400': activeTaskId === item.id || !item.disabled, // TODO: Tailwind hex colors are not the same as oklch colors? Need to update logos/icons with oklch colors if we are going to standardise.
                 'border-t-zinc-400 dark:border-t-zinc-500': item.disabled
             }"
             role="tab"
@@ -40,7 +40,7 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
             <!-- <div
                 class="absolute -top-px left-0 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded-full text-[11px] text-white"
                 :class="{
-                    'bg-blue-500': activeStepId === item.id || !item.disabled,
+                    'bg-blue-500': activeTaskId === item.id || !item.disabled,
                     'bg-zinc-400 dark:bg-zinc-500': item.disabled
                 }"
             >
@@ -50,7 +50,7 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
             <div
                 class="mt-0.5 mb-2 text-sm leading-tight"
                 :class="{
-                    'text-accent': activeStepId === item.id || !item.disabled,
+                    'text-accent': activeTaskId === item.id || !item.disabled,
                     'text-muted': item.disabled
                 }"
             >

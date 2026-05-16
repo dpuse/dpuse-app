@@ -34,6 +34,8 @@ const BuildDataAppsLayout = load('buildDataApps', () => import('@/domains/workbe
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const ESTABLISH_DATA_VIEWS_DETAIL_ROUTES = new Set(['selectConnection', 'selectNode', 'auditContent', 'auditLinks', 'exploreData']);
+
 export const APP_ROUTES = [
     {
         path: '/',
@@ -96,6 +98,11 @@ export const createAppRouter = (): Router => {
                 return { path: to.path, query: { ...to.query, d: undefined } };
             }
         }
+
+        if ('conId' in to.query && !ESTABLISH_DATA_VIEWS_DETAIL_ROUTES.has(to.name == null ? '' : String(to.name))) {
+            return { path: to.path, query: { ...to.query, conId: undefined }, hash: to.hash, replace: true };
+        }
+
         startNavigation();
     });
 

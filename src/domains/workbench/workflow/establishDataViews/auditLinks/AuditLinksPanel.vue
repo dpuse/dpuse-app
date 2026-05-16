@@ -6,8 +6,8 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { TaskConfig } from '@/components/layout/tasks/Tasks.vue';
 
 // Options, Properties, Slots & Emits
-const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<TaskConfig> }>();
-defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
+defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 </script>
 
 <template>

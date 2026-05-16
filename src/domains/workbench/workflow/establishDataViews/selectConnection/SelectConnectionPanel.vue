@@ -19,13 +19,12 @@ import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel
 import SelectConnectionForm from './SelectConnectionForm.vue';
 import SelectPlaceholder from '@/components/layout/placeholders/SelectPlaceholder.vue';
 import type { TaskConfig } from '@/components/layout/tasks/Tasks.vue';
-import Tile from '@/components/ui/tile/Tile.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<TaskConfig> }>();
+const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
-defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -45,11 +44,32 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
     immediate: true
 });
 
+watch(
+    () => route,
+    (newRoute) => {
+        console.log(777, activeDataViewConfig.value, activeConnectionConfig.value, newRoute.params.dataViewId, newRoute.query.conId);
+        if (activeDataViewConfig.value == null) {
+            console.log(888, 'need to set activeDataViewConfig');
+        }
+        if (activeConnectionConfig.value == null) {
+            console.log(999, 'need to set activeConnectionConfig');
+        }
+    },
+    { immediate: true }
+);
+
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
+function handleAddConnection(): void {}
+
+function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
     activeConnectionConfig.value = connectionLocalisedConfig;
-    if (connectionLocalisedConfig == null) return;
+
+    if (connectionLocalisedConfig == null) {
+        router.replace({ query: { ...route.query, conId: undefined } });
+        return;
+    }
+
     activeDataViewConfig.value =
         activeDataViewConfig.value === undefined
             ? {
@@ -83,17 +103,20 @@ function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionC
 </script>
 
 <template>
-    <GridDetailPanel :active-item="activeConnectionConfig" :data-source="dataSource" enable-add-action max-detail-width="400px" @select="selectConnection">
+    <GridDetailPanel
+        :active-item="activeConnectionConfig"
+        add-label="Connection"
+        :data-source="dataSource"
+        max-detail-width="400px"
+        @add="handleAddConnection"
+        @select="handleSelectConnection"
+    >
         <template #list-item-default="{ item }">
             <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
         </template>
 
-        <!-- <template #list-item-compact="{ item }">
-            <Tile v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
-        </template> -->
-
         <template #detail="{ item }">
-            <SelectConnectionForm :connection-localised-config="item" @submit="$emit('step-completed', stepLocalisedConfig)" />
+            <SelectConnectionForm :connection-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
         </template>
 
         <template #no-selection>

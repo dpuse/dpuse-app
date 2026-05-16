@@ -13,8 +13,8 @@ import Grid from '@/components/ui/grid/Grid.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { activeItem?: T; dataSource: DataSource<T>; enableAddAction?: boolean; isCompact?: boolean; maxListWidth?: string; maxDetailWidth?: string };
-const { activeItem, dataSource, enableAddAction = false, isCompact = false, maxListWidth, maxDetailWidth } = defineProps<Properties>();
+type Properties = { activeItem?: T; dataSource: DataSource<T>; addLabel?: string; isCompact?: boolean; maxListWidth?: string; maxDetailWidth?: string };
+const { activeItem, dataSource, addLabel, isCompact = false, maxListWidth, maxDetailWidth } = defineProps<Properties>();
 
 defineSlots<{
     'header'(): unknown;
@@ -63,7 +63,7 @@ async function selectItem(row: T): Promise<void> {
         <div class="flex flex-1 overflow-hidden">
             <!-- Grid (Left) Pane -->
             <div v-show="displayIsWide || !detailPaneIsVisible" class="relative flex-1 overflow-hidden" :style="getPaneStyle(maxListWidth)">
-                <Grid :data-source="dataSource" :enable-add-action="enableAddAction" :is-compact="isCompact" :row-height="83" :target-column-width="250" @add="$emit('add')">
+                <Grid :data-source="dataSource" :add-label="addLabel" :is-compact="isCompact" :row-height="83" :target-column-width="250" @add="$emit('add')">
                     <template #default="{ item }">
                         <Button class="h-full w-full" :is-active="activeItem === item" shape="minimal" @click="selectItem(item)">
                             <slot name="list-item-default" :item="item" />

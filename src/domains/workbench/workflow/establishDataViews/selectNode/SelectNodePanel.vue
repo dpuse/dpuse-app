@@ -34,9 +34,9 @@ import TextViewer from '@/components/layout/textViewer/TextViewer.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-const { stepLocalisedConfig } = defineProps<{ stepLocalisedConfig: LocalisedConfig<TaskConfig> }>();
+const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
-const emit = defineEmits<{ 'step-completed': [stepLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+const emit = defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -121,7 +121,7 @@ watch(activeItem, async (newActiveItem) => {
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
-    emit('step-completed', stepLocalisedConfig);
+    emit('task-completed', taskLocalisedConfig);
     await router.push({ name: 'auditContent', query: { ...route.query, wbView: 'auditContent' } });
 }
 

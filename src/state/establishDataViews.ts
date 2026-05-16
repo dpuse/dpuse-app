@@ -76,6 +76,6 @@ export function setRelationshipsAuditConfig(relationshipsAuditConfig?: Relations
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function getActiveDataViewConfig(): DataViewConfig {
-    if (!activeDataViewConfig.value) throw new Error('activeDataViewConfig not initialized.');
+    if (!activeDataViewConfig.value) throw new Error("'activeDataViewConfig' is not initialized.");
     return activeDataViewConfig.value;
 }

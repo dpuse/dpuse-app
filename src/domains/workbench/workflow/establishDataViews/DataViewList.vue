@@ -66,9 +66,13 @@ watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDataViews
 //     </template>
 // </ActionBar>
 
-function handleAdd(): void {
+function handleAddDataView(): void {
     setActiveDataViewConfig();
     router.push({ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } });
+}
+
+function handleSelectDataView(item: DataViewConfig): void {
+    setActiveDataViewConfig(item);
 }
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -173,17 +177,17 @@ async function retrieveDataViews(connectionConfig?: ConnectionConfig): Promise<v
 <template>
     <Grid
         v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
+        add-label="Data View"
         :data-source="dataSource"
-        :enable-add-action="true"
         :row-height="83"
         :target-column-width="350"
-        @add="handleAdd"
+        @add="handleAddDataView"
     >
         <template #default="{ item }">
             <Button
                 shape="minimal"
                 :to="{ name: 'selectNode', params: { dataViewId: item.id }, query: { ...$route.query, wbView: 'selectNode' } }"
-                @click="setActiveDataViewConfig(item)"
+                @click="handleSelectDataView(item)"
             >
                 <Card :icon="item.icon ?? undefined" icon-color="#4d83e0" :label="item.label as string" />
             </Button>

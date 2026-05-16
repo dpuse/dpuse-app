@@ -17,13 +17,13 @@ defineOptions({ inheritAttrs: false });
 type Properties = {
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     dataSource: DataSource<T>;
-    enableAddAction?: boolean;
+    addLabel?: string;
     isCompact?: boolean;
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
     rowHeight?: number; // Row height in px. Default: 48.
     targetColumnWidth?: number; // When set, multiple items are shown per row based on available width.
 };
-const { cacheBlockSize, dataSource, enableAddAction = false, isCompact = false, maxBlocksInCache, rowHeight = 48, targetColumnWidth } = defineProps<Properties>();
+const { cacheBlockSize, dataSource, addLabel, isCompact = false, maxBlocksInCache, rowHeight = 48, targetColumnWidth } = defineProps<Properties>();
 
 defineSlots<{ default?(properties: { index: number; item: T }): unknown }>();
 
@@ -102,12 +102,12 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
             </div>
         </ScrollArea>
 
-        <ActionBar v-if="enableAddAction" class="absolute right-(--safe-right-offset) bottom-(--safe-bottom-offset)" variant="add" @action="$emit('add')">
+        <ActionBar v-if="addLabel" class="absolute right-(--safe-right-offset) bottom-(--safe-bottom-offset)" variant="add" @action="$emit('add')">
             <template #action>
                 <PlusIcon />
                 <div class="flex flex-col items-start leading-tight">
                     <span class="text-xs leading-none">Add</span>
-                    <span class="text-xs leading-none">Data View</span>
+                    <span class="text-xs leading-none">{{ addLabel }}</span>
                 </div>
             </template>
         </ActionBar>

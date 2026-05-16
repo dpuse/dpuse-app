@@ -1,11 +1,12 @@
 <script setup lang="ts">
 // External Dependencies
 import { computed, ref, shallowRef, watch } from 'vue';
-import { type LocationQueryValue, useRoute } from 'vue-router';
+import { type LocationQueryValue, type RouteLocationNormalizedLoadedGeneric, useRoute } from 'vue-router';
 
 // DPUse Framework
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
+// Local (App) Framework
 import T from './EstablishDataViewsLayout.json';
 import { localeId, t } from '@/state/locale';
 
@@ -16,7 +17,7 @@ import Tasks, { type TaskConfig } from '@/components/layout/tasks/Tasks.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const STEP_CONFIGS: TaskConfig[] = [
+const TASK_CONFIGS: TaskConfig[] = [
     { id: 'selectConnection', number: 1, label: { en: 'Connection' }, description: {}, disabled: true, enableUpTo: 1, verb: { en: 'Select' } },
     { id: 'selectNode', number: 2, label: { en: 'Node' }, description: {}, disabled: true, enableUpTo: 2, verb: { en: 'Select' } },
     { id: 'auditContent', number: 3, label: { en: 'Content' }, description: {}, disabled: true, enableUpTo: 3, verb: { en: 'Audit' } },
@@ -28,26 +29,26 @@ const STEP_CONFIGS: TaskConfig[] = [
 
 const route = useRoute();
 
-const stepLocalisedConfigs = shallowRef<LocalisedConfig<TaskConfig>[]>([]);
+const taskLocalisedConfigs = shallowRef<LocalisedConfig<TaskConfig>[]>([]);
 
-const stepsEnabledToNumber = ref(initialiseEnabledSteps());
+const tasksEnabledToNumber = ref(initialiseEnabledTasks());
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeStepLocalisedConfig = computed(() => STEP_CONFIGS.find((config) => config.id === route.query.wbView));
+const activeTaskLocalisedConfig = computed(() => TASK_CONFIGS.find((config) => config.id === route.query.wbView));
 
 const backRouteName = computed(() => (route.query.wbView === 'establishDataViews' ? 'workflow' : 'establishDataViews'));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(route, (newRoute) => setEnabledSteps(newRoute.query.wbView));
+watch(route, (newRoute) => setEnabledTasks(newRoute, newRoute.query.wbView));
 
 watch(
-    [stepsEnabledToNumber, localeId],
-    ([newStepsEnabledToNumber, newLocaleId]) => {
-        stepLocalisedConfigs.value = localiseConfigs<TaskConfig>(STEP_CONFIGS, newLocaleId).map((stepLocalisedConfig) => ({
-            ...stepLocalisedConfig,
-            disabled: stepLocalisedConfig.number > newStepsEnabledToNumber
+    [tasksEnabledToNumber, localeId],
+    ([newTasksEnabledToNumber, newLocaleId]) => {
+        taskLocalisedConfigs.value = localiseConfigs<TaskConfig>(TASK_CONFIGS, newLocaleId).map((taskLocalisedConfig) => ({
+            ...taskLocalisedConfig,
+            disabled: taskLocalisedConfig.number > newTasksEnabledToNumber
         }));
     },
     { immediate: true }
@@ -55,20 +56,20 @@ watch(
 
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function updateStepProgression(stepLocalisedConfig: LocalisedConfig<TaskConfig>): void {
-    stepsEnabledToNumber.value = stepLocalisedConfig.enableUpTo;
+function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): void {
+    tasksEnabledToNumber.value = taskLocalisedConfig.enableUpTo;
 }
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function initialiseEnabledSteps(): number {
+function initialiseEnabledTasks(): number {
     // TODO: This also needs to check the actual state of the data view.
-    return STEP_CONFIGS.find((config) => config.id === route.query.wbView)?.enableUpTo ?? 0;
+    return TASK_CONFIGS.find((config) => config.id === route.query.wbView)?.enableUpTo ?? 0;
 }
 
-function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): void {
-    const pendingEnableStepsUpTo = STEP_CONFIGS.find((config) => config.id === wbView)?.enableUpTo ?? 0;
-    if (pendingEnableStepsUpTo > stepsEnabledToNumber.value) stepsEnabledToNumber.value = pendingEnableStepsUpTo;
+function setEnabledTasks(route: RouteLocationNormalizedLoadedGeneric, wbView: LocationQueryValue | LocationQueryValue[]): void {
+    const pendingEnableStepsUpTo = TASK_CONFIGS.find((config) => config.id === wbView)?.enableUpTo ?? 0;
+    if (pendingEnableStepsUpTo > tasksEnabledToNumber.value) tasksEnabledToNumber.value = pendingEnableStepsUpTo;
 }
 </script>
 
@@ -80,14 +81,13 @@ function setEnabledSteps(wbView: LocationQueryValue | LocationQueryValue[]): voi
         <!-- Action Bar -->
         <nav class="border-separator mx-4 flex flex-none items-center justify-between border-b">
             <!-- Tasks -->
-            <Tasks v-if="activeStepLocalisedConfig" :active-step-id="activeStepLocalisedConfig.id" :items="stepLocalisedConfigs" />
+            <Tasks v-if="activeTaskLocalisedConfig" :active-task-id="activeTaskLocalisedConfig.id" :items="taskLocalisedConfigs" />
         </nav>
-
         <!-- Data View List or Active Step Panel -->
         <div class="relative flex flex-1 flex-col overflow-hidden">
             <RouterView v-slot="{ Component }">
                 <component :is="Component" v-if="route.name === 'establishDataViews'" class="h-full" />
-                <component :is="Component" v-else class="h-full" :step-localised-config="activeStepLocalisedConfig" @step-completed="updateStepProgression" />
+                <component :is="Component" v-else class="h-full" :task-localised-config="activeTaskLocalisedConfig" @task-completed="handleTaskCompleted" />
             </RouterView>
         </div>
     </LayoutShell>
