@@ -44,8 +44,33 @@ onMounted(() => {
     const RED = '#FA4F40';
     const BLUE = '#727EE0';
     const GREEN = '#5DB346';
+    const STRING_SVG_ICON = `<svg
+      fill="#ffffff"
+      stroke-width="0"
+      viewBox="0 0 320 512"
+      height="200px"
+      width="200px"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M142.9 96c-21.5 0-42.2 8.5-57.4 23.8L54.6 150.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L40.2 74.5C67.5 47.3 104.4 32 142.9 32C223 32 288 97 288 177.1c0 38.5-15.3 75.4-42.5 102.6L109.3 416H288c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-12.9 0-24.6-7.8-29.6-19.8s-2.2-25.7 6.9-34.9L200.2 234.5c15.2-15.2 23.8-35.9 23.8-57.4c0-44.8-36.3-81.1-81.1-81.1z"
+      ></path>
+    </svg>`;
 
-    graph.addNode('John', { size: 15, label: 'John', type: 'image', image: 'https://www.dpuse.app/user.svg', color: RED });
+    const USER_STRING = `<svg xmlns="http://www.w3.org/2000/svg"
+      height="200px"
+      width="200px" viewBox="0 0 64 64" role="img" aria-label="user icon">
+  <circle cx="32" cy="24" r="14" fill="#ffffff"/>
+  <path d="M10 58c2-12 11-20 22-20s20 8 22 20" fill="#ffffff"/>
+</svg>
+`;
+    function svgToDataURI(svg: string): string {
+        const blob = new Blob([svg], { type: 'image/svg+xml' });
+        return URL.createObjectURL(blob);
+    }
+    // console.log(svgToDataURI(STRING_SVG_ICON));
+
+    graph.addNode('John', { size: 15, label: 'John', type: 'image', image: svgToDataURI(USER_STRING), color: RED });
     graph.addNode('Mary', { size: 15, label: 'Mary', type: 'image', image: '/user.svg', color: RED });
     graph.addNode('Suzan', { size: 15, label: 'Suzan', type: 'image', image: '/user.svg', color: RED });
     graph.addNode('Nantes', { size: 15, label: 'Nantes', type: 'image', image: '/city.svg', color: BLUE });
