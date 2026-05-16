@@ -17,6 +17,10 @@ export const activeDataViewConfig = shallowRef<DataViewConfig | undefined>();
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+export function establishConnectionConfig(dataViewId: string): void {}
+
+export function establishDataViewConfig(connectionId: string): void {}
+
 export function setActiveDataViewConfig(dataViewConfig?: DataViewConfig): void {
     activeDataViewConfig.value = dataViewConfig || {
         id: NEW_DATA_VIEW_ID,

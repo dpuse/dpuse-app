@@ -29,7 +29,7 @@ import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/layout/placeholders/SelectPlaceholder.vue';
 import Table from '@/components/ui/table/Table.vue';
-import type { TaskConfig } from '@/components/layout/tasks/Tasks.vue';
+import type { TaskConfig } from '@/components/layout/taskBar/TaskBar.vue';
 import TextViewer from '@/components/layout/textViewer/TextViewer.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────

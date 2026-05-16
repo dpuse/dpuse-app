@@ -18,7 +18,7 @@ import Card from '@/components/ui/card/Card.vue';
 import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
 import SelectPlaceholder from '@/components/layout/placeholders/SelectPlaceholder.vue';
-import type { TaskConfig } from '@/components/layout/tasks/Tasks.vue';
+import type { TaskConfig } from '@/components/layout/taskBar/TaskBar.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -47,12 +47,9 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
 watch(
     () => route,
     (newRoute) => {
-        console.log(777, activeDataViewConfig.value, activeConnectionConfig.value, newRoute.params.dataViewId, newRoute.query.conId);
         if (activeDataViewConfig.value == null) {
-            console.log(888, 'need to set activeDataViewConfig');
         }
         if (activeConnectionConfig.value == null) {
-            console.log(999, 'need to set activeConnectionConfig');
         }
     },
     { immediate: true }

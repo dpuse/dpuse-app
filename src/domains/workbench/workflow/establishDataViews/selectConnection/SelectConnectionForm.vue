@@ -17,7 +17,7 @@ import { t } from '@/state/locale';
 import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
-import { useEngine } from '~/src/services/useEngine';
+import { useEngine } from '@/services/useEngine';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 

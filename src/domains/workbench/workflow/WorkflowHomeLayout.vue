@@ -10,7 +10,7 @@ import Card from '@/components/ui/card/Card.vue';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
-import Separator from '~/src/components/ui/separator/Separator.vue';
+import Separator from '@/components/ui/separator/Separator.vue';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
