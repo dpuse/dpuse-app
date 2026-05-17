@@ -11,7 +11,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { t } from '@/state/locale';
 import T from './DataViewList.json';
 import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/session';
-import { dataViewRetrievalIsActive, establishDataViews, setActiveDataViewConfig } from '@/state/establishDataViews';
+import { establishDataViews, isDataViewRetrievalFinalised, NEW_DATA_VIEW_ID, setActiveDataViewConfig } from '@/state/establishDataViews';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -27,6 +27,20 @@ const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/layout/
 const route = useRoute();
 const router = useRouter();
 
+// Initialisation ──────────────────────────────────────────────────────────────────────────────────────────────────────
+
+watch(
+    localMetaStoreConnectionConfig,
+    (newLocalMetaStoreConnectionConfig) => {
+        if (newLocalMetaStoreConnectionConfig == null) {
+            isDataViewRetrievalFinalised.value = false;
+        } else if (dataViewConfigs.value == null) {
+            establishDataViews(newLocalMetaStoreConnectionConfig);
+        }
+    },
+    { immediate: true }
+);
+
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dataSource = computed(
@@ -36,31 +50,11 @@ const dataSource = computed(
     })
 );
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-watch(localMetaStoreConnectionConfig, (newConnectionConfig) => establishDataViews(newConnectionConfig), { immediate: true });
-
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// <ActionBar
-//     v-if="route.query.wbView === 'establishDataViews'"
-//     class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
-//     variant="add"
-//     :to="{ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } }"
-//     @click="setActiveDataViewConfig()"
-// >
-//     <template #action>
-//         <PlusIcon />
-//         <div class="flex flex-col items-start leading-tight">
-//             <span class="text-xs leading-none">Add</span>
-//             <span class="text-xs leading-none">Data View</span>
-//         </div>
-//     </template>
-// </ActionBar>
 
 function handleAddDataView(): void {
     setActiveDataViewConfig();
-    router.push({ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } });
+    router.push({ name: 'selectConnection', params: { dataViewId: NEW_DATA_VIEW_ID }, query: { ...route.query, wbView: 'selectConnection' } });
 }
 
 function handleSelectDataView(item: DataViewConfig): void {
@@ -69,14 +63,7 @@ function handleSelectDataView(item: DataViewConfig): void {
 </script>
 
 <template>
-    <Grid
-        v-if="dataViewRetrievalIsActive && dataViewConfigs && dataViewConfigs.length > 0"
-        add-label="Data View"
-        :data-source="dataSource"
-        :row-height="83"
-        :target-column-width="350"
-        @add="handleAddDataView"
-    >
+    <Grid v-if="dataViewConfigs && dataViewConfigs.length > 0" add-label="Data View" :data-source="dataSource" :row-height="83" :target-column-width="350" @add="handleAddDataView">
         <template #default="{ item }">
             <Button
                 shape="minimal"
@@ -88,7 +75,7 @@ function handleSelectDataView(item: DataViewConfig): void {
         </template>
     </Grid>
 
-    <ScrollArea v-else-if="dataViewRetrievalIsActive">
+    <ScrollArea v-else-if="isDataViewRetrievalFinalised">
         <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
     </ScrollArea>
 

@@ -14,32 +14,39 @@ import type {
     FindObjectResult,
     GetRecordOptions,
     GetRecordResult,
+    ListNodesOptions,
+    ListNodesResult,
     RetrieveRecordsOptions
 } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local (App) Framework
 import { dataViewConfigs } from '@/state/session';
-import { reportAppError } from '../observability/errorTracking';
+import { reportAppError } from '@/observability/errorTracking';
 import { useEngine } from '@/services/useEngine';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const NEW_DATA_VIEW_ID = '_new_';
+export const NEW_DATA_VIEW_ID = '_new_';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const activeConnectionConfig = shallowRef<LocalisedConfig<ConnectionConfig> | undefined>();
+export const activeConnectionObjectConfig = shallowRef<ConnectionNodeConfig | undefined>();
 export const activeDataViewConfig = shallowRef<DataViewConfig | undefined>();
 
-export const dataViewRetrievalIsActive = ref(false);
+export const connectionLocalisedConfigs = shallowRef<LocalisedConfig<ConnectionConfig>[]>([]);
+
+export const isDataViewRetrievalFinalised = ref(false);
+
+export const listNodesResult = shallowRef<ListNodesResult | undefined>();
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export async function establishDataViews(localMetaStoreConnectionConfig: ConnectionConfig | undefined): Promise<void> {
+export async function establishDataViews(metaStoreConnectionConfig: ConnectionConfig | undefined): Promise<void> {
     try {
-        if (!localMetaStoreConnectionConfig) throw new Error('Unable to establish Data View, no connection configuration.');
+        if (!metaStoreConnectionConfig) throw new Error('Unable to establish Data View, no connection configuration.');
 
-        await establishDataViewsObject(localMetaStoreConnectionConfig);
+        await establishDataViewsObject(metaStoreConnectionConfig);
 
         // const options: UpsertRecordsOptions = {
         //     path: '/dpuMetaStore/dataViews',
@@ -82,38 +89,92 @@ export async function establishDataViews(localMetaStoreConnectionConfig: Connect
 
         const { processRequest } = await useEngine();
         const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dataViews', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
-        await processRequest('retrieveRecords', localMetaStoreConnectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
+        await processRequest('retrieveRecords', metaStoreConnectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
             if (data.typeId === 'chunk') {
                 dataViewConfigs.value = (data.properties.records as DataViewConfig[]).map((record) => {
                     const localisedConfig = record;
                     return localisedConfig;
                 });
             } else {
-                dataViewRetrievalIsActive.value = true;
+                isDataViewRetrievalFinalised.value = true;
             }
         });
     } catch (error) {
+        dataViewConfigs.value = [];
+        isDataViewRetrievalFinalised.value = true;
         reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.DataViewList.retrieveDataViews', { typeId: 'handled' }, { cause: error }));
     } finally {
-        dataViewConfigs.value = [];
+        // Pending...
     }
 }
 
-export async function establishDataView(localMetaStoreConnectionConfig: ConnectionConfig | undefined, route: RouteLocationNormalizedLoadedGeneric): Promise<void> {
+export async function establishDataView(metaStoreConnectionConfig: ConnectionConfig | undefined, route: RouteLocationNormalizedLoadedGeneric): Promise<void> {
     try {
-        if (localMetaStoreConnectionConfig == null) throw new Error('Unable to establish Data View, no connection configuration.');
+        if (metaStoreConnectionConfig == null) throw new Error('Unable to establish Data View, no connection configuration.');
 
-        await establishDataViewsObject(localMetaStoreConnectionConfig);
+        await establishDataViewsObject(metaStoreConnectionConfig);
 
-        const { processRequest } = await useEngine();
-        const getRecordOptions: GetRecordOptions = { path: '/dpuMetaStore/dataViews', id: route.params.dataViewId as string }; // TODO: Implement paging.
-        const getRecordResult = (await processRequest('getRecord', localMetaStoreConnectionConfig, getRecordOptions)) as GetRecordResult;
-        activeDataViewConfig.value = getRecordResult.record as unknown as DataViewConfig;
+        const dataViewId = route.params.dataViewId as string;
+
+        let connectionId = route.query.conId as string | undefined;
+        activeConnectionConfig.value = connectionId == null ? undefined : connectionLocalisedConfigs.value.find((connectionConfig) => connectionConfig.id == connectionId);
+        if (activeConnectionConfig.value == null) connectionId = undefined;
+
+        const nodePath = route.query.nodePath as string | undefined;
+        const nodeName = route.query.nodeName as string | undefined;
+        if (nodePath == null) {
+            activeConnectionObjectConfig.value = undefined;
+        } else {
+            if (nodeName == null) {
+                await loadFolderNodes(nodePath);
+            } else {
+                await loadFolderNodes(nodePath);
+                activeConnectionObjectConfig.value = listNodesResult.value?.connectionNodeConfigs.find((connectionNodeConfig) => connectionNodeConfig.name == nodeName);
+            }
+        }
+
+        if (dataViewId === NEW_DATA_VIEW_ID) {
+            setActiveDataViewConfig(buildPending(connectionId, nodePath, nodeName));
+        } else {
+            const { processRequest } = await useEngine();
+            const getRecordOptions: GetRecordOptions = { path: '/dpuMetaStore/dataViews', id: dataViewId as string }; // TODO: Implement paging.
+            const getRecordResult = (await processRequest('getRecord', metaStoreConnectionConfig, getRecordOptions)) as GetRecordResult;
+            setActiveDataViewConfig(getRecordResult.record as unknown as DataViewConfig);
+        }
     } catch (error) {
+        activeDataViewConfig.value = undefined;
         reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.DataViewList.retrieveDataViews', { typeId: 'handled' }, { cause: error }));
     } finally {
-        activeDataViewConfig.value = undefined;
+        // Pending...
     }
+}
+
+export async function loadFolderNodes(folderPath: string): Promise<void> {
+    if (activeConnectionConfig.value == null) return;
+
+    const { processRequest } = await useEngine();
+    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath } as ListNodesOptions)) as ListNodesResult;
+}
+
+function buildPending(connectionId: string | undefined, nodePath: string | undefined, nodeName: string | undefined): DataViewConfig {
+    return {
+        id: NEW_DATA_VIEW_ID,
+        label: {},
+        description: {},
+        icon: null,
+        iconDark: null,
+        iconNeutral: null,
+        typeId: 'dataView',
+        connectionId,
+        connectionNodeConfig: undefined,
+        previewConfig: undefined,
+        contentAuditConfig: undefined,
+        relationshipsAuditConfig: undefined,
+        status: null,
+        statusId: null,
+        firstCreatedAt: null,
+        lastUpdatedAt: null
+    };
 }
 
 export function setActiveDataViewConfig(dataViewConfig?: DataViewConfig): void {
@@ -174,13 +235,13 @@ export function setRelationshipsAuditConfig(relationshipsAuditConfig?: Relations
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function establishDataViewsObject(localMetaStoreConnectionConfig: ConnectionConfig): Promise<void> {
+async function establishDataViewsObject(metaStoreConnectionConfig: ConnectionConfig): Promise<void> {
     const { processRequest } = await useEngine();
     const findObjectOptions: FindObjectOptions = { storeId: 'dpuMetaStore', nodeId: 'dataViews' };
-    const findObjectResult = (await processRequest('findObject', localMetaStoreConnectionConfig, findObjectOptions)) as FindObjectResult;
+    const findObjectResult = (await processRequest('findObject', metaStoreConnectionConfig, findObjectOptions)) as FindObjectResult;
     if (findObjectResult.path == null) {
         const createObjectOptions: CreateObjectOptions = { path: '/dpuMetaStore/dataViews', structure: 'id' };
-        await processRequest('createObject', localMetaStoreConnectionConfig, createObjectOptions);
+        await processRequest('createObject', metaStoreConnectionConfig, createObjectOptions);
     }
 }
 

@@ -109,20 +109,4 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
             </template>
         </ActionBar>
     </div>
-
-    <!-- <ActionBar
-        v-if="route.query.wbView === 'establishDataViews'"
-        class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
-        variant="add"
-        :to="{ name: 'selectConnection', params: { dataViewId: '_new_' }, query: { ...route.query, wbView: 'selectConnection' } }"
-        @click="setActiveDataViewConfig()"
-    >
-        <template #action>
-            <PlusIcon />
-            <div class="flex flex-col items-start leading-tight">
-                <span class="text-xs leading-none">Add</span>
-                <span class="text-xs leading-none">Data View</span>
-            </div>
-        </template>
-    </ActionBar> -->
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies
-import { computed, shallowRef, watch } from 'vue';
+import { computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
@@ -10,7 +10,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
-import { activeConnectionConfig, activeDataViewConfig, establishDataView } from '@/state/establishDataViews';
+import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, establishDataView, NEW_DATA_VIEW_ID } from '@/state/establishDataViews';
 import { connectionConfigs, localMetaStoreConnectionConfig } from '@/state/session';
 
 // Local Components - Static
@@ -28,15 +28,15 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const connectionLocalisedConfigs = shallowRef<LocalisedConfig<ConnectionConfig>[]>([]);
+const route = useRoute();
+const router = useRouter();
+
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
     rowCount: connectionLocalisedConfigs.value.length,
     getRows: (start, end): Promise<LocalisedConfig<ConnectionConfig>[]> => Promise.resolve(connectionLocalisedConfigs.value.slice(start, end))
 }));
-
-const route = useRoute();
-const router = useRouter();
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -61,7 +61,7 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
     activeDataViewConfig.value =
         activeDataViewConfig.value === undefined
             ? {
-                  id: '_new_',
+                  id: NEW_DATA_VIEW_ID,
                   label: { en: 'New Data View' },
                   description: { en: 'A new data view.' },
                   firstCreatedAt: null,

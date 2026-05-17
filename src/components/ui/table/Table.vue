@@ -8,7 +8,6 @@ import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef }
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // Local Components - Static
-// import ScrollThumb from '../scrollThumb/ScrollThumb.vue';
 import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';
 import TableHeaderCell from './TableHeaderCell.vue';

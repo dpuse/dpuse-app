@@ -82,13 +82,7 @@ watch(
     { immediate: true }
 );
 
-watch(
-    localMetaStoreConnectionConfig,
-    (newLocalMetaStoreConnectionConfig, oldLocalMetaStoreConnectionConfig) => {
-        // console.log('### Local meta store configuration changed to', JSON.stringify(oldLocalMetaStoreConnectionConfig), JSON.stringify(newLocalMetaStoreConnectionConfig));
-    },
-    { immediate: true }
-);
+watch(localMetaStoreConnectionConfig, () => (dataViewConfigs.value = undefined), { immediate: true }); // TODO: Should we make this conditional?
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

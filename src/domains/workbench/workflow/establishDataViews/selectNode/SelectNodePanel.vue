@@ -17,8 +17,15 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
 import T from './SelectNodePanel.json';
 import { useEngine } from '@/services/useEngine';
-import { activeDataViewConfig, activeConnectionConfig, setConnectionNodeConfig } from '@/state/establishDataViews';
-import { connectionConfigs, getLocalisedConnection } from '@/state/session';
+import {
+    activeConnectionConfig,
+    activeConnectionObjectConfig,
+    activeDataViewConfig,
+    establishDataView,
+    listNodesResult,
+    setConnectionNodeConfig
+} from '@/state/establishDataViews';
+import { connectionConfigs, getLocalisedConnection, localMetaStoreConnectionConfig } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
@@ -43,10 +50,10 @@ const emit = defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConf
 type TabId = 'table' | 'text' | 'details';
 const activeTabId = ref<TabId>('text');
 
-const activeItem = shallowRef<ConnectionNodeConfig | undefined>();
+// const activeConnectionObjectConfig = shallowRef<ConnectionNodeConfig | undefined>();
 const currentFolderNodes = shallowRef<ConnectionNodeConfig[]>([]);
 
-const listNodesResult = shallowRef<ListNodesResult | undefined>();
+// const listNodesResult = shallowRef<ListNodesResult | undefined>();
 const previewRequestId = ref(0);
 
 const previewPercentage = ref(0);
@@ -89,6 +96,8 @@ onMounted(async () => {
     }
 });
 
+watch(localMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => establishDataView(newLocalMetaStoreConnectionConfig, route));
+
 watch(connectionConfigs, async () => {
     if (activeConnectionConfig.value == null) {
         activeConnectionConfig.value = getLocalisedConnection(route.query.conId as string | undefined, localeId.value);
@@ -97,15 +106,15 @@ watch(connectionConfigs, async () => {
         }
     }
     currentFolderNodes.value = [];
-    activeItem.value = undefined;
-    setConnectionNodeConfig();
+    activeConnectionObjectConfig.value = undefined;
+    // setConnectionNodeConfig();
     await loadFolderNodes('');
 });
 
-watch(activeItem, async (newActiveItem) => {
+watch(activeConnectionObjectConfig, async (newActiveItem) => {
     const currentRequestId = ++previewRequestId.value;
 
-    setConnectionNodeConfig(newActiveItem);
+    // setConnectionNodeConfig(newActiveItem);
     resetPreviewState();
 
     if (newActiveItem == null) return;
@@ -113,7 +122,7 @@ watch(activeItem, async (newActiveItem) => {
     const { processRequest } = await useEngine();
     const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value!, getPreviewObjectOptions(newActiveItem))) as PreviewConfig;
 
-    if (currentRequestId !== previewRequestId.value || activeItem.value !== newActiveItem) return;
+    if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
 
     applyPreviewConfig(newActiveItem, previewConfig);
 });
@@ -126,7 +135,7 @@ async function handleSubmit(): Promise<void> {
 }
 
 async function selectBreadcrumb(index: number): Promise<void> {
-    activeItem.value = undefined;
+    activeConnectionObjectConfig.value = undefined;
 
     if (index === breadcrumbs.value.length - 1) return;
 
@@ -142,18 +151,18 @@ async function selectBreadcrumb(index: number): Promise<void> {
 
 async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig | undefined): Promise<void> {
     if (connectionNodeConfig == null) {
-        activeItem.value = undefined;
+        activeConnectionObjectConfig.value = undefined;
         return;
     }
 
     if (connectionNodeConfig.typeId === 'folder') {
         currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
-        activeItem.value = undefined;
+        activeConnectionObjectConfig.value = undefined;
         await loadFolderNodes(currentFolderPath.value);
         return;
     }
 
-    activeItem.value = connectionNodeConfig;
+    activeConnectionObjectConfig.value = connectionNodeConfig;
 }
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -223,10 +232,10 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
 </script>
 
 <template>
-    <GridDetailPanel :active-item="activeItem" :data-source="dataSource" :is-compact="true" max-list-width="400px" @select="selectConnectionNode($event)">
+    <GridDetailPanel :active-item="activeConnectionObjectConfig" :data-source="dataSource" :is-compact="true" max-list-width="400px" @select="selectConnectionNode($event)">
         <template #header>
             <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
-                <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeItem == null" @select="selectBreadcrumb" />
+                <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeConnectionObjectConfig == null" @select="selectBreadcrumb" />
             </div>
         </template>
 
