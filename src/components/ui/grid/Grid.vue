@@ -105,10 +105,7 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
         <ActionBar v-if="addLabel" class="absolute right-(--safe-right-offset) bottom-(--safe-bottom-offset)" variant="add" @action="$emit('add')">
             <template #action>
                 <PlusIcon />
-                <div class="flex flex-col items-start leading-tight">
-                    <span class="text-xs leading-none">Add</span>
-                    <span class="text-xs leading-none">{{ addLabel }}</span>
-                </div>
+                <span class="text-xs">{{ addLabel }}</span>
             </template>
         </ActionBar>
     </div>
