@@ -101,6 +101,7 @@ export default defineConfigWithVueTs(
                         'border-b-boundary',
                         'outline-boundary',
                         'outline-boundary-hover',
+                        'text-accent',
                         'text-content',
                         'text-muted',
                         'to-surface/95',

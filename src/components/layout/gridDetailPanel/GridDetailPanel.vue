@@ -62,24 +62,14 @@ async function selectItem(row: T): Promise<void> {
         <!-- Body -->
         <div class="flex flex-1 overflow-hidden">
             <!-- Grid (Left) Pane -->
-            <div v-show="displayIsWide || !detailPaneIsVisible" class="relative flex-1 overflow-hidden" :style="getPaneStyle(maxListWidth)">
-                <Grid :data-source="dataSource" :add-label="addLabel" :is-compact="isCompact" :row-height="83" :target-column-width="250" @add="$emit('add')">
+            <div v-show="displayIsWide || !detailPaneIsVisible" class="relative flex flex-1 flex-col overflow-hidden" :style="getPaneStyle(maxListWidth)">
+                <Grid :add-label="addLabel" class="flex-1" :data-source="dataSource" :is-compact="isCompact" :row-height="83" :target-column-width="250" @add="$emit('add')">
                     <template #default="{ item }">
                         <Button class="h-full w-full" :is-active="activeItem === item" shape="minimal" @click="selectItem(item)">
                             <slot name="list-item-default" :item="item" />
                         </Button>
                     </template>
                 </Grid>
-
-                <!-- <ActionBar v-if="enableAddAction" class="absolute right-4 bottom-(--safe-bottom-offset)" variant="add">
-                    <template #action>
-                        <PlusIcon />
-                        <div class="flex flex-col items-start leading-tight">
-                            <span class="text-xs leading-none">Add</span>
-                            <span class="text-xs leading-none">Connection</span>
-                        </div>
-                    </template>
-                </ActionBar> -->
             </div>
 
             <!-- Detail (Right) Pane -->

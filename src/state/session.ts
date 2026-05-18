@@ -29,20 +29,20 @@ const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const connectionConfigs = shallowRef<ConnectionConfig[]>([]);
-export const connectorConfigs = shallowRef<ConnectorConfig[] | undefined>();
+export const connectorConfigs = shallowRef<ConnectorConfig[]>([]);
 export const contextConfig = shallowRef<ContextConfig | undefined>();
-export const dataViewConfigs = shallowRef<DataViewConfig[] | undefined>();
-export const dimensionConfigs = shallowRef<DimensionConfig[] | undefined>();
+export const dataViewConfigs = shallowRef<DataViewConfig[]>([]);
+export const dimensionConfigs = shallowRef<DimensionConfig[]>([]);
 export const emailAddress = ref<string | undefined>();
 export const engineConfig = shallowRef<EngineConfig | undefined>();
 export const expiresAt = ref<number | undefined>();
 export const expiresIn = ref<number | undefined>();
-export const eventQueryConfigs = shallowRef<EventQueryConfig[] | undefined>();
+export const eventQueryConfigs = shallowRef<EventQueryConfig[]>([]);
 export const isAuthenticated = ref<boolean | undefined>(); // Undefined if Hanko session validation pending; false if signed OUT; true if signed IN.
 export const lifetime = ref<number | undefined>();
 export const localMetaStoreConnectionConfig = shallowRef<ConnectionConfig | undefined>();
-export const presenterConfigs = shallowRef<PresenterConfig[] | undefined>();
-export const toolConfigs = shallowRef<ToolConfig[] | undefined>();
+export const presenterConfigs = shallowRef<PresenterConfig[]>([]);
+export const toolConfigs = shallowRef<ToolConfig[]>([]);
 
 const areUpdatesPending = ref(false);
 const emailIsPrimary = ref<boolean | undefined>();
@@ -82,7 +82,7 @@ watch(
     { immediate: true }
 );
 
-watch(localMetaStoreConnectionConfig, () => (dataViewConfigs.value = undefined), { immediate: true }); // TODO: Should we make this conditional?
+watch(localMetaStoreConnectionConfig, () => (dataViewConfigs.value = []), { immediate: true }); // TODO: Should we make this conditional?
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

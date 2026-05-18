@@ -19,7 +19,7 @@ import TaskBar, { type TaskConfig } from '@/components/layout/taskBar/TaskBar.vu
 
 const TASK_CONFIGS: TaskConfig[] = [
     { id: 'selectConnection', number: 1, label: { en: 'Connection' }, description: {}, disabled: true, enableUpTo: 1, verb: { en: 'Select' } },
-    { id: 'selectNode', number: 2, label: { en: 'Node' }, description: {}, disabled: true, enableUpTo: 2, verb: { en: 'Select' } },
+    { id: 'selectItem', number: 2, label: { en: 'Item' }, description: {}, disabled: true, enableUpTo: 2, verb: { en: 'Select' } },
     { id: 'auditContent', number: 3, label: { en: 'Content' }, description: {}, disabled: true, enableUpTo: 3, verb: { en: 'Audit' } },
     { id: 'exploreData', number: 4, label: { en: 'Data' }, description: {}, disabled: true, enableUpTo: 5, verb: { en: 'Explore' } }
 ];
@@ -70,16 +70,16 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
 <template>
     <LayoutShell>
         <!-- Header -->
-        <Header class="px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Establish_Data_Views')" :to="navigateBackRouteName" />
+        <Header class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Establish_Data_Views')" :to="navigateBackRouteName" />
 
         <!-- Task Bar -->
         <TaskBar v-if="activeTaskLocalisedConfig" :active-task-id="activeTaskLocalisedConfig.id" class="mx-4 flex flex-none" :items="taskLocalisedConfigs" />
 
         <!-- Data View List or Active Task Panel -->
-        <div class="relative flex flex-1 flex-col overflow-hidden">
+        <div class="relative flex min-h-0 flex-1 flex-col">
             <RouterView v-slot="{ Component }">
-                <component :is="Component" v-if="route.name === 'establishDataViews'" class="h-full" />
-                <component :is="Component" v-else class="h-full" :task-localised-config="activeTaskLocalisedConfig" @task-completed="handleTaskCompleted" />
+                <component :is="Component" v-if="route.name === 'establishDataViews'" class="min-h-0 flex-1" />
+                <component :is="Component" v-else class="min-h-0 flex-1" :task-localised-config="activeTaskLocalisedConfig" @task-completed="handleTaskCompleted" />
             </RouterView>
         </div>
     </LayoutShell>

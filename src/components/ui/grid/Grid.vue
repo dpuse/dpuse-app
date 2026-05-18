@@ -12,7 +12,7 @@ import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-defineOptions({ inheritAttrs: false });
+// defineOptions({ inheritAttrs: false });
 
 type Properties = {
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
@@ -73,8 +73,8 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
 </script>
 
 <template>
-    <div class="relative h-full min-h-0">
-        <ScrollArea v-bind="$attrs" class="h-full" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleScrollAreaInitialised">
+    <div class="relative flex min-h-0 flex-col">
+        <ScrollArea class="flex-1" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleScrollAreaInitialised">
             <div :style="{ height: totalSize + 'px', position: 'relative' }">
                 <div
                     v-for="virtualRow in virtualRows"

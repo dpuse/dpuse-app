@@ -10,7 +10,14 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
-import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, establishDataView, NEW_DATA_VIEW_ID } from '@/state/establishDataViews';
+import {
+    activeConnectionConfig,
+    activeConnectionNodeConfigs,
+    activeDataViewConfig,
+    connectionLocalisedConfigs,
+    establishDataView,
+    NEW_DATA_VIEW_ID
+} from '@/state/establishDataViews';
 import { connectionConfigs, localMetaStoreConnectionConfig } from '@/state/session';
 
 // Local Components - Static
@@ -33,7 +40,7 @@ const router = useRouter();
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const dataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
+const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
     rowCount: connectionLocalisedConfigs.value.length,
     getRows: (start, end): Promise<LocalisedConfig<ConnectionConfig>[]> => Promise.resolve(connectionLocalisedConfigs.value.slice(start, end))
 }));
@@ -52,6 +59,7 @@ function handleAddConnection(): void {}
 
 function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
     activeConnectionConfig.value = connectionLocalisedConfig;
+    activeConnectionNodeConfigs.value = [];
 
     if (connectionLocalisedConfig == null) {
         router.replace({ query: { ...route.query, conId: undefined } });
@@ -94,7 +102,7 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
     <GridDetailPanel
         :active-item="activeConnectionConfig"
         add-label="Connection"
-        :data-source="dataSource"
+        :data-source="connectionConfigsDataSource"
         max-detail-width="400px"
         @add="handleAddConnection"
         @select="handleSelectConnection"

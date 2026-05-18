@@ -2,31 +2,31 @@
 // External Dependencies
 import { ArrowBigRightIcon } from 'lucide-vue-next';
 import type { ColumnDef } from '@tanstack/vue-table';
-import { computed, markRaw, onMounted, ref, shallowRef, watch } from 'vue';
+import { computed, markRaw, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
-import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
+import type { ConnectionConfig, ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
 import { formatNumberAsDecimalNumber, formatNumberAsStorageSize } from '@dpuse/dpuse-shared/utilities';
 import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
-import T from './SelectNodePanel.json';
+import { localMetaStoreConnectionConfig } from '@/state/session';
+import T from './SelectItemPanel.json';
+import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 import {
     activeConnectionConfig,
-    activeConnectionObjectConfig,
+    activeConnectionNodeConfigs,
     activeDataViewConfig,
+    connectionLocalisedConfigs,
     establishDataView,
-    listNodesResult,
     setConnectionNodeConfig
 } from '@/state/establishDataViews';
-import { connectionConfigs, getLocalisedConnection, localMetaStoreConnectionConfig } from '@/state/session';
-import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
 import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
@@ -47,13 +47,12 @@ const emit = defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConf
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-type TabId = 'table' | 'text' | 'details';
-const activeTabId = ref<TabId>('text');
+const activeConnectionObjectConfig = shallowRef<ConnectionNodeConfig | undefined>();
 
-// const activeConnectionObjectConfig = shallowRef<ConnectionNodeConfig | undefined>();
+const activeTabId = ref<'table' | 'text' | 'details'>('text');
+
 const currentFolderNodes = shallowRef<ConnectionNodeConfig[]>([]);
 
-// const listNodesResult = shallowRef<ListNodesResult | undefined>();
 const previewRequestId = ref(0);
 
 const previewPercentage = ref(0);
@@ -76,40 +75,28 @@ const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as
 
 const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...currentFolderNodes.value]);
 
-const connectionNodeConfigs = computed<ConnectionNodeConfig[]>(() => listNodesResult.value?.connectionNodeConfigs ?? []);
-
-const currentFolderPath = computed<string>(() => {
-    const currentFolderNode = currentFolderNodes.value.at(-1);
-    return currentFolderNode == null ? '' : getFolderPath(currentFolderNode);
-});
-
-const dataSource = computed<DataSource<ConnectionNodeConfig>>(() => ({
-    rowCount: connectionNodeConfigs.value.length,
-    getRows: (start: number, end: number): Promise<ConnectionNodeConfig[]> => Promise.resolve(connectionNodeConfigs.value.slice(start, end))
+const connectionNodeConfigsDataSource = computed<DataSource<ConnectionNodeConfig>>(() => ({
+    rowCount: activeConnectionNodeConfigs.value.length,
+    getRows: (start: number, end: number): Promise<ConnectionNodeConfig[]> => Promise.resolve(activeConnectionNodeConfigs.value.slice(start, end))
 }));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(async () => {
-    if (activeConnectionConfig.value != null) {
-        await loadFolderNodes('');
-    }
-});
-
-watch(localMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => establishDataView(newLocalMetaStoreConnectionConfig, route));
-
-watch(connectionConfigs, async () => {
-    if (activeConnectionConfig.value == null) {
-        activeConnectionConfig.value = getLocalisedConnection(route.query.conId as string | undefined, localeId.value);
-        if (activeConnectionConfig.value == null) {
-            router.replace({ name: 'selectConnection', query: { ...route.query, conId: undefined } });
+// Re-establish the data view when local metastore connection config changes (for example, after a reload or if the metastore connector is reloaded).
+watch(localMetaStoreConnectionConfig, async (newLocalMetaStoreConnectionConfig) => {
+    if (newLocalMetaStoreConnectionConfig == null) {
+        return;
+    } else {
+        const dataViewConfig = await establishDataView(newLocalMetaStoreConnectionConfig, route);
+        if (dataViewConfig.connectionId == null) {
+            router.replace({ name: 'selectConnection', query: { ...route.query, wbView: 'selectConnection' } });
+        } else {
+            activeConnectionConfig.value = connectionLocalisedConfigs.value.find((localisedConnectionConfig) => localisedConnectionConfig.id == dataViewConfig.connectionId);
         }
     }
-    currentFolderNodes.value = [];
-    activeConnectionObjectConfig.value = undefined;
-    // setConnectionNodeConfig();
-    await loadFolderNodes('');
 });
+
+watch(activeConnectionConfig, async (newActiveConnectionConfig) => await loadFolderNodes(newActiveConnectionConfig, ''), { immediate: true });
 
 watch(activeConnectionObjectConfig, async (newActiveItem) => {
     const currentRequestId = ++previewRequestId.value;
@@ -120,7 +107,10 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
     if (newActiveItem == null) return;
 
     const { processRequest } = await useEngine();
-    const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value!, getPreviewObjectOptions(newActiveItem))) as PreviewConfig;
+    const extension = newActiveItem.extension == null ? '' : `.${newActiveItem.extension}`;
+    const objectPath = `${newActiveItem.folderPath}/${newActiveItem.name}${extension}`;
+    const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: objectPath };
+    const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value!, options)) as PreviewConfig;
 
     if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
 
@@ -129,28 +119,24 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
 
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleSubmit(): Promise<void> {
-    emit('task-completed', taskLocalisedConfig);
-    await router.push({ name: 'auditContent', query: { ...route.query, wbView: 'auditContent' } });
-}
-
-async function selectBreadcrumb(index: number): Promise<void> {
+async function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
     activeConnectionObjectConfig.value = undefined;
 
-    if (index === breadcrumbs.value.length - 1) return;
+    // if (index === breadcrumbs.value.length - 1) return;
 
     if (index <= 0) {
         currentFolderNodes.value = [];
-        await loadFolderNodes('');
+        await loadFolderNodes(activeConnectionConfig.value, '');
         return;
     }
 
     currentFolderNodes.value = currentFolderNodes.value.slice(0, index);
-    await loadFolderNodes(currentFolderPath.value);
+    await loadFolderNodes(activeConnectionConfig.value, `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`);
 }
 
-async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig | undefined): Promise<void> {
+async function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig | undefined): Promise<void> {
     if (connectionNodeConfig == null) {
+        // Clear the selection.
         activeConnectionObjectConfig.value = undefined;
         return;
     }
@@ -158,28 +144,19 @@ async function selectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
     if (connectionNodeConfig.typeId === 'folder') {
         currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
         activeConnectionObjectConfig.value = undefined;
-        await loadFolderNodes(currentFolderPath.value);
+        await loadFolderNodes(activeConnectionConfig.value, `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`);
         return;
     }
 
     activeConnectionObjectConfig.value = connectionNodeConfig;
 }
 
+async function handleSelectItem(): Promise<void> {
+    emit('task-completed', taskLocalisedConfig);
+    await router.push({ name: 'auditContent', query: { ...route.query, wbView: 'auditContent' } });
+}
+
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function getFolderPath(connectionNodeConfig: ConnectionNodeConfig): string {
-    if (!('folderPath' in connectionNodeConfig) || !('name' in connectionNodeConfig)) return '';
-    return `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`;
-}
-
-function getObjectPath(connectionNodeConfig: ConnectionNodeConfig): string {
-    const extension = connectionNodeConfig.extension == null ? '' : `.${connectionNodeConfig.extension}`;
-    return `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}${extension}`;
-}
-
-function getPreviewObjectOptions(connectionNodeConfig: ConnectionNodeConfig): PreviewObjectOptions {
-    return { chunkSize: undefined, extension: undefined, path: getObjectPath(connectionNodeConfig) };
-}
 
 function resetPreviewState(): void {
     previewPercentage.value = 0;
@@ -223,28 +200,30 @@ function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewC
     };
 }
 
-async function loadFolderNodes(folderPath: string): Promise<void> {
-    if (activeConnectionConfig.value == null) return;
+async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfig> | undefined, folderPath: string): Promise<void> {
+    if (connectionConfig == null) return;
 
     const { processRequest } = await useEngine();
-    listNodesResult.value = (await processRequest('listNodes', activeConnectionConfig.value, { folderPath } as ListNodesOptions)) as ListNodesResult;
+    const listNodesResult = (await processRequest('listNodes', connectionConfig, { folderPath } as ListNodesOptions)) as ListNodesResult;
+    activeConnectionNodeConfigs.value = listNodesResult.connectionNodeConfigs;
 }
 </script>
 
 <template>
-    <GridDetailPanel :active-item="activeConnectionObjectConfig" :data-source="dataSource" :is-compact="true" max-list-width="400px" @select="selectConnectionNode($event)">
+    <GridDetailPanel
+        :active-item="activeConnectionObjectConfig"
+        :data-source="connectionNodeConfigsDataSource"
+        :is-compact="true"
+        max-list-width="400px"
+        @select="handleSelectConnectionNode($event)"
+    >
         <template #header>
             <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
-                <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeConnectionObjectConfig == null" @select="selectBreadcrumb" />
+                <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeConnectionObjectConfig == null" @select="handleSelectBreadcrumb" />
             </div>
         </template>
 
-        <!-- <template #list-item-compact="{ item }">
-            <Tile v-if="item" :label="item.label" />
-        </template> -->
-
         <template #list-item-default="{ item }">
-            <!-- <Tile v-if="item" :label="item.label" /> -->
             <Card v-if="item" :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
         </template>
 
@@ -271,7 +250,7 @@ async function loadFolderNodes(folderPath: string): Promise<void> {
                         { id: 'text', label: t(T, 'tab.text') },
                         { id: 'details', label: t(T, 'tab.details') }
                     ]"
-                    @action="handleSubmit"
+                    @action="handleSelectItem"
                 >
                     <template #action>
                         <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />

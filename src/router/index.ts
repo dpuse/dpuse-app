@@ -15,12 +15,10 @@ const WorkflowHomeLayout = load('workflow', () => import('@/domains/workbench/wo
 const EstablishDataViewsLayout = load('establishDataViews', () => import('@/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.vue'));
 const DataViewList = load('establishDataViews', () => import('@/domains/workbench/workflow/establishDataViews/DataViewList.vue'));
 const SelectConnectionPanel = load('selectConnection', () => import('@/domains/workbench/workflow/establishDataViews/selectConnection/SelectConnectionPanel.vue'));
-const SelectNodePanel = load('selectNode', () => import('@/domains/workbench/workflow/establishDataViews/selectNode/SelectNodePanel.vue'));
+const SelectItemPanel = load('selectItem', () => import('@/domains/workbench/workflow/establishDataViews/selectItem/SelectItemPanel.vue'));
 const AuditContentPanel = load('auditContent', () => import('@/domains/workbench/workflow/establishDataViews/auditContent/AuditContentPanel.vue'));
-const AuditLinksPanel = load('auditLinks', () => import('@/domains/workbench/workflow/establishDataViews/auditLinks/AuditLinksPanel.vue'));
+// const AuditLinksPanel = load('auditLinks', () => import('@/domains/workbench/workflow/establishDataViews/auditLinks/AuditLinksPanel.vue'));
 const ExploreData = load('investigate', () => import('@/domains/workbench/workflow/establishDataViews/exploreData/ExploreData.vue'));
-// const TransformPanel = load('transform', () => import('@/domains/workbench/workflow/establishDataViews/transform/TransformPanel.vue'));
-// const InvestigatePanel = load('investigate', () => import('@/domains/workbench/workflow/establishDataViews/investigate/InvestigatePanel.vue'));
 
 const AssembleDimensionsLayout = load('assembleDimensions', () => import('@/domains/workbench/workflow/assembleDimensions/AssembleDimensionsLayout.vue'));
 const DimensionList = load('assembleDimensions', () => import('@/domains/workbench/workflow/assembleDimensions/DimensionList.vue'));
@@ -34,7 +32,7 @@ const BuildDataAppsLayout = load('buildDataApps', () => import('@/domains/workbe
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const ESTABLISH_DATA_VIEWS_DETAIL_ROUTES = new Set(['selectConnection', 'selectNode', 'auditContent', 'auditLinks', 'exploreData']);
+const ESTABLISH_DATA_VIEWS_DETAIL_ROUTES = new Set(['selectConnection', 'selectItem', 'auditContent', 'auditLinks', 'exploreData']);
 
 export const APP_ROUTES = [
     {
@@ -56,12 +54,10 @@ export const APP_ROUTES = [
                                 path: ':dataViewId',
                                 children: [
                                     { name: 'selectConnection', path: 'selectConnection', component: SelectConnectionPanel },
-                                    { name: 'selectNode', path: 'selectNode', component: SelectNodePanel },
+                                    { name: 'selectItem', path: 'selectItem', component: SelectItemPanel },
                                     { name: 'auditContent', path: 'auditContent', component: AuditContentPanel },
-                                    { name: 'auditLinks', path: 'auditLinks', component: AuditLinksPanel },
+                                    // { name: 'auditLinks', path: 'auditLinks', component: AuditLinksPanel },
                                     { name: 'exploreData', path: 'investigate', component: ExploreData }
-                                    // { name: 'transform', path: 'transform', component: TransformPanel },
-                                    // { name: 'investigate', path: 'investigate', component: InvestigatePanel }
                                 ]
                             }
                         ]
