@@ -8,17 +8,15 @@ import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/prese
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
 // Local (App) Framework
-import { connectionConfigs, connectorConfigs, contextConfig, engineConfig, localMetaStoreConnectionConfig, presenterConfigs, toolConfigs } from '@/state/session';
+import { connectorConfigs, contextConfig, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DPU_API_HOST = 'api.dpuse.app';
-const LOCAL_META_NODE_CONNECTOR_ID = 'dpuse-connector-dexie-js';
 const TIMEOUT_DELAY = 5000;
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-let localMetaNodeConnectorConfig: ConnectorConfig | undefined;
 let webSocket: WebSocket | undefined;
 let webSocketShutdown = false;
 
@@ -154,25 +152,16 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
         }
     }
 
-    if (connectorRegistered) {
-        connectorConfigs.value = [...pendingConnectorConfigs];
-        if (connectorConfigs.value.length > 0) {
-            localMetaNodeConnectorConfig = connectorConfigs.value.find((connectorConfig) => connectorConfig.id === LOCAL_META_NODE_CONNECTOR_ID);
-            if (localMetaNodeConnectorConfig) {
-                localMetaStoreConnectionConfig.value = constructConnectionConfig(localMetaNodeConnectorConfig);
-            }
-            constructDefaultConnectionConfigs();
-        }
-    }
+    if (connectorRegistered) connectorConfigs.value = [...pendingConnectorConfigs];
 
-    if (presenterRegistered || !presenterConfigs.value) presenterConfigs.value = [...pendingPresenterConfigs];
+    if (presenterRegistered) presenterConfigs.value = [...pendingPresenterConfigs];
 
-    if (toolRegistered || !toolConfigs.value) toolConfigs.value = [...pendingToolConfigs];
+    if (toolRegistered) toolConfigs.value = [...pendingToolConfigs];
 }
 
 function unregisterConfigurations(moduleConfigs: ModuleConfig[]): void {
     const idsToRemove = new Set(moduleConfigs.filter((m) => m.typeId === 'connector').map((m) => m.id));
-    if (idsToRemove.size > 0 && connectorConfigs.value) {
+    if (idsToRemove.size > 0) {
         connectorConfigs.value = connectorConfigs.value.filter((c) => !idsToRemove.has(c.id));
     }
 }
@@ -197,14 +186,4 @@ function constructConnectionConfig(connectorConfig: ConnectorConfig): Connection
         statusId: connectorConfig.statusId,
         typeId: 'connectorConnection'
     };
-}
-
-function constructDefaultConnectionConfigs(): void {
-    const pendingConnectionConfigs: ConnectionConfig[] = [];
-    for (const connectorConfig of connectorConfigs.value!) {
-        // if (connectorConfig.id === 'dpuse-connector-file-store-emulator') {
-        pendingConnectionConfigs.push(constructConnectionConfig(connectorConfig));
-        // }
-    }
-    connectionConfigs.value = pendingConnectionConfigs;
 }

@@ -255,8 +255,8 @@ function clamp(value: number, min: number, max: number): number {
 </script>
 
 <template>
-    <div class="scroll-area-wrapper">
-        <div :id="scrollElementId" ref="scrollElement" :class="['scroll-area', scrollAreaInset]">
+    <div class="dpuse-scroll-area-wrapper" data-component="ScrollArea">
+        <div :id="scrollElementId" ref="scrollElement" :class="['dpuse-scroll-area', scrollAreaInset]">
             <slot />
         </div>
 
@@ -270,8 +270,8 @@ function clamp(value: number, min: number, max: number): number {
             :aria-valuenow="Math.round(verticalScrollPercent)"
             aria-valuemin="0"
             aria-valuemax="100"
-            class="scrollbar-track scrollbar-track-v"
-            :class="{ 'scrollbar-visible': thumbsShown }"
+            class="dpuse-scrollbar-track dpuse-scrollbar-track-v"
+            :class="{ 'dpuse-scrollbar-visible': thumbsShown }"
             :style="{
                 bottom:
                     scrollAreaInset === 'embedded'
@@ -286,7 +286,7 @@ function clamp(value: number, min: number, max: number): number {
             @focusin="handleShowThumbs"
             @wheel="handleTrackWheel"
         >
-            <div class="scrollbar-thumb" :style="{ height: verticalThumbHeight + 'px', transform: `translateY(${verticalThumbTop}px)` }" />
+            <div class="dpuse-scrollbar-thumb" :style="{ height: verticalThumbHeight + 'px', transform: `translateY(${verticalThumbTop}px)` }" />
         </div>
 
         <div
@@ -299,8 +299,8 @@ function clamp(value: number, min: number, max: number): number {
             :aria-valuenow="Math.round(horizontalScrollPercent)"
             aria-valuemin="0"
             aria-valuemax="100"
-            class="scrollbar-track scrollbar-track-h"
-            :class="{ 'scrollbar-visible': thumbsShown }"
+            class="dpuse-scrollbar-track dpuse-scrollbar-track-h"
+            :class="{ 'dpuse-scrollbar-visible': thumbsShown }"
             :style="{ right: verticalVisible ? verticalThumbRightOffset + 'px' : '0' }"
             @pointerdown="handleHorizontalTrackPointerDown"
             @touchstart="handleHorizontalTrackTouchStart"
@@ -308,13 +308,13 @@ function clamp(value: number, min: number, max: number): number {
             @focusin="handleShowThumbs"
             @wheel="handleTrackWheel"
         >
-            <div class="scrollbar-thumb" :style="{ width: horizontalThumbWidth + 'px', transform: `translateX(${horizontalThumbLeft}px)` }" />
+            <div class="dpuse-scrollbar-thumb" :style="{ width: horizontalThumbWidth + 'px', transform: `translateX(${horizontalThumbLeft}px)` }" />
         </div>
     </div>
 </template>
 
 <style scoped>
-.scroll-area-wrapper {
+.dpuse-scroll-area-wrapper {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -323,7 +323,7 @@ function clamp(value: number, min: number, max: number): number {
     overflow: hidden;
 }
 
-.scroll-area {
+.dpuse-scroll-area {
     width: 100%;
     flex: 1;
     min-height: 0;
@@ -332,7 +332,7 @@ function clamp(value: number, min: number, max: number): number {
     scrollbar-width: none;
 }
 
-.scroll-area::-webkit-scrollbar {
+.dpuse-scroll-area::-webkit-scrollbar {
     display: none;
 }
 
@@ -347,7 +347,7 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 /* Tracks */
-.scrollbar-track {
+.dpuse-scrollbar-track {
     position: absolute;
     border-radius: 0;
     opacity: 0;
@@ -355,11 +355,11 @@ function clamp(value: number, min: number, max: number): number {
     pointer-events: auto;
 }
 
-.scrollbar-track.scrollbar-visible {
+.dpuse-scrollbar-track.dpuse-scrollbar-visible {
     opacity: 1;
 }
 
-.scrollbar-track-v {
+.dpuse-scrollbar-track-v {
     top: 0;
     right: 0;
     width: 24px;
@@ -367,7 +367,7 @@ function clamp(value: number, min: number, max: number): number {
     cursor: pointer;
 }
 
-.scrollbar-track-h {
+.dpuse-scrollbar-track-h {
     bottom: 0;
     left: 0;
     right: 0;
@@ -376,7 +376,7 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 /* Thumbs */
-.scrollbar-thumb {
+.dpuse-scrollbar-thumb {
     position: absolute;
     left: 0;
     top: 0;
@@ -392,31 +392,31 @@ function clamp(value: number, min: number, max: number): number {
         bottom 0.15s ease;
 }
 
-.scrollbar-track-v .scrollbar-thumb {
+.dpuse-scrollbar-track-v .dpuse-scrollbar-thumb {
     width: 6px;
     left: auto;
     right: 2px;
 }
 
-.scrollbar-track-h .scrollbar-thumb {
+.dpuse-scrollbar-track-h .dpuse-scrollbar-thumb {
     width: auto;
     height: 6px;
     top: auto;
     bottom: 2px;
 }
 
-.scrollbar-track-v:hover .scrollbar-thumb {
+.dpuse-scrollbar-track-v:hover .dpuse-scrollbar-thumb {
     width: 10px;
     right: 1px;
 }
 
-.scrollbar-track-h:hover .scrollbar-thumb {
+.dpuse-scrollbar-track-h:hover .dpuse-scrollbar-thumb {
     height: 10px;
     bottom: 1px;
 }
 
-.scrollbar-thumb:hover,
-.scrollbar-thumb:active {
+.dpuse-scrollbar-thumb:hover,
+.dpuse-scrollbar-thumb:active {
     background-color: var(--muted, rgba(0, 0, 0, 0.5));
 }
 </style>

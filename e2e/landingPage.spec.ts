@@ -24,7 +24,7 @@ test.describe('Landing page', () => {
     test('renders header', async ({ page }) => {
         await page.goto(url);
 
-        const heading = page.getByTestId('header');
+        const heading = page.getByRole('banner'); // Gets top level 'header' (not nested inside <article>, <aside>, <main>, <nav>, or <section>).
         await expect(heading).toBeVisible();
         await expect(heading).toContainText('Workflow');
 

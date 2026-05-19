@@ -1,3 +1,6 @@
+// Local (App) Framework
+import { type ConnectionAccountConfig, connectionAccountConfigs } from '@/state/session';
+
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DPU_API_HOST = 'api.dpuse.app';
@@ -45,7 +48,11 @@ function connectToWebSocket(): WebSocket | undefined {
         pendingWebSocket.addEventListener('message', (event) => {
             try {
                 const eventData = JSON.parse(event.data);
-                console.log(eventData);
+                const configs: ConnectionAccountConfig[] = [];
+                for (const connection of eventData.config.connections) {
+                    configs.push({ connectorId: connection.connectorId });
+                }
+                connectionAccountConfigs.value = configs;
             } catch (error) {
                 if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ❌ Account configuration retrieval error: ${String(error)}`, error);
             }

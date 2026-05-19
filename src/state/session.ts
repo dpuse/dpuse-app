@@ -1,6 +1,6 @@
 // External Dependencies
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
-import { ref, shallowRef, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 
 // DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -20,15 +20,22 @@ import { reportAppError } from '@/observability/errorTracking';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
 import { type LocaleId, localiseConfig, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
+// Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+export interface ConnectionAccountConfig {
+    connectorId: string;
+}
+
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 const EXPIRE_INTERVAL_SLOW = 60_000; // Milliseconds (1 minute).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
+const LOCAL_META_NODE_CONNECTOR_ID = 'dpuse-connector-dexie-js';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const connectionConfigs = shallowRef<ConnectionConfig[]>([]);
+export const connectionAccountConfigs = shallowRef<ConnectionAccountConfig[]>([]);
 export const connectorConfigs = shallowRef<ConnectorConfig[]>([]);
 export const contextConfig = shallowRef<ContextConfig | undefined>();
 export const dataViewConfigs = shallowRef<DataViewConfig[]>([]);
@@ -40,7 +47,6 @@ export const expiresIn = ref<number | undefined>();
 export const eventQueryConfigs = shallowRef<EventQueryConfig[]>([]);
 export const isAuthenticated = ref<boolean | undefined>(); // Undefined if Hanko session validation pending; false if signed OUT; true if signed IN.
 export const lifetime = ref<number | undefined>();
-export const localMetaStoreConnectionConfig = shallowRef<ConnectionConfig | undefined>();
 export const presenterConfigs = shallowRef<PresenterConfig[]>([]);
 export const toolConfigs = shallowRef<ToolConfig[]>([]);
 
@@ -50,21 +56,37 @@ const emailIsVerified = ref<boolean | undefined>();
 const sessionId = ref<string | undefined>();
 const userId = ref<string | undefined>();
 
-// Long-lived module-scoped Hanko instance reused across multiple authentication sessions.
-let hankoInstance: Hanko | undefined;
+let hankoInstance: Hanko | undefined; // Long-lived module-scoped Hanko instance reused across multiple authentication sessions.
 
-// Short lived session scoped cleanup callback for the active Hanko flow.
-let hankoFlowCleanupFunction: (() => void) | undefined;
+let hankoFlowCleanupFunction: (() => void) | undefined; // Short lived session scoped cleanup callback for the active Hanko flow.
 
-// Long-lived authenticated-session-scoped expiry timer.
-let expiryTimer: ReturnType<typeof setTimeout> | undefined;
+let expiryTimer: ReturnType<typeof setTimeout> | undefined; // Long-lived authenticated-session-scoped expiry timer.
 
-// Initialisation ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleBeforeUnload(event: BeforeUnloadEvent): void {
-    event.preventDefault();
-    event.returnValue = '';
-}
+export const connectionConfigs = computed<ConnectionConfig[]>(() => {
+    const configs: ConnectionConfig[] = [];
+
+    for (const connectorConfig of connectorConfigs.value!) {
+        if (connectorConfig.implementations.default.authMethodId === 'none') configs.push(constructConnectionConfig(connectorConfig));
+    }
+
+    for (const accountConfigs of connectionAccountConfigs.value) {
+        const connectorConfig = connectorConfigs.value.find((config) => config.id === accountConfigs.connectorId);
+        if (connectorConfig != null) {
+            configs.push(constructConnectionConfig(connectorConfig));
+        }
+    }
+
+    return configs;
+});
+
+export const localMetaStoreConnectionConfig = computed(() => {
+    const localMetaNodeConnectorConfig: ConnectorConfig | undefined = connectorConfigs.value.find((connectorConfig) => connectorConfig.id === LOCAL_META_NODE_CONNECTOR_ID);
+    return localMetaNodeConnectorConfig ? constructConnectionConfig(localMetaNodeConnectorConfig) : undefined;
+});
+
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(areUpdatesPending, (newAreUpdatesPending) => {
     if (newAreUpdatesPending) {
@@ -142,7 +164,45 @@ export async function signOut(): Promise<void> {
     await hankoInstance?.logout();
 }
 
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function handleBeforeUnload(event: BeforeUnloadEvent): void {
+    event.preventDefault();
+    event.returnValue = '';
+}
+
+function handleVisibilityChange(): void {
+    if (document.visibilityState !== 'visible' || expiresAt.value == null) return;
+    expiresIn.value = Math.max(0, expiresAt.value - Date.now());
+    if (expiresIn.value <= 0) clearSessionExpiryTimer();
+}
+
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function clearSessionExpiryTimer(): void {
+    globalThis.clearInterval(expiryTimer);
+    expiryTimer = undefined;
+}
+
+function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
+    return {
+        id: connectorConfig.id,
+        description: {},
+        authorisation: {},
+        connectorConfig,
+        firstCreatedAt: null,
+        icon: connectorConfig.icon,
+        iconDark: connectorConfig.iconDark,
+        iconNeutral: connectorConfig.iconNeutral,
+        lastVerifiedAt: 0,
+        lastUpdatedAt: null,
+        label: connectorConfig.label,
+        notation: undefined,
+        status: null,
+        statusId: connectorConfig.statusId,
+        typeId: 'connectorConnection'
+    };
+}
 
 function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'terminated' | 'validated' | 'validationFailure', claims?: Claims): void {
     if (claims) {
@@ -192,15 +252,4 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
         const icon = actionId === 'validationFailure' ? '⚠️' : 'ℹ️';
         if (import.meta.env.DEV) console.info(`[dpuse:app] ${icon} Unauthenticated session established (${actionId}).`);
     }
-}
-
-function clearSessionExpiryTimer(): void {
-    globalThis.clearInterval(expiryTimer);
-    expiryTimer = undefined;
-}
-
-function handleVisibilityChange(): void {
-    if (document.visibilityState !== 'visible' || expiresAt.value == null) return;
-    expiresIn.value = Math.max(0, expiresAt.value - Date.now());
-    if (expiresIn.value <= 0) clearSessionExpiryTimer();
 }

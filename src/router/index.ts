@@ -17,7 +17,6 @@ const DataViewList = load('establishDataViews', () => import('@/domains/workbenc
 const SelectConnectionPanel = load('selectConnection', () => import('@/domains/workbench/workflow/establishDataViews/selectConnection/SelectConnectionPanel.vue'));
 const SelectItemPanel = load('selectItem', () => import('@/domains/workbench/workflow/establishDataViews/selectItem/SelectItemPanel.vue'));
 const AuditContentPanel = load('auditContent', () => import('@/domains/workbench/workflow/establishDataViews/auditContent/AuditContentPanel.vue'));
-// const AuditLinksPanel = load('auditLinks', () => import('@/domains/workbench/workflow/establishDataViews/auditLinks/AuditLinksPanel.vue'));
 const ExploreData = load('investigate', () => import('@/domains/workbench/workflow/establishDataViews/exploreData/ExploreData.vue'));
 
 const AssembleDimensionsLayout = load('assembleDimensions', () => import('@/domains/workbench/workflow/assembleDimensions/AssembleDimensionsLayout.vue'));
@@ -31,8 +30,6 @@ const ExplorePresentationsLayout = load('explorePresentations', () => import('@/
 const BuildDataAppsLayout = load('buildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'));
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const ESTABLISH_DATA_VIEWS_DETAIL_ROUTES = new Set(['selectConnection', 'selectItem', 'auditContent', 'auditLinks', 'exploreData']);
 
 export const APP_ROUTES = [
     {
@@ -56,7 +53,6 @@ export const APP_ROUTES = [
                                     { name: 'selectConnection', path: 'selectConnection', component: SelectConnectionPanel },
                                     { name: 'selectItem', path: 'selectItem', component: SelectItemPanel },
                                     { name: 'auditContent', path: 'auditContent', component: AuditContentPanel },
-                                    // { name: 'auditLinks', path: 'auditLinks', component: AuditLinksPanel },
                                     { name: 'exploreData', path: 'investigate', component: ExploreData }
                                 ]
                             }
@@ -93,10 +89,6 @@ export const createAppRouter = (): Router => {
             } else if ('d' in to.query) {
                 return { path: to.path, query: { ...to.query, d: undefined } };
             }
-        }
-
-        if ('conId' in to.query && !ESTABLISH_DATA_VIEWS_DETAIL_ROUTES.has(to.name == null ? '' : String(to.name))) {
-            return { path: to.path, query: { ...to.query, conId: undefined }, hash: to.hash, replace: true };
         }
 
         startNavigation();

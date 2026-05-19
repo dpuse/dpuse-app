@@ -18,9 +18,9 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
 </script>
 
 <template>
-    <LayoutShell class="dpuse-workbench-prose">
+    <LayoutShell class="dpuse-workbench-prose" data-layout="WorkflowHome">
         <!-- Header -->
-        <Header :overline="t(T, 'wb.label')" data-testid="header" :title="t(T, 'wb.wf.label')" />
+        <Header :overline="t(T, 'wb.label')" :title="t(T, 'wb.wf.label')" />
 
         <!-- Workflow Steps -->
         <Separator class="mx-4" />

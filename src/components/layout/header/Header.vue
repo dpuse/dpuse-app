@@ -13,6 +13,7 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
             'px-14': !displayIsWide || !workbenchPaneIsVisible,
             'pr-44 pl-4': displayIsWide && workbenchPaneIsVisible && !knowledgePaneIsVisible
         }"
+        data-component="Header"
     >
         <!-- Content indented from left and right to allow for logos when display is narrow.
              Content indented from right to allow for knowledge bar when display is wide.

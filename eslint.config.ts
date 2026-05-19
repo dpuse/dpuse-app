@@ -96,8 +96,10 @@ export default defineConfigWithVueTs(
                         'bg-backdrop',
                         'bg-card',
                         'bg-card-hover',
+                        'bg-separator',
                         'bg-surface',
                         'border-separator',
+                        'border-boundary',
                         'border-b-boundary',
                         'outline-boundary',
                         'outline-boundary-hover',
@@ -105,7 +107,14 @@ export default defineConfigWithVueTs(
                         'text-content',
                         'text-muted',
                         'to-surface/95',
-                        'via-surface/80'
+                        'via-surface/80',
+                        'dpuse-scroll-area-wrapper',
+                        'dpuse-scroll-area',
+                        'dpuse-scrollbar-thumb',
+                        'dpuse-scrollbar-track',
+                        'dpuse-scrollbar-track-h',
+                        'dpuse-scrollbar-track-v',
+                        'dpuse-scrollbar-visible'
                     ]
                 }
             ],

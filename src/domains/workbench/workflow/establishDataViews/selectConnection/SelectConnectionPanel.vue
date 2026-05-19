@@ -49,7 +49,7 @@ const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<Connecti
 
 watch(localMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => establishDataView(newLocalMetaStoreConnectionConfig, route));
 
-watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.value = localiseConfigs<ConnectionConfig>(newConnectionConfigs, localeId.value)), {
+watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.value = localiseConfigs<ConnectionConfig>(newConnectionConfigs, localeId.value, true)), {
     immediate: true
 });
 
@@ -62,10 +62,17 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
     activeConnectionNodeConfigs.value = [];
 
     if (connectionLocalisedConfig == null) {
-        router.replace({ query: { ...route.query, conId: undefined } });
+        // router.replace({ query: { ...route.query, conId: undefined } });
         return;
     }
 
+    resetActiveDataViewConfig(connectionLocalisedConfig);
+    // router.replace({ query: { ...route.query, conId: connectionLocalisedConfig.id } });
+}
+
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function resetActiveDataViewConfig(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
     activeDataViewConfig.value =
         activeDataViewConfig.value === undefined
             ? {
@@ -94,7 +101,6 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
                   contentAuditConfig: undefined,
                   relationshipsAuditConfig: undefined
               };
-    router.replace({ query: { ...route.query, conId: connectionLocalisedConfig.id } });
 }
 </script>
 
