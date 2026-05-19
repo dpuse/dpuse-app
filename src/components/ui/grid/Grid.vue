@@ -73,7 +73,7 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
 </script>
 
 <template>
-    <div class="relative flex min-h-0 flex-col">
+    <div class="relative flex min-h-0 flex-col" data-component="Grid">
         <ScrollArea class="flex-1" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleScrollAreaInitialised">
             <div :style="{ height: totalSize + 'px', position: 'relative' }">
                 <div

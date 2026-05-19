@@ -87,7 +87,13 @@ const classes = computed((): (string | string[] | undefined)[] => {
 </script>
 
 <template>
-    <component :is="to ? RouterLink : 'button'" class="transition-[background-color] duration-150 focus-visible:outline-none" :class="classes" v-bind="to ? { to } : { type }">
+    <component
+        :is="to ? RouterLink : 'button'"
+        class="transition-[background-color] duration-150 focus-visible:outline-none"
+        :class="classes"
+        data-component="Button"
+        v-bind="to ? { to } : { type }"
+    >
         <slot />
     </component>
 </template>

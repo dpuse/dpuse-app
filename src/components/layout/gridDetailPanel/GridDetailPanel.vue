@@ -53,7 +53,7 @@ async function selectItem(row: T): Promise<void> {
 </script>
 
 <template>
-    <div class="flex h-full flex-col overflow-hidden">
+    <div class="flex h-full flex-col overflow-hidden" data-component="GridDetailPanel">
         <!-- Header -->
         <header class="mx-4 flex-none">
             <slot name="header" />

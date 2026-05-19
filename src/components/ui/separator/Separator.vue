@@ -4,11 +4,11 @@ const { text } = defineProps<{ text?: string }>();
 </script>
 
 <template>
-    <div v-if="text" class="flex flex-none items-center gap-4 font-light">
-        <div class="flex-1 border-t border-separator" />
+    <div v-if="text" class="flex flex-none items-center gap-4 font-light" data-component="Separator">
+        <div class="border-separator flex-1 border-t" />
         <span class="text-muted">{{ text }}</span>
-        <div class="flex-1 border-t border-separator" />
+        <div class="border-separator flex-1 border-t" />
     </div>
 
-    <div v-else class="h-px flex-none bg-separator" />
+    <div v-else class="bg-separator h-px flex-none" data-component="Separator" />
 </template>
