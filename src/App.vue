@@ -26,6 +26,10 @@ import SessionButton from '@/domains/session/SessionButton.vue'; // Always visib
 // Local Components - Dynamic
 const AccountDialog = defineAsyncComponent({ loader: load('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue'), 0), errorComponent: ChunkLoadError });
 const AuthDialog = defineAsyncComponent({ loader: load('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0), errorComponent: ChunkLoadError });
+const ConnectionDialog = defineAsyncComponent({
+    loader: load('connectionDialog', () => import('@/domains/config/connectionDialog/ConnectionDialog.vue'), 0),
+    errorComponent: ChunkLoadError
+});
 const KnowledgeLayout = defineAsyncComponent({ loader: load('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });
 const PaneSplitter = defineAsyncComponent({ loader: load('paneSplitter', () => import('@/components/layout/paneSplitter/PaneSplitter.vue'), 0), errorComponent: ChunkLoadError });
 const WorkbenchOptionBar = defineAsyncComponent({
@@ -270,6 +274,13 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <Transition name="dialog">
             <DialogWrapper v-if="accountDialogIsVisible">
                 <AccountDialog />
+            </DialogWrapper>
+        </Transition>
+
+        <!-- Account dialog activated using url parameter 'dlg=account'. -->
+        <Transition name="dialog">
+            <DialogWrapper v-if="connectionDialogIsVisible">
+                <ConnectionDialog />
             </DialogWrapper>
         </Transition>
 
