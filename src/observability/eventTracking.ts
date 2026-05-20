@@ -4,21 +4,23 @@ import { version } from '~/package.json';
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DPUSE_API_HOST = 'api.dpuse.app';
+const FLUSH_INTERVAL_INITIAL = 5000;
+const FLUSH_INTERVAL_SUBSEQUENT = 30_000;
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 let activeSessionId: string | undefined; // Tracked session identity for event attribution.
 let activeUserId: string | undefined; // Tracked user identity for event attribution.
 const pendingEvents: Record<string, unknown>[] = [];
-let timeout = 5000;
+let flushInterval = FLUSH_INTERVAL_INITIAL;
 
 // Initialisation ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-setInterval(flushEvents, timeout);
+setInterval(flushEvents, flushInterval);
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) return;
     flushEvents();
-    timeout = 30_000; // First check is 5secs after load, subsequent checks are every 30secs.
+    flushInterval = FLUSH_INTERVAL_SUBSEQUENT; // First check is 5secs after load, subsequent checks are every 30secs.
 });
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -28,6 +30,7 @@ export function forgetUser(): void {
     activeSessionId = undefined;
 }
 
+// TODO: Change to 'accountId'?
 export function identifyUser(userId: string, sessionId: string, emailAddress?: string): void {
     activeUserId = userId;
     activeSessionId = sessionId;
@@ -47,7 +50,7 @@ export function trackEvent(typeId: 'error' | 'interaction' | 'page' | 'performan
     });
 }
 
-// Helpers ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function flushEvents(): Promise<void> {
     if (pendingEvents.length === 0) return;

@@ -9,7 +9,6 @@ import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local (App) Framework
-import { accountId } from '@/observability/accountMonitor';
 import T from './SelectConnectionForm.json';
 import { t } from '@/state/locale';
 
@@ -18,6 +17,7 @@ import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
 import { useEngine } from '@/services/useEngine';
+import { accountId } from '~/src/state/session';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -42,7 +42,7 @@ async function testAuth(): Promise<void> {
     if (connectionLocalisedConfig == null) return;
     const { processRequest } = await useEngine();
     (await processRequest('authenticateConnection', connectionLocalisedConfig, {
-        accountId,
+        accountId: accountId.value,
         windowCenterX: screen.width / 2,
         windowCenterY: screen.height / 2
     })) as EngineAuthActionOptions;

@@ -35,34 +35,33 @@ const LOCAL_META_NODE_CONNECTOR_ID = 'dpuse-connector-dexie-js';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const areUpdatesPending = ref(false);
+export const accountId = ref<string | undefined>();
+export const emailAddress = ref<string | undefined>();
+const emailIsPrimary = ref<boolean | undefined>();
+const emailIsVerified = ref<boolean | undefined>();
+export const expiresAt = ref<number | undefined>();
+export const expiresIn = ref<number | undefined>();
+let expiryTimer: ReturnType<typeof setTimeout> | undefined; // Long-lived authenticated-session-scoped expiry timer.
+let hankoInstance: Hanko | undefined; // Long-lived module-scoped Hanko instance reused across multiple authentication sessions.
+let hankoFlowCleanupFunction: (() => void) | undefined; // Short lived session scoped cleanup callback for the active Hanko flow.
+export const isAuthenticated = ref<boolean | undefined>(); // Undefined if Hanko session validation pending; false if signed OUT; true if signed IN.
+export const lifetime = ref<number | undefined>();
+const sessionId = ref<string | undefined>();
+
+// State - Configuration ───────────────────────────────────────────────────────────────────────────────────────────────
+
 export const connectionAccountConfigs = shallowRef<ConnectionAccountConfig[]>([]);
 export const connectorConfigs = shallowRef<ConnectorConfig[]>([]);
 export const contextConfig = shallowRef<ContextConfig | undefined>();
 export const dataViewConfigs = shallowRef<DataViewConfig[]>([]);
-export const dimensionConfigs = shallowRef<DimensionConfig[]>([]);
-export const emailAddress = ref<string | undefined>();
 export const engineConfig = shallowRef<EngineConfig | undefined>();
-export const expiresAt = ref<number | undefined>();
-export const expiresIn = ref<number | undefined>();
 export const eventQueryConfigs = shallowRef<EventQueryConfig[]>([]);
-export const isAuthenticated = ref<boolean | undefined>(); // Undefined if Hanko session validation pending; false if signed OUT; true if signed IN.
-export const lifetime = ref<number | undefined>();
+export const dimensionConfigs = shallowRef<DimensionConfig[]>([]);
 export const presenterConfigs = shallowRef<PresenterConfig[]>([]);
 export const toolConfigs = shallowRef<ToolConfig[]>([]);
 
-const areUpdatesPending = ref(false);
-const emailIsPrimary = ref<boolean | undefined>();
-const emailIsVerified = ref<boolean | undefined>();
-const sessionId = ref<string | undefined>();
-const userId = ref<string | undefined>();
-
-let hankoInstance: Hanko | undefined; // Long-lived module-scoped Hanko instance reused across multiple authentication sessions.
-
-let hankoFlowCleanupFunction: (() => void) | undefined; // Short lived session scoped cleanup callback for the active Hanko flow.
-
-let expiryTimer: ReturnType<typeof setTimeout> | undefined; // Long-lived authenticated-session-scoped expiry timer.
-
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// Derived State - Configuration ───────────────────────────────────────────────────────────────────────────────────────
 
 export const connectionConfigs = computed<ConnectionConfig[]>(() => {
     const configs: ConnectionConfig[] = [];
@@ -215,17 +214,15 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
             emailIsPrimary.value = undefined;
             emailIsVerified.value = undefined;
         }
+        accountId.value = claims.subject;
         const establishedAt = claims.issued_at == null ? 0 : Date.parse(claims?.issued_at);
         expiresAt.value = claims.expiration ? Date.parse(claims.expiration) : 0;
         expiresIn.value = Math.max(0, (expiresAt.value || 0) - Date.now());
         isAuthenticated.value = true;
         lifetime.value = expiresAt.value - establishedAt;
         sessionId.value = claims.session_id;
-        userId.value = claims.subject;
 
-        import('@/observability/accountMonitor').then((module) => {
-            if (userId.value != null) module.initialise(userId.value);
-        });
+        import('@/observability/accountMonitor').then((module) => module.initialise());
 
         setSessionExpiryTimer();
         identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value);
@@ -235,9 +232,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
         forgetUser();
         clearSessionExpiryTimer();
 
-        import('@/observability/accountMonitor').then((module) => {
-            module.terminate();
-        });
+        import('@/observability/accountMonitor').then((module) => module.terminate());
 
         emailAddress.value = undefined;
         emailIsPrimary.value = undefined;
@@ -246,7 +241,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
         expiresIn.value = undefined;
         isAuthenticated.value = false;
         lifetime.value = undefined;
-        userId.value = undefined;
+        accountId.value = undefined;
         sessionId.value = undefined;
 
         const icon = actionId === 'validationFailure' ? '⚠️' : 'ℹ️';

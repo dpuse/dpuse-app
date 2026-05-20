@@ -1,5 +1,5 @@
 // Local (App) Framework
-import { type ConnectionAccountConfig, connectionAccountConfigs } from '@/state/session';
+import { accountId, type ConnectionAccountConfig, connectionAccountConfigs } from '@/state/session';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -8,15 +8,12 @@ const TIMEOUT_DELAY = 5000;
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export let accountId: string | undefined;
 let webSocket: WebSocket | undefined;
 let webSocketShutdown = false;
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export function initialise(userId: string): void {
-    console.log('userId', userId);
-    accountId = userId;
+export function initialise(): void {
     if (!(webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN))) {
         webSocket = connectToWebSocket();
         window.addEventListener('pagehide', () => shutdown());
@@ -37,12 +34,12 @@ export function terminate(): void {
 
 function connectToWebSocket(): WebSocket | undefined {
     try {
-        const url = `wss://${DPU_API_HOST}/accounts/${accountId}/websocket`;
+        const url = `wss://${DPU_API_HOST}/accounts/${accountId.value}/websocket`;
         let pendingWebSocket: WebSocket | undefined = new WebSocket(url);
 
         pendingWebSocket.addEventListener('open', () => {
             // TODO: I think this is where the data is being cleared?
-            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ✅ Accounts '${accountId}' WebSocket connection established.`);
+            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ✅ Accounts '${accountId.value}' WebSocket connection established.`);
         });
 
         pendingWebSocket.addEventListener('message', (event) => {

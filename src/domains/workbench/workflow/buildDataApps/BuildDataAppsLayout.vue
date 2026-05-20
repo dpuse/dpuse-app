@@ -18,13 +18,12 @@ const container = useTemplateRef('container');
 onMounted(() => {
     const N = 300;
     const gData = {
-        nodes: [...Array(N).keys()].map((i) => ({ id: i })),
-        links: [...Array(N).keys()]
-            .filter((id) => id)
-            .map((id) => ({
-                source: id,
-                target: Math.round(Math.random() * (id - 1))
-            }))
+        nodes: [...Array.from({ length: N }).keys()].map((index) => ({ id: index })),
+        links: [...Array.from({ length: N }).keys()].filter(Boolean).map((id) => ({
+            source: id,
+            // eslint-disable-next-line sonarjs/pseudo-random -- Not being used for a security-sensitive purpose.
+            target: Math.round(Math.random() * (id - 1))
+        }))
     };
 
     const Graph = new ForceGraph(container.value!).linkDirectionalParticles(2).graphData(gData);

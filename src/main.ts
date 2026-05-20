@@ -43,7 +43,7 @@ try {
     if (globalThis.trustedTypes != null) {
         globalThis.trustedTypes.createPolicy('default', {
             // Convert plain strings to inert HTML for libraries that internally write to `innerHTML`.
-            createHTML: (value: string): string => escapeHtml(value),
+            // createHTML: (value: string): string => escapeHtml(value), // TODO: Required for 'force-graph'.
             // Allow 'blob:' prefixed URLs for Vite's `?worker&inline` worker factory.
             createScriptURL: (url: string): string => {
                 if (url.startsWith('blob:')) return url;
