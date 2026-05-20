@@ -16,7 +16,7 @@ import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import T from './EventQueryList.json';
 import { useEngine } from '@/services/useEngine';
-import { eventQueryConfigs, localMetaStoreConnectionConfig } from '@/state/session';
+import { eventQueryConfigs, activeMetaStoreConnectionConfig } from '@/state/session';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -45,7 +45,7 @@ const dataSource = computed(
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveEventQueries(newConnectionConfig), { immediate: true });
+watch(activeMetaStoreConnectionConfig, (newConnectionConfig) => retrieveEventQueries(newConnectionConfig), { immediate: true });
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

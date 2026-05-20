@@ -61,7 +61,7 @@ export const dimensionConfigs = shallowRef<DimensionConfig[]>([]);
 export const presenterConfigs = shallowRef<PresenterConfig[]>([]);
 export const toolConfigs = shallowRef<ToolConfig[]>([]);
 
-// Derived State - Configuration ───────────────────────────────────────────────────────────────────────────────────────
+// Derived State - Connection Configurations ───────────────────────────────────────────────────────────────────────────
 
 export const connectionConfigs = computed<ConnectionConfig[]>(() => {
     const configs: ConnectionConfig[] = [];
@@ -80,9 +80,9 @@ export const connectionConfigs = computed<ConnectionConfig[]>(() => {
     return configs;
 });
 
-export const localMetaStoreConnectionConfig = computed(() => {
-    const localMetaNodeConnectorConfig: ConnectorConfig | undefined = connectorConfigs.value.find((connectorConfig) => connectorConfig.id === LOCAL_META_NODE_CONNECTOR_ID);
-    return localMetaNodeConnectorConfig ? constructConnectionConfig(localMetaNodeConnectorConfig) : undefined;
+export const activeMetaStoreConnectionConfig = computed(() => {
+    const metaNodeConnectorConfig: ConnectorConfig | undefined = connectorConfigs.value.find((connectorConfig) => connectorConfig.id === LOCAL_META_NODE_CONNECTOR_ID);
+    return metaNodeConnectorConfig ? constructConnectionConfig(metaNodeConnectorConfig) : undefined;
 });
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -103,7 +103,9 @@ watch(
     { immediate: true }
 );
 
-watch(localMetaStoreConnectionConfig, () => (dataViewConfigs.value = []), { immediate: true }); // TODO: Should we make this conditional?
+// Side Effects - Connection Configurations ────────────────────────────────────────────────────────────────────────────
+
+// watch(activeMetaStoreConnectionConfig, () => (dataViewConfigs.value = []), { immediate: true }); // TODO: Should we make this conditional?
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -234,6 +236,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
 
         import('@/observability/accountMonitor').then((module) => module.terminate());
 
+        connectionAccountConfigs.value = [];
         emailAddress.value = undefined;
         emailIsPrimary.value = undefined;
         emailIsVerified.value = undefined;

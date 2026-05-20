@@ -15,6 +15,7 @@ let webSocketShutdown = false;
 
 export function initialise(): void {
     if (!(webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN))) {
+        webSocketShutdown = false;
         webSocket = connectToWebSocket();
         window.addEventListener('pagehide', () => shutdown());
         window.addEventListener('pageshow', (event) => {

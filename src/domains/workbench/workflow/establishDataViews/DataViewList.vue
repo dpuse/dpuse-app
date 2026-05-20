@@ -16,7 +16,7 @@ import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import T from './DataViewList.json';
 import { useEngine } from '@/services/useEngine';
-import { dataViewConfigs, localMetaStoreConnectionConfig } from '@/state/session';
+import { dataViewConfigs, activeMetaStoreConnectionConfig } from '@/state/session';
 import { establishDataViewsObject, NEW_DATA_VIEW_ID, setActiveDataViewConfig } from '@/state/establishDataViews';
 
 // Local Components - Static
@@ -48,7 +48,7 @@ const dataViewConfigsDataSource = computed(
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
-    localMetaStoreConnectionConfig,
+    activeMetaStoreConnectionConfig,
     (newLocalMetaStoreConnectionConfig) => {
         if (newLocalMetaStoreConnectionConfig == null) {
             isDataViewsRetrievalFinalised.value = false;

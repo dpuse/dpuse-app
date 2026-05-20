@@ -18,7 +18,7 @@ import {
     establishDataView,
     NEW_DATA_VIEW_ID
 } from '@/state/establishDataViews';
-import { connectionConfigs, localMetaStoreConnectionConfig } from '@/state/session';
+import { connectionConfigs, activeMetaStoreConnectionConfig } from '@/state/session';
 
 // Local Components - Static
 import Card from '@/components/ui/card/Card.vue';
@@ -47,7 +47,7 @@ const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<Connecti
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(localMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => establishDataView(newLocalMetaStoreConnectionConfig, route));
+watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => establishDataView(newLocalMetaStoreConnectionConfig, route));
 
 watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.value = localiseConfigs<ConnectionConfig>(newConnectionConfigs, localeId.value, true)), {
     immediate: true

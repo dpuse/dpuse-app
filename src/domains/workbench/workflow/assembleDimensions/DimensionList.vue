@@ -17,7 +17,7 @@ import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import T from './DimensionList.json';
 import { useEngine } from '@/services/useEngine';
-import { dimensionConfigs, localMetaStoreConnectionConfig } from '@/state/session';
+import { dimensionConfigs, activeMetaStoreConnectionConfig } from '@/state/session';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -44,7 +44,7 @@ const dataSource = computed(
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(localMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDimensions(newConnectionConfig), { immediate: true });
+watch(activeMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDimensions(newConnectionConfig), { immediate: true });
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

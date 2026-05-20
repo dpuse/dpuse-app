@@ -15,7 +15,7 @@ import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@d
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
-import { localMetaStoreConnectionConfig } from '@/state/session';
+import { activeMetaStoreConnectionConfig } from '@/state/session';
 import T from './SelectItemPanel.json';
 import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
@@ -83,7 +83,7 @@ const connectionNodeConfigsDataSource = computed<DataSource<ConnectionNodeConfig
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Re-establish the data view when local metastore connection config changes (for example, after a reload or if the metastore connector is reloaded).
-watch(localMetaStoreConnectionConfig, async (newLocalMetaStoreConnectionConfig) => {
+watch(activeMetaStoreConnectionConfig, async (newLocalMetaStoreConnectionConfig) => {
     if (newLocalMetaStoreConnectionConfig == null) {
         return;
     } else {
