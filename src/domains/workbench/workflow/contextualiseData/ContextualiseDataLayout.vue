@@ -37,10 +37,17 @@ onMounted(() => {
     const width = container.value.offsetWidth;
     const height = container.value.offsetHeight;
 
-    const nodes: GraphNode[] = [{ id: 'A' }, { id: 'B' }, { id: 'C' }];
+    const nodes: GraphNode[] = [{ id: 'A' }, { id: 'B' }, { id: 'C' }, { id: 'D' }, { id: 'E' }, { id: 'F' }, { id: 'G' }, { id: 'H' }, { id: 'I' }, { id: 'J' }];
     const links: GraphLink[] = [
         { source: 'A', target: 'B' },
-        { source: 'B', target: 'C' }
+        { source: 'B', target: 'C' },
+        { source: 'D', target: 'C' },
+        { source: 'E', target: 'D' },
+        { source: 'F', target: 'D' },
+        { source: 'G', target: 'D' },
+        { source: 'H', target: 'F' },
+        { source: 'I', target: 'F' },
+        { source: 'J', target: 'F' }
     ];
 
     // Set deterministic initial positions so the graph is readable before force layout runs.
