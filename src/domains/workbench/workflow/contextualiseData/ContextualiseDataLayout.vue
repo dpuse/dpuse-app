@@ -89,10 +89,9 @@ onMounted(() => {
 
 <template>
     <LayoutShell>
-        <Header class="mx-4" :overline="t(T, 'wb.label')" :title="t(T, 'Contextualise_Data')" to="workflow" />
+        <Header class="mx-4 flex-none" :overline="t(T, 'wb.label')" :title="t(T, 'Contextualise_Data')" to="workflow" />
 
-        <div ref="container" class="h-150 w-full" />
-        <!-- <svg ref="svg" width="100%" height="600" /> -->
+        <div ref="container" class="w-full flex-1" />
         <!-- <RouterView /> -->
     </LayoutShell>
 </template>
