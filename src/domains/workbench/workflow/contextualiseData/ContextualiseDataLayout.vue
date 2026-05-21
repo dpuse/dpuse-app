@@ -15,7 +15,6 @@ import { onMounted, ref } from 'vue';
 type GraphNode = SimulationNodeDatum & { id: string };
 type GraphLink = SimulationLinkDatum<GraphNode>;
 
-const svg = ref<SVGSVGElement | null>(null);
 const container = ref<HTMLDivElement | null>(null);
 
 onMounted(() => {
@@ -55,7 +54,7 @@ onMounted(() => {
     node.call(
         drag<SVGGElement, GraphNode>()
             .on('start', (event, d) => {
-                if (!event.active) sim.alphaTarget(0.3).restart();
+                if (!Boolean(event.active)) sim.alphaTarget(0.3).restart();
                 d.fx = d.x;
                 d.fy = d.y;
             })
@@ -64,7 +63,7 @@ onMounted(() => {
                 d.fy = event.y;
             })
             .on('end', (event, d) => {
-                if (!event.active) sim.alphaTarget(0);
+                if (!Boolean(event.active)) sim.alphaTarget(0);
                 d.fx = null;
                 d.fy = null;
             })
