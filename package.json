@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.1202",
+    "version": "0.0.1203",
     "private": true,
     "type": "module",
     "engines": {
@@ -18,6 +18,9 @@
         "@teamhanko/hanko-frontend-sdk": "^2.6.0",
         "@vue-flow/core": "^1.48.2",
         "cytoscape": "^3.33.4",
+        "d3-drag": "^3.0.0",
+        "d3-force": "^3.0.0",
+        "d3-selection": "^3.0.0",
         "force-graph": "^1.51.4",
         "graphology": "^0.26.0",
         "graphology-layout-force": "^0.2.4",
@@ -36,6 +39,9 @@
         "@eslint-community/eslint-plugin-eslint-comments": "^4.7.1",
         "@playwright/test": "^1.60.0",
         "@tsconfig/node24": "^24.0.4",
+        "@types/d3-drag": "^3.0.7",
+        "@types/d3-force": "^3.0.10",
+        "@types/d3-selection": "^3.0.11",
         "@types/eslint-plugin-security": "^3.0.1",
         "@types/eslint-plugin-tailwindcss": "^3.17.0",
         "@types/jsdom": "^28.0.3",
