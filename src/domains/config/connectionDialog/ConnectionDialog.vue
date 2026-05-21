@@ -1,18 +1,24 @@
 <script setup lang="ts">
 // External Dependencies
-import { useRoute } from 'vue-router';
 import { ArrowBigLeftIcon, LoaderCircleIcon } from 'lucide-vue-next';
-import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
+import { type Component, computed, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
+import { type RouteRecordNameGeneric, useRoute } from 'vue-router';
 
 // Local (App) Framework
 import { displayIsWide } from '@/state/appLayout';
-import { t } from '@/state/locale';
+import { localeId, t } from '@/state/locale';
 import T from './ConnectionDialog.json';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
+import Card from '@/components/ui/card/Card.vue';
 import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
+import { connectorConfigs } from '~/src/state/session';
+import GridDetailPanel from '~/src/components/layout/gridDetailPanel/GridDetailPanel.vue';
+import type { DataSource } from '~/src/composables/useDataWindow';
+import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -41,14 +47,27 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
 
 const route = useRoute();
 
-const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
+const activeConnectorConfig = shallowRef<LocalisedConfig<ConnectorConfig> | undefined>();
+const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig(route.name)); // TODO: Use route to set this!
+const connectorLocalisedConfigs = shallowRef<LocalisedConfig<ConnectorConfig>[]>([]);
 const subPanelError = ref<unknown>(null);
+
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectorConfig>>>(() => ({
+    rowCount: connectorLocalisedConfigs.value.length,
+    getRows: (start, end): Promise<LocalisedConfig<ConnectorConfig>[]> => Promise.resolve(connectorLocalisedConfigs.value.slice(start, end))
+}));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onErrorCaptured((error) => {
     subPanelError.value = error;
     return false;
+});
+
+watch(connectorConfigs, (newConnectorConfigs) => (connectorLocalisedConfigs.value = localiseConfigs<ConnectorConfig>(newConnectorConfigs, localeId.value, true)), {
+    immediate: true
 });
 
 watch(displayIsWide, (isWide) => {
@@ -61,8 +80,13 @@ function handleBack(): void {
     activeOptionConfig.value = undefined;
 }
 
-function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
-    const routeName = route.name;
+function handleSelectConnection(connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> | undefined): void {
+    activeConnectorConfig.value = connectorLocalisedConfig;
+}
+
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): OptionLocalisedConfig | undefined {
     if (routeName === 'account') {
         if (displayIsWide.value) {
             return OPTION_CONFIGS[1];
@@ -81,19 +105,22 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 </script>
 
 <template>
-    <!-- <div class="fixed inset-0 z-50">
-        <div
-            role="dialog"
-            aria-modal="true"
-            class="bg-surface text-content z-10 flex h-full max-h-full w-full max-w-full flex-col sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-3xl sm:max-w-[calc(100vw-2rem)] sm:-translate-x-1/2 sm:rounded-lg"
-            tabindex="-1"
-        > -->
-    <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light">{{ t(T, 'Manage_Account') }}</div>
+    <div>
+        <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light">{{ t(T, 'Manage_Connection') }}</div>
 
-    <div class="flex flex-1 overflow-y-hidden">
+        <GridDetailPanel :active-item="activeConnectorConfig" :data-source="connectorConfigsDataSource" @select="handleSelectConnection">
+            <template #list-item-default="{ item }">
+                <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
+            </template>
+
+            <template #detail="{ item }"> {{ item }} </template>
+        </GridDetailPanel>
+    </div>
+
+    <!-- <div class="flex flex-1 overflow-y-hidden">
         <div v-if="displayIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 overflow-y-auto overscroll-y-none px-4 pb-6">
             <div class="flex flex-1 flex-col gap-y-1">
-                <template v-for="optionConfig in OPTION_CONFIGS" :key="optionConfig.id">
+                 <template v-for="optionConfig in OPTION_CONFIGS" :key="optionConfig.id">
                     <div v-if="optionConfig.type === 'label'" class="text-muted mt-3 text-xs font-medium">{{ optionConfig.label }}</div>
                     <ListItemButton
                         v-else
@@ -105,13 +132,10 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                         {{ optionConfig.label }}
                     </ListItemButton>
                 </template>
+                <template v-for="connectorConfig in connectorConfigs" :key="connectorConfig.id">
+                    <div>{{ connectorConfig.label.en }}</div>
+                </template>
             </div>
-
-            <!-- <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div> -->
-
-            <!-- <Button class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: route.query }" variant="destructive">
-                        {{ t(T, 'Delete_account') }}
-                    </Button> -->
         </div>
 
         <div v-if="displayIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
@@ -134,7 +158,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                 </template>
             </Suspense>
         </div>
-    </div>
+    </div> -->
     <!-- </div>
     </div> -->
 </template>

@@ -5,7 +5,6 @@ import { nextTick, ref, watch } from 'vue';
 
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import { displayIsWide } from '@/state/appLayout';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -41,10 +40,6 @@ watch(
 
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function getPaneStyle(maxWidth?: string): { maxWidth?: string } {
-    return { maxWidth: maxWidth != null && displayIsWide.value ? maxWidth : undefined };
-}
-
 async function selectItem(row: T): Promise<void> {
     emit('select', row);
     await nextTick();
@@ -60,9 +55,13 @@ async function selectItem(row: T): Promise<void> {
         </header>
 
         <!-- Body -->
-        <div class="flex flex-1 overflow-hidden">
+        <div
+            class="flex flex-1 overflow-hidden"
+            :class="{ 'show-detail': detailPaneIsVisible }"
+            :style="{ '--gdp-max-list-width': maxListWidth, '--gdp-max-detail-width': maxDetailWidth }"
+        >
             <!-- Grid (Left) Pane -->
-            <div v-show="displayIsWide || !detailPaneIsVisible" class="relative flex flex-1 flex-col overflow-hidden" :style="getPaneStyle(maxListWidth)">
+            <div class="gdp-list relative flex-1 flex-col overflow-hidden">
                 <Grid :add-label="addLabel" class="flex-1" :data-source="dataSource" :is-compact="isCompact" :row-height="83" :target-column-width="250" @add="$emit('add')">
                     <template #default="{ item }">
                         <Button class="h-full w-full" :is-active="activeItem === item" shape="minimal" @click="selectItem(item)">
@@ -73,12 +72,7 @@ async function selectItem(row: T): Promise<void> {
             </div>
 
             <!-- Detail (Right) Pane -->
-            <div
-                v-if="displayIsWide || detailPaneIsVisible"
-                class="mr-4 min-w-0 flex-1"
-                :class="{ 'border-separator border-l': displayIsWide }"
-                :style="getPaneStyle(maxDetailWidth)"
-            >
+            <div class="gdp-detail mr-4 min-w-0 flex-1 border-separator" style="container-type: inline-size">
                 <!-- Detail Panel -->
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
@@ -120,3 +114,39 @@ async function selectItem(row: T): Promise<void> {
         </div>
     </div>
 </template>
+
+<style scoped>
+/* Narrow: show list, hide detail */
+.gdp-list {
+    display: flex;
+}
+
+.gdp-detail {
+    display: none;
+}
+
+/* Narrow + item selected: show detail only */
+.show-detail .gdp-list {
+    display: none;
+}
+
+.show-detail .gdp-detail {
+    display: block;
+}
+
+/* Wide: always show both panes regardless of selection state */
+@container (min-width: 768px) {
+    .gdp-list,
+    .show-detail .gdp-list {
+        display: flex;
+        max-width: var(--gdp-max-list-width, none);
+    }
+
+    .gdp-detail,
+    .show-detail .gdp-detail {
+        display: block;
+        border-left-width: 1px;
+        max-width: var(--gdp-max-detail-width, none);
+    }
+}
+</style>

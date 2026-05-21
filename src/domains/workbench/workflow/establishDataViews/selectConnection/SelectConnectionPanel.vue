@@ -18,7 +18,7 @@ import {
     establishDataView,
     NEW_DATA_VIEW_ID
 } from '@/state/establishDataViews';
-import { connectionConfigs, activeMetaStoreConnectionConfig } from '@/state/session';
+import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
 
 // Local Components - Static
 import Card from '@/components/ui/card/Card.vue';
@@ -55,7 +55,9 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
 
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleAddConnection(): void {}
+function handleAddConnection(): void {
+    router.replace({ query: { ...route.query, dlg: 'connection' } });
+}
 
 function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
     activeConnectionConfig.value = connectionLocalisedConfig;

@@ -63,6 +63,7 @@ const workbenchPaneIsActive = ref(false); // On narrow displays a pane can be ac
 
 const accountDialogIsVisible = computed(() => route.query.dlg === 'account');
 const authDialogIsVisible = computed(() => route.query.dlg === 'auth');
+const connectionDialogIsVisible = computed(() => route.query.dlg === 'connection');
 
 // Derived State - Panes ───────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -293,7 +294,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             v-show="workbenchPaneIsVisible"
             class="grid h-full"
             :class="displayIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
-            :style="workbenchPaneStyle"
+            :style="[workbenchPaneStyle, { 'container-type': 'inline-size' }]"
             @pointerdown="activeAppPaneId = 'workbench'"
             @scroll.capture="activeAppPaneId = 'workbench'"
         >
