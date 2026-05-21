@@ -1,4 +1,11 @@
 <script setup lang="ts">
+// External Dependencies
+import { drag } from 'd3-drag';
+import { select } from 'd3-selection';
+import { type D3ZoomEvent, zoom } from 'd3-zoom';
+import { forceCenter, forceLink, forceManyBody, forceSimulation, type SimulationLinkDatum, type SimulationNodeDatum } from 'd3-force';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
+
 // Local (App) Framework
 import { t } from '@/state/locale';
 import T from './ContextualiseDataLayout.json';
@@ -7,15 +14,22 @@ import T from './ContextualiseDataLayout.json';
 import Header from '@/components/layout/header/Header.vue';
 import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
 
-import { drag } from 'd3-drag';
-import { select } from 'd3-selection';
-import { forceCenter, forceLink, forceManyBody, forceSimulation, type SimulationLinkDatum, type SimulationNodeDatum } from 'd3-force';
-import { onMounted, ref } from 'vue';
+// Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 type GraphNode = SimulationNodeDatum & { id: string };
 type GraphLink = SimulationLinkDatum<GraphNode>;
 
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 const container = ref<HTMLDivElement | null>(null);
+let cleanup: (() => void) | null = null;
+let triggerAutoLayout: (() => void) | null = null;
+
+const onAutoLayout = (): void => {
+    triggerAutoLayout?.();
+};
+
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
     if (!container.value) return;
@@ -29,6 +43,14 @@ onMounted(() => {
         { source: 'B', target: 'C' }
     ];
 
+    // Set deterministic initial positions so the graph is readable before force layout runs.
+    const startRadius = Math.min(width, height) * 0.22;
+    for (const [index, node] of nodes.entries()) {
+        const angle = (index / nodes.length) * Math.PI * 2;
+        node.x = width / 2 + Math.cos(angle) * startRadius;
+        node.y = height / 2 + Math.sin(angle) * startRadius;
+    }
+
     const sim = forceSimulation(nodes)
         .force(
             'link',
@@ -39,57 +61,139 @@ onMounted(() => {
         .force('charge', forceManyBody().strength(-300))
         .force('center', forceCenter(width / 2, height / 2));
 
-    const svg = select(container.value).append('svg').attr('width', width).attr('height', height).attr('viewBox', `0 0 ${width} ${height}`);
+    const svg = select(container.value).append('svg').attr('width', width).attr('height', height).attr('viewBox', `0 0 ${width} ${height}`).style('touch-action', 'none');
+    const viewport = svg.append('g');
 
-    const link = svg.selectAll<SVGLineElement, GraphLink>('line').data(links).join('line').attr('stroke', '#999');
+    const link = viewport.selectAll<SVGLineElement, GraphLink>('line').data(links).join('line').attr('stroke', '#9ca3af').attr('stroke-width', 2);
 
-    const node = svg.selectAll<SVGGElement, GraphNode>('g').data(nodes).join('g');
-    node.append('circle').attr('r', 20).attr('fill', 'steelblue');
+    const node = viewport.selectAll<SVGGElement, GraphNode>('g').data(nodes).join('g').style('cursor', 'pointer');
+    node.append('circle').attr('r', 20).attr('fill', '#2563eb').attr('stroke', '#1d4ed8').attr('stroke-width', 2);
     node.append('text')
         .text((d) => d.id)
         .attr('text-anchor', 'middle')
         .attr('dy', 4)
         .attr('fill', '#ffffff'); // explicit — iOS Safari can default to transparent
 
-    node.call(
-        drag<SVGGElement, GraphNode>()
-            .on('start', (event, d) => {
-                if (!Boolean(event.active)) sim.alphaTarget(0.3).restart();
-                d.fx = d.x;
-                d.fy = d.y;
-            })
-            .on('drag', (event, d) => {
-                d.fx = event.x;
-                d.fy = event.y;
-            })
-            .on('end', (event, d) => {
-                if (!Boolean(event.active)) sim.alphaTarget(0);
-                d.fx = null;
-                d.fy = null;
-            })
-    );
+    let selectedNodeId: string | null = null;
+    let hoveredNodeId: string | null = null;
 
-    const getNodePosition = (node: GraphNode | string | number, axis: 'x' | 'y'): number => {
-        if (typeof node === 'object' && node !== null) {
-            return node[axis] ?? 0;
+    const updateNodeStyles = (): void => {
+        node.selectAll<SVGCircleElement, GraphNode>('circle')
+            .attr('fill', (d) => {
+                if (d.id === selectedNodeId) return '#f59e0b';
+                if (d.id === hoveredNodeId) return '#3b82f6';
+                return '#2563eb';
+            })
+            .attr('stroke', (d) => {
+                if (d.id === selectedNodeId) return '#b45309';
+                if (d.id === hoveredNodeId) return '#1d4ed8';
+                return '#1e40af';
+            })
+            .attr('stroke-width', (d) => (d.id === selectedNodeId ? 3 : 2))
+            .attr('r', (d) => (d.id === selectedNodeId || d.id === hoveredNodeId ? 22 : 20));
+    };
+
+    node.on('mouseenter', (_, d) => {
+        hoveredNodeId = d.id;
+        updateNodeStyles();
+    })
+        .on('mouseleave', (_, d) => {
+            if (hoveredNodeId === d.id) hoveredNodeId = null;
+            updateNodeStyles();
+        })
+        .on('click', (event, d) => {
+            event.stopPropagation();
+            selectedNodeId = selectedNodeId === d.id ? null : d.id;
+            updateNodeStyles();
+        });
+
+    svg.on('click', () => {
+        selectedNodeId = null;
+        updateNodeStyles();
+    });
+
+    const zoomBehavior = zoom<SVGSVGElement, unknown>()
+        .scaleExtent([0.5, 4])
+        .on('zoom', (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
+            viewport.attr('transform', event.transform.toString());
+        });
+
+    svg.call(zoomBehavior).on('dblclick.zoom', null);
+
+    const getNodePosition = (value: GraphNode | string | number, axis: 'x' | 'y'): number => {
+        if (typeof value === 'object' && value != null) {
+            return value[axis] ?? 0;
         }
 
         return 0;
     };
 
-    sim.on('tick', () => {
+    const renderGraph = (): void => {
         link.attr('x1', (d) => getNodePosition(d.source, 'x'))
             .attr('y1', (d) => getNodePosition(d.source, 'y'))
             .attr('x2', (d) => getNodePosition(d.target, 'x'))
             .attr('y2', (d) => getNodePosition(d.target, 'y'));
         node.attr('transform', (d) => `translate(${d.x ?? 0},${d.y ?? 0})`);
-    });
+    };
+
+    // Keep force simulation idle by default; run it only on explicit request.
+    sim.stop();
+
+    triggerAutoLayout = (): void => {
+        sim.alpha(1);
+
+        for (let step = 0; step < 180; step += 1) {
+            sim.tick();
+        }
+
+        sim.stop();
+        renderGraph();
+    };
+
+    node.call(
+        drag<SVGGElement, GraphNode>()
+            .on('start', (event, d) => {
+                event.sourceEvent?.stopPropagation();
+                d.fx = d.x;
+                d.fy = d.y;
+            })
+            .on('drag', (event, d) => {
+                d.x = event.x;
+                d.y = event.y;
+                d.fx = event.x;
+                d.fy = event.y;
+                renderGraph();
+            })
+            .on('end', (_event, d) => {
+                d.fx = null;
+                d.fy = null;
+            })
+    );
+
+    renderGraph();
+
+    cleanup = (): void => {
+        sim.stop();
+        triggerAutoLayout = null;
+        svg.remove();
+    };
+});
+
+onBeforeUnmount(() => {
+    cleanup?.();
+    cleanup = null;
 });
 </script>
 
 <template>
     <LayoutShell>
         <Header class="mx-4 flex-none" :overline="t(T, 'wb.label')" :title="t(T, 'Contextualise_Data')" to="workflow" />
+
+        <div class="px-4 py-2">
+            <button class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50" type="button" @click="onAutoLayout">
+                Auto-layout
+            </button>
+        </div>
 
         <div ref="container" class="w-full flex-1" />
         <!-- <RouterView /> -->

@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.1206",
+    "version": "0.0.1207",
     "private": true,
     "type": "module",
     "engines": {
@@ -42,6 +42,7 @@
         "@types/d3-drag": "^3.0.7",
         "@types/d3-force": "^3.0.10",
         "@types/d3-selection": "^3.0.11",
+        "@types/d3-zoom": "^3.0.8",
         "@types/eslint-plugin-security": "^3.0.1",
         "@types/eslint-plugin-tailwindcss": "^3.17.0",
         "@types/jsdom": "^28.0.3",
