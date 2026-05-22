@@ -9,11 +9,20 @@ import type { DataSource } from '@/composables/useDataWindow';
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
+import type { ScrollAreaPadding } from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { activeItem?: T; dataSource: DataSource<T>; addLabel?: string; isCompact?: boolean; maxListWidth?: string; maxDetailWidth?: string };
-const { activeItem, dataSource, addLabel, isCompact = false, maxListWidth, maxDetailWidth } = defineProps<Properties>();
+type Properties = {
+    activeItem?: T;
+    dataSource: DataSource<T>;
+    addLabel?: string;
+    isCompact?: boolean;
+    maxListWidth?: string;
+    maxDetailWidth?: string;
+    scrollAreaPadding?: ScrollAreaPadding;
+};
+const { activeItem, dataSource, addLabel, isCompact = false, maxListWidth, maxDetailWidth, scrollAreaPadding } = defineProps<Properties>();
 
 defineSlots<{
     'header'(): unknown;
@@ -57,7 +66,7 @@ async function selectItem(row: T): Promise<void> {
         <!-- Body -->
         <div
             class="flex flex-1 overflow-hidden"
-            :class="{ 'show-detail': detailPaneIsVisible }"
+            :class="{ 'dpuse-show-detail': detailPaneIsVisible }"
             :style="{ '--gdp-max-list-width': maxListWidth, '--gdp-max-detail-width': maxDetailWidth }"
         >
             <!-- Grid (Left) Pane -->
@@ -72,7 +81,7 @@ async function selectItem(row: T): Promise<void> {
             </div>
 
             <!-- Detail (Right) Pane -->
-            <div class="gdp-detail mr-4 min-w-0 flex-1 border-separator" style="container-type: inline-size">
+            <div class="gdp-detail border-separator mr-4 min-w-0 flex-1" style="container-type: inline-size">
                 <!-- Detail Panel -->
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
@@ -126,24 +135,24 @@ async function selectItem(row: T): Promise<void> {
 }
 
 /* Narrow + item selected: show detail only */
-.show-detail .gdp-list {
+.dpuse-show-detail .gdp-list {
     display: none;
 }
 
-.show-detail .gdp-detail {
+.dpuse-show-detail .gdp-detail {
     display: block;
 }
 
 /* Wide: always show both panes regardless of selection state */
 @container (min-width: 768px) {
     .gdp-list,
-    .show-detail .gdp-list {
+    .dpuse-show-detail .gdp-list {
         display: flex;
         max-width: var(--gdp-max-list-width, none);
     }
 
     .gdp-detail,
-    .show-detail .gdp-detail {
+    .dpuse-show-detail .gdp-detail {
         display: block;
         border-left-width: 1px;
         max-width: var(--gdp-max-detail-width, none);

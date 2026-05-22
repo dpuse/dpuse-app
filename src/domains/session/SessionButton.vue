@@ -4,7 +4,7 @@ import { LoaderCircleIcon } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // Local (App) Framework
-import { displayIsWide } from '@/state/appLayout';
+import { viewportIsWide } from '@/state/appLayout';
 import { expiresIn, isAuthenticated, lifetime } from '@/state/session';
 
 // Local Components - Static
@@ -81,17 +81,17 @@ function onMenuAfterLeave(): void {}
 <template>
     <div class="flex flex-col">
         <Transition name="dpuse-mask">
-            <DialogMask v-if="sessionMenuIsVisible && !displayIsWide" class="z-40" />
+            <DialogMask v-if="sessionMenuIsVisible && !viewportIsWide" class="z-40" />
         </Transition>
 
-        <Transition :name="displayIsWide ? 'dpuse-slide-up' : 'dpuse-sheet'" @after-leave="onMenuAfterLeave">
+        <Transition :name="viewportIsWide ? 'dpuse-slide-up' : 'dpuse-sheet'" @after-leave="onMenuAfterLeave">
             <SessionMenu v-if="sessionMenuIsVisible" ref="sessionMenuReference" @continue="handleClose" />
         </Transition>
 
         <AvatarButton
             aria-label="Toggle session panel"
             class="dpuse-outside-click-ignore relative h-10 w-10"
-            :class="{ 'bg-surface shadow-md': !displayIsWide && !workbenchOptionBarIsVisible }"
+            :class="{ 'bg-surface shadow-md': !viewportIsWide && !workbenchOptionBarIsVisible }"
             @click="sessionMenuIsVisible = !sessionMenuIsVisible"
         >
             <Transition name="fade">

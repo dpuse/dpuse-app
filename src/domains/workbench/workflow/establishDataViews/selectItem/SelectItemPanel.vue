@@ -14,7 +14,7 @@ import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@d
 
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import { displayIsWide } from '@/state/appLayout';
+import { viewportIsWide } from '@/state/appLayout';
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import T from './SelectItemPanel.json';
 import { t } from '@/state/locale';
@@ -219,7 +219,7 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
     >
         <template #header>
             <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
-                <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="displayIsWide || activeConnectionObjectConfig == null" @select="handleSelectBreadcrumb" />
+                <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="viewportIsWide || activeConnectionObjectConfig == null" @select="handleSelectBreadcrumb" />
             </div>
         </template>
 

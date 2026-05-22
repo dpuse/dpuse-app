@@ -8,11 +8,9 @@ import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // Local Components - Static
 import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
-import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
+import ScrollArea, { type ScrollAreaPadding } from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
-
-// defineOptions({ inheritAttrs: false });
 
 type Properties = {
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
@@ -21,9 +19,10 @@ type Properties = {
     isCompact?: boolean;
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
     rowHeight?: number; // Row height in px. Default: 48.
+    scrollAreaPadding?: ScrollAreaPadding;
     targetColumnWidth?: number; // When set, multiple items are shown per row based on available width.
 };
-const { cacheBlockSize, dataSource, addLabel, isCompact = false, maxBlocksInCache, rowHeight = 48, targetColumnWidth } = defineProps<Properties>();
+const { cacheBlockSize, dataSource, addLabel, isCompact = false, maxBlocksInCache, rowHeight = 48, scrollAreaPadding = 'screen', targetColumnWidth } = defineProps<Properties>();
 
 defineSlots<{ default?(properties: { index: number; item: T }): unknown }>();
 
@@ -74,7 +73,7 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
 
 <template>
     <div class="relative flex min-h-0 flex-col" data-component="Grid">
-        <ScrollArea class="flex-1" role="list" :row-count="dataSource.rowCount" scroll-area-inset="screen" @initialised="handleScrollAreaInitialised">
+        <ScrollArea class="flex-1" role="list" :row-count="dataSource.rowCount" :scroll-area-padding="scrollAreaPadding" @initialised="handleScrollAreaInitialised">
             <div :style="{ height: totalSize + 'px', position: 'relative' }">
                 <div
                     v-for="virtualRow in virtualRows"

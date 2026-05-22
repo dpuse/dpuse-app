@@ -4,8 +4,9 @@ import { onMounted, onUnmounted, ref, useId, useTemplateRef } from 'vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { scrollAreaInset?: 'embedded' | 'screen'; scrollbarAlwaysVisible?: boolean };
-const { scrollAreaInset, scrollbarAlwaysVisible = false } = defineProps<Properties>();
+export type ScrollAreaPadding = 'embedded' | 'screen';
+type Properties = { scrollAreaPadding?: ScrollAreaPadding; scrollbarAlwaysVisible?: boolean };
+const { scrollAreaPadding, scrollbarAlwaysVisible = false } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [scrollElement: HTMLElement] }>();
 
@@ -256,7 +257,7 @@ function clamp(value: number, min: number, max: number): number {
 
 <template>
     <div class="dpuse-scroll-area-wrapper" data-component="ScrollArea">
-        <div :id="scrollElementId" ref="scrollElement" :class="['dpuse-scroll-area', scrollAreaInset]">
+        <div :id="scrollElementId" ref="scrollElement" :class="['dpuse-scroll-area', scrollAreaPadding]">
             <slot />
         </div>
 
@@ -274,9 +275,9 @@ function clamp(value: number, min: number, max: number): number {
             :class="{ 'dpuse-scrollbar-visible': thumbsShown }"
             :style="{
                 bottom:
-                    scrollAreaInset === 'embedded'
+                    scrollAreaPadding === 'embedded'
                         ? 'var(--vertical-scroll-bottom-embedded-inset)'
-                        : scrollAreaInset === 'screen'
+                        : scrollAreaPadding === 'screen'
                           ? 'var(--vertical-scroll-bottom-screen-inset)'
                           : '0px'
             }"

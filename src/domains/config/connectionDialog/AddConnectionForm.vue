@@ -52,7 +52,7 @@ async function handleSubmit(): Promise<void> {
 
 <template>
     <form class="relative flex h-full flex-col pl-4" data-component="AddConnectionForm" @submit.prevent="handleSubmit">
-        <ScrollArea class="flex-1" scroll-area-inset="screen">
+        <ScrollArea class="flex-1" scroll-area-padding="screen">
             <div class="flex flex-col gap-y-4 pt-2">
                 {{ connectorLocalisedConfig.description }}
 

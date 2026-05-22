@@ -10,7 +10,7 @@ import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
 // Local (App) Framework
 import T from './SessionMenu.json';
-import { displayIsWide, isPWA } from '@/state/appLayout';
+import { viewportIsWide, isPWA } from '@/state/appLayout';
 import { expiresIn, isAuthenticated, lifetime, setSessionExpiryTimer, signOut } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
@@ -108,7 +108,7 @@ async function toggleFullscreen(): Promise<void> {
     <div
         class="bg-surface border-separator flex max-w-sm min-w-xs flex-col overflow-hidden shadow-md"
         :class="
-            displayIsWide
+            viewportIsWide
                 ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] rounded-md border border-red-500'
                 : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] rounded-t-2xl border-x border-t'
         "

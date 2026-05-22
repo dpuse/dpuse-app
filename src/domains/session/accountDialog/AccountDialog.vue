@@ -5,7 +5,7 @@ import { ArrowBigLeftIcon, LoaderCircleIcon } from 'lucide-vue-next';
 import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 
 // Local (App) Framework
-import { displayIsWide } from '@/state/appLayout';
+import { viewportIsWide } from '@/state/appLayout';
 import { t } from '@/state/locale';
 import T from './AccountDialog.json';
 
@@ -59,7 +59,7 @@ onErrorCaptured((error) => {
     return false;
 });
 
-watch(displayIsWide, (isWide) => {
+watch(viewportIsWide, (isWide) => {
     if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1];
 });
 
@@ -72,13 +72,13 @@ function handleBack(): void {
 function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
     const routeName = route.name;
     if (routeName === 'account') {
-        if (displayIsWide.value) {
+        if (viewportIsWide.value) {
             return OPTION_CONFIGS[1];
         }
     } else {
         const activeOptionConfig = OPTION_CONFIGS.find((config) => config.id === route.name);
         if (!activeOptionConfig) {
-            if (displayIsWide.value) {
+            if (viewportIsWide.value) {
                 return OPTION_CONFIGS[1];
             }
             return;
@@ -99,14 +99,14 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
     <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light">{{ t(T, 'Manage_Account') }}</div>
 
     <div class="flex flex-1 overflow-y-hidden">
-        <div v-if="displayIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 overflow-y-auto overscroll-y-none px-4 pb-6">
+        <div v-if="viewportIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 overflow-y-auto overscroll-y-none px-4 pb-6">
             <div class="flex flex-1 flex-col gap-y-1">
                 <template v-for="optionConfig in OPTION_CONFIGS" :key="optionConfig.id">
                     <div v-if="optionConfig.type === 'label'" class="text-muted mt-3 text-xs font-medium">{{ optionConfig.label }}</div>
                     <ListItemButton
                         v-else
                         class="inline-flex min-w-50 justify-start"
-                        :is-active="route.name === optionConfig.id && displayIsWide"
+                        :is-active="route.name === optionConfig.id && viewportIsWide"
                         :variant="optionConfig.isDestructive ? 'destructive' : 'neutral'"
                         @click="activeOptionConfig = optionConfig"
                     >
@@ -122,9 +122,9 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                     </Button> -->
         </div>
 
-        <div v-if="displayIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
+        <div v-if="viewportIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
             <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b">
-                <Button v-if="!displayIsWide" shape="icon" size="sm" @click="handleBack">
+                <Button v-if="!viewportIsWide" shape="icon" size="sm" @click="handleBack">
                     <ArrowBigLeftIcon stroke-width="1.25" />
                 </Button>
                 {{ activeOptionConfig!.title }}

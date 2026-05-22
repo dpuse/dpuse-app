@@ -10,7 +10,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // Local (App) Framework
 import { connectorConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
-import { displayIsWide } from '@/state/appLayout';
+import { viewportIsWide } from '@/state/appLayout';
 import T from './ConnectionDialog.json';
 import { localeId, t } from '@/state/locale';
 
@@ -70,7 +70,7 @@ watch(connectorConfigs, (newConnectorConfigs) => (connectorLocalisedConfigs.valu
     immediate: true
 });
 
-watch(displayIsWide, (isWide) => {
+watch(viewportIsWide, (isWide) => {
     if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1];
 });
 
@@ -88,13 +88,13 @@ function handleSelectConnection(connectorLocalisedConfig: LocalisedConfig<Connec
 
 function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): OptionLocalisedConfig | undefined {
     if (routeName === 'account') {
-        if (displayIsWide.value) {
+        if (viewportIsWide.value) {
             return OPTION_CONFIGS[1];
         }
     } else {
         const activeOptionConfig = OPTION_CONFIGS.find((config) => config.id === route.name);
         if (!activeOptionConfig) {
-            if (displayIsWide.value) {
+            if (viewportIsWide.value) {
                 return OPTION_CONFIGS[1];
             }
             return;

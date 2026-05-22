@@ -10,7 +10,7 @@ import { isBusy } from '@/state/appProgress';
 import { load } from '@/utils/component';
 import T from './App.json';
 import { t } from '@/state/locale';
-import { contentScrollPosition, displayIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
+import { contentScrollPosition, knowledgePaneIsVisible, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // Local Components - Static
 import BusyMask from '@/components/layout/busyMask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
@@ -89,7 +89,7 @@ router
         workbenchPaneActivated.value = workbenchPaneIsActive.value = route.path !== '/';
         knowledgePaneActivated.value = knowledgePaneIsActive.value = route.query.kState === '1' && 'kView' in route.query;
         activeAppPaneId.value = workbenchPaneActivated.value ? 'workbench' : 'knowledge';
-        establishActiveAppPaneId(displayIsWide.value);
+        establishActiveAppPaneId(viewportIsWide.value);
     })
     .catch(() => {
         // Router failed to initialise — fall back to showing the workbench pane.
@@ -100,7 +100,7 @@ router
 
 onMounted(() => initialiseServices());
 
-watch(displayIsWide, (newDisplayIsWide) => {
+watch(viewportIsWide, (newDisplayIsWide) => {
     if (activeAppPaneId.value != null) establishActiveAppPaneId(newDisplayIsWide);
 });
 
@@ -109,7 +109,7 @@ watch(paneSplitterPercent, (newPaneSplitterPercent) => localStorage.setItem(PANE
 // UI Helpers - Option Bars ────────────────────────────────────────────────────────────────────────────────────────────
 
 function closeOptionBarOnNarrowDisplay(): void {
-    if (displayIsWide.value) return;
+    if (viewportIsWide.value) return;
     knowledgeOptionBarIsVisible.value = false;
     workbenchOptionBarIsVisible.value = false;
 }
@@ -117,7 +117,7 @@ function closeOptionBarOnNarrowDisplay(): void {
 // UI Helpers - Panes - Knowledge  ─────────────────────────────────────────────────────────────────────────────────────
 
 function toggleKnowledgeAppPane(): void {
-    if (displayIsWide.value) {
+    if (viewportIsWide.value) {
         if (knowledgePaneIsVisible.value && !workbenchPaneIsVisible.value) return; // Don't close the knowledge pane if it's the only one visible.
         applyKnowledgePaneToggle();
         activeAppPaneId.value = knowledgePaneIsVisible.value ? 'knowledge' : 'workbench';
@@ -161,7 +161,7 @@ function selectKnowledgePanel(knowledgeViewId: KnowledgeViewId): void {
 }
 
 function toggleWorkbenchAppPane(): void {
-    if (displayIsWide.value) {
+    if (viewportIsWide.value) {
         if (workbenchPaneIsVisible.value && !knowledgePaneIsVisible.value) return; // Don't close the workbench pane if it's the only one visible.
         applyWorkbenchPaneToggle();
         activeAppPaneId.value = workbenchPaneIsVisible.value ? 'workbench' : 'knowledge';
@@ -198,8 +198,8 @@ function applyWorkbenchPaneToggle(): void {
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function establishActiveAppPaneId(displayIsWide: boolean): void {
-    if (displayIsWide) {
+function establishActiveAppPaneId(viewportIsWide: boolean): void {
+    if (viewportIsWide) {
         workbenchPaneIsVisible.value = workbenchPaneIsActive.value;
         knowledgePaneIsVisible.value = knowledgePaneIsActive.value;
     } else {
@@ -210,7 +210,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 </script>
 
 <template>
-    <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
+    <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]" data-component="App">
         <!-- Mask - Semi-transparent mask over the top safe area, so scrolling content fades out beneath it. -->
         <div class="via-surface/80 to-surface/95 fixed inset-x-0 top-0 z-50 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-25%" />
 
@@ -224,7 +224,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         <Button
             :aria-label="t(T, 'wb.toggle.label.aria')"
             class="fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full!"
-            :class="{ 'shadow-md': !displayIsWide && contentScrollPosition > 0 }"
+            :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
             shape="icon"
             @click="toggleWorkbenchAppPane()"
         >
@@ -233,7 +233,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
 
         <!-- Knowledge toggle fixed in top right corner. Always visible. -->
         <div class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-40 flex">
-            <nav v-if="displayIsWide || knowledgeOptionBarIsVisible">
+            <nav v-if="viewportIsWide || knowledgeOptionBarIsVisible">
                 <Button :aria-label="t(T, 'k.select.about.aria')" shape="icon" @click="selectKnowledgePanel('about')">
                     <InfoIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
@@ -251,7 +251,7 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
             <Button
                 :aria-label="t(T, 'k.toggle.label.aria')"
                 class="bg-surface rounded-full!"
-                :class="{ 'shadow-md': !displayIsWide && contentScrollPosition > 0 }"
+                :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
                 shape="icon"
                 @click="toggleKnowledgeAppPane()"
             >
@@ -286,22 +286,22 @@ function establishActiveAppPaneId(displayIsWide: boolean): void {
         </Transition>
 
         <!-- Workbench option bar - narrow display overlay, rendered at top level so it's accessible regardless of whether the workbench pane is active. -->
-        <WorkbenchOptionBar v-if="!displayIsWide" :is-visible="workbenchOptionBarIsVisible" @continue="closeOptionBarOnNarrowDisplay()" />
+        <WorkbenchOptionBar v-if="!viewportIsWide" :is-visible="workbenchOptionBarIsVisible" @continue="closeOptionBarOnNarrowDisplay()" />
 
         <!-- Left Pane - Workbench option bar (wide only) and panel. -->
         <main
             v-if="workbenchPaneActivated"
             v-show="workbenchPaneIsVisible"
             class="grid h-full"
-            :class="displayIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
+            :class="viewportIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
             :style="[workbenchPaneStyle, { 'container-type': 'inline-size' }]"
             @pointerdown="activeAppPaneId = 'workbench'"
             @scroll.capture="activeAppPaneId = 'workbench'"
         >
-            <WorkbenchOptionBar v-if="displayIsWide" class="overflow-y-hidden" @continue="closeOptionBarOnNarrowDisplay()" />
+            <WorkbenchOptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="closeOptionBarOnNarrowDisplay()" />
 
             <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
-            <div class="min-h-0" :class="{ 'col-start-2': displayIsWide }" data-region="workbench-content">
+            <div class="min-h-0" :class="{ 'col-start-2': viewportIsWide }" data-region="workbench-content">
                 <RouterView v-slot="{ Component }">
                     <Transition name="route-fade" mode="out-in">
                         <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />

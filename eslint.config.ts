@@ -116,7 +116,10 @@ export default defineConfigWithVueTs(
                         'dpuse-scrollbar-track',
                         'dpuse-scrollbar-track-h',
                         'dpuse-scrollbar-track-v',
-                        'dpuse-scrollbar-visible'
+                        'dpuse-scrollbar-visible',
+                        'dpuse-show-detail',
+                        'gdp-detail',
+                        'gdp-list'
                     ]
                 }
             ],

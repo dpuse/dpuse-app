@@ -10,7 +10,7 @@ const LANDSCAPE_QUERY = globalThis.matchMedia('(orientation: landscape)');
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const contentScrollPosition = ref(0);
-export const displayIsWide = ref(MEDIA_QUERY.matches);
+export const viewportIsWide = ref(MEDIA_QUERY.matches);
 export const isDarkMode = ref(document.documentElement.classList.contains('dark'));
 export const isLandscape = ref(LANDSCAPE_QUERY.matches);
 export const isPWA = globalThis.matchMedia('(display-mode: standalone)').matches || globalThis.matchMedia('(display-mode: fullscreen)').matches;
@@ -41,5 +41,5 @@ function handleLandscapeQueryChange(event: MediaQueryListEvent): void {
 }
 
 function handleMediaQueryChange(event: MediaQueryListEvent): void {
-    displayIsWide.value = event.matches;
+    viewportIsWide.value = event.matches;
 }
