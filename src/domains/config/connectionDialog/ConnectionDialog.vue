@@ -1,24 +1,24 @@
 <script setup lang="ts">
 // External Dependencies
-import { ArrowBigLeftIcon, LoaderCircleIcon } from 'lucide-vue-next';
 import { type Component, computed, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 import { type RouteRecordNameGeneric, useRoute } from 'vue-router';
 
+// DPUse Framework
+import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
+import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+
 // Local (App) Framework
+import { connectorConfigs } from '@/state/session';
+import type { DataSource } from '@/composables/useDataWindow';
 import { displayIsWide } from '@/state/appLayout';
-import { localeId, t } from '@/state/locale';
 import T from './ConnectionDialog.json';
+import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
+import AddConnectionForm from './AddConnectionForm.vue';
 import Card from '@/components/ui/card/Card.vue';
-import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
-import ListItemButton from '@/components/ui/button/ListItemButton.vue';
-import { connectorConfigs } from '~/src/state/session';
-import GridDetailPanel from '~/src/components/layout/gridDetailPanel/GridDetailPanel.vue';
-import type { DataSource } from '~/src/composables/useDataWindow';
-import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
+import DialogHeader from '@/components/dialog/DialogHeader.vue';
+import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -105,60 +105,17 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 </script>
 
 <template>
-    <div>
-        <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light">{{ t(T, 'Manage_Connection') }}</div>
+    <div class="flex min-h-0 flex-col" data-component="ConnectionDialog">
+        <DialogHeader :title="t(T, 'Manage_Connection')" />
 
-        <GridDetailPanel :active-item="activeConnectorConfig" :data-source="connectorConfigsDataSource" @select="handleSelectConnection">
+        <GridDetailPanel :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" @select="handleSelectConnection">
             <template #list-item-default="{ item }">
                 <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
             </template>
 
-            <template #detail="{ item }"> {{ item }} </template>
+            <template #detail="{ item }">
+                <AddConnectionForm :connector-localised-config="item" />
+            </template>
         </GridDetailPanel>
     </div>
-
-    <!-- <div class="flex flex-1 overflow-y-hidden">
-        <div v-if="displayIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 overflow-y-auto overscroll-y-none px-4 pb-6">
-            <div class="flex flex-1 flex-col gap-y-1">
-                 <template v-for="optionConfig in OPTION_CONFIGS" :key="optionConfig.id">
-                    <div v-if="optionConfig.type === 'label'" class="text-muted mt-3 text-xs font-medium">{{ optionConfig.label }}</div>
-                    <ListItemButton
-                        v-else
-                        class="inline-flex min-w-50 justify-start"
-                        :is-active="route.name === optionConfig.id && displayIsWide"
-                        :variant="optionConfig.isDestructive ? 'destructive' : 'neutral'"
-                        @click="activeOptionConfig = optionConfig"
-                    >
-                        {{ optionConfig.label }}
-                    </ListItemButton>
-                </template>
-                <template v-for="connectorConfig in connectorConfigs" :key="connectorConfig.id">
-                    <div>{{ connectorConfig.label.en }}</div>
-                </template>
-            </div>
-        </div>
-
-        <div v-if="displayIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
-            <div class="border-separator flex h-12 flex-none items-center gap-x-1 border-b">
-                <Button v-if="!displayIsWide" shape="icon" size="sm" @click="handleBack">
-                    <ArrowBigLeftIcon stroke-width="1.25" />
-                </Button>
-                {{ activeOptionConfig!.title }}
-            </div>
-
-            <ChunkLoadError v-if="subPanelError" :error="subPanelError" chunk-name="account panel" class="flex-1" />
-            <Suspense v-else>
-                <template #default>
-                    <component :is="OPTION_COMPONENT_MAP[activeOptionConfig?.id ?? '']" class="flex-1" />
-                </template>
-                <template #fallback>
-                    <div class="flex flex-1 items-center justify-center">
-                        <LoaderCircleIcon class="text-muted animate-spin" />
-                    </div>
-                </template>
-            </Suspense>
-        </div>
-    </div> -->
-    <!-- </div>
-    </div> -->
 </template>
