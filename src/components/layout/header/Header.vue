@@ -29,7 +29,7 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
             }"
             :to="{ name: to, query: { ...$route.query, wbView: to } }"
         >
-            <div class="truncate text-[13px] leading-tight">{{ overline }}</div>
+            <div class="truncate text-sm leading-tight">{{ overline }}</div>
             <div class="truncate leading-snug">{{ title }}</div>
         </component>
     </header>
