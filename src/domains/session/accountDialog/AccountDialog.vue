@@ -143,6 +143,4 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
             </Suspense>
         </div>
     </div>
-    <!-- </div>
-    </div> -->
 </template>
