@@ -5,7 +5,7 @@ import { isNavigating } from '@/state/appProgress';
 
 <template>
     <Transition name="dpuse-nav-progress-bar">
-        <div v-if="isNavigating" class="fixed inset-x-0 top-0 z-50 h-0.5 overflow-hidden bg-zinc-200 dark:bg-zinc-900">
+        <div v-if="!isNavigating" class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-50 h-0.5 overflow-hidden bg-zinc-200 dark:bg-zinc-900" data-component="ProgressBar">
             <div class="dpuse-nav-progress-bar-shimmer h-full w-1/3 bg-zinc-500 dark:bg-zinc-400" />
         </div>
     </Transition>
