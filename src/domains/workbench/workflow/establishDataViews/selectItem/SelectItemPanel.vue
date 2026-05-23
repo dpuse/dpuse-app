@@ -49,7 +49,7 @@ const emit = defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConf
 
 const activeConnectionObjectConfig = shallowRef<ConnectionNodeConfig | undefined>();
 
-const activeTabId = ref<'table' | 'text' | 'details'>('text');
+const activeItemId = ref<'table' | 'text' | 'details'>('text');
 
 const currentFolderNodes = shallowRef<ConnectionNodeConfig[]>([]);
 
@@ -231,11 +231,11 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
 
         <template #detail>
             <div class="relative flex h-full flex-col pl-4">
-                <Table v-show="activeTabId === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
+                <Table v-show="activeItemId === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
-                <TextViewer v-show="activeTabId === 'text'" class="flex-1" :text="text" />
+                <TextViewer v-show="activeItemId === 'text'" class="flex-1" :text="text" />
 
-                <div v-show="activeTabId === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
+                <div v-show="activeItemId === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
 
                 <div
                     class="border-separator bg-backdrop relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"
@@ -245,11 +245,11 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
                 </div>
 
                 <ActionBar
-                    v-model="activeTabId"
+                    v-model="activeItemId"
                     class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
                     clear-action
                     commit-action-variant="select"
-                    :local-actions="[
+                    :item-actions="[
                         { id: 'table', label: t(T, 'tab.table') },
                         { id: 'text', label: t(T, 'tab.text') },
                         { id: 'details', label: t(T, 'tab.details') }

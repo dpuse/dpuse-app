@@ -112,14 +112,6 @@ async function handleSubmit(): Promise<void> {
             </div>
         </ScrollArea>
 
-        <ActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" commit-action-variant="select" variant="step" @action="handleSubmit">
-            <template #action>
-                <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
-                <div class="flex flex-col items-start leading-tight">
-                    <span>Select</span>
-                    <span>Connection</span>
-                </div>
-            </template>
-        </ActionBar>
+        <ActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" commit-action-variant="select" variant="step" @commit="handleSubmit" />
     </form>
 </template>
