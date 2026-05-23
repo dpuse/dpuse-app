@@ -54,6 +54,7 @@ export function useDataWindow<T>({
             blockLruOrder.length = 0;
             blockPendingSet.clear();
             blockCacheVersion.value++;
+            fetchVisibleBlocks(virtualizer.value.getVirtualItems());
         },
         { flush: 'sync' }
     );
@@ -82,7 +83,11 @@ export function useDataWindow<T>({
 
     // Fetch blocks for all data items in the current viewport. fetchBlock also updates LRU for cached blocks.
     // getDataIndexes maps a virtual row index to one or more data indexes (default 1:1; Grid passes N:1).
-    watch(virtualRows, (items) => {
+    watch(virtualRows, fetchVisibleBlocks);
+
+    // Row Virtualizer: Helpers ────────────────────────────────────────────────────────────────────────────────────────
+
+    function fetchVisibleBlocks(items: VirtualItem[]): void {
         const requiredBlockIndexes = new Set<number>();
         for (const item of items) {
             const dataIndexes = getDataIndexes ? getDataIndexes(item.index) : [item.index];
@@ -95,9 +100,7 @@ export function useDataWindow<T>({
         for (const blockIndex of requiredBlockIndexes) {
             fetchBlock(blockIndex);
         }
-    });
-
-    // Row Virtualizer: Helpers ────────────────────────────────────────────────────────────────────────────────────────
+    }
 
     // Fetch the block if not cached. If already cached, update LRU order so the block is not evicted
     // while it is still in the viewport.

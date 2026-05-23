@@ -1,6 +1,5 @@
 <script setup lang="ts" generic="T">
 // External Dependencies
-import { PlusIcon } from 'lucide-vue-next';
 import { computed, onUnmounted, ref, shallowRef } from 'vue';
 
 // Local (App) Framework
@@ -101,11 +100,12 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
             </div>
         </ScrollArea>
 
-        <ActionBar v-if="addLabel" class="absolute right-(--safe-right-offset) bottom-(--safe-bottom-offset)" variant="add" @action="$emit('add')">
-            <template #action>
-                <PlusIcon />
-                <span class="text-xs">{{ addLabel }}</span>
-            </template>
-        </ActionBar>
+        <ActionBar
+            v-if="addLabel"
+            class="absolute right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
+            :commit-action-label="addLabel"
+            commit-action-variant="add"
+            @commit="$emit('add')"
+        />
     </div>
 </template>

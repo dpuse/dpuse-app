@@ -16,7 +16,7 @@ import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import T from './DataViewList.json';
 import { useEngine } from '@/services/useEngine';
-import { dataViewConfigs, activeMetaStoreConnectionConfig } from '@/state/session';
+import { activeMetaStoreConnectionConfig, dataViewConfigs } from '@/state/session';
 import { establishDataViewsObject, NEW_DATA_VIEW_ID, setActiveDataViewConfig } from '@/state/establishDataViews';
 
 // Local Components - Static

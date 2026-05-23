@@ -119,6 +119,8 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
 
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+function handleClearSelection() {}
+
 async function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
     activeConnectionObjectConfig.value = undefined;
 
@@ -245,21 +247,16 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
                 <ActionBar
                     v-model="activeTabId"
                     class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
-                    :tabs="[
+                    clear-action
+                    commit-action-variant="select"
+                    :local-actions="[
                         { id: 'table', label: t(T, 'tab.table') },
                         { id: 'text', label: t(T, 'tab.text') },
                         { id: 'details', label: t(T, 'tab.details') }
                     ]"
-                    @action="handleSelectItem"
-                >
-                    <template #action>
-                        <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
-                        <div class="flex flex-col items-start leading-tight">
-                            <span>{{ t(T, 'select') }}</span>
-                            <span>{{ t(T, 'node') }}</span>
-                        </div>
-                    </template>
-                </ActionBar>
+                    @clear="handleClearSelection"
+                    @commit="handleSelectItem"
+                />
             </div>
         </template>
 
