@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.1217",
+    "version": "0.0.1218",
     "private": true,
     "type": "module",
     "engines": {
@@ -20,6 +20,7 @@
         "d3-drag": "^3.0.0",
         "d3-force": "^3.0.0",
         "d3-selection": "^3.0.0",
+        "d3-zoom": "^3.0.0",
         "graphology": "^0.26.0",
         "graphology-layout-force": "^0.2.4",
         "lucide-vue-next": "^1.0.0",

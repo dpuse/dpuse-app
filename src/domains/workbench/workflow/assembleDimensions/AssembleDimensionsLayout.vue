@@ -67,21 +67,21 @@ onMounted(() => {
 
     graph.addNode('John', { size: 15, label: 'John', type: 'image', image: svgToDataURI(USER_STRING), color: RED });
     graph.addNode('Mary', { size: 15, label: 'Mary', type: 'image', image: '/user.svg', color: RED });
-    graph.addNode('Suzan', { size: 15, label: 'Suzan', type: 'image', image: '/user.svg', color: RED });
+    graph.addNode('Susan', { size: 15, label: 'Susan', type: 'image', image: '/user.svg', color: RED });
     graph.addNode('Nantes', { size: 15, label: 'Nantes', type: 'image', image: '/city.svg', color: BLUE });
     graph.addNode('New-York', { size: 15, label: 'New-York', type: 'image', image: '/city.svg', color: BLUE });
-    graph.addNode('Sushis', { size: 7, label: 'Sushis', type: 'gradient', color: GREEN });
-    graph.addNode('Falafels', { size: 7, label: 'Falafels', type: 'gradient', color: GREEN });
+    graph.addNode('Sushi', { size: 7, label: 'Sushi', type: 'gradient', color: GREEN });
+    graph.addNode('Falafel', { size: 7, label: 'Falafel', type: 'gradient', color: GREEN });
     graph.addNode('Kouign Amann', { size: 7, label: 'Kouign Amann', type: 'gradient', color: GREEN });
 
     graph.addEdge('John', 'Mary', { type: 'line', label: 'works with', size: 5 });
-    graph.addEdge('Mary', 'Suzan', { type: 'line', label: 'works with', size: 5 });
+    graph.addEdge('Mary', 'Susan', { type: 'line', label: 'works with', size: 5 });
     graph.addEdge('Mary', 'Nantes', { type: 'arrow', label: 'lives in', size: 5 });
     graph.addEdge('John', 'New-York', { type: 'arrow', label: 'lives in', size: 5 });
-    graph.addEdge('Suzan', 'New-York', { type: 'arrow', label: 'lives in', size: 5 });
-    graph.addEdge('John', 'Falafels', { type: 'arrow', label: 'eats', size: 5 });
-    graph.addEdge('Mary', 'Sushis', { type: 'arrow', label: 'eats', size: 5 });
-    graph.addEdge('Suzan', 'Kouign Amann', { type: 'arrow', label: 'eats', size: 5 });
+    graph.addEdge('Susan', 'New-York', { type: 'arrow', label: 'lives in', size: 5 });
+    graph.addEdge('John', 'Falafel', { type: 'arrow', label: 'eats', size: 5 });
+    graph.addEdge('Mary', 'Sushi', { type: 'arrow', label: 'eats', size: 5 });
+    graph.addEdge('Susan', 'Kouign Amann', { type: 'arrow', label: 'eats', size: 5 });
 
     for (const [index, node] of graph.nodes().entries()) {
         const angle = (index * 2 * Math.PI) / graph.order;
