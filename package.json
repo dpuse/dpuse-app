@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.1216",
+    "version": "0.0.1217",
     "private": true,
     "type": "module",
     "engines": {
@@ -16,12 +16,10 @@
         "@tanstack/vue-table": "^8.21.3",
         "@tanstack/vue-virtual": "^3.13.25",
         "@teamhanko/hanko-frontend-sdk": "^2.6.0",
-        "@vue-flow/core": "^1.48.2",
         "cytoscape": "^3.33.4",
         "d3-drag": "^3.0.0",
         "d3-force": "^3.0.0",
         "d3-selection": "^3.0.0",
-        "force-graph": "^1.51.4",
         "graphology": "^0.26.0",
         "graphology-layout-force": "^0.2.4",
         "lucide-vue-next": "^1.0.0",
