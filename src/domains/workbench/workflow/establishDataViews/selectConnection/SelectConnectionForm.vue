@@ -111,7 +111,5 @@ async function testAuth(): Promise<void> {
                 </div>
             </div>
         </ScrollArea>
-
-        <ActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" commit-action-variant="select" variant="step" @commit="handleSubmit" />
     </form>
 </template>

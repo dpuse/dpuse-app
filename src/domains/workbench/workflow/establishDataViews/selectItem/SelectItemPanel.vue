@@ -244,7 +244,7 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
                     <div class="relative pl-1">{{ previewMessage }}</div>
                 </div>
 
-                <ActionBar
+                <!-- <ActionBar
                     v-model="activeItemId"
                     class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
                     clear-action
@@ -256,7 +256,7 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
                     ]"
                     @clear="handleClearSelection"
                     @commit="handleSelectItem"
-                />
+                /> -->
             </div>
         </template>
 

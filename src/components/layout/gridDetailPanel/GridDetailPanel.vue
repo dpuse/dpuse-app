@@ -2,11 +2,13 @@
 // External Dependencies
 import { XIcon } from 'lucide-vue-next';
 import { nextTick, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 
 // Local Components - Static
+import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 import type { ScrollAreaPadding } from '@/components/layout/scrollArea/ScrollArea.vue';
@@ -38,6 +40,9 @@ const emit = defineEmits<{ add: []; select: [item: T | undefined] }>();
 
 const detailPaneIsVisible = ref(false);
 
+const route = useRoute();
+const router = useRouter();
+
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
@@ -48,6 +53,11 @@ watch(
 );
 
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function handleSubmit(): Promise<void> {
+    // emit('submit');
+    await router.push({ name: 'selectItem', query: { ...route.query, wbView: 'selectItem' } });
+}
 
 async function selectItem(row: T): Promise<void> {
     emit('select', row);
@@ -112,6 +122,20 @@ async function selectItem(row: T): Promise<void> {
                     <!-- Detail Body -->
                     <div class="flex-1 overflow-hidden">
                         <slot name="detail" :item="activeItem" />
+                        <ActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" commit-action-variant="select" @commit="handleSubmit" />
+                        <!-- <ActionBar
+                            v-model="activeItemId"
+                            class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
+                            clear-action
+                            commit-action-variant="select"
+                            :item-actions="[
+                                { id: 'table', label: t(T, 'tab.table') },
+                                { id: 'text', label: t(T, 'tab.text') },
+                                { id: 'details', label: t(T, 'tab.details') }
+                            ]"
+                            @clear="handleClearSelection"
+                            @commit="handleSelectItem"
+                        /> -->
                     </div>
                 </div>
 

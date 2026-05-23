@@ -1,12 +1,13 @@
 <script setup lang="ts" generic="T">
 // External Dependencies
+import { PlusIcon } from 'lucide-vue-next';
 import { computed, onUnmounted, ref, shallowRef } from 'vue';
 
 // Local (App) Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // Local Components - Static
-import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
+import Button from '@/components/ui/button/Button.vue';
 import ScrollArea, { type ScrollAreaPadding } from '@/components/layout/scrollArea/ScrollArea.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
@@ -72,6 +73,7 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
 
 <template>
     <div class="relative flex min-h-0 flex-col" data-component="Grid">
+        <!-- Body -->
         <ScrollArea class="flex-1" role="list" :row-count="dataSource.rowCount" :scroll-area-padding="scrollAreaPadding" @initialised="handleScrollAreaInitialised">
             <div :style="{ height: totalSize + 'px', position: 'relative' }">
                 <div
@@ -100,12 +102,14 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
             </div>
         </ScrollArea>
 
-        <ActionBar
-            v-if="addLabel"
-            class="absolute right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
-            :commit-action-label="addLabel"
-            commit-action-variant="add"
-            @commit="$emit('add')"
-        />
+        <!-- Option Floating Add Button -->
+        <Button v-if="addLabel" class="absolute right-(--safe-right-offset) bottom-(--safe-bottom-offset)" shape="minimal" @click="$emit('add')">
+            <div
+                class="flex h-10 items-center gap-x-1 rounded-full border border-zinc-300 bg-zinc-100 pr-3.5 pl-2 text-zinc-600 hover:bg-zinc-200 focus-visible:ring-zinc-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-zinc-500"
+            >
+                <PlusIcon class="size-5" :stroke-width="1.25" />
+                <span class="text-sm">{{ addLabel }}</span>
+            </div>
+        </Button>
     </div>
 </template>

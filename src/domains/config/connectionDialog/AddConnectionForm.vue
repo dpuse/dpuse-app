@@ -33,8 +33,8 @@ const router = useRouter();
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
-    emit('submit');
-    await router.push({ name: 'selectItem', query: { ...route.query, wbView: 'selectItem' } });
+    // emit('submit');
+    // await router.push({ name: 'selectItem', query: { ...route.query, wbView: 'selectItem' } });
 }
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -112,6 +112,6 @@ async function handleSubmit(): Promise<void> {
             </div>
         </ScrollArea>
 
-        <ActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" commit-action-variant="select" variant="step" @commit="handleSubmit" />
+        <!-- <ActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" commit-action-variant="select" @commit="handleSubmit" /> -->
     </form>
 </template>
