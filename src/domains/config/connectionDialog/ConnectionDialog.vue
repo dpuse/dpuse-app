@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { type Component, computed, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
-import { type RouteRecordNameGeneric, useRoute } from 'vue-router';
+import { type RouteRecordNameGeneric, useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
@@ -10,8 +10,8 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // Local (App) Framework
 import { connectorConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
-import { viewportIsWide } from '@/state/appLayout';
 import T from './ConnectionDialog.json';
+import { viewportIsWide } from '@/state/appLayout';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
@@ -43,9 +43,14 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
     managePersonalDetails: defineAsyncComponent(() => import('./ManageConnectionPanel.vue'))
 };
 
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+
+const { close } = defineProps<{ close: () => void }>();
+
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
+const router = useRouter();
 
 const activeConnectorConfig = shallowRef<LocalisedConfig<ConnectorConfig> | undefined>();
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig(route.name)); // TODO: Use route to set this!
@@ -76,11 +81,11 @@ watch(viewportIsWide, (isWide) => {
 
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleBack(): void {
-    activeOptionConfig.value = undefined;
+function handleCommitDetail(): void {
+    close();
 }
 
-function handleSelectConnection(connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> | undefined): void {
+function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> | undefined): void {
     activeConnectorConfig.value = connectorLocalisedConfig;
 }
 
@@ -108,7 +113,14 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
     <div class="flex min-h-0 flex-col" data-component="ConnectionDialog">
         <DialogHeader :title="t(T, 'Manage_Connection')" />
 
-        <GridDetailPanel :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" @select="handleSelectConnection">
+        <GridDetailPanel
+            :active-item="activeConnectorConfig"
+            class="flex-1"
+            commit-variant="add"
+            :data-source="connectorConfigsDataSource"
+            @commit-detail="handleCommitDetail"
+            @select="handleSelectConnector"
+        >
             <template #grid-item="{ item }">
                 <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
             </template>

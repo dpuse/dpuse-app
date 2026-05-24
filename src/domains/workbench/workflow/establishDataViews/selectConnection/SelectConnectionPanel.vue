@@ -59,24 +59,21 @@ function handleAddConnection(): void {
     router.replace({ query: { ...route.query, dlg: 'connection' } });
 }
 
+function handleCommitDetail(): void {
+    router.push({ name: 'selectItem', query: { ...route.query, wbView: 'selectItem' } });
+}
+
 function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
     activeConnectionConfig.value = connectionLocalisedConfig;
     activeConnectionNodeConfigs.value = [];
-
-    if (connectionLocalisedConfig == null) {
-        // router.replace({ query: { ...route.query, conId: undefined } });
-        return;
-    }
-
     resetActiveDataViewConfig(connectionLocalisedConfig);
-    // router.replace({ query: { ...route.query, conId: connectionLocalisedConfig.id } });
 }
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function resetActiveDataViewConfig(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
+function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<ConnectionConfig>): void {
     activeDataViewConfig.value =
-        activeDataViewConfig.value === undefined
+        activeDataViewConfig.value == null
             ? {
                   id: NEW_DATA_VIEW_ID,
                   label: { en: 'New Data View' },
@@ -89,7 +86,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig: LocalisedConfig<Co
                   status: null,
                   statusId: null,
                   typeId: 'dataView',
-                  connectionId: connectionLocalisedConfig.id,
+                  connectionId: connectionLocalisedConfig?.id,
                   connectionNodeConfig: undefined,
                   previewConfig: undefined,
                   contentAuditConfig: undefined,
@@ -97,7 +94,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig: LocalisedConfig<Co
               }
             : {
                   ...activeDataViewConfig.value,
-                  connectionId: connectionLocalisedConfig.id,
+                  connectionId: connectionLocalisedConfig?.id,
                   connectionNodeConfig: undefined,
                   previewConfig: undefined,
                   contentAuditConfig: undefined,
@@ -113,6 +110,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig: LocalisedConfig<Co
         :data-source="connectionConfigsDataSource"
         max-detail-width="400px"
         @add="handleAddConnection"
+        @commit-detail="handleCommitDetail"
         @select="handleSelectConnection"
     >
         <template #grid-item="{ item }">

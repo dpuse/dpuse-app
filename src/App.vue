@@ -266,22 +266,22 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
 
         <!-- Authentication dialog activated using url parameter 'dlg=auth'. -->
         <Transition name="dialog">
-            <DialogWrapper v-if="authDialogIsVisible">
-                <AuthDialog />
+            <DialogWrapper v-if="authDialogIsVisible" v-slot="{ close }">
+                <AuthDialog :close="close" />
             </DialogWrapper>
         </Transition>
 
         <!-- Account dialog activated using url parameter 'dlg=account'. -->
         <Transition name="dialog">
-            <DialogWrapper v-if="accountDialogIsVisible">
-                <AccountDialog />
+            <DialogWrapper v-if="accountDialogIsVisible" v-slot="{ close }">
+                <AccountDialog :close="close" />
             </DialogWrapper>
         </Transition>
 
-        <!-- Account dialog activated using url parameter 'dlg=account'. -->
+        <!-- Connection dialog activated using url parameter 'dlg=connection'. -->
         <Transition name="dialog">
-            <DialogWrapper v-if="connectionDialogIsVisible">
-                <ConnectionDialog />
+            <DialogWrapper v-if="connectionDialogIsVisible" v-slot="{ close }">
+                <ConnectionDialog :close="close" />
             </DialogWrapper>
         </Transition>
 

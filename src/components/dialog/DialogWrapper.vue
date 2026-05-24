@@ -14,7 +14,7 @@ const router = useRouter();
 
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleCloseDialog(): Promise<void> {
+async function handleClose(): Promise<void> {
     const rest = { ...route.query };
     delete rest.dlg;
     router.push({ query: { ...rest } });
@@ -35,12 +35,12 @@ async function handleCloseDialog(): Promise<void> {
                     tabindex="-1"
                 >
                     <!-- Close Button -->
-                    <Button class="absolute top-[calc(env(safe-area-inset-top)+12px)] right-(--safe-right-offset) md:top-3 md:right-3" shape="icon" @click="handleCloseDialog">
+                    <Button class="absolute top-[calc(env(safe-area-inset-top)+12px)] right-(--safe-right-offset) md:top-3 md:right-3" shape="icon" @click="handleClose">
                         <XIcon stroke-width="1.25" />
                     </Button>
 
                     <!-- Content -->
-                    <slot />
+                    <slot :close="handleClose" />
                 </div>
             </template>
 

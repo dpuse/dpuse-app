@@ -19,6 +19,10 @@ import LoginForm from '@/domains/session/authDialog/LoginForm.vue';
 import PasswordForm from '@/domains/session/authDialog/PasswordForm.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+
+const { close } = defineProps<{ close: () => void }>();
+
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const containerElement = useTemplateRef<HTMLDivElement>('container');
@@ -180,9 +184,7 @@ async function handleCloseDialog(): Promise<void> {
             { once: true }
         );
     });
-    const rest = { ...route.query };
-    delete rest.dlg;
-    router.push({ query: { ...rest } });
+    close();
 }
 </script>
 

@@ -14,10 +14,6 @@ import App from '@/App.vue';
 
 // App Bootstrap ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function escapeHtml(value: string): string {
-    return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
-}
-
 try {
     // Add global error handlers.
     globalThis.addEventListener('error', (event): void => {
@@ -42,8 +38,6 @@ try {
     // Without this, `require-trusted-types-for 'script'` blocks `new Worker(blobUrl)` because the URL is a plain string.
     if (globalThis.trustedTypes != null) {
         globalThis.trustedTypes.createPolicy('default', {
-            // Convert plain strings to inert HTML for libraries that internally write to `innerHTML`.
-            // createHTML: (value: string): string => escapeHtml(value), // TODO: Required for 'force-graph'.
             // Allow 'blob:' prefixed URLs for Vite's `?worker&inline` worker factory.
             createScriptURL: (url: string): string => {
                 if (url.startsWith('blob:')) return url;

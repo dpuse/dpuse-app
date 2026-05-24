@@ -2,14 +2,20 @@
 // External Dependencies
 import { computed } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
-import { ArrowBigRightIcon, EraserIcon } from 'lucide-vue-next';
+import { ArrowBigLeftIcon, ArrowBigRightIcon } from 'lucide-vue-next';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-const { itemActions = [], modelValue, to } = defineProps<{ itemActions?: { id: string; label: string }[]; modelValue?: string; to?: RouteLocationRaw }>();
+export type CommitVariant = 'add' | 'select';
+const {
+    itemActions = [],
+    commitVariant = 'select',
+    modelValue,
+    to
+} = defineProps<{ commitVariant?: CommitVariant; itemActions?: { id: string; label: string }[]; modelValue?: string; to?: RouteLocationRaw }>();
 
 const emit = defineEmits<{ 'update:modelValue': [id: string]; clear: []; commit: [] }>();
 
@@ -32,7 +38,7 @@ const commitActionClasses = computed(() => [
     <div class="isolate inline-flex h-10 rounded-full shadow-md">
         <!-- Clear Action -->
         <Button shape="minimal" :to="to" :class="clearActionClasses" @click="$emit('clear')">
-            <EraserIcon class="size-5" :stroke-width="1.25" />
+            <ArrowBigLeftIcon class="size-5" :stroke-width="1.25" />
             Clear
         </Button>
 
@@ -62,7 +68,7 @@ const commitActionClasses = computed(() => [
 
         <!-- Commit Select Action -->
         <Button class="pr-2 pl-2" :class="commitActionClasses" shape="minimal" :to="to" @click="emit('commit')">
-            Select
+            {{ commitVariant === 'add' ? 'Add' : 'Select' }}
             <ArrowBigRightIcon class="size-5" :stroke-width="1.25" />
         </Button>
     </div>

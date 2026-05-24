@@ -7,17 +7,18 @@ import { useRoute, useRouter } from 'vue-router';
 import type { DataSource } from '@/composables/useDataWindow';
 
 // Local Components - Static
-import ActionBar from '@/components/layout/actionBar/ActionBar.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 import type { ScrollAreaPadding } from '@/components/layout/scrollArea/ScrollArea.vue';
+import ActionBar, { type CommitVariant } from '@/components/layout/actionBar/ActionBar.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     activeItem?: T;
-    dataSource: DataSource<T>;
     addLabel?: string;
+    commitVariant?: CommitVariant;
+    dataSource: DataSource<T>;
     isCompact?: boolean;
     itemActions?: Record<string, unknown>[];
     maxListWidth?: string;
@@ -25,15 +26,16 @@ type Properties = {
     scrollAreaPadding?: ScrollAreaPadding;
 };
 const {
+    activeItem,
+    addLabel,
+    commitVariant,
+    dataSource,
+    isCompact = false,
     itemActions = [
         { id: 'table', label: 'Table' },
         { id: 'text', label: 'Text' },
         { id: 'details', label: 'Details' }
     ],
-    activeItem,
-    addLabel,
-    dataSource,
-    isCompact = false,
     maxListWidth,
     maxDetailWidth,
     scrollAreaPadding
@@ -46,7 +48,7 @@ defineSlots<{
     'no-selection'(): unknown;
 }>();
 
-const emit = defineEmits<{ add: []; select: [item?: T] }>();
+const emit = defineEmits<{ add: []; commitDetail: []; select: [item?: T] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -67,8 +69,7 @@ watch(
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleCommitDetail(): Promise<void> {
-    // emit('submit');
-    await router.push({ name: 'selectItem', query: { ...route.query, wbView: 'selectItem' } });
+    emit('commitDetail');
 }
 
 async function handleClearSelection(): Promise<void> {
@@ -128,7 +129,7 @@ async function handleSelectItem(row: T): Promise<void> {
                         <slot name="detail" :item="activeItem" />
                         <ActionBar
                             class="absolute right-4 bottom-(--safe-bottom-offset)"
-                            commit-action-variant="select"
+                            :commit-variant="commitVariant"
                             @clear="handleClearSelection"
                             @commit="handleCommitDetail"
                         />

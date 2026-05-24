@@ -5,9 +5,9 @@ import { ArrowBigLeftIcon, LoaderCircleIcon } from 'lucide-vue-next';
 import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 
 // Local (App) Framework
-import { viewportIsWide } from '@/state/appLayout';
 import { t } from '@/state/locale';
 import T from './AccountDialog.json';
+import { viewportIsWide } from '@/state/appLayout';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -44,6 +44,10 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
     generateToken: defineAsyncComponent(() => import('./GenerateTokenPanel.vue')),
     deleteAccount: defineAsyncComponent(() => import('./DeleteAccountPanel.vue'))
 };
+
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+
+const { close } = defineProps<{ close: () => void }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

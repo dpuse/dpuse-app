@@ -2,6 +2,11 @@
 // External Dependencies
 import { onMounted, onUnmounted, ref, useId, useTemplateRef } from 'vue';
 
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const VERTICAL_THUMB_RIGHT_INSET = 2;
+const VERTICAL_THUMB_WIDTH = 6;
+
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 export type ScrollAreaPadding = 'embedded' | 'screen';
@@ -9,11 +14,6 @@ type Properties = { scrollAreaPadding?: ScrollAreaPadding; scrollbarAlwaysVisibl
 const { scrollAreaPadding, scrollbarAlwaysVisible = false } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [scrollElement: HTMLElement] }>();
-
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const VERTICAL_THUMB_RIGHT_INSET = 2;
-const VERTICAL_THUMB_WIDTH = 6;
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
