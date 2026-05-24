@@ -102,7 +102,7 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
             </div>
         </ScrollArea>
 
-        <!-- Option Floating Add Button -->
+        <!-- Floating Add Button (Optional) -->
         <Button v-if="addLabel" class="absolute right-(--safe-right-offset) bottom-(--safe-bottom-offset)" shape="minimal" @click="$emit('add')">
             <div
                 class="flex h-10 items-center gap-x-1 rounded-full border border-zinc-300 bg-zinc-100 pr-3.5 pl-2 text-zinc-600 hover:bg-zinc-200 focus-visible:ring-zinc-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:focus-visible:ring-zinc-500"
