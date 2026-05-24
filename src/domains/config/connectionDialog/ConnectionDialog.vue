@@ -16,9 +16,9 @@ import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
 import AddConnectionForm from './AddConnectionForm.vue';
-import Card from '~/src/components/elementary/card/Card.vue';
+import Card from '@/components/elementary/card/Card.vue';
 import DialogHeader from '@/components/dialog/DialogHeader.vue';
-import GridDetailPanel from '~/src/components/composite/gridDetailPanel/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/composite/gridDetailPanel/GridDetailPanel.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 

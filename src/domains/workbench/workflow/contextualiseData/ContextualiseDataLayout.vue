@@ -12,7 +12,7 @@ import T from './ContextualiseDataLayout.json';
 
 // Local Components - Static
 import Header from '@/components/composite/header/Header.vue';
-import LayoutShell from '~/src/components/composite/layoutShell/LayoutShell.vue';
+import LayoutShell from '@/components/composite/layoutShell/LayoutShell.vue';
 
 // Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

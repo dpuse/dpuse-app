@@ -10,16 +10,16 @@ import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
 // Local (App) Framework
 import T from './SessionMenu.json';
-import { viewportIsWide, isPWA } from '@/state/appLayout';
 import { expiresIn, isAuthenticated, lifetime, setSessionExpiryTimer, signOut } from '@/state/session';
+import { isPWA, viewportIsWide } from '@/state/appLayout';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
-import Button from '~/src/components/elementary/button/Button.vue';
-import CloseButton from '~/src/components/elementary/button/CloseButton.vue';
-import ListItemButton from '~/src/components/elementary/button/ListItemButton.vue';
-import ScrollAreaFit from '~/src/components/composite/scrollArea/ScrollArea.vue';
-import Separator from '~/src/components/elementary/separator/Separator.vue';
+import Button from '@/components/elementary/button/Button.vue';
+import CloseButton from '@/components/composite/button/CloseButton.vue';
+import ListItemButton from '@/components/composite/button/ListItemButton.vue';
+import ScrollAreaFit from '@/components/composite/scrollArea/ScrollArea.vue';
+import Separator from '@/components/elementary/separator/Separator.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 

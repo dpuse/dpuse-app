@@ -8,7 +8,7 @@ import { viewportIsWide } from '@/state/appLayout';
 import { expiresIn, isAuthenticated, lifetime } from '@/state/session';
 
 // Local Components - Static
-import AvatarButton from '~/src/components/elementary/button/AvatarButton.vue';
+import AvatarButton from '@/components/composite/button/AvatarButton.vue';
 import DialogMask from '@/components/dialog/DialogMask.vue';
 import SessionMenu from '@/domains/session/SessionMenu.vue';
 

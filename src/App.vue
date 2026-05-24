@@ -14,13 +14,13 @@ import { contentScrollPosition, knowledgePaneIsVisible, viewportIsWide, workbenc
 
 // Local Components - Static
 import BusyMask from '@/components/composite/busyMask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
-import Button from '~/src/components/elementary/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
-import ChunkLoadError from '~/src/components/composite/chunkLoadError/ChunkLoadError.vue';
+import Button from '@/components/elementary/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
+import ChunkLoadError from '@/components/composite/chunkLoadError/ChunkLoadError.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue'; // Static so dialog mask appears immediately on open.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
-import ProgressBar from '~/src/components/composite/progressBar/ProgressBar.vue'; // Required when lazy loading is delayed.
+import ProgressBar from '@/components/composite/progressBar/ProgressBar.vue'; // Required when lazy loading is delayed.
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
 
 // Local Components - Dynamic

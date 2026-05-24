@@ -29,15 +29,15 @@ import {
 } from '@/state/establishDataViews';
 
 // Local Components - Static
-import ActionBar from '~/src/components/composite/actionBar/ActionBar.vue';
-import Breadcrumbs from '~/src/components/composite/breadcrumbs/Breadcrumbs.vue';
-import Card from '~/src/components/elementary/card/Card.vue';
-import GridDetailPanel from '~/src/components/composite/gridDetailPanel/GridDetailPanel.vue';
+import ActionBar from '@/components/composite/actionBar/ActionBar.vue';
+import Breadcrumbs from '@/components/composite/breadcrumbs/Breadcrumbs.vue';
+import Card from '@/components/elementary/card/Card.vue';
+import GridDetailPanel from '@/components/composite/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
-import SelectPlaceholder from '~/src/components/composite/placeholders/SelectPlaceholder.vue';
-import Table from '~/src/components/elementary/table/Table.vue';
-import type { TaskConfig } from '~/src/components/composite/taskBar/TaskBar.vue';
-import TextViewer from '~/src/components/composite/textViewer/TextViewer.vue';
+import SelectPlaceholder from '@/components/composite/placeholders/SelectPlaceholder.vue';
+import Table from '@/components/elementary/table/Table.vue';
+import type { TaskConfig } from '@/components/composite/taskBar/TaskBar.vue';
+import TextViewer from '@/components/composite/textViewer/TextViewer.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
