@@ -8,7 +8,7 @@ import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkfl
 import Button from '@/components/elementary/button/Button.vue';
 import Card from '@/components/elementary/card/Card.vue';
 import Header from '@/components/composite/header/Header.vue';
-import LayoutShell from '@/components/composite/layoutShell/LayoutShell.vue';
+import LayoutShell from '@/components/elementary/layoutShell/LayoutShell.vue';
 import ScrollArea from '@/components/elementary/scrollArea/ScrollArea.vue';
 import Separator from '@/components/elementary/separator/Separator.vue';
 

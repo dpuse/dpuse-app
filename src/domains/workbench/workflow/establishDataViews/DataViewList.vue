@@ -27,7 +27,7 @@ import ScrollArea from '@/components/elementary/scrollArea/ScrollArea.vue';
 import Separator from '@/components/elementary/separator/Separator.vue';
 
 // Local Components - Dynamic
-const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/composite/placeholders/EmptyPlaceholder.vue'));
+const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/elementary/placeholders/EmptyPlaceholder.vue'));
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

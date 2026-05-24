@@ -15,7 +15,7 @@ import { contentScrollPosition, knowledgePaneIsVisible, viewportIsWide, workbenc
 // Local Components - Static
 import BusyMask from '@/components/elementary/busyMask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
 import Button from '@/components/elementary/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
-import ChunkLoadError from '@/components/composite/chunkLoadError/ChunkLoadError.vue';
+import ChunkLoadError from '@/components/elementary/chunkLoadError/ChunkLoadError.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue'; // Static so dialog mask appears immediately on open.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always visible.

@@ -26,7 +26,7 @@ import Grid from '@/components/composite/grid/Grid.vue';
 import ScrollArea from '@/components/elementary/scrollArea/ScrollArea.vue';
 
 // Local Components - Dynamic
-const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/composite/placeholders/EmptyPlaceholder.vue'));
+const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/elementary/placeholders/EmptyPlaceholder.vue'));
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

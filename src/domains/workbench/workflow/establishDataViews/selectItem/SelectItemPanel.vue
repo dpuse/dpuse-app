@@ -13,12 +13,12 @@ import { formatNumberAsDecimalNumber, formatNumberAsStorageSize } from '@dpuse/d
 import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local (App) Framework
-import type { DataSource } from '@/composables/useDataWindow';
-import { viewportIsWide } from '@/state/appLayout';
 import { activeMetaStoreConnectionConfig } from '@/state/session';
+import type { DataSource } from '@/composables/useDataWindow';
 import T from './SelectItemPanel.json';
 import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
+import { viewportIsWide } from '@/state/appLayout';
 import {
     activeConnectionConfig,
     activeConnectionNodeConfigs,
@@ -34,7 +34,7 @@ import Breadcrumbs from '@/components/composite/breadcrumbs/Breadcrumbs.vue';
 import Card from '@/components/elementary/card/Card.vue';
 import GridDetailPanel from '@/components/composite/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
-import SelectPlaceholder from '@/components/composite/placeholders/SelectPlaceholder.vue';
+import SelectPlaceholder from '@/components/elementary/placeholders/SelectPlaceholder.vue';
 import Table from '@/components/elementary/table/Table.vue';
 import type { TaskConfig } from '@/components/composite/taskBar/TaskBar.vue';
 import TextViewer from '@/components/composite/textViewer/TextViewer.vue';

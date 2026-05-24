@@ -108,6 +108,7 @@ export default defineConfigWithVueTs(
                         'text-accent',
                         'text-content',
                         'text-muted',
+                        'text-subtle',
                         'to-surface/95',
                         'via-surface/80',
                         'dpuse-nav-progress-bar-shimmer',
