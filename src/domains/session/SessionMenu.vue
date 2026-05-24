@@ -18,14 +18,14 @@ import { localeId, t } from '@/state/locale';
 import Button from '@/components/elementary/button/Button.vue';
 import CloseButton from '@/components/composite/button/CloseButton.vue';
 import ListItemButton from '@/components/composite/button/ListItemButton.vue';
-import ScrollAreaFit from '@/components/composite/scrollArea/ScrollArea.vue';
+import ScrollAreaFit from '@/components/elementary/scrollArea/ScrollArea.vue';
 import Separator from '@/components/elementary/separator/Separator.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const APPEARANCE_KEY = 'dpuse-appearance';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const emit = defineEmits<{ continue: [] }>();
 

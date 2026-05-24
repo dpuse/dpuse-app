@@ -39,7 +39,7 @@ import Table from '@/components/elementary/table/Table.vue';
 import type { TaskConfig } from '@/components/composite/taskBar/TaskBar.vue';
 import TextViewer from '@/components/composite/textViewer/TextViewer.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 

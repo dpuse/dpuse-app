@@ -3,12 +3,12 @@
 import { computed } from 'vue';
 
 // Local Components - Static
-import Button from './Button.vue';
+import Button from '@/components/elementary/button/Button.vue';
 
 // Local (App) Framework
 import type { RouteLocationRaw } from 'vue-router';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 export type ListItemVariant = 'destructive' | 'neutral';
 const {

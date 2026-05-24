@@ -10,7 +10,7 @@ import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcru
 import Button from '@/components/elementary/button/Button.vue';
 import Header from '@/components/composite/header/Header.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const { title } = defineProps<{ title: string }>();
 

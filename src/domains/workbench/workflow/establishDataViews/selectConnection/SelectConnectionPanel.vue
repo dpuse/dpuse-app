@@ -27,7 +27,7 @@ import SelectConnectionForm from './SelectConnectionForm.vue';
 import SelectPlaceholder from '@/components/composite/placeholders/SelectPlaceholder.vue';
 import type { TaskConfig } from '@/components/composite/taskBar/TaskBar.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 

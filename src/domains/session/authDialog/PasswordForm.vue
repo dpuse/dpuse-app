@@ -10,7 +10,7 @@ import { t } from '@/state/locale';
 import Button from '@/components/elementary/button/Button.vue';
 import Input from '@/components/elementary/input/Input.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const { onBack, onTrigger } = defineProps<{ onBack: () => Promise<void>; onTrigger: (password: string) => Promise<void> }>();
 

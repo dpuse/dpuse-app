@@ -5,7 +5,7 @@ import { viewportIsWide } from '@/state/appLayout';
 // Local Components - Static
 import WorkbenchOptionPanel from './WorkbenchOptionPanel.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 defineProps<{ isVisible?: boolean }>();
 

@@ -43,7 +43,7 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
     managePersonalDetails: defineAsyncComponent(() => import('./ManageConnectionPanel.vue'))
 };
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const { close } = defineProps<{ close: () => void }>();
 

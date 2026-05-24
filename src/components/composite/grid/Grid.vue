@@ -8,9 +8,9 @@ import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // Local Components - Static
 import Button from '@/components/elementary/button/Button.vue';
-import ScrollArea, { type ScrollAreaPadding } from '@/components/composite/scrollArea/ScrollArea.vue';
+import ScrollArea, { type ScrollAreaPadding } from '@/components/elementary/scrollArea/ScrollArea.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 type Properties = {
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.

@@ -1,13 +1,18 @@
 <script setup lang="ts">
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
-
+// External Dependencies
 import { useId } from 'vue';
+
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 type AutoComplete = 'email' | 'current-password' | 'new-password';
 type InputType = 'email' | 'password' | 'text';
 type Properties = { autoComplete?: AutoComplete; id?: string; label: string; labelHidden?: boolean; placeholder?: string; required?: boolean; type?: InputType };
 const { autoComplete, id, label, labelHidden = false, placeholder, required = false, type = 'text' } = defineProps<Properties>();
+
 const modelValue = defineModel<string>();
+
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 const generatedId = useId();
 
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────

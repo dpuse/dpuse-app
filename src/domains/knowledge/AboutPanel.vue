@@ -4,7 +4,7 @@ import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkfl
 
 // Local Components - Static
 import Button from '@/components/elementary/button/Button.vue';
-import ScrollArea from '@/components/composite/scrollArea/ScrollArea.vue';
+import ScrollArea from '@/components/elementary/scrollArea/ScrollArea.vue';
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 

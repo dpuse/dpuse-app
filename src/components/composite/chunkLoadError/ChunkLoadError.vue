@@ -5,7 +5,7 @@ const { chunkName, error } = defineProps<{ chunkName?: string; error: unknown }>
 
 <template>
     <div class="mt-[7.5vh] text-center">
-        <svg class="mx-auto size-12 text-subtle" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <svg class="text-subtle mx-auto size-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path
                 vector-effect="non-scaling-stroke"
                 stroke-linecap="round"
@@ -15,7 +15,7 @@ const { chunkName, error } = defineProps<{ chunkName?: string; error: unknown }>
             />
         </svg>
         <h3 class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">Failed to load {{ chunkName ?? 'component' }}</h3>
-        <p class="mt-1 text-sm text-muted">This section could not be loaded. Check your connection and try again.</p>
-        <p class="mt-1 font-mono text-xs text-subtle">{{ error instanceof Error ? error.message : String(error) }}</p>
+        <p class="text-muted mt-1 text-sm">This section could not be loaded. Check your connection and try again.</p>
+        <p class="text-subtle mt-1 font-mono text-xs">{{ error instanceof Error ? error.message : String(error) }}</p>
     </div>
 </template>

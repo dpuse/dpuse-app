@@ -17,7 +17,7 @@ const KNOWLEDGE_PANELS: Record<KnowledgeViewId, { component: Component; label: s
     chat: { component: ChatView, label: 'Chat' }
 };
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }>();
 

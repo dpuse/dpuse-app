@@ -5,7 +5,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // Local Components - Static
 import type { TaskConfig } from '@/components/composite/taskBar/TaskBar.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 

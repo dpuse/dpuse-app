@@ -17,9 +17,9 @@ import { useEngine } from '@/services/useEngine';
 // Local Components - Static
 import ActionBar from '@/components/composite/actionBar/ActionBar.vue';
 import Button from '@/components/elementary/button/Button.vue';
-import ScrollArea from '@/components/composite/scrollArea/ScrollArea.vue';
+import ScrollArea from '@/components/elementary/scrollArea/ScrollArea.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> }>();
 const emit = defineEmits<{ submit: [] }>();

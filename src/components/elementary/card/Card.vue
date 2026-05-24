@@ -2,7 +2,7 @@
 // External Dependencies
 import { ref } from 'vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 type Badge = { id: string; color?: string; label: string };
 type Properties = { badges?: Badge[]; description?: string; icon?: string; iconDark?: string; iconNeutral?: string; isCompact?: boolean; label: string; overline?: string };

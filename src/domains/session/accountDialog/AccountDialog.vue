@@ -45,7 +45,7 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
     deleteAccount: defineAsyncComponent(() => import('./DeleteAccountPanel.vue'))
 };
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const { close } = defineProps<{ close: () => void }>();
 

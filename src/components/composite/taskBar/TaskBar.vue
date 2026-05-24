@@ -5,7 +5,7 @@ import type { LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // Local Components - Static
 import Button from '@/components/elementary/button/Button.vue';
 
-// Options, Properties, Slots & Emits
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 export interface TaskConfig {
     id: string;
     label: LocaleLabel;
@@ -16,7 +16,9 @@ export interface TaskConfig {
     verb?: LocaleLabel;
 }
 const { activeTaskId, items = [] } = defineProps<{ activeTaskId?: string; items?: LocalisedConfig<TaskConfig>[] }>();
+
 defineSlots<{ 'default'(properties: { item: LocalisedConfig<TaskConfig> }): unknown }>();
+
 defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
 </script>
 

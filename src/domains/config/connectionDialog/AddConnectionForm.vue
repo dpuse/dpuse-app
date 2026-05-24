@@ -17,10 +17,10 @@ import { useEngine } from '@/services/useEngine';
 // Local Components - Static
 import ActionBar from '@/components/composite/actionBar/ActionBar.vue';
 import Button from '@/components/elementary/button/Button.vue';
-import ScrollArea from '@/components/composite/scrollArea/ScrollArea.vue';
+import ScrollArea from '@/components/elementary/scrollArea/ScrollArea.vue';
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const { connectorLocalisedConfig } = defineProps<{ connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> }>();
 const emit = defineEmits<{ submit: [] }>();

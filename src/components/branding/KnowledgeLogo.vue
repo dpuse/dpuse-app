@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Sourced from Lucide https://lucide.dev/icons/sparkles.
+// Originally sourced from Lucide https://lucide.dev/icons/sparkles.
 </script>
 
 <template>

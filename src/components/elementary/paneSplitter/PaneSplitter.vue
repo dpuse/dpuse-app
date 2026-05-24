@@ -2,7 +2,7 @@
 // External Dependencies
 import { ref } from 'vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const modelValue = defineModel<number>();
 

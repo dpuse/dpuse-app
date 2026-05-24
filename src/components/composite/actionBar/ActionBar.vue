@@ -7,7 +7,7 @@ import { ArrowBigLeftIcon, ArrowBigRightIcon } from 'lucide-vue-next';
 // Local Components - Static
 import Button from '@/components/elementary/button/Button.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 export type CommitVariant = 'add' | 'select';
 const {

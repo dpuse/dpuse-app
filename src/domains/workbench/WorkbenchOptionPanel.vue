@@ -12,10 +12,10 @@ import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkfl
 // Local Components - Static
 import Button from '@/components/elementary/button/Button.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
-import ScrollArea from '@/components/composite/scrollArea/ScrollArea.vue';
+import ScrollArea from '@/components/elementary/scrollArea/ScrollArea.vue';
 import Separator from '@/components/elementary/separator/Separator.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const emit = defineEmits<{ continue: [] }>();
 

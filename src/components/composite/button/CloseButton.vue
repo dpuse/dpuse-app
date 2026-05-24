@@ -3,7 +3,7 @@
 import { XIcon } from 'lucide-vue-next';
 
 // Local Components - Static
-import Button from './Button.vue';
+import Button from '@/components/elementary/button/Button.vue';
 </script>
 
 <template>

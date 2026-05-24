@@ -22,8 +22,8 @@ import { establishDataViewsObject, NEW_DATA_VIEW_ID, setActiveDataViewConfig } f
 // Local Components - Static
 import Button from '@/components/elementary/button/Button.vue';
 import Card from '@/components/elementary/card/Card.vue';
-import Grid from '@/components/elementary/grid/Grid.vue';
-import ScrollArea from '@/components/composite/scrollArea/ScrollArea.vue';
+import Grid from '@/components/composite/grid/Grid.vue';
+import ScrollArea from '@/components/elementary/scrollArea/ScrollArea.vue';
 import Separator from '@/components/elementary/separator/Separator.vue';
 
 // Local Components - Dynamic

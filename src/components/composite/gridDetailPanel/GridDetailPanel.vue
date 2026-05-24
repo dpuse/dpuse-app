@@ -8,11 +8,11 @@ import type { DataSource } from '@/composables/useDataWindow';
 
 // Local Components - Static
 import Button from '@/components/elementary/button/Button.vue';
-import Grid from '@/components/elementary/grid/Grid.vue';
-import type { ScrollAreaPadding } from '@/components/composite/scrollArea/ScrollArea.vue';
+import Grid from '@/components/composite/grid/Grid.vue';
+import type { ScrollAreaPadding } from '@/components/elementary/scrollArea/ScrollArea.vue';
 import ActionBar, { type CommitVariant } from '@/components/composite/actionBar/ActionBar.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 type Properties = {
     activeItem?: T;
