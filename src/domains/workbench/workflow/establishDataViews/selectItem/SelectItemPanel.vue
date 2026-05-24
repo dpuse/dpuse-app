@@ -30,7 +30,7 @@ import {
 
 // Local Components - Static
 import ActionBar from '~/src/components/composite/actionBar/ActionBar.vue';
-import Breadcrumbs from '~/src/components/elementary/breadcrumbs/Breadcrumbs.vue';
+import Breadcrumbs from '~/src/components/composite/breadcrumbs/Breadcrumbs.vue';
 import Card from '~/src/components/elementary/card/Card.vue';
 import GridDetailPanel from '~/src/components/composite/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';

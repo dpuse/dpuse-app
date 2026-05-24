@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.1222",
+    "version": "0.0.1223",
     "private": true,
     "type": "module",
     "engines": {
@@ -12,7 +12,7 @@
         "@formkit/drag-and-drop": "^0.5.3",
         "@sigma/node-image": "^3.0.0",
         "@tailwindcss/vite": "^4.3.0",
-        "@tanstack/ai-client": "^0.11.6",
+        "@tanstack/ai-client": "^0.11.7",
         "@tanstack/vue-table": "^8.21.3",
         "@tanstack/vue-virtual": "^3.13.25",
         "@teamhanko/hanko-frontend-sdk": "^2.6.0",
@@ -33,7 +33,7 @@
     },
     "devDependencies": {
         "@cloudflare/vite-plugin": "^1.38.0",
-        "@cloudflare/workers-types": "^4.20260522.1",
+        "@cloudflare/workers-types": "^4.20260524.1",
         "@dpuse/dpuse-development": "^0.3.500",
         "@eslint-community/eslint-plugin-eslint-comments": "^4.7.1",
         "@playwright/test": "^1.60.0",
@@ -51,7 +51,7 @@
         "@typescript-eslint/parser": "^8.59.4",
         "@vite-pwa/assets-generator": "^1.0.2",
         "@vitejs/plugin-vue": "^6.0.7",
-        "@vitest/eslint-plugin": "^1.6.17",
+        "@vitest/eslint-plugin": "^1.6.18",
         "@vue/eslint-config-prettier": "^10.2.0",
         "@vue/eslint-config-typescript": "^14.7.0",
         "@vue/test-utils": "^2.4.10",

@@ -32,7 +32,7 @@ const ConnectionDialog = defineAsyncComponent({
 });
 const KnowledgeLayout = defineAsyncComponent({ loader: load('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });
 const PaneSplitter = defineAsyncComponent({
-    loader: load('paneSplitter', () => import('@/components/composite/paneSplitter/PaneSplitter.vue'), 0),
+    loader: load('paneSplitter', () => import('@/components/elementary/paneSplitter/PaneSplitter.vue'), 0),
     errorComponent: ChunkLoadError
 });
 const WorkbenchOptionBar = defineAsyncComponent({
