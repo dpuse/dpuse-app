@@ -10,10 +10,10 @@ import { t } from '@/state/locale';
 import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkflowOptionConfigs';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
+import Button from '~/src/components/elementary/button/Button.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
-import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
-import Separator from '@/components/ui/separator/Separator.vue';
+import ScrollArea from '~/src/components/composite/scrollArea/ScrollArea.vue';
+import Separator from '~/src/components/elementary/separator/Separator.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 

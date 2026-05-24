@@ -21,11 +21,11 @@ import {
 import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
 
 // Local Components - Static
-import Card from '@/components/ui/card/Card.vue';
-import GridDetailPanel from '@/components/layout/gridDetailPanel/GridDetailPanel.vue';
+import Card from '~/src/components/elementary/card/Card.vue';
+import GridDetailPanel from '~/src/components/composite/gridDetailPanel/GridDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
-import SelectPlaceholder from '@/components/layout/placeholders/SelectPlaceholder.vue';
-import type { TaskConfig } from '@/components/layout/taskBar/TaskBar.vue';
+import SelectPlaceholder from '~/src/components/composite/placeholders/SelectPlaceholder.vue';
+import type { TaskConfig } from '~/src/components/composite/taskBar/TaskBar.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 

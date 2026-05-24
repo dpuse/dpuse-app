@@ -7,8 +7,8 @@ import T from './PasswordForm.json';
 import { t } from '@/state/locale';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
-import Input from '@/components/ui/input/Input.vue';
+import Button from '~/src/components/elementary/button/Button.vue';
+import Input from '~/src/components/elementary/input/Input.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 

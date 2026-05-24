@@ -19,14 +19,14 @@ import { useEngine } from '@/services/useEngine';
 import { eventQueryConfigs, activeMetaStoreConnectionConfig } from '@/state/session';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
-import Card from '@/components/ui/card/Card.vue';
+import Button from '~/src/components/elementary/button/Button.vue';
+import Card from '~/src/components/elementary/card/Card.vue';
 import type { DataSource } from '@/composables/useDataWindow';
-import Grid from '@/components/ui/grid/Grid.vue';
-import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
+import Grid from '~/src/components/elementary/grid/Grid.vue';
+import ScrollArea from '~/src/components/composite/scrollArea/ScrollArea.vue';
 
 // Local Components - Dynamic
-const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/layout/placeholders/EmptyPlaceholder.vue'));
+const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/composite/placeholders/EmptyPlaceholder.vue'));
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

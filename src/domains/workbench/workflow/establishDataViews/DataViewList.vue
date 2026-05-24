@@ -20,14 +20,14 @@ import { activeMetaStoreConnectionConfig, dataViewConfigs } from '@/state/sessio
 import { establishDataViewsObject, NEW_DATA_VIEW_ID, setActiveDataViewConfig } from '@/state/establishDataViews';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
-import Card from '@/components/ui/card/Card.vue';
-import Grid from '@/components/ui/grid/Grid.vue';
-import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
-import Separator from '@/components/ui/separator/Separator.vue';
+import Button from '~/src/components/elementary/button/Button.vue';
+import Card from '~/src/components/elementary/card/Card.vue';
+import Grid from '~/src/components/elementary/grid/Grid.vue';
+import ScrollArea from '~/src/components/composite/scrollArea/ScrollArea.vue';
+import Separator from '~/src/components/elementary/separator/Separator.vue';
 
 // Local Components - Dynamic
-const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/layout/placeholders/EmptyPlaceholder.vue'));
+const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/composite/placeholders/EmptyPlaceholder.vue'));
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

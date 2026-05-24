@@ -13,11 +13,11 @@ import { t } from '@/state/locale';
 import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
+import Button from '~/src/components/elementary/button/Button.vue';
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';
 import LoginForm from '@/domains/session/authDialog/LoginForm.vue';
 import PasswordForm from '@/domains/session/authDialog/PasswordForm.vue';
-import Separator from '@/components/ui/separator/Separator.vue';
+import Separator from '~/src/components/elementary/separator/Separator.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 

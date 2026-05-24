@@ -15,11 +15,11 @@ import { expiresIn, isAuthenticated, lifetime, setSessionExpiryTimer, signOut } 
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
-import CloseButton from '@/components/ui/button/CloseButton.vue';
-import ListItemButton from '@/components/ui/button/ListItemButton.vue';
-import ScrollAreaFit from '@/components/layout/scrollArea/ScrollArea.vue';
-import Separator from '@/components/ui/separator/Separator.vue';
+import Button from '~/src/components/elementary/button/Button.vue';
+import CloseButton from '~/src/components/elementary/button/CloseButton.vue';
+import ListItemButton from '~/src/components/elementary/button/ListItemButton.vue';
+import ScrollAreaFit from '~/src/components/composite/scrollArea/ScrollArea.vue';
+import Separator from '~/src/components/elementary/separator/Separator.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 

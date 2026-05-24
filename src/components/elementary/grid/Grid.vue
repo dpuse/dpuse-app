@@ -7,8 +7,8 @@ import { computed, onUnmounted, ref, shallowRef } from 'vue';
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
-import ScrollArea, { type ScrollAreaPadding } from '@/components/layout/scrollArea/ScrollArea.vue';
+import Button from '@/components/elementary/button/Button.vue';
+import ScrollArea, { type ScrollAreaPadding } from '~/src/components/composite/scrollArea/ScrollArea.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 

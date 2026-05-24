@@ -11,9 +11,9 @@ import T from './EstablishDataViewsLayout.json';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
-import Header from '@/components/layout/header/Header.vue';
-import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
-import TaskBar, { type TaskConfig } from '@/components/layout/taskBar/TaskBar.vue';
+import Header from '@/components/composite/header/Header.vue';
+import LayoutShell from '~/src/components/composite/layoutShell/LayoutShell.vue';
+import TaskBar, { type TaskConfig } from '~/src/components/composite/taskBar/TaskBar.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 

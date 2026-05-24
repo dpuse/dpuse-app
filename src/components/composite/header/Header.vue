@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Local (App) Framework
-import { viewportIsWide, knowledgePaneIsVisible, workbenchPaneIsVisible } from '@/state/appLayout';
+import { knowledgePaneIsVisible, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // Options, Properties, Slots & Emits
 const { overline, title, to } = defineProps<{ overline: string; title: string; to?: string }>();

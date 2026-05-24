@@ -6,7 +6,7 @@ import { computed } from 'vue';
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
+import Button from '@/components/elementary/button/Button.vue';
 
 // Options, Properties, Slots & Emits
 const { items = [], disableLast = true } = defineProps<{ items?: T[]; disableLast?: boolean }>();

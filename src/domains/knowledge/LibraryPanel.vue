@@ -9,8 +9,8 @@ import { onMounted, ref } from 'vue';
 import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
-import Header from '@/components/layout/header/Header.vue';
+import Button from '~/src/components/elementary/button/Button.vue';
+import Header from '@/components/composite/header/Header.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -79,7 +79,7 @@ async function runTest(): Promise<void> {
                         <textarea
                             id="comment"
                             name="comment"
-                            class="block max-h-48 w-full resize-none rounded-md border-0 bg-surface px-3 py-1.5 text-base outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                            class="bg-surface block max-h-48 w-full resize-none rounded-md border-0 px-3 py-1.5 text-base outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
                             rows="4"
                         />
                     </div>

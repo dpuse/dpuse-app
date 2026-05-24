@@ -11,8 +11,8 @@ import { t } from '@/state/locale';
 import T from './AssembleDimensionsLayout.json';
 
 // Local Components - Static
-import Header from '@/components/layout/header/Header.vue';
-import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
+import Header from '@/components/composite/header/Header.vue';
+import LayoutShell from '~/src/components/composite/layoutShell/LayoutShell.vue';
 import NodeGradientProgram from './node-gradient.ts';
 
 // EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────

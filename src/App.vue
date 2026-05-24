@@ -13,14 +13,14 @@ import { t } from '@/state/locale';
 import { contentScrollPosition, knowledgePaneIsVisible, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // Local Components - Static
-import BusyMask from '@/components/layout/busyMask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
-import Button from '@/components/ui/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
-import ChunkLoadError from '@/components/layout/chunkLoadError/ChunkLoadError.vue';
+import BusyMask from '@/components/composite/busyMask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
+import Button from '~/src/components/elementary/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
+import ChunkLoadError from '~/src/components/composite/chunkLoadError/ChunkLoadError.vue';
 import DialogWrapper from '@/components/dialog/DialogWrapper.vue'; // Static so dialog mask appears immediately on open.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
-import ProgressBar from '@/components/layout/progressBar/ProgressBar.vue'; // Required when lazy loading is delayed.
+import ProgressBar from '~/src/components/composite/progressBar/ProgressBar.vue'; // Required when lazy loading is delayed.
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
 
 // Local Components - Dynamic
@@ -31,7 +31,10 @@ const ConnectionDialog = defineAsyncComponent({
     errorComponent: ChunkLoadError
 });
 const KnowledgeLayout = defineAsyncComponent({ loader: load('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });
-const PaneSplitter = defineAsyncComponent({ loader: load('paneSplitter', () => import('@/components/layout/paneSplitter/PaneSplitter.vue'), 0), errorComponent: ChunkLoadError });
+const PaneSplitter = defineAsyncComponent({
+    loader: load('paneSplitter', () => import('@/components/composite/paneSplitter/PaneSplitter.vue'), 0),
+    errorComponent: ChunkLoadError
+});
 const WorkbenchOptionBar = defineAsyncComponent({
     loader: load('workbenchOptionBar', () => import('@/domains/workbench/WorkbenchOptionBar.vue'), 0),
     errorComponent: ChunkLoadError

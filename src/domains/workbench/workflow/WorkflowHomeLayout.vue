@@ -5,12 +5,12 @@ import { t } from '@/state/locale';
 import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkflowOptionConfigs';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
-import Card from '@/components/ui/card/Card.vue';
-import Header from '@/components/layout/header/Header.vue';
-import LayoutShell from '@/components/layout/layoutShell/LayoutShell.vue';
-import ScrollArea from '@/components/layout/scrollArea/ScrollArea.vue';
-import Separator from '@/components/ui/separator/Separator.vue';
+import Button from '~/src/components/elementary/button/Button.vue';
+import Card from '~/src/components/elementary/card/Card.vue';
+import Header from '@/components/composite/header/Header.vue';
+import LayoutShell from '~/src/components/composite/layoutShell/LayoutShell.vue';
+import ScrollArea from '~/src/components/composite/scrollArea/ScrollArea.vue';
+import Separator from '~/src/components/elementary/separator/Separator.vue';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
