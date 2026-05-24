@@ -8,12 +8,12 @@ import T from './LoginForm.json';
 import { t } from '@/state/locale';
 
 // Local Components - Static
-import AppleLogo from '@/components/logos/AppleLogo.vue';
+import AppleLogo from '@/components/branding/AppleLogo.vue';
 import Button from '~/src/components/ui/button/Button.vue';
-import GitHubLogo from '@/components/logos/GitHubLogo.vue';
-import GoogleLogo from '@/components/logos/GoogleLogo.vue';
+import GitHubLogo from '~/src/components/branding/GitHubLogo.vue';
+import GoogleLogo from '~/src/components/branding/GoogleLogo.vue';
 import Input from '~/src/components/ui/input/Input.vue';
-import MicrosoftLogo from '@/components/logos/MicrosoftLogo.vue';
+import MicrosoftLogo from '@/components/branding/MicrosoftLogo.vue';
 import Separator from '~/src/components/ui/separator/Separator.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
