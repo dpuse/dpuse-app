@@ -7,8 +7,8 @@ import { SendHorizonalIcon } from 'lucide-vue-next';
 import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
 
 // Local Components - Static
-import Button from '@/components/elementary/button/Button.vue';
-import Header from '@/components/composite/header/Header.vue';
+import Button from '~/src/components/ui/button/Button.vue';
+import Header from '@/components/framework/header/Header.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 

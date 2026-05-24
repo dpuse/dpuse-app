@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
+import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
@@ -15,10 +16,9 @@ import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 
 // Local Components - Static
-import ActionBar from '@/components/composite/actionBar/ActionBar.vue';
-import Button from '@/components/elementary/button/Button.vue';
-import ScrollArea from '@/components/elementary/scrollArea/ScrollArea.vue';
-import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
+import ActionBar from '@/components/ui/actionBar/ActionBar.vue';
+import Button from '~/src/components/ui/button/Button.vue';
+import ScrollArea from '~/src/components/ui/scrollArea/ScrollArea.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 

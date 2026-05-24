@@ -15,11 +15,11 @@ import { isPWA, viewportIsWide } from '@/state/appLayout';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
-import Button from '@/components/elementary/button/Button.vue';
-import CloseButton from '@/components/composite/button/CloseButton.vue';
-import ListItemButton from '@/components/composite/button/ListItemButton.vue';
-import ScrollAreaFit from '@/components/elementary/scrollArea/ScrollArea.vue';
-import Separator from '@/components/elementary/separator/Separator.vue';
+import Button from '~/src/components/ui/button/Button.vue';
+import CloseButton from '~/src/components/ui/button/CloseButton.vue';
+import ListItemButton from '@/components/ui/button/ListItemButton.vue';
+import ScrollAreaFit from '~/src/components/ui/scrollArea/ScrollArea.vue';
+import Separator from '~/src/components/ui/separator/Separator.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 

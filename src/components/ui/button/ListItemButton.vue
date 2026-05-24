@@ -1,12 +1,10 @@
 <script setup lang="ts">
 // External Dependencies
 import { computed } from 'vue';
+import type { RouteLocationRaw } from 'vue-router';
 
 // Local Components - Static
-import Button from '@/components/elementary/button/Button.vue';
-
-// Local (App) Framework
-import type { RouteLocationRaw } from 'vue-router';
+import Button from './Button.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 

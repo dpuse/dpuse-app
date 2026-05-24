@@ -4,8 +4,8 @@ import { t } from '@/state/locale';
 import T from './BuildDataAppsLayout.json';
 
 // Local Components - Static
-import Header from '@/components/composite/header/Header.vue';
-import LayoutShell from '@/components/elementary/layoutShell/LayoutShell.vue';
+import Header from '@/components/framework/header/Header.vue';
+import LayoutShell from '~/src/components/ui/layoutShell/LayoutShell.vue';
 </script>
 
 <template>

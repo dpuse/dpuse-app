@@ -29,15 +29,15 @@ import {
 } from '@/state/establishDataViews';
 
 // Local Components - Static
-import ActionBar from '@/components/composite/actionBar/ActionBar.vue';
-import Breadcrumbs from '@/components/composite/breadcrumbs/Breadcrumbs.vue';
-import Card from '@/components/elementary/card/Card.vue';
-import GridDetailPanel from '@/components/composite/gridDetailPanel/GridDetailPanel.vue';
+import ActionBar from '@/components/ui/actionBar/ActionBar.vue';
+import Breadcrumbs from '~/src/components/framework/breadcrumbs/Breadcrumbs.vue';
+import Card from '@/components/ui/card/Card.vue';
+import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
-import SelectPlaceholder from '@/components/elementary/placeholders/SelectPlaceholder.vue';
-import Table from '@/components/elementary/table/Table.vue';
-import type { TaskConfig } from '@/components/composite/taskBar/TaskBar.vue';
-import TextViewer from '@/components/composite/textViewer/TextViewer.vue';
+import SelectPlaceholder from '~/src/components/ui/placeholders/SelectPlaceholder.vue';
+import Table from '~/src/components/ui/table/Table.vue';
+import type { TaskConfig } from '@/components/ui/taskBar/TaskBar.vue';
+import TextViewer from '@/components/ui/textViewer/TextViewer.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
