@@ -1,6 +1,5 @@
 <script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; iconNeutral?: string | null; label: string }">
 // External Dependencies
-import { XIcon } from 'lucide-vue-next';
 import { nextTick, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -20,21 +19,34 @@ type Properties = {
     dataSource: DataSource<T>;
     addLabel?: string;
     isCompact?: boolean;
+    itemActions?: Record<string, unknown>[];
     maxListWidth?: string;
     maxDetailWidth?: string;
     scrollAreaPadding?: ScrollAreaPadding;
 };
-const { activeItem, dataSource, addLabel, isCompact = false, maxListWidth, maxDetailWidth, scrollAreaPadding } = defineProps<Properties>();
+const {
+    itemActions = [
+        { id: 'table', label: 'Table' },
+        { id: 'text', label: 'Text' },
+        { id: 'details', label: 'Details' }
+    ],
+    activeItem,
+    addLabel,
+    dataSource,
+    isCompact = false,
+    maxListWidth,
+    maxDetailWidth,
+    scrollAreaPadding
+} = defineProps<Properties>();
 
 defineSlots<{
     'header'(): unknown;
-    'list-item-compact'(properties: { item: T }): unknown;
-    'list-item-default'(properties: { item: T }): unknown;
+    'grid-item'(properties: { item: T }): unknown;
     detail(properties: { item: T }): unknown;
     'no-selection'(): unknown;
 }>();
 
-const emit = defineEmits<{ add: []; select: [item: T | undefined] }>();
+const emit = defineEmits<{ add: []; select: [item?: T] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -59,6 +71,11 @@ async function handleCommitDetail(): Promise<void> {
     await router.push({ name: 'selectItem', query: { ...route.query, wbView: 'selectItem' } });
 }
 
+async function handleClearSelection(): Promise<void> {
+    detailPaneIsVisible.value = false;
+    emit('select');
+}
+
 async function handleSelectItem(row: T): Promise<void> {
     emit('select', row);
     await nextTick();
@@ -74,13 +91,17 @@ async function handleSelectItem(row: T): Promise<void> {
         </header>
 
         <!-- Body -->
-        <div class="flex flex-1" :class="{ 'dpuse-show-detail': detailPaneIsVisible }" :style="{ '--gdp-max-list-width': maxListWidth, '--gdp-max-detail-width': maxDetailWidth }">
+        <div
+            class="flex min-h-0 flex-1"
+            :class="{ 'dpuse-show-detail': detailPaneIsVisible }"
+            :style="{ '--gdp-max-list-width': maxListWidth, '--gdp-max-detail-width': maxDetailWidth }"
+        >
             <!-- Grid (Left) Pane -->
-            <div class="gdp-list relative flex-1 flex-col">
+            <div class="gdp-grid relative flex-1 flex-col">
                 <Grid :add-label="addLabel" class="flex-1" :data-source="dataSource" :is-compact="isCompact" :row-height="83" :target-column-width="250" @add="$emit('add')">
                     <template #default="{ item }">
                         <Button class="h-full w-full" :is-active="activeItem === item" shape="minimal" @click="handleSelectItem(item)">
-                            <slot name="list-item-default" :item="item" />
+                            <slot name="grid-item" :item="item" />
                         </Button>
                     </template>
                 </Grid>
@@ -100,38 +121,17 @@ async function handleSelectItem(row: T): Promise<void> {
 
                         <!-- Label -->
                         <span class="ml-1 min-w-0 truncate">{{ activeItem.label }}</span>
-
-                        <!-- Close -->
-                        <Button
-                            class="ml-auto"
-                            shape="icon"
-                            size="sm"
-                            @click="
-                                detailPaneIsVisible = false;
-                                $emit('select', undefined);
-                            "
-                        >
-                            <XIcon stroke-width="1.25" />
-                        </Button>
                     </div>
 
                     <!-- Detail Body -->
-                    <div class="flex-1 overflow-hidden">
+                    <div class="min-h-0 flex-1">
                         <slot name="detail" :item="activeItem" />
-                        <ActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" commit-action-variant="select" @commit="handleCommitDetail" />
-                        <!-- <ActionBar
-                            v-model="activeItemId"
-                            class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
-                            clear-action
+                        <ActionBar
+                            class="absolute right-4 bottom-(--safe-bottom-offset)"
                             commit-action-variant="select"
-                            :item-actions="[
-                                { id: 'table', label: t(T, 'tab.table') },
-                                { id: 'text', label: t(T, 'tab.text') },
-                                { id: 'details', label: t(T, 'tab.details') }
-                            ]"
                             @clear="handleClearSelection"
-                            @commit="handleSelectItem"
-                        /> -->
+                            @commit="handleCommitDetail"
+                        />
                     </div>
                 </div>
 
@@ -146,7 +146,7 @@ async function handleSelectItem(row: T): Promise<void> {
 
 <style scoped>
 /* Narrow: show list, hide detail */
-.gdp-list {
+.gdp-grid {
     display: flex;
 }
 
@@ -155,7 +155,7 @@ async function handleSelectItem(row: T): Promise<void> {
 }
 
 /* Narrow + item selected: show detail only */
-.dpuse-show-detail .gdp-list {
+.dpuse-show-detail .gdp-grid {
     display: none;
 }
 
@@ -165,8 +165,8 @@ async function handleSelectItem(row: T): Promise<void> {
 
 /* Wide: always show both panes regardless of selection state */
 @container (min-width: 768px) {
-    .gdp-list,
-    .dpuse-show-detail .gdp-list {
+    .gdp-grid,
+    .dpuse-show-detail .gdp-grid {
         display: flex;
         max-width: var(--gdp-max-list-width, none);
     }

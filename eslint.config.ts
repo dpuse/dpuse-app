@@ -119,7 +119,7 @@ export default defineConfigWithVueTs(
                         'dpuse-scrollbar-visible',
                         'dpuse-show-detail',
                         'gdp-detail',
-                        'gdp-list'
+                        'gdp-grid'
                     ]
                 }
             ],

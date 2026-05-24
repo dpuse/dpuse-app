@@ -225,7 +225,7 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
             </div>
         </template>
 
-        <template #list-item-default="{ item }">
+        <template #grid-item="{ item }">
             <Card v-if="item" :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
         </template>
 

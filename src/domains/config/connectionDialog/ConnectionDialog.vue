@@ -109,7 +109,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
         <DialogHeader :title="t(T, 'Manage_Connection')" />
 
         <GridDetailPanel :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" @select="handleSelectConnection">
-            <template #list-item-default="{ item }">
+            <template #grid-item="{ item }">
                 <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
             </template>
 
