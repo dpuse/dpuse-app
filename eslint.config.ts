@@ -112,6 +112,7 @@ export default defineConfigWithVueTs(
                         'to-surface/95',
                         'via-surface/80',
                         'dpuse-nav-progress-bar-shimmer',
+                        'dpuse-outside-click-ignore',
                         'dpuse-scroll-area-wrapper',
                         'dpuse-scroll-area',
                         'dpuse-scrollbar-thumb',

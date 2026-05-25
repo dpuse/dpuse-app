@@ -19,7 +19,7 @@ const activeOptionId = ref<'transform' | 'investigate'>('investigate');
     <InvestigateData v-if="activeOptionId === 'investigate'" />
 
     <!-- Option Selector -->
-    <div class="justify-right fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)">
+    <div class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)">
         <span class="isolate inline-flex h-10 rounded-full shadow-md">
             <!-- View mode buttons -->
             <button

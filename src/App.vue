@@ -214,14 +214,23 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
 
 <template>
     <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]" data-component="App">
+        <!--
+          z-10:
+          z-20:
+          z-30: OptionBar
+          z-40: WorkbenchToggle, KnowledgeToggle
+          z-44: TopFadeMask
+          z-45: BusyMask
+          z-50: ProgressBar, DialogShell's
+          -->
         <!-- Mask - Semi-transparent mask over the top safe area, so scrolling content fades out beneath it. -->
         <div class="via-surface/80 to-surface/95 fixed inset-x-0 top-0 z-44 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-25%" />
 
         <!-- Navigation progress bar. Always visible. -->
-        <ProgressBar />
+        <ProgressBar class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-50" />
 
         <!-- Busy mask - shown during non-dialog async component loading to prevent duplicate actions. -->
-        <BusyMask v-if="isBusy" />
+        <BusyMask v-if="isBusy" class="z-45" />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
@@ -269,21 +278,21 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
 
         <!-- Authentication dialog activated using url parameter 'dlg=auth'. -->
         <Transition name="dialog">
-            <DialogShell v-if="authDialogIsVisible" v-slot="{ close }">
+            <DialogShell v-if="authDialogIsVisible" v-slot="{ close }" class="z-50">
                 <AuthDialog :close="close" />
             </DialogShell>
         </Transition>
 
         <!-- Account dialog activated using url parameter 'dlg=account'. -->
         <Transition name="dialog">
-            <DialogShell v-if="accountDialogIsVisible" v-slot="{ close }">
+            <DialogShell v-if="accountDialogIsVisible" v-slot="{ close }" class="z-50">
                 <AccountDialog :close="close" />
             </DialogShell>
         </Transition>
 
         <!-- Connection dialog activated using url parameter 'dlg=connection'. -->
         <Transition name="dialog">
-            <DialogShell v-if="connectionDialogIsVisible" v-slot="{ close }">
+            <DialogShell v-if="connectionDialogIsVisible" v-slot="{ close }" class="z-50">
                 <ConnectionDialog :close="close" />
             </DialogShell>
         </Transition>
