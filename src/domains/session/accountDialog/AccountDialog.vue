@@ -10,8 +10,8 @@ import T from './AccountDialog.json';
 import { viewportIsWide } from '@/state/appLayout';
 
 // Local Components - Static
-import Button from '~/src/components/ui/button/Button.vue';
-import ChunkLoadError from '~/src/components/ui/chunkLoadError/ChunkLoadError.vue';
+import Button from '@/components/ui/button/Button.vue';
+import ChunkLoadError from '@/components/ui/chunkLoadError/ChunkLoadError.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────

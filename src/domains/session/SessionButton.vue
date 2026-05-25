@@ -8,8 +8,8 @@ import { viewportIsWide } from '@/state/appLayout';
 import { expiresIn, isAuthenticated, lifetime } from '@/state/session';
 
 // Local Components - Static
-import AvatarButton from '~/src/components/ui/button/AvatarButton.vue';
-import DialogMask from '~/src/components/ui/dialog/DialogMask.vue';
+import AvatarButton from '@/components/ui/button/AvatarButton.vue';
+import DialogMask from '@/components/ui/dialog/DialogMask.vue';
 import SessionMenu from '@/domains/session/SessionMenu.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────

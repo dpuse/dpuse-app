@@ -6,7 +6,7 @@ import { computed } from 'vue';
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 
 // Local Components - Static
-import Button from '~/src/components/ui/button/Button.vue';
+import Button from '@/components/ui/button/Button.vue';
 
 // Options, Properties, Slots & Emits
 const { items = [], disableLast = true } = defineProps<{ items?: T[]; disableLast?: boolean }>();
@@ -23,7 +23,7 @@ const enrichedItems = computed(() =>
 </script>
 
 <template>
-    <div class="flex min-w-0 items-center overflow-hidden">
+    <div class="flex min-w-0 items-center overflow-hidden" data-component="Breadcrumbs">
         <template v-for="({ item, isDisabled }, index) in enrichedItems" :key="item.id">
             <!-- Breadcrumb Separator -->
             <span v-if="index > 0" class="text-subtle mx-1.5 flex-none">/</span>

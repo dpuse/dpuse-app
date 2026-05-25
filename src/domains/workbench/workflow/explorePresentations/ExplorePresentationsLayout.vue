@@ -4,8 +4,8 @@ import { t } from '@/state/locale';
 import T from './ExplorePresentationsLayout.json';
 
 // Local Components - Static
-import Header from '@/components/framework/header/Header.vue';
-import LayoutShell from '~/src/components/ui/layoutShell/LayoutShell.vue';
+import Header from '@/components/framework/Header.vue';
+import LayoutShell from '@/components/ui/layoutShell/LayoutShell.vue';
 
 import cytoscape from 'cytoscape';
 import { onMounted } from 'vue';

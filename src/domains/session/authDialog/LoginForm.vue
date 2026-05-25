@@ -9,12 +9,12 @@ import { t } from '@/state/locale';
 
 // Local Components - Static
 import AppleLogo from '@/components/branding/AppleLogo.vue';
-import Button from '~/src/components/ui/button/Button.vue';
-import GitHubLogo from '~/src/components/branding/GitHubLogo.vue';
-import GoogleLogo from '~/src/components/branding/GoogleLogo.vue';
-import Input from '~/src/components/ui/input/Input.vue';
+import Button from '@/components/ui/button/Button.vue';
+import GitHubLogo from '@/components/branding/GitHubLogo.vue';
+import GoogleLogo from '@/components/branding/GoogleLogo.vue';
+import Input from '@/components/ui/input/Input.vue';
 import MicrosoftLogo from '@/components/branding/MicrosoftLogo.vue';
-import Separator from '~/src/components/ui/separator/Separator.vue';
+import Separator from '@/components/ui/separator/Separator.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 

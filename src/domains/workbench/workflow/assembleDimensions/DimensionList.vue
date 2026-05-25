@@ -20,10 +20,10 @@ import { useEngine } from '@/services/useEngine';
 import { activeMetaStoreConnectionConfig, dimensionConfigs } from '@/state/session';
 
 // Local Components - Static
-import Button from '~/src/components/ui/button/Button.vue';
+import Button from '@/components/ui/button/Button.vue';
 import Card from '@/components/ui/card/Card.vue';
-import Grid from '~/src/components/framework/grid/Grid.vue';
-import ScrollArea from '~/src/components/ui/scrollArea/ScrollArea.vue';
+import Grid from '@/components/framework/Grid.vue';
+import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
 
 // Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/ui/placeholders/EmptyPlaceholder.vue'));

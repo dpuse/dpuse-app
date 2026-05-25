@@ -22,9 +22,9 @@ import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/sess
 
 // Local Components - Static
 import Card from '@/components/ui/card/Card.vue';
-import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
-import SelectPlaceholder from '~/src/components/ui/placeholders/SelectPlaceholder.vue';
+import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import type { TaskConfig } from '@/components/ui/taskBar/TaskBar.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────

@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" viewBox="0 0 24 24">
+    <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" viewBox="0 0 24 24" data-component="KnowledgeLogo">
         <path
             fill="#ca8a04"
             stroke="#ca8a04"

@@ -17,8 +17,8 @@ import { useEngine } from '@/services/useEngine';
 
 // Local Components - Static
 import ActionBar from '@/components/ui/actionBar/ActionBar.vue';
-import Button from '~/src/components/ui/button/Button.vue';
-import ScrollArea from '~/src/components/ui/scrollArea/ScrollArea.vue';
+import Button from '@/components/ui/button/Button.vue';
+import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 

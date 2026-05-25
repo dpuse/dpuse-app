@@ -30,12 +30,12 @@ import {
 
 // Local Components - Static
 import ActionBar from '@/components/ui/actionBar/ActionBar.vue';
-import Breadcrumbs from '~/src/components/framework/breadcrumbs/Breadcrumbs.vue';
+import Breadcrumbs from '@/components/framework/Breadcrumbs.vue';
 import Card from '@/components/ui/card/Card.vue';
-import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
-import SelectPlaceholder from '~/src/components/ui/placeholders/SelectPlaceholder.vue';
-import Table from '~/src/components/ui/table/Table.vue';
+import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+import Table from '@/components/ui/table/Table.vue';
 import type { TaskConfig } from '@/components/ui/taskBar/TaskBar.vue';
 import TextViewer from '@/components/ui/textViewer/TextViewer.vue';
 

@@ -7,9 +7,9 @@ import { useRoute, useRouter } from 'vue-router';
 import type { DataSource } from '@/composables/useDataWindow';
 
 // Local Components - Static
-import Button from '~/src/components/ui/button/Button.vue';
-import Grid from '@/components/framework/grid/Grid.vue';
-import type { ScrollAreaPadding } from '~/src/components/ui/scrollArea/ScrollArea.vue';
+import Button from '@/components/ui/button/Button.vue';
+import Grid from '@/components/framework/Grid.vue';
+import type { ScrollAreaPadding } from '@/components/ui/scrollArea/ScrollArea.vue';
 import ActionBar, { type CommitVariant } from '@/components/ui/actionBar/ActionBar.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
