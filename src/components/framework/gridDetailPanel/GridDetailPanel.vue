@@ -1,7 +1,6 @@
 <script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; iconNeutral?: string | null; label: string }">
 // External Dependencies
 import { nextTick, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 
 // Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -12,7 +11,7 @@ import Grid from '@/components/framework/Grid.vue';
 import type { ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
 import ActionBar, { type CommitVariant, type ItemAction } from './ActionBar.vue';
 
-// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     activeItem?: T;
@@ -27,8 +26,6 @@ type Properties = {
 };
 const { activeItem, addLabel, commitVariant, dataSource, isCompact = false, itemActions = [], maxListWidth, maxDetailWidth, scrollAreaPadding } = defineProps<Properties>();
 
-const activeItemAction = defineModel<ItemAction>('activeItemAction');
-
 defineSlots<{
     'header'(): unknown;
     'grid-item'(properties: { item: T }): unknown;
@@ -40,10 +37,9 @@ const emit = defineEmits<{ add: []; commitDetail: []; select: [item?: T] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const detailPaneIsVisible = ref(false);
+const activeItemAction = defineModel<ItemAction>('activeItemAction');
 
-const route = useRoute();
-const router = useRouter();
+const detailPaneIsVisible = ref(false);
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 

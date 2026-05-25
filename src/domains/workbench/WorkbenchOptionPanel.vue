@@ -15,7 +15,7 @@ import HomeIcon from '@/components/icons/HomeIcon.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
-// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const emit = defineEmits<{ continue: [] }>();
 

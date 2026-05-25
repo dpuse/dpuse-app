@@ -19,7 +19,7 @@ import LoginForm from '@/domains/session/authDialog/LoginForm.vue';
 import PasswordForm from '@/domains/session/authDialog/PasswordForm.vue';
 import Separator from '@/components/ui/Separator.vue';
 
-// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const { close } = defineProps<{ close: () => void }>();
 

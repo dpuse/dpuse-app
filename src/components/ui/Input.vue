@@ -2,7 +2,7 @@
 // External Dependencies
 import { useId } from 'vue';
 
-// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 type AutoComplete = 'email' | 'current-password' | 'new-password';
 type InputType = 'email' | 'password' | 'text';

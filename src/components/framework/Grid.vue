@@ -10,7 +10,7 @@ import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea, { type ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
 
-// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.

@@ -16,7 +16,7 @@ import Input from '@/components/ui/Input.vue';
 import MicrosoftLogo from '@/components/branding/MicrosoftLogo.vue';
 import Separator from '@/components/ui/Separator.vue';
 
-// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const { onTrigger } = defineProps<{ onTrigger: (identifier: string) => Promise<void> }>();
 

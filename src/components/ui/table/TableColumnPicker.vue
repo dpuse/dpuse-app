@@ -4,7 +4,7 @@ import { Settings2 } from 'lucide-vue-next';
 import type { Table } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 
-// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const { table } = defineProps<{ table: Table<T> }>();
 

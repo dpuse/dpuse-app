@@ -1,16 +1,15 @@
 <script setup lang="ts">
 // External Dependencies
-import type { RouteLocationRaw } from 'vue-router';
 import { ArrowBigLeftIcon, ArrowBigRightIcon } from 'lucide-vue-next';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 
-// Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-export type CommitVariant = 'add' | 'commit';
+export type CommitVariant = 'add' | 'select';
 export type ItemAction = { id: string; label: string };
-const { itemActions = [], commitVariant = 'commit', to } = defineProps<{ commitVariant?: CommitVariant; itemActions?: ItemAction[]; to?: RouteLocationRaw }>();
+const { itemActions = [], commitVariant = 'select' } = defineProps<{ commitVariant?: CommitVariant; itemActions?: ItemAction[] }>();
 
 const modelValue = defineModel<string>();
 
@@ -26,7 +25,6 @@ defineEmits<{ clear: []; commit: [] }>();
                 'border-zinc-200 bg-amber-50 text-amber-600 hover:bg-amber-100 focus-visible:ring-amber-300 dark:border-zinc-500 dark:bg-amber-950 dark:text-amber-400 dark:hover:bg-amber-900 dark:focus-visible:ring-amber-500'
             ]"
             shape="minimal"
-            :to="to"
             @click="$emit('clear')"
         >
             <ArrowBigLeftIcon class="size-5" :stroke-width="1.25" />
@@ -52,7 +50,6 @@ defineEmits<{ clear: []; commit: [] }>();
                 'border-zinc-200 bg-blue-50 text-blue-600 hover:bg-blue-100 focus-visible:ring-blue-300 dark:border-zinc-500 dark:bg-blue-950 dark:text-blue-400 dark:hover:bg-blue-900 dark:focus-visible:ring-blue-500'
             ]"
             shape="minimal"
-            :to="to"
             @click="$emit('commit')"
         >
             <span class="text-sm">{{ commitVariant === 'add' ? 'Add' : 'Commit' }}</span>
