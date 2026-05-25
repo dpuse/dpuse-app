@@ -38,6 +38,12 @@ import Table from '@/components/ui/table/Table.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 import TextViewer from '@/components/ui/TextViewer.vue';
 
+const ITEM_ACTIONS = [
+    { id: 'table', label: 'Table' },
+    { id: 'text', label: 'Text' },
+    { id: 'details', label: 'Details' }
+];
+
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
@@ -45,6 +51,8 @@ const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConf
 const emit = defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const activeItemAction = ref(ITEM_ACTIONS[0]);
 
 const activeConnectionObjectConfig = shallowRef<ConnectionNodeConfig | undefined>();
 
@@ -212,9 +220,11 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
 
 <template>
     <GridDetailPanel
+        v-model:active-item-action="activeItemAction"
         :active-item="activeConnectionObjectConfig"
         :data-source="connectionNodeConfigsDataSource"
         :is-compact="true"
+        :item-actions="ITEM_ACTIONS"
         max-list-width="400px"
         @select="handleSelectConnectionNode($event)"
     >
@@ -230,11 +240,11 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
 
         <template #detail>
             <div class="relative flex h-full flex-col pl-4">
-                <Table v-show="activeItemId === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
+                <Table v-show="activeItemAction.id === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
 
-                <TextViewer v-show="activeItemId === 'text'" class="flex-1" :text="text" />
+                <TextViewer v-show="activeItemAction.id === 'text'" class="flex-1" :text="text" />
 
-                <div v-show="activeItemId === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
+                <div v-show="activeItemAction.id === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
 
                 <div
                     class="border-separator bg-backdrop relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"

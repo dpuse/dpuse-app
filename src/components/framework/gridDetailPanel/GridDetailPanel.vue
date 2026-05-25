@@ -10,7 +10,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import Button from '@/components/ui/button/Button.vue';
 import Grid from '@/components/framework/Grid.vue';
 import type { ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
-import ActionBar, { type CommitVariant } from './ActionBar.vue';
+import ActionBar, { type CommitVariant, type ItemAction } from './ActionBar.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
@@ -20,26 +20,14 @@ type Properties = {
     commitVariant?: CommitVariant;
     dataSource: DataSource<T>;
     isCompact?: boolean;
-    itemActions?: Record<string, unknown>[];
+    itemActions?: ItemAction[];
     maxListWidth?: string;
     maxDetailWidth?: string;
     scrollAreaPadding?: ScrollAreaPadding;
 };
-const {
-    activeItem,
-    addLabel,
-    commitVariant,
-    dataSource,
-    isCompact = false,
-    itemActions = [
-        { id: 'table', label: 'Table' },
-        { id: 'text', label: 'Text' },
-        { id: 'details', label: 'Details' }
-    ],
-    maxListWidth,
-    maxDetailWidth,
-    scrollAreaPadding
-} = defineProps<Properties>();
+const { activeItem, addLabel, commitVariant, dataSource, isCompact = false, itemActions = [], maxListWidth, maxDetailWidth, scrollAreaPadding } = defineProps<Properties>();
+
+const activeItemAction = defineModel<ItemAction>('activeItemAction');
 
 defineSlots<{
     'header'(): unknown;
@@ -130,6 +118,9 @@ async function handleSelectItem(row: T): Promise<void> {
                         <ActionBar
                             class="absolute right-4 bottom-(--safe-bottom-offset)"
                             :commit-variant="commitVariant"
+                            :item-actions="itemActions"
+                            :model-value="activeItemAction?.id"
+                            @update:model-value="activeItemAction = itemActions.find((a) => a.id === $event)"
                             @clear="handleClearSelection"
                             @commit="handleCommitDetail"
                         />
