@@ -9,9 +9,9 @@ type InputType = 'email' | 'password' | 'text';
 type Properties = { autoComplete?: AutoComplete; id?: string; label: string; labelHidden?: boolean; placeholder?: string; required?: boolean; type?: InputType };
 const { autoComplete, id, label, labelHidden = false, placeholder, required = false, type = 'text' } = defineProps<Properties>();
 
-const modelValue = defineModel<string>();
-
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const modelValue = defineModel<string>();
 
 const generatedId = useId();
 

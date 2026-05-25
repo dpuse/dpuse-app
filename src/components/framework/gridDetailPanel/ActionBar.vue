@@ -11,9 +11,11 @@ export type CommitVariant = 'add' | 'select';
 export type ItemAction = { id: string; label: string };
 const { itemActions = [], commitVariant = 'select' } = defineProps<{ commitVariant?: CommitVariant; itemActions?: ItemAction[] }>();
 
-const modelValue = defineModel<string>();
-
 defineEmits<{ clear: []; commit: [] }>();
+
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const modelValue = defineModel<string>();
 </script>
 
 <template>
