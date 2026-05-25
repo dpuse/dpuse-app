@@ -12,8 +12,8 @@ import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkfl
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
-import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
-import Separator from '@/components/ui/separator/Separator.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
+import Separator from '@/components/ui/Separator.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 

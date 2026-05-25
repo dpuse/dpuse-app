@@ -13,10 +13,10 @@ import { t } from '@/state/locale';
 import { contentScrollPosition, knowledgePaneIsVisible, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // Local Components - Static
-import BusyMask from '@/components/ui/busyMask/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
+import BusyMask from '@/components/ui/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
 import Button from '@/components/ui/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
-import ChunkLoadError from '@/components/ui/chunkLoadError/ChunkLoadError.vue';
-import DialogWrapper from '@/components/ui/dialog/DialogWrapper.vue'; // Static so dialog mask appears immediately on open.
+import ChunkLoadError from '@/components/ui/ChunkLoadError.vue';
+import DialogShell from '@/components/ui/dialog/DialogShell.vue'; // Static so dialog mask appears immediately on open.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
@@ -32,7 +32,7 @@ const ConnectionDialog = defineAsyncComponent({
 });
 const KnowledgeLayout = defineAsyncComponent({ loader: load('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });
 const PaneSplitter = defineAsyncComponent({
-    loader: load('paneSplitter', () => import('@/components/ui/paneSplitter/PaneSplitter.vue'), 0),
+    loader: load('paneSplitter', () => import('@/components/ui/PaneSplitter.vue'), 0),
     errorComponent: ChunkLoadError
 });
 const WorkbenchOptionBar = defineAsyncComponent({
@@ -269,23 +269,23 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
 
         <!-- Authentication dialog activated using url parameter 'dlg=auth'. -->
         <Transition name="dialog">
-            <DialogWrapper v-if="authDialogIsVisible" v-slot="{ close }">
+            <DialogShell v-if="authDialogIsVisible" v-slot="{ close }">
                 <AuthDialog :close="close" />
-            </DialogWrapper>
+            </DialogShell>
         </Transition>
 
         <!-- Account dialog activated using url parameter 'dlg=account'. -->
         <Transition name="dialog">
-            <DialogWrapper v-if="accountDialogIsVisible" v-slot="{ close }">
+            <DialogShell v-if="accountDialogIsVisible" v-slot="{ close }">
                 <AccountDialog :close="close" />
-            </DialogWrapper>
+            </DialogShell>
         </Transition>
 
         <!-- Connection dialog activated using url parameter 'dlg=connection'. -->
         <Transition name="dialog">
-            <DialogWrapper v-if="connectionDialogIsVisible" v-slot="{ close }">
+            <DialogShell v-if="connectionDialogIsVisible" v-slot="{ close }">
                 <ConnectionDialog :close="close" />
-            </DialogWrapper>
+            </DialogShell>
         </Transition>
 
         <!-- Workbench option bar - narrow display overlay, rendered at top level so it's accessible regardless of whether the workbench pane is active. -->

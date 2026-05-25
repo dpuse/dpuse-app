@@ -18,8 +18,8 @@ import { localeId, t } from '@/state/locale';
 import Button from '@/components/ui/button/Button.vue';
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
-import ScrollAreaFit from '@/components/ui/scrollArea/ScrollArea.vue';
-import Separator from '@/components/ui/separator/Separator.vue';
+import ScrollAreaFit from '@/components/ui/ScrollArea.vue';
+import Separator from '@/components/ui/Separator.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 

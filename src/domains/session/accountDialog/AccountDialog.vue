@@ -11,7 +11,7 @@ import { viewportIsWide } from '@/state/appLayout';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import ChunkLoadError from '@/components/ui/chunkLoadError/ChunkLoadError.vue';
+import ChunkLoadError from '@/components/ui/ChunkLoadError.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────

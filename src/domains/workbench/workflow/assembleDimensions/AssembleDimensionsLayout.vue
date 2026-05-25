@@ -12,7 +12,7 @@ import T from './AssembleDimensionsLayout.json';
 
 // Local Components - Static
 import Header from '@/components/framework/Header.vue';
-import LayoutShell from '@/components/ui/layoutShell/LayoutShell.vue';
+import LayoutShell from '@/components/ui/LayoutShell.vue';
 import NodeGradientProgram from './node-gradient.ts';
 
 // EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -21,9 +21,9 @@ import { activeMetaStoreConnectionConfig, dimensionConfigs } from '@/state/sessi
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import Card from '@/components/ui/card/Card.vue';
+import Card from '@/components/ui/Card.vue';
 import Grid from '@/components/framework/Grid.vue';
-import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/ui/placeholders/EmptyPlaceholder.vue'));

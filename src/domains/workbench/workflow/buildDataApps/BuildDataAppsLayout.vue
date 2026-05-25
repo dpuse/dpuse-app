@@ -5,7 +5,7 @@ import T from './BuildDataAppsLayout.json';
 
 // Local Components - Static
 import Header from '@/components/framework/Header.vue';
-import LayoutShell from '@/components/ui/layoutShell/LayoutShell.vue';
+import LayoutShell from '@/components/ui/LayoutShell.vue';
 </script>
 
 <template>

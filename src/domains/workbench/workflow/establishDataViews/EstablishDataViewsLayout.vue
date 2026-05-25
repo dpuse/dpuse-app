@@ -12,8 +12,8 @@ import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
 import Header from '@/components/framework/Header.vue';
-import LayoutShell from '@/components/ui/layoutShell/LayoutShell.vue';
-import TaskBar, { type TaskConfig } from '@/components/ui/taskBar/TaskBar.vue';
+import LayoutShell from '@/components/ui/LayoutShell.vue';
+import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 

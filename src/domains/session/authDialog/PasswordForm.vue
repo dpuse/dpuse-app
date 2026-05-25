@@ -8,7 +8,7 @@ import { t } from '@/state/locale';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import Input from '@/components/ui/input/Input.vue';
+import Input from '@/components/ui/Input.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 

@@ -6,11 +6,11 @@ import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkfl
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import Card from '@/components/ui/card/Card.vue';
+import Card from '@/components/ui/Card.vue';
 import Header from '@/components/framework/Header.vue';
-import LayoutShell from '@/components/ui/layoutShell/LayoutShell.vue';
-import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
-import Separator from '@/components/ui/separator/Separator.vue';
+import LayoutShell from '@/components/ui/LayoutShell.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
+import Separator from '@/components/ui/Separator.vue';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

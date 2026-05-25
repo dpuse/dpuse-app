@@ -3,7 +3,7 @@
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Components - Static
-import type { TaskConfig } from '@/components/ui/taskBar/TaskBar.vue';
+import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 

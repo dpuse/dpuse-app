@@ -21,10 +21,10 @@ import { establishDataViewsObject, NEW_DATA_VIEW_ID, setActiveDataViewConfig } f
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import Card from '@/components/ui/card/Card.vue';
+import Card from '@/components/ui/Card.vue';
 import Grid from '@/components/framework/Grid.vue';
-import ScrollArea from '@/components/ui/scrollArea/ScrollArea.vue';
-import Separator from '@/components/ui/separator/Separator.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
+import Separator from '@/components/ui/Separator.vue';
 
 // Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/ui/placeholders/EmptyPlaceholder.vue'));

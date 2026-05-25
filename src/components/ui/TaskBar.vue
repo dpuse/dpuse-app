@@ -3,7 +3,7 @@
 import type { LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Components - Static
-import Button from '../button/Button.vue';
+import Button from './button/Button.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 export interface TaskConfig {
