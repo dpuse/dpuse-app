@@ -29,10 +29,9 @@ import {
 } from '@/state/establishDataViews';
 
 // Local Components - Static
-import ActionBar from '@/components/ui/ActionBar.vue';
 import Breadcrumbs from '@/components/framework/Breadcrumbs.vue';
 import Card from '@/components/ui/Card.vue';
-import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import Table from '@/components/ui/table/Table.vue';

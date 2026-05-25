@@ -18,7 +18,7 @@ import { localeId, t } from '@/state/locale';
 import AddConnectionForm from './AddConnectionForm.vue';
 import Card from '@/components/ui/Card.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
-import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 

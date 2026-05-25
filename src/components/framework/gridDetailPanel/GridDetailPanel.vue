@@ -10,7 +10,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import Button from '@/components/ui/button/Button.vue';
 import Grid from '@/components/framework/Grid.vue';
 import type { ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
-import ActionBar, { type CommitVariant } from '@/components/ui/ActionBar.vue';
+import ActionBar, { type CommitVariant } from './ActionBar.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 

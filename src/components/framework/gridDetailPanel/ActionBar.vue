@@ -5,7 +5,7 @@ import type { RouteLocationRaw } from 'vue-router';
 import { ArrowBigLeftIcon, ArrowBigRightIcon } from 'lucide-vue-next';
 
 // Local Components - Static
-import Button from './button/Button.vue';
+import Button from '@/components/ui/button/Button.vue';
 
 // Options, Properties, Slots, ModelValue & Emits ──────────────────────────────────────────────────────────────────────
 
