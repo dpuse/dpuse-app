@@ -36,6 +36,7 @@ function handlePointerUp(): void {
     <!-- TODO: May need to pass the tabindex. -->
     <div
         class="border-boundary hover:bg-separator h-full w-1 flex-none cursor-col-resize border-x transition-colors"
+        data-component="PaneSplitter"
         role="button"
         tabIndex="0"
         @pointerdown="handlePointerDown"

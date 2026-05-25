@@ -4,7 +4,7 @@ const { chunkName, error } = defineProps<{ chunkName?: string; error: unknown }>
 </script>
 
 <template>
-    <div class="mt-[7.5vh] text-center">
+    <div class="mt-[7.5vh] text-center" data-component="ChunkLoadError">
         <svg class="text-subtle mx-auto size-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path
                 vector-effect="non-scaling-stroke"

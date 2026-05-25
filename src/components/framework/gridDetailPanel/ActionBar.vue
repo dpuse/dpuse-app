@@ -19,7 +19,7 @@ const modelValue = defineModel<string>();
 </script>
 
 <template>
-    <div class="isolate inline-flex h-10 rounded-full shadow-md">
+    <div class="isolate inline-flex h-10 rounded-full shadow-md" data-component="ActionBar">
         <!-- Clear Action -->
         <Button
             class="inline-flex items-center gap-x-1 rounded-l-full border-y border-l pr-2 pl-3"

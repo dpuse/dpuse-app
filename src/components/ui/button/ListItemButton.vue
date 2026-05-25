@@ -38,7 +38,7 @@ const classes = computed(() => [
 </script>
 
 <template>
-    <Button shape="minimal" :class="classes" :to="to">
+    <Button shape="minimal" :class="classes" data-component="ListItemButton" :to="to">
         <slot />
     </Button>
 </template>

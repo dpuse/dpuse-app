@@ -23,7 +23,7 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
 </script>
 
 <template>
-    <div class="border-separator flex items-center gap-x-3 overflow-x-auto overscroll-x-none border-b text-[15px]">
+    <div class="border-separator flex items-center gap-x-3 overflow-x-auto overscroll-x-none border-b text-[15px]" data-component="TaskBar">
         <component
             :is="item.disabled ? 'div' : Button"
             v-for="item in items"

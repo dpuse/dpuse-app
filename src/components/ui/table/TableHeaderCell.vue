@@ -30,7 +30,7 @@ function onDocumentClick(event: MouseEvent): void {
 </script>
 
 <template>
-    <div class="relative flex h-full items-center select-none">
+    <div class="relative flex h-full items-center select-none" data-component="TableHeaderCell">
         <span class="text-muted flex-1 truncate px-3 text-xs font-medium tracking-wide uppercase">
             {{ String(header.column.columnDef.header) }}
         </span>

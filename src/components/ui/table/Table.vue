@@ -127,7 +127,7 @@ onBeforeUnmount(() => toolbarObserver?.disconnect());
 </script>
 
 <template>
-    <div class="relative flex h-full flex-col overflow-y-hidden">
+    <div class="relative flex h-full flex-col overflow-y-hidden" data-component="Table">
         <!-- Toolbar -->
         <div ref="toolbar">
             <TableColumnPicker :table="table" />
