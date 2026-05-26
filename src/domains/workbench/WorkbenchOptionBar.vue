@@ -19,7 +19,7 @@ defineEmits<{ continue: [] }>();
         <Transition appear name="horizontal-slide-ltr">
             <div v-if="!viewportIsWide && isVisible" class="fixed inset-0 z-30">
                 <!-- TODO: Could the following be converted to a common mask? -->
-                <div class="bg-overlay absolute inset-0 pt-[env(safe-area-inset-top)]" role="button" tabIndex="-1" @click="$emit('continue')" @keydown="$emit('continue')" />
+                <div class="bg-overlay absolute inset-0 mt-[env(safe-area-inset-top)]" role="button" tabIndex="-1" @click="$emit('continue')" @keydown="$emit('continue')" />
 
                 <WorkbenchOptionPanel class="dpuse-horizontal-slide-ltr-element relative mr-auto shadow-md" @continue="$emit('continue')" />
             </div>
