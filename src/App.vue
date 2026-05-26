@@ -228,7 +228,7 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
           z-90: ProgressBar
           -->
         <!-- Mask - Semi-transparent mask over the top safe area, so scrolling content fades out beneath it. -->
-        <div class="via-surface/80 to-surface/95 fixed inset-x-0 top-0 z-44 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-25%" />
+        <div class="via-surface/80 to-surface/95 fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-25%" />
 
         <!-- Navigation progress bar. Always visible. -->
         <ProgressBar class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-90" />
