@@ -21,7 +21,7 @@ defineEmits<{ continue: [] }>();
                 <!-- TODO: Could the following be converted to a common mask? -->
                 <div class="bg-overlay absolute inset-0 mt-[env(safe-area-inset-top)]" role="button" tabIndex="-1" @click="$emit('continue')" @keydown="$emit('continue')" />
 
-                <WorkbenchOptionPanel class="dpuse-horizontal-slide-ltr-element relative mt-[env(safe-area-inset-top)] mr-auto shadow-md" @continue="$emit('continue')" />
+                <WorkbenchOptionPanel class="dpuse-horizontal-slide-ltr-element relative mr-auto shadow-md" @continue="$emit('continue')" />
             </div>
         </Transition>
     </div>
