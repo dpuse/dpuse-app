@@ -215,12 +215,11 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
 <template>
     <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]" data-component="App">
         <!--
-          z-10: WorkbenchOptionBar, WorkbenchPane, PaneSplitter & KnowledgePane
-          z-20: TopFadeMask
-          z-30: OptionBar
-          z-40: WorkbenchToggle, KnowledgeToggle
-          z-45: BusyMask
-          z-50:
+          z-10: Content: WorkbenchPane (includes fixed WorkbenchOptionBar), PaneSplitter & KnowledgePane
+          z-20: TopFadeMask, KnowledgeToggle
+          z-30: WorkbenchOptionBar (floating)
+          z-40: WorkbenchToggle
+          z-50: BusyMask
           z-60:
           z-70:
           z-80: DialogShell's
@@ -233,7 +232,7 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
         <ProgressBar class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-90" />
 
         <!-- Busy mask - shown during non-dialog async component loading to prevent duplicate actions. -->
-        <BusyMask v-if="isBusy" class="z-45" />
+        <BusyMask v-if="isBusy" class="z-50" />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
@@ -247,7 +246,7 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
         </Button>
 
         <!-- Knowledge toggle fixed in top right corner. Always visible. -->
-        <div class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-40 flex">
+        <div class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20 flex">
             <nav v-if="viewportIsWide || knowledgeOptionBarIsVisible">
                 <Button :aria-label="t(T, 'k.select.about.aria')" shape="icon" @click="selectKnowledgePanel('about')">
                     <InfoIcon aria-hidden="true" :stroke-width="1.25" />
@@ -301,9 +300,9 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
         </Transition>
 
         <!-- Workbench option bar - narrow display overlay, rendered at top level so it's accessible regardless of whether the workbench pane is active. -->
-        <WorkbenchOptionBar v-if="!viewportIsWide" :is-visible="workbenchOptionBarIsVisible" @continue="closeOptionBarOnNarrowDisplay()" />
+        <WorkbenchOptionBar v-if="!viewportIsWide" class="z-30" :is-visible="workbenchOptionBarIsVisible" @continue="closeOptionBarOnNarrowDisplay()" />
 
-        <!-- Left Pane - Workbench option bar (wide only) and panel. -->
+        <!-- Workbench Pane - Workbench option bar (wide only) and panel. -->
         <div
             v-if="workbenchPaneActivated"
             v-show="workbenchPaneIsVisible"
@@ -329,7 +328,7 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
         <!-- Vertical Splitter - Only visible if display is wide and both panes are visible. -->
         <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
 
-        <!-- Right Pane - Knowledge panel and option bar. -->
+        <!-- Knowledge Pane - Knowledge panel and option bar. -->
         <div
             v-if="knowledgePaneActivated"
             v-show="knowledgePaneIsVisible"
