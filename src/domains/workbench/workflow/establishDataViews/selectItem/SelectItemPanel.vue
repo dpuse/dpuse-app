@@ -160,7 +160,7 @@ async function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeCo
     activeConnectionObjectConfig.value = connectionNodeConfig;
 }
 
-async function handleSelectItem(): Promise<void> {
+async function handleCommitDetail(): Promise<void> {
     emit('task-completed', taskLocalisedConfig);
     await router.push({ name: 'auditContent', query: { ...route.query, wbView: 'auditContent' } });
 }
@@ -226,6 +226,7 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
         :is-compact="true"
         :item-actions="ITEM_ACTIONS"
         max-list-width="400px"
+        @commit-detail="handleCommitDetail"
         @select="handleSelectConnectionNode($event)"
     >
         <template #header>
