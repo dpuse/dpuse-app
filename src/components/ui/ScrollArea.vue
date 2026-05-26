@@ -383,7 +383,7 @@ function clamp(value: number, min: number, max: number): number {
     top: 0;
     width: 100%;
     border-radius: 9999px;
-    background-color: red; /* var(--subtle, rgba(0, 0, 0, 0.35)); */
+    background-color: var(--subtle, rgba(0, 0, 0, 0.35));
     cursor: pointer;
     transition:
         background-color 0.15s ease,
