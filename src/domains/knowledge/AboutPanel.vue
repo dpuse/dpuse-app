@@ -12,7 +12,7 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
 </script>
 
 <template>
-    <ScrollArea>
+    <div class="overflow-scroll">
         <article class="bg-white py-24 sm:py-32">
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <!-- Hero Section -->
@@ -47,5 +47,5 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
                 </div>
             </div>
         </article>
-    </ScrollArea>
+    </div>
 </template>
