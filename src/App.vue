@@ -215,11 +215,10 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
 <template>
     <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]" data-component="App">
         <!--
-          z-10:
-          z-20:
+          z-10: WorkbenchOptionBar, WorkbenchPane, PaneSplitter & KnowledgePane
+          z-20: TopFadeMask
           z-30: OptionBar
           z-40: WorkbenchToggle, KnowledgeToggle
-          z-44: TopFadeMask
           z-45: BusyMask
           z-50:
           z-60:
@@ -228,7 +227,7 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
           z-90: ProgressBar
           -->
         <!-- Mask - Semi-transparent mask over the top safe area, so scrolling content fades out beneath it. -->
-        <div class="via-surface/80 to-surface/95 fixed inset-x-0 top-0 z-40 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-25%" />
+        <div class="via-surface/80 to-surface/95 fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-25%" />
 
         <!-- Navigation progress bar. Always visible. -->
         <ProgressBar class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-90" />
