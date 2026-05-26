@@ -189,7 +189,7 @@ async function handleCloseDialog(): Promise<void> {
 </script>
 
 <template>
-    <div ref="root" class="dialog-root fixed inset-0 z-50" :class="{ 'dialog-root--closing': isClosing }">
+    <div ref="root" class="dialog-root fixed inset-0 z-50" :class="{ 'dialog-root--closing': isClosing }" data-region="AuthDialog">
         <div
             role="dialog"
             aria-modal="true"

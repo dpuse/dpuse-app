@@ -14,7 +14,7 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
     >
         <!-- Content indented from left and right to allow for logos when display is narrow.
              Content indented from right to allow for knowledge bar when display is wide.
-             NOTE: If width of logos or knowledge bar changes, the following settings need to be adjusted accordingly. -->
+             NOTE: If width of logos or knowledge bar changes, the above settings need to be adjusted accordingly. -->
 
         <component
             :is="to && to !== $route.query.wbView ? 'RouterLink' : 'div'"
