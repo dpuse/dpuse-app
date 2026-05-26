@@ -10,7 +10,7 @@ import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcru
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import Header from '@/components/framework/Header.vue';
+import KnowledgeHeader from '@/components/framework/header/KnowledgeHeader.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -64,7 +64,7 @@ async function runTest(): Promise<void> {
 
 <template>
     <div>
-        <Header class="mx-4" :overline="'Knowledge'" :title="title" />
+        <KnowledgeHeader class="mx-4" :overline="'Knowledge'" :title="title" />
 
         <div class="flex flex-1 flex-col overflow-y-hidden px-4">
             <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">

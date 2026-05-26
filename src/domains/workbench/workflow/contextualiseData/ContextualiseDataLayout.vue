@@ -11,8 +11,8 @@ import { t } from '@/state/locale';
 import T from './ContextualiseDataLayout.json';
 
 // Local Components - Static
-import Header from '@/components/framework/Header.vue';
 import LayoutShell from '@/components/ui/LayoutShell.vue';
+import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 
 // Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -194,7 +194,7 @@ onBeforeUnmount(() => {
 
 <template>
     <LayoutShell>
-        <Header class="mx-4 flex-none" :overline="t(T, 'wb.label')" :title="t(T, 'Contextualise_Data')" to="workflow" />
+        <WorkbenchHeader class="mx-4 flex-none" :overline="t(T, 'wb.label')" :title="t(T, 'Contextualise_Data')" to="workflow" />
 
         <div class="px-4 py-2">
             <button class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50" type="button" @click="onAutoLayout">

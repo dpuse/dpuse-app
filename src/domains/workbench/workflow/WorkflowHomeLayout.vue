@@ -7,10 +7,10 @@ import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkfl
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Card from '@/components/ui/Card.vue';
-import Header from '@/components/framework/Header.vue';
 import LayoutShell from '@/components/ui/LayoutShell.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
+import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ const workflowOptionConfigs = useWorkflowOptionConfigs();
 <template>
     <LayoutShell class="dpuse-workbench-prose" data-layout="WorkflowHome">
         <!-- Header -->
-        <Header :overline="t(T, 'wb.label')" :title="t(T, 'wb.wf.label')" />
+        <WorkbenchHeader :overline="t(T, 'wb.label')" :title="t(T, 'wb.wf.label')" />
 
         <!-- Workflow Steps -->
         <Separator class="mx-4" />

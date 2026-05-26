@@ -11,9 +11,9 @@ import { t } from '@/state/locale';
 import T from './AssembleDimensionsLayout.json';
 
 // Local Components - Static
-import Header from '@/components/framework/Header.vue';
 import LayoutShell from '@/components/ui/LayoutShell.vue';
 import NodeGradientProgram from './node-gradient.ts';
+import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 
 // EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -116,7 +116,7 @@ function svgToDataURI(svg: string): string {
 
 <template>
     <LayoutShell>
-        <Header class="mx-4" :overline="t(T, 'wb.label')" :title="t(T, 'Assemble_Dimensions')" to="workflow" />
+        <WorkbenchHeader class="mx-4" :overline="t(T, 'wb.label')" :title="t(T, 'Assemble_Dimensions')" to="workflow" />
 
         <!-- <RouterView /> -->
         <div ref="container" class="h-120 w-200"></div>

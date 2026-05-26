@@ -4,8 +4,8 @@ import { t } from '@/state/locale';
 import T from './ExplorePresentationsLayout.json';
 
 // Local Components - Static
-import Header from '@/components/framework/Header.vue';
 import LayoutShell from '@/components/ui/LayoutShell.vue';
+import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 
 import cytoscape from 'cytoscape';
 import { onMounted } from 'vue';
@@ -31,7 +31,7 @@ onMounted(() => {
 
 <template>
     <LayoutShell>
-        <Header class="mx-4" :overline="t(T, 'wb.label')" :title="t(T, 'Explore_Presentations')" to="workflow" />
+        <WorkbenchHeader class="mx-4" :overline="t(T, 'wb.label')" :title="t(T, 'Explore_Presentations')" to="workflow" />
 
         <div id="cy" class="h-75 w-75"></div>
 

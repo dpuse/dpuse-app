@@ -259,7 +259,6 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
                 </Button>
             </nav>
 
-            <!-- TODO: <Button :disabled="!workbenchPaneIsVisible" variant="iconLarge" @click="toggleKnowledgeAppPane()"> -->
             <Button
                 :aria-label="t(T, 'k.toggle.label.aria')"
                 class="bg-surface rounded-full!"
