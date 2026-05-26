@@ -228,7 +228,7 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
           z-90: ProgressBar
           -->
         <!-- Mask - Semi-transparent mask over the top safe area, so scrolling content fades out beneath it. -->
-        <div class="via-surface/80 to-surface/95 fixed inset-x-0 top-0 z-30 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-25%" />
+        <div class="via-surface/80 to-surface/95 fixed inset-x-0 top-0 z-40 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-25%" />
 
         <!-- Navigation progress bar. Always visible. -->
         <ProgressBar class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-90" />
@@ -305,11 +305,12 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
         <WorkbenchOptionBar v-if="!viewportIsWide" :is-visible="workbenchOptionBarIsVisible" @continue="closeOptionBarOnNarrowDisplay()" />
 
         <!-- Left Pane - Workbench option bar (wide only) and panel. -->
-        <main
+        <div
             v-if="workbenchPaneActivated"
             v-show="workbenchPaneIsVisible"
             class="grid h-full"
             :class="viewportIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
+            data-region="workbenchPane"
             :style="[workbenchPaneStyle, { 'container-type': 'inline-size' }]"
             @pointerdown="activeAppPaneId = 'workbench'"
             @scroll.capture="activeAppPaneId = 'workbench'"
@@ -324,7 +325,7 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
                     </Transition>
                 </RouterView>
             </div>
-        </main>
+        </div>
 
         <!-- Vertical Splitter - Only visible if display is wide and both panes are visible. -->
         <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
@@ -334,6 +335,7 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
             v-if="knowledgePaneActivated"
             v-show="knowledgePaneIsVisible"
             class="flex h-full"
+            data-region="knowledgePane"
             :style="knowledgePaneStyle"
             @pointerdown="activeAppPaneId = 'knowledge'"
             @scroll.capture="activeAppPaneId = 'knowledge'"
