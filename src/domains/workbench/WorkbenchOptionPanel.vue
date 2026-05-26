@@ -33,7 +33,7 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
 
 <template>
     <nav
-        class="border-boundary bg-backdrop flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-r pt-[calc(env(safe-area-inset-top)+55px)] pb-(--vertical-scroll-bottom-screen-inset) pl-[env(safe-area-inset-left)]"
+        class="border-boundary bg-backdrop mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-r pt-[calc(55px)] pb-(--vertical-scroll-bottom-screen-inset) pl-[env(safe-area-inset-left)]"
         data-region="WorkbenchOptionPanel"
     >
         <!-- Separator -->
