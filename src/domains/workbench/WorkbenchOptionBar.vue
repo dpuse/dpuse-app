@@ -13,7 +13,7 @@ defineEmits<{ continue: [] }>();
 </script>
 
 <template>
-    <div class="h-full" data-region="WorkbenchOptionBar">
+    <div class="h-full pt-[env(safe-area-inset-top)]" data-region="WorkbenchOptionBar">
         <WorkbenchOptionPanel v-if="viewportIsWide" class="flex" @continue="$emit('continue')" />
 
         <Transition appear name="horizontal-slide-ltr">
