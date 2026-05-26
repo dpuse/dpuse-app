@@ -1,5 +1,5 @@
 <template>
-    <svg viewBox="0 0 333 263" data-component="DPUseLogo">
+    <svg viewBox="0 0 333 263" data-region="DPUseLogo">
         <path
             fill="#3b82f6"
             d="M128.947 122.88c6.104 0 11.053 4.949 11.053 11.053v117.894c0 6.105-4.949 11.053-11.053 11.053H70c-38.66 0-70-31.339-70-70 0-38.659 31.34-70 70-70z"

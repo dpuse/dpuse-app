@@ -32,9 +32,9 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
 </script>
 
 <template>
-    <aside
+    <nav
         class="border-boundary bg-backdrop flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-r pt-[calc(env(safe-area-inset-top)+55px)] pb-(--vertical-scroll-bottom-screen-inset) pl-[env(safe-area-inset-left)]"
-        data-component="WorkbenchOptionPanel"
+        data-region="WorkbenchOptionPanel"
     >
         <!-- Separator -->
         <div class="bg-separator mx-3 h-px flex-none" />
@@ -65,5 +65,5 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
         </ScrollArea>
 
         <Separator class="mx-3" />
-    </aside>
+    </nav>
 </template>

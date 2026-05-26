@@ -256,7 +256,7 @@ function clamp(value: number, min: number, max: number): number {
 </script>
 
 <template>
-    <div class="dpuse-scroll-area-wrapper" data-component="ScrollArea">
+    <div class="dpuse-scroll-area-wrapper" data-region="ScrollArea">
         <div :id="scrollElementId" ref="scrollElement" :class="['dpuse-scroll-area', scrollAreaPadding]">
             <slot />
         </div>

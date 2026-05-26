@@ -93,7 +93,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 </script>
 
 <template>
-    <div class="flex min-h-0 flex-col" data-component="AccountDialog">
+    <div class="flex min-h-0 flex-col" data-region="AccountDialog">
         <!-- <div class="fixed inset-0 z-50">
         <div
             role="dialog"

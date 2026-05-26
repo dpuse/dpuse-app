@@ -49,7 +49,7 @@ async function testAuth(): Promise<void> {
 </script>
 
 <template>
-    <form class="relative flex h-full flex-col pl-4" data-component="SelectConnectionForm" @submit.prevent="handleSubmit">
+    <form class="relative flex h-full flex-col pl-4" data-region="SelectConnectionForm" @submit.prevent="handleSubmit">
         <ScrollArea class="flex-1" scroll-area-padding="screen">
             <div class="flex flex-col gap-y-4 pt-2">
                 {{ connectionLocalisedConfig?.connectorConfig.description.en }}

@@ -69,7 +69,7 @@ async function handleSelectItem(row: T): Promise<void> {
 </script>
 
 <template>
-    <div class="flex h-full flex-col" data-component="GridDetailPanel">
+    <div class="flex h-full flex-col" data-region="GridDetailPanel">
         <!-- Header -->
         <header class="mx-4 flex-none">
             <slot name="header" />

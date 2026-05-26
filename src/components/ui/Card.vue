@@ -17,7 +17,7 @@ const isHovering = ref(false);
     <div
         class="bg-card outline-boundary hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover relative flex h-full w-full cursor-pointer flex-col gap-y-4 font-light outline -outline-offset-1 transition-colors"
         :class="isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4'"
-        data-component="Card"
+        data-region="Card"
         role="presentation"
         @focusin="isHovering = true"
         @focusout="isHovering = false"

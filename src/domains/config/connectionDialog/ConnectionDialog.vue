@@ -110,7 +110,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 </script>
 
 <template>
-    <div class="flex min-h-0 flex-col" data-component="ConnectionDialog">
+    <div class="flex min-h-0 flex-col" data-region="ConnectionDialog">
         <DialogHeader :title="t(T, 'Manage_Connection')" />
 
         <GridDetailPanel

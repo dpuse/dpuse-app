@@ -7,7 +7,7 @@ defineProps<{ messageItemLabel: string; descriptionItemLabel: string; actionItem
 </script>
 
 <template>
-    <div class="mt-[7.5vh] text-center" data-component="EmptyPlaceholder">
+    <div class="mt-[7.5vh] text-center" data-region="EmptyPlaceholder">
         <svg class="mx-auto size-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path
                 vector-effect="non-scaling-stroke"

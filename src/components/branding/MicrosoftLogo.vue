@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <svg viewBox="0 0 23 23" data-component="MicrosoftLogo">
+    <svg viewBox="0 0 23 23" data-region="MicrosoftLogo">
         <path fill="transparent" d="M0 0h23v23H0z" />
         <path fill="#f35325" d="M1 1h10v10H1z" />
         <path fill="#81bc06" d="M12 1h10v10H12z" />

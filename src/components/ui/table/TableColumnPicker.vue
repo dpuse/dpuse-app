@@ -28,7 +28,7 @@ function onDocumentClick(event: MouseEvent): void {
 </script>
 
 <template>
-    <div class="flex items-center border-b border-zinc-200 px-3 py-1.5 dark:border-zinc-700" data-component="TableColumnPicker">
+    <div class="flex items-center border-b border-zinc-200 px-3 py-1.5 dark:border-zinc-700" data-region="TableColumnPicker">
         <div ref="picker" class="relative">
             <button
                 class="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"

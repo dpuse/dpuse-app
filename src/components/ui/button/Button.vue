@@ -91,7 +91,7 @@ const classes = computed((): (string | string[] | undefined)[] => {
         :is="to ? RouterLink : 'button'"
         class="transition-[background-color] duration-150 focus-visible:outline-none"
         :class="classes"
-        data-component="Button"
+        data-region="Button"
         v-bind="to ? { to } : { type }"
     >
         <slot />

@@ -23,7 +23,7 @@ function handleInput(event: Event): void {
 </script>
 
 <template>
-    <label :for="id ?? generatedId" :class="labelHidden ? 'sr-only' : ''" data-component="Input">{{ label }}</label>
+    <label :for="id ?? generatedId" :class="labelHidden ? 'sr-only' : ''" data-region="Input">{{ label }}</label>
     <input
         :id="id ?? generatedId"
         :name="id ?? generatedId"

@@ -6,7 +6,7 @@ const { isDark } = defineProps<{ isDark?: boolean }>();
 </script>
 
 <template>
-    <svg viewBox="0 0 17 17" :class="{ 'fill-white': isDark }" data-component="GitHubLogo">
+    <svg viewBox="0 0 17 17" :class="{ 'fill-white': isDark }" data-region="GitHubLogo">
         <g clip-path="url(#clip0_2000_52709)">
             <path
                 fill-rule="evenodd"

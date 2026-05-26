@@ -1,5 +1,5 @@
 <template>
-    <section class="bg-surface flex h-full flex-col" data-component="LayoutShell">
+    <section class="bg-surface flex h-full flex-col" data-region="LayoutShell">
         <slot />
     </section>
 </template>

@@ -213,23 +213,21 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
 </script>
 
 <template>
-    <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]" data-component="App">
+    <div class="bg-surface text-content fixed inset-0 flex pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]" data-region="App">
         <!--
           z-10: Content: WorkbenchPane (includes fixed WorkbenchOptionBar), PaneSplitter & KnowledgePane
-          z-20: TopFadeMask, KnowledgeToggle
+          z-20: TopFadeOut, KnowledgeToggle
           z-30: WorkbenchOptionBar (floating)
           z-40: WorkbenchToggle
           z-50: BusyMask
-          z-60:
-          z-70:
-          z-80: DialogShell's
-          z-90: ProgressBar
+          z-60: DialogShell's
+          z-70: ProgressBar
           -->
         <!-- Mask - Semi-transparent mask over the top safe area, so scrolling content fades out beneath it. -->
-        <div class="via-surface/80 to-surface/95 fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-25%" />
+        <div class="via-surface/80 to-surface/95 fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-25%" data-region="topFadeOut" />
 
         <!-- Navigation progress bar. Always visible. -->
-        <ProgressBar class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-90" />
+        <ProgressBar class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-70" />
 
         <!-- Busy mask - shown during non-dialog async component loading to prevent duplicate actions. -->
         <BusyMask v-if="isBusy" class="z-50" />
@@ -246,8 +244,8 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
         </Button>
 
         <!-- Knowledge toggle fixed in top right corner. Always visible. -->
-        <div class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20 flex">
-            <nav v-if="viewportIsWide || knowledgeOptionBarIsVisible">
+        <div class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20 flex" data-region="knowledgeBar">
+            <nav v-if="viewportIsWide || knowledgeOptionBarIsVisible" data-region="knowledgeOptions">
                 <Button :aria-label="t(T, 'k.select.about.aria')" shape="icon" @click="selectKnowledgePanel('about')">
                     <InfoIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
@@ -273,28 +271,26 @@ function establishActiveAppPaneId(viewportIsWide: boolean): void {
             </Button>
         </div>
 
-        <!-- Session button - always visible, independent of pane state -->
-        <div class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-80">
-            <SessionButton :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
-        </div>
+        <!-- Session button - always visible. -->
+        <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-60" :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
 
         <!-- Authentication dialog activated using url parameter 'dlg=auth'. -->
         <Transition name="dialog">
-            <DialogShell v-if="authDialogIsVisible" v-slot="{ close }" class="z-80">
+            <DialogShell v-if="authDialogIsVisible" v-slot="{ close }" class="z-60">
                 <AuthDialog :close="close" />
             </DialogShell>
         </Transition>
 
         <!-- Account dialog activated using url parameter 'dlg=account'. -->
         <Transition name="dialog">
-            <DialogShell v-if="accountDialogIsVisible" v-slot="{ close }" class="z-80">
+            <DialogShell v-if="accountDialogIsVisible" v-slot="{ close }" class="z-60">
                 <AccountDialog :close="close" />
             </DialogShell>
         </Transition>
 
         <!-- Connection dialog activated using url parameter 'dlg=connection'. -->
         <Transition name="dialog">
-            <DialogShell v-if="connectionDialogIsVisible" v-slot="{ close }" class="z-80">
+            <DialogShell v-if="connectionDialogIsVisible" v-slot="{ close }" class="z-60">
                 <ConnectionDialog :close="close" />
             </DialogShell>
         </Transition>

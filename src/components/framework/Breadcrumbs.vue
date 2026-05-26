@@ -23,7 +23,7 @@ const enrichedItems = computed(() =>
 </script>
 
 <template>
-    <div class="flex min-w-0 items-center overflow-hidden" data-component="Breadcrumbs">
+    <div class="flex min-w-0 items-center overflow-hidden" data-region="Breadcrumbs">
         <template v-for="({ item, isDisabled }, index) in enrichedItems" :key="item.id">
             <!-- Breadcrumb Separator -->
             <span v-if="index > 0" class="text-subtle mx-1.5 flex-none">/</span>
