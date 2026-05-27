@@ -1,16 +1,21 @@
 <script setup lang="ts">
+// External Dependencies
+import cytoscape from 'cytoscape';
+import { onMounted } from 'vue';
+
 // Local (App) Framework
 import { t } from '@/state/locale';
 import T from './ExplorePresentationsLayout.json';
 
 // Local Components - Static
-import LayoutShell from '@/components/ui/LayoutShell.vue';
+import Separator from '@/components/ui/Separator.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
+import WorkbenchLayout from '../../WorkbenchLayout.vue';
 
-import cytoscape from 'cytoscape';
-import { onMounted } from 'vue';
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, sonarjs/no-unused-vars, sonarjs/no-dead-store -- We may need this.
     const cy = cytoscape({
         container: document.querySelector('#cy'), // container to render in
         elements: [
@@ -30,11 +35,11 @@ onMounted(() => {
 </script>
 
 <template>
-    <LayoutShell>
-        <WorkbenchHeader class="mx-4" :overline="t(T, 'wb.label')" :title="t(T, 'Explore_Presentations')" to="workflow" />
-
-        <div id="cy" class="h-75 w-75"></div>
+    <WorkbenchLayout>
+        <WorkbenchHeader class="mx-4 flex-none" :overline="t(T, 'wb.label')" :title="t(T, 'Explore_Presentations')" to="workflow" />
 
         <!-- <RouterView /> -->
-    </LayoutShell>
+        <Separator class="mx-4" />
+        <div id="cy" class="flex-1"></div>
+    </WorkbenchLayout>
 </template>

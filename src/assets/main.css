@@ -113,25 +113,6 @@ html {
     opacity: 0;
 }
 
-/* Vue Transition - Route fade (App.vue page-level route transition). */
-.route-fade-enter-active,
-.route-fade-leave-active {
-    transition: opacity 0.15s ease;
-}
-.route-fade-enter-from,
-.route-fade-leave-to {
-    opacity: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .dialog-enter-active,
-    .dialog-leave-active,
-    .route-fade-enter-active,
-    .route-fade-leave-active {
-        transition: none;
-    }
-}
-
 /*
  * Vue Transition - Horizontal slide left to right.
  * Two-class pattern: outer selector fades the wrapper (opacity), inner

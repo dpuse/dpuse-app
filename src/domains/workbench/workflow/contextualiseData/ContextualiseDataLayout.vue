@@ -11,8 +11,9 @@ import { t } from '@/state/locale';
 import T from './ContextualiseDataLayout.json';
 
 // Local Components - Static
-import LayoutShell from '@/components/ui/LayoutShell.vue';
+import Separator from '@/components/ui/Separator.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
+import WorkbenchLayout from '../../WorkbenchLayout.vue';
 
 // Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -193,16 +194,16 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <LayoutShell>
+    <WorkbenchLayout>
         <WorkbenchHeader class="mx-4 flex-none" :overline="t(T, 'wb.label')" :title="t(T, 'Contextualise_Data')" to="workflow" />
 
+        <!-- <RouterView /> -->
+        <Separator class="mx-4" />
         <div class="px-4 py-2">
             <button class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50" type="button" @click="onAutoLayout">
                 Auto-layout
             </button>
         </div>
-
         <div ref="container" class="w-full flex-1" />
-        <!-- <RouterView /> -->
-    </LayoutShell>
+    </WorkbenchLayout>
 </template>

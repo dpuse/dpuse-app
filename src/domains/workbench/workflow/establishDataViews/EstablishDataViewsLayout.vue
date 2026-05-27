@@ -11,8 +11,8 @@ import T from './EstablishDataViewsLayout.json';
 import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
-import LayoutShell from '@/components/ui/LayoutShell.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
+import WorkbenchLayout from '../../WorkbenchLayout.vue';
 import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -68,7 +68,7 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
 </script>
 
 <template>
-    <LayoutShell>
+    <WorkbenchLayout>
         <!-- Header -->
         <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Establish_Data_Views')" :to="navigateBackRouteName" />
 
@@ -82,5 +82,5 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
                 <component :is="Component" v-else class="min-h-0 flex-1" :task-localised-config="activeTaskLocalisedConfig" @task-completed="handleTaskCompleted" />
             </RouterView>
         </div>
-    </LayoutShell>
+    </WorkbenchLayout>
 </template>

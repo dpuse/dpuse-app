@@ -33,6 +33,7 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
 
 <template>
     <nav
+        aria-label="Workbench options"
         class="border-boundary bg-backdrop mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-r pt-[calc(55px)] pb-[calc(var(--vertical-scroll-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
         data-region="WorkbenchOptionPanel"
     >

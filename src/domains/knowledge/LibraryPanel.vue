@@ -28,7 +28,7 @@ let client: ChatClient;
 onMounted(() => {
     client = new ChatClient({
         connection: fetchServerSentEvents('https://api.dpuse.app/ai/anthropic/chat'),
-        body: { model: 'claude-sonnet-4-5' },
+        body: { model: 'claude-sonnet-4-6' },
         initialMessages: [],
         onMessagesChange: (messages): void => {
             for (const message of messages) {
@@ -63,8 +63,8 @@ async function runTest(): Promise<void> {
 </script>
 
 <template>
-    <div>
-        <KnowledgeHeader class="mx-4" :overline="'Knowledge'" :title="title" />
+    <div class="flex h-full flex-col">
+        <KnowledgeHeader class="mx-4 flex-none" :overline="'Knowledge'" :title="title" />
 
         <div class="flex flex-1 flex-col overflow-y-hidden px-4">
             <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto py-4 font-light wrap-break-word">

@@ -49,7 +49,8 @@ try {
     // Create and mount application.
     const app = createApp(App);
     app.config.errorHandler = (error, instance, info): void => {
-        const data = { componentName: instance?.$options?.__name ?? undefined, info, typeId: 'unhandledVueRuntime' };
+        // TODO: Changed from 'instance?.$options?.__name' to 'instance?.$.type?.name'. Ensure this works.
+        const data = { componentName: instance?.$.type?.name ?? undefined, info, typeId: 'unhandledVueRuntime' };
         reportAppError(new AppError('Unhandled Vue error.', 'dpuse.main', data, { cause: error ?? 'Unknown Vue runtime error.' }));
     };
     app.use(createAppRouter());

@@ -9,7 +9,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import Button from '@/components/ui/button/Button.vue';
 import Grid from '@/components/framework/Grid.vue';
 import type { ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
-import ActionBar, { type CommitVariant, type ItemAction } from './ActionBar.vue';
+import DetailActionBar, { type CommitVariant, type ItemAction } from './DetailActionBar.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -93,11 +93,11 @@ async function handleSelectItem(row: T): Promise<void> {
             </div>
 
             <!-- Detail (Right) Pane -->
-            <div class="gdp-detail border-separator mr-4 min-w-0 flex-1" style="container-type: inline-size">
+            <div class="gdp-detail mr-4 min-w-0 flex-1 border-separator" style="container-type: inline-size">
                 <!-- Detail Panel -->
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
-                    <div class="border-separator ml-4 flex h-10 items-center gap-x-1 border-b text-sm">
+                    <div class="ml-4 flex h-10 items-center gap-x-1 border-b border-separator text-sm">
                         <!-- Icon -->
                         <div class="flex size-7 items-center justify-center">
                             <div v-if="activeItem.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="activeItem.icon || activeItem.iconDark" />
@@ -111,7 +111,7 @@ async function handleSelectItem(row: T): Promise<void> {
                     <!-- Detail Body -->
                     <div class="min-h-0 flex-1">
                         <slot name="detail" :item="activeItem" />
-                        <ActionBar
+                        <DetailActionBar
                             class="absolute right-4 bottom-(--safe-bottom-offset)"
                             :commit-variant="commitVariant"
                             :item-actions="itemActions"

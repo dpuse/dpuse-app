@@ -27,7 +27,7 @@ async function handleClose(): Promise<void> {
 
         <div
             aria-modal="true"
-            class="bg-surface text-content relative flex h-full max-h-full w-full max-w-full flex-col pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))] md:absolute md:top-[5%] md:left-1/2 md:h-auto md:max-h-[90vh] md:w-3xl md:max-w-[calc(100vw-2rem)] md:-translate-x-1/2 md:rounded-lg md:p-0"
+            class="relative flex h-full max-h-full w-full max-w-full flex-col bg-surface pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))] text-content md:absolute md:top-[5%] md:left-1/2 md:h-auto md:max-h-[90vh] md:w-3xl md:max-w-[calc(100vw-2rem)] md:-translate-x-1/2 md:rounded-lg md:p-0"
             role="dialog"
             style="container-type: inline-size"
             tabindex="-1"
