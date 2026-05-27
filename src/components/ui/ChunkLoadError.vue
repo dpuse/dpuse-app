@@ -1,21 +1,38 @@
 <script setup lang="ts">
+// External Dependencies
+import { RefreshCwIcon, TriangleAlertIcon } from 'lucide-vue-next';
+
+// Local (App) Framework
+import { reloadApplication } from '@/utils/reload';
+
+// Local Components - Static
+import Button from '@/components/ui/button/Button.vue';
+
 // Options, Properties, Slots & Emits
 const { chunkName, error } = defineProps<{ chunkName?: string; error: unknown }>();
+
+function handleReloadApplication(): void {
+    reloadApplication();
+}
 </script>
 
 <template>
-    <div class="mt-[7.5vh] text-center" data-region="ChunkLoadError">
-        <svg class="text-subtle mx-auto size-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path
-                vector-effect="non-scaling-stroke"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
-            />
-        </svg>
-        <h3 class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">Failed to load {{ chunkName ?? 'component' }}</h3>
-        <p class="text-muted mt-1 text-sm">This section could not be loaded. Check your connection and try again.</p>
-        <p class="text-subtle mt-1 font-mono text-xs">{{ error instanceof Error ? error.message : String(error) }}</p>
+    <div
+        class="mx-auto mt-[7.5vh] max-w-lg rounded-lg border border-amber-200/70 bg-amber-50/70 px-4 py-5 text-center dark:border-amber-300/30 dark:bg-amber-300/10"
+        data-region="ChunkLoadError"
+    >
+        <TriangleAlertIcon class="mx-auto size-12 text-amber-700 dark:text-amber-300" stroke-width="1" />
+        <h3 class="mt-2 text-sm font-semibold text-amber-900 dark:text-amber-100">Failed to load {{ chunkName ?? 'component' }} component.</h3>
+        <p class="mt-1 text-sm text-amber-800 dark:text-amber-200">
+            You may be using an outdated version of the app and this component hasn’t loaded yet, or your internet connection may be unstable. Please check your connection and
+            reload the app.
+        </p>
+        <p class="mt-2 rounded px-2 py-1 font-mono text-xs text-amber-900 dark:text-amber-100">
+            {{ error instanceof Error ? error.message : String(error) }}
+        </p>
+        <Button class="mx-auto mt-4 flex items-center" variant="guarded" @click="handleReloadApplication">
+            <RefreshCwIcon class="mr-1.5 size-4" />
+            Reload App
+        </Button>
     </div>
 </template>

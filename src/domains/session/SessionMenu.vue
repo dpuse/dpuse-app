@@ -9,6 +9,7 @@ import { formatNumberAsDuration } from '@dpuse/dpuse-shared/utilities';
 import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
 // Local (App) Framework
+import { reloadApplication } from '@/utils/reload';
 import T from './SessionMenu.json';
 import { expiresIn, isAuthenticated, lifetime, setSessionExpiryTimer, signOut } from '@/state/session';
 import { isPWA, viewportIsWide } from '@/state/appLayout';
@@ -69,7 +70,7 @@ function handleManageAccount(): void {
 }
 
 function handleReloadApplication(): void {
-    globalThis.location.reload(); // TODO: Should we "globalThis.location.href = '/your/path';" to also reset the url".
+    reloadApplication();
 }
 
 function handleSetAppearance(mode: 'dark' | 'light' | 'auto'): void {

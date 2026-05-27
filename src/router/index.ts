@@ -1,16 +1,14 @@
-// TESTING: Promise.reject(new Error('Simulated chunk failure')).catch((error) => handleLoadError('explorePresentations', error))
-
 // External Dependencies
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior, START_LOCATION } from 'vue-router';
 
 // Local (App) Framework
 import { load } from '@/utils/component';
-import { completeNavigation, startNavigation } from '@/state/appProgress';
+import { completeNavigation, failNavigation, startNavigation } from '@/state/appProgress';
 
 // Local Components - Dynamic
-const AdminHomeLayout = load('admin', () => import('@/domains/workbench/admin/AdminHomeLayout.vue'));
-const PartnerHomeLayout = load('partner', () => import('@/domains/workbench/partner/PartnerHomeLayout.vue'));
-const WorkflowHomeLayout = load('workflow', () => import('@/domains/workbench/workflow/WorkflowHomeLayout.vue'));
+const AdminHomeLayout = load('Admin', () => import('@/domains/workbench/admin/AdminHomeLayout.vue'));
+const PartnerHomeLayout = load('Partner', () => import('@/domains/workbench/partner/PartnerHomeLayout.vue'));
+const WorkflowHomeLayout = load('Workflow', () => import('@/domains/workbench/workflow/WorkflowHomeLayout.vue'));
 
 const EstablishDataViewsLayout = load('establishDataViews', () => import('@/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.vue'));
 const DataViewList = load('establishDataViews', () => import('@/domains/workbench/workflow/establishDataViews/DataViewList.vue'));
@@ -27,7 +25,7 @@ const EventQueryList = load('contextualiseData', () => import('@/domains/workben
 
 const ExplorePresentationsLayout = load('explorePresentations', () => import('@/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.vue'));
 
-const BuildDataAppsLayout = load('buildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'));
+const BuildDataAppsLayout = load('buildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'), 3000);
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -95,7 +93,7 @@ export const createAppRouter = (): Router => {
     });
 
     router.afterEach(() => completeNavigation());
-    router.onError(() => completeNavigation());
+    router.onError(() => failNavigation());
 
     return router;
 };

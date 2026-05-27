@@ -5,41 +5,30 @@ import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next
 import { useRoute, useRouter } from 'vue-router';
 
 // Local (App) Framework
+import { buildLoadOptions } from '@/utils/component';
 import { initialiseServices } from '@/state/session';
-import { isBusy } from '@/state/appProgress';
-import { load } from '@/utils/component';
 import T from './App.json';
 import { t } from '@/state/locale';
+import { busyLoadingState, navLoadingState } from '@/state/appProgress';
 import { contentScrollPosition, knowledgePaneIsVisible, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // Local Components - Static
-import BusyMask from '@/components/ui/BusyMask.vue'; // Shown during non-dialog async component loading to prevent duplicate actions.
 import Button from '@/components/ui/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
-import ChunkLoadError from '@/components/ui/ChunkLoadError.vue';
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue'; // Static so dialog mask appears immediately on open.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
-import NavMask from '@/components/framework/NavMask.vue'; // Shown during route component loading - transparent blocker immediately, visible overlay when progress bar shows.
+import LoadingMask from '@/components/framework/LoadingMask.vue'; // Shown during route component loading — transparent blocker immediately, visible overlay when progress bar shows.
 import ProgressBar from '@/components/framework/ProgressBar.vue'; // Required when lazy loading is delayed.
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
 
 // Local Components - Dynamic
-const AccountDialog = defineAsyncComponent({ loader: load('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue'), 0), errorComponent: ChunkLoadError });
-const AuthDialog = defineAsyncComponent({ loader: load('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0), errorComponent: ChunkLoadError });
-const ConnectionDialog = defineAsyncComponent({
-    loader: load('connectionDialog', () => import('@/domains/config/connectionDialog/ConnectionDialog.vue'), 0),
-    errorComponent: ChunkLoadError
-});
-const KnowledgeLayout = defineAsyncComponent({ loader: load('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue'), 0), errorComponent: ChunkLoadError });
-const PaneSplitter = defineAsyncComponent({
-    loader: load('paneSplitter', () => import('@/components/ui/PaneSplitter.vue'), 0),
-    errorComponent: ChunkLoadError
-});
-const WorkbenchOptionBar = defineAsyncComponent({
-    loader: load('workbenchOptionBar', () => import('@/domains/workbench/WorkbenchOptionBar.vue'), 0),
-    errorComponent: ChunkLoadError
-});
+const AccountDialog = defineAsyncComponent(buildLoadOptions('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue')));
+const AuthDialog = defineAsyncComponent(buildLoadOptions('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0));
+const ConnectionDialog = defineAsyncComponent(buildLoadOptions('connectionDialog', () => import('@/domains/config/connectionDialog/ConnectionDialog.vue')));
+const KnowledgeLayout = defineAsyncComponent(buildLoadOptions('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue')));
+const PaneSplitter = defineAsyncComponent(buildLoadOptions('paneSplitter', () => import('@/components/ui/PaneSplitter.vue')));
+const WorkbenchOptionBar = defineAsyncComponent(buildLoadOptions('workbenchOptionBar', () => import('@/domains/workbench/WorkbenchOptionBar.vue')));
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -228,8 +217,8 @@ function establishPaneSplitterPercent(): number {
           z-20: topFadeOut, knowledgeActionBar
           z-30: WorkbenchOptionBar (floating)
           z-40: workbenchPaneToggle
-          z-50: BusyMask
-          z-55: NavMask
+          z-50: LoadingMask (busy — dialogs and async components)
+          z-55: LoadingMask (navigation)
           z-60: DialogLayout/AuthDialog, DialogLayout/AccountDialog & DialogLayout/ConnectionDialogDialog
           z-70: ProgressBar
           -->
@@ -240,11 +229,11 @@ function establishPaneSplitterPercent(): number {
         <!-- Navigation progress bar. Always visible. -->
         <ProgressBar class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-70" />
 
-        <!-- Busy mask - shown during non-dialog async component loading to prevent duplicate actions. -->
-        <BusyMask v-if="isBusy" class="z-50" />
+        <!-- Busy loading mask - shown during dialog and async component loading. -->
+        <LoadingMask :state="busyLoadingState" class="z-50" />
 
-        <!-- Nav mask - transparent blocker on route change, fades to visible overlay while component downloads. -->
-        <NavMask class="z-55" />
+        <!-- Nav loading mask - transparent blocker on route change, fades to visible overlay while component downloads. -->
+        <LoadingMask :state="navLoadingState" class="z-55" />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
@@ -289,28 +278,28 @@ function establishPaneSplitterPercent(): number {
         <!-- Session Button - Always visible. -->
         <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-60" :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
 
-        <!-- Authentication Dialog - Activated using url parameter 'dlg=auth'. -->
+        <!-- Authentication Dialog - Activated using URL parameter 'dlg=auth'. -->
         <Transition name="dialog">
             <DialogLayout v-if="authDialogIsVisible" v-slot="{ close }" class="z-60">
                 <AuthDialog :close="close" />
             </DialogLayout>
         </Transition>
 
-        <!-- Account Dialog - Activated using url parameter 'dlg=account'. -->
+        <!-- Account Dialog - Activated using URL parameter 'dlg=account'. -->
         <Transition name="dialog">
             <DialogLayout v-if="accountDialogIsVisible" v-slot="{ close }" class="z-60">
                 <AccountDialog :close="close" />
             </DialogLayout>
         </Transition>
 
-        <!-- Connection Dialog - Activated using url parameter 'dlg=connection'. -->
+        <!-- Connection Dialog - Activated using URL parameter 'dlg=connection'. -->
         <Transition name="dialog">
             <DialogLayout v-if="connectionDialogIsVisible" v-slot="{ close }" class="z-60">
                 <ConnectionDialog :close="close" />
             </DialogLayout>
         </Transition>
 
-        <!-- Workbench Option Bar - Only rendered when viewport is narrow.. -->
+        <!-- Workbench Option Bar - Only rendered when viewport is narrow. -->
         <WorkbenchOptionBar v-if="!viewportIsWide" class="z-30" :is-visible="workbenchOptionBarIsVisible" @continue="handleWorkbenchOptionBarHide" />
 
         <!-- Workbench Pane - Contains workbench layout (via RouterView). Rendered once workbench pane is activated and visible. -->

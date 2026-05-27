@@ -109,7 +109,7 @@ async function handleSelectItem(row: T): Promise<void> {
                     </div>
 
                     <!-- Detail Body -->
-                    <div class="min-h-0 flex-1">
+                    <div class="relative min-h-0 flex-1">
                         <slot name="detail" :item="activeItem" />
                         <DetailActionBar
                             class="absolute right-4 bottom-(--safe-bottom-offset)"

@@ -1,81 +1,58 @@
 // External Dependencies
-import { ref } from 'vue';
+import { createLoadingState } from '@/utils/loadingState';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const NAV_DELAY_MS = 150;
-const NAV_MIN_VISIBLE_MS = 350;
-const BUSY_DELAY_MS = 200;
+// State - Navigation ──────────────────────────────────────────────────────────────────────────────────────────────────
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+export const navLoadingState = createLoadingState({
+    visibleDelayMs: 150,
+    minVisibleMs: 350
+});
 
-// Navigation progress bar state - debounced so fast navigations show nothing.
-export const isNavigating = ref(false);
+// Backward-compat alias consumed by ProgressBar.vue.
+export const isNavigating = navLoadingState.isLoading;
 
-// Navigation mask state - fires immediately on navigation start to block interaction.
-export const isRouteChanging = ref(false);
+// Consumed by component.ts to detect whether a chunk error occurred during navigation.
+export const isRouteChanging = navLoadingState.isBlocking;
 
-let showTimer: ReturnType<typeof setTimeout> | null = null;
-let hideTimer: ReturnType<typeof setTimeout> | null = null;
-let showedAt: number | null = null;
+// State - Busy ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Busy mask state - counter-based so concurrent operations don't cancel each other.
-export const isBusy = ref(false);
+export const busyLoadingState = createLoadingState({
+    visibleDelayMs: 200,
+    minVisibleMs: 350
+});
 
+// Counter-based so concurrent async loads don't cancel each other.
 let busyCount = 0;
-let busyTimer: ReturnType<typeof setTimeout> | null = null;
 
-// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Actions - Navigation ────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function startNavigation(): void {
-    isRouteChanging.value = true;
-    if (hideTimer != null) {
-        clearTimeout(hideTimer);
-        hideTimer = null;
-    }
-    showTimer = setTimeout(() => {
-        isNavigating.value = true;
-        showedAt = Date.now();
-    }, NAV_DELAY_MS);
+    navLoadingState.start();
 }
 
 export function completeNavigation(): void {
-    if (showTimer != null) {
-        clearTimeout(showTimer);
-        showTimer = null;
-    }
-    if (!isNavigating.value) {
-        isRouteChanging.value = false;
-        return;
-    }
-    const elapsed = showedAt == null ? NAV_MIN_VISIBLE_MS : Date.now() - showedAt;
-    const remaining = Math.max(0, NAV_MIN_VISIBLE_MS - elapsed);
-    hideTimer = setTimeout(() => {
-        isNavigating.value = false;
-        isRouteChanging.value = false;
-        showedAt = null;
-    }, remaining);
+    navLoadingState.complete();
+}
+
+export function failNavigation(): void {
+    navLoadingState.fail();
 }
 
 // Actions - Busy ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function startBusy(): void {
     busyCount++;
-    if (busyTimer == null) {
-        busyTimer = setTimeout(() => {
-            busyTimer = null;
-            if (busyCount > 0) isBusy.value = true;
-        }, BUSY_DELAY_MS);
-    }
+    busyLoadingState.start();
 }
 
 export function completeBusy(): void {
     busyCount = Math.max(0, busyCount - 1);
-    if (busyCount === 0) {
-        if (busyTimer != null) {
-            clearTimeout(busyTimer);
-            busyTimer = null;
-        }
-        isBusy.value = false;
-    }
+    if (busyCount === 0) busyLoadingState.complete();
+}
+
+export function failBusy(): void {
+    busyCount = 0;
+    busyLoadingState.fail();
 }

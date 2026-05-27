@@ -1,11 +1,15 @@
 <script setup lang="ts">
 // External Dependencies
-import { LoaderCircleIcon, XIcon } from 'lucide-vue-next';
+import { XIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
+
+// Local (App) Framework
+import { busyLoadingState } from '@/state/appProgress';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import DialogMask from '@/components/ui/dialog/DialogMask.vue';
+import LoadingMask from '@/components/framework/LoadingMask.vue';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -32,24 +36,16 @@ async function handleClose(): Promise<void> {
             style="container-type: inline-size"
             tabindex="-1"
         >
-            <!-- Close Button -->
-            <Button class="absolute top-[calc(env(safe-area-inset-top)+12px)] right-(--safe-right-offset) md:top-3 md:right-3" shape="icon" @click="handleClose">
+            <!-- Close Button - z-10 keeps it above the LoadingMask -->
+            <Button class="absolute top-[calc(env(safe-area-inset-top)+12px)] right-(--safe-right-offset) z-10 md:top-3 md:right-3" shape="icon" @click="handleClose">
                 <XIcon stroke-width="1.25" />
             </Button>
 
-            <!-- Content -->
-            <!-- <Suspense>
-                <template #default> -->
-            <slot :close="handleClose" />
-            <!-- </template>
+            <!-- Loading mask - scoped to the dialog panel, shown while async content downloads -->
+            <LoadingMask :state="busyLoadingState" scope="absolute" />
 
-                <template #fallback>
-                    <div class="flex flex-1 items-center justify-center gap-x-1 text-zinc-500">
-                        <LoaderCircleIcon class="animate-spin" />
-                        <span>Loading component...</span>
-                    </div>
-                </template>
-            </Suspense> -->
+            <!-- Content -->
+            <slot :close="handleClose" />
         </div>
     </div>
 </template>
