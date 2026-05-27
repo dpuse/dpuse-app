@@ -18,7 +18,7 @@ function handleReloadApplication(): void {
 
 <template>
     <div
-        class="mx-auto mt-[calc(env(safe-area-inset-top)+7.5vh)] max-w-sm rounded-lg border border-amber-200/70 bg-amber-50/70 px-4 py-5 text-center dark:border-amber-300/30 dark:bg-amber-300/10"
+        class="mx-auto mt-[calc(env(safe-area-inset-top)+7.5vh)] w-[calc(100%-2rem)] max-w-sm rounded-lg border border-amber-200/70 bg-amber-50/70 px-4 py-5 text-center dark:border-amber-300/30 dark:bg-amber-300/10"
         data-region="ChunkLoadError"
     >
         <TriangleAlertIcon class="mx-auto size-12 text-amber-700 dark:text-amber-300" stroke-width="1" />
