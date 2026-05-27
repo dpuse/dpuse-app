@@ -23,12 +23,12 @@ import ProgressBar from '@/components/framework/ProgressBar.vue'; // Required wh
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
 
 // Local Components - Dynamic
-const AccountDialog = defineAsyncComponent(buildLoadOptions('accountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue')));
-const AuthDialog = defineAsyncComponent(buildLoadOptions('authDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0));
-const ConnectionDialog = defineAsyncComponent(buildLoadOptions('connectionDialog', () => import('@/domains/config/connectionDialog/ConnectionDialog.vue')));
-const KnowledgeLayout = defineAsyncComponent(buildLoadOptions('knowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue')));
-const PaneSplitter = defineAsyncComponent(buildLoadOptions('paneSplitter', () => import('@/components/ui/PaneSplitter.vue')));
-const WorkbenchOptionBar = defineAsyncComponent(buildLoadOptions('workbenchOptionBar', () => import('@/domains/workbench/WorkbenchOptionBar.vue')));
+const AccountDialog = defineAsyncComponent(buildLoadOptions('AccountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue')));
+const AuthDialog = defineAsyncComponent(buildLoadOptions('AuthDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0));
+const ConnectionDialog = defineAsyncComponent(buildLoadOptions('ConnectionDialog', () => import('@/domains/config/connectionDialog/ConnectionDialog.vue')));
+const KnowledgeLayout = defineAsyncComponent(buildLoadOptions('KnowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue')));
+const PaneSplitter = defineAsyncComponent(buildLoadOptions('PaneSplitter', () => import('@/components/ui/PaneSplitter.vue')));
+const WorkbenchOptionBar = defineAsyncComponent(buildLoadOptions('WorkbenchOptionBar', () => import('@/domains/workbench/WorkbenchOptionBar.vue')));
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
