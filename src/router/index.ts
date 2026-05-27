@@ -25,7 +25,7 @@ const EventQueryList = load('contextualiseData', () => import('@/domains/workben
 
 const ExplorePresentationsLayout = load('explorePresentations', () => import('@/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.vue'));
 
-const BuildDataAppsLayout = load('buildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'), 3000);
+const BuildDataAppsLayout = load('buildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'), 3000, true);
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
