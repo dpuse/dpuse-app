@@ -20,6 +20,7 @@ import DialogLayout from '@/components/ui/dialog/DialogLayout.vue'; // Static so
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
+import NavMask from '@/components/framework/NavMask.vue'; // Shown during route component loading - transparent blocker immediately, visible overlay when progress bar shows.
 import ProgressBar from '@/components/framework/ProgressBar.vue'; // Required when lazy loading is delayed.
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
 
@@ -228,6 +229,7 @@ function establishPaneSplitterPercent(): number {
           z-30: WorkbenchOptionBar (floating)
           z-40: workbenchPaneToggle
           z-50: BusyMask
+          z-55: NavMask
           z-60: DialogLayout/AuthDialog, DialogLayout/AccountDialog & DialogLayout/ConnectionDialogDialog
           z-70: ProgressBar
           -->
@@ -240,6 +242,9 @@ function establishPaneSplitterPercent(): number {
 
         <!-- Busy mask - shown during non-dialog async component loading to prevent duplicate actions. -->
         <BusyMask v-if="isBusy" class="z-50" />
+
+        <!-- Nav mask - transparent blocker on route change, fades to visible overlay while component downloads. -->
+        <NavMask class="z-55" />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button

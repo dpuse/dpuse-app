@@ -3,14 +3,17 @@ import { ref } from 'vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const NAV_DELAY_MS = 0; // 150
-const NAV_MIN_VISIBLE_MS = 3000; // 350
+const NAV_DELAY_MS = 150;
+const NAV_MIN_VISIBLE_MS = 350;
 const BUSY_DELAY_MS = 200;
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Navigation progress bar state - debounced so fast navigations show nothing.
 export const isNavigating = ref(false);
+
+// Navigation mask state - fires immediately on navigation start to block interaction.
+export const isRouteChanging = ref(false);
 
 let showTimer: ReturnType<typeof setTimeout> | null = null;
 let hideTimer: ReturnType<typeof setTimeout> | null = null;
@@ -25,6 +28,7 @@ let busyTimer: ReturnType<typeof setTimeout> | null = null;
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function startNavigation(): void {
+    isRouteChanging.value = true;
     if (hideTimer != null) {
         clearTimeout(hideTimer);
         hideTimer = null;
@@ -40,11 +44,15 @@ export function completeNavigation(): void {
         clearTimeout(showTimer);
         showTimer = null;
     }
-    if (!isNavigating.value) return;
+    if (!isNavigating.value) {
+        isRouteChanging.value = false;
+        return;
+    }
     const elapsed = showedAt == null ? NAV_MIN_VISIBLE_MS : Date.now() - showedAt;
     const remaining = Math.max(0, NAV_MIN_VISIBLE_MS - elapsed);
     hideTimer = setTimeout(() => {
         isNavigating.value = false;
+        isRouteChanging.value = false;
         showedAt = null;
     }, remaining);
 }
