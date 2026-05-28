@@ -3,8 +3,8 @@ import { type Component, h } from 'vue';
 
 // Local (App) Framework
 import ChunkLoadError from '@/components/ui/ChunkLoadError.vue';
-import { completeBusy, failBusy, startBusy } from '@/state/appLoad';
 import { navLoadingState } from '@/state/appProgress';
+import { completeBusy, failBusy, startBusy } from '@/state/appLoad';
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
