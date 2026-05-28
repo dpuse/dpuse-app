@@ -1,16 +1,18 @@
 <script setup lang="ts">
 // External Dependencies
 import { LoaderCircleIcon } from 'lucide-vue-next';
-import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { computed, defineAsyncComponent, onUnmounted, ref, useTemplateRef, type ComponentPublicInstance } from 'vue';
 
 // Local (App) Framework
-import { viewportIsWide } from '@/state/appLayout';
+import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
 import { expiresIn, isAuthenticated, lifetime } from '@/state/session';
+import { load } from '@/utils/component';
 
 // Local Components - Static
 import AvatarButton from '@/components/ui/button/AvatarButton.vue';
-import DialogMask from '@/components/ui/dialog/DialogMask.vue';
-import SessionMenu from '@/domains/session/SessionMenu.vue';
+
+// Local Components - Dynamic
+const SessionMenu = defineAsyncComponent(load('SessionMenu', () => import('@/domains/session/SessionMenu.vue')));
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -18,7 +20,6 @@ const { workbenchOptionBarIsVisible } = defineProps<{ workbenchOptionBarIsVisibl
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const sessionMenuIsVisible = ref(false);
 
 // ??? Avatar ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -50,19 +51,11 @@ async function gravatarUrl(email: string, size: number): Promise<string> {
     return `https://gravatar.com/avatar/${hashHex}?s=${size}&d=404`;
 }
 
-// Lifecycle Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────
-
-onMounted(() => {
-    // gravatarUrl(emailAddress, 38)
-    //     .then((response) => (avatarUrl.value = response))
-    //     .catch((error) => console.log(error));
-});
-
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const sessionMenuReference = useTemplateRef<InstanceType<typeof SessionMenu>>('sessionMenuReference');
+const sessionMenuReference = useTemplateRef<ComponentPublicInstance>('sessionMenuReference');
 const handleDocumentPointerDown = (event: PointerEvent): void => {
-    if (!sessionMenuIsVisible.value) return;
+    if (!sessionMenuIsOpen.value) return;
     const target = event.target as Element;
     if ((sessionMenuReference.value?.$el as Element | undefined)?.contains(target) === true) return;
     if (target.closest('.dpuse-outside-click-ignore')) return;
@@ -72,7 +65,7 @@ document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: t
 onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true }));
 
 function handleClose(): void {
-    sessionMenuIsVisible.value = false;
+    sessionMenuIsOpen.value = false;
 }
 
 function onMenuAfterLeave(): void {}
@@ -80,19 +73,15 @@ function onMenuAfterLeave(): void {}
 
 <template>
     <div class="flex flex-col">
-        <Transition name="dpuse-mask">
-            <DialogMask v-if="sessionMenuIsVisible && !viewportIsWide" class="z-40" />
-        </Transition>
-
         <Transition :name="viewportIsWide ? 'dpuse-slide-up' : 'dpuse-sheet'" @after-leave="onMenuAfterLeave">
-            <SessionMenu v-if="sessionMenuIsVisible" ref="sessionMenuReference" @continue="handleClose" />
+            <SessionMenu v-if="sessionMenuIsOpen" ref="sessionMenuReference" @continue="handleClose" />
         </Transition>
 
         <AvatarButton
             aria-label="Toggle session panel"
             class="dpuse-outside-click-ignore relative h-10 w-10"
             :class="{ 'bg-surface shadow-md': !viewportIsWide && !workbenchOptionBarIsVisible }"
-            @click="sessionMenuIsVisible = !sessionMenuIsVisible"
+            @click="sessionMenuIsOpen = !sessionMenuIsOpen"
         >
             <Transition name="fade">
                 <!-- Session is authenticated. Show photo or initials. -->
@@ -209,21 +198,5 @@ function onMenuAfterLeave(): void {}
 .dpuse-sheet-leave-from {
     transform: translateY(0);
     opacity: 1;
-}
-
-/* DialogMask fade */
-.dpuse-mask-enter-active,
-.dpuse-mask-leave-active {
-    transition: opacity 0.2s ease;
-}
-@media (prefers-reduced-motion: reduce) {
-    .dpuse-mask-enter-active,
-    .dpuse-mask-leave-active {
-        transition: none;
-    }
-}
-.dpuse-mask-enter-from,
-.dpuse-mask-leave-to {
-    opacity: 0;
 }
 </style>

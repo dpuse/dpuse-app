@@ -15,6 +15,7 @@ export const isDarkMode = ref(document.documentElement.classList.contains('dark'
 export const isLandscape = ref(LANDSCAPE_QUERY.matches);
 export const isPWA = globalThis.matchMedia('(display-mode: standalone)').matches || globalThis.matchMedia('(display-mode: fullscreen)').matches;
 export const knowledgePaneIsVisible = ref(false); // The knowledge pane is actually rendered (visible) in the layout right now.
+export const sessionMenuIsOpen = ref(false); // The session menu overlay is open.
 export const workbenchPaneIsVisible = ref(false); // The workbench pane is actually rendered (visible) in the layout right now.
 
 // Initialisation ──────────────────────────────────────────────────────────────────────────────────────────────────────

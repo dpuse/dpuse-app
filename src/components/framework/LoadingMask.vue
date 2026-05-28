@@ -3,49 +3,57 @@
 import { computed } from 'vue';
 
 // Local (App) Framework
-import type { LoadingState } from '~/src/state/loading';
+import type { ReadableLoadingState } from '@/state/loading';
 
 // Options, Properties, Slots & Emits ─────────────────────────────────────────────────────────────────────────────────
 
 const {
     state,
     message = 'Loading component…',
-    scope = 'fixed'
+    scope = 'fixed',
+    sustained = false,
+    persistScrim = true
 } = defineProps<{
-    state: LoadingState;
+    state: ReadableLoadingState;
     message?: string;
     scope?: 'fixed' | 'absolute';
+    sustained?: boolean;
+    // When true (dialogs): scrim stays visible while sustained. When false (popovers): scrim only shows during loading.
+    persistScrim?: boolean;
 }>();
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const isBlocking = computed(() => state.isBlocking.value);
 const isVisible = computed(() => state.isVisible.value);
+
+// Scrim shows while loading always; after loading only if persistScrim is true (dialogs).
+const showScrim = computed(() => sustained && (isBlocking.value || persistScrim));
+const isInactive = computed(() => !isBlocking.value && !sustained);
 </script>
 
 <template>
-    <!-- Outer transition: no enter (transparent — appears instantly), leave keeps element in DOM so inner can finish fading -->
-    <Transition name="loading-mask-outer">
-        <div v-if="isBlocking" aria-hidden="true" :class="[scope === 'fixed' ? 'fixed' : 'absolute', 'inset-0']" data-region="LoadingMask">
-            <Transition name="loading-mask-inner">
-                <div v-if="isVisible" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface/80">
-                    <p class="text-sm text-muted">{{ message }}</p>
-                </div>
-            </Transition>
-        </div>
-    </Transition>
+    <div
+        aria-hidden="true"
+        :class="[
+            scope === 'fixed' ? 'fixed' : 'absolute',
+            'inset-0',
+            'transition-colors',
+            'duration-300',
+            showScrim ? 'bg-overlay' : 'bg-transparent',
+            isInactive ? 'pointer-events-none' : ''
+        ]"
+        data-region="LoadingMask"
+    >
+        <Transition name="loading-mask-inner">
+            <div v-if="isVisible" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface/80">
+                <p class="text-sm text-muted">{{ message }}</p>
+            </div>
+        </Transition>
+    </div>
 </template>
 
 <style scoped>
-/* Outer: no enter transition (transparent on arrival), leave keeps blocker alive while inner fades out */
-.loading-mask-outer-leave-active {
-    transition: opacity 0.25s ease;
-}
-.loading-mask-outer-leave-to {
-    opacity: 0;
-}
-
-/* Inner: fades in when overlay becomes visible, fades out on complete or error auto-clear */
 .loading-mask-inner-enter-active,
 .loading-mask-inner-leave-active {
     transition: opacity 0.2s ease;
@@ -56,7 +64,6 @@ const isVisible = computed(() => state.isVisible.value);
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .loading-mask-outer-leave-active,
     .loading-mask-inner-enter-active,
     .loading-mask-inner-leave-active {
         transition: none;

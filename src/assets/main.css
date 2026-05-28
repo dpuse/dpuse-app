@@ -52,7 +52,7 @@ html {
     --boundary: var(--color-zinc-100);
     --boundary-hover: var(--color-zinc-300);
     --separator: var(--color-zinc-200);
-    --overlay: rgb(39 39 42 / 0.75);
+    --overlay: color-mix(in srgb, var(--color-zinc-200) 75%, transparent);
     --content: var(--color-zinc-600); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-500);
     --subtle: var(--color-zinc-400);
@@ -69,7 +69,7 @@ html {
     --boundary: var(--color-zinc-800);
     --boundary-hover: var(--color-zinc-500);
     --separator: var(--color-zinc-700);
-    --overlay: rgb(63 63 70 / 0.75);
+    --overlay: color-mix(in srgb, var(--color-zinc-700) 75%, transparent);
     --content: var(--color-zinc-300); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-400);
     --subtle: var(--color-zinc-500);

@@ -11,9 +11,11 @@ import WorkbenchLayout from '../../WorkbenchLayout.vue';
 
 <template>
     <WorkbenchLayout>
-        <WorkbenchHeader class="mx-4" :overline="t(T, 'wb.label')" :title="t(T, 'Build_Data_Apps')" to="workflow" />
+        <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Build_Data_Apps')" to="workflow" />
 
-        <Separator class="mx-4" />
-        <RouterView />
+        <div class="relative flex min-h-0 flex-1 flex-col">
+            <Separator class="mx-4" />
+            <RouterView />
+        </div>
     </WorkbenchLayout>
 </template>

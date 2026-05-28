@@ -36,9 +36,13 @@ onMounted(() => {
 
 <template>
     <WorkbenchLayout>
-        <WorkbenchHeader class="mx-4 flex-none" :overline="t(T, 'wb.label')" :title="t(T, 'Explore_Presentations')" to="workflow" />
+        <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Explore_Presentations')" to="workflow" />
 
-        <!-- <RouterView /> -->
+        <!-- <div class="relative flex min-h-0 flex-1 flex-col">
+            <Separator class="mx-4" />
+            <RouterView />
+        </div> -->
+
         <Separator class="mx-4" />
         <div id="cy" class="flex-1"></div>
     </WorkbenchLayout>

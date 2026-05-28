@@ -1,7 +1,5 @@
 <script setup lang="ts">
 // External Dependencies
-import { PlusIcon } from 'lucide-vue-next';
-import { useRouter } from 'vue-router';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
 // DPUse Framework
@@ -20,7 +18,6 @@ import { useEngine } from '@/services/useEngine';
 import { activeMetaStoreConnectionConfig, dimensionConfigs } from '@/state/session';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
 import Card from '@/components/ui/Card.vue';
 import Grid from '@/components/framework/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
@@ -31,7 +28,6 @@ const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/ui/
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dimensionRetrievalIsActive = ref(false);
-const router = useRouter();
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -80,14 +76,6 @@ async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<
 </script>
 
 <template>
-    <div class="mx-4 flex flex-none border-b border-separator py-1">
-        <div class="flex-1"></div>
-
-        <Button @click="router.push({ name: '???', query: $route.query })">
-            <PlusIcon stroke-width="1.25" />
-        </Button>
-    </div>
-
     <Grid
         v-if="dimensionRetrievalIsActive && dimensionConfigs && dimensionConfigs.length > 0"
         class="flex-1 pb-6"

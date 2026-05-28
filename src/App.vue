@@ -5,12 +5,13 @@ import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next
 import { useRoute, useRouter } from 'vue-router';
 
 // Local (App) Framework
-import { buildLoadOptions } from '@/utils/component';
+import { busyLoadingState } from '@/state/appLoad';
 import { initialiseServices } from '@/state/session';
+import { load } from '@/utils/component';
+import { navLoadingState } from '@/state/appProgress';
 import T from './App.json';
 import { t } from '@/state/locale';
-import { busyLoadingState, navLoadingState } from '@/state/appProgress';
-import { contentScrollPosition, knowledgePaneIsVisible, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
+import { contentScrollPosition, knowledgePaneIsVisible, sessionMenuIsOpen, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
@@ -23,12 +24,12 @@ import ProgressBar from '@/components/framework/ProgressBar.vue'; // Required wh
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
 
 // Local Components - Dynamic
-const AccountDialog = defineAsyncComponent(buildLoadOptions('AccountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue')));
-const AuthDialog = defineAsyncComponent(buildLoadOptions('AuthDialog', () => import('@/domains/session/authDialog/AuthDialog.vue'), 0));
-const ConnectionDialog = defineAsyncComponent(buildLoadOptions('ConnectionDialog', () => import('@/domains/config/connectionDialog/ConnectionDialog.vue')));
-const KnowledgeLayout = defineAsyncComponent(buildLoadOptions('KnowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue')));
-const PaneSplitter = defineAsyncComponent(buildLoadOptions('PaneSplitter', () => import('@/components/ui/PaneSplitter.vue')));
-const WorkbenchOptionBar = defineAsyncComponent(buildLoadOptions('WorkbenchOptionBar', () => import('@/domains/workbench/WorkbenchOptionBar.vue')));
+const AccountDialog = defineAsyncComponent(load('AccountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue')));
+const AuthDialog = defineAsyncComponent(load('AuthDialog', () => import('@/domains/session/authDialog/AuthDialog.vue')));
+const ConnectionDialog = defineAsyncComponent(load('ConnectionDialog', () => import('@/domains/config/connectionDialog/ConnectionDialog.vue')));
+const KnowledgeLayout = defineAsyncComponent(load('KnowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue')));
+const PaneSplitter = defineAsyncComponent(load('PaneSplitter', () => import('@/components/ui/PaneSplitter.vue')));
+const WorkbenchOptionBar = defineAsyncComponent(load('WorkbenchOptionBar', () => import('@/domains/workbench/WorkbenchOptionBar.vue')));
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -56,7 +57,16 @@ const workbenchPaneIsActive = ref(false); // On narrow displays a pane can be ac
 
 const accountDialogIsVisible = computed(() => route.query.dlg === 'account');
 const authDialogIsVisible = computed(() => route.query.dlg === 'auth');
+const anyDialogIsOpen = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value);
+const anyModalIsOpen = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value || sessionMenuIsOpen.value);
 const connectionDialogIsVisible = computed(() => route.query.dlg === 'connection');
+
+// Derived State - Loading ──────────────────────────────────────────────────────────────────────────────────────────────
+
+const componentLoadingState = {
+    isBlocking: computed(() => navLoadingState.isBlocking.value || busyLoadingState.isBlocking.value),
+    isVisible: computed(() => navLoadingState.isVisible.value || busyLoadingState.isVisible.value)
+};
 
 // Derived State - Panes ───────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -217,8 +227,7 @@ function establishPaneSplitterPercent(): number {
           z-20: topFadeOut, knowledgeActionBar
           z-30: WorkbenchOptionBar (floating)
           z-40: workbenchPaneToggle
-          z-50: LoadingMask (busy — dialogs and async components)
-          z-55: LoadingMask (navigation)
+          z-50: LoadingMask (global — navigation and async component loads)
           z-60: DialogLayout/AuthDialog, DialogLayout/AccountDialog & DialogLayout/ConnectionDialogDialog
           z-70: ProgressBar
           -->
@@ -229,11 +238,8 @@ function establishPaneSplitterPercent(): number {
         <!-- Navigation progress bar. Always visible. -->
         <ProgressBar class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-70" />
 
-        <!-- Busy loading mask - shown during dialog and async component loading. -->
-        <LoadingMask :state="busyLoadingState" class="z-50" />
-
-        <!-- Nav loading mask - transparent blocker on route change, fades to visible overlay while component downloads. -->
-        <LoadingMask :state="navLoadingState" class="z-55" />
+        <!-- Global loading mask - active during route changes and async loads; sustained as scrim when a dialog is open. -->
+        <LoadingMask :state="componentLoadingState" :sustained="anyModalIsOpen" :persist-scrim="anyDialogIsOpen" class="z-50" />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
@@ -279,21 +285,21 @@ function establishPaneSplitterPercent(): number {
         <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-60" :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
 
         <!-- Authentication Dialog - Activated using URL parameter 'dlg=auth'. -->
-        <Transition name="dialog-fade">
+        <Transition name="action-fade">
             <DialogLayout v-if="authDialogIsVisible" v-slot="{ close }" class="z-60">
                 <AuthDialog :close="close" />
             </DialogLayout>
         </Transition>
 
         <!-- Account Dialog - Activated using URL parameter 'dlg=account'. -->
-        <Transition name="dialog-fade">
+        <Transition name="action-fade">
             <DialogLayout v-if="accountDialogIsVisible" v-slot="{ close }" class="z-60">
                 <AccountDialog :close="close" />
             </DialogLayout>
         </Transition>
 
         <!-- Connection Dialog - Activated using URL parameter 'dlg=connection'. -->
-        <Transition name="dialog-fade">
+        <Transition name="action-fade">
             <DialogLayout v-if="connectionDialogIsVisible" v-slot="{ close }" class="z-60">
                 <ConnectionDialog :close="close" />
             </DialogLayout>
@@ -319,7 +325,7 @@ function establishPaneSplitterPercent(): number {
             <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
             <div class="min-h-0" :class="{ 'col-start-2': viewportIsWide }" data-region="workbench-content">
                 <RouterView v-slot="{ Component }">
-                    <Transition name="route-fade" mode="out-in">
+                    <Transition name="action-fade" mode="out-in">
                         <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
                     </Transition>
                 </RouterView>
@@ -345,32 +351,18 @@ function establishPaneSplitterPercent(): number {
 </template>
 
 <style scoped>
-/* Dialog Fade Transition (Vue) */
-.dialog-fade-enter-active,
-.dialog-fade-leave-active {
+.action-fade-enter-active,
+.action-fade-leave-active {
     transition: opacity 0.15s ease;
 }
-.dialog-fade-enter-from,
-.dialog-fade-leave-to {
+.action-fade-enter-from,
+.action-fade-leave-to {
     opacity: 0;
 }
 
-/* VueRoute Fade Transition (Vue) */
-.route-fade-enter-active,
-.route-fade-leave-active {
-    transition: opacity 0.15s ease;
-}
-.route-fade-enter-from,
-.route-fade-leave-to {
-    opacity: 0;
-}
-
-/* Disable Dialog and Route fade transitions when reduced monition is preferred. */
 @media (prefers-reduced-motion: reduce) {
-    .dialog-fade-enter-active,
-    .dialog-fade-leave-active,
-    .route-fade-enter-active,
-    .route-fade-leave-active {
+    .action-fade-enter-active,
+    .action-fade-leave-active {
         transition: none;
     }
 }

@@ -8,10 +8,13 @@ export interface LoadingStateOptions {
     minVisibleMs?: number; // Minimum time the overlay stays visible once shown. Default: 350.
 }
 
-export interface LoadingState {
+export interface ReadableLoadingState {
     readonly isBlocking: Ref<boolean>; // True immediately on start() — transparent blocker, any active phase.
-    readonly isLoading: Ref<boolean>; // True after visibleDelayMs — drives the progress bar (loading phase only).
     readonly isVisible: Ref<boolean>; // True during loading phase — drives the visible overlay.
+}
+
+export interface LoadingState extends ReadableLoadingState {
+    readonly isLoading: Ref<boolean>; // True after visibleDelayMs — drives the progress bar (loading phase only).
     start(): void;
     complete(): void;
     fail(): void;

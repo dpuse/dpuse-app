@@ -195,9 +195,13 @@ onBeforeUnmount(() => {
 
 <template>
     <WorkbenchLayout>
-        <WorkbenchHeader class="mx-4 flex-none" :overline="t(T, 'wb.label')" :title="t(T, 'Contextualise_Data')" to="workflow" />
+        <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Contextualise_Data')" to="workflow" />
 
-        <!-- <RouterView /> -->
+        <!-- <div class="relative flex min-h-0 flex-1 flex-col">
+            <Separator class="mx-4" />
+            <RouterView />
+        </div> -->
+
         <Separator class="mx-4" />
         <div class="px-4 py-2">
             <button class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50" type="button" @click="onAutoLayout">
