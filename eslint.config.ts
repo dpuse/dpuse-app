@@ -121,6 +121,7 @@ export default defineConfigWithVueTs(
                         'dpuse-scrollbar-track-v',
                         'dpuse-scrollbar-visible',
                         'dpuse-show-detail',
+                        'dpuse-horizontal-slide-ltr-element',
                         'gdp-detail',
                         'gdp-grid'
                     ]

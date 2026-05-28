@@ -3,7 +3,7 @@
 import { computed } from 'vue';
 
 // Local (App) Framework
-import type { LoadingState } from '@/utils/loadingState';
+import type { LoadingState } from '~/src/state/loading';
 
 // Options, Properties, Slots & Emits ─────────────────────────────────────────────────────────────────────────────────
 

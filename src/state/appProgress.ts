@@ -1,5 +1,5 @@
 // External Dependencies
-import { createLoadingState } from '@/utils/loadingState';
+import { createLoadingState } from '~/src/state/loading';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 

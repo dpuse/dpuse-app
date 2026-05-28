@@ -279,21 +279,21 @@ function establishPaneSplitterPercent(): number {
         <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-60" :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
 
         <!-- Authentication Dialog - Activated using URL parameter 'dlg=auth'. -->
-        <Transition name="dialog">
+        <Transition name="dialog-fade">
             <DialogLayout v-if="authDialogIsVisible" v-slot="{ close }" class="z-60">
                 <AuthDialog :close="close" />
             </DialogLayout>
         </Transition>
 
         <!-- Account Dialog - Activated using URL parameter 'dlg=account'. -->
-        <Transition name="dialog">
+        <Transition name="dialog-fade">
             <DialogLayout v-if="accountDialogIsVisible" v-slot="{ close }" class="z-60">
                 <AccountDialog :close="close" />
             </DialogLayout>
         </Transition>
 
         <!-- Connection Dialog - Activated using URL parameter 'dlg=connection'. -->
-        <Transition name="dialog">
+        <Transition name="dialog-fade">
             <DialogLayout v-if="connectionDialogIsVisible" v-slot="{ close }" class="z-60">
                 <ConnectionDialog :close="close" />
             </DialogLayout>
@@ -345,6 +345,17 @@ function establishPaneSplitterPercent(): number {
 </template>
 
 <style scoped>
+/* Dialog Fade Transition (Vue) */
+.dialog-fade-enter-active,
+.dialog-fade-leave-active {
+    transition: opacity 0.15s ease;
+}
+.dialog-fade-enter-from,
+.dialog-fade-leave-to {
+    opacity: 0;
+}
+
+/* VueRoute Fade Transition (Vue) */
 .route-fade-enter-active,
 .route-fade-leave-active {
     transition: opacity 0.15s ease;
@@ -354,9 +365,10 @@ function establishPaneSplitterPercent(): number {
     opacity: 0;
 }
 
+/* Disable Dialog and Route fade transitions when reduced monition is preferred. */
 @media (prefers-reduced-motion: reduce) {
-    .dialog-enter-active,
-    .dialog-leave-active,
+    .dialog-fade-enter-active,
+    .dialog-fade-leave-active,
     .route-fade-enter-active,
     .route-fade-leave-active {
         transition: none;
