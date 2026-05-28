@@ -56,12 +56,12 @@ const workbenchPaneIsActive = ref(false); // On narrow displays a pane can be ac
 // Derived State - Dialogs ─────────────────────────────────────────────────────────────────────────────────────────────
 
 const accountDialogIsVisible = computed(() => route.query.dlg === 'account');
-const authDialogIsVisible = computed(() => route.query.dlg === 'auth');
 const anyDialogIsOpen = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value);
 const anyModalIsOpen = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value || sessionMenuIsOpen.value);
+const authDialogIsVisible = computed(() => route.query.dlg === 'auth');
 const connectionDialogIsVisible = computed(() => route.query.dlg === 'connection');
 
-// Derived State - Loading ──────────────────────────────────────────────────────────────────────────────────────────────
+// Derived State - Loading ─────────────────────────────────────────────────────────────────────────────────────────────
 
 const componentLoadingState = {
     isBlocking: computed(() => navLoadingState.isBlocking.value || busyLoadingState.isBlocking.value),
