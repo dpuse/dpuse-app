@@ -8,8 +8,8 @@ const MIN_VISIBLE_MS = 350;
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const isBlocking = ref(false);
-export const isLoading = ref(false);
+export const isNavigationActive = ref(false);
+export const isNavigationDelayed = ref(false);
 
 let showTimer: ReturnType<typeof setTimeout> | null = null;
 let hideTimer: ReturnType<typeof setTimeout> | null = null;
@@ -19,18 +19,18 @@ let showedAt: number | null = null;
 
 export function start(): void {
     clearTimers();
-    isBlocking.value = true;
-    isLoading.value = false;
+    isNavigationActive.value = true;
+    isNavigationDelayed.value = false;
     showTimer = setTimeout(() => {
         showTimer = null;
-        isLoading.value = true;
+        isNavigationDelayed.value = true;
         showedAt = Date.now();
     }, VISIBLE_DELAY_MS);
 }
 
 export function complete(): void {
     clearTimers();
-    if (!isLoading.value) { isBlocking.value = false; return; }
+    if (!isNavigationDelayed.value) { isNavigationActive.value = false; return; }
     const remaining = Math.max(0, MIN_VISIBLE_MS - (Date.now() - showedAt!));
     hideTimer = setTimeout(() => { hideTimer = null; reset(); }, remaining);
 }
@@ -48,7 +48,7 @@ function clearTimers(): void {
 }
 
 function reset(): void {
-    isBlocking.value = false;
-    isLoading.value = false;
+    isNavigationActive.value = false;
+    isNavigationDelayed.value = false;
     showedAt = null;
 }

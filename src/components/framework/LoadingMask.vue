@@ -1,48 +1,23 @@
 <script setup lang="ts">
 // External Dependencies
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed } from 'vue';
+
+// Local (App) Framework
+import { viewportIsWide } from '@/state/appLayout';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { isBlocking: boolean; isSustained?: boolean; dimmerIsSustained?: boolean };
-const { isBlocking, isSustained = false, dimmerIsSustained = true } = defineProps<Properties>();
-
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const isVisible = ref(false);
-let visibilityTimer: ReturnType<typeof setTimeout> | null = null;
+type Properties = { isDialogActive?: boolean; isModalActive?: boolean; isNavigationActive: boolean; isNavigationDelayed: boolean };
+const { isDialogActive = true, isModalActive = false, isNavigationActive, isNavigationDelayed } = defineProps<Properties>();
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const isActive = computed(() => isBlocking || isSustained);
-const isDimmed = computed(() => isSustained && (isBlocking || dimmerIsSustained));
-
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-onUnmounted(() => {
-    if (visibilityTimer != null) clearTimeout(visibilityTimer);
-});
-
-watch(
-    () => isBlocking,
-    (isNowBlocking) => {
-        if (visibilityTimer != null) {
-            clearTimeout(visibilityTimer);
-            visibilityTimer = null;
-        }
-        if (isNowBlocking) {
-            visibilityTimer = setTimeout(() => {
-                visibilityTimer = null;
-                isVisible.value = true;
-            }, 1150);
-        } else {
-            isVisible.value = false;
-        }
-    }
-);
+const isActive = computed(() => isModalActive || isNavigationActive);
+const isDimmed = computed(() => isDialogActive || isNavigationDelayed || (isModalActive && !viewportIsWide.value));
 </script>
 
 <template>
+    <!-- No enter transition — transparent blocker appears instantly. Leave fades out. -->
     <Transition name="loading-mask">
         <div
             v-if="isActive"
@@ -50,7 +25,7 @@ watch(
             :class="['fixed', 'inset-0', 'transition-colors', 'duration-200', 'ease-in-out', 'motion-reduce:transition-none', isDimmed ? 'bg-overlay' : 'bg-transparent']"
             data-region="LoadingMask"
         >
-            <div v-if="isVisible" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-red-200">
+            <div v-if="isNavigationDelayed" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface/80">
                 <p class="text-sm text-muted">Loading…</p>
             </div>
         </div>

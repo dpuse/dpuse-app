@@ -3,7 +3,7 @@ import { type Component, h } from 'vue';
 
 // Local (App) Framework
 import ChunkLoadError from '@/components/ui/ChunkLoadError.vue';
-import { complete, fail, isBlocking, start } from '@/state/navigation';
+import { complete, fail, isNavigationActive, start } from '@/state/navigation';
 
 // Counter-based so concurrent non-route loads (dialogs, menus) don't cancel each other.
 let _count = 0;
@@ -15,7 +15,7 @@ export function load(chunkName: string, importFunction: () => Promise<Component>
         if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Loading '${chunkName}'...`, { simulateDelayMs, simulateLoadError });
 
         // If a route navigation is already in progress it owns the loading state — don't interfere.
-        const isRouteNav = isBlocking.value;
+        const isRouteNav = isNavigationActive.value;
         if (!isRouteNav && _count++ === 0) start();
 
         const importOrReject = (): Promise<Component> => {

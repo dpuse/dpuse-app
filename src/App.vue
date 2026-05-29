@@ -6,11 +6,11 @@ import { useRoute, useRouter } from 'vue-router';
 
 // Local (App) Framework
 import { initialiseServices } from '@/state/session';
+import { isNavigationActive, isNavigationDelayed } from '@/state/navigation';
 import { load } from '@/state/component';
 import T from './App.json';
 import { t } from '@/state/locale';
 import { contentScrollPosition, knowledgePaneIsVisible, sessionMenuIsOpen, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
-import { isBlocking } from '@/state/navigation';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
@@ -55,10 +55,10 @@ const workbenchPaneIsActive = ref(false); // On narrow displays a pane can be ac
 // Derived State - Dialogs ─────────────────────────────────────────────────────────────────────────────────────────────
 
 const accountDialogIsVisible = computed(() => route.query.dlg === 'account');
-const anyDialogIsOpen = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value);
-const anyModalIsOpen = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value || sessionMenuIsOpen.value);
 const authDialogIsVisible = computed(() => route.query.dlg === 'auth');
 const connectionDialogIsVisible = computed(() => route.query.dlg === 'connection');
+const isDialogActive = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value);
+const isModalActive = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value || sessionMenuIsOpen.value);
 
 // Derived State - Panes ───────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -231,7 +231,13 @@ function establishPaneSplitterPercent(): number {
         <ProgressBar class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-70" />
 
         <!-- Global loading mask - active during route changes and async loads; sustained as scrim when a dialog is open. -->
-        <LoadingMask :is-blocking="isBlocking" :is-sustained="anyModalIsOpen" :dimmer-is-sustained="anyDialogIsOpen" class="z-50" />
+        <LoadingMask
+            class="z-50"
+            :is-dialog-active="isDialogActive"
+            :is-modal-active="isModalActive"
+            :is-navigation-active="isNavigationActive"
+            :is-navigation-delayed="isNavigationDelayed"
+        />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
