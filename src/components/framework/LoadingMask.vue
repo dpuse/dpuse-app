@@ -2,19 +2,18 @@
 // External Dependencies
 import { computed } from 'vue';
 
-// Local (App) Framework
-import type { ReadableLoadingState } from '@/state/loading';
-
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const {
-    state,
-    message = 'Loading component…',
+    isBlocking,
+    isVisible,
+    message = 'Loading…',
     scope = 'fixed',
     sustained = false,
     persistScrim = true
 } = defineProps<{
-    state: ReadableLoadingState;
+    isBlocking: boolean;
+    isVisible: boolean;
     message?: string;
     scope?: 'fixed' | 'absolute';
     sustained?: boolean;
@@ -24,12 +23,9 @@ const {
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const isBlocking = computed(() => state.isBlocking.value);
-const isVisible = computed(() => state.isVisible.value);
-
 // Scrim shows while loading always; after loading only if persistScrim is true (dialogs).
-const showScrim = computed(() => sustained && (isBlocking.value || persistScrim));
-const isInactive = computed(() => !isBlocking.value && !sustained);
+const showScrim = computed(() => sustained && (isBlocking || persistScrim));
+const isInactive = computed(() => !isBlocking && !sustained);
 </script>
 
 <template>

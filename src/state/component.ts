@@ -3,32 +3,31 @@ import { type Component, h } from 'vue';
 
 // Local (App) Framework
 import ChunkLoadError from '@/components/ui/ChunkLoadError.vue';
-import { createLoadingState, type ReadableLoadingState, routeLoadingState } from '@/state/loading';
+import { complete, fail, isBlocking, start } from '@/state/navigation';
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const _busyState = createLoadingState({ visibleDelayMs: 200, minVisibleMs: 350 });
-let _busyCount = 0;
-
-export const chunkLoadingState: ReadableLoadingState = _busyState;
+// Counter-based so concurrent non-route loads (dialogs, menus) don't cancel each other.
+let _count = 0;
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function load(chunkName: string, importFunction: () => Promise<Component>): () => Promise<Component> {
     return async () => {
-        _busyCount++;
-        _busyState.start();
+        // If a route navigation is already in progress it owns the loading state — don't interfere.
+        const isRouteNav = isBlocking.value;
+        if (!isRouteNav && _count++ === 0) start();
+
         return importFunction()
             .catch((error) => {
-                routeLoadingState.fail();
-                _busyCount = 0;
-                _busyState.fail();
+                _count = 0;
+                fail();
                 return { render: (): ReturnType<typeof h> => h(ChunkLoadError, { chunkName, error }) } as Component;
             })
             .finally(() => {
                 if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Component '${chunkName}' loaded.`);
-                _busyCount = Math.max(0, _busyCount - 1);
-                if (_busyCount === 0) _busyState.complete();
+                if (!isRouteNav) {
+                    _count = Math.max(0, _count - 1);
+                    if (_count === 0) complete();
+                }
             });
     };
 }

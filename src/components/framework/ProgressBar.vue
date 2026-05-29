@@ -1,11 +1,11 @@
 <script setup lang="ts">
 // Local (App) Framework
-import { routeLoadingState } from '@/state/loading';
+import { isLoading } from '@/state/navigation';
 </script>
 
 <template>
     <Transition name="dpuse-nav-progress-bar">
-        <div v-if="routeLoadingState.isLoading.value" class="h-0.5 overflow-hidden bg-zinc-200 dark:bg-zinc-900" data-region="ProgressBar">
+        <div v-if="isLoading" class="h-0.5 overflow-hidden bg-zinc-200 dark:bg-zinc-900" data-region="ProgressBar">
             <div class="dpuse-nav-progress-bar-shimmer h-full w-1/3 bg-zinc-500 dark:bg-zinc-400" />
         </div>
     </Transition>

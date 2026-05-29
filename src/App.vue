@@ -5,12 +5,12 @@ import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next
 import { useRoute, useRouter } from 'vue-router';
 
 // Local (App) Framework
-import { chunkLoadingState, load } from '@/state/component';
 import { initialiseServices } from '@/state/session';
-import { routeLoadingState } from '@/state/loading';
+import { load } from '@/state/component';
 import T from './App.json';
 import { t } from '@/state/locale';
 import { contentScrollPosition, knowledgePaneIsVisible, sessionMenuIsOpen, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
+import { isBlocking, isLoading } from '@/state/navigation';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
@@ -59,13 +59,6 @@ const anyDialogIsOpen = computed(() => accountDialogIsVisible.value || authDialo
 const anyModalIsOpen = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value || sessionMenuIsOpen.value);
 const authDialogIsVisible = computed(() => route.query.dlg === 'auth');
 const connectionDialogIsVisible = computed(() => route.query.dlg === 'connection');
-
-// Derived State - Loading ─────────────────────────────────────────────────────────────────────────────────────────────
-
-const componentLoadingState = {
-    isBlocking: computed(() => routeLoadingState.isBlocking.value || chunkLoadingState.isBlocking.value),
-    isVisible: computed(() => routeLoadingState.isVisible.value || chunkLoadingState.isVisible.value)
-};
 
 // Derived State - Panes ───────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -238,7 +231,7 @@ function establishPaneSplitterPercent(): number {
         <ProgressBar class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-70" />
 
         <!-- Global loading mask - active during route changes and async loads; sustained as scrim when a dialog is open. -->
-        <LoadingMask :state="componentLoadingState" :sustained="anyModalIsOpen" :persist-scrim="anyDialogIsOpen" class="z-50" />
+        <LoadingMask :is-blocking="isBlocking" :is-visible="isLoading" :sustained="anyModalIsOpen" :persist-scrim="anyDialogIsOpen" class="z-50" />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
