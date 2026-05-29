@@ -18,6 +18,8 @@ import { localeId, t } from '@/state/locale';
 import AddConnectionForm from './AddConnectionForm.vue';
 import Card from '@/components/ui/Card.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
+import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
+import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -44,8 +46,6 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
 };
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
-
-const { close } = defineProps<{ close: () => void }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -82,7 +82,9 @@ watch(viewportIsWide, (isWide) => {
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleCommitDetail(): void {
-    close();
+    const query = { ...route.query };
+    delete query.dlg;
+    router.push({ query });
 }
 
 function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> | undefined): void {
@@ -110,24 +112,34 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 </script>
 
 <template>
-    <div class="flex min-h-0 flex-col" data-region="ConnectionDialog">
-        <DialogHeader :title="t(T, 'Manage_Connection')" />
+    <DialogLayout data-region="ConnectionDialog">
+        <DialogModal variant="large">
+            <div class="flex min-h-0 flex-col">
+                <DialogHeader :title="t(T, 'Manage_Connection')" />
 
-        <GridDetailPanel
-            :active-item="activeConnectorConfig"
-            class="flex-1"
-            commit-variant="add"
-            :data-source="connectorConfigsDataSource"
-            @commit-detail="handleCommitDetail"
-            @select="handleSelectConnector"
-        >
-            <template #grid-item="{ item }">
-                <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
-            </template>
+                <GridDetailPanel
+                    :active-item="activeConnectorConfig"
+                    class="flex-1"
+                    commit-variant="add"
+                    :data-source="connectorConfigsDataSource"
+                    @commit-detail="handleCommitDetail"
+                    @select="handleSelectConnector"
+                >
+                    <template #grid-item="{ item }">
+                        <Card
+                            v-if="item"
+                            :icon="item.icon ?? undefined"
+                            :icon-dark="item.iconDark ?? undefined"
+                            :icon-neutral="item.iconNeutral ?? undefined"
+                            :label="item.label"
+                        />
+                    </template>
 
-            <template #detail="{ item }">
-                <AddConnectionForm :connector-localised-config="item" />
-            </template>
-        </GridDetailPanel>
-    </div>
+                    <template #detail="{ item }">
+                        <AddConnectionForm :connector-localised-config="item" />
+                    </template>
+                </GridDetailPanel>
+            </div>
+        </DialogModal>
+    </DialogLayout>
 </template>

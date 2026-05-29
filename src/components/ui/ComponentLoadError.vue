@@ -7,7 +7,7 @@ import Button from '@/components/ui/button/Button.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-const { chunkName, error } = defineProps<{ chunkName?: string; error: unknown }>();
+const { name, error } = defineProps<{ name?: string; error: unknown }>();
 
 // Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -19,10 +19,10 @@ function handleReloadApplication(): void {
 <template>
     <div
         class="mx-auto mt-[calc(env(safe-area-inset-top)+7.5vh)] w-[calc(100%-2rem)] max-w-sm rounded-lg border border-amber-200/70 bg-amber-50/70 px-4 py-5 text-center dark:border-amber-300/30 dark:bg-amber-300/10"
-        data-region="ChunkLoadError"
+        data-region="ComponentLoadError"
     >
         <TriangleAlertIcon class="mx-auto size-12 text-amber-700 dark:text-amber-300" stroke-width="1" />
-        <h3 class="mt-2 text-sm font-semibold text-amber-900 dark:text-amber-100">Failed to load {{ chunkName ?? 'component' }} component.</h3>
+        <h3 class="mt-2 text-sm font-semibold text-amber-900 dark:text-amber-100">Failed to load {{ name ?? 'Unknown' }} component.</h3>
         <p class="mt-1 text-sm text-amber-800 dark:text-amber-200">
             You may be using an outdated version of the app and this component hasn’t loaded yet, or your internet connection may be unstable. Please check your connection and
             reload the app.

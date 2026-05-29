@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
-import { XIcon } from 'lucide-vue-next';
 import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
-import { nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // Local (App) Framework
@@ -13,7 +12,8 @@ import { t } from '@/state/locale';
 import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
+import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
+import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';
 import LoginForm from '@/domains/session/authDialog/LoginForm.vue';
 import PasswordForm from '@/domains/session/authDialog/PasswordForm.vue';
@@ -21,19 +21,15 @@ import Separator from '@/components/ui/Separator.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-const { close } = defineProps<{ close: () => void }>();
-
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const route = useRoute();
+const router = useRouter();
 const containerElement = useTemplateRef<HTMLDivElement>('container');
 const flowConstructed = ref(false);
-const isClosing = ref(false);
 const handleIdEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 const handlePasswordBack = ref<(() => Promise<void>) | undefined>(undefined);
 const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
-const rootElement = useTemplateRef<HTMLDivElement>('root');
-const route = useRoute();
-const router = useRouter();
 const uiStateId = ref<'enterId' | 'selectSignInMethod' | 'enterPasscode' | 'enterPassword' | undefined>(undefined);
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -67,7 +63,9 @@ function handleLoginFlowStateChange(state: AnyState): Promise<void> {
             handlePasswordEntered.value = undefined;
             handlePasswordBack.value = undefined;
             destroyFlow();
-            handleCloseDialog();
+            const query = { ...route.query };
+            delete query.dlg;
+            router.push({ query });
             return Promise.resolve();
         case 'error':
             console.log('STATE', 'error', state.error, state);
@@ -78,7 +76,6 @@ function handleLoginFlowStateChange(state: AnyState): Promise<void> {
     }
 }
 
-// Handle login flow initialisation state; user identifier (email address) input is required
 async function handleLoginFlowInitState(state: State<'login_init'>): Promise<void> {
     const action = state.actions.continue_with_login_identifier as Action<ContinueWithLoginIdentifierInputs>;
     const input = (action.inputs.email || action.inputs.identifier) as Input<string>;
@@ -86,12 +83,10 @@ async function handleLoginFlowInitState(state: State<'login_init'>): Promise<voi
     handleIdEntered.value = async (identifier: string): Promise<void> => {
         const result = await action.run({ [input.name]: identifier });
         if (result.error) console.log(result.error, result);
-
-        emailAddress.value = identifier; // TODO: This should be moved to success state, see state.payload.user.emails...
+        emailAddress.value = identifier;
     };
 }
 
-// Handle login flow method chooser state; only password logins are currently support
 async function handleLoginFlowMethodChooserState(state: State<'login_method_chooser'>): Promise<void> {
     if (uiStateId.value === undefined) {
         const action = state.actions.back;
@@ -104,7 +99,6 @@ async function handleLoginFlowMethodChooserState(state: State<'login_method_choo
     }
 }
 
-// Handle login flow code state; password input is required
 async function handleLoginFlowPasscodeState(state: State<'passcode_confirmation'>): Promise<void> {
     uiStateId.value = 'enterPasscode';
     handlePasswordEntered.value = async (parameter: unknown): Promise<void> => {
@@ -112,7 +106,6 @@ async function handleLoginFlowPasscodeState(state: State<'passcode_confirmation'
     };
 }
 
-// Handle login flow password state; password input is required
 async function handleLoginFlowPasswordState(state: State<'login_password'>): Promise<void> {
     uiStateId.value = 'enterPassword';
     handlePasswordEntered.value = async (password: string): Promise<void> => {
@@ -128,14 +121,13 @@ async function handleLoginFlowPasswordState(state: State<'login_password'>): Pro
     };
 }
 
-// Handle login flow onboarding create passkey state; creation of passkeys is currently disabled
 async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboarding_create_passkey'>): Promise<void> {
     const action = state.actions.skip!;
     const result = await action.run();
     if (result.error) console.log(result.error, result);
 }
 
-// Transition helpers ─────────────────────────────────────────────────────────────────────────────────────────
+// Transition helpers ──────────────────────────────────────────────────────────────────────────────────────────────────
 
 function onBeforeLeave(): void {
     const container = containerElement.value;
@@ -160,102 +152,34 @@ function onAfterEnter(): void {
     container.style.overflow = '';
     container.style.transition = '';
 }
-
-// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-async function handleCloseDialog(): Promise<void> {
-    isClosing.value = true;
-    // Wait for Vue to apply the is-closing class, then read the actual animation duration for the fallback.
-    await nextTick();
-    await new Promise<void>((resolve) => {
-        const element = rootElement.value;
-        if (!element) {
-            resolve();
-            return;
-        }
-        const durationSeconds = Number.parseFloat(globalThis.getComputedStyle(element).animationDuration) || 0.2;
-        const fallback = setTimeout(resolve, durationSeconds * 1000 + 100);
-        element.addEventListener(
-            'animationend',
-            () => {
-                clearTimeout(fallback);
-                resolve();
-            },
-            { once: true }
-        );
-    });
-    close();
-}
 </script>
 
 <template>
-    <div ref="root" class="dialog-root fixed inset-0 z-50" :class="{ 'dialog-root--closing': isClosing }" data-region="AuthDialog">
-        <div
-            role="dialog"
-            aria-modal="true"
-            class="bg-surface text-content z-10 h-full max-h-full w-full max-w-full overflow-y-auto overscroll-y-none sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-sm sm:-translate-x-1/2 sm:rounded-lg"
-            tabindex="-1"
-        >
-            <!-- Close Button -->
-            <Button class="absolute top-3 right-3" shape="icon" @click="handleCloseDialog">
-                <XIcon stroke-width="1.25" />
-            </Button>
-
-            <div class="flex flex-col gap-y-3 p-8">
+    <DialogLayout data-region="AuthDialog">
+        <DialogModal variant="compact">
+            <div class="flex min-h-0 flex-col gap-y-3 p-8">
                 <DPUseLogo class="size-12" />
 
                 <div ref="container">
                     <Transition name="fade" mode="out-in" @before-leave="onBeforeLeave" @enter="onEnter" @after-enter="onAfterEnter">
-                        <!-- Login form -->
                         <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" :on-trigger="handleIdEntered" />
-
-                        <!-- Password form -->
                         <PasswordForm
                             v-else-if="uiStateId === 'enterPassword' && handlePasswordEntered && handlePasswordBack"
                             :on-trigger="handlePasswordEntered"
                             :on-back="handlePasswordBack"
                         />
-
                         <div v-else-if="flowConstructed">{{ t(T, 'Service_unavailable') }}</div>
                     </Transition>
                 </div>
 
                 <Separator class="mt-3 mb-2" />
-                <div class="text-muted text-center">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
+                <div class="text-center text-muted">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
             </div>
-        </div>
-    </div>
+        </DialogModal>
+    </DialogLayout>
 </template>
 
 <style scoped>
-@keyframes dialog-fade-in {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-@keyframes dialog-fade-out {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-    }
-}
-.dialog-root {
-    animation: dialog-fade-in 0.2s ease-in-out;
-}
-.dialog-root--closing {
-    animation: dialog-fade-out 0.15s ease-in-out forwards;
-}
-@media (prefers-reduced-motion: reduce) {
-    .dialog-root,
-    .dialog-root--closing {
-        animation: none;
-    }
-}
 .fade-enter-active {
     transition: opacity 0.2s ease-in-out;
     will-change: opacity;

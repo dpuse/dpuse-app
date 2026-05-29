@@ -6,20 +6,19 @@ import { useRoute, useRouter } from 'vue-router';
 
 // Local (App) Framework
 import { initialiseServices } from '@/state/session';
-import { isNavigationActive, isNavigationDelayed } from '@/state/navigation';
 import { load } from '@/state/component';
 import T from './App.json';
 import { t } from '@/state/locale';
 import { contentScrollPosition, knowledgePaneIsVisible, sessionMenuIsOpen, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
+import { isNavigationActive, isNavigationDelayed } from '@/state/navigation';
 
 // Local Components - Static
-import Button from '@/components/ui/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
-import DialogLayout from '@/components/ui/dialog/DialogLayout.vue'; // Static so dialog mask appears immediately on open.
+import Button from '@/components/ui/button/Button.vue'; // Required by workbench and knowledge toggle buttons which are always visible.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
-import LoadingMask from '@/components/framework/LoadingMask.vue'; // Shown during route component loading — transparent blocker immediately, visible overlay when progress bar shows.
-import ProgressBar from '@/components/framework/ProgressBar.vue'; // Required when lazy loading is delayed.
+import LoadingMask from '@/components/framework/LoadingMask.vue'; // Required so no delay when rendering.
+import ProgressBar from '@/components/framework/ProgressBar.vue'; // Required so no delay when rendering.
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
 
 // Local Components - Dynamic
@@ -284,23 +283,17 @@ function establishPaneSplitterPercent(): number {
 
         <!-- Authentication Dialog - Activated using URL parameter 'dlg=auth'. -->
         <Transition name="action-fade">
-            <DialogLayout v-if="authDialogIsVisible" v-slot="{ close }" class="z-60">
-                <AuthDialog :close="close" />
-            </DialogLayout>
+            <AuthDialog v-if="authDialogIsVisible" class="z-60" />
         </Transition>
 
         <!-- Account Dialog - Activated using URL parameter 'dlg=account'. -->
         <Transition name="action-fade">
-            <DialogLayout v-if="accountDialogIsVisible" v-slot="{ close }" class="z-60">
-                <AccountDialog :close="close" />
-            </DialogLayout>
+            <AccountDialog v-if="accountDialogIsVisible" class="z-60" />
         </Transition>
 
         <!-- Connection Dialog - Activated using URL parameter 'dlg=connection'. -->
         <Transition name="action-fade">
-            <DialogLayout v-if="connectionDialogIsVisible" v-slot="{ close }" class="z-60">
-                <ConnectionDialog :close="close" />
-            </DialogLayout>
+            <ConnectionDialog v-if="connectionDialogIsVisible" class="z-60" />
         </Transition>
 
         <!-- Workbench Option Bar - Only rendered when viewport is narrow. -->
