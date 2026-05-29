@@ -2,8 +2,8 @@
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior, START_LOCATION } from 'vue-router';
 
 // Local (App) Framework
-import { load } from '@/utils/component';
-import { navLoadingState } from '@/state/appProgress';
+import { load } from '@/state/component';
+import { routeLoadingState } from '@/state/loading';
 
 // Local Components - Dynamic
 const AdminHomeLayout = load('Admin', () => import('@/domains/workbench/admin/AdminHomeLayout.vue'));
@@ -89,11 +89,11 @@ export const createAppRouter = (): Router => {
             }
         }
 
-        navLoadingState.start();
+        routeLoadingState.start();
     });
 
-    router.afterEach(() => navLoadingState.complete());
-    router.onError(() => navLoadingState.fail());
+    router.afterEach(() => routeLoadingState.complete());
+    router.onError(() => routeLoadingState.fail());
 
     return router;
 };

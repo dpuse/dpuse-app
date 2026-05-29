@@ -79,8 +79,16 @@ export function createLoadingState({ visibleDelayMs = 150, minVisibleMs = 350 }:
     }
 
     function fail(): void {
+        clearTimers();
         resetState();
     }
 
     return { isBlocking, isLoading, isVisible, start, complete, fail };
 }
+
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+export const routeLoadingState = createLoadingState({
+    visibleDelayMs: 150,
+    minVisibleMs: 350
+});

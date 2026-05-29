@@ -5,10 +5,9 @@ import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next
 import { useRoute, useRouter } from 'vue-router';
 
 // Local (App) Framework
-import { busyLoadingState } from '@/state/appLoad';
+import { chunkLoadingState, load } from '@/state/component';
 import { initialiseServices } from '@/state/session';
-import { load } from '@/utils/component';
-import { navLoadingState } from '@/state/appProgress';
+import { routeLoadingState } from '@/state/loading';
 import T from './App.json';
 import { t } from '@/state/locale';
 import { contentScrollPosition, knowledgePaneIsVisible, sessionMenuIsOpen, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
@@ -64,8 +63,8 @@ const connectionDialogIsVisible = computed(() => route.query.dlg === 'connection
 // Derived State - Loading ─────────────────────────────────────────────────────────────────────────────────────────────
 
 const componentLoadingState = {
-    isBlocking: computed(() => navLoadingState.isBlocking.value || busyLoadingState.isBlocking.value),
-    isVisible: computed(() => navLoadingState.isVisible.value || busyLoadingState.isVisible.value)
+    isBlocking: computed(() => routeLoadingState.isBlocking.value || chunkLoadingState.isBlocking.value),
+    isVisible: computed(() => routeLoadingState.isVisible.value || chunkLoadingState.isVisible.value)
 };
 
 // Derived State - Panes ───────────────────────────────────────────────────────────────────────────────────────────────

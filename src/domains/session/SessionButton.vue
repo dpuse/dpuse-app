@@ -4,7 +4,7 @@ import { LoaderCircleIcon } from 'lucide-vue-next';
 import { type ComponentPublicInstance, computed, defineAsyncComponent, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // Local (App) Framework
-import { load } from '@/utils/component';
+import { load } from '@/state/component';
 import { expiresIn, isAuthenticated, lifetime } from '@/state/session';
 import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
 

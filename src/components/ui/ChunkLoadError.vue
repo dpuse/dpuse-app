@@ -5,8 +5,11 @@ import { RefreshCwIcon, TriangleAlertIcon } from 'lucide-vue-next';
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 
-// Options, Properties, Slots & Emits
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+
 const { chunkName, error } = defineProps<{ chunkName?: string; error: unknown }>();
+
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleReloadApplication(): void {
     globalThis.location.reload();
