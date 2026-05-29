@@ -34,7 +34,7 @@ watch(
             visibilityTimer = setTimeout(() => {
                 visibilityTimer = null;
                 isVisible.value = true;
-            }, 150);
+            }, 1150);
         } else {
             isVisible.value = false;
         }
@@ -50,7 +50,7 @@ watch(
             :class="['fixed', 'inset-0', 'transition-colors', 'duration-200', 'ease-in-out', 'motion-reduce:transition-none', isDimmed ? 'bg-overlay' : 'bg-transparent']"
             data-region="LoadingMask"
         >
-            <div v-if="isVisible" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface/80">
+            <div v-if="isVisible" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-red-200">
                 <p class="text-sm text-muted">Loading…</p>
             </div>
         </div>
