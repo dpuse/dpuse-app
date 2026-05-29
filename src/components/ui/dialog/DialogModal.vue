@@ -27,12 +27,8 @@ async function handleClose(): Promise<void> {
 <template>
     <div
         aria-modal="true"
-        class="relative flex h-full max-h-full w-full max-w-full flex-col bg-surface text-content md:absolute md:top-[5%] md:left-1/2 md:-translate-x-1/2 md:rounded-lg md:p-0"
-        :class="
-            variant === 'compact'
-                ? 'pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))] md:w-sm'
-                : 'pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))] md:h-auto md:max-h-[90vh] md:w-3xl md:max-w-[calc(100vw-2rem)]'
-        "
+        class="relative flex h-full max-h-full w-full max-w-full flex-col bg-surface pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))] text-content md:absolute md:top-[5%] md:left-1/2 md:h-auto md:-translate-x-1/2 md:rounded-lg md:p-0"
+        :class="variant === 'compact' ? 'md:w-sm' : 'md:max-h-[90vh] md:w-3xl md:max-w-[calc(100vw-2rem)]'"
         data-region="dialogModal"
         role="dialog"
         style="container-type: inline-size"
