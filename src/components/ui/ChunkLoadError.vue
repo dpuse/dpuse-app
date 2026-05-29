@@ -2,9 +2,6 @@
 // External Dependencies
 import { RefreshCwIcon, TriangleAlertIcon } from 'lucide-vue-next';
 
-// Local (App) Framework
-import { reloadApplication } from '@/utils/reload';
-
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 
@@ -12,7 +9,7 @@ import Button from '@/components/ui/button/Button.vue';
 const { chunkName, error } = defineProps<{ chunkName?: string; error: unknown }>();
 
 function handleReloadApplication(): void {
-    reloadApplication();
+    globalThis.location.reload();
 }
 </script>
 

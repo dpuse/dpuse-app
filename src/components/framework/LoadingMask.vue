@@ -40,13 +40,13 @@ const isInactive = computed(() => !isBlocking.value && !sustained);
             'inset-0',
             'transition-colors',
             'duration-300',
-            showScrim ? 'bg-overlay' : 'bg-transparent',
+            showScrim ? 'bg-red-500' : 'bg-transparent',
             isInactive ? 'pointer-events-none' : ''
         ]"
         data-region="LoadingMask"
     >
         <Transition name="loading-mask-inner">
-            <div v-if="isVisible" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface/80">
+            <div v-if="isVisible" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-red-500/80">
                 <p class="text-sm text-muted">{{ message }}</p>
             </div>
         </Transition>
