@@ -20,6 +20,7 @@ let showedAt: number | null = null;
 export function start(): void {
     clearTimers();
     isBlocking.value = true;
+    isLoading.value = false;
     showTimer = setTimeout(() => {
         showTimer = null;
         isLoading.value = true;
@@ -28,11 +29,9 @@ export function start(): void {
 }
 
 export function complete(): void {
-    if (showTimer != null) { clearTimeout(showTimer); showTimer = null; }
-    if (hideTimer != null) { clearTimeout(hideTimer); hideTimer = null; }
+    clearTimers();
     if (!isLoading.value) { isBlocking.value = false; return; }
-    const elapsed = showedAt == null ? MIN_VISIBLE_MS : Date.now() - showedAt;
-    const remaining = Math.max(0, MIN_VISIBLE_MS - elapsed);
+    const remaining = Math.max(0, MIN_VISIBLE_MS - (Date.now() - showedAt!));
     hideTimer = setTimeout(() => { hideTimer = null; reset(); }, remaining);
 }
 

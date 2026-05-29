@@ -23,9 +23,9 @@ const DimensionList = load('DimensionList', () => import('@/domains/workbench/wo
 const ContextualiseDataLayout = load('ContextualiseData', () => import('@/domains/workbench/workflow/contextualiseData/ContextualiseDataLayout.vue'));
 const EventQueryList = load('EventQueryList', () => import('@/domains/workbench/workflow/contextualiseData/EventQueryList.vue'));
 
-const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.vue'));
+const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.vue'), 3000);
 
-const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'));
+const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'), 3000, true);
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 

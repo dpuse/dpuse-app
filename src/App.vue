@@ -10,7 +10,7 @@ import { load } from '@/state/component';
 import T from './App.json';
 import { t } from '@/state/locale';
 import { contentScrollPosition, knowledgePaneIsVisible, sessionMenuIsOpen, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
-import { isBlocking, isLoading } from '@/state/navigation';
+import { isBlocking } from '@/state/navigation';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue'; // Required for workbench and knowledge toggle buttons which are always visible.
@@ -231,7 +231,7 @@ function establishPaneSplitterPercent(): number {
         <ProgressBar class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-70" />
 
         <!-- Global loading mask - active during route changes and async loads; sustained as scrim when a dialog is open. -->
-        <LoadingMask :is-blocking="isBlocking" :is-visible="isLoading" :sustained="anyModalIsOpen" :persist-scrim="anyDialogIsOpen" class="z-50" />
+        <LoadingMask :is-blocking="isBlocking" :is-sustained="anyModalIsOpen" :dimmer-is-sustained="anyDialogIsOpen" class="z-50" />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
