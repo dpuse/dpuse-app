@@ -7,7 +7,7 @@ const { text } = defineProps<{ text?: string }>();
 </script>
 
 <template>
-    <ScrollArea class="border-separator border-x" data-region="TextViewer" scroll-area-padding="embedded" scrollbar-always-visible>
+    <ScrollArea class="border-x border-separator" data-region="TextViewer" scroll-area-padding="embedded" scrollbar-always-visible>
         <div class="px-0.5 text-sm">
             <pre><code>{{ text }}</code></pre>
         </div>
