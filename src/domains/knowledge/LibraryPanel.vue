@@ -65,7 +65,7 @@ async function runTanStackTest(): Promise<void> {
 
 const vercelChat = new Chat({
     transport: new DefaultChatTransport({
-        api: 'https://api.dpuse.app/ai/vercel/chat',
+        api: 'https://api.dpuse.app/ai/vanthropic/chat',
         body: { model: 'claude-sonnet-4-6' }
     })
 });
