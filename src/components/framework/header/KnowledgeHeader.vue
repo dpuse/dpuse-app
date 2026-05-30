@@ -9,7 +9,7 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
 <template>
     <header
         class="mt-[env(safe-area-inset-top)] flex h-13.75 flex-none flex-col justify-center text-lg font-light"
-        :class="viewportIsWide ? (workbenchPaneIsVisible ? 'pr-44 pl-0' : 'pr-44 pl-14') : 'px-14'"
+        :class="viewportIsWide ? (workbenchPaneIsVisible ? 'pr-40 pl-0' : 'pr-40 pl-10') : 'px-14'"
         data-region="Header"
     >
         <!-- Content indented from left and right to allow for logos when display is narrow.
@@ -21,13 +21,17 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
             class="min-w-0"
             :class="{
                 'text-center': !viewportIsWide,
-                'text-accent cursor-pointer hover:underline hover:decoration-blue-800/40 hover:underline-offset-2 dark:hover:decoration-blue-300/40':
+                'cursor-pointer text-accent hover:underline hover:decoration-blue-800/40 hover:underline-offset-2 dark:hover:decoration-blue-300/40':
                     to && to !== $route.query.wbView
             }"
             :to="{ name: to, query: { ...$route.query, wbView: to } }"
         >
-            <div class="truncate text-sm leading-tight">{{ overline }}</div>
-            <div class="truncate leading-snug">{{ title }}</div>
+            <div class="truncate text-sm leading-tight">
+                {{ overline }}
+            </div>
+            <div class="truncate leading-snug">
+                {{ title }}
+            </div>
         </component>
     </header>
 </template>

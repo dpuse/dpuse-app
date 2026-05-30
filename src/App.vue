@@ -241,7 +241,7 @@ function establishPaneSplitterPercent(): number {
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
             :aria-label="t(T, 'wb.toggle.label.aria')"
-            class="fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full!"
+            class="fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full! bg-surface"
             :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
             data-region="workbenchPaneToggle"
             shape="icon"
@@ -314,7 +314,7 @@ function establishPaneSplitterPercent(): number {
             <WorkbenchOptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleWorkbenchOptionBarHide" />
 
             <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
-            <div class="min-h-0" :class="{ 'col-start-2': viewportIsWide }" data-region="workbench-content">
+            <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="workbench-content">
                 <RouterView v-slot="{ Component }">
                     <Transition name="action-fade" mode="out-in">
                         <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />

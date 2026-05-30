@@ -1,7 +1,7 @@
 // DPUse Framework
 import type { LocaleLabel } from '@dpuse/dpuse-shared/locale';
 
-// Types ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface WorkbenchConfig {
     id: string;

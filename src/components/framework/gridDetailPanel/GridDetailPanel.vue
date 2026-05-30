@@ -83,7 +83,16 @@ async function handleSelectItem(row: T): Promise<void> {
         >
             <!-- Grid (Left) Pane -->
             <div class="gdp-grid relative flex-1 flex-col">
-                <Grid :add-label="addLabel" class="flex-1" :data-source="dataSource" :is-compact="isCompact" :row-height="83" :target-column-width="250" @add="$emit('add')">
+                <Grid
+                    :add-label="addLabel"
+                    class="flex-1"
+                    :data-source="dataSource"
+                    :is-compact="isCompact"
+                    :row-height="83"
+                    :scroll-area-padding="scrollAreaPadding"
+                    :target-column-width="250"
+                    @add="$emit('add')"
+                >
                     <template #default="{ item }">
                         <Button class="h-full w-full" :is-active="activeItem === item" shape="minimal" @click="handleSelectItem(item)">
                             <slot name="grid-item" :item="item" />

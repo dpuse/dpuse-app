@@ -2,7 +2,7 @@
 import { computed, type ComputedRef, ref, type ShallowRef, watch } from 'vue';
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 
-// Types ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export type DataSource<T = unknown> = { id?: string; rowCount: number; getRows: (startRow: number, endRow: number) => Promise<T[]> };
 

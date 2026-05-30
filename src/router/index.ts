@@ -5,11 +5,16 @@ import { createRouter, createWebHistory, type Router, type RouterScrollBehavior,
 import { load } from '@/state/component';
 import { complete, fail, start } from '@/state/navigation';
 
-// Local Components - Dynamic
+// Local Components - Dynamic - Admin
 const AdminHomeLayout = load('Admin', () => import('@/domains/workbench/admin/AdminHomeLayout.vue'));
+
+// Local Components - Dynamic - Partner
 const PartnerHomeLayout = load('Partner', () => import('@/domains/workbench/partner/PartnerHomeLayout.vue'));
+
+// Local Components - Dynamic - Workflow
 const WorkflowHomeLayout = load('Workflow', () => import('@/domains/workbench/workflow/WorkflowHomeLayout.vue'));
 
+// Local Components - Dynamic - Workflow - Establish Data Views
 const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.vue'));
 const DataViewList = load('DataViewList', () => import('@/domains/workbench/workflow/establishDataViews/DataViewList.vue'));
 const SelectConnectionPanel = load('SelectConnection', () => import('@/domains/workbench/workflow/establishDataViews/selectConnection/SelectConnectionPanel.vue'));
@@ -17,14 +22,18 @@ const SelectItemPanel = load('SelectItem', () => import('@/domains/workbench/wor
 const AuditContentPanel = load('AuditContent', () => import('@/domains/workbench/workflow/establishDataViews/auditContent/AuditContentPanel.vue'));
 const ExploreData = load('Investigate', () => import('@/domains/workbench/workflow/establishDataViews/exploreData/ExploreData.vue'));
 
+// Local Components - Dynamic - Workflow - Assemble Dimensions
 const AssembleDimensionsLayout = load('AssembleDimensions', () => import('@/domains/workbench/workflow/assembleDimensions/AssembleDimensionsLayout.vue'));
 const DimensionList = load('DimensionList', () => import('@/domains/workbench/workflow/assembleDimensions/DimensionList.vue'));
 
+// Local Components - Dynamic - Workflow - Contextualise Data
 const ContextualiseDataLayout = load('ContextualiseData', () => import('@/domains/workbench/workflow/contextualiseData/ContextualiseDataLayout.vue'));
 const EventQueryList = load('EventQueryList', () => import('@/domains/workbench/workflow/contextualiseData/EventQueryList.vue'));
 
+// Local Components - Dynamic - Workflow - Explore Presentations
 const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.vue'), 3000);
 
+// Local Components - Dynamic - Workflow - Build Data Apps
 const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'), 3000, true);
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -67,7 +76,8 @@ export const APP_ROUTES = [
     { path: '/:catchAll(.*)', redirect: '/' }
 ];
 
-// Router Creation Function
+// Router Creation Function ────────────────────────────────────────────────────────────────────────────────────────────
+
 export const createAppRouter = (): Router => {
     const router = createRouter({
         history: createWebHistory(import.meta.env.BASE_URL),
@@ -98,7 +108,7 @@ export const createAppRouter = (): Router => {
     return router;
 };
 
-// UI Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleScrollBehavior(
     _to: Parameters<RouterScrollBehavior>[0],
