@@ -50,13 +50,13 @@ const isHovering = ref(false);
             </div>
 
             <div class="flex flex-col overflow-x-hidden">
-                <div v-if="!isCompact && overline" class="text-muted min-w-0 truncate text-xs leading-tight font-normal">{{ overline }}</div>
+                <div v-if="!isCompact && overline" class="min-w-0 truncate text-xs leading-tight font-normal text-muted">{{ overline }}</div>
                 <div class="min-w-0 truncate text-[16px] leading-tight">{{ label }}</div>
             </div>
         </div>
 
         <!-- Description -->
-        <div v-if="!isCompact && description" class="text-muted line-clamp-2 text-sm">
+        <div v-if="!isCompact && description" class="line-clamp-2 text-sm text-muted">
             {{ description }}
         </div>
     </div>
