@@ -10,7 +10,7 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
     <header
         class="mt-[env(safe-area-inset-top)] flex h-13.75 flex-none flex-col justify-center text-lg font-light"
         :class="viewportIsWide ? (knowledgePaneIsVisible ? 'px-0' : 'pr-44 pl-4') : 'px-14'"
-        data-region="Header"
+        data-region="WorkbenchHeader"
     >
         <!-- Content indented from left and right to allow for logos when display is narrow.
              Content indented from right to allow for knowledge bar when display is wide.
