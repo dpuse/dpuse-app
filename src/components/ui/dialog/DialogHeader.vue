@@ -3,5 +3,5 @@
 const { title } = defineProps<{ title: string }>();
 </script>
 <template>
-    <div class="border-separator mx-4 flex flex-none justify-start border-b py-4 text-lg font-light" data-region="DialogHeader">{{ title }}</div>
+    <div class="mx-4 flex justify-start border-b border-separator py-4 text-lg font-light" data-region="DialogHeader">{{ title }}</div>
 </template>

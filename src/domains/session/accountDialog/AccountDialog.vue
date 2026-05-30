@@ -12,9 +12,11 @@ import { viewportIsWide } from '@/state/appLayout';
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import ComponentLoadError from '@/components/ui/ComponentLoadError.vue';
+import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -95,19 +97,12 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 <template>
     <DialogLayout data-region="AccountDialog">
         <DialogModal variant="large">
-            <div class="flex min-h-0 flex-col">
-                <!-- <div class="fixed inset-0 z-50">
-        <div
-            role="dialog"
-            aria-modal="true"
-            class="bg-surface text-content z-10 flex h-full max-h-full w-full max-w-full flex-col sm:absolute sm:top-[5%] sm:left-1/2 sm:h-auto sm:max-h-[90vh] sm:w-3xl sm:max-w-[calc(100vw-2rem)] sm:-translate-x-1/2 sm:rounded-lg"
-            tabindex="-1"
-        > -->
-                <div class="mx-4 flex flex-none justify-start border-b border-separator py-4 text-lg font-light">{{ t(T, 'Manage_Account') }}</div>
+            <DialogHeader class="flex-none" :title="t(T, 'Manage_Account')" />
 
-                <div class="flex flex-1 overflow-y-hidden">
-                    <div v-if="viewportIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 overflow-y-auto overscroll-y-none px-4 pb-6">
-                        <div class="flex flex-1 flex-col gap-y-1">
+            <div class="flex min-h-0 flex-1">
+                <div v-if="viewportIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 pl-4">
+                    <ScrollArea scroll-area-padding="none">
+                        <div class="flex flex-1 flex-col gap-y-1 pb-6">
                             <template v-for="optionConfig in OPTION_CONFIGS" :key="optionConfig.id">
                                 <div v-if="optionConfig.type === 'label'" class="mt-3 text-xs font-medium text-muted">{{ optionConfig.label }}</div>
                                 <ListItemButton
@@ -125,18 +120,20 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                         <!-- <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div> -->
 
                         <!-- <Button class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: route.query }" variant="destructive">
-                        {{ t(T, 'Delete_account') }}
-                    </Button> -->
+                          {{ t(T, 'Delete_account') }}
+                        </Button> -->
+                    </ScrollArea>
+                </div>
+
+                <div v-if="viewportIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
+                    <div class="flex h-12 flex-none items-center gap-x-1 border-b border-separator">
+                        <Button v-if="!viewportIsWide" shape="icon" size="sm" @click="handleBack">
+                            <ArrowBigLeftIcon stroke-width="1.25" />
+                        </Button>
+                        {{ activeOptionConfig!.title }}
                     </div>
 
-                    <div v-if="viewportIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
-                        <div class="flex h-12 flex-none items-center gap-x-1 border-b border-separator">
-                            <Button v-if="!viewportIsWide" shape="icon" size="sm" @click="handleBack">
-                                <ArrowBigLeftIcon stroke-width="1.25" />
-                            </Button>
-                            {{ activeOptionConfig!.title }}
-                        </div>
-
+                    <ScrollArea scroll-area-padding="none">
                         <ComponentLoadError v-if="subPanelError" :error="subPanelError" name="AccountPanel" class="flex-1" />
                         <Suspense v-else>
                             <template #default>
@@ -148,7 +145,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                                 </div>
                             </template>
                         </Suspense>
-                    </div>
+                    </ScrollArea>
                 </div>
             </div>
         </DialogModal>

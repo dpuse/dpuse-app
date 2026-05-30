@@ -114,32 +114,24 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 <template>
     <DialogLayout data-region="ConnectionDialog">
         <DialogModal variant="large">
-            <div class="flex min-h-0 flex-col">
-                <DialogHeader :title="t(T, 'Manage_Connection')" />
+            <DialogHeader class="flex-none" :title="t(T, 'Manage_Connection')" />
 
-                <GridDetailPanel
-                    :active-item="activeConnectorConfig"
-                    class="flex-1"
-                    commit-variant="add"
-                    :data-source="connectorConfigsDataSource"
-                    @commit-detail="handleCommitDetail"
-                    @select="handleSelectConnector"
-                >
-                    <template #grid-item="{ item }">
-                        <Card
-                            v-if="item"
-                            :icon="item.icon ?? undefined"
-                            :icon-dark="item.iconDark ?? undefined"
-                            :icon-neutral="item.iconNeutral ?? undefined"
-                            :label="item.label"
-                        />
-                    </template>
+            <GridDetailPanel
+                :active-item="activeConnectorConfig"
+                class="flex-1"
+                commit-variant="add"
+                :data-source="connectorConfigsDataSource"
+                @commit-detail="handleCommitDetail"
+                @select="handleSelectConnector"
+            >
+                <template #grid-item="{ item }">
+                    <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
+                </template>
 
-                    <template #detail="{ item }">
-                        <AddConnectionForm :connector-localised-config="item" />
-                    </template>
-                </GridDetailPanel>
-            </div>
+                <template #detail="{ item }">
+                    <AddConnectionForm :connector-localised-config="item" />
+                </template>
+            </GridDetailPanel>
         </DialogModal>
     </DialogLayout>
 </template>

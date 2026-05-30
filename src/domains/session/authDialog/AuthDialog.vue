@@ -17,6 +17,7 @@ import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';
 import LoginForm from '@/domains/session/authDialog/LoginForm.vue';
 import PasswordForm from '@/domains/session/authDialog/PasswordForm.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
@@ -157,24 +158,26 @@ function onAfterEnter(): void {
 <template>
     <DialogLayout data-region="AuthDialog">
         <DialogModal variant="compact">
-            <div class="flex min-h-0 flex-col gap-y-3 p-8">
-                <DPUseLogo class="size-12" />
+            <ScrollArea scroll-area-padding="none">
+                <div class="flex flex-col gap-y-3 py-8 pr-4 pl-8">
+                    <DPUseLogo class="size-12" />
 
-                <div ref="container">
-                    <Transition name="fade" mode="out-in" @before-leave="onBeforeLeave" @enter="onEnter" @after-enter="onAfterEnter">
-                        <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" :on-trigger="handleIdEntered" />
-                        <PasswordForm
-                            v-else-if="uiStateId === 'enterPassword' && handlePasswordEntered && handlePasswordBack"
-                            :on-trigger="handlePasswordEntered"
-                            :on-back="handlePasswordBack"
-                        />
-                        <div v-else-if="flowConstructed">{{ t(T, 'Service_unavailable') }}</div>
-                    </Transition>
+                    <div ref="container">
+                        <Transition name="fade" mode="out-in" @before-leave="onBeforeLeave" @enter="onEnter" @after-enter="onAfterEnter">
+                            <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" :on-trigger="handleIdEntered" />
+                            <PasswordForm
+                                v-else-if="uiStateId === 'enterPassword' && handlePasswordEntered && handlePasswordBack"
+                                :on-trigger="handlePasswordEntered"
+                                :on-back="handlePasswordBack"
+                            />
+                            <div v-else-if="flowConstructed">{{ t(T, 'Service_unavailable') }}</div>
+                        </Transition>
+                    </div>
+
+                    <Separator class="mt-3 mb-2" />
+                    <div class="text-center text-muted">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
                 </div>
-
-                <Separator class="mt-3 mb-2" />
-                <div class="text-center text-muted">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
-            </div>
+            </ScrollArea>
         </DialogModal>
     </DialogLayout>
 </template>

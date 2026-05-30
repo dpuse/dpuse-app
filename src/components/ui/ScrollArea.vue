@@ -9,7 +9,7 @@ const VERTICAL_THUMB_WIDTH = 6;
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-export type ScrollAreaPadding = 'embedded' | 'screen';
+export type ScrollAreaPadding = 'embedded' | 'none' | 'screen';
 type Properties = { scrollAreaPadding?: ScrollAreaPadding; scrollbarAlwaysVisible?: boolean };
 const { scrollAreaPadding, scrollbarAlwaysVisible = false } = defineProps<Properties>();
 
@@ -339,6 +339,11 @@ function clamp(value: number, min: number, max: number): number {
 
 .embedded {
     padding-bottom: var(--vertical-scroll-bottom-embedded-inset);
+    padding-right: 16px;
+}
+
+.none {
+    padding-bottom: 0px;
     padding-right: 16px;
 }
 
