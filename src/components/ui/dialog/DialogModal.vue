@@ -29,7 +29,7 @@ async function handleClose(): Promise<void> {
         :class="[
             'relative flex h-full w-full flex-col bg-surface text-content',
             'md:absolute md:top-6 md:left-1/2 md:max-h-[calc(100%-48px)] md:-translate-x-1/2 md:rounded-lg',
-            'pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pb-[calc(env(safe-area-inset-bottom))] pl-[calc(env(safe-area-inset-left))]',
+            'pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))]',
             variant === 'compact' ? 'md:h-auto md:w-sm' : 'md:w-3xl md:max-w-[calc(100vw-2rem)]'
         ]"
         data-region="DialogModal"
