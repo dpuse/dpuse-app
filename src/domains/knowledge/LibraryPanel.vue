@@ -22,7 +22,7 @@ const { title } = defineProps<{ title: string }>();
 
 const PROMPT = 'What should I search for to find the latest developments in renewable energy?';
 
-const activeTab = ref<'tanstack' | 'vercel'>('tanstack');
+const activeTab = ref<'tanstack' | 'vercel'>('vercel');
 
 // ─── TanStack AI ──────────────────────────────────────────────────────────────
 
@@ -65,8 +65,18 @@ async function runTanStackTest(): Promise<void> {
 
 const vercelChat = new Chat({
     transport: new DefaultChatTransport({
-        api: 'https://api.dpuse.app/ai/vanthropic/chat',
-        body: { model: 'claude-sonnet-4-6' }
+        api: 'https://api.dpuse.app/ai2/chat',
+        body: {
+            // messages: [{ id: '1', role: 'user', content: '', parts: [{ type: 'text', text: 'Hello, what can you help me with?' }] }],
+            model: 'claude-sonnet-4-6',
+            options: {
+                systemPrompt: 'You are a helpful assistant.',
+                temperature: 0.7,
+                maxTokens: 1024
+            },
+            provider: 'anthropic',
+            stream: true
+        }
     })
 });
 
