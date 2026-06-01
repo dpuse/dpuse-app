@@ -3,11 +3,12 @@
 import { marked } from 'marked';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 // ─── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import KnowledgeHeader from '@/components/framework/header/KnowledgeHeader.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ─── Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────
 
@@ -18,6 +19,9 @@ const { title } = defineProps<{ title: string }>();
 const PROMPT = 'What should I search for to find the latest developments in renewable energy?';
 
 // ─── State ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const scrollElement = ref<HTMLElement | null>(null);
+let scrollObserver: MutationObserver | null = null;
 
 const tsUserText = ref<string | undefined>();
 const tsAssistantThinking = ref<string | undefined>();
@@ -62,10 +66,20 @@ onMounted(() => {
     });
 });
 
+onUnmounted(() => scrollObserver?.disconnect());
+
 // ─── Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSendMessage(): Promise<void> {
     await client.sendMessage(PROMPT);
+}
+
+function handleScrollAreaInitialised(element: HTMLElement): void {
+    scrollElement.value = element;
+    scrollObserver = new MutationObserver(() => {
+        element.scrollTop = element.scrollHeight;
+    });
+    scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
 }
 </script>
 
@@ -74,9 +88,11 @@ async function handleSendMessage(): Promise<void> {
         <KnowledgeHeader class="mx-4 flex-none" :overline="'Knowledge'" :title="title" />
 
         <div class="flex flex-1 flex-col overflow-y-hidden px-4">
-            <div>{{ tsUserText }}</div>
-            <div>{{ tsAssistantThinking }}</div>
-            <div v-html="tsAssistantText" />
+            <ScrollArea class="flex flex-1 flex-col" @initialised="handleScrollAreaInitialised">
+                <div>{{ tsUserText }}</div>
+                <div>{{ tsAssistantThinking }}</div>
+                <div v-html="tsAssistantText" />
+            </ScrollArea>
 
             <div class="flex-none pb-6">
                 <div class="mt-2">
@@ -87,6 +103,8 @@ async function handleSendMessage(): Promise<void> {
                         rows="4"
                     />
                 </div>
+
+                <div>Status goes here...</div>
 
                 <div class="flex justify-end pr-1 pb-1">
                     <Button icon-size="sm" @click="handleSendMessage">

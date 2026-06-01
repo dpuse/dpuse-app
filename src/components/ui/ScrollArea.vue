@@ -282,7 +282,7 @@ function clamp(value: number, min: number, max: number): number {
                           : '0px'
             }"
             @pointerdown="handleVerticalTrackPointerDown"
-            @touchstart="handleVerticalTrackTouchStart"
+            @touchstart.passive="handleVerticalTrackTouchStart"
             @mouseenter="handleShowThumbs"
             @focusin="handleShowThumbs"
             @wheel="handleTrackWheel"
@@ -304,7 +304,7 @@ function clamp(value: number, min: number, max: number): number {
             :class="{ 'dpuse-scrollbar-visible': thumbsShown }"
             :style="{ right: verticalVisible ? verticalThumbRightOffset + 'px' : '0' }"
             @pointerdown="handleHorizontalTrackPointerDown"
-            @touchstart="handleHorizontalTrackTouchStart"
+            @touchstart.passive="handleHorizontalTrackTouchStart"
             @mouseenter="handleShowThumbs"
             @focusin="handleShowThumbs"
             @wheel="handleTrackWheel"
