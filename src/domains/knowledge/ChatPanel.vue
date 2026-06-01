@@ -3,13 +3,14 @@
 import { Chat } from '@ai-sdk/vue';
 import { marked } from 'marked';
 import { SendHorizonalIcon } from 'lucide-vue-next';
-import { DefaultChatTransport, isReasoningUIPart, isTextUIPart } from 'ai';
+import { DefaultChatTransport, isReasoningUIPart, isTextUIPart, type ReasoningUIPart, type TextUIPart, type UIMessage } from 'ai';
 import { onUnmounted, ref } from 'vue';
 
 // ─── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import KnowledgeHeader from '@/components/framework/header/KnowledgeHeader.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
+import Separator from '~/src/components/ui/Separator.vue';
 
 // ─── Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────
 
@@ -44,6 +45,18 @@ function renderText(text: string): string {
     return marked(text) as string;
 }
 
+type AssistantStep = { type: 'reasoning'; parts: ReasoningUIPart[]; isLast: boolean } | { type: 'text'; parts: TextUIPart[]; isLast: boolean };
+
+function getMessageSteps(message: UIMessage): AssistantStep[] {
+    const steps: AssistantStep[] = [];
+    const reasoningParts = message.parts.filter(isReasoningUIPart);
+    const textParts = message.parts.filter(isTextUIPart);
+    if (reasoningParts.length > 0) steps.push({ type: 'reasoning', parts: reasoningParts, isLast: false });
+    if (textParts.length > 0) steps.push({ type: 'text', parts: textParts, isLast: false });
+    if (steps.length > 0) steps.at(-1)!.isLast = true;
+    return steps;
+}
+
 // --- Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onUnmounted(() => scrollObserver?.disconnect());
@@ -70,23 +83,42 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
     <div class="flex h-full flex-col">
         <KnowledgeHeader class="mx-4 flex-none" :overline="'Knowledge'" :title="title" />
 
-        <div class="flex min-h-0 flex-1 flex-col px-4">
-            <ScrollArea class="flex flex-1 flex-col" @initialised="handleScrollAreaInitialised">
+        <Separator class="mx-4" />
+
+        <div class="flex min-h-0 flex-1 flex-col pl-4">
+            <ScrollArea class="flex flex-1 flex-col" variant="none" @initialised="handleScrollAreaInitialised">
                 <template v-for="message in chat.messages" :key="message.id">
                     <template v-if="message.role === 'user'">
-                        <div v-for="part in message.parts.filter(isTextUIPart)" :key="part.text" class="mt-3 flex justify-end">
-                            <div class="max-w-[75%] rounded-2xl rounded-tr-sm bg-blue-100 px-3 py-2 text-sm">{{ part.text }}</div>
+                        <div v-for="part in message.parts.filter(isTextUIPart)" :key="part.text" class="mt-3 flex pr-4">
+                            <div class="rounded-md bg-blue-50 px-3 py-2 w-full text-sm">{{ part.text }}</div>
                         </div>
                     </template>
+
                     <template v-else-if="message.role === 'assistant'">
-                        <div v-for="part in message.parts.filter(isReasoningUIPart)" :key="part.text" class="text-sm text-muted">{{ part.text }}</div>
-                        <div v-for="part in message.parts.filter(isTextUIPart)" :key="part.text" class="" v-html="renderText(part.text)" />
+                        <div class="mt-3 pr-4">
+                            <div v-for="step in getMessageSteps(message)" :key="step.type" class="flex gap-3">
+                                <div class="flex w-4 shrink-0 flex-col items-center">
+                                    <div class="mt-1.25 h-2 w-2 shrink-0 rounded-full bg-subtle"></div>
+                                    <div v-if="!step.isLast" class="mt-1 w-px flex-1 bg-separator"></div>
+                                </div>
+                                <div class="min-w-0 flex-1 pb-4">
+                                    <template v-if="step.type === 'reasoning'">
+                                        <div class="mb-1 text-xs font-medium tracking-wide text-subtle">Thinking</div>
+                                        <div v-for="part in step.parts" :key="part.text" class="text-sm text-subtle">{{ part.text }}</div>
+                                    </template>
+                                    <template v-else>
+                                        <div class="mb-1 text-xs font-medium tracking-wide text-subtle">Response</div>
+                                        <div v-for="part in step.parts" :key="part.text" class="text-sm" v-html="renderText(part.text)" />
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
                     </template>
                 </template>
             </ScrollArea>
 
-            <div class="flex-none pb-6">
-                <div class="mt-2">
+            <div class="flex-none pr-4 pl-16.25">
+                <div class="mt-0">
                     <textarea
                         id="comment"
                         v-model="input"
@@ -96,7 +128,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
                     />
                 </div>
 
-                <div class="bg-red-100 text-xs text-gray-400 dark:text-gray-500">status: {{ chat.status }}</div>
+                <div class="text-xs text-subtle">Status: {{ chat.status }} Provider: {{ 'Anthropic' }} Model: {{ 'claude-sonnet-4-6' }}</div>
 
                 <div class="flex justify-end pr-1 pb-1">
                     <Button icon-size="sm" @click="handleSendMessage">
