@@ -24,7 +24,7 @@ let scrollObserver: MutationObserver | null = null;
 
 const chat = new Chat({
     transport: new DefaultChatTransport({
-        api: 'https://api.dpuse.app/ai2/chat',
+        api: 'https://api.dpuse.app/ai/chat',
         body: {
             model: 'claude-sonnet-4-6',
             options: {

@@ -33,7 +33,7 @@ let client: ChatClient;
 
 onMounted(() => {
     client = new ChatClient({
-        connection: fetchServerSentEvents('https://api.dpuse.app/ai2/chat'),
+        connection: fetchServerSentEvents('https://api.dpuse.app/ai/chat'),
         forwardedProps: {
             messages: [{ id: 'msg-1', role: 'user', parts: [{ type: 'text', text: 'Hello, what can you help me with?' }] }],
             model: 'claude-sonnet-4-6',
