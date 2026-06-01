@@ -34,11 +34,11 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
 <template>
     <nav
         aria-label="Workbench options"
-        class="border-boundary bg-backdrop mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-r pt-[calc(55px)] pb-[calc(var(--vertical-scroll-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
+        class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-r border-boundary bg-backdrop pt-[calc(55px)] pb-[calc(var(--vertical-scroll-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
         data-region="WorkbenchOptionPanel"
     >
         <!-- Separator -->
-        <div class="bg-separator mx-3 h-px flex-none" />
+        <div class="mx-3 h-px flex-none bg-separator" />
 
         <!-- Benchtop options scroller -->
         <ScrollArea class="flex-1">

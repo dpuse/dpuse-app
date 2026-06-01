@@ -248,7 +248,7 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
                 <div v-show="activeItemAction.id === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
 
                 <div
-                    class="border-separator bg-backdrop relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t text-xs"
+                    class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t border-separator bg-backdrop text-xs"
                 >
                     <div class="absolute top-0 bottom-0 left-0 bg-green-200 dark:bg-green-500/30" :style="{ width: `${previewPercentage}%` }"></div>
                     <div class="relative pl-1">{{ previewMessage }}</div>

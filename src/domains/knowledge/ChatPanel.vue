@@ -117,25 +117,30 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
                 </template>
             </ScrollArea>
 
-            <div class="flex-none pr-4 pl-16.25">
+            <div class="relative flex-none pr-4">
                 <div class="mt-0">
                     <textarea
                         id="comment"
                         v-model="input"
                         name="comment"
-                        class="block max-h-48 w-full resize-none rounded-md border-0 bg-surface px-3 py-1.5 text-base outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-                        rows="4"
+                        :class="[
+                            'block h-18.25 max-h-40 w-full resize-none border-y border-separator bg-surface py-1.5 pr-3 pl-12.25 text-base',
+                            'sm:text-sm/6 dark:bg-white/5 dark:text-white',
+                            // 'outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:outline-white/10 dark:focus:outline-indigo-500',
+                            'placeholder:text-gray-400 dark:placeholder:text-gray-500'
+                        ]"
+                        rows="2"
                     />
                 </div>
 
-                <div class="text-xs text-subtle">Status: {{ chat.status }} Provider: {{ 'Anthropic' }} Model: {{ 'claude-sonnet-4-6' }}</div>
-
-                <div class="flex justify-end pr-1 pb-1">
+                <div class="absolute right-4.25 bottom-px">
                     <Button icon-size="sm" @click="handleSendMessage">
                         <SendHorizonalIcon stroke-width="1.25" />
                     </Button>
                 </div>
             </div>
+
+            <div class="flex h-(--status-bar-height) items-center text-xs text-muted">Status: {{ chat.status }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-sonnet-4-6' }}</div>
         </div>
     </div>
 </template>
