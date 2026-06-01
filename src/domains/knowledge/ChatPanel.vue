@@ -90,7 +90,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
                 <template v-for="message in chat.messages" :key="message.id">
                     <template v-if="message.role === 'user'">
                         <div v-for="part in message.parts.filter(isTextUIPart)" :key="part.text" class="mt-3 flex pr-4">
-                            <div class="rounded-md bg-blue-50 px-3 py-2 w-full text-sm">{{ part.text }}</div>
+                            <div class="w-full rounded-md bg-blue-50 px-3 py-2 text-sm">{{ part.text }}</div>
                         </div>
                     </template>
 
@@ -98,7 +98,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
                         <div class="mt-3 pr-4">
                             <div v-for="step in getMessageSteps(message)" :key="step.type" class="flex gap-3">
                                 <div class="flex w-4 shrink-0 flex-col items-center">
-                                    <div class="mt-1.25 h-2 w-2 shrink-0 rounded-full bg-subtle"></div>
+                                    <div class="mt-1.25 h-2 w-2 shrink-0 rounded-full" :class="step.type === 'reasoning' ? 'bg-subtle' : 'bg-content'"></div>
                                     <div v-if="!step.isLast" class="mt-1 w-px flex-1 bg-separator"></div>
                                 </div>
                                 <div class="min-w-0 flex-1 pb-4">
