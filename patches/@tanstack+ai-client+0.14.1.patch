@@ -1,0 +1,13 @@
+diff --git a/node_modules/@tanstack/ai-client/dist/esm/devtools-noop.js b/node_modules/@tanstack/ai-client/dist/esm/devtools-noop.js
+index 40d45dc..b356d77 100644
+--- a/node_modules/@tanstack/ai-client/dist/esm/devtools-noop.js
++++ b/node_modules/@tanstack/ai-client/dist/esm/devtools-noop.js
+@@ -50,6 +50,8 @@ class NoOpChatDevtoolsBridge {
+   findToolCallContext(toolCallId) {
+     return { toolCallId };
+   }
++  mountWithTools(_messageCount) {
++  }
+   async applyFixture(_fixture) {
+   }
+ }

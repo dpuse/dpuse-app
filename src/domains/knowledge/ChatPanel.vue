@@ -1,70 +1,89 @@
 <script setup lang="ts">
-// External Dependencies
-import { ref } from 'vue';
+// ─── External Dependencies
+import { Chat } from '@ai-sdk/vue';
+import { computed } from 'vue';
+import { marked } from 'marked';
 import { SendHorizonalIcon } from 'lucide-vue-next';
+import { DefaultChatTransport, isReasoningUIPart, isTextUIPart } from 'ai';
 
-// Local (App) Framework
-import { type BreadcrumbConfig, useBreadcrumbs } from '@/composables/useBreadcrumbs';
-
-// Local Components - Static
+// ─── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import KnowledgeHeader from '@/components/framework/header/KnowledgeHeader.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ─── Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const PROMPT = 'What should I search for to find the latest developments in renewable energy?';
+
+// ─── Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────
 
 const { title } = defineProps<{ title: string }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ─── State ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const { breadcrumbs } = useBreadcrumbs<BreadcrumbConfig>([{ id: 'knowledge', label: 'Knowledge' }]);
+const chat = new Chat({
+    transport: new DefaultChatTransport({
+        api: 'https://api.dpuse.app/ai2/chat',
+        body: {
+            model: 'claude-sonnet-4-6',
+            options: {
+                systemPrompt: 'You are a helpful assistant.',
+                temperature: 0.7,
+                maxTokens: 1024,
+                thinking: { type: 'enabled', budget_tokens: 2000 }
+            },
+            provider: 'anthropic',
+            stream: true
+        }
+    })
+});
 
-// EXPERIMENTAL ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ─── Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Chat state (kept here so it persists across view switches)
-const messages = ref<{ id: number; text: string }[]>([]);
+const vercelUserText = computed(() => {
+    const last = chat.messages.toReversed().find((m) => m.role === 'user');
+    return last?.parts.find(isTextUIPart)?.text;
+});
 
-function runTest(): void {
-    const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/json');
-    const raw = JSON.stringify({ message: 'Can I show the current state of all modules?' });
-    const requestOptions: RequestInit = { method: 'POST', headers: myHeaders, body: raw, redirect: 'follow' };
-    fetch('https://api.dpuse.app/ai/chat', requestOptions)
-        .then((response) => response.json())
-        .then((result) => {
-            const id = crypto.getRandomValues(new Uint32Array(1))[0] ?? 0;
-            messages.value.push({ id, text: JSON.stringify(result) });
-        })
-        .catch((error) => console.log('error', error));
+const vercelAssistantThinking = computed(() => {
+    const last = chat.messages.toReversed().find((m) => m.role === 'assistant');
+    return last?.parts.find(isReasoningUIPart)?.text;
+});
+
+const vercelAssistantText = computed(() => {
+    const last = chat.messages.toReversed().find((m) => m.role === 'assistant');
+    const text = last?.parts.find(isTextUIPart)?.text;
+    return text == null ? undefined : (marked(text) as string);
+});
+
+// ─── Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function handleSendMessage(): Promise<void> {
+    await chat.sendMessage({ text: PROMPT });
 }
 </script>
 
 <template>
-    <div>
-        <KnowledgeHeader class="mx-4" :overline="'Knowledge'" :title="title" />
+    <div class="flex h-full flex-col">
+        <KnowledgeHeader class="mx-4 flex-none" :overline="'Knowledge'" :title="title" />
 
-        <div class="flex flex-1 flex-col overflow-y-hidden p-4">
-            <div class="text-muted-foreground flex flex-1 flex-col gap-y-4 overflow-y-auto pb-4 font-light wrap-break-word">
-                <div v-for="message in messages" :key="message.id">
-                    {{ message.text }}
-                </div>
-            </div>
+        <div class="flex flex-1 flex-col overflow-y-hidden px-4">
+            <div class="bg-red-100 text-xs text-gray-400 dark:text-gray-500">status: {{ chat.status }}</div>
+            <div class="bg-blue-100">{{ vercelUserText }}</div>
+            <div class="bg-yellow-100">{{ vercelAssistantThinking }}</div>
+            <div class="bg-green-100" v-html="vercelAssistantText" />
 
             <div class="flex-none pb-6">
-                <div>
-                    <label for="comment" class="block text-sm/6 font-medium text-gray-900 dark:text-white">A label...</label>
-                    <div class="mt-2">
-                        <textarea
-                            id="comment"
-                            name="comment"
-                            class="bg-surface block max-h-48 w-full resize-none overflow-y-auto rounded-md border-0 px-3 py-1.5 text-base outline-1 -outline-offset-1 outline-gray-300 placeholder:text-sm placeholder:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus-visible:outline-indigo-500"
-                            rows="1"
-                            placeholder="Ask a question…"
-                        />
-                    </div>
+                <div class="mt-2">
+                    <textarea
+                        id="comment"
+                        name="comment"
+                        class="block max-h-48 w-full resize-none rounded-md border-0 bg-surface px-3 py-1.5 text-base outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                        rows="4"
+                    />
                 </div>
 
                 <div class="flex justify-end pr-1 pb-1">
-                    <Button icon-size="sm" @click="runTest">
+                    <Button icon-size="sm" @click="handleSendMessage">
                         <SendHorizonalIcon stroke-width="1.25" />
                     </Button>
                 </div>
@@ -72,3 +91,32 @@ function runTest(): void {
         </div>
     </div>
 </template>
+
+<style scoped>
+:deep(h2) {
+    font-weight: 500;
+    margin-top: 12px;
+}
+:deep(ul) {
+    list-style-type: disc;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    padding-left: 20px;
+}
+:deep(ol) {
+    list-style-type: decimal;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    padding-left: 20px;
+}
+:deep(li) {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+:deep(p) {
+    margin-top: 12px;
+}
+:deep(strong) {
+    font-weight: 500;
+}
+</style>

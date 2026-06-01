@@ -19,14 +19,7 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks(id) {
-                    // if (id.includes('@dpuse/dpuse-shared')) return 'dpuse-shared';
-                    if (id.includes('node_modules/@tanstack/ai')) {
-                        // @tanstack/ai-client contains a CommonJS module that causes Rollup to place a CJS interop helper
-                        // in the LibraryView chunk. This creates a static dependency from session (initial load) to
-                        // LibraryView, forcing it to preload with the app. Isolating @tanstack/ai into its own chunk
-                        // moves the helper out of LibraryView, keeping it truly lazy-loaded.
-                        return 'tanstack-ai';
-                    }
+                    // if (id.includes('node_modules/marked')) return 'vendor-marked';
                 }
             }
         }
