@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // ─── External Dependencies
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import { SendHorizonalIcon } from 'lucide-vue-next';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
@@ -55,7 +56,7 @@ onMounted(() => {
                         if (part.type === 'text') tsUserText.value = part.content;
                     } else if (message.role === 'assistant') {
                         if (part.type === 'thinking') tsAssistantThinking.value = part.content;
-                        else if (part.type === 'text') tsAssistantText.value = marked(part.content) as string;
+                        else if (part.type === 'text') tsAssistantText.value = DOMPurify.sanitize(marked.parse(part.content, { async: false }));
                     }
                 }
             }
