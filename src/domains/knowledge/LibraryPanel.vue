@@ -107,7 +107,7 @@ onMounted(() => {
             model: 'claude-sonnet-4-6',
             options: {
                 systemPrompt: 'You are a helpful assistant.',
-                temperature: 1,
+                temperature: 1, // TODO: using 0.7 creates an error when 'thinking' property set.
                 maxTokens: 1024,
                 thinking: { type: 'enabled', budget_tokens: 2000 }
             },
