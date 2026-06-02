@@ -23,7 +23,7 @@ const emit = defineEmits<{ continue: [] }>();
 
 const workflowOptionConfigs = useWorkflowOptionConfigs();
 
-// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
     if (config != null) setActiveBenchtop(config);

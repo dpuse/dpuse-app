@@ -42,7 +42,7 @@ export default defineConfig({
                 " script-src 'self' https://engine-eu.dpuse.app 'wasm-unsafe-eval' 'sha256-HSvgr//xBF8qoKsX1FPA79evG6rtxroRm2NegRE7MHs=';" +
                 " style-src 'self' 'unsafe-inline';" + // 'unsafe-inline' is required in dev mode as Vite injects Tailwind CSS as inline <style> elements for HMR. Hashes required in production are not required here because of 'unsafe-inline' setting.
                 " worker-src 'self' blob:;" +
-                ' trusted-types default vue;' +
+                ' trusted-types default vue dompurify;' +
                 " require-trusted-types-for 'script';",
             'Cross-Origin-Resource-Policy': 'same-origin',
             'Cross-Origin-Opener-Policy': 'same-origin-allow-popups', // '-allow-popups' suffix is required for vendor (Dropbox...) authentication window popups.

@@ -57,7 +57,7 @@ onUnmounted(() => {
     document.removeEventListener('fullscreenchange', handleFullscreenChange);
 });
 
-// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleFullscreenChange(): void {
     isFullscreen.value = !!document.fullscreenElement;

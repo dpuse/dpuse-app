@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ─── External Dependencies
 import DOMPurify from 'dompurify';
-import { marked } from 'marked';
+import { marked } from 'marked'; // NOTE: 'marked' with DOMPurify is at least 14kB smaller (gzipped) than 'micromark' or 'markdown-it' without DOMPurify. Measured June 2, 2026.
 import { SendHorizonalIcon } from 'lucide-vue-next';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
 import { onMounted, onUnmounted, ref } from 'vue';
@@ -10,6 +10,7 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import Button from '@/components/ui/button/Button.vue';
 import KnowledgeHeader from '@/components/framework/header/KnowledgeHeader.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
+import Separator from '~/src/components/ui/Separator.vue';
 
 // ─── Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────
 
@@ -21,14 +22,79 @@ const PROMPT = 'What should I search for to find the latest developments in rene
 
 // ─── State ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const input = ref(PROMPT);
 const scrollElement = ref<HTMLElement | null>(null);
 let scrollObserver: MutationObserver | null = null;
 
-const tsUserText = ref<string | undefined>();
-const tsAssistantThinking = ref<string | undefined>();
-const tsAssistantText = ref<string | undefined>();
+const chatMessages = ref<LibraryChatMessage[]>([]);
+const chatErrorsByUserMessageId = ref<Record<string, string[]>>({});
+const chatStatus = ref('idle');
 
-let client: ChatClient;
+let client: ChatClient | null = null;
+
+// ─── Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+interface LibraryChatPart {
+    type: string;
+    content: string;
+}
+
+interface LibraryChatMessage {
+    id: string;
+    role: string;
+    parts: LibraryChatPart[];
+}
+
+type AssistantStep = { type: 'thinking'; parts: LibraryChatPart[]; isLast: boolean } | { type: 'text'; parts: LibraryChatPart[]; isLast: boolean };
+
+// ─── Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+function isTextPart(part: LibraryChatPart): boolean {
+    return part.type === 'text';
+}
+
+function isThinkingPart(part: LibraryChatPart): boolean {
+    return part.type === 'thinking';
+}
+
+function renderText(text: string): string {
+    return DOMPurify.sanitize(marked.parse(text, { async: false }));
+}
+
+function extractErrorMessage(error: Error): string {
+    try {
+        const payload = JSON.parse(error.message.slice(4)) as { error?: { message?: string } };
+        const parsedMessage = payload.error?.message?.trim();
+        return parsedMessage != null && parsedMessage.length > 0 ? parsedMessage : error.message;
+    } catch {
+        return error.message;
+    }
+}
+
+function getMessageErrors(messageId: string): string[] {
+    return chatErrorsByUserMessageId.value[messageId] ?? [];
+}
+
+function appendErrorForLatestUserMessage(errorText: string): void {
+    const latestUserMessage = chatMessages.value.toReversed().find((message) => message.role === 'user');
+    const targetMessageId = latestUserMessage?.id;
+    if (targetMessageId == null) return;
+    const existingErrors = chatErrorsByUserMessageId.value[targetMessageId] ?? [];
+    chatErrorsByUserMessageId.value = {
+        ...chatErrorsByUserMessageId.value,
+        [targetMessageId]: [...existingErrors, errorText]
+    };
+}
+
+function getMessageSteps(message: LibraryChatMessage): AssistantStep[] {
+    const steps: AssistantStep[] = [];
+    const thinkingParts = message.parts.filter((part) => isThinkingPart(part));
+    const textParts = message.parts.filter((part) => isTextPart(part));
+    if (thinkingParts.length > 0) steps.push({ type: 'thinking', parts: thinkingParts, isLast: false });
+    if (textParts.length > 0) steps.push({ type: 'text', parts: textParts, isLast: false });
+    if (steps.length > 0) steps.at(-1)!.isLast = true;
+    return steps;
+}
 
 // ─── Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -40,7 +106,7 @@ onMounted(() => {
             model: 'claude-sonnet-4-6',
             options: {
                 systemPrompt: 'You are a helpful assistant.',
-                temperature: 1,
+                temperature: 0.7,
                 maxTokens: 1024,
                 thinking: { type: 'enabled', budget_tokens: 2000 }
             },
@@ -50,29 +116,56 @@ onMounted(() => {
         },
         initialMessages: [],
         onMessagesChange: (messages): void => {
-            for (const message of messages) {
-                for (const part of message.parts) {
-                    if (message.role === 'user') {
-                        if (part.type === 'text') tsUserText.value = part.content;
-                    } else if (message.role === 'assistant') {
-                        if (part.type === 'thinking') tsAssistantThinking.value = part.content;
-                        else if (part.type === 'text') tsAssistantText.value = DOMPurify.sanitize(marked.parse(part.content, { async: false }));
-                    }
-                }
-            }
+            console.log('onMessagesChange', messages);
+            chatMessages.value = messages as LibraryChatMessage[];
         },
-        onResponse: (): void => {},
-        onChunk: (): void => {},
-        onFinish: (): void => {}
+        onLoadingChange: (isLoading): void => {
+            console.log('onLoadingChange', isLoading);
+        },
+        onStatusChange: (status): void => {
+            console.log('onStatusChange', status);
+            chatStatus.value = status;
+        },
+        onErrorChange: (error): void => {
+            console.log('onErrorChange', error?.message);
+        },
+        onResponse: (response): void => {
+            console.log('onResponse', response);
+        },
+        onSubscriptionChange: (isSubscribed): void => {
+            console.log('onSubscriptionChange', isSubscribed);
+        },
+        onConnectionStatusChange: (status): void => {
+            console.log('onConnectionStatusChange', status);
+        },
+        onChunk: (chunk): void => {
+            console.log('onChunk', chunk);
+        },
+        onError: (error): void => {
+            console.log('onError 1', error);
+            const extractedMessage = extractErrorMessage(error);
+            console.log('onError 2', extractedMessage);
+            appendErrorForLatestUserMessage(extractedMessage);
+        },
+        onSessionGeneratingChange: (isGenerating): void => {
+            console.log('onSessionGeneratingChange', isGenerating);
+        },
+        onFinish: (message): void => {
+            console.log('onFinish', message);
+        }
     });
 });
 
 onUnmounted(() => scrollObserver?.disconnect());
 
-// ─── Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ─── UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSendMessage(): Promise<void> {
-    await client.sendMessage(PROMPT);
+    if (client == null) return;
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    await client.sendMessage(text);
 }
 
 function handleScrollAreaInitialised(element: HTMLElement): void {
@@ -88,31 +181,75 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
     <div class="flex h-full flex-col">
         <KnowledgeHeader class="mx-4 flex-none" :overline="'Knowledge'" :title="title" />
 
-        <div class="flex flex-1 flex-col overflow-y-hidden px-4">
-            <ScrollArea class="flex flex-1 flex-col" @initialised="handleScrollAreaInitialised">
-                <div>{{ tsUserText }}</div>
-                <div>{{ tsAssistantThinking }}</div>
-                <div v-html="tsAssistantText" />
+        <Separator class="mx-4" />
+
+        <div class="flex min-h-0 flex-1 flex-col pl-4">
+            <ScrollArea class="flex flex-1 flex-col" variant="none" @initialised="handleScrollAreaInitialised">
+                <template v-for="message in chatMessages" :key="message.id">
+                    <template v-if="message.role === 'user'">
+                        <div v-for="(part, index) in message.parts.filter((part) => isTextPart(part))" :key="`${message.id}-user-${index}`" class="mt-3 flex pr-4">
+                            <div class="w-full rounded-md bg-blue-50 px-3 py-2 text-sm">{{ part.content }}</div>
+                        </div>
+
+                        <div v-for="(errorText, errorIndex) in getMessageErrors(message.id)" :key="`${message.id}-error-${errorIndex}`" class="mt-3 pr-4">
+                            <div class="flex gap-3">
+                                <div class="flex w-4 shrink-0 flex-col items-center">
+                                    <div class="mt-1.25 h-2 w-2 shrink-0 rounded-full bg-rose-600"></div>
+                                </div>
+                                <div class="min-w-0 flex-1 pb-4">
+                                    <div class="mb-1 text-xs font-medium tracking-wide text-rose-700">Error</div>
+                                    <div class="text-sm whitespace-pre-line text-rose-700">{{ errorText }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template v-else-if="message.role === 'assistant'">
+                        <div class="mt-3 pr-4">
+                            <div v-for="step in getMessageSteps(message)" :key="step.type" class="flex gap-3">
+                                <div class="flex w-4 shrink-0 flex-col items-center">
+                                    <div class="mt-1.25 h-2 w-2 shrink-0 rounded-full" :class="step.type === 'thinking' ? 'bg-subtle' : 'bg-content'"></div>
+                                    <div v-if="!step.isLast" class="mt-1 w-px flex-1 bg-separator"></div>
+                                </div>
+                                <div class="min-w-0 flex-1 pb-4">
+                                    <template v-if="step.type === 'thinking'">
+                                        <div class="mb-1 text-xs font-medium tracking-wide text-subtle">Thinking</div>
+                                        <div v-for="(part, index) in step.parts" :key="`${message.id}-thinking-${index}`" class="text-sm text-subtle">{{ part.content }}</div>
+                                    </template>
+                                    <template v-else>
+                                        <div class="mb-1 text-xs font-medium tracking-wide text-subtle">Response</div>
+                                        <div v-for="(part, index) in step.parts" :key="`${message.id}-text-${index}`" class="text-sm" v-html="renderText(part.content)" />
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </template>
             </ScrollArea>
 
-            <div class="flex-none pb-6">
-                <div class="mt-2">
+            <div class="relative flex-none pr-4">
+                <div class="mt-0">
                     <textarea
                         id="comment"
+                        v-model="input"
                         name="comment"
-                        class="block max-h-48 w-full resize-none rounded-md border-0 bg-surface px-3 py-1.5 text-base outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-                        rows="4"
+                        :class="[
+                            'block h-18.25 max-h-40 w-full resize-none border-y border-separator bg-surface py-1.5 pr-3  text-base',
+                            'sm:text-sm/6 dark:bg-white/5 dark:text-white',
+                            'placeholder:text-gray-400 dark:placeholder:text-gray-500'
+                        ]"
+                        rows="2"
                     />
                 </div>
 
-                <div>Status goes here...</div>
-
-                <div class="flex justify-end pr-1 pb-1">
-                    <Button icon-size="sm" @click="handleSendMessage">
+                <div class="absolute right-4.25 bottom-px">
+                    <Button shape="minimal" @click="handleSendMessage">
                         <SendHorizonalIcon stroke-width="1.25" />
                     </Button>
                 </div>
             </div>
+
+            <div class="flex h-(--status-bar-height) items-center text-xs text-muted">Status: {{ chatStatus }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-sonnet-4-6' }}</div>
         </div>
     </div>
 </template>

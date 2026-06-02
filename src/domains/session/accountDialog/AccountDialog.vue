@@ -69,7 +69,7 @@ watch(viewportIsWide, (isWide) => {
     if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1];
 });
 
-// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleBack(): void {
     activeOptionConfig.value = undefined;

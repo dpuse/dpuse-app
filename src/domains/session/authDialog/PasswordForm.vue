@@ -18,7 +18,7 @@ const { onBack, onTrigger } = defineProps<{ onBack: () => Promise<void>; onTrigg
 
 const password = ref('datapos1111');
 
-// Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleBack(): Promise<void> {
     await onBack();
