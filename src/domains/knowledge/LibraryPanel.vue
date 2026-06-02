@@ -64,7 +64,6 @@ function renderText(text: string): string {
 function extractErrorMessage(error: Error): string {
     try {
         const payload = JSON.parse(error.message.slice(4)) as { error?: { message?: string } };
-        console.log(999, payload);
         const parsedMessage = payload.error?.message?.trim();
         return parsedMessage != null && parsedMessage.length > 0 ? parsedMessage : error.message;
     } catch {
@@ -101,9 +100,9 @@ function getMessageSteps(message: LibraryChatMessage): AssistantStep[] {
 
 onMounted(() => {
     client = new ChatClient({
-        connection: fetchServerSentEvents('https://api.dpuse.app/ai/chat'),
+        connection: fetchServerSentEvents('https://api.dpuse.app/ai/chat/tanstack'),
         forwardedProps: {
-            messages: [{ id: 'msg-1', role: 'user', parts: [{ type: 'text', text: 'Hello, what can you help me with?' }] }],
+            messages: [{ role: 'user', content: 'Hello, what can you help me with?' }],
             model: 'claude-sonnet-4-6',
             options: {
                 systemPrompt: 'You are a helpful assistant.',
@@ -118,7 +117,7 @@ onMounted(() => {
         initialMessages: [],
         onMessagesChange: (messages): void => {
             console.log('onMessagesChange', messages);
-            chatMessages.value = messages as LibraryChatMessage[];
+            chatMessages.value = messages as unknown as LibraryChatMessage[];
         },
         onLoadingChange: (isLoading): void => {
             console.log('onLoadingChange', isLoading);

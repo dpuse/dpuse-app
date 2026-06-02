@@ -28,15 +28,14 @@ const chat = new Chat({
     transport: new DefaultChatTransport({
         api: 'https://api.dpuse.app/ai/chat',
         body: {
+            provider: 'anthropic',
             model: 'claude-sonnet-4-6',
+            stream: true,
             options: {
                 systemPrompt: 'You are a helpful assistant.',
-                temperature: 1, // TODO: using 0.7 creates an error when 'thinking' property set.
-                maxTokens: 1024,
-                thinking: { type: 'enabled', budget_tokens: 2000 }
-            },
-            provider: 'anthropic',
-            stream: true
+                maxOutputTokens: 1024,
+                modelOptions: { thinking: { type: 'adaptive' }, effort: 'medium' }
+            }
         }
     }),
     onError: (error): void => {

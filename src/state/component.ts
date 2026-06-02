@@ -13,7 +13,7 @@ let activeLoadCount = 0; // Counter-based so concurrent non-route loads (dialogs
 
 export function load(name: string, importFunction: () => Promise<Component>, simulateDelayMs = 0, simulateLoadError = false): () => Promise<Component> {
     return async () => {
-        if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Loading '${name}'...`, { simulateDelayMs, simulateLoadError });
+        if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Loading '${name}' component.`);
 
         // If a route navigation is already in progress it owns the loading state — don't interfere.
         const isThisNavigationActive = isNavigationActive.value;
