@@ -9,7 +9,7 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
 <template>
     <header
         class="mt-[env(safe-area-inset-top)] flex h-13.75 flex-none flex-col justify-center text-lg font-light"
-        :class="viewportIsWide ? (knowledgePaneIsVisible ? 'px-0' : 'pr-44 pl-4') : 'px-14'"
+        :class="viewportIsWide ? (knowledgePaneIsVisible ? 'pl-4 pr-0' : 'pr-44 pl-4') : 'px-14'"
         data-region="WorkbenchHeader"
     >
         <!-- Content indented from left and right to allow for logos when display is narrow.

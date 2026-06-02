@@ -64,6 +64,7 @@ function renderText(text: string): string {
 function extractErrorMessage(error: Error): string {
     try {
         const payload = JSON.parse(error.message.slice(4)) as { error?: { message?: string } };
+        console.log(999, payload);
         const parsedMessage = payload.error?.message?.trim();
         return parsedMessage != null && parsedMessage.length > 0 ? parsedMessage : error.message;
     } catch {
@@ -106,7 +107,7 @@ onMounted(() => {
             model: 'claude-sonnet-4-6',
             options: {
                 systemPrompt: 'You are a helpful assistant.',
-                temperature: 0.7,
+                temperature: 1,
                 maxTokens: 1024,
                 thinking: { type: 'enabled', budget_tokens: 2000 }
             },

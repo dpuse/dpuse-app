@@ -41,7 +41,7 @@ const chat = new Chat({
     }),
     onError: (error): void => {
         console.log('onError 1', error);
-        const extractedError = JSON.parse(error.message).error;
+        const extractedError = error.message;
         const extractedMessage = typeof extractedError === 'string' ? extractedError : JSON.stringify(extractedError);
         console.log('onError 2', extractedMessage);
         appendErrorForLatestUserMessage(extractedMessage);
