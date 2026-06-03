@@ -92,16 +92,23 @@ function getMessageSteps(message: UIMessage): AssistantStep[] {
 
 // --- Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────
 
+let singleRowHeight = 0;
+
 onMounted(() => {
     const element = document.querySelector<HTMLTextAreaElement>('#comment');
-    if (element) isInputExpanded.value = element.clientHeight > 32;
+    if (!element) return;
+    const savedValue = element.value;
+    element.value = '';
+    singleRowHeight = element.clientHeight;
+    element.value = savedValue;
+    isInputExpanded.value = element.clientHeight > singleRowHeight;
 });
 onUnmounted(() => scrollObserver?.disconnect());
 
 // ─── UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function onTextareaInput(event: Event): void {
-    isInputExpanded.value = (event.target as HTMLTextAreaElement).clientHeight > 32;
+    isInputExpanded.value = (event.target as HTMLTextAreaElement).clientHeight > singleRowHeight;
 }
 
 async function handleSendMessage(): Promise<void> {
@@ -130,7 +137,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
             <ScrollArea class="flex flex-1 flex-col" variant="none" scroll-area-padding="embedded" @initialised="handleScrollAreaInitialised">
                 <template v-for="message in chat.messages" :key="message.id">
                     <template v-if="message.role === 'user'">
-                        <div v-for="part in message.parts.filter(isTextUIPart)" :key="part.text" class="mt-3 flex pr-4">
+                        <div v-for="part in message.parts.filter(isTextUIPart)" :key="part.text" class="mt-3 flex">
                             <div class="w-full rounded-md bg-blue-50 px-3 py-2 text-sm">{{ part.text }}</div>
                         </div>
 
@@ -148,7 +155,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
                     </template>
 
                     <template v-else-if="message.role === 'assistant'">
-                        <div class="mt-3 pr-4">
+                        <div class="mt-3">
                             <div v-for="step in getMessageSteps(message)" :key="step.type" class="flex gap-3">
                                 <div class="flex w-4 shrink-0 flex-col items-center">
                                     <div class="mt-1.25 h-2 w-2 shrink-0 rounded-full" :class="step.type === 'reasoning' ? 'bg-subtle' : 'bg-content'"></div>
@@ -172,7 +179,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
 
             <div
                 :class="[
-                    'absolute right-4 bottom-(--safe-bottom-offset) left-16 flex min-h-10 flex-none items-center gap-x-2 border border-separator bg-surface py-1 pl-2',
+                    'absolute right-4 bottom-(--safe-bottom-offset) left-16 flex flex-none flex-col border border-separator bg-surface py-1 pl-2 sm:min-h-10 sm:flex-row sm:items-center',
                     isInputExpanded ? 'rounded-2xl' : 'rounded-full'
                 ]"
             >
@@ -184,7 +191,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
                     @input="onTextareaInput"
                 />
 
-                <div class="absolute right-3 flex items-center gap-x-1.5 self-end">
+                <div class="flex w-full items-center justify-end gap-x-1.5 pr-1 sm:absolute sm:right-3 sm:w-auto sm:self-end sm:pr-0">
                     <Button class="rounded-full bg-zinc-200 p-1.25" shape="minimal">
                         <EllipsisVerticalIcon class="size-5" stroke-width="1.5" />
                     </Button>
