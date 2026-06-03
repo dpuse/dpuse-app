@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // ─── External Dependencies
-import { ArrowUpIcon } from 'lucide-vue-next';
 import { Chat } from '@ai-sdk/vue';
 import DOMPurify from 'dompurify';
 import { marked } from 'marked'; // NOTE: 'marked' with DOMPurify is at least 14kB smaller (gzipped) than 'micromark' or 'markdown-it' without DOMPurify. Measured June 2, 2026.
+import { ArrowUpIcon, EllipsisVerticalIcon } from 'lucide-vue-next';
 import { DefaultChatTransport, isReasoningUIPart, isTextUIPart, type ReasoningUIPart, type TextUIPart, type UIMessage } from 'ai';
 import { onMounted, onUnmounted, ref } from 'vue';
 
@@ -100,8 +100,8 @@ onUnmounted(() => scrollObserver?.disconnect());
 
 // ─── UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function onTextareaInput(e: Event): void {
-    isInputExpanded.value = (e.target as HTMLTextAreaElement).clientHeight > 32;
+function onTextareaInput(event: Event): void {
+    isInputExpanded.value = (event.target as HTMLTextAreaElement).clientHeight > 32;
 }
 
 async function handleSendMessage(): Promise<void> {
@@ -170,27 +170,34 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
                 </template>
             </ScrollArea>
 
-            <div :class="['absolute right-4 bottom-(--safe-bottom-offset) left-16 flex min-h-10 flex-none items-end gap-x-2 border border-separator px-2 py-1', isInputExpanded ? 'rounded-xl' : 'rounded-full']">
+            <div
+                :class="[
+                    'absolute right-4 bottom-(--safe-bottom-offset) left-16 flex min-h-10 flex-none items-center gap-x-2 border border-separator bg-surface py-1 pl-2',
+                    isInputExpanded ? 'rounded-2xl' : 'rounded-full'
+                ]"
+            >
                 <textarea
                     id="comment"
                     v-model="input"
                     name="comment"
-                    :class="[
-                        'field-sizing-content max-h-24 w-full resize-none overflow-y-auto bg-surface text-base',
-                        'sm:text-sm/6 dark:bg-white/5 dark:text-white',
-                        // 'outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:outline-white/10 dark:focus:outline-indigo-500',
-                        'placeholder:text-gray-400 dark:placeholder:text-gray-500'
-                    ]"
-                    rows="1"
+                    class="field-sizing-content max-h-24 w-full resize-none overflow-y-auto rounded-r-2xl px-2 text-sm text-muted outline-none"
                     @input="onTextareaInput"
                 />
 
-                <Button class="h-8 w-8 rounded-full bg-blue-200 p-1" shape="minimal" @click="handleSendMessage">
-                    <ArrowUpIcon stroke-width="2" />
-                </Button>
+                <div class="absolute right-3 flex items-center gap-x-1.5 self-end">
+                    <Button class="rounded-full bg-zinc-200 p-1.25" shape="minimal">
+                        <EllipsisVerticalIcon class="size-5" stroke-width="1.5" />
+                    </Button>
+
+                    <Button class="rounded-full bg-blue-400 p-1 text-white" shape="minimal" @click="handleSendMessage">
+                        <ArrowUpIcon class="size-5.5" stroke-width="2.5" />
+                    </Button>
+                </div>
             </div>
 
-            <div class="flex h-(--status-bar-height) items-center text-xs text-muted">Status: {{ chat.status }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-sonnet-4-6' }}</div>
+            <div class="flex h-(--status-bar-height) items-center border-t border-separator text-xs text-muted">
+                Status: {{ chat.status }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-sonnet-4-6' }}
+            </div>
         </div>
     </div>
 </template>

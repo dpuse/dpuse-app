@@ -230,7 +230,7 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
         @select="handleSelectConnectionNode($event)"
     >
         <template #header>
-            <div class="border-separator flex h-full min-w-0 items-center border-b text-sm">
+            <div class="flex h-full min-w-0 items-center border-b border-separator text-sm">
                 <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="viewportIsWide || activeConnectionObjectConfig == null" @select="handleSelectBreadcrumb" />
             </div>
         </template>
@@ -247,9 +247,7 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
 
                 <div v-show="activeItemAction.id === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
 
-                <div
-                    class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-x border-t border-separator bg-backdrop text-xs"
-                >
+                <div class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-t border-separator bg-amber-100 text-xs">
                     <div class="absolute top-0 bottom-0 left-0 bg-green-200 dark:bg-green-500/30" :style="{ width: `${previewPercentage}%` }"></div>
                     <div class="relative pl-1">{{ previewMessage }}</div>
                 </div>
