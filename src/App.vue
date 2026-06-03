@@ -127,7 +127,6 @@ function handleToggleKnowledgePane(): void {
     // Display is narrow, switching to this pane — close other option bar first if open.
     activeAppPaneId.value = 'knowledge';
     workbenchOptionBarIsVisible.value = false;
-    sessionMenuIsOpen.value = false;
     workbenchPaneIsVisible.value = false;
     toggleKnowledgePane();
 }
@@ -151,7 +150,6 @@ function handleWorkbenchOptionBarHide(): void {
     if (viewportIsWide.value) return;
     knowledgeOptionBarIsVisible.value = false;
     workbenchOptionBarIsVisible.value = false;
-    sessionMenuIsOpen.value = false;
 }
 
 // Handlers - Workbench Pane ───────────────────────────────────────────────────────────────────────────────────────────
@@ -280,8 +278,8 @@ function establishPaneSplitterPercent(): number {
             </Button>
         </div>
 
-        <!-- Session Button - Always visible on wide viewports; only visible on narrow viewports when the WorkbenchOptionBar is open. -->
-        <SessionButton v-show="viewportIsWide || workbenchOptionBarIsVisible" class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-60" :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
+        <!-- Session Button - Always visible. -->
+        <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-60" :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
 
         <!-- Authentication Dialog - Activated using URL parameter 'dlg=auth'. -->
         <Transition name="action-fade">
