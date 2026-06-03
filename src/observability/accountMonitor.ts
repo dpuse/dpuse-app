@@ -40,7 +40,7 @@ function connectToWebSocket(): WebSocket | undefined {
 
         pendingWebSocket.addEventListener('open', () => {
             // TODO: I think this is where the data is being cleared?
-            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ✅ Account '${accountId.value}' WebSocket connection established.`);
+            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ✅ Account WebSocket connection opened.`);
         });
 
         pendingWebSocket.addEventListener('message', (event) => {

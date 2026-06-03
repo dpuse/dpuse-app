@@ -43,7 +43,7 @@ function connectToWebSocket(): WebSocket | undefined {
         let pendingWebSocket: WebSocket | undefined = new WebSocket(url);
 
         pendingWebSocket.addEventListener('open', () => {
-            if (import.meta.env.DEV) console.info('[dpuse:app] ✅ Configuration WebSocket connection established.');
+            if (import.meta.env.DEV) console.info('[dpuse:app] ✅ Configuration WebSocket connection opened.');
         });
 
         pendingWebSocket.addEventListener('message', (event) => {
