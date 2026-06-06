@@ -29,13 +29,13 @@ const chat = new Chat({
     transport: new DefaultChatTransport({
         api: 'https://api.dpuse.app/ai/chat',
         body: {
-            provider: 'anthropic',
-            model: 'claude-sonnet-4-6',
-            stream: true,
+            providerId: 'anthropic',
+            modelId: 'claude-sonnet-4-6',
             options: {
-                systemPrompt: 'You are a helpful assistant.',
+                effort: 'medium',
                 maxOutputTokens: 1024,
-                modelOptions: { thinking: { type: 'adaptive' }, effort: 'medium' }
+                temperature: 1,
+                thinking: { type: 'adaptive' }
             }
         }
     }),
@@ -202,7 +202,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
                 </div>
             </div>
 
-            <div class="flex h-(--status-bar-height) items-center border-t border-separator text-xs text-muted">
+            <div class="mr-4 flex h-(--status-bar-height) items-center border-t border-separator text-xs text-muted">
                 Status: {{ chat.status }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-sonnet-4-6' }}
             </div>
         </div>

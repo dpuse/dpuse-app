@@ -102,17 +102,14 @@ onMounted(() => {
     client = new ChatClient({
         connection: fetchServerSentEvents('https://api.dpuse.app/ai/chat/tanstack'),
         forwardedProps: {
-            messages: [{ role: 'user', content: 'Hello, what can you help me with?' }],
-            model: 'claude-sonnet-4-6',
+            providerId: 'anthropic',
+            modelId: 'claude-sonnet-4-6',
             options: {
-                systemPrompt: 'You are a helpful assistant.',
-                temperature: 1, // TODO: using 0.7 creates an error when 'thinking' property set.
+                effort: 'medium',
                 maxTokens: 1024,
-                thinking: { type: 'enabled', budget_tokens: 2000 }
-            },
-            provider: 'anthropic',
-            sdkAdapter: 'tanstack',
-            stream: true
+                temperature: 1,
+                thinking: { type: 'enabled', budget_tokens: 1024 }
+            }
         },
         initialMessages: [],
         onMessagesChange: (messages): void => {
