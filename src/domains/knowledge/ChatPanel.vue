@@ -4,7 +4,7 @@ import { Chat } from '@ai-sdk/vue';
 import DOMPurify from 'dompurify';
 import { marked } from 'marked'; // NOTE: 'marked' with DOMPurify is at least 14kB smaller (gzipped) than 'micromark' or 'markdown-it' without DOMPurify. Measured June 2, 2026.
 import { ArrowUpIcon, EllipsisVerticalIcon } from 'lucide-vue-next';
-import { DefaultChatTransport, isReasoningUIPart, isTextUIPart, type ReasoningUIPart, type TextUIPart, type UIMessage } from 'ai';
+import { DefaultChatTransport, isReasoningUIPart, isTextUIPart, lastAssistantMessageIsCompleteWithToolCalls, type ReasoningUIPart, type TextUIPart, type UIMessage } from 'ai';
 import { onMounted, onUnmounted, ref } from 'vue';
 
 // ─── Local Components - Static
@@ -49,13 +49,28 @@ const chat = new Chat({
     onData: (data): void => {
         console.log('onData', data);
     },
-    onToolCall: (options): void => {
-        console.log('onToolCall', options);
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    onToolCall: ({ toolCall }): void => {
+        if (toolCall.toolName === 'getLocalTime') {
+            chat.addToolOutput({
+                tool: 'getLocalTime',
+                toolCallId: toolCall.toolCallId,
+                output: executeGetLocalTime()
+            });
+        }
     },
     onFinish: (properties): void => {
         console.log('onFinish', properties);
     }
 });
+
+function executeGetLocalTime(): { time: string; timezone: string; date: string } {
+    return {
+        time: new Date().toLocaleTimeString(),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        date: new Date().toLocaleDateString()
+    };
+}
 
 // ─── Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────
 
