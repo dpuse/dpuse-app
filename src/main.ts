@@ -45,12 +45,7 @@ try {
             createScriptURL: (url: string): string => {
                 if (url.startsWith('blob:')) return url;
                 throw new Error(`Blocked TrustedScriptURL: ${url}`);
-            },
-            // Allow innerHTML assignments from third-party libraries (e.g. 'jedison') that don't support Trusted Types.
-            // Can be removed if we remove 'jedison'.
-            createHTML: (html: string): string => html,
-            // Allow new Function() calls from AJV (used by JSON Forms for schema validation compilation).
-            createScript: (script: string): string => script,
+            }
         });
     }
 

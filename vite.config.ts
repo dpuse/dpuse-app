@@ -32,14 +32,14 @@ export default defineConfig({
             'Content-Security-Policy':
                 "default-src 'none';" +
                 " base-uri 'self';" +
-                " connect-src 'self' https://localhost:5173 wss://localhost:5173 data: https://api.dpuse.app wss://api.dpuse.app https://engine-eu.dpuse.app https://sample-data-eu.dpuse.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io;" +
+                " connect-src 'self' https://localhost:5173 wss://localhost:5173 data: https://api.dpuse.app wss://api.dpuse.app https://engine-eu.dpuse.app https://sample-data-eu.dpuse.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io https://gtgi9jg.net;" +
                 " form-action 'none';" +
                 " frame-ancestors 'none';" +
                 " frame-src 'none';" +
                 " img-src 'self' blob: https://gravatar.com;" +
                 " manifest-src 'self';" +
                 " object-src 'none';" +
-                " script-src 'self' https://engine-eu.dpuse.app 'wasm-unsafe-eval' 'unsafe-eval' 'sha256-HSvgr//xBF8qoKsX1FPA79evG6rtxroRm2NegRE7MHs=';" + // 'unsafe-eval' is required by AJV (used by JSON Forms) for schema compilation via new Function(). Remove if JSON Forms is removed.
+                " script-src 'self' https://engine-eu.dpuse.app 'wasm-unsafe-eval' 'sha256-HSvgr//xBF8qoKsX1FPA79evG6rtxroRm2NegRE7MHs=';" +
                 " style-src 'self' 'unsafe-inline';" + // 'unsafe-inline' is required in dev mode as Vite injects Tailwind CSS as inline <style> elements for HMR. Hashes required in production are not required here because of 'unsafe-inline' setting.
                 " worker-src 'self' blob:;" +
                 ' trusted-types default vue dompurify;' +
