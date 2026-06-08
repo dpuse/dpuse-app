@@ -18,6 +18,10 @@ import WorkbenchLayout from '../../WorkbenchLayout.vue';
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+interface Contractor {
+    name: string;
+    rate: string;
+}
 interface Member {
     name: string;
     role: string;
@@ -28,54 +32,77 @@ interface Team {
 }
 interface Department {
     name: string;
+    contractors: Contractor[];
     teams: Team[];
 }
 interface Organization {
     name: string;
-    departments: Department[];
+    modelGroups: Department[];
 }
 
 const data = ref<Organization>({
-    name: 'Acme Corp',
-    departments: [
+    name: 'Default Context',
+    modelGroups: [
         {
-            name: 'Engineering',
-            teams: [{ name: 'Frontend', members: [{ name: 'Alice', role: 'Engineer' }] }]
+            name: 'Core',
+            contractors: [
+                { name: 'Dave Chen', rate: '$120/hr' },
+                { name: 'Eve Nakamura', rate: '$95/hr' }
+            ],
+            teams: [
+                {
+                    name: 'Frontend',
+                    members: [
+                        { name: 'Alice Park', role: 'Engineer' },
+                        { name: 'Bob Kim', role: 'Designer' }
+                    ]
+                },
+                { name: 'Backend', members: [{ name: 'Carol Lin', role: 'Engineer' }] }
+            ]
         },
-        { name: 'Design', teams: [] }
+        { name: 'Finance & Accounting', contractors: [], teams: [] },
+        { name: 'People / HR', contractors: [], teams: [] },
+        { name: 'Sales & Marketing', contractors: [], teams: [] },
+        { name: 'Customer Service', contractors: [], teams: [] },
+        { name: 'Product & Platform', contractors: [], teams: [] },
+        { name: 'Supply Chain & Operations', contractors: [], teams: [] },
+        { name: 'External / Third Party', contractors: [], teams: [] },
+        { name: 'Governance, Risk, & Compliance', contractors: [], teams: [] }
     ]
 });
 
+// ─── Navigation state ─────────────────────────────────────────────────────────
+
 const departmentIndex = ref<number | null>(null);
+const currentChildList = ref<'contractors' | 'teams' | null>(null);
 const teamIndex = ref<number | null>(null);
 const memberIndex = ref<number | null>(null);
+const contractorIndex = ref<number | null>(null);
 const showDetail = ref(false);
 
-const activeDepartment = computed((): Department | null => (departmentIndex.value === null ? null : (data.value.departments[departmentIndex.value] ?? null)));
+const activeDepartment = computed((): Department | null => (departmentIndex.value === null ? null : (data.value.modelGroups[departmentIndex.value] ?? null)));
 const activeTeam = computed((): Team | null => (activeDepartment.value === null || teamIndex.value === null ? null : (activeDepartment.value.teams[teamIndex.value] ?? null)));
 const activeMember = computed((): Member | null => (activeTeam.value === null || memberIndex.value === null ? null : (activeTeam.value.members[memberIndex.value] ?? null)));
+const activeContractor = computed((): Contractor | null =>
+    activeDepartment.value === null || contractorIndex.value === null ? null : (activeDepartment.value.contractors[contractorIndex.value] ?? null)
+);
 
-const selectDepartment = (index: number): void => {
-    departmentIndex.value = index;
-    teamIndex.value = null;
-    memberIndex.value = null;
-    showDetail.value = true;
-};
-const selectTeam = (index: number): void => {
-    teamIndex.value = index;
-    memberIndex.value = null;
-    showDetail.value = true;
-};
-const selectMember = (index: number): void => {
-    memberIndex.value = index;
-    showDetail.value = true;
-};
+// ─── Reset functions ──────────────────────────────────────────────────────────
 
 const resetToDepartments = (): void => {
     departmentIndex.value = null;
+    currentChildList.value = null;
     teamIndex.value = null;
     memberIndex.value = null;
+    contractorIndex.value = null;
     showDetail.value = false;
+};
+const resetToDepartmentDetail = (): void => {
+    currentChildList.value = null;
+    teamIndex.value = null;
+    memberIndex.value = null;
+    contractorIndex.value = null;
+    showDetail.value = true;
 };
 const resetToTeams = (): void => {
     teamIndex.value = null;
@@ -86,10 +113,73 @@ const resetToMembers = (): void => {
     memberIndex.value = null;
     showDetail.value = false;
 };
+const resetToContractors = (): void => {
+    contractorIndex.value = null;
+    showDetail.value = false;
+};
+
+// ─── Select / navigate functions ──────────────────────────────────────────────
+
+const selectDepartment = (index: number): void => {
+    departmentIndex.value = index;
+    currentChildList.value = null;
+    teamIndex.value = null;
+    memberIndex.value = null;
+    contractorIndex.value = null;
+    showDetail.value = true;
+};
+const navigateToTeams = (): void => {
+    currentChildList.value = 'teams';
+    teamIndex.value = null;
+    memberIndex.value = null;
+    showDetail.value = false;
+};
+const navigateToContractors = (): void => {
+    currentChildList.value = 'contractors';
+    contractorIndex.value = null;
+    showDetail.value = false;
+};
+const selectTeam = (index: number): void => {
+    teamIndex.value = index;
+    memberIndex.value = null;
+    showDetail.value = true;
+};
+const selectMember = (index: number): void => {
+    memberIndex.value = index;
+    showDetail.value = true;
+};
+const selectContractor = (index: number): void => {
+    contractorIndex.value = index;
+    showDetail.value = true;
+};
+
+// ─── Back ─────────────────────────────────────────────────────────────────────
+
+const handleBack = (): void => {
+    if (memberIndex.value !== null) {
+        resetToMembers();
+        return;
+    }
+    if (contractorIndex.value !== null) {
+        resetToContractors();
+        return;
+    }
+    if (teamIndex.value !== null) {
+        resetToTeams();
+        return;
+    }
+    if (currentChildList.value !== null) {
+        resetToDepartmentDetail();
+        return;
+    }
+    resetToDepartments();
+};
+
+// ─── Add / Remove ─────────────────────────────────────────────────────────────
 
 const addDepartment = (): void => {
-    data.value.departments.push({ name: '', teams: [] });
-    selectDepartment(data.value.departments.length - 1);
+    data.value.modelGroups.push({ name: '', contractors: [], teams: [] });
+    selectDepartment(data.value.modelGroups.length - 1);
 };
 const removeDepartment = (index: number): void => {
     if (departmentIndex.value === index) {
@@ -97,7 +187,7 @@ const removeDepartment = (index: number): void => {
     } else if (departmentIndex.value !== null && index < departmentIndex.value) {
         departmentIndex.value--;
     }
-    data.value.departments.splice(index, 1);
+    data.value.modelGroups.splice(index, 1);
 };
 
 const addTeam = (): void => {
@@ -130,29 +220,55 @@ const removeMember = (index: number): void => {
     activeTeam.value.members.splice(index, 1);
 };
 
+const addContractor = (): void => {
+    if (activeDepartment.value === null) return;
+    activeDepartment.value.contractors.push({ name: '', rate: '' });
+    selectContractor(activeDepartment.value.contractors.length - 1);
+};
+const removeContractor = (index: number): void => {
+    if (activeDepartment.value === null) return;
+    if (contractorIndex.value === index) {
+        resetToContractors();
+    } else if (contractorIndex.value !== null && index < contractorIndex.value) {
+        contractorIndex.value--;
+    }
+    activeDepartment.value.contractors.splice(index, 1);
+};
+
 // ─── DrillDetailPanel bindings ────────────────────────────────────────────────
 
 const breadcrumbs = computed((): DrillBreadcrumb[] => {
     if (departmentIndex.value === null) return [];
     const crumbs: DrillBreadcrumb[] = [{ label: 'Departments', onClick: resetToDepartments }];
-    if (teamIndex.value !== null) {
-        crumbs.push({ label: activeDepartment.value?.name ?? 'Untitled', onClick: resetToTeams });
+    if (currentChildList.value === null) return crumbs;
+
+    crumbs.push({ label: activeDepartment.value?.name ?? 'Untitled', onClick: resetToDepartmentDetail });
+
+    if (currentChildList.value === 'teams') {
+        if (teamIndex.value !== null) {
+            crumbs.push({ label: 'Teams', onClick: resetToTeams });
+            if (memberIndex.value !== null) {
+                crumbs.push({ label: activeTeam.value?.name ?? 'Untitled', onClick: resetToMembers });
+            }
+        }
+    } else if (contractorIndex.value !== null) {
+        crumbs.push({ label: 'Contractors', onClick: resetToContractors });
     }
-    if (memberIndex.value !== null) {
-        crumbs.push({ label: activeTeam.value?.name ?? 'Untitled', onClick: resetToMembers });
-    }
+
     return crumbs;
 });
 
 const listTitle = computed((): string => {
     if (teamIndex.value !== null) return 'Members';
-    if (departmentIndex.value !== null) return 'Teams';
-    return 'Departments';
+    if (currentChildList.value === 'teams') return 'Teams';
+    if (currentChildList.value === 'contractors') return 'Contractors';
+    return 'Model Groupings';
 });
 
 const addLabel = computed((): string => {
     if (teamIndex.value !== null) return 'Add Member';
-    if (departmentIndex.value !== null) return 'Add Team';
+    if (currentChildList.value === 'teams') return 'Add Team';
+    if (currentChildList.value === 'contractors') return 'Add Contractor';
     return 'Add Department';
 });
 
@@ -161,8 +277,12 @@ const handleAdd = (): void => {
         addMember();
         return;
     }
-    if (departmentIndex.value !== null) {
+    if (currentChildList.value === 'teams') {
         addTeam();
+        return;
+    }
+    if (currentChildList.value === 'contractors') {
+        addContractor();
         return;
     }
     addDepartment();
@@ -170,31 +290,35 @@ const handleAdd = (): void => {
 
 // ─── Detail form ──────────────────────────────────────────────────────────────
 
-const detailForm = useForm({ defaultValues: { name: '', role: '' } });
+const detailForm = useForm({ defaultValues: { name: '', rate: '', role: '' } });
 
 watch(
-    [departmentIndex, teamIndex, memberIndex],
+    [departmentIndex, currentChildList, teamIndex, memberIndex, contractorIndex],
     () => {
         if (activeMember.value !== null) {
-            detailForm.reset({ name: activeMember.value.name, role: activeMember.value.role });
+            detailForm.reset({ name: activeMember.value.name, rate: '', role: activeMember.value.role });
+        } else if (activeContractor.value !== null) {
+            detailForm.reset({ name: activeContractor.value.name, rate: activeContractor.value.rate, role: '' });
         } else if (activeTeam.value !== null) {
-            detailForm.reset({ name: activeTeam.value.name, role: '' });
+            detailForm.reset({ name: activeTeam.value.name, rate: '', role: '' });
         } else if (activeDepartment.value === null) {
-            detailForm.reset({ name: '', role: '' });
+            detailForm.reset({ name: '', rate: '', role: '' });
         } else {
-            detailForm.reset({ name: activeDepartment.value.name, role: '' });
+            detailForm.reset({ name: activeDepartment.value.name, rate: '', role: '' });
         }
     },
     { immediate: true }
 );
 
 const setName = (value: string): void => {
-    const item = activeMember.value ?? activeTeam.value ?? activeDepartment.value;
+    const item = activeMember.value ?? activeContractor.value ?? activeTeam.value ?? activeDepartment.value;
     if (item !== null) item.name = value;
 };
-
 const setRole = (value: string): void => {
     if (activeMember.value !== null) activeMember.value.role = value;
+};
+const setRate = (value: string): void => {
+    if (activeContractor.value !== null) activeContractor.value.rate = value;
 };
 </script>
 
@@ -202,7 +326,7 @@ const setRole = (value: string): void => {
     <WorkbenchLayout>
         <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Explore_Presentations')" to="workflow" />
 
-        <div class="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div class="relative mx-4 flex min-h-0 flex-1 flex-col overflow-hidden">
             <Separator class="flex-none" />
 
             <DrillDetailPanel
@@ -213,7 +337,7 @@ const setRole = (value: string): void => {
                 :show-detail="showDetail"
                 max-list-width="260px"
                 @add="handleAdd"
-                @back="showDetail = false"
+                @back="handleBack"
             >
                 <!-- ── List ──────────────────────────────────────────────── -->
                 <template #list>
@@ -231,10 +355,11 @@ const setRole = (value: string): void => {
                     </template>
 
                     <!-- Teams level -->
-                    <template v-else-if="departmentIndex !== null">
+                    <template v-else-if="currentChildList === 'teams'">
                         <DrillDetailPanelItem
                             v-for="(team, i) in activeDepartment?.teams ?? []"
                             :key="i"
+                            :is-active="teamIndex === i"
                             :label="team.name"
                             has-children
                             @remove="removeTeam(i)"
@@ -243,17 +368,31 @@ const setRole = (value: string): void => {
                         <p v-if="activeDepartment?.teams.length === 0" class="px-3 py-4 text-xs text-subtle">No teams yet</p>
                     </template>
 
+                    <!-- Contractors level -->
+                    <template v-else-if="currentChildList === 'contractors'">
+                        <DrillDetailPanelItem
+                            v-for="(contractor, i) in activeDepartment?.contractors ?? []"
+                            :key="i"
+                            :is-active="contractorIndex === i"
+                            :label="contractor.name"
+                            @remove="removeContractor(i)"
+                            @select="selectContractor(i)"
+                        />
+                        <p v-if="activeDepartment?.contractors.length === 0" class="px-3 py-4 text-xs text-subtle">No contractors yet</p>
+                    </template>
+
                     <!-- Departments level -->
                     <template v-else>
                         <DrillDetailPanelItem
-                            v-for="(department, i) in data.departments"
+                            v-for="(department, i) in data.modelGroups"
                             :key="i"
+                            :is-active="departmentIndex === i"
                             :label="department.name"
                             has-children
                             @remove="removeDepartment(i)"
                             @select="selectDepartment(i)"
                         />
-                        <p v-if="data.departments.length === 0" class="px-3 py-4 text-xs text-subtle">No departments yet</p>
+                        <p v-if="data.modelGroups.length === 0" class="px-3 py-4 text-xs text-subtle">No departments yet</p>
                     </template>
                 </template>
 
@@ -293,6 +432,40 @@ const setRole = (value: string): void => {
                             </detailForm.Field>
                         </template>
 
+                        <!-- Contractor -->
+                        <template v-else-if="activeContractor !== null">
+                            <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Contractor</p>
+                            <h2 class="mb-5 text-lg font-semibold text-content">{{ activeContractor.name || 'Untitled' }}</h2>
+                            <detailForm.Field v-slot="{ field }" name="name">
+                                <TextField
+                                    class="mb-3"
+                                    label="Name"
+                                    :model-value="field.state.value"
+                                    @update:model-value="
+                                        (v) => {
+                                            field.handleChange(v);
+                                            setName(v);
+                                        }
+                                    "
+                                    @blur="field.handleBlur"
+                                />
+                            </detailForm.Field>
+                            <detailForm.Field v-slot="{ field }" name="rate">
+                                <TextField
+                                    label="Rate"
+                                    :model-value="field.state.value"
+                                    placeholder="e.g. $100/hr"
+                                    @update:model-value="
+                                        (v) => {
+                                            field.handleChange(v);
+                                            setRate(v);
+                                        }
+                                    "
+                                    @blur="field.handleBlur"
+                                />
+                            </detailForm.Field>
+                        </template>
+
                         <!-- Team -->
                         <template v-else-if="activeTeam !== null">
                             <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Team</p>
@@ -312,12 +485,18 @@ const setRole = (value: string): void => {
                             </detailForm.Field>
                         </template>
 
-                        <!-- Department -->
+                        <!-- Sub-list placeholder (browsing teams or contractors, nothing selected) -->
+                        <template v-else-if="currentChildList !== null">
+                            <p class="text-sm text-subtle">Select a {{ currentChildList === 'teams' ? 'team' : 'contractor' }} to see details.</p>
+                        </template>
+
+                        <!-- Department (with navigation to sub-collections) -->
                         <template v-else-if="activeDepartment !== null">
                             <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Department</p>
                             <h2 class="mb-5 text-lg font-semibold text-content">{{ activeDepartment.name || 'Untitled' }}</h2>
                             <detailForm.Field v-slot="{ field }" name="name">
                                 <TextField
+                                    class="mb-6"
                                     label="Department Name"
                                     :model-value="field.state.value"
                                     @update:model-value="
@@ -329,6 +508,25 @@ const setRole = (value: string): void => {
                                     @blur="field.handleBlur"
                                 />
                             </detailForm.Field>
+                            <p class="mb-2 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Collections</p>
+                            <div class="flex flex-col gap-2">
+                                <button
+                                    class="flex items-center justify-between rounded border border-boundary px-3 py-2.5 text-sm text-content transition-colors hover:border-accent hover:text-accent"
+                                    type="button"
+                                    @click="navigateToTeams"
+                                >
+                                    <span>Teams</span>
+                                    <span class="text-subtle">{{ activeDepartment.teams.length }} ›</span>
+                                </button>
+                                <button
+                                    class="flex items-center justify-between rounded border border-boundary px-3 py-2.5 text-sm text-content transition-colors hover:border-accent hover:text-accent"
+                                    type="button"
+                                    @click="navigateToContractors"
+                                >
+                                    <span>Contractors</span>
+                                    <span class="text-subtle">{{ activeDepartment.contractors.length }} ›</span>
+                                </button>
+                            </div>
                         </template>
                     </div>
                 </template>
