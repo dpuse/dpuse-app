@@ -1,145 +1,343 @@
 <script setup lang="ts">
 // External Dependencies
-import { ref } from 'vue';
-import { createProPlugin, repeater } from '@formkit/pro';
-import { defaultConfig, FormKit, FormKitProvider } from '@formkit/vue';
+import { useForm } from '@tanstack/vue-form';
+import { computed, ref, watch } from 'vue';
 
 // Local (App) Framework
 import { t } from '@/state/locale';
 import T from './ExplorePresentationsLayout.json';
 
 // Local Components - Static
+import type { DrillBreadcrumb } from '@/components/framework/drillDetailPanel/DrillDetailPanel.vue';
+import DrillDetailPanel from '@/components/framework/drillDetailPanel/DrillDetailPanel.vue';
+import DrillDetailPanelItem from '@/components/framework/drillDetailPanel/DrillDetailPanelItem.vue';
 import Separator from '@/components/ui/Separator.vue';
+import TextField from '@/components/ui/textField/TextField.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 import WorkbenchLayout from '../../WorkbenchLayout.vue';
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-const formkitConfig = defaultConfig({
-    plugins: [createProPlugin('fk-31be9083d', { repeater })],
-    icons: {
-        add: '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-        remove: '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-        trash: '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/><path d="M9 6V4h6v2"/></svg>',
-        arrowUp: '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>',
-        arrowDown: '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>',
-        close: '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-    },
-    config: {
-        classes: {
-            outer: 'mb-0',
-            label: 'mb-1 block text-xs font-medium text-muted',
-            inner: 'flex items-center rounded border border-boundary bg-surface transition-colors focus-within:border-accent focus-within:ring-1 focus-within:ring-accent/20',
-            input: 'w-full bg-transparent px-2.5 py-1.5 text-sm text-content outline-none placeholder:text-subtle',
-            help: 'mt-1 text-xs text-muted',
-            messages: 'mt-1 space-y-0.5',
-            message: 'text-xs text-red-500',
-            // Repeater-specific sections
-            fieldset: 'border-0 p-0 m-0 w-full',
-            legend: 'mb-1 block text-xs font-medium text-muted',
-            items: 'mt-1 list-none p-0 m-0 space-y-2',
-            item: 'flex items-stretch overflow-hidden rounded border border-boundary bg-surface',
-            content: 'flex-1 min-w-0 space-y-2 p-3',
-            controls: 'flex flex-col items-center justify-center gap-2 border-l border-separator px-2',
-            controlLabel: 'sr-only',
-        },
-    },
-});
-
-interface Member { name: string; role: string }
-interface Team { name: string; members: Member[] }
-interface Department { name: string; teams: Team[] }
-interface Organization { name: string; departments: Department[] }
+interface Member {
+    name: string;
+    role: string;
+}
+interface Team {
+    name: string;
+    members: Member[];
+}
+interface Department {
+    name: string;
+    teams: Team[];
+}
+interface Organization {
+    name: string;
+    departments: Department[];
+}
 
 const data = ref<Organization>({
     name: 'Acme Corp',
-    departments: [{
-        name: 'Engineering',
-        teams: [{
-            name: 'Frontend',
-            members: [{ name: 'Alice', role: 'Engineer' }],
-        }],
-    }],
+    departments: [
+        {
+            name: 'Engineering',
+            teams: [{ name: 'Frontend', members: [{ name: 'Alice', role: 'Engineer' }] }]
+        },
+        { name: 'Design', teams: [] }
+    ]
 });
+
+const departmentIndex = ref<number | null>(null);
+const teamIndex = ref<number | null>(null);
+const memberIndex = ref<number | null>(null);
+const showDetail = ref(false);
+
+const activeDepartment = computed((): Department | null => (departmentIndex.value === null ? null : (data.value.departments[departmentIndex.value] ?? null)));
+const activeTeam = computed((): Team | null => (activeDepartment.value === null || teamIndex.value === null ? null : (activeDepartment.value.teams[teamIndex.value] ?? null)));
+const activeMember = computed((): Member | null => (activeTeam.value === null || memberIndex.value === null ? null : (activeTeam.value.members[memberIndex.value] ?? null)));
+
+const selectDepartment = (index: number): void => {
+    departmentIndex.value = index;
+    teamIndex.value = null;
+    memberIndex.value = null;
+    showDetail.value = true;
+};
+const selectTeam = (index: number): void => {
+    teamIndex.value = index;
+    memberIndex.value = null;
+    showDetail.value = true;
+};
+const selectMember = (index: number): void => {
+    memberIndex.value = index;
+    showDetail.value = true;
+};
+
+const resetToDepartments = (): void => {
+    departmentIndex.value = null;
+    teamIndex.value = null;
+    memberIndex.value = null;
+    showDetail.value = false;
+};
+const resetToTeams = (): void => {
+    teamIndex.value = null;
+    memberIndex.value = null;
+    showDetail.value = false;
+};
+const resetToMembers = (): void => {
+    memberIndex.value = null;
+    showDetail.value = false;
+};
+
+const addDepartment = (): void => {
+    data.value.departments.push({ name: '', teams: [] });
+    selectDepartment(data.value.departments.length - 1);
+};
+const removeDepartment = (index: number): void => {
+    if (departmentIndex.value === index) {
+        resetToDepartments();
+    } else if (departmentIndex.value !== null && index < departmentIndex.value) {
+        departmentIndex.value--;
+    }
+    data.value.departments.splice(index, 1);
+};
+
+const addTeam = (): void => {
+    if (activeDepartment.value === null) return;
+    activeDepartment.value.teams.push({ name: '', members: [] });
+    selectTeam(activeDepartment.value.teams.length - 1);
+};
+const removeTeam = (index: number): void => {
+    if (activeDepartment.value === null) return;
+    if (teamIndex.value === index) {
+        resetToTeams();
+    } else if (teamIndex.value !== null && index < teamIndex.value) {
+        teamIndex.value--;
+    }
+    activeDepartment.value.teams.splice(index, 1);
+};
+
+const addMember = (): void => {
+    if (activeTeam.value === null) return;
+    activeTeam.value.members.push({ name: '', role: '' });
+    selectMember(activeTeam.value.members.length - 1);
+};
+const removeMember = (index: number): void => {
+    if (activeTeam.value === null) return;
+    if (memberIndex.value === index) {
+        resetToMembers();
+    } else if (memberIndex.value !== null && index < memberIndex.value) {
+        memberIndex.value--;
+    }
+    activeTeam.value.members.splice(index, 1);
+};
+
+// ─── DrillDetailPanel bindings ────────────────────────────────────────────────
+
+const breadcrumbs = computed((): DrillBreadcrumb[] => {
+    if (departmentIndex.value === null) return [];
+    const crumbs: DrillBreadcrumb[] = [{ label: 'Departments', onClick: resetToDepartments }];
+    if (teamIndex.value !== null) {
+        crumbs.push({ label: activeDepartment.value?.name ?? 'Untitled', onClick: resetToTeams });
+    }
+    if (memberIndex.value !== null) {
+        crumbs.push({ label: activeTeam.value?.name ?? 'Untitled', onClick: resetToMembers });
+    }
+    return crumbs;
+});
+
+const listTitle = computed((): string => {
+    if (teamIndex.value !== null) return 'Members';
+    if (departmentIndex.value !== null) return 'Teams';
+    return 'Departments';
+});
+
+const addLabel = computed((): string => {
+    if (teamIndex.value !== null) return 'Add Member';
+    if (departmentIndex.value !== null) return 'Add Team';
+    return 'Add Department';
+});
+
+const handleAdd = (): void => {
+    if (teamIndex.value !== null) {
+        addMember();
+        return;
+    }
+    if (departmentIndex.value !== null) {
+        addTeam();
+        return;
+    }
+    addDepartment();
+};
+
+// ─── Detail form ──────────────────────────────────────────────────────────────
+
+const detailForm = useForm({ defaultValues: { name: '', role: '' } });
+
+watch(
+    [departmentIndex, teamIndex, memberIndex],
+    () => {
+        if (activeMember.value !== null) {
+            detailForm.reset({ name: activeMember.value.name, role: activeMember.value.role });
+        } else if (activeTeam.value !== null) {
+            detailForm.reset({ name: activeTeam.value.name, role: '' });
+        } else if (activeDepartment.value === null) {
+            detailForm.reset({ name: '', role: '' });
+        } else {
+            detailForm.reset({ name: activeDepartment.value.name, role: '' });
+        }
+    },
+    { immediate: true }
+);
+
+const setName = (value: string): void => {
+    const item = activeMember.value ?? activeTeam.value ?? activeDepartment.value;
+    if (item !== null) item.name = value;
+};
+
+const setRole = (value: string): void => {
+    if (activeMember.value !== null) activeMember.value.role = value;
+};
 </script>
 
 <template>
     <WorkbenchLayout>
         <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Explore_Presentations')" to="workflow" />
 
-        <div class="relative flex min-h-0 flex-1 flex-col overflow-y-auto p-4">
-            <Separator class="mb-4" />
+        <div class="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+            <Separator class="flex-none" />
 
-            <FormKitProvider :config="formkitConfig">
-                <FormKit v-model="data.name" type="text" label="Organization Name" />
+            <DrillDetailPanel
+                :add-label="addLabel"
+                :breadcrumbs="breadcrumbs"
+                :has-detail="departmentIndex !== null"
+                :list-title="listTitle"
+                :show-detail="showDetail"
+                max-list-width="260px"
+                @add="handleAdd"
+                @back="showDetail = false"
+            >
+                <!-- ── List ──────────────────────────────────────────────── -->
+                <template #list>
+                    <!-- Members level -->
+                    <template v-if="teamIndex !== null">
+                        <DrillDetailPanelItem
+                            v-for="(member, i) in activeTeam?.members ?? []"
+                            :key="i"
+                            :is-active="memberIndex === i"
+                            :label="member.name"
+                            @remove="removeMember(i)"
+                            @select="selectMember(i)"
+                        />
+                        <p v-if="activeTeam?.members.length === 0" class="px-3 py-4 text-xs text-subtle">No members yet</p>
+                    </template>
 
-                <FormKit
-                    v-model="data.departments"
-                    type="repeater"
-                    label="Departments"
-                    add-label="Add Department"
-                    :classes="{ outer: 'mb-0 mt-3' }"
-                >
-                    <FormKit type="text" name="name" label="Department Name" />
+                    <!-- Teams level -->
+                    <template v-else-if="departmentIndex !== null">
+                        <DrillDetailPanelItem
+                            v-for="(team, i) in activeDepartment?.teams ?? []"
+                            :key="i"
+                            :label="team.name"
+                            has-children
+                            @remove="removeTeam(i)"
+                            @select="selectTeam(i)"
+                        />
+                        <p v-if="activeDepartment?.teams.length === 0" class="px-3 py-4 text-xs text-subtle">No teams yet</p>
+                    </template>
 
-                    <FormKit
-                        type="repeater"
-                        name="teams"
-                        label="Teams"
-                        add-label="Add Team"
-                        :classes="{ outer: 'mb-0 mt-2 ml-4 border-l-2 border-separator pl-4' }"
-                    >
-                        <FormKit type="text" name="name" label="Team Name" />
+                    <!-- Departments level -->
+                    <template v-else>
+                        <DrillDetailPanelItem
+                            v-for="(department, i) in data.departments"
+                            :key="i"
+                            :label="department.name"
+                            has-children
+                            @remove="removeDepartment(i)"
+                            @select="selectDepartment(i)"
+                        />
+                        <p v-if="data.departments.length === 0" class="px-3 py-4 text-xs text-subtle">No departments yet</p>
+                    </template>
+                </template>
 
-                        <FormKit
-                            type="repeater"
-                            name="members"
-                            label="Members"
-                            add-label="Add Member"
-                            :classes="{ outer: 'mb-0 mt-2 ml-4 border-l-2 border-boundary-hover pl-4' }"
-                        >
-                            <FormKit type="text" name="name" label="Name" />
-                            <FormKit type="text" name="role" label="Role" />
-                        </FormKit>
-                    </FormKit>
-                </FormKit>
-            </FormKitProvider>
+                <!-- ── Detail ────────────────────────────────────────────── -->
+                <template #detail>
+                    <div class="p-5">
+                        <!-- Member -->
+                        <template v-if="activeMember !== null">
+                            <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Member</p>
+                            <h2 class="mb-5 text-lg font-semibold text-content">{{ activeMember.name || 'Untitled' }}</h2>
+                            <detailForm.Field v-slot="{ field }" name="name">
+                                <TextField
+                                    class="mb-3"
+                                    label="Name"
+                                    :model-value="field.state.value"
+                                    @update:model-value="
+                                        (v) => {
+                                            field.handleChange(v);
+                                            setName(v);
+                                        }
+                                    "
+                                    @blur="field.handleBlur"
+                                />
+                            </detailForm.Field>
+                            <detailForm.Field v-slot="{ field }" name="role">
+                                <TextField
+                                    label="Role"
+                                    :model-value="field.state.value"
+                                    @update:model-value="
+                                        (v) => {
+                                            field.handleChange(v);
+                                            setRole(v);
+                                        }
+                                    "
+                                    @blur="field.handleBlur"
+                                />
+                            </detailForm.Field>
+                        </template>
+
+                        <!-- Team -->
+                        <template v-else-if="activeTeam !== null">
+                            <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Team</p>
+                            <h2 class="mb-5 text-lg font-semibold text-content">{{ activeTeam.name || 'Untitled' }}</h2>
+                            <detailForm.Field v-slot="{ field }" name="name">
+                                <TextField
+                                    label="Team Name"
+                                    :model-value="field.state.value"
+                                    @update:model-value="
+                                        (v) => {
+                                            field.handleChange(v);
+                                            setName(v);
+                                        }
+                                    "
+                                    @blur="field.handleBlur"
+                                />
+                            </detailForm.Field>
+                        </template>
+
+                        <!-- Department -->
+                        <template v-else-if="activeDepartment !== null">
+                            <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Department</p>
+                            <h2 class="mb-5 text-lg font-semibold text-content">{{ activeDepartment.name || 'Untitled' }}</h2>
+                            <detailForm.Field v-slot="{ field }" name="name">
+                                <TextField
+                                    label="Department Name"
+                                    :model-value="field.state.value"
+                                    @update:model-value="
+                                        (v) => {
+                                            field.handleChange(v);
+                                            setName(v);
+                                        }
+                                    "
+                                    @blur="field.handleBlur"
+                                />
+                            </detailForm.Field>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- ── No selection ──────────────────────────────────────── -->
+                <template #no-selection>
+                    <p class="text-sm text-subtle">Select a department to get started.</p>
+                </template>
+            </DrillDetailPanel>
         </div>
     </WorkbenchLayout>
 </template>
-
-<style scoped>
-/* Repeater control buttons — not reachable via FormKit's classes config */
-:deep(.formkit-controls) {
-    list-style: none;
-}
-:deep(.formkit-controls li) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-:deep(.formkit-controls button) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    appearance: none;
-    background: transparent;
-    border: 0;
-    cursor: pointer;
-    padding: 0.3rem;
-    color: var(--fk-color-muted, var(--color-stone-400));
-    transition: color 0.15s;
-}
-:deep(.formkit-controls button:hover) {
-    color: var(--color-text-accent);
-}
-:deep(.formkit-remove-control button:hover),
-:deep(li:has(.formkit-remove-icon) button:hover) {
-    color: var(--color-red-500);
-}
-:deep(.formkit-icon) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-</style>

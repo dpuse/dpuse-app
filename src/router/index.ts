@@ -31,7 +31,7 @@ const ContextualiseDataLayout = load('ContextualiseData', () => import('@/domain
 const EventQueryList = load('EventQueryList', () => import('@/domains/workbench/workflow/contextualiseData/EventQueryList.vue'));
 
 // Local Components - Dynamic - Workflow - Explore Presentations
-const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.vue'), 3000);
+const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.vue'));
 
 // Local Components - Dynamic - Workflow - Build Data Apps
 const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'), 3000, true);
