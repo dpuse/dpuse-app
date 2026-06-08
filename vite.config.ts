@@ -39,7 +39,7 @@ export default defineConfig({
                 " img-src 'self' blob: https://gravatar.com;" +
                 " manifest-src 'self';" +
                 " object-src 'none';" +
-                " script-src 'self' https://engine-eu.dpuse.app 'wasm-unsafe-eval' 'sha256-HSvgr//xBF8qoKsX1FPA79evG6rtxroRm2NegRE7MHs=';" +
+                " script-src 'self' https://engine-eu.dpuse.app 'wasm-unsafe-eval' 'unsafe-eval' 'sha256-HSvgr//xBF8qoKsX1FPA79evG6rtxroRm2NegRE7MHs=';" + // 'unsafe-eval' is required by AJV (used by JSON Forms) for schema compilation via new Function(). Remove if JSON Forms is removed.
                 " style-src 'self' 'unsafe-inline';" + // 'unsafe-inline' is required in dev mode as Vite injects Tailwind CSS as inline <style> elements for HMR. Hashes required in production are not required here because of 'unsafe-inline' setting.
                 " worker-src 'self' blob:;" +
                 ' trusted-types default vue dompurify;' +

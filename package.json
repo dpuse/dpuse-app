@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.1330",
+    "version": "0.0.1331",
     "private": true,
     "type": "module",
     "engines": {
@@ -11,6 +11,8 @@
         "@ai-sdk/vue": "^3.0.197",
         "@dpuse/dpuse-shared": "^0.3.671",
         "@formkit/drag-and-drop": "^0.5.3",
+        "@jsonforms/vue": "^3.7.0",
+        "@jsonforms/vue-vanilla": "^3.7.0",
         "@tailwindcss/vite": "^4.3.0",
         "@tanstack/ai-client": "^0.16.3",
         "@tanstack/vue-table": "^8.21.3",
