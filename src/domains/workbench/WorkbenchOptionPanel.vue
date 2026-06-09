@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// External Dependencies
+import { ChevronDownIcon } from 'lucide-vue-next';
+
 // DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
@@ -43,14 +46,20 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
         <!-- Benchtop options scroller -->
         <ScrollArea class="flex-1">
             <div class="flex flex-col items-center gap-y-2 py-2">
-                <Button
-                    :aria-label="t(T, 'home.aria')"
-                    shape="icon"
-                    :to="{ name: 'workflow', query: { ...$route.query, wbView: 'workflow' } }"
-                    @click="handleComplete({ id: 'home', label: '', description: '', icon: '', step: 0, tasks: [] })"
-                >
-                    <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
-                </Button>
+                <div class="relative flex flex-col">
+                    <Button
+                        :aria-label="t(T, 'home.aria')"
+                        shape="icon"
+                        :to="{ name: 'workflow', query: { ...$route.query, wbView: 'workflow' } }"
+                        @click="handleComplete({ id: 'home', label: '', description: '', icon: '', step: 0, tasks: [] })"
+                    >
+                        <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
+                    </Button>
+
+                    <Button class="absolute -right-0.5 -bottom-0.5 rounded-full bg-zinc-200 p-0.5" shape="minimal">
+                        <ChevronDownIcon class="size-3.5" />
+                    </Button>
+                </div>
 
                 <Button
                     v-for="config in workflowOptionConfigs"

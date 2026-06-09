@@ -218,7 +218,9 @@ function establishPaneSplitterPercent(): number {
           z-20: topFadeOut, knowledgeActionBar
           z-30: WorkbenchOptionBar (floating)
           z-40: workbenchPaneToggle
+          z-49: SessionButton
           z-50: LoadingMask (global — navigation and async component loads)
+          z-51: SessionMenu
           z-60: DialogLayout/AuthDialog, DialogLayout/AccountDialog & DialogLayout/ConnectionDialogDialog
           z-70: ProgressBar
           -->
@@ -279,7 +281,7 @@ function establishPaneSplitterPercent(): number {
         </div>
 
         <!-- Session Button - Always visible. -->
-        <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-60" :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
+        <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-49" :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
 
         <!-- Authentication Dialog - Activated using URL parameter 'dlg=auth'. -->
         <Transition name="action-fade">

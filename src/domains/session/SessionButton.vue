@@ -72,9 +72,11 @@ function onMenuAfterLeave(): void {}
 
 <template>
     <div class="flex flex-col">
-        <Transition :name="viewportIsWide ? 'dpuse-slide-up' : 'dpuse-sheet'" @after-leave="onMenuAfterLeave">
-            <SessionMenu v-if="sessionMenuIsOpen" ref="sessionMenuReference" @continue="handleClose" />
-        </Transition>
+        <Teleport to="body">
+            <Transition :name="viewportIsWide ? 'dpuse-slide-up' : 'dpuse-sheet'" @after-leave="onMenuAfterLeave">
+                <SessionMenu v-if="sessionMenuIsOpen" ref="sessionMenuReference" class="z-51" @continue="handleClose" />
+            </Transition>
+        </Teleport>
 
         <AvatarButton
             aria-label="Toggle session panel"
