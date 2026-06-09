@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // ── Local (App) Framework
+import { activeBenchtopId } from '@/state/activeBenchtop.ts';
 import T from './AdminHomeLayout.json';
 import { t } from '@/state/locale';
 import { useWorkbenchOptionConfigs } from '~/src/domains/workbench/useWorkbenchOptionConfigs.ts';
@@ -14,7 +15,8 @@ import WorkbenchLayout from '../WorkbenchLayout.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const workflowOptionConfigs = useWorkbenchOptionConfigs('admin');
+activeBenchtopId.value = 'admin';
+const workflowOptionConfigs = useWorkbenchOptionConfigs();
 </script>
 
 <template>

@@ -9,7 +9,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // Local (App) Framework
 import type { BenchtopOptionConfig } from '@/domains/workbench/workbench';
 import { load } from '@/state/component';
-import { setActiveBenchtop } from '@/state/activeBenchtop';
+import { setActiveBenchtopOption } from '@/state/activeBenchtop';
 import T from './WorkbenchOptionPanel.json';
 import { t } from '@/state/locale';
 import { useWorkbenchOptionConfigs } from '~/src/domains/workbench/useWorkbenchOptionConfigs';
@@ -49,7 +49,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPoin
 // UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
-    if (config != null) setActiveBenchtop(config);
+    if (config != null) setActiveBenchtopOption(config);
     emit('continue');
 }
 </script>
