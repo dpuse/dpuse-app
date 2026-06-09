@@ -1,9 +1,8 @@
 <script setup lang="ts">
 // ── Local (App) Framework
-import { activeBenchtopId } from '@/state/activeBenchtop.ts';
 import T from './WorkflowHomeLayout.json';
 import { t } from '@/state/locale';
-import { useWorkbenchOptionConfigs } from '~/src/domains/workbench/useWorkbenchOptionConfigs.ts';
+import { useWorkbenchOptionConfigs } from '@/domains/workbench/useWorkbenchOptionConfigs.ts';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -15,7 +14,6 @@ import WorkbenchLayout from '../WorkbenchLayout.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-activeBenchtopId.value = 'workflow';
 const workflowOptionConfigs = useWorkbenchOptionConfigs();
 </script>
 

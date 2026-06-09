@@ -2,14 +2,17 @@
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior, START_LOCATION } from 'vue-router';
 
 // Local (App) Framework
+import { activeBenchtopId } from '@/state/activeBenchtop';
 import { load } from '@/state/component';
 import { complete, fail, start } from '@/state/navigation';
 
 // Local Components - Dynamic - Admin
 const AdminHomeLayout = load('Admin', () => import('@/domains/workbench/admin/AdminHomeLayout.vue'));
+const ManageAccountsLayout = load('ManageAccounts', () => import('@/domains/workbench/admin/manageAccounts/ManageAccountsLayout.vue'));
 
 // Local Components - Dynamic - Partner
 const PartnerHomeLayout = load('Partner', () => import('@/domains/workbench/partner/PartnerHomeLayout.vue'));
+const ManageContextsLayout = load('ManageContexts', () => import('@/domains/workbench/partner/manageContexts/ManageContextsLayout.vue'));
 
 // Local Components - Dynamic - Workflow
 const WorkflowHomeLayout = load('Workflow', () => import('@/domains/workbench/workflow/WorkflowHomeLayout.vue'));
@@ -34,7 +37,7 @@ const EventQueryList = load('EventQueryList', () => import('@/domains/workbench/
 const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.vue'));
 
 // Local Components - Dynamic - Workflow - Build Data Apps
-const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'), 3000, true);
+const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'));
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -43,8 +46,20 @@ export const APP_ROUTES = [
         path: '/',
         children: [
             { path: '', component: { render: (): null => null } }, // Matches exactly '/'. beforeEach handles the default redirect to knowledge about.
-            { path: 'admin', children: [{ name: 'admin', path: '', component: AdminHomeLayout }] },
-            { path: 'partner', children: [{ name: 'partner', path: '', component: PartnerHomeLayout }] },
+            {
+                path: 'admin',
+                children: [
+                    { name: 'admin', path: '', component: AdminHomeLayout },
+                    { name: 'manageAccounts', path: 'manageAccounts', component: ManageAccountsLayout }
+                ]
+            },
+            {
+                path: 'partner',
+                children: [
+                    { name: 'partner', path: '', component: PartnerHomeLayout },
+                    { name: 'manageContexts', path: 'manageContexts', component: ManageContextsLayout }
+                ]
+            },
             {
                 path: 'workflow',
                 children: [
@@ -102,7 +117,13 @@ export const createAppRouter = (): Router => {
         start();
     });
 
-    router.afterEach(() => complete());
+    router.afterEach((to) => {
+        const segment = to.path.split('/')[1];
+        if (segment === 'admin' || segment === 'partner' || segment === 'workflow') {
+            activeBenchtopId.value = segment;
+        }
+        complete();
+    });
     router.onError(() => fail());
 
     return router;

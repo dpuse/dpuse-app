@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Local (App) Framework
-import { useWorkbenchOptionConfigs } from '~/src/domains/workbench/useWorkbenchOptionConfigs';
+import { useWorkbenchOptionConfigs } from '@/domains/workbench/useWorkbenchOptionConfigs';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -8,7 +8,8 @@ import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const workflowOptionConfigs = useWorkbenchOptionConfigs('workflow');
+// TODO, Do we need to pass 'workflow' here?
+const workflowOptionConfigs = useWorkbenchOptionConfigs();
 </script>
 
 <template>

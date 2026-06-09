@@ -7,12 +7,12 @@ import { type ComponentPublicInstance, defineAsyncComponent, onUnmounted, ref, u
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local (App) Framework
+import { activeBenchtopOptionConfig } from '@/state/activeBenchtop';
 import type { BenchtopOptionConfig } from '@/domains/workbench/workbench';
 import { load } from '@/state/component';
-import { setActiveBenchtopOption } from '@/state/activeBenchtop';
 import T from './WorkbenchOptionPanel.json';
 import { t } from '@/state/locale';
-import { useWorkbenchOptionConfigs } from '~/src/domains/workbench/useWorkbenchOptionConfigs';
+import { useWorkbenchOptionConfigs } from '@/domains/workbench/useWorkbenchOptionConfigs';
 import { viewportIsWide } from '@/state/appLayout';
 
 // Local Components - Static
@@ -32,7 +32,7 @@ const emit = defineEmits<{ continue: [] }>();
 
 const homeMenuIsOpen = ref(false);
 const homeMenuReference = useTemplateRef<ComponentPublicInstance>('homeMenuReference');
-const workflowOptionConfigs = useWorkbenchOptionConfigs('workflow');
+const workflowOptionConfigs = useWorkbenchOptionConfigs();
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -49,7 +49,8 @@ onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPoin
 // UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
-    if (config != null) setActiveBenchtopOption(config);
+    // if (config != null) setActiveBenchtopOption(config);
+    if (config != null) activeBenchtopOptionConfig.value = config;
     emit('continue');
 }
 </script>

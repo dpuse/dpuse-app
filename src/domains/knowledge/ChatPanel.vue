@@ -11,7 +11,7 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import Button from '@/components/ui/button/Button.vue';
 import KnowledgeHeader from '@/components/framework/header/KnowledgeHeader.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
-import Separator from '~/src/components/ui/Separator.vue';
+import Separator from '@/components/ui/Separator.vue';
 
 // ─── Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────
 
