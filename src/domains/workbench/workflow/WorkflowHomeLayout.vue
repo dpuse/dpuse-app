@@ -1,10 +1,10 @@
 <script setup lang="ts">
-// Local (App) Framework
+// ── Local (App) Framework
 import T from './WorkflowHomeLayout.json';
 import { t } from '@/state/locale';
-import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkflowOptionConfigs';
+import { useWorkbenchOptionConfigs } from '~/src/domains/workbench/useWorkbenchOptionConfigs.ts';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Card from '@/components/ui/Card.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
@@ -12,9 +12,9 @@ import Separator from '@/components/ui/Separator.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 import WorkbenchLayout from '../WorkbenchLayout.vue';
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const workflowOptionConfigs = useWorkflowOptionConfigs();
+const workflowOptionConfigs = useWorkbenchOptionConfigs('workflow');
 </script>
 
 <template>

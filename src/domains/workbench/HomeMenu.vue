@@ -1,13 +1,13 @@
 <script setup lang="ts">
-// Local (App) Framework
+// ── Local (App) Framework
 import T from './HomeMenu.json';
 import { t } from '@/state/locale';
 import { viewportIsWide } from '@/state/appLayout';
 
-// Local Components - Static
+// ── Local Components - Static
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const emit = defineEmits<{ continue: [] }>();
 </script>
@@ -22,6 +22,7 @@ const emit = defineEmits<{ continue: [] }>();
         "
     >
         <div class="px-2 pt-1.5 pb-0.5 text-xs font-semibold text-muted">{{ t(T, 'Benchtop') }}</div>
+
         <div class="flex flex-col gap-y-1 p-1">
             <ListItemButton :to="{ name: 'workflow', query: { ...$route.query, wbView: 'workflow' } }" @click="emit('continue')">{{ t(T, 'Workflow') }}</ListItemButton>
             <ListItemButton :to="{ name: 'admin', query: { ...$route.query, wbView: 'admin' } }" @click="emit('continue')">{{ t(T, 'Admin') }}</ListItemButton>

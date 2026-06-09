@@ -12,7 +12,7 @@ import { load } from '@/state/component';
 import { setActiveBenchtop } from '@/state/activeBenchtop';
 import T from './WorkbenchOptionPanel.json';
 import { t } from '@/state/locale';
-import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkflowOptionConfigs';
+import { useWorkbenchOptionConfigs } from '~/src/domains/workbench/useWorkbenchOptionConfigs';
 import { viewportIsWide } from '@/state/appLayout';
 
 // Local Components - Static
@@ -32,7 +32,7 @@ const emit = defineEmits<{ continue: [] }>();
 
 const homeMenuIsOpen = ref(false);
 const homeMenuReference = useTemplateRef<ComponentPublicInstance>('homeMenuReference');
-const workflowOptionConfigs = useWorkflowOptionConfigs();
+const workflowOptionConfigs = useWorkbenchOptionConfigs('workflow');
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
