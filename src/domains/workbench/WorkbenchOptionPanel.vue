@@ -1,16 +1,19 @@
 <script setup lang="ts">
 // External Dependencies
 import { ChevronDownIcon } from 'lucide-vue-next';
+import { type ComponentPublicInstance, defineAsyncComponent, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local (App) Framework
 import type { BenchtopOptionConfig } from '@/domains/workbench/workbench';
+import { load } from '@/state/component';
 import { setActiveBenchtop } from '@/state/activeBenchtop';
 import T from './WorkbenchOptionPanel.json';
 import { t } from '@/state/locale';
 import { useWorkflowOptionConfigs } from '@/domains/workbench/workflow/useWorkflowOptionConfigs';
+import { viewportIsWide } from '@/state/appLayout';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -18,13 +21,30 @@ import HomeIcon from '@/components/icons/HomeIcon.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
+// Local Components - Dynamic
+const HomeMenu = defineAsyncComponent(load('HomeMenu', () => import('@/domains/workbench/HomeMenu.vue')));
+
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const emit = defineEmits<{ continue: [] }>();
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const homeMenuIsOpen = ref(false);
+const homeMenuReference = useTemplateRef<ComponentPublicInstance>('homeMenuReference');
 const workflowOptionConfigs = useWorkflowOptionConfigs();
+
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const handleDocumentPointerDown = (event: PointerEvent): void => {
+    if (!homeMenuIsOpen.value) return;
+    const target = event.target as Element;
+    if ((homeMenuReference.value?.$el as Element | undefined)?.contains(target) === true) return;
+    if (target.closest('.dpuse-outside-click-ignore')) return;
+    homeMenuIsOpen.value = false;
+};
+document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
+onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true }));
 
 // UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -56,10 +76,20 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
                         <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
                     </Button>
 
-                    <Button class="absolute -right-0.5 -bottom-0.5 rounded-full bg-zinc-200 p-0.5" shape="minimal">
+                    <Button
+                        class="dpuse-outside-click-ignore absolute -right-0.5 -bottom-0.5 rounded-full bg-zinc-200 p-0.5"
+                        shape="minimal"
+                        @click="homeMenuIsOpen = !homeMenuIsOpen"
+                    >
                         <ChevronDownIcon class="size-3.5" />
                     </Button>
                 </div>
+
+                <Teleport to="body">
+                    <Transition :name="viewportIsWide ? 'dpuse-slide-down' : 'dpuse-sheet'">
+                        <HomeMenu v-if="homeMenuIsOpen" ref="homeMenuReference" class="z-51" @continue="homeMenuIsOpen = false" />
+                    </Transition>
+                </Teleport>
 
                 <Button
                     v-for="config in workflowOptionConfigs"
