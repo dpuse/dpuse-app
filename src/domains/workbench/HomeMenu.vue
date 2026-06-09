@@ -18,7 +18,7 @@ const emit = defineEmits<{ continue: [] }>();
         :class="
             viewportIsWide
                 ? 'fixed top-[calc(var(--safe-top-offset)+2.5rem+0.5rem)] left-[calc(env(safe-area-inset-left)+65px+0.5rem)] min-w-36'
-                : 'fixed inset-x-0 bottom-0 mx-auto w-48 rounded-t-2xl border-x border-t pb-[env(safe-area-inset-bottom)]'
+                : 'fixed inset-x-0 bottom-0 mx-auto w-full max-w-sm rounded-t-2xl border-x border-t pb-[env(safe-area-inset-bottom)]'
         "
     >
         <div class="px-2 pt-1.5 pb-0.5 text-xs font-semibold text-muted">{{ t(T, 'Benchtop') }}</div>
