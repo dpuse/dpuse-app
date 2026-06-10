@@ -2,7 +2,7 @@
 // ── Local (App) Framework
 import T from './WorkbenchHomeLayout.json';
 import { t } from '@/state/locale';
-import { useWorkbenchOptionConfigs } from '@/domains/workbench/useWorkbenchOptionConfigs.ts';
+import { useWorkbenchOptions } from '~/src/domains/workbench/useWorkbenchOptions.ts';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -14,7 +14,7 @@ import WorkbenchLayout from '../WorkbenchLayout.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const workflowOptionConfigs = useWorkbenchOptionConfigs();
+const workflowOptionConfigs = useWorkbenchOptions();
 </script>
 
 <template>

@@ -11,7 +11,7 @@ import WorkbenchLayout from '../WorkbenchLayout.vue';
 
 <template>
     <WorkbenchLayout>
-        <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Assemble_Dimensions')" to="workflow" />
+        <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Assemble_Dimensions')" to="workbench" />
 
         <div class="relative flex min-h-0 flex-1 flex-col">
             <Separator class="mx-4" />

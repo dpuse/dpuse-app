@@ -81,7 +81,7 @@ export const createAppRouter = (): Router => {
         scrollBehavior: handleScrollBehavior
     });
 
-    // Default to /workflow when no workbench route or knowledge argument is present.
+    // Default to /workbench when no workbench route or knowledge argument is present.
     router.beforeEach((to, from) => {
         if (from === START_LOCATION) {
             // Then the page is loading.
@@ -89,7 +89,7 @@ export const createAppRouter = (): Router => {
                 // Then we can clear the workbench part of the url if it was not visible. This defers loading the view until required.
                 return { path: '/', query: { ...to.query, d: undefined, wbState: undefined, wbView: to.query.wbView ?? 'workbench', kState: 1, kView: to.query.kView ?? 'about' } };
             } else if (to.path === '/' && (!('kView' in to.query) || !('kState' in to.query))) {
-                return { path: '/workflow', query: { ...to.query, d: undefined, wbState: 1, wbView: 'workbench', kState: undefined, kView: undefined } };
+                return { path: '/workbench', query: { ...to.query, d: undefined, wbState: 1, wbView: 'workbench', kState: undefined, kView: undefined } };
             } else if ('d' in to.query) {
                 return { path: to.path, query: { ...to.query, d: undefined } };
             }

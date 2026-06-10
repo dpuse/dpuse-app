@@ -1,34 +1,33 @@
 <script setup lang="ts">
-// External Dependencies
+// ── External Dependencies
 import { type ComponentPublicInstance, onUnmounted, ref, useTemplateRef } from 'vue';
 
-// DPUse Framework
+// ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { activeBenchtopOptionConfig } from '@/state/activeBenchtop';
-import type { BenchtopOptionConfig } from '@/domains/workbench/workbench';
 import T from './WorkbenchOptionPanel.json';
 import { t } from '@/state/locale';
-import { useWorkbenchOptionConfigs } from '@/domains/workbench/useWorkbenchOptionConfigs';
+import { useWorkbenchOptions, type WorkbenchOptionConfig } from '~/src/domains/workbench/useWorkbenchOptions';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const emit = defineEmits<{ continue: [] }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const homeMenuIsOpen = ref(false);
 const homeMenuReference = useTemplateRef<ComponentPublicInstance>('homeMenuReference');
-const workflowOptionConfigs = useWorkbenchOptionConfigs();
+const workflowOptionConfigs = useWorkbenchOptions();
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const handleDocumentPointerDown = (event: PointerEvent): void => {
     if (!homeMenuIsOpen.value) return;
@@ -40,9 +39,9 @@ const handleDocumentPointerDown = (event: PointerEvent): void => {
 document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
 onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true }));
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
+function handleComplete(config?: LocalisedConfig<WorkbenchOptionConfig>): void {
     // if (config != null) setActiveBenchtopOption(config);
     if (config != null) activeBenchtopOptionConfig.value = config;
     emit('continue');

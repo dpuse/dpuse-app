@@ -1,17 +1,15 @@
 {
-  "permissions": {
-    "allow": [
-      "WebFetch(domain:raw.githubusercontent.com)",
-      "WebFetch(domain:formkit.com)",
-      "Bash(npm show *)",
-      "Bash(npm pack *)",
-      "Bash(sleep 6 && cat /tmp/dpuse-verify.log | tail -20)",
-      "Read(//private/tmp/**)",
-      "Bash(npx playwright *)",
-      "Bash(node -e ' *)",
-      "Bash(curl -sk \"https://localhost:5199/workbench/workflow/explorePresentations\")",
-      "Bash(curl -sk \"https://localhost:5199/src/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.vue\")",
-      "Bash(python3 -c \"import json,sys; p=json.load\\(sys.stdin\\); print\\(p.get\\('version'\\)\\); [print\\(k\\) for k in p.get\\('exports',{}\\).keys\\(\\)]\")"
-    ]
-  }
+    "permissions": {
+        "allow": [
+            "WebFetch(domain:raw.githubusercontent.com)",
+            "WebFetch(domain:formkit.com)",
+            "Bash(npm show *)",
+            "Bash(npm pack *)",
+            "Bash(sleep 6 && cat /tmp/dpuse-verify.log | tail -20)",
+            "Read(//private/tmp/**)",
+            "Bash(npx playwright *)",
+            "Bash(node -e ' *)",
+            "Bash(python3 -c \"import json,sys; p=json.load\\(sys.stdin\\); print\\(p.get\\('version'\\)\\); [print\\(k\\) for k in p.get\\('exports',{}\\).keys\\(\\)]\")"
+        ]
+    }
 }
