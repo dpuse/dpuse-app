@@ -6,7 +6,7 @@ import { load } from '@/state/component';
 import { complete, fail, start } from '@/state/navigation';
 
 // Local Components - Dynamic
-const WorkflowHomeLayout = load('Workflow', () => import('@/domains/workbench/WorkflowHomeLayout.vue'));
+const WorkbenchHomeLayout = load('Workflow', () => import('@/domains/workbench/home/WorkbenchHomeLayout.vue'));
 
 // Local Components - Dynamic - Establish Data Views
 const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/domains/workbench/establishDataViews/EstablishDataViewsLayout.vue'));
@@ -43,7 +43,7 @@ export const APP_ROUTES = [
             {
                 path: 'workbench',
                 children: [
-                    { name: 'workbench', path: '', component: WorkflowHomeLayout },
+                    { name: 'workbench', path: '', component: WorkbenchHomeLayout },
                     {
                         path: 'establishDataViews',
                         component: EstablishDataViewsLayout,

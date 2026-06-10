@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── Local (App) Framework
-import T from './WorkflowHomeLayout.json';
+import T from './WorkbenchHomeLayout.json';
 import { t } from '@/state/locale';
 import { useWorkbenchOptionConfigs } from '@/domains/workbench/useWorkbenchOptionConfigs.ts';
 
@@ -10,7 +10,7 @@ import Card from '@/components/ui/Card.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
-import WorkbenchLayout from './WorkbenchLayout.vue';
+import WorkbenchLayout from '../WorkbenchLayout.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -18,7 +18,7 @@ const workflowOptionConfigs = useWorkbenchOptionConfigs();
 </script>
 
 <template>
-    <WorkbenchLayout class="dpuse-workbench-prose" data-layout="WorkflowHome">
+    <WorkbenchLayout class="dpuse-workbench-prose" data-layout="WorkbenchHome">
         <!-- Header -->
         <WorkbenchHeader :overline="t(T, 'wb.label')" :title="t(T, 'wb.wf.label')" />
 

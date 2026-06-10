@@ -12,7 +12,7 @@ import { localeId, t } from '@/state/locale';
 
 // Local Components - Static
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
-import WorkbenchLayout from '../../WorkbenchLayout.vue';
+import WorkbenchLayout from '../WorkbenchLayout.vue';
 import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────

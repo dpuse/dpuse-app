@@ -14,7 +14,7 @@ import DrillDetailPanelItem from '@/components/framework/drillDetailPanel/DrillD
 import Separator from '@/components/ui/Separator.vue';
 import TextField from '@/components/ui/textField/TextField.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
-import WorkbenchLayout from '../../WorkbenchLayout.vue';
+import WorkbenchLayout from '../WorkbenchLayout.vue';
 
 // ─────────────────────────────────────────────────────────────────────────────
 

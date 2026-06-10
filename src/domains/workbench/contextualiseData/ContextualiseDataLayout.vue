@@ -13,7 +13,7 @@ import T from './ContextualiseDataLayout.json';
 // Local Components - Static
 import Separator from '@/components/ui/Separator.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
-import WorkbenchLayout from '../../WorkbenchLayout.vue';
+import WorkbenchLayout from '../WorkbenchLayout.vue';
 
 // Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
