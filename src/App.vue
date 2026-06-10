@@ -27,7 +27,7 @@ const AuthDialog = defineAsyncComponent(load('AuthDialog', () => import('@/domai
 const ConnectionDialog = defineAsyncComponent(load('ConnectionDialog', () => import('@/domains/config/connectionDialog/ConnectionDialog.vue')));
 const KnowledgeLayout = defineAsyncComponent(load('KnowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue')));
 const PaneSplitter = defineAsyncComponent(load('PaneSplitter', () => import('@/components/ui/PaneSplitter.vue')));
-const WorkbenchOptionBar = defineAsyncComponent(load('WorkbenchOptionBar', () => import('@/domains/workbench/WorkbenchOptionBar.vue')));
+const WorkbenchOptionBar = defineAsyncComponent(load('WorkbenchOptionBar', () => import('@/domains/workbench/optionBar/WorkbenchOptionBar.vue')));
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 

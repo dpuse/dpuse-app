@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // External Dependencies
-import { ChevronDownIcon } from 'lucide-vue-next';
 import { type ComponentPublicInstance, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // DPUse Framework
@@ -12,7 +11,6 @@ import type { BenchtopOptionConfig } from '@/domains/workbench/workbench';
 import T from './WorkbenchOptionPanel.json';
 import { t } from '@/state/locale';
 import { useWorkbenchOptionConfigs } from '@/domains/workbench/useWorkbenchOptionConfigs';
-import { viewportIsWide } from '@/state/appLayout';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
