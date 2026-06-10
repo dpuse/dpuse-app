@@ -6,32 +6,32 @@ import { load } from '@/state/component';
 import { complete, fail, start } from '@/state/navigation';
 
 // Local Components - Dynamic
-const WorkflowHomeLayout = load('Workflow', () => import('@/domains/workbench/workflow/WorkflowHomeLayout.vue'));
+const WorkflowHomeLayout = load('Workflow', () => import('@/domains/workbench/WorkflowHomeLayout.vue'));
 
 // Local Components - Dynamic - Establish Data Views
-const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.vue'));
-const DataViewList = load('DataViewList', () => import('@/domains/workbench/workflow/establishDataViews/DataViewList.vue'));
-const SelectConnectionPanel = load('SelectConnection', () => import('@/domains/workbench/workflow/establishDataViews/selectConnection/SelectConnectionPanel.vue'));
-const SelectItemPanel = load('SelectItem', () => import('@/domains/workbench/workflow/establishDataViews/selectItem/SelectItemPanel.vue'));
-const AuditContentPanel = load('AuditContent', () => import('@/domains/workbench/workflow/establishDataViews/auditContent/AuditContentPanel.vue'));
-const ExploreData = load('Investigate', () => import('@/domains/workbench/workflow/establishDataViews/exploreData/ExploreData.vue'));
+const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/domains/workbench/establishDataViews/EstablishDataViewsLayout.vue'));
+const DataViewList = load('DataViewList', () => import('@/domains/workbench/establishDataViews/DataViewList.vue'));
+const SelectConnectionPanel = load('SelectConnection', () => import('@/domains/workbench/establishDataViews/selectConnection/SelectConnectionPanel.vue'));
+const SelectItemPanel = load('SelectItem', () => import('@/domains/workbench/establishDataViews/selectItem/SelectItemPanel.vue'));
+const AuditContentPanel = load('AuditContent', () => import('@/domains/workbench/establishDataViews/auditContent/AuditContentPanel.vue'));
+const ExploreData = load('Investigate', () => import('@/domains/workbench/establishDataViews/exploreData/ExploreData.vue'));
 
 // Local Components - Dynamic - Manage Contexts
-const ManageContextsLayout = load('ManageContexts', () => import('@/domains/workbench/workflow/manageContexts/ManageContextsLayout.vue'));
+const ManageContextsLayout = load('ManageContexts', () => import('@/domains/workbench/manageContexts/ManageContextsLayout.vue'));
 
 // Local Components - Dynamic - Assemble Dimensions
-const AssembleDimensionsLayout = load('AssembleDimensions', () => import('@/domains/workbench/workflow/assembleDimensions/AssembleDimensionsLayout.vue'));
-const DimensionList = load('DimensionList', () => import('@/domains/workbench/workflow/assembleDimensions/DimensionList.vue'));
+const AssembleDimensionsLayout = load('AssembleDimensions', () => import('@/domains/workbench/assembleDimensions/AssembleDimensionsLayout.vue'));
+const DimensionList = load('DimensionList', () => import('@/domains/workbench/assembleDimensions/DimensionList.vue'));
 
 // Local Components - Dynamic - Contextualise Data
-const ContextualiseDataLayout = load('ContextualiseData', () => import('@/domains/workbench/workflow/contextualiseData/ContextualiseDataLayout.vue'));
-const EventQueryList = load('EventQueryList', () => import('@/domains/workbench/workflow/contextualiseData/EventQueryList.vue'));
+const ContextualiseDataLayout = load('ContextualiseData', () => import('@/domains/workbench/contextualiseData/ContextualiseDataLayout.vue'));
+const EventQueryList = load('EventQueryList', () => import('@/domains/workbench/contextualiseData/EventQueryList.vue'));
 
 // Local Components - Dynamic - Explore Presentations
-const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.vue'));
+const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/domains/workbench/explorePresentations/ExplorePresentationsLayout.vue'));
 
 // Local Components - Dynamic - Build Data Apps
-const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'));
+const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/buildDataApps/BuildDataAppsLayout.vue'));
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
