@@ -8,7 +8,6 @@ import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// TODO, Do we need to pass 'workflow' here?
 const workflowOptionConfigs = useWorkbenchOptionConfigs();
 </script>
 

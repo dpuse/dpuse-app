@@ -180,7 +180,7 @@ function toggleWorkbenchPane(): void {
         // Then - workbench pane has never been activated, active and navigate to last known route.
         workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = true;
         router.replace({
-            name: (Array.isArray(route.query.wbView) ? route.query.wbView[0] : route.query.wbView) ?? 'workflow',
+            name: (Array.isArray(route.query.wbView) ? route.query.wbView[0] : route.query.wbView) ?? 'workbench',
             query: { ...route.query, wbState: 1, kState: knowledgePaneIsVisible.value ? 1 : undefined }
         });
     } else {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies
 import { ChevronDownIcon } from 'lucide-vue-next';
-import { type ComponentPublicInstance, defineAsyncComponent, onUnmounted, ref, useTemplateRef } from 'vue';
+import { type ComponentPublicInstance, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
@@ -9,7 +9,6 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // Local (App) Framework
 import { activeBenchtopOptionConfig } from '@/state/activeBenchtop';
 import type { BenchtopOptionConfig } from '@/domains/workbench/workbench';
-import { load } from '@/state/component';
 import T from './WorkbenchOptionPanel.json';
 import { t } from '@/state/locale';
 import { useWorkbenchOptionConfigs } from '@/domains/workbench/useWorkbenchOptionConfigs';
@@ -20,9 +19,6 @@ import Button from '@/components/ui/button/Button.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
-
-// Local Components - Dynamic
-const HomeMenu = defineAsyncComponent(load('HomeMenu', () => import('@/domains/workbench/HomeMenu.vue')));
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -67,41 +63,22 @@ function handleComplete(config?: LocalisedConfig<BenchtopOptionConfig>): void {
         <!-- Benchtop options scroller -->
         <ScrollArea class="flex-1">
             <div class="flex flex-col items-center gap-y-2 py-2">
-                <div class="relative flex flex-col">
-                    <Button
-                        :aria-label="t(T, 'home.aria')"
-                        shape="icon"
-                        :to="{ name: 'workflow', query: { ...$route.query, wbView: 'workflow' } }"
-                        @click="handleComplete({ id: 'home', label: '', description: '', icon: '', step: 0, tasks: [] })"
-                    >
-                        <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
-                    </Button>
-
-                    <Button
-                        class="dpuse-outside-click-ignore absolute -right-0.5 -bottom-0.5 rounded-full bg-zinc-200 p-0.5"
-                        shape="minimal"
-                        @click="homeMenuIsOpen = !homeMenuIsOpen"
-                    >
-                        <ChevronDownIcon class="size-3.5" />
-                    </Button>
-                </div>
-
-                <Teleport to="body">
-                    <Transition :name="viewportIsWide ? 'dpuse-slide-down' : 'dpuse-sheet'">
-                        <HomeMenu v-if="homeMenuIsOpen" ref="homeMenuReference" class="z-51" @continue="homeMenuIsOpen = false" />
-                    </Transition>
-                </Teleport>
-
                 <Button
-                    v-for="config in workflowOptionConfigs"
-                    :key="config.id"
-                    :aria-label="config.label"
+                    :aria-label="t(T, 'home.aria')"
                     shape="icon"
-                    :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
-                    @click="handleComplete(config)"
+                    :to="{ name: 'workbench', query: { ...$route.query, wbView: 'workbench' } }"
+                    @click="handleComplete({ id: 'home', label: '', description: '', icon: '', step: 0, tasks: [] })"
                 >
-                    <div aria-hidden="true" v-html="config.icon" />
+                    <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
                 </Button>
+
+                <template v-for="(config, index) in workflowOptionConfigs" :key="config.id">
+                    <Separator v-if="index === 0 || index === 1 || index === 4" class="w-10 flex-none" />
+
+                    <Button :aria-label="config.label" shape="icon" :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }" @click="handleComplete(config)">
+                        <div aria-hidden="true" v-html="config.icon" />
+                    </Button>
+                </template>
             </div>
         </ScrollArea>
 

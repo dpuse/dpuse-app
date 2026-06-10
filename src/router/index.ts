@@ -2,22 +2,13 @@
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior, START_LOCATION } from 'vue-router';
 
 // Local (App) Framework
-import { activeBenchtopId } from '@/state/activeBenchtop';
 import { load } from '@/state/component';
 import { complete, fail, start } from '@/state/navigation';
 
-// Local Components - Dynamic - Admin
-const AdminHomeLayout = load('Admin', () => import('@/domains/workbench/admin/AdminHomeLayout.vue'));
-const ManageAccountsLayout = load('ManageAccounts', () => import('@/domains/workbench/admin/manageAccounts/ManageAccountsLayout.vue'));
-
-// Local Components - Dynamic - Partner
-const PartnerHomeLayout = load('Partner', () => import('@/domains/workbench/partner/PartnerHomeLayout.vue'));
-const ManageContextsLayout = load('ManageContexts', () => import('@/domains/workbench/partner/manageContexts/ManageContextsLayout.vue'));
-
-// Local Components - Dynamic - Workflow
+// Local Components - Dynamic
 const WorkflowHomeLayout = load('Workflow', () => import('@/domains/workbench/workflow/WorkflowHomeLayout.vue'));
 
-// Local Components - Dynamic - Workflow - Establish Data Views
+// Local Components - Dynamic - Establish Data Views
 const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/domains/workbench/workflow/establishDataViews/EstablishDataViewsLayout.vue'));
 const DataViewList = load('DataViewList', () => import('@/domains/workbench/workflow/establishDataViews/DataViewList.vue'));
 const SelectConnectionPanel = load('SelectConnection', () => import('@/domains/workbench/workflow/establishDataViews/selectConnection/SelectConnectionPanel.vue'));
@@ -25,18 +16,21 @@ const SelectItemPanel = load('SelectItem', () => import('@/domains/workbench/wor
 const AuditContentPanel = load('AuditContent', () => import('@/domains/workbench/workflow/establishDataViews/auditContent/AuditContentPanel.vue'));
 const ExploreData = load('Investigate', () => import('@/domains/workbench/workflow/establishDataViews/exploreData/ExploreData.vue'));
 
-// Local Components - Dynamic - Workflow - Assemble Dimensions
+// Local Components - Dynamic - Manage Contexts
+const ManageContextsLayout = load('ManageContexts', () => import('@/domains/workbench/workflow/manageContexts/ManageContextsLayout.vue'));
+
+// Local Components - Dynamic - Assemble Dimensions
 const AssembleDimensionsLayout = load('AssembleDimensions', () => import('@/domains/workbench/workflow/assembleDimensions/AssembleDimensionsLayout.vue'));
 const DimensionList = load('DimensionList', () => import('@/domains/workbench/workflow/assembleDimensions/DimensionList.vue'));
 
-// Local Components - Dynamic - Workflow - Contextualise Data
+// Local Components - Dynamic - Contextualise Data
 const ContextualiseDataLayout = load('ContextualiseData', () => import('@/domains/workbench/workflow/contextualiseData/ContextualiseDataLayout.vue'));
 const EventQueryList = load('EventQueryList', () => import('@/domains/workbench/workflow/contextualiseData/EventQueryList.vue'));
 
-// Local Components - Dynamic - Workflow - Explore Presentations
+// Local Components - Dynamic - Explore Presentations
 const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/domains/workbench/workflow/explorePresentations/ExplorePresentationsLayout.vue'));
 
-// Local Components - Dynamic - Workflow - Build Data Apps
+// Local Components - Dynamic - Build Data Apps
 const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/workflow/buildDataApps/BuildDataAppsLayout.vue'));
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -47,23 +41,9 @@ export const APP_ROUTES = [
         children: [
             { path: '', component: { render: (): null => null } }, // Matches exactly '/'. beforeEach handles the default redirect to knowledge about.
             {
-                path: 'admin',
+                path: 'workbench',
                 children: [
-                    { name: 'admin', path: '', component: AdminHomeLayout },
-                    { name: 'manageAccounts', path: 'manageAccounts', component: ManageAccountsLayout }
-                ]
-            },
-            {
-                path: 'partner',
-                children: [
-                    { name: 'partner', path: '', component: PartnerHomeLayout },
-                    { name: 'manageContexts', path: 'manageContexts', component: ManageContextsLayout }
-                ]
-            },
-            {
-                path: 'workflow',
-                children: [
-                    { name: 'workflow', path: '', component: WorkflowHomeLayout },
+                    { name: 'workbench', path: '', component: WorkflowHomeLayout },
                     {
                         path: 'establishDataViews',
                         component: EstablishDataViewsLayout,
@@ -80,6 +60,7 @@ export const APP_ROUTES = [
                             }
                         ]
                     },
+                    { name: 'manageContexts', path: 'manageContexts', component: ManageContextsLayout },
                     { path: 'assembleDimensions', component: AssembleDimensionsLayout, children: [{ name: 'assembleDimensions', path: '', component: DimensionList }] },
                     { path: 'contextualiseData', component: ContextualiseDataLayout, children: [{ name: 'contextualiseData', path: '', component: EventQueryList }] },
                     { name: 'explorePresentations', path: 'explorePresentations', component: ExplorePresentationsLayout },
@@ -106,9 +87,9 @@ export const createAppRouter = (): Router => {
             // Then the page is loading.
             if (to.query.wbState !== '1' && to.path !== '/') {
                 // Then we can clear the workbench part of the url if it was not visible. This defers loading the view until required.
-                return { path: '/', query: { ...to.query, d: undefined, wbState: undefined, wbView: to.query.wbView ?? 'workflow', kState: 1, kView: to.query.kView ?? 'about' } };
+                return { path: '/', query: { ...to.query, d: undefined, wbState: undefined, wbView: to.query.wbView ?? 'workbench', kState: 1, kView: to.query.kView ?? 'about' } };
             } else if (to.path === '/' && (!('kView' in to.query) || !('kState' in to.query))) {
-                return { path: '/workflow', query: { ...to.query, d: undefined, wbState: 1, wbView: 'workflow', kState: undefined, kView: undefined } };
+                return { path: '/workflow', query: { ...to.query, d: undefined, wbState: 1, wbView: 'workbench', kState: undefined, kView: undefined } };
             } else if ('d' in to.query) {
                 return { path: to.path, query: { ...to.query, d: undefined } };
             }
@@ -117,13 +98,7 @@ export const createAppRouter = (): Router => {
         start();
     });
 
-    router.afterEach((to) => {
-        const segment = to.path.split('/')[1];
-        if (segment === 'admin' || segment === 'partner' || segment === 'workflow') {
-            activeBenchtopId.value = segment;
-        }
-        complete();
-    });
+    router.afterEach(() => complete());
     router.onError(() => fail());
 
     return router;

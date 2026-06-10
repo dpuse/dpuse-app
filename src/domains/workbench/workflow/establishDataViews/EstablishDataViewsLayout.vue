@@ -36,7 +36,7 @@ const tasksEnabledToNumber = ref(0);
 
 const activeTaskLocalisedConfig = computed(() => TASK_CONFIGS.find((config) => config.id === route.query.wbView));
 
-const navigateBackRouteName = computed(() => (route.query.wbView === 'establishDataViews' ? 'workflow' : 'establishDataViews'));
+const navigateBackRouteName = computed(() => (route.query.wbView === 'establishDataViews' ? 'workbench' : 'establishDataViews'));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
