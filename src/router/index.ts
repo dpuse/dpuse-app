@@ -16,7 +16,8 @@ const SelectItemPanel = load('SelectItem', () => import('@/domains/workbench/est
 const AuditContentPanel = load('AuditContent', () => import('@/domains/workbench/establishDataViews/auditContent/AuditContentPanel.vue'));
 const ExploreData = load('Investigate', () => import('@/domains/workbench/establishDataViews/exploreData/ExploreData.vue'));
 
-// Local Components - Dynamic - Manage Contexts
+// Local Components - Dynamic - Manage Configs/Contexts
+const ManageConfigsLayout = load('ManageConfigs', () => import('@/domains/workbench/manageConfigs/ManageConfigsLayout.vue'));
 const ManageContextsLayout = load('ManageContexts', () => import('@/domains/workbench/manageContexts/ManageContextsLayout.vue'));
 
 // Local Components - Dynamic - Assemble Dimensions
@@ -64,7 +65,8 @@ export const APP_ROUTES = [
                     { path: 'assembleDimensions', component: AssembleDimensionsLayout, children: [{ name: 'assembleDimensions', path: '', component: DimensionList }] },
                     { path: 'contextualiseData', component: ContextualiseDataLayout, children: [{ name: 'contextualiseData', path: '', component: EventQueryList }] },
                     { name: 'explorePresentations', path: 'explorePresentations', component: ExplorePresentationsLayout },
-                    { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsLayout }
+                    { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsLayout },
+                    { name: 'manageConfigs', path: 'manageConfigs', component: ManageConfigsLayout }
                 ]
             }
         ]

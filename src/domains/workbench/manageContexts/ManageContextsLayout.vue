@@ -1,14 +1,14 @@
 <script setup lang="ts">
-// External Dependencies
+// ── External Dependencies
 import { required } from '@regle/rules';
 import { useRegle } from '@regle/core';
 import { computed, reactive, ref, watch } from 'vue';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { t } from '@/state/locale';
 import T from './ManageContextsLayout.json';
 
-// Local Components - Static
+// ── Local Components - Static
 import type { DrillBreadcrumb } from '@/components/framework/drillDetailPanel/DrillDetailPanel.vue';
 import DrillDetailPanel from '@/components/framework/drillDetailPanel/DrillDetailPanel.vue';
 import DrillDetailPanelItem from '@/components/framework/drillDetailPanel/DrillDetailPanelItem.vue';
@@ -17,40 +17,51 @@ import TextField from '@/components/ui/TextField.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 import WorkbenchLayout from '../WorkbenchLayout.vue';
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-interface Contractor {
+interface Context {
+    name: string;
+    modelGroups: Model[];
+}
+interface ModelGroup {
+    name: string;
+    models: Model[];
+}
+interface Model {
+    name: string;
+    entityGroups: EntityGroup[];
+    dimensionGroups: DimensionGroup[];
+    secondaryMeasureGroups: SecondaryMeasureGroup[];
+}
+interface EntityGroup {
     name: string;
     rate: string;
 }
-interface Member {
+interface DimensionGroup {
+    name: string;
+    members: Dimension[];
+}
+interface Dimension {
     name: string;
     role: string;
 }
-interface Team {
+interface SecondaryMeasureGroup {
     name: string;
-    members: Member[];
-}
-interface Department {
-    name: string;
-    contractors: Contractor[];
-    teams: Team[];
-}
-interface Organization {
-    name: string;
-    modelGroups: Department[];
+    measures: unknown;
 }
 
-const data = ref<Organization>({
+// ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const data = ref<Context>({
     name: 'Default Context',
     modelGroups: [
         {
             name: 'Core',
-            contractors: [
+            entityGroups: [
                 { name: 'Dave Chen', rate: '$120/hr' },
                 { name: 'Eve Nakamura', rate: '$95/hr' }
             ],
-            teams: [
+            dimensionGroups: [
                 {
                     name: 'Frontend',
                     members: [
@@ -59,33 +70,41 @@ const data = ref<Organization>({
                     ]
                 },
                 { name: 'Backend', members: [{ name: 'Carol Lin', role: 'Engineer' }] }
-            ]
+            ],
+            secondaryMeasureGroups: []
         },
-        { name: 'Finance & Accounting', contractors: [], teams: [] },
-        { name: 'People / HR', contractors: [], teams: [] },
-        { name: 'Sales & Marketing', contractors: [], teams: [] },
-        { name: 'Customer Service', contractors: [], teams: [] },
-        { name: 'Product & Platform', contractors: [], teams: [] },
-        { name: 'Supply Chain & Operations', contractors: [], teams: [] },
-        { name: 'External / Third Party', contractors: [], teams: [] },
-        { name: 'Governance, Risk, & Compliance', contractors: [], teams: [] }
+        { name: 'Finance & Accounting', entityGroups: [], dimensionGroups: [], secondaryMeasureGroups: [] },
+        { name: 'People / HR', entityGroups: [], dimensionGroups: [], secondaryMeasureGroups: [] },
+        { name: 'Sales & Marketing', entityGroups: [], dimensionGroups: [], secondaryMeasureGroups: [] },
+        { name: 'Customer Service', entityGroups: [], dimensionGroups: [], secondaryMeasureGroups: [] },
+        { name: 'Product & Platform', entityGroups: [], dimensionGroups: [], secondaryMeasureGroups: [] },
+        { name: 'Supply Chain & Operations', entityGroups: [], dimensionGroups: [], secondaryMeasureGroups: [] },
+        { name: 'External / Third Party', entityGroups: [], dimensionGroups: [], secondaryMeasureGroups: [] },
+        { name: 'Governance, Risk, & Compliance', entityGroups: [], dimensionGroups: [], secondaryMeasureGroups: [] }
     ]
 });
 
-// ─── Navigation state ─────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const departmentIndex = ref<number | null>(null);
-const currentChildList = ref<'contractors' | 'teams' | null>(null);
-const teamIndex = ref<number | null>(null);
-const memberIndex = ref<number | null>(null);
-const contractorIndex = ref<number | null>(null);
+const currentChildList = ref<'entityGroups' | 'dimensionGroups' | null>(null);
 const showDetail = ref(false);
 
-const activeDepartment = computed((): Department | null => (departmentIndex.value === null ? null : (data.value.modelGroups[departmentIndex.value] ?? null)));
-const activeTeam = computed((): Team | null => (activeDepartment.value === null || teamIndex.value === null ? null : (activeDepartment.value.teams[teamIndex.value] ?? null)));
-const activeMember = computed((): Member | null => (activeTeam.value === null || memberIndex.value === null ? null : (activeTeam.value.members[memberIndex.value] ?? null)));
-const activeContractor = computed((): Contractor | null =>
-    activeDepartment.value === null || contractorIndex.value === null ? null : (activeDepartment.value.contractors[contractorIndex.value] ?? null)
+const modelGroupIndex = ref<number | null>(null);
+const dimensionGroupIndex = ref<number | null>(null);
+const dimensionIndex = ref<number | null>(null);
+const entityGroupIndex = ref<number | null>(null);
+
+const activeModel = computed((): Model | null => (modelGroupIndex.value === null ? null : (data.value.modelGroups[modelGroupIndex.value] ?? null)));
+
+const activeDimensionGroup = computed((): DimensionGroup | null =>
+    activeModel.value === null || dimensionGroupIndex.value === null ? null : (activeModel.value.dimensionGroups[dimensionGroupIndex.value] ?? null)
+);
+const activeEntityGroup = computed((): EntityGroup | null =>
+    activeModel.value === null || entityGroupIndex.value === null ? null : (activeModel.value.entityGroups[entityGroupIndex.value] ?? null)
+);
+
+const activeDimension = computed((): Dimension | null =>
+    activeDimensionGroup.value === null || dimensionIndex.value === null ? null : (activeDimensionGroup.value.members[dimensionIndex.value] ?? null)
 );
 
 // ─── Form states ──────────────────────────────────────────────────────────────
@@ -101,24 +120,24 @@ const { r$: memR$ } = useRegle(memberForm, { name: { required }, role: { require
 const { r$: conR$ } = useRegle(contractorForm, { name: { required }, rate: { required } });
 
 // Entity → form: populate and clear validation state on navigation
-watch(activeDepartment, (department) => {
+watch(activeModel, (department) => {
     departmentForm.name = department?.name ?? '';
     deptR$.$reset();
     if (!departmentForm.name) deptR$.name.$touch();
 });
-watch(activeTeam, (team) => {
+watch(activeDimensionGroup, (team) => {
     teamForm.name = team?.name ?? '';
     teamR$.$reset();
     if (!teamForm.name) teamR$.name.$touch();
 });
-watch(activeMember, (member) => {
+watch(activeDimension, (member) => {
     memberForm.name = member?.name ?? '';
     memberForm.role = member?.role ?? '';
     memR$.$reset();
     if (!memberForm.name) memR$.name.$touch();
     if (!memberForm.role) memR$.role.$touch();
 });
-watch(activeContractor, (contractor) => {
+watch(activeEntityGroup, (contractor) => {
     contractorForm.name = contractor?.name ?? '';
     contractorForm.rate = contractor?.rate ?? '';
     conR$.$reset();
@@ -130,118 +149,118 @@ watch(activeContractor, (contractor) => {
 watch(
     () => departmentForm.name,
     (value) => {
-        if (activeDepartment.value) activeDepartment.value.name = value;
+        if (activeModel.value) activeModel.value.name = value;
     }
 );
 watch(
     () => teamForm.name,
     (value) => {
-        if (activeTeam.value) activeTeam.value.name = value;
+        if (activeDimensionGroup.value) activeDimensionGroup.value.name = value;
     }
 );
 watch(
     () => memberForm.name,
     (value) => {
-        if (activeMember.value) activeMember.value.name = value;
+        if (activeDimension.value) activeDimension.value.name = value;
     }
 );
 watch(
     () => memberForm.role,
     (value) => {
-        if (activeMember.value) activeMember.value.role = value;
+        if (activeDimension.value) activeDimension.value.role = value;
     }
 );
 watch(
     () => contractorForm.name,
     (value) => {
-        if (activeContractor.value) activeContractor.value.name = value;
+        if (activeEntityGroup.value) activeEntityGroup.value.name = value;
     }
 );
 watch(
     () => contractorForm.rate,
     (value) => {
-        if (activeContractor.value) activeContractor.value.rate = value;
+        if (activeEntityGroup.value) activeEntityGroup.value.rate = value;
     }
 );
 
 // ─── Reset functions ──────────────────────────────────────────────────────────
 
 const resetToDepartments = (): void => {
-    departmentIndex.value = null;
+    modelGroupIndex.value = null;
     currentChildList.value = null;
-    teamIndex.value = null;
-    memberIndex.value = null;
-    contractorIndex.value = null;
+    dimensionGroupIndex.value = null;
+    dimensionIndex.value = null;
+    entityGroupIndex.value = null;
     showDetail.value = false;
 };
 const resetToDepartmentDetail = (): void => {
     currentChildList.value = null;
-    teamIndex.value = null;
-    memberIndex.value = null;
-    contractorIndex.value = null;
+    dimensionGroupIndex.value = null;
+    dimensionIndex.value = null;
+    entityGroupIndex.value = null;
     showDetail.value = true;
 };
 const resetToTeams = (): void => {
-    teamIndex.value = null;
-    memberIndex.value = null;
+    dimensionGroupIndex.value = null;
+    dimensionIndex.value = null;
     showDetail.value = false;
 };
 const resetToMembers = (): void => {
-    memberIndex.value = null;
+    dimensionIndex.value = null;
     showDetail.value = false;
 };
 const resetToContractors = (): void => {
-    contractorIndex.value = null;
+    entityGroupIndex.value = null;
     showDetail.value = false;
 };
 
 // ─── Select / navigate functions ──────────────────────────────────────────────
 
 const selectDepartment = (index: number): void => {
-    departmentIndex.value = index;
+    modelGroupIndex.value = index;
     currentChildList.value = null;
-    teamIndex.value = null;
-    memberIndex.value = null;
-    contractorIndex.value = null;
+    dimensionGroupIndex.value = null;
+    dimensionIndex.value = null;
+    entityGroupIndex.value = null;
     showDetail.value = true;
 };
 const navigateToTeams = (): void => {
-    currentChildList.value = 'teams';
-    teamIndex.value = null;
-    memberIndex.value = null;
+    currentChildList.value = 'dimensionGroups';
+    dimensionGroupIndex.value = null;
+    dimensionIndex.value = null;
     showDetail.value = false;
 };
 const navigateToContractors = (): void => {
-    currentChildList.value = 'contractors';
-    contractorIndex.value = null;
+    currentChildList.value = 'entityGroups';
+    entityGroupIndex.value = null;
     showDetail.value = false;
 };
 const selectTeam = (index: number): void => {
-    teamIndex.value = index;
-    memberIndex.value = null;
+    dimensionGroupIndex.value = index;
+    dimensionIndex.value = null;
     showDetail.value = true;
 };
 const selectMember = (index: number): void => {
-    memberIndex.value = index;
+    dimensionIndex.value = index;
     showDetail.value = true;
 };
 const selectContractor = (index: number): void => {
-    contractorIndex.value = index;
+    entityGroupIndex.value = index;
     showDetail.value = true;
 };
 
 // ─── Back ─────────────────────────────────────────────────────────────────────
 
 const handleBack = (): void => {
-    if (memberIndex.value !== null) {
+    if (dimensionIndex.value !== null) {
         resetToMembers();
         return;
     }
-    if (contractorIndex.value !== null) {
+    if (entityGroupIndex.value !== null) {
         resetToContractors();
         return;
     }
-    if (teamIndex.value !== null) {
+    if (dimensionGroupIndex.value !== null) {
         resetToTeams();
         return;
     }
@@ -255,110 +274,110 @@ const handleBack = (): void => {
 // ─── Add / Remove ─────────────────────────────────────────────────────────────
 
 const addDepartment = (): void => {
-    data.value.modelGroups.push({ name: '', contractors: [], teams: [] });
+    data.value.modelGroups.push({ name: '', entityGroups: [], dimensionGroups: [], secondaryMeasureGroups: [] });
     selectDepartment(data.value.modelGroups.length - 1);
 };
 const removeDepartment = (index: number): void => {
-    if (departmentIndex.value === index) {
+    if (modelGroupIndex.value === index) {
         resetToDepartments();
-    } else if (departmentIndex.value !== null && index < departmentIndex.value) {
-        departmentIndex.value--;
+    } else if (modelGroupIndex.value !== null && index < modelGroupIndex.value) {
+        modelGroupIndex.value--;
     }
     data.value.modelGroups.splice(index, 1);
 };
 
 const addTeam = (): void => {
-    if (activeDepartment.value === null) return;
-    activeDepartment.value.teams.push({ name: '', members: [] });
-    selectTeam(activeDepartment.value.teams.length - 1);
+    if (activeModel.value === null) return;
+    activeModel.value.dimensionGroups.push({ name: '', members: [] });
+    selectTeam(activeModel.value.dimensionGroups.length - 1);
 };
 const removeTeam = (index: number): void => {
-    if (activeDepartment.value === null) return;
-    if (teamIndex.value === index) {
+    if (activeModel.value === null) return;
+    if (dimensionGroupIndex.value === index) {
         resetToTeams();
-    } else if (teamIndex.value !== null && index < teamIndex.value) {
-        teamIndex.value--;
+    } else if (dimensionGroupIndex.value !== null && index < dimensionGroupIndex.value) {
+        dimensionGroupIndex.value--;
     }
-    activeDepartment.value.teams.splice(index, 1);
+    activeModel.value.dimensionGroups.splice(index, 1);
 };
 
 const addMember = (): void => {
-    if (activeTeam.value === null) return;
-    activeTeam.value.members.push({ name: '', role: '' });
-    selectMember(activeTeam.value.members.length - 1);
+    if (activeDimensionGroup.value === null) return;
+    activeDimensionGroup.value.members.push({ name: '', role: '' });
+    selectMember(activeDimensionGroup.value.members.length - 1);
 };
 const removeMember = (index: number): void => {
-    if (activeTeam.value === null) return;
-    if (memberIndex.value === index) {
+    if (activeDimensionGroup.value === null) return;
+    if (dimensionIndex.value === index) {
         resetToMembers();
-    } else if (memberIndex.value !== null && index < memberIndex.value) {
-        memberIndex.value--;
+    } else if (dimensionIndex.value !== null && index < dimensionIndex.value) {
+        dimensionIndex.value--;
     }
-    activeTeam.value.members.splice(index, 1);
+    activeDimensionGroup.value.members.splice(index, 1);
 };
 
 const addContractor = (): void => {
-    if (activeDepartment.value === null) return;
-    activeDepartment.value.contractors.push({ name: '', rate: '' });
-    selectContractor(activeDepartment.value.contractors.length - 1);
+    if (activeModel.value === null) return;
+    activeModel.value.entityGroups.push({ name: '', rate: '' });
+    selectContractor(activeModel.value.entityGroups.length - 1);
 };
 const removeContractor = (index: number): void => {
-    if (activeDepartment.value === null) return;
-    if (contractorIndex.value === index) {
+    if (activeModel.value === null) return;
+    if (entityGroupIndex.value === index) {
         resetToContractors();
-    } else if (contractorIndex.value !== null && index < contractorIndex.value) {
-        contractorIndex.value--;
+    } else if (entityGroupIndex.value !== null && index < entityGroupIndex.value) {
+        entityGroupIndex.value--;
     }
-    activeDepartment.value.contractors.splice(index, 1);
+    activeModel.value.entityGroups.splice(index, 1);
 };
 
 // ─── DrillDetailPanel bindings ────────────────────────────────────────────────
 
 const breadcrumbs = computed((): DrillBreadcrumb[] => {
-    if (departmentIndex.value === null) return [];
-    const crumbs: DrillBreadcrumb[] = [{ label: 'Departments', onClick: resetToDepartments }];
+    if (modelGroupIndex.value === null) return [];
+    const crumbs: DrillBreadcrumb[] = [{ label: 'Entity Groups', onClick: resetToDepartments }];
     if (currentChildList.value === null) return crumbs;
 
-    crumbs.push({ label: activeDepartment.value?.name ?? 'Untitled', onClick: resetToDepartmentDetail });
+    crumbs.push({ label: activeModel.value?.name ?? 'Untitled', onClick: resetToDepartmentDetail });
 
-    if (currentChildList.value === 'teams') {
-        if (teamIndex.value !== null) {
-            crumbs.push({ label: 'Teams', onClick: resetToTeams });
-            if (memberIndex.value !== null) {
-                crumbs.push({ label: activeTeam.value?.name ?? 'Untitled', onClick: resetToMembers });
+    if (currentChildList.value === 'dimensionGroups') {
+        if (dimensionGroupIndex.value !== null) {
+            crumbs.push({ label: 'Dimension Groups', onClick: resetToTeams });
+            if (dimensionIndex.value !== null) {
+                crumbs.push({ label: activeDimensionGroup.value?.name ?? 'Untitled', onClick: resetToMembers });
             }
         }
-    } else if (contractorIndex.value !== null) {
-        crumbs.push({ label: 'Contractors', onClick: resetToContractors });
+    } else if (entityGroupIndex.value !== null) {
+        crumbs.push({ label: 'Entity Groups', onClick: resetToContractors });
     }
 
     return crumbs;
 });
 
 const listTitle = computed((): string => {
-    if (teamIndex.value !== null) return 'Members';
-    if (currentChildList.value === 'teams') return 'Teams';
-    if (currentChildList.value === 'contractors') return 'Contractors';
-    return 'Model Groupings';
+    if (dimensionGroupIndex.value !== null) return 'Members';
+    if (currentChildList.value === 'dimensionGroups') return 'Dimension Groups';
+    if (currentChildList.value === 'entityGroups') return 'Entity Groups';
+    return 'Model Groups';
 });
 
 const addLabel = computed((): string => {
-    if (teamIndex.value !== null) return 'Add Member';
-    if (currentChildList.value === 'teams') return 'Add Team';
-    if (currentChildList.value === 'contractors') return 'Add Contractor';
-    return 'Add Department';
+    if (dimensionGroupIndex.value !== null) return 'Add Dimension';
+    if (currentChildList.value === 'dimensionGroups') return 'Add DimensionGroup';
+    if (currentChildList.value === 'entityGroups') return 'Add EntityGroup';
+    return 'Add Model';
 });
 
 const handleAdd = (): void => {
-    if (teamIndex.value !== null) {
+    if (dimensionGroupIndex.value !== null) {
         addMember();
         return;
     }
-    if (currentChildList.value === 'teams') {
+    if (currentChildList.value === 'dimensionGroups') {
         addTeam();
         return;
     }
-    if (currentChildList.value === 'contractors') {
+    if (currentChildList.value === 'entityGroups') {
         addContractor();
         return;
     }
@@ -376,7 +395,7 @@ const handleAdd = (): void => {
             <DrillDetailPanel
                 :add-label="addLabel"
                 :breadcrumbs="breadcrumbs"
-                :has-detail="departmentIndex !== null"
+                :has-detail="modelGroupIndex !== null"
                 :list-title="listTitle"
                 :show-detail="showDetail"
                 max-list-width="260px"
@@ -386,51 +405,51 @@ const handleAdd = (): void => {
                 <!-- ── List ──────────────────────────────────────────────── -->
                 <template #list>
                     <!-- Members level -->
-                    <template v-if="teamIndex !== null">
+                    <template v-if="dimensionGroupIndex !== null">
                         <DrillDetailPanelItem
-                            v-for="(member, i) in activeTeam?.members ?? []"
+                            v-for="(member, i) in activeDimensionGroup?.members ?? []"
                             :key="i"
-                            :is-active="memberIndex === i"
+                            :is-active="dimensionIndex === i"
                             :label="member.name"
                             @remove="removeMember(i)"
                             @select="selectMember(i)"
                         />
-                        <p v-if="activeTeam?.members.length === 0" class="px-3 py-4 text-xs text-subtle">No members yet</p>
+                        <p v-if="activeDimensionGroup?.members.length === 0" class="px-3 py-4 text-xs text-subtle">No members yet</p>
                     </template>
 
-                    <!-- Teams level -->
-                    <template v-else-if="currentChildList === 'teams'">
+                    <!-- Dimension Groups level -->
+                    <template v-else-if="currentChildList === 'dimensionGroups'">
                         <DrillDetailPanelItem
-                            v-for="(team, i) in activeDepartment?.teams ?? []"
+                            v-for="(team, i) in activeModel?.dimensionGroups ?? []"
                             :key="i"
-                            :is-active="teamIndex === i"
+                            :is-active="dimensionGroupIndex === i"
                             :label="team.name"
                             has-children
                             @remove="removeTeam(i)"
                             @select="selectTeam(i)"
                         />
-                        <p v-if="activeDepartment?.teams.length === 0" class="px-3 py-4 text-xs text-subtle">No teams yet</p>
+                        <p v-if="activeModel?.dimensionGroups.length === 0" class="px-3 py-4 text-xs text-subtle">No dimension groups yet</p>
                     </template>
 
-                    <!-- Contractors level -->
-                    <template v-else-if="currentChildList === 'contractors'">
+                    <!-- Entity Groups level -->
+                    <template v-else-if="currentChildList === 'entityGroups'">
                         <DrillDetailPanelItem
-                            v-for="(contractor, i) in activeDepartment?.contractors ?? []"
+                            v-for="(contractor, i) in activeModel?.entityGroups ?? []"
                             :key="i"
-                            :is-active="contractorIndex === i"
+                            :is-active="entityGroupIndex === i"
                             :label="contractor.name"
                             @remove="removeContractor(i)"
                             @select="selectContractor(i)"
                         />
-                        <p v-if="activeDepartment?.contractors.length === 0" class="px-3 py-4 text-xs text-subtle">No contractors yet</p>
+                        <p v-if="activeModel?.entityGroups.length === 0" class="px-3 py-4 text-xs text-subtle">No entity groups yet</p>
                     </template>
 
-                    <!-- Departments level -->
+                    <!-- Entity Groups level -->
                     <template v-else>
                         <DrillDetailPanelItem
                             v-for="(department, i) in data.modelGroups"
                             :key="i"
-                            :is-active="departmentIndex === i"
+                            :is-active="modelGroupIndex === i"
                             :label="department.name"
                             has-children
                             @remove="removeDepartment(i)"
@@ -443,39 +462,39 @@ const handleAdd = (): void => {
                 <!-- ── Detail ────────────────────────────────────────────── -->
                 <template #detail>
                     <div class="p-5">
-                        <!-- Member -->
-                        <template v-if="activeMember !== null">
-                            <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Member</p>
-                            <h2 class="mb-5 text-lg font-semibold text-content">{{ activeMember.name || 'Untitled' }}</h2>
+                        <!-- Dimension -->
+                        <template v-if="activeDimension !== null">
+                            <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Dimension</p>
+                            <h2 class="mb-5 text-lg font-semibold text-content">{{ activeDimension.name || 'Untitled' }}</h2>
                             <TextField v-model="memberForm.name" class="mb-3" label="Name" :errors="memR$.name.$errors" @blur="memR$.name.$touch()" />
                             <TextField v-model="memberForm.role" label="Role" :errors="memR$.role.$errors" @blur="memR$.role.$touch()" />
                         </template>
 
-                        <!-- Contractor -->
-                        <template v-else-if="activeContractor !== null">
-                            <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Contractor</p>
-                            <h2 class="mb-5 text-lg font-semibold text-content">{{ activeContractor.name || 'Untitled' }}</h2>
+                        <!-- Entity Group -->
+                        <template v-else-if="activeEntityGroup !== null">
+                            <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">EntityGroup</p>
+                            <h2 class="mb-5 text-lg font-semibold text-content">{{ activeEntityGroup.name || 'Untitled' }}</h2>
                             <TextField v-model="contractorForm.name" class="mb-3" label="Name" :errors="conR$.name.$errors" @blur="conR$.name.$touch()" />
                             <TextField v-model="contractorForm.rate" label="Rate" placeholder="e.g. $100/hr" :errors="conR$.rate.$errors" @blur="conR$.rate.$touch()" />
                         </template>
 
-                        <!-- Team -->
-                        <template v-else-if="activeTeam !== null">
-                            <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Team</p>
-                            <h2 class="mb-5 text-lg font-semibold text-content">{{ activeTeam.name || 'Untitled' }}</h2>
-                            <TextField v-model="teamForm.name" label="Team Name" :errors="teamR$.name.$errors" @blur="teamR$.name.$touch()" />
+                        <!-- DimensionGroup -->
+                        <template v-else-if="activeDimensionGroup !== null">
+                            <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">DimensionGroup</p>
+                            <h2 class="mb-5 text-lg font-semibold text-content">{{ activeDimensionGroup.name || 'Untitled' }}</h2>
+                            <TextField v-model="teamForm.name" label="DimensionGroup Name" :errors="teamR$.name.$errors" @blur="teamR$.name.$touch()" />
                         </template>
 
-                        <!-- Sub-list placeholder (browsing teams or contractors, nothing selected) -->
+                        <!-- Sub-list placeholder (browsing dimensionGroups or entityGroups, nothing selected) -->
                         <template v-else-if="currentChildList !== null">
-                            <p class="text-sm text-subtle">Select a {{ currentChildList === 'teams' ? 'team' : 'contractor' }} to see details.</p>
+                            <p class="text-sm text-subtle">Select a {{ currentChildList === 'dimensionGroups' ? 'team' : 'contractor' }} to see details.</p>
                         </template>
 
-                        <!-- Department (with navigation to sub-collections) -->
-                        <template v-else-if="activeDepartment !== null">
-                            <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Department</p>
-                            <h2 class="mb-5 text-lg font-semibold text-content">{{ activeDepartment.name || 'Untitled' }}</h2>
-                            <TextField v-model="departmentForm.name" class="mb-6" label="Department Name" :errors="deptR$.name.$errors" @blur="deptR$.name.$touch()" />
+                        <!-- Model (with navigation to sub-collections) -->
+                        <template v-else-if="activeModel !== null">
+                            <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Model</p>
+                            <h2 class="mb-5 text-lg font-semibold text-content">{{ activeModel.name || 'Untitled' }}</h2>
+                            <TextField v-model="departmentForm.name" class="mb-6" label="Model Name" :errors="deptR$.name.$errors" @blur="deptR$.name.$touch()" />
                             <p class="mb-2 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Collections</p>
                             <div class="flex flex-col gap-2">
                                 <button
@@ -483,16 +502,16 @@ const handleAdd = (): void => {
                                     type="button"
                                     @click="navigateToTeams"
                                 >
-                                    <span>Teams</span>
-                                    <span class="text-subtle">{{ activeDepartment.teams.length }} ›</span>
+                                    <span>Dimension Groups</span>
+                                    <span class="text-subtle">{{ activeModel.dimensionGroups.length }} ›</span>
                                 </button>
                                 <button
                                     class="flex items-center justify-between rounded border border-boundary px-3 py-2.5 text-sm text-content transition-colors hover:border-accent hover:text-accent"
                                     type="button"
                                     @click="navigateToContractors"
                                 >
-                                    <span>Contractors</span>
-                                    <span class="text-subtle">{{ activeDepartment.contractors.length }} ›</span>
+                                    <span>Entity Groups</span>
+                                    <span class="text-subtle">{{ activeModel.entityGroups.length }} ›</span>
                                 </button>
                             </div>
                         </template>
@@ -501,7 +520,7 @@ const handleAdd = (): void => {
 
                 <!-- ── No selection ──────────────────────────────────────── -->
                 <template #no-selection>
-                    <p class="text-sm text-subtle">Select a department to get started.</p>
+                    <p class="text-sm text-subtle">Select a model group to get started.</p>
                 </template>
             </DrillDetailPanel>
         </div>

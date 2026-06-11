@@ -26,7 +26,7 @@ interface WorkbenchOptionStepConfig {
 
 // ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const WORKBENCH_SOURCE_OPTIONS = [
+const WORKBENCH_OPTIONS = [
     {
         id: 'establishDataViews',
         label: { en: 'Establish Data Views', es: 'Establecer Vistas de Datos' },
@@ -37,10 +37,7 @@ const WORKBENCH_SOURCE_OPTIONS = [
         icon: "<svg viewBox='0 0 24 24' fill='none' stroke='#3b82f6' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
         step: 1,
         tasks: []
-    }
-];
-
-const WORKBENCH_CONTEXT_CONFIGS = [
+    },
     {
         id: 'manageContexts',
         label: { en: 'Manage Contexts', es: 'Administrar Contextos' },
@@ -73,10 +70,7 @@ const WORKBENCH_CONTEXT_CONFIGS = [
         icon: "<svg viewBox='0 0 24 24' fill='none' stroke='#ca8a04' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-audio-lines-icon lucide-audio-lines'><path d='M2 10v3'/><path d='M6 6v11'/><path d='M10 3v18'/><path d='M14 8v7'/><path d='M18 5v13'/><path d='M22 10v3'/></svg>",
         step: 4,
         tasks: []
-    }
-];
-
-const WORKBENCH_USAGE_OPTIONS = [
+    },
     {
         id: 'explorePresentations',
         label: { en: 'Explore Presentations', es: 'Explorar Presentaciones' },
@@ -98,11 +92,22 @@ const WORKBENCH_USAGE_OPTIONS = [
         icon: "<svg viewBox='0 0 24 24' fill='none' stroke='#0d9488' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-blocks-icon lucide-blocks'><path d='M10 22V7a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5a1 1 0 0 0-1-1H2'/><rect x='14' y='2' width='8' height='8' rx='1'/></svg>",
         step: 6,
         tasks: []
+    },
+    {
+        id: 'manageConfigs',
+        label: { en: 'Manage Configurations', es: '...' },
+        description: {
+            en: 'Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.',
+            es: '...'
+        },
+        icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-settings-icon lucide-settings'><path d='M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915'/><circle cx='12' cy='12' r='3'/></svg>",
+        step: 0,
+        tasks: []
     }
 ];
 
 // ── Composable ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function useWorkbenchOptions(): ComputedRef<LocalisedConfig<WorkbenchOptionConfig>[]> {
-    return computed(() => localiseConfigs<WorkbenchOptionConfig>([...WORKBENCH_SOURCE_OPTIONS, ...WORKBENCH_CONTEXT_CONFIGS, ...WORKBENCH_USAGE_OPTIONS], localeId.value));
+    return computed(() => localiseConfigs<WorkbenchOptionConfig>(WORKBENCH_OPTIONS, localeId.value));
 }
