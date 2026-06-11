@@ -34,22 +34,13 @@ const activeConfigTypeName = ref('Home');
             <div class="flex items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
                 <template v-for="name in CONFIG_TYPE_NAMES" :key="name">
                     <Button
-                        v-if="name === 'Home'"
                         class="border-y-2 border-t-transparent py-1.25"
                         :class="name === activeConfigTypeName ? 'border-b-blue-400' : 'border-b-transparent'"
                         shape="minimal"
                         @click="activeConfigTypeName = name"
                     >
-                        <HomeIcon class="size-5! [&>path]:stroke-[1.25]" />
-                    </Button>
-                    <Button
-                        v-else
-                        class="border-y-2 border-t-transparent py-1.75 text-sm leading-tight"
-                        :class="name === activeConfigTypeName ? 'border-b-blue-400' : 'border-b-transparent'"
-                        shape="minimal"
-                        @click="activeConfigTypeName = name"
-                    >
-                        {{ name }}
+                        <HomeIcon v-if="name === 'Home'" class="size-5! [&>path]:stroke-[1.25]" />
+                        <div v-else class="text-sm">{{ name }}</div>
                     </Button>
                 </template>
             </div>

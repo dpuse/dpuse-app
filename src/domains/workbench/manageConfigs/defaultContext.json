@@ -1,0 +1,16 @@
+{
+    "id": "default",
+    "label": "Default",
+    "description": "",
+    "modelGroups": [
+        { "id": "core", "label": "Core", "description": "", "models": [] },
+        { "id": "fa", "label": "Finance & Accounting", "description": "", "models": [] },
+        { "id": "hr", "label": "People / HR", "description": "", "models": [] },
+        { "id": "sm", "label": "Sales & Marketing", "description": "", "models": [] },
+        { "id": "cs", "label": "Customer Service", "description": "", "models": [] },
+        { "id": "pp", "label": "Product & Platform", "description": "", "models": [] },
+        { "id": "sco", "label": "Supply Chain & Operations", "description": "", "models": [] },
+        { "id": "ex", "label": "External / Third Party", "description": "", "models": [] },
+        { "id": "grv", "label": "Governance, Risk, & Compliance", "description": "", "models": [] }
+    ]
+}
