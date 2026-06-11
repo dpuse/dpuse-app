@@ -1,29 +1,66 @@
 <script setup lang="ts">
+// ── External Dependencies
+import { defineAsyncComponent, ref } from 'vue';
+
 // ── Local (App) Framework
+import { load } from '@/state/component.ts';
 import { t } from '@/state/locale';
 import T from './ManageConfigsLayout.json';
 
 // ── Local Components - Static
+import Button from '@/components/ui/button/Button.vue';
+import HomeIcon from '@/components/icons/HomeIcon.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 import WorkbenchLayout from '../WorkbenchLayout.vue';
 
+// ── Local Components - Dynamic
+const ManageContextsPanel = defineAsyncComponent(load('ManageContextsPanel', () => import('./ManageContextsPanel.vue')));
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const CONFIG_TYPES = ['Connectors', 'Connections', 'Contexts', 'Presenters', 'Tutorials'];
+const CONFIG_TYPE_NAMES = ['Home', 'Connectors', 'Connections', 'Contexts', 'Presenters', 'Tutorials'];
+
+// ── States ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const activeConfigTypeName = ref('Home');
 </script>
 
 <template>
     <WorkbenchLayout>
         <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Manage_Configs')" to="workbench" />
 
-        <div class="relative mx-4 flex min-h-0 flex-1 flex-col">
-            <div class="flex gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
-                <div v-for="label in CONFIG_TYPES" :key="label" class="mt-0.5 mb-0 border-y-2 border-t-transparent pt-1 pb-2 text-sm leading-tight">
-                    {{ label }}
-                </div>
+        <div class="mx-4 flex min-h-0 flex-1 flex-col">
+            <!-- Task Bar -->
+            <div class="flex items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
+                <template v-for="name in CONFIG_TYPE_NAMES" :key="name">
+                    <Button
+                        v-if="name === 'Home'"
+                        class="border-y-2 border-t-transparent py-1.25"
+                        :class="name === activeConfigTypeName ? 'border-b-blue-400' : 'border-b-transparent'"
+                        shape="minimal"
+                        @click="activeConfigTypeName = name"
+                    >
+                        <HomeIcon class="size-5! [&>path]:stroke-[1.25]" />
+                    </Button>
+                    <Button
+                        v-else
+                        class="border-y-2 border-t-transparent py-1.75 text-sm leading-tight"
+                        :class="name === activeConfigTypeName ? 'border-b-blue-400' : 'border-b-transparent'"
+                        shape="minimal"
+                        @click="activeConfigTypeName = name"
+                    >
+                        {{ name }}
+                    </Button>
+                </template>
             </div>
 
-            <RouterView />
+            <!-- Body -->
+            <div v-if="activeConfigTypeName === 'Home'">Home...</div>
+            <div v-if="activeConfigTypeName === 'Connectors'">Connectors...</div>
+            <div v-if="activeConfigTypeName === 'Connections'">Connections...</div>
+            <ManageContextsPanel v-if="activeConfigTypeName === 'Contexts'" class="flex-1" />
+            <div v-if="activeConfigTypeName === 'Presenters'">Presenters...</div>
+            <div v-if="activeConfigTypeName === 'Tutorials'">Tutorials...</div>
         </div>
     </WorkbenchLayout>
 </template>
