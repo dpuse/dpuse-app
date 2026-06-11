@@ -1,31 +1,36 @@
 <script setup lang="ts">
-// External Dependencies
-import { ref } from 'vue';
+// ── External Dependencies
+import { reactive } from 'vue';
+import { required } from '@regle/rules';
+import { useRegle } from '@regle/core';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import T from './PasswordForm.json';
 import { t } from '@/state/locale';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Input from '@/components/ui/Input.vue';
+import TextField from '@/components/ui/TextField.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
-const { onBack, onTrigger } = defineProps<{ onBack: () => Promise<void>; onTrigger: (password: string) => Promise<void> }>();
+const emit = defineEmits<{ back: []; submit: [password: string] }>();
 
-// ??? ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const password = ref('datapos1111');
+const form = reactive({ password: 'datapos1111' });
+const { r$ } = useRegle(form, { password: { required } });
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleBack(): Promise<void> {
-    await onBack();
+function handleBack(): void {
+    emit('back');
 }
 
-async function handleSubmit(): Promise<void> {
-    await onTrigger(password.value);
+function handleSubmit(): void {
+    r$.$validate();
+    if (!r$.$invalid) emit('submit', form.password);
 }
 </script>
 
@@ -38,7 +43,17 @@ async function handleSubmit(): Promise<void> {
         <form class="mt-2 flex flex-col gap-y-3">
             <!-- Following required to help browsers and assistive tech recognize the form as a login or password form -->
             <Input id="userName" type="text" autocomplete="username" label="Username" placeholder="Username" style="display: none" tabindex="-1" aria-hidden="true" />
-            <Input id="password" autocomplete="current-password" :label="t(T, 'Password')" :placeholder="t(T, 'Password')" :required="true" type="password" />
+
+            <TextField
+                v-model="form.password"
+                autocomplete="current-password"
+                type="password"
+                :label="t(T, 'Password')"
+                :placeholder="t(T, 'Password')"
+                :errors="r$.password.$errors"
+                @blur="r$.password.$touch()"
+            />
+
             <Button variant="primary" @click="handleSubmit">{{ t(T, 'Continue') }}</Button>
         </form>
 

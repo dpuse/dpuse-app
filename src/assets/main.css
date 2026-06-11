@@ -63,7 +63,7 @@ html {
 /* Dark mode colors. */
 .dark {
     --backdrop: var(--color-zinc-900);
-    --surface: var(--color-zinc-950); /* NOTE: Also 'index.html'. */
+    --surface: #09090b; /* NOTE: Also 'index.html'. */
     --card: var(--color-zinc-900);
     --card-hover: var(--color-zinc-800);
     --boundary: var(--color-zinc-800);

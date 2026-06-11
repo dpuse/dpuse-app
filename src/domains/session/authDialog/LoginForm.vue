@@ -1,40 +1,46 @@
 <script setup lang="ts">
-// External Dependencies
+// ── External Dependencies
+import { useRegle } from '@regle/core';
 import { UserRoundKeyIcon } from 'lucide-vue-next';
-import { onUnmounted, ref } from 'vue';
+import { email, required } from '@regle/rules';
+import { onUnmounted, reactive, ref } from 'vue';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import T from './LoginForm.json';
 import { t } from '@/state/locale';
 
-// Local Components - Static
+// ── Local Components - Static
 import AppleLogo from '@/components/branding/AppleLogo.vue';
 import Button from '@/components/ui/button/Button.vue';
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import GoogleLogo from '@/components/branding/GoogleLogo.vue';
-import Input from '@/components/ui/Input.vue';
 import MicrosoftLogo from '@/components/branding/MicrosoftLogo.vue';
 import Separator from '@/components/ui/Separator.vue';
+import TextField from '@/components/ui/TextField.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { onTrigger } = defineProps<{ onTrigger: (identifier: string) => Promise<void> }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const identifier = ref('terrell.jm@icloud.com');
+const form = reactive({ identifier: 'terrell.jm@icloud.com' });
+const { r$ } = useRegle(form, { identifier: { required, email } });
+
 const isDark = ref(document.documentElement.classList.contains('dark'));
-
-// ??? ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const observer = new MutationObserver(() => (isDark.value = document.documentElement.classList.contains('dark')));
 observer.observe(document.documentElement, { attributeFilter: ['class'] });
+
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
 onUnmounted(() => observer.disconnect());
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
-    await onTrigger(identifier.value);
+    await r$.$validate();
+    if (!r$.$invalid) await onTrigger(form.identifier);
 }
 </script>
 
@@ -43,7 +49,15 @@ async function handleSubmit(): Promise<void> {
         <h2 class="text-2xl font-normal">{{ t(T, 'Sign_in') }}</h2>
 
         <form class="mt-2 flex flex-col gap-y-3">
-            <Input id="emailAddress" autocomplete="email" :label="t(T, 'Email_address')" :placeholder="t(T, 'Email_address')" :required="true" type="email" />
+            <TextField
+                v-model="form.identifier"
+                autocomplete="email"
+                type="email"
+                :label="t(T, 'Email_address')"
+                :placeholder="t(T, 'Email_address')"
+                :errors="r$.identifier.$errors"
+                @blur="r$.identifier.$touch()"
+            />
             <Button variant="primary" @click="handleSubmit">{{ t(T, 'Continue') }}</Button>
         </form>
 

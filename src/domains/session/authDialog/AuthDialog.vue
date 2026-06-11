@@ -165,11 +165,14 @@ function onAfterEnter(): void {
                     <div ref="container">
                         <Transition name="fade" mode="out-in" @before-leave="onBeforeLeave" @enter="onEnter" @after-enter="onAfterEnter">
                             <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" :on-trigger="handleIdEntered" />
+
                             <PasswordForm
                                 v-else-if="uiStateId === 'enterPassword' && handlePasswordEntered && handlePasswordBack"
-                                :on-trigger="handlePasswordEntered"
-                                :on-back="handlePasswordBack"
+                                :email-address="emailAddress"
+                                @back="handlePasswordBack"
+                                @submit="handlePasswordEntered"
                             />
+
                             <div v-else-if="flowConstructed">{{ t(T, 'Service_unavailable') }}</div>
                         </Transition>
                     </div>

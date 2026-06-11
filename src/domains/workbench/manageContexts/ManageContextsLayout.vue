@@ -1,7 +1,8 @@
 <script setup lang="ts">
 // External Dependencies
-import { useForm } from '@tanstack/vue-form';
-import { computed, ref, watch } from 'vue';
+import { required } from '@regle/rules';
+import { useRegle } from '@regle/core';
+import { computed, reactive, ref, watch } from 'vue';
 
 // Local (App) Framework
 import { t } from '@/state/locale';
@@ -12,7 +13,7 @@ import type { DrillBreadcrumb } from '@/components/framework/drillDetailPanel/Dr
 import DrillDetailPanel from '@/components/framework/drillDetailPanel/DrillDetailPanel.vue';
 import DrillDetailPanelItem from '@/components/framework/drillDetailPanel/DrillDetailPanelItem.vue';
 import Separator from '@/components/ui/Separator.vue';
-import TextField from '@/components/ui/textField/TextField.vue';
+import TextField from '@/components/ui/TextField.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 import WorkbenchLayout from '../WorkbenchLayout.vue';
 
@@ -85,6 +86,82 @@ const activeTeam = computed((): Team | null => (activeDepartment.value === null 
 const activeMember = computed((): Member | null => (activeTeam.value === null || memberIndex.value === null ? null : (activeTeam.value.members[memberIndex.value] ?? null)));
 const activeContractor = computed((): Contractor | null =>
     activeDepartment.value === null || contractorIndex.value === null ? null : (activeDepartment.value.contractors[contractorIndex.value] ?? null)
+);
+
+// ─── Form states ──────────────────────────────────────────────────────────────
+
+const departmentForm = reactive({ name: '' });
+const teamForm = reactive({ name: '' });
+const memberForm = reactive({ name: '', role: '' });
+const contractorForm = reactive({ name: '', rate: '' });
+
+const { r$: deptR$ } = useRegle(departmentForm, { name: { required } });
+const { r$: teamR$ } = useRegle(teamForm, { name: { required } });
+const { r$: memR$ } = useRegle(memberForm, { name: { required }, role: { required } });
+const { r$: conR$ } = useRegle(contractorForm, { name: { required }, rate: { required } });
+
+// Entity → form: populate and clear validation state on navigation
+watch(activeDepartment, (department) => {
+    departmentForm.name = department?.name ?? '';
+    deptR$.$reset();
+    if (!departmentForm.name) deptR$.name.$touch();
+});
+watch(activeTeam, (team) => {
+    teamForm.name = team?.name ?? '';
+    teamR$.$reset();
+    if (!teamForm.name) teamR$.name.$touch();
+});
+watch(activeMember, (member) => {
+    memberForm.name = member?.name ?? '';
+    memberForm.role = member?.role ?? '';
+    memR$.$reset();
+    if (!memberForm.name) memR$.name.$touch();
+    if (!memberForm.role) memR$.role.$touch();
+});
+watch(activeContractor, (contractor) => {
+    contractorForm.name = contractor?.name ?? '';
+    contractorForm.rate = contractor?.rate ?? '';
+    conR$.$reset();
+    if (!contractorForm.name) conR$.name.$touch();
+    if (!contractorForm.rate) conR$.rate.$touch();
+});
+
+// Form → data: write back to source on change
+watch(
+    () => departmentForm.name,
+    (value) => {
+        if (activeDepartment.value) activeDepartment.value.name = value;
+    }
+);
+watch(
+    () => teamForm.name,
+    (value) => {
+        if (activeTeam.value) activeTeam.value.name = value;
+    }
+);
+watch(
+    () => memberForm.name,
+    (value) => {
+        if (activeMember.value) activeMember.value.name = value;
+    }
+);
+watch(
+    () => memberForm.role,
+    (value) => {
+        if (activeMember.value) activeMember.value.role = value;
+    }
+);
+watch(
+    () => contractorForm.name,
+    (value) => {
+        if (activeContractor.value) activeContractor.value.name = value;
+    }
+);
+watch(
+    () => contractorForm.rate,
+    (value) => {
+        if (activeContractor.value) activeContractor.value.rate = value;
+    }
 );
 
 // ─── Reset functions ──────────────────────────────────────────────────────────
@@ -287,39 +364,6 @@ const handleAdd = (): void => {
     }
     addDepartment();
 };
-
-// ─── Detail form ──────────────────────────────────────────────────────────────
-
-const detailForm = useForm({ defaultValues: { name: '', rate: '', role: '' } });
-
-watch(
-    [departmentIndex, currentChildList, teamIndex, memberIndex, contractorIndex],
-    () => {
-        if (activeMember.value !== null) {
-            detailForm.reset({ name: activeMember.value.name, rate: '', role: activeMember.value.role });
-        } else if (activeContractor.value !== null) {
-            detailForm.reset({ name: activeContractor.value.name, rate: activeContractor.value.rate, role: '' });
-        } else if (activeTeam.value !== null) {
-            detailForm.reset({ name: activeTeam.value.name, rate: '', role: '' });
-        } else if (activeDepartment.value === null) {
-            detailForm.reset({ name: '', rate: '', role: '' });
-        } else {
-            detailForm.reset({ name: activeDepartment.value.name, rate: '', role: '' });
-        }
-    },
-    { immediate: true }
-);
-
-const setName = (value: string): void => {
-    const item = activeMember.value ?? activeContractor.value ?? activeTeam.value ?? activeDepartment.value;
-    if (item !== null) item.name = value;
-};
-const setRole = (value: string): void => {
-    if (activeMember.value !== null) activeMember.value.role = value;
-};
-const setRate = (value: string): void => {
-    if (activeContractor.value !== null) activeContractor.value.rate = value;
-};
 </script>
 
 <template>
@@ -403,86 +447,23 @@ const setRate = (value: string): void => {
                         <template v-if="activeMember !== null">
                             <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Member</p>
                             <h2 class="mb-5 text-lg font-semibold text-content">{{ activeMember.name || 'Untitled' }}</h2>
-                            <detailForm.Field v-slot="{ field }" name="name">
-                                <TextField
-                                    class="mb-3"
-                                    label="Name"
-                                    :model-value="field.state.value"
-                                    @update:model-value="
-                                        (v) => {
-                                            field.handleChange(v);
-                                            setName(v);
-                                        }
-                                    "
-                                    @blur="field.handleBlur"
-                                />
-                            </detailForm.Field>
-                            <detailForm.Field v-slot="{ field }" name="role">
-                                <TextField
-                                    label="Role"
-                                    :model-value="field.state.value"
-                                    @update:model-value="
-                                        (v) => {
-                                            field.handleChange(v);
-                                            setRole(v);
-                                        }
-                                    "
-                                    @blur="field.handleBlur"
-                                />
-                            </detailForm.Field>
+                            <TextField v-model="memberForm.name" class="mb-3" label="Name" :errors="memR$.name.$errors" @blur="memR$.name.$touch()" />
+                            <TextField v-model="memberForm.role" label="Role" :errors="memR$.role.$errors" @blur="memR$.role.$touch()" />
                         </template>
 
                         <!-- Contractor -->
                         <template v-else-if="activeContractor !== null">
                             <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Contractor</p>
                             <h2 class="mb-5 text-lg font-semibold text-content">{{ activeContractor.name || 'Untitled' }}</h2>
-                            <detailForm.Field v-slot="{ field }" name="name">
-                                <TextField
-                                    class="mb-3"
-                                    label="Name"
-                                    :model-value="field.state.value"
-                                    @update:model-value="
-                                        (v) => {
-                                            field.handleChange(v);
-                                            setName(v);
-                                        }
-                                    "
-                                    @blur="field.handleBlur"
-                                />
-                            </detailForm.Field>
-                            <detailForm.Field v-slot="{ field }" name="rate">
-                                <TextField
-                                    label="Rate"
-                                    :model-value="field.state.value"
-                                    placeholder="e.g. $100/hr"
-                                    @update:model-value="
-                                        (v) => {
-                                            field.handleChange(v);
-                                            setRate(v);
-                                        }
-                                    "
-                                    @blur="field.handleBlur"
-                                />
-                            </detailForm.Field>
+                            <TextField v-model="contractorForm.name" class="mb-3" label="Name" :errors="conR$.name.$errors" @blur="conR$.name.$touch()" />
+                            <TextField v-model="contractorForm.rate" label="Rate" placeholder="e.g. $100/hr" :errors="conR$.rate.$errors" @blur="conR$.rate.$touch()" />
                         </template>
 
                         <!-- Team -->
                         <template v-else-if="activeTeam !== null">
                             <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Team</p>
                             <h2 class="mb-5 text-lg font-semibold text-content">{{ activeTeam.name || 'Untitled' }}</h2>
-                            <detailForm.Field v-slot="{ field }" name="name">
-                                <TextField
-                                    label="Team Name"
-                                    :model-value="field.state.value"
-                                    @update:model-value="
-                                        (v) => {
-                                            field.handleChange(v);
-                                            setName(v);
-                                        }
-                                    "
-                                    @blur="field.handleBlur"
-                                />
-                            </detailForm.Field>
+                            <TextField v-model="teamForm.name" label="Team Name" :errors="teamR$.name.$errors" @blur="teamR$.name.$touch()" />
                         </template>
 
                         <!-- Sub-list placeholder (browsing teams or contractors, nothing selected) -->
@@ -494,20 +475,7 @@ const setRate = (value: string): void => {
                         <template v-else-if="activeDepartment !== null">
                             <p class="mb-1 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Department</p>
                             <h2 class="mb-5 text-lg font-semibold text-content">{{ activeDepartment.name || 'Untitled' }}</h2>
-                            <detailForm.Field v-slot="{ field }" name="name">
-                                <TextField
-                                    class="mb-6"
-                                    label="Department Name"
-                                    :model-value="field.state.value"
-                                    @update:model-value="
-                                        (v) => {
-                                            field.handleChange(v);
-                                            setName(v);
-                                        }
-                                    "
-                                    @blur="field.handleBlur"
-                                />
-                            </detailForm.Field>
+                            <TextField v-model="departmentForm.name" class="mb-6" label="Department Name" :errors="deptR$.name.$errors" @blur="deptR$.name.$touch()" />
                             <p class="mb-2 text-[0.6875rem] font-semibold tracking-[0.06em] text-muted uppercase">Collections</p>
                             <div class="flex flex-col gap-2">
                                 <button
