@@ -1,19 +1,12 @@
 <script setup lang="ts">
-type Properties = {
-    hasChildren?: boolean;
-    isActive?: boolean;
-    label: string;
-};
-
+type Properties = { hasChildren?: boolean; isActive?: boolean; label: string };
 const { hasChildren = false, isActive = false, label } = defineProps<Properties>();
+
 defineEmits<{ remove: []; select: [] }>();
 </script>
 
 <template>
-    <div
-        class="group flex w-full items-center border-b border-separator text-sm transition-colors"
-        :class="isActive ? 'bg-surface' : 'hover:bg-surface'"
-    >
+    <div class="group flex w-full items-center border-b border-separator text-sm transition-colors" :class="isActive ? 'bg-surface' : 'hover:bg-surface'">
         <button
             class="flex min-w-0 flex-1 items-center gap-1.5 px-3 py-2 text-left"
             :class="isActive ? 'font-medium text-accent' : 'text-content'"
