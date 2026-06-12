@@ -38,24 +38,58 @@ const activeSelections = reactive<{ [K in keyof ActiveLevelConfigMap]?: ActiveLe
     modelGroup: { config: CONTEXT_CONFIG.modelGroups[0], index: 0 }
 });
 
-const breadcrumbs = ref([{ label: 'Home' }]);
+const breadcrumbs = ref<DrillBreadcrumb[]>([{ label: 'Home', onClick: (): void => {} }]);
 const listTitle = ref('Model Groups');
 const showDetail = ref(false);
 
 // ── UI Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleDrill<K extends keyof ActiveLevelConfigMap>(levelId: K, fromLabel: string, toConfig: ActiveLevelConfigMap[K], newListTitle: string): void {
-    activeConfigLevelId.value = levelId;
-    handleSelect(levelId, toConfig);
+function handleDrillDown<K extends keyof ActiveLevelConfigMap>(toLevelId: K, toConfig: ActiveLevelConfigMap[K]): void {
+    activeConfigLevelId.value = toLevelId;
+    handleSelect(toLevelId, toConfig);
     showDetail.value = false;
-    breadcrumbs.value.push({ label: `${fromLabel} ???` });
-    listTitle.value = newListTitle;
+    breadcrumbs.value.push(buildBreadcrumb(toLevelId));
+    listTitle.value = getListTitle(toLevelId);
 }
 
 function handleSelect<K extends keyof ActiveLevelConfigMap>(levelId: K, config: ActiveLevelConfigMap[K], index?: number): void {
-    console.log(111, levelId, config, index);
-    (activeSelections as Record<string, unknown>)[levelId] = { config, index };
+    (activeSelections[levelId] as Record<string, unknown>) = { config, index };
     showDetail.value = true;
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function buildBreadcrumb(fromLevelId: keyof ActiveLevelConfigMap): DrillBreadcrumb {
+    const toLevelId = getParentLevelId(fromLevelId);
+    const parentConfig = activeSelections[toLevelId];
+    return { label: `${parentConfig!.config!.label} ???`, onClick: () => drillUp(toLevelId) };
+}
+
+function clearActiveItems(id: keyof ActiveLevelConfigMap): void {
+    if (id === 'model') {
+        activeSelections.dimensionGroup = undefined;
+    } else {
+        activeSelections.dimensionGroup = undefined;
+        activeSelections.model = undefined;
+    }
+}
+
+function drillUp(toLevelId: keyof ActiveLevelConfigMap): void {
+    activeConfigLevelId.value = toLevelId;
+    clearActiveItems(toLevelId);
+    listTitle.value = getListTitle(toLevelId);
+}
+
+function getListTitle(id: keyof ActiveLevelConfigMap): string {
+    if (id === 'dimensionGroup') return 'Dimension Groups';
+    else if (id === 'model') return 'Models';
+    else return 'Model Groups';
+}
+
+function getParentLevelId(id: keyof ActiveLevelConfigMap): keyof ActiveLevelConfigMap {
+    if (id === 'dimensionGroup') return 'model';
+    else if (id === 'model') return 'modelGroup';
+    else return 'modelGroup';
 }
 </script>
 
@@ -90,11 +124,7 @@ function handleSelect<K extends keyof ActiveLevelConfigMap>(levelId: K, config: 
                             <div class="text-xl">{{ activeSelections.model.config!.label }}</div>
                         </div>
                         <TextField v-model="activeSelections.model.config!.label" label="Label" />
-                        <ListField
-                            :items="activeSelections.model.config!.dimensionGroups"
-                            label="Dimension Groups"
-                            @select="(item) => handleDrill('dimensionGroup', activeSelections.model!.config!.label, item, 'Dimension Groups')"
-                        />
+                        <ListField :items="activeSelections.model.config!.dimensionGroups" label="Dimension Groups" @select="(item) => handleDrillDown('dimensionGroup', item)" />
                     </div>
                 </template>
 
@@ -105,18 +135,10 @@ function handleSelect<K extends keyof ActiveLevelConfigMap>(levelId: K, config: 
                             <div class="text-xl">{{ activeSelections.modelGroup.config!.label }}</div>
                         </div>
                         <TextField v-model="activeSelections.modelGroup.config!.label" label="Label" />
-                        <ListField
-                            :items="activeSelections.modelGroup.config!.models"
-                            label="Models"
-                            @select="(item) => handleDrill('model', activeSelections.modelGroup!.config!.label, item, 'Models')"
-                        />
+                        <ListField :items="activeSelections.modelGroup.config!.models" label="Models" @select="(item) => handleDrillDown('model', item)" />
                     </div>
                 </template>
             </template>
-
-            <!-- <template #no-selection>
-                <div class="text-sm text-subtle">Select a context to get started.</div>
-            </template> -->
         </DrillDetailPanel>
     </div>
 </template>
