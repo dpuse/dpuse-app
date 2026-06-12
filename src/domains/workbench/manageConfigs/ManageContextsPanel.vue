@@ -2,6 +2,9 @@
 // ── External Dependencies
 import { reactive, ref } from 'vue';
 
+// ── DPUse Framework
+import type { ContextConfig, DimensionGroupConfig, ModelConfig, ModelGroupConfig } from './dpUseTypes';
+
 // ── Local Components - Static
 import DrillDetailPanelItem from '@/components/framework/drillDetailPanel/DrillDetailPanelItem.vue';
 import ListField from '@/components/ui/ListField.vue';
@@ -10,49 +13,6 @@ import DrillDetailPanel, { type DrillBreadcrumb } from '@/components/framework/d
 
 // Data
 import defaultContextData from './defaultContext.json';
-
-// ── DPUse Types ──────────────────────────────────────────────────────────────────────────────────────────────────────
-
-interface ContextConfig {
-    id: string;
-    label: string;
-    description: string;
-    modelGroups: ModelGroupConfig[];
-}
-
-interface ModelGroupConfig {
-    id: string;
-    label: string;
-    description: string;
-    models: ModelConfig[];
-}
-
-interface ModelConfig {
-    id: string;
-    label: string;
-    description: string;
-    dimensionGroups: DimensionGroupConfig[];
-    entityGroups: EntityGroupConfig[];
-    secondaryMeasureGroups: SecondaryMeasureGroupConfig[];
-}
-
-interface DimensionGroupConfig {
-    id: string;
-    label: string;
-    description: string;
-}
-
-interface EntityGroupConfig {
-    id: string;
-    label: string;
-    description: string;
-}
-
-interface SecondaryMeasureGroupConfig {
-    id: string;
-    label: string;
-    description: string;
-}
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -78,17 +38,22 @@ const activeSelections = reactive<{ [K in keyof ActiveLevelConfigMap]?: ActiveLe
     modelGroup: { config: CONTEXT_CONFIG.modelGroups[0], index: 0 }
 });
 
+const breadcrumbs = ref([{ label: 'Home' }]);
+const listTitle = ref('Model Groups');
 const showDetail = ref(false);
 
 // ── UI Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleDrill<K extends keyof ActiveLevelConfigMap>(levelId: K, config: ActiveLevelConfigMap[K]): void {
+function handleDrill<K extends keyof ActiveLevelConfigMap>(levelId: K, fromLabel: string, toConfig: ActiveLevelConfigMap[K], newListTitle: string): void {
     activeConfigLevelId.value = levelId;
-    handleSelect(levelId, config);
+    handleSelect(levelId, toConfig);
     showDetail.value = false;
+    breadcrumbs.value.push({ label: `${fromLabel} ???` });
+    listTitle.value = newListTitle;
 }
 
 function handleSelect<K extends keyof ActiveLevelConfigMap>(levelId: K, config: ActiveLevelConfigMap[K], index?: number): void {
+    console.log(111, levelId, config, index);
     (activeSelections as Record<string, unknown>)[levelId] = { config, index };
     showDetail.value = true;
 }
@@ -96,7 +61,7 @@ function handleSelect<K extends keyof ActiveLevelConfigMap>(levelId: K, config: 
 
 <template>
     <div class="flex flex-col">
-        <DrillDetailPanel :has-detail="true" :show-detail="showDetail">
+        <DrillDetailPanel :breadcrumbs="breadcrumbs" :has-detail="true" :show-detail="showDetail" :list-title="listTitle">
             <template #list>
                 <template v-if="activeConfigLevelId === 'modelGroup'">
                     <DrillDetailPanelItem
@@ -109,26 +74,42 @@ function handleSelect<K extends keyof ActiveLevelConfigMap>(levelId: K, config: 
 
                 <template v-else-if="activeConfigLevelId === 'model'">
                     <DrillDetailPanelItem
-                        v-for="(dimensionGroup, index) in activeSelections.modelGroup?.config?.models"
-                        :key="dimensionGroup.id"
-                        :label="dimensionGroup.label"
-                        @select="handleSelect('dimensionGroup', dimensionGroup, index)"
+                        v-for="(model, index) in activeSelections.modelGroup?.config?.models"
+                        :key="model.id"
+                        :label="model.label"
+                        @select="handleSelect('model', model, index)"
                     />
                 </template>
             </template>
 
             <template #detail>
                 <template v-if="activeSelections.model != null">
-                    <div class="flex max-w-lg flex-col py-4 pl-4">
-                        <TextField v-model="activeSelections.model.config!.label" class="mb-4" label="Label" />
-                        <ListField :items="activeSelections.model.config!.dimensionGroups" label="Dimension Groups" @select="(item) => handleDrill('dimensionGroup', item)" />
+                    <div class="flex max-w-lg flex-col gap-y-5 py-4 pl-4">
+                        <div>
+                            <div class="text-xs leading-tight font-semibold text-subtle uppercase">Model</div>
+                            <div class="text-xl">{{ activeSelections.model.config!.label }}</div>
+                        </div>
+                        <TextField v-model="activeSelections.model.config!.label" label="Label" />
+                        <ListField
+                            :items="activeSelections.model.config!.dimensionGroups"
+                            label="Dimension Groups"
+                            @select="(item) => handleDrill('dimensionGroup', activeSelections.model!.config!.label, item, 'Dimension Groups')"
+                        />
                     </div>
                 </template>
 
                 <template v-else-if="activeSelections.modelGroup != null">
-                    <div class="flex max-w-lg flex-col py-4 pl-4">
-                        <TextField v-model="activeSelections.modelGroup.config!.label" class="mb-4" label="Label" />
-                        <ListField :items="activeSelections.modelGroup.config!.models" label="Models" @select="(item) => handleDrill('model', item)" />
+                    <div class="flex max-w-lg flex-col gap-y-4 py-4 pl-4">
+                        <div>
+                            <div class="text-xs leading-tight font-semibold text-subtle uppercase">Model Group</div>
+                            <div class="text-xl">{{ activeSelections.modelGroup.config!.label }}</div>
+                        </div>
+                        <TextField v-model="activeSelections.modelGroup.config!.label" label="Label" />
+                        <ListField
+                            :items="activeSelections.modelGroup.config!.models"
+                            label="Models"
+                            @select="(item) => handleDrill('model', activeSelections.modelGroup!.config!.label, item, 'Models')"
+                        />
                     </div>
                 </template>
             </template>
