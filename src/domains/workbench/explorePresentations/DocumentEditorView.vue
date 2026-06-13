@@ -137,7 +137,7 @@ const connectionLabel = computed(() => (isConnected.value ? t(T, 'connected') : 
     font-style: italic;
 }
 
-.collaborative-editor .collaboration-cursor__caret {
+.collaborative-editor .collaboration-carets__caret {
     border-left: 1px solid;
     border-right: 1px solid;
     margin-left: -1px;
@@ -147,7 +147,7 @@ const connectionLabel = computed(() => (isConnected.value ? t(T, 'connected') : 
     word-break: normal;
 }
 
-.collaborative-editor .collaboration-cursor__label {
+.collaborative-editor .collaboration-carets__label {
     border-radius: 3px 3px 3px 0;
     font-size: 12px;
     font-weight: 600;
