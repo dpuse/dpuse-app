@@ -110,6 +110,7 @@ const connectionLabel = computed(() => (isConnected.value ? t(T, 'connected') : 
     min-height: 100%;
     padding: 2rem;
     outline: none;
+    white-space: pre-wrap;
 }
 
 .collaborative-editor .tiptap h1 {
