@@ -1,5 +1,6 @@
 // External Dependencies
 import { createApp } from 'vue';
+import DOMPurify from 'dompurify';
 import { z } from 'zod/v4';
 
 // DPUse Framework
@@ -40,12 +41,15 @@ try {
     // Define Trusted Types default policy to allow inline worker blob URLs created by Vite's `?worker&inline` transform.
     // Without this, `require-trusted-types-for 'script'` blocks `new Worker(blobUrl)` because the URL is a plain string.
     if (globalThis.trustedTypes != null) {
+        const sanitizeHTML = (html: string): string => DOMPurify.sanitize(html);
         globalThis.trustedTypes.createPolicy('default', {
             // Allow 'blob:' prefixed URLs for Vite's `?worker&inline` worker factory.
             createScriptURL: (url: string): string => {
                 if (url.startsWith('blob:')) return url;
                 throw new Error(`Blocked TrustedScriptURL: ${url}`);
-            }
+            },
+            // Allow TipTap/ProseMirror to set innerHTML via DOMPurify sanitization.
+            createHTML: sanitizeHTML,
         });
     }
 

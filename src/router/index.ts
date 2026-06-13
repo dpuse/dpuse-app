@@ -30,6 +30,7 @@ const EventQueryList = load('EventQueryList', () => import('@/domains/workbench/
 
 // Local Components - Dynamic - Explore Presentations
 const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/domains/workbench/explorePresentations/ExplorePresentationsLayout.vue'));
+const DocumentEditorView = load('DocumentEditor', () => import('@/domains/workbench/explorePresentations/DocumentEditorView.vue'));
 
 // Local Components - Dynamic - Build Data Apps
 const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/buildDataApps/BuildDataAppsLayout.vue'));
@@ -64,7 +65,14 @@ export const APP_ROUTES = [
                     { name: 'manageContexts', path: 'manageContexts', component: ManageContextsLayout },
                     { path: 'assembleDimensions', component: AssembleDimensionsLayout, children: [{ name: 'assembleDimensions', path: '', component: DimensionList }] },
                     { path: 'contextualiseData', component: ContextualiseDataLayout, children: [{ name: 'contextualiseData', path: '', component: EventQueryList }] },
-                    { name: 'explorePresentations', path: 'explorePresentations', component: ExplorePresentationsLayout },
+                    {
+                        path: 'explorePresentations',
+                        component: ExplorePresentationsLayout,
+                        children: [
+                            { name: 'explorePresentations', path: '', component: { render: (): null => null } },
+                            { name: 'documentEditor', path: ':documentId', component: DocumentEditorView }
+                        ]
+                    },
                     { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsLayout },
                     { name: 'manageConfigs', path: 'manageConfigs', component: ManageConfigsLayout }
                 ]
