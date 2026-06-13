@@ -31,10 +31,25 @@ export function useCollaborativeEditor(documentId: string, user: CollaborativeUs
     });
 
     const editor = useEditor({
+        injectCSS: false,
         extensions: [
             StarterKit.configure({ undoRedo: false }),
             Collaboration.configure({ document: ydoc }),
-            CollaborationCaret.configure({ provider, user: { name: toValue(user.name), color: user.color } }),
+            CollaborationCaret.configure({
+                provider,
+                user: { name: toValue(user.name), color: user.color },
+                render: (user) => {
+                    const cursor = document.createElement('span');
+                    cursor.classList.add('collaboration-carets__caret');
+                    cursor.dataset.color = user.color;
+                    const label = document.createElement('div');
+                    label.classList.add('collaboration-carets__label');
+                    label.dataset.color = user.color;
+                    label.insertBefore(document.createTextNode(user.name), null);
+                    cursor.insertBefore(label, null);
+                    return cursor;
+                },
+            }),
             ...extensions,
         ]
     });

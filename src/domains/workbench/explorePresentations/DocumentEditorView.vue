@@ -149,6 +149,7 @@ const connectionLabel = computed(() => (isConnected.value ? t(T, 'connected') : 
 
 .collaborative-editor .collaboration-carets__label {
     border-radius: 3px 3px 3px 0;
+    color: #000;
     font-size: 12px;
     font-weight: 600;
     left: -1px;
@@ -159,4 +160,20 @@ const connectionLabel = computed(() => (isConnected.value ? t(T, 'connected') : 
     user-select: none;
     white-space: nowrap;
 }
+
+.collaborative-editor .collaboration-carets__caret[data-color="#958DF1"] { border-color: #958DF1; }
+.collaborative-editor .collaboration-carets__caret[data-color="#F98181"] { border-color: #F98181; }
+.collaborative-editor .collaboration-carets__caret[data-color="#FBBC88"] { border-color: #FBBC88; }
+.collaborative-editor .collaboration-carets__caret[data-color="#FAF594"] { border-color: #FAF594; }
+.collaborative-editor .collaboration-carets__caret[data-color="#70CFF8"] { border-color: #70CFF8; }
+.collaborative-editor .collaboration-carets__caret[data-color="#94FADB"] { border-color: #94FADB; }
+.collaborative-editor .collaboration-carets__caret[data-color="#B9F18D"] { border-color: #B9F18D; }
+
+.collaborative-editor .collaboration-carets__label[data-color="#958DF1"] { background-color: #958DF1; }
+.collaborative-editor .collaboration-carets__label[data-color="#F98181"] { background-color: #F98181; }
+.collaborative-editor .collaboration-carets__label[data-color="#FBBC88"] { background-color: #FBBC88; }
+.collaborative-editor .collaboration-carets__label[data-color="#FAF594"] { background-color: #FAF594; }
+.collaborative-editor .collaboration-carets__label[data-color="#70CFF8"] { background-color: #70CFF8; }
+.collaborative-editor .collaboration-carets__label[data-color="#94FADB"] { background-color: #94FADB; }
+.collaborative-editor .collaboration-carets__label[data-color="#B9F18D"] { background-color: #B9F18D; }
 </style>
