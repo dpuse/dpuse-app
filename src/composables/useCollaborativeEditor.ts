@@ -1,11 +1,11 @@
 // External Dependencies
 import * as Y from 'yjs';
-import YProvider from 'y-partyserver/provider';
-import { useEditor } from '@tiptap/vue-3';
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCaret from '@tiptap/extension-collaboration-caret';
 import StarterKit from '@tiptap/starter-kit';
-import { type MaybeRefOrGetter, onBeforeUnmount, ref, toValue, watchEffect } from 'vue';
+import YProvider from 'y-partyserver/provider';
+import { type AnyExtension, type Editor, useEditor } from '@tiptap/vue-3';
+import { type MaybeRefOrGetter, onBeforeUnmount, type Ref, ref, type ShallowRef, toValue, watchEffect } from 'vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ export interface CollaborativeUser {
 
 // Composable ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export function useCollaborativeEditor(documentId: string, user: CollaborativeUser) {
+export function useCollaborativeEditor(documentId: string, user: CollaborativeUser, extensions: AnyExtension[] = []): { editor: ShallowRef<Editor | undefined>; isConnected: Ref<boolean> } {
     const ydoc = new Y.Doc();
 
     const provider = new YProvider(PARTYKIT_HOST, documentId, ydoc, { protocol: 'wss' });
@@ -34,7 +34,8 @@ export function useCollaborativeEditor(documentId: string, user: CollaborativeUs
         extensions: [
             StarterKit.configure({ undoRedo: false }),
             Collaboration.configure({ document: ydoc }),
-            CollaborationCaret.configure({ provider, user: { name: toValue(user.name), color: user.color } })
+            CollaborationCaret.configure({ provider, user: { name: toValue(user.name), color: user.color } }),
+            ...extensions,
         ]
     });
 

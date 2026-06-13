@@ -73,7 +73,7 @@ export const APP_ROUTES = [
                             { name: 'documentEditor', path: ':documentId', component: DocumentEditorView }
                         ]
                     },
-                    { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsLayout },
+{ name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsLayout },
                     { name: 'manageConfigs', path: 'manageConfigs', component: ManageConfigsLayout }
                 ]
             }

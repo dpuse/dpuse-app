@@ -5,8 +5,9 @@ import { EditorContent } from '@tiptap/vue-3';
 import { useRoute } from 'vue-router';
 
 // Local (App) Framework
-import { t } from '@/state/locale';
+import { ChartNode } from './ChartNode';
 import { emailAddress } from '@/state/session';
+import { t } from '@/state/locale';
 import T from './DocumentEditorView.json';
 import { useCollaborativeEditor } from '@/composables/useCollaborativeEditor';
 
@@ -31,7 +32,7 @@ const user = {
     color: CURSOR_COLORS[Math.floor(Math.random() * CURSOR_COLORS.length)]!
 };
 
-const { editor, isConnected } = useCollaborativeEditor(documentId, user);
+const { editor, isConnected } = useCollaborativeEditor(documentId, user, [ChartNode]);
 
 const connectionLabel = computed(() => (isConnected.value ? t(T, 'connected') : t(T, 'connecting')));
 </script>
@@ -84,6 +85,16 @@ const connectionLabel = computed(() => (isConnected.value ? t(T, 'connected') : 
                 @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
             >
                 {{ t(T, 'toolbar.h2') }}
+            </Button>
+            <Separator class="mx-1 h-5" style="width: 1px" />
+            <Button
+                shape="icon"
+                size="sm"
+                :title="t(T, 'toolbar.chart')"
+                :disabled="!editor"
+                @click="editor?.chain().focus().insertContent({ type: 'chart', attrs: { title: 'New Chart', labels: 'Jan,Feb,Mar,Apr,May', data: '10,20,15,30,25' } }).run()"
+            >
+                {{ t(T, 'toolbar.chart') }}
             </Button>
 
             <span class="ml-auto text-xs text-muted">{{ connectionLabel }}</span>
