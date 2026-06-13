@@ -8,7 +8,8 @@
     },
     "dependencies": {
         "partyserver": "latest",
-        "y-partyserver": "latest"
+        "y-partyserver": "latest",
+        "yjs": "latest"
     },
     "devDependencies": {
         "@cloudflare/workers-types": "latest",

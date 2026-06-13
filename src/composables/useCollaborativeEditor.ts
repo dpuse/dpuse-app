@@ -11,6 +11,8 @@ import { type MaybeRefOrGetter, onBeforeUnmount, type Ref, ref, type ShallowRef,
 
 const PARTYKIT_HOST = 'dpuse-partykit.terrell-jm.workers.dev';
 
+export const CURSOR_COLORS = ['#958DF1', '#F98181', '#FBBC88', '#FAF594', '#70CFF8', '#94FADB', '#B9F18D'];
+
 // Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface CollaborativeUser {

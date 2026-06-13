@@ -1,7 +1,22 @@
 import { routePartykitRequest } from 'partyserver';
 import { YServer } from 'y-partyserver';
+import { Doc, applyUpdate, encodeStateAsUpdate } from 'yjs';
 
-export class DocumentRoom extends YServer {}
+const STORAGE_KEY = 'document';
+
+export class DocumentRoom extends YServer {
+    async onLoad() {
+        const stored = await this.ctx.storage.get<Uint8Array>(STORAGE_KEY);
+        if (!stored) return null;
+        const doc = new Doc();
+        applyUpdate(doc, stored);
+        return doc;
+    }
+
+    async onSave() {
+        await this.ctx.storage.put(STORAGE_KEY, encodeStateAsUpdate(this.document));
+    }
+}
 
 export interface Env {
     main: DurableObjectNamespace<DocumentRoom>;

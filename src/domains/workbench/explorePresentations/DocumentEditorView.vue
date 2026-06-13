@@ -9,7 +9,7 @@ import { ChartNode } from './ChartNode';
 import { emailAddress } from '@/state/session';
 import { t } from '@/state/locale';
 import T from './DocumentEditorView.json';
-import { useCollaborativeEditor } from '@/composables/useCollaborativeEditor';
+import { CURSOR_COLORS, useCollaborativeEditor } from '@/composables/useCollaborativeEditor';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -17,8 +17,6 @@ import Separator from '@/components/ui/Separator.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const CURSOR_COLORS = ['#958DF1', '#F98181', '#FBBC88', '#FAF594', '#70CFF8', '#94FADB', '#B9F18D'];
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
