@@ -1,4 +1,4 @@
-// External Dependencies
+// ── External Dependencies
 import { globalIgnores } from 'eslint/config';
 import type { Linter } from 'eslint';
 import pluginComments from '@eslint-community/eslint-plugin-eslint-comments';
@@ -15,9 +15,10 @@ import pluginVueA11y from 'eslint-plugin-vuejs-accessibility';
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting';
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 
-// ESLint Configuration ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Configuration ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export default defineConfigWithVueTs(
+    // Linting scope and module resolver. TypeScript parser is handled by defineConfigWithVueTs.
     {
         name: 'app/files-to-lint',
         files: ['**/*.{vue,ts,mts,tsx}'],
@@ -30,8 +31,10 @@ export default defineConfigWithVueTs(
         }
     },
 
+    // Ignores.
     globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**', 'pwa.assets.config.ts']),
 
+    // Plugin configurations.
     ...pluginVue.configs['flat/recommended'],
     ...pluginVueA11y.configs['flat/recommended'],
     vueTsConfigs.recommended,
@@ -52,65 +55,43 @@ export default defineConfigWithVueTs(
     (pluginSonarJS.configs?.recommended ?? {}) as Linter.Config,
     pluginTailwindCSS.configs['flat/recommended'],
     pluginUnicorn.configs.recommended,
-
     { ...pluginPlaywright.configs['flat/recommended'], files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'] },
-
     { ...pluginVitest.configs.recommended, files: ['src/**/__tests__/*'] },
-
     skipFormatting,
 
+    // Rule overrides.
     {
         rules: {
             'no-empty': 'warn',
             'prefer-const': 'warn',
+            'sort-imports': ['warn', { allowSeparatedGroups: true, ignoreCase: true, memberSyntaxSortOrder: ['none', 'all', 'single', 'multiple'] }],
 
             '@typescript-eslint/consistent-type-imports': 'warn',
             '@typescript-eslint/explicit-function-return-type': 'warn',
             '@typescript-eslint/no-explicit-any': 'warn',
             '@typescript-eslint/no-import-type-side-effects': 'warn',
             '@typescript-eslint/no-unused-vars': 'warn',
-            '@typescript-eslint/restrict-template-expressions': ['warn', { allowNumber: true }],
+            // '@typescript-eslint/restrict-template-expressions': ['warn', { allowNumber: true }],
             '@typescript-eslint/strict-boolean-expressions': 'warn',
-
-            'import-x/no-duplicates': 'warn',
-            'sort-imports': ['warn', { allowSeparatedGroups: true, ignoreCase: true, memberSyntaxSortOrder: ['none', 'all', 'single', 'multiple'] }],
 
             '@eslint-community/eslint-comments/require-description': 'warn',
 
             'security/detect-object-injection': 'off',
 
             'sonarjs/cognitive-complexity': 'warn',
-            'sonarjs/deprecation': 'off',
+            'sonarjs/deprecation': 'warn',
             'sonarjs/no-commented-code': 'warn',
             'sonarjs/no-dead-store': 'warn',
-            'sonarjs/no-selector-parameter': 'off',
+            'sonarjs/no-selector-parameter': 'warn',
             'sonarjs/no-unused-vars': 'warn',
             'sonarjs/unused-import': 'warn',
-            'sonarjs/todo-tag': 'off',
+            'sonarjs/todo-tag': 'warn',
             'sonarjs/void-use': 'off', // `void ref.value` is the Vue idiom for explicit dependency tracking in computed()
 
             'tailwindcss/no-custom-classname': [
                 'warn',
                 {
                     whitelist: [
-                        // 'bg-backdrop',
-                        // 'bg-card',
-                        // 'bg-card-hover',
-                        // 'bg-overlay',
-                        // 'bg-separator',
-                        // 'bg-surface',
-                        // 'border-separator',
-                        // 'border-boundary',
-                        // 'border-b-boundary',
-                        // 'outline-boundary',
-                        // 'outline-boundary-hover',
-                        // 'outline-separator',
-                        // 'text-accent',
-                        // 'text-content',
-                        // 'text-muted',
-                        // 'text-subtle',
-                        // 'to-surface/95',
-                        // 'via-surface/80',
                         'ddp--detail',
                         'ddp-back',
                         'ddp-detail',
@@ -133,7 +114,7 @@ export default defineConfigWithVueTs(
             ],
 
             'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['App.vue', 'DPUseLogo.vue' /*'src/components/icon(?:/.*)?'*/] }],
-            'unicorn/no-null': 'off',
+            'unicorn/no-null': 'warn',
             'unicorn/prevent-abbreviations': ['error', { ignore: ['env.d.ts'] }],
             'unicorn/switch-case-braces': 'off',
             'unicorn/prefer-top-level-await': 'off',

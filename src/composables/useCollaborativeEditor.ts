@@ -22,7 +22,11 @@ export interface CollaborativeUser {
 
 // Composable ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export function useCollaborativeEditor(documentId: string, user: CollaborativeUser, extensions: AnyExtension[] = []): { editor: ShallowRef<Editor | undefined>; isConnected: Ref<boolean> } {
+export function useCollaborativeEditor(
+    documentId: string,
+    user: CollaborativeUser,
+    extensions: AnyExtension[] = []
+): { editor: ShallowRef<Editor | undefined>; isConnected: Ref<boolean> } {
     const ydoc = new Y.Doc();
 
     const provider = new YProvider(PARTYKIT_HOST, documentId, ydoc, { protocol: 'wss' });
@@ -50,9 +54,9 @@ export function useCollaborativeEditor(documentId: string, user: CollaborativeUs
                     label.insertBefore(document.createTextNode(user.name), null);
                     cursor.insertBefore(label, null);
                     return cursor;
-                },
+                }
             }),
-            ...extensions,
+            ...extensions
         ]
     });
 
