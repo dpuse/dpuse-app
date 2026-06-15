@@ -1,14 +1,14 @@
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior, START_LOCATION } from 'vue-router';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { load } from '@/state/component';
 import { complete, fail, start } from '@/state/navigation';
 
-// Local Components - Dynamic
+// ── Local Components - Dynamic
 const WorkbenchHomeLayout = load('Workflow', () => import('@/domains/workbench/home/WorkbenchHomeLayout.vue'));
 
-// Local Components - Dynamic - Establish Data Views
+// ── Local Components - Dynamic - Establish Data Views
 const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/domains/workbench/establishDataViews/EstablishDataViewsLayout.vue'));
 const DataViewList = load('DataViewList', () => import('@/domains/workbench/establishDataViews/DataViewList.vue'));
 const SelectConnectionPanel = load('SelectConnection', () => import('@/domains/workbench/establishDataViews/selectConnection/SelectConnectionPanel.vue'));
@@ -16,26 +16,29 @@ const SelectItemPanel = load('SelectItem', () => import('@/domains/workbench/est
 const AuditContentPanel = load('AuditContent', () => import('@/domains/workbench/establishDataViews/auditContent/AuditContentPanel.vue'));
 const ExploreData = load('Investigate', () => import('@/domains/workbench/establishDataViews/exploreData/ExploreData.vue'));
 
-// Local Components - Dynamic - Manage Configs/Contexts
-const ManageConfigsLayout = load('ManageConfigs', () => import('@/domains/workbench/manageConfigs/ManageConfigsLayout.vue'));
-const ManageContextsLayout = load('ManageContexts', () => import('@/domains/workbench/manageContexts/ManageContextsLayout.vue'));
+// ── Local Components - Dynamic - Manage Configs/Contexts
+// const ManageContextsLayout = load('ManageContexts', () => import('@/domains/workbench/manageContexts/ManageContextsLayout.vue'));
 
-// Local Components - Dynamic - Assemble Dimensions
+// ── Local Components - Dynamic - Assemble Dimensions
 const AssembleDimensionsLayout = load('AssembleDimensions', () => import('@/domains/workbench/assembleDimensions/AssembleDimensionsLayout.vue'));
 const DimensionList = load('DimensionList', () => import('@/domains/workbench/assembleDimensions/DimensionList.vue'));
 
-// Local Components - Dynamic - Contextualise Data
+// ── Local Components - Dynamic - Contextualise Data
 const ContextualiseDataLayout = load('ContextualiseData', () => import('@/domains/workbench/contextualiseData/ContextualiseDataLayout.vue'));
 const EventQueryList = load('EventQueryList', () => import('@/domains/workbench/contextualiseData/EventQueryList.vue'));
 
-// Local Components - Dynamic - Explore Presentations
+// ── Local Components - Dynamic - Explore Presentations
 const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/domains/workbench/explorePresentations/ExplorePresentationsLayout.vue'));
 const DocumentEditorView = load('DocumentEditor', () => import('@/domains/workbench/explorePresentations/DocumentEditorView.vue'));
 
-// Local Components - Dynamic - Build Data Apps
+// ── Local Components - Dynamic - Build Data Apps
 const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/buildDataApps/BuildDataAppsLayout.vue'));
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Local Components - Dynamic - Manage Configs
+const ManageConfigsLayout = load('ManageConfigs', () => import('@/domains/workbench/manageConfigs/ManageConfigsLayout.vue'));
+const ManageContextsPanel = load('ManageContextsPanel', () => import('@/domains/workbench/manageConfigs/contexts/ManageContextsPanel.vue'));
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const APP_ROUTES = [
     {
@@ -62,7 +65,7 @@ export const APP_ROUTES = [
                             }
                         ]
                     },
-                    { name: 'manageContexts', path: 'manageContexts', component: ManageContextsLayout },
+                    // { name: 'manageContexts', path: 'manageContexts', component: ManageContextsLayout },
                     { path: 'assembleDimensions', component: AssembleDimensionsLayout, children: [{ name: 'assembleDimensions', path: '', component: DimensionList }] },
                     { path: 'contextualiseData', component: ContextualiseDataLayout, children: [{ name: 'contextualiseData', path: '', component: EventQueryList }] },
                     {
@@ -74,7 +77,12 @@ export const APP_ROUTES = [
                         ]
                     },
                     { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsLayout },
-                    { name: 'manageConfigs', path: 'manageConfigs', component: ManageConfigsLayout }
+                    { name: 'manageConfigs', path: 'manageConfigs', component: ManageConfigsLayout },
+                    {
+                        path: 'manageConfigs',
+                        component: ManageConfigsLayout,
+                        children: [{ name: 'manageContexts', path: 'contexts', component: ManageContextsPanel }]
+                    }
                 ]
             }
         ]
@@ -82,7 +90,7 @@ export const APP_ROUTES = [
     { path: '/:catchAll(.*)', redirect: '/' }
 ];
 
-// Router Creation Function ────────────────────────────────────────────────────────────────────────────────────────────
+// ── Router Creation Function ─────────────────────────────────────────────────────────────────────────────────────────
 
 export const createAppRouter = (): Router => {
     const router = createRouter({
@@ -114,7 +122,7 @@ export const createAppRouter = (): Router => {
     return router;
 };
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleScrollBehavior(
     _to: Parameters<RouterScrollBehavior>[0],

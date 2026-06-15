@@ -14,7 +14,7 @@ import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 import WorkbenchLayout from '../WorkbenchLayout.vue';
 
 // ── Local Components - Dynamic
-const ManageContextsPanel = defineAsyncComponent(load('ManageContextsPanel', () => import('./ManageContextsPanel.vue')));
+// const ManageContextsPanel = defineAsyncComponent(load('ManageContextsPanel', () => import('./contexts/ManageContextsPanel.vue')));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -37,6 +37,7 @@ const activeConfigTypeName = ref('Home');
                         class="border-y-2 border-t-transparent py-1.25"
                         :class="name === activeConfigTypeName ? 'border-b-blue-400' : 'border-b-transparent'"
                         shape="minimal"
+                        :to="{ name: 'manageContexts', query: { ...$route.query, wbView: 'manageContexts' } }"
                         @click="activeConfigTypeName = name"
                     >
                         <HomeIcon v-if="name === 'Home'" class="size-5! [&>path]:stroke-[1.25]" />
@@ -46,12 +47,14 @@ const activeConfigTypeName = ref('Home');
             </div>
 
             <!-- Body -->
-            <div v-if="activeConfigTypeName === 'Home'">Home...</div>
+            <!-- <div v-if="activeConfigTypeName === 'Home'">Home...</div>
             <div v-if="activeConfigTypeName === 'Connectors'">Connectors...</div>
             <div v-if="activeConfigTypeName === 'Connections'">Connections...</div>
             <ManageContextsPanel v-if="activeConfigTypeName === 'Contexts'" class="flex-1" />
             <div v-if="activeConfigTypeName === 'Presenters'">Presenters...</div>
-            <div v-if="activeConfigTypeName === 'Tutorials'">Tutorials...</div>
+            <div v-if="activeConfigTypeName === 'Tutorials'">Tutorials...</div> -->
+
+            <RouterView />
         </div>
     </WorkbenchLayout>
 </template>
