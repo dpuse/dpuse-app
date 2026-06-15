@@ -6,7 +6,7 @@ import { load } from '@/state/component';
 import { complete, fail, start } from '@/state/navigation';
 
 // ── Local Components - Dynamic
-const WorkbenchHomeLayout = load('Workflow', () => import('@/domains/workbench/home/WorkbenchHomeLayout.vue'));
+const WorkbenchHomeLayout = load('Workflow', () => import('@/domains/workbench/home/HomeLayout.vue'));
 
 // ── Local Components - Dynamic - Establish Data Views
 const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/domains/workbench/establishDataViews/EstablishDataViewsLayout.vue'));
@@ -36,7 +36,10 @@ const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbe
 
 // ── Local Components - Dynamic - Manage Configs
 const ManageConfigsLayout = load('ManageConfigs', () => import('@/domains/workbench/manageConfigs/ManageConfigsLayout.vue'));
-const ManageContextsPanel = load('ManageContextsPanel', () => import('@/domains/workbench/manageConfigs/contexts/ManageContextsPanel.vue'));
+const ManageHomePanel = load('ManageHomePanel', () => import('@/domains/workbench/manageConfigs/home/HomePanel.vue'));
+const ManageConnectorList = load('ManageConnectorsList', () => import('@/domains/workbench/manageConfigs/connectors/ConnectorList.vue'));
+const ManageContextList = load('ManageContextsList', () => import('@/domains/workbench/manageConfigs/contexts/ContextList.vue'));
+const ManageContextPanel = load('ManageContextsPanel', () => import('@/domains/workbench/manageConfigs/contexts/ContextPanel.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -77,11 +80,18 @@ export const APP_ROUTES = [
                         ]
                     },
                     { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsLayout },
-                    { name: 'manageConfigs', path: 'manageConfigs', component: ManageConfigsLayout },
                     {
                         path: 'manageConfigs',
                         component: ManageConfigsLayout,
-                        children: [{ name: 'manageContexts', path: 'contexts', component: ManageContextsPanel }]
+                        children: [
+                            { name: 'manageConfigs', path: '', component: ManageHomePanel },
+                            { name: 'manageConnections', path: 'connections', component: { render: (): null => null } },
+                            { name: 'manageConnectors', path: 'connectors', component: ManageConnectorList },
+                            { name: 'manageContexts', path: 'contexts', component: ManageContextList },
+                            { name: 'manageContext', path: 'contexts/:contextId', component: ManageContextPanel },
+                            { name: 'managePresenters', path: 'presenters', component: { render: (): null => null } },
+                            { name: 'manageTutorials', path: 'tutorials', component: { render: (): null => null } }
+                        ]
                     }
                 ]
             }

@@ -7,6 +7,9 @@ import { ArrowUpIcon, EllipsisVerticalIcon } from 'lucide-vue-next';
 import { DefaultChatTransport, isReasoningUIPart, isTextUIPart, lastAssistantMessageIsCompleteWithToolCalls, type ReasoningUIPart, type TextUIPart, type UIMessage } from 'ai';
 import { onMounted, onUnmounted, ref } from 'vue';
 
+// ─── Tools ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+import { toolExecutors } from './tools';
+
 // ─── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import KnowledgeHeader from '@/components/framework/header/KnowledgeHeader.vue';
@@ -50,12 +53,22 @@ const chat = new Chat({
         console.log('onData', data);
     },
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
-    onToolCall: ({ toolCall }): void => {
-        if (toolCall.toolName === 'getLocalTime') {
+    onToolCall: async ({ toolCall }): Promise<void> => {
+        const executor = toolExecutors[toolCall.toolName];
+        if (!executor) return;
+        try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const args = (toolCall as any).args ?? (toolCall as any).input;
             chat.addToolOutput({
-                tool: 'getLocalTime',
+                tool: toolCall.toolName,
                 toolCallId: toolCall.toolCallId,
-                output: executeGetLocalTime()
+                output: await executor(args)
+            });
+        } catch (error) {
+            chat.addToolOutput({
+                tool: toolCall.toolName,
+                toolCallId: toolCall.toolCallId,
+                output: { error: error instanceof Error ? error.message : 'Tool execution failed' }
             });
         }
     },
@@ -63,14 +76,6 @@ const chat = new Chat({
         console.log('onFinish', properties);
     }
 });
-
-function executeGetLocalTime(): { time: string; timezone: string; date: string } {
-    return {
-        time: new Date().toLocaleTimeString(),
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        date: new Date().toLocaleDateString()
-    };
-}
 
 // ─── Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -250,5 +255,27 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
 }
 :deep(strong) {
     font-weight: 500;
+}
+:deep(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    font-size: 0.8125rem;
+}
+:deep(th) {
+    text-align: left;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--color-separator);
+    white-space: nowrap;
+}
+:deep(td) {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--color-separator);
+    vertical-align: top;
+}
+:deep(tr:last-child td) {
+    border-bottom: none;
 }
 </style>
