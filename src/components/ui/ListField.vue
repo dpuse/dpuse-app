@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends { id: string; label: string }">
-// ── External Dependencies
+// ── External Dependencies & Registrations
 import { useId } from 'vue';
 
 // ── Local Components - Static

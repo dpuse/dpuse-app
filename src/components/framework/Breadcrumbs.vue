@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends BreadcrumbConfig">
-// External Dependencies
+// External Dependencies & Registrations
 import { computed } from 'vue';
 
 // Local (App) Framework

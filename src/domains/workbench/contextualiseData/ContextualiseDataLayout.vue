@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External Dependencies
+// External Dependencies & Registrations
 import { drag } from 'd3-drag';
 import { select } from 'd3-selection';
 import { type D3ZoomEvent, zoom } from 'd3-zoom'; // TODO: This adds about 10kB gzipped bring total to 21.66kB.

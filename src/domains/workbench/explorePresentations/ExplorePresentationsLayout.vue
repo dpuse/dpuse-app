@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External Dependencies
+// External Dependencies & Registrations
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -20,7 +20,11 @@ const router = useRouter();
 const documentName = ref('');
 
 function openDocument(): void {
-    const slug = documentName.value.trim().toLowerCase().replaceAll(/\s+/g, '-').replaceAll(/[^a-z0-9-]/g, '');
+    const slug = documentName.value
+        .trim()
+        .toLowerCase()
+        .replaceAll(/\s+/g, '-')
+        .replaceAll(/[^a-z0-9-]/g, '');
     if (!slug) return;
     router.push({ name: 'documentEditor', params: { documentId: slug } });
 }
@@ -36,14 +40,7 @@ function openDocument(): void {
             <div v-if="route.name === 'explorePresentations'" class="flex flex-1 flex-col items-center justify-center gap-4 p-8">
                 <p class="text-sm text-muted">{{ t(T, 'open_document_heading') }}</p>
                 <form class="flex w-full max-w-sm gap-2" @submit.prevent="openDocument">
-                    <Input
-                        v-model="documentName"
-                        class="flex-1"
-                        label="Document name"
-                        label-hidden
-                        :placeholder="t(T, 'open_document_placeholder')"
-                        autocomplete="off"
-                    />
+                    <Input v-model="documentName" class="flex-1" label="Document name" label-hidden :placeholder="t(T, 'open_document_placeholder')" autocomplete="off" />
                     <Button type="submit" variant="primary">{{ t(T, 'open_document_button') }}</Button>
                 </form>
             </div>

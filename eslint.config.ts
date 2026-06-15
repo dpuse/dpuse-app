@@ -1,4 +1,4 @@
-// ── External Dependencies
+// ── External Dependencies & Registrations
 import { globalIgnores } from 'eslint/config';
 import type { Linter } from 'eslint';
 import pluginComments from '@eslint-community/eslint-plugin-eslint-comments';
@@ -86,7 +86,7 @@ export default defineConfigWithVueTs(
             'sonarjs/no-unused-vars': 'warn',
             'sonarjs/unused-import': 'warn',
             'sonarjs/todo-tag': 'warn',
-            'sonarjs/void-use': 'off', // `void ref.value` is the Vue idiom for explicit dependency tracking in computed()
+            'sonarjs/void-use': 'off', // `void ref.value` is the Vue idiom for explicit dependency tracking in computed().
 
             'tailwindcss/no-custom-classname': [
                 'warn',
@@ -108,21 +108,22 @@ export default defineConfigWithVueTs(
                         'dpuse-show-detail',
                         'dpuse-horizontal-slide-ltr-element',
                         'gdp-detail',
-                        'gdp-grid'
+                        'gdp-grid',
+                        'dpuse-collaborative-editor'
                     ]
                 }
             ],
 
             'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['App.vue', 'DPUseLogo.vue' /*'src/components/icon(?:/.*)?'*/] }],
-            'unicorn/no-null': 'warn',
+            'unicorn/no-null': 'off',
             'unicorn/prevent-abbreviations': ['error', { ignore: ['env.d.ts'] }],
-            'unicorn/switch-case-braces': 'off',
-            'unicorn/prefer-top-level-await': 'off',
+            'unicorn/switch-case-braces': 'warn',
+            'unicorn/prefer-top-level-await': 'warn',
 
-            'vue/multi-word-component-names': 'off',
-            'vue/no-bare-strings-in-template': ['off'],
-            'vue/no-v-html': 'off',
-            'vue/require-default-prop': 'off',
+            'vue/multi-word-component-names': 'warn',
+            'vue/no-bare-strings-in-template': ['warn'],
+            'vue/no-v-html': 'warn',
+            'vue/require-default-prop': 'warn',
 
             'vuejs-accessibility/label-has-for': ['error', { required: { some: ['id', 'nesting'] } }]
         }

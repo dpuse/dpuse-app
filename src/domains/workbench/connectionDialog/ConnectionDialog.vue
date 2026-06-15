@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External Dependencies
+// External Dependencies & Registrations
 import { type Component, computed, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 import { type RouteRecordNameGeneric, useRoute, useRouter } from 'vue-router';
 

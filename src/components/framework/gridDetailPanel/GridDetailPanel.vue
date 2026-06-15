@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; iconNeutral?: string | null; label: string }">
-// External Dependencies
+// External Dependencies & Registrations
 import { nextTick, ref, watch } from 'vue';
 
 // Local (App) Framework

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ─── External Dependencies
+// ─── External Dependencies & Registrations
 import { Chat } from '@ai-sdk/vue';
 import DOMPurify from 'dompurify';
 import { marked } from 'marked'; // NOTE: 'marked' with DOMPurify is at least 14kB smaller (gzipped) than 'micromark' or 'markdown-it' without DOMPurify. Measured June 2, 2026.

@@ -1,37 +1,36 @@
-// External Dependencies
-import * as Y from 'yjs';
+// ── External Dependencies & Registrations
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCaret from '@tiptap/extension-collaboration-caret';
+import { Doc } from 'yjs';
 import StarterKit from '@tiptap/starter-kit';
 import YProvider from 'y-partyserver/provider';
 import { type AnyExtension, type Editor, useEditor } from '@tiptap/vue-3';
 import { type MaybeRefOrGetter, onBeforeUnmount, type Ref, ref, type ShallowRef, toValue, watchEffect } from 'vue';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const PARTYKIT_HOST = 'dpuse-partykit.terrell-jm.workers.dev';
 
 export const CURSOR_COLORS = ['#958DF1', '#F98181', '#FBBC88', '#FAF594', '#70CFF8', '#94FADB', '#B9F18D'];
 
-// Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface CollaborativeUser {
     name: MaybeRefOrGetter<string>;
     color: string;
 }
 
-// Composable ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Composable ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function useCollaborativeEditor(
     documentId: string,
     user: CollaborativeUser,
     extensions: AnyExtension[] = []
 ): { editor: ShallowRef<Editor | undefined>; isConnected: Ref<boolean> } {
-    const ydoc = new Y.Doc();
-
-    const provider = new YProvider(PARTYKIT_HOST, documentId, ydoc, { protocol: 'wss' });
+    const ydoc = new Doc();
 
     const isConnected = ref(false);
+    const provider = new YProvider(PARTYKIT_HOST, documentId, ydoc, { protocol: 'wss' });
     provider.on('status', ({ status }: { status: string }) => {
         isConnected.value = status === 'connected';
     });

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External Dependencies
+// External Dependencies & Registrations
 import { ArrowBigRightIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 

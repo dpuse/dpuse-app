@@ -1,10 +1,10 @@
 <script setup lang="ts">
-// External Dependencies
+// ── External Dependencies & Registrations
 import { computed } from 'vue';
 import { EditorContent } from '@tiptap/vue-3';
 import { useRoute } from 'vue-router';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { ChartNode } from './ChartNode';
 import { emailAddress } from '@/state/session';
 import { t } from '@/state/locale';
@@ -15,8 +15,6 @@ import { CURSOR_COLORS, useCollaborativeEditor } from '@/composables/useCollabor
 import Button from '@/components/ui/button/Button.vue';
 import Separator from '@/components/ui/Separator.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
-
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -42,7 +40,7 @@ const connectionLabel = computed(() => (isConnected.value ? t(T, 'connected') : 
         <Separator class="mx-4" />
 
         <!-- Toolbar -->
-        <div class="flex flex-none items-center gap-1 border-b border-separator px-4 py-1">
+        <div class="mx-4 flex flex-none items-center gap-1 border-b border-separator py-1">
             <Button
                 shape="icon"
                 size="sm"
@@ -90,7 +88,13 @@ const connectionLabel = computed(() => (isConnected.value ? t(T, 'connected') : 
                 size="sm"
                 :title="t(T, 'toolbar.chart')"
                 :disabled="!editor"
-                @click="editor?.chain().focus().insertContent({ type: 'chart', attrs: { title: 'New Chart', labels: 'Jan,Feb,Mar,Apr,May', data: '10,20,15,30,25' } }).run()"
+                @click="
+                    editor
+                        ?.chain()
+                        .focus()
+                        .insertContent({ type: 'chart', attrs: { title: 'New Chart', labels: 'Jan,Feb,Mar,Apr,May', data: '10,20,15,30,25' } })
+                        .run()
+                "
             >
                 {{ t(T, 'toolbar.chart') }}
             </Button>
@@ -99,44 +103,45 @@ const connectionLabel = computed(() => (isConnected.value ? t(T, 'connected') : 
         </div>
 
         <!-- Editor -->
-        <div class="collaborative-editor min-h-0 flex-1 overflow-y-auto">
+        <div class="dpuse-collaborative-editor min-h-0 flex-1 overflow-y-auto">
             <EditorContent class="h-full" :editor="editor" />
         </div>
     </div>
 </template>
 
 <style>
-.collaborative-editor .tiptap {
+/* TODO: Need to change following to :deep() so we can change style to scoped. */
+.dpuse-collaborative-editor .tiptap {
     min-height: 100%;
-    padding: 2rem;
+    padding: 1rem;
     outline: none;
     white-space: pre-wrap;
 }
 
-.collaborative-editor .tiptap h1 {
+.dpuse-collaborative-editor .tiptap h1 {
     font-size: 1.75rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
 }
-.collaborative-editor .tiptap h2 {
+.dpuse-collaborative-editor .tiptap h2 {
     font-size: 1.375rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
 }
-.collaborative-editor .tiptap p {
+.dpuse-collaborative-editor .tiptap p {
     margin-bottom: 0.75rem;
 }
-.collaborative-editor .tiptap p:last-child {
+.dpuse-collaborative-editor .tiptap p:last-child {
     margin-bottom: 0;
 }
-.collaborative-editor .tiptap strong {
+.dpuse-collaborative-editor .tiptap strong {
     font-weight: 700;
 }
-.collaborative-editor .tiptap em {
+.dpuse-collaborative-editor .tiptap em {
     font-style: italic;
 }
 
-.collaborative-editor .collaboration-carets__caret {
+.dpuse-collaborative-editor .collaboration-carets__caret {
     border-left: 1px solid;
     border-right: 1px solid;
     margin-left: -1px;
@@ -146,7 +151,7 @@ const connectionLabel = computed(() => (isConnected.value ? t(T, 'connected') : 
     word-break: normal;
 }
 
-.collaborative-editor .collaboration-carets__label {
+.dpuse-collaborative-editor .collaboration-carets__label {
     border-radius: 3px 3px 3px 0;
     color: #000;
     font-size: 12px;
@@ -160,19 +165,47 @@ const connectionLabel = computed(() => (isConnected.value ? t(T, 'connected') : 
     white-space: nowrap;
 }
 
-.collaborative-editor .collaboration-carets__caret[data-color="#958DF1"] { border-color: #958DF1; }
-.collaborative-editor .collaboration-carets__caret[data-color="#F98181"] { border-color: #F98181; }
-.collaborative-editor .collaboration-carets__caret[data-color="#FBBC88"] { border-color: #FBBC88; }
-.collaborative-editor .collaboration-carets__caret[data-color="#FAF594"] { border-color: #FAF594; }
-.collaborative-editor .collaboration-carets__caret[data-color="#70CFF8"] { border-color: #70CFF8; }
-.collaborative-editor .collaboration-carets__caret[data-color="#94FADB"] { border-color: #94FADB; }
-.collaborative-editor .collaboration-carets__caret[data-color="#B9F18D"] { border-color: #B9F18D; }
+.dpuse-collaborative-editor .collaboration-carets__caret[data-color='#958DF1'] {
+    border-color: #958df1;
+}
+.dpuse-collaborative-editor .collaboration-carets__caret[data-color='#F98181'] {
+    border-color: #f98181;
+}
+.dpuse-collaborative-editor .collaboration-carets__caret[data-color='#FBBC88'] {
+    border-color: #fbbc88;
+}
+.dpuse-collaborative-editor .collaboration-carets__caret[data-color='#FAF594'] {
+    border-color: #faf594;
+}
+.dpuse-collaborative-editor .collaboration-carets__caret[data-color='#70CFF8'] {
+    border-color: #70cff8;
+}
+.dpuse-collaborative-editor .collaboration-carets__caret[data-color='#94FADB'] {
+    border-color: #94fadb;
+}
+.dpuse-collaborative-editor .collaboration-carets__caret[data-color='#B9F18D'] {
+    border-color: #b9f18d;
+}
 
-.collaborative-editor .collaboration-carets__label[data-color="#958DF1"] { background-color: #958DF1; }
-.collaborative-editor .collaboration-carets__label[data-color="#F98181"] { background-color: #F98181; }
-.collaborative-editor .collaboration-carets__label[data-color="#FBBC88"] { background-color: #FBBC88; }
-.collaborative-editor .collaboration-carets__label[data-color="#FAF594"] { background-color: #FAF594; }
-.collaborative-editor .collaboration-carets__label[data-color="#70CFF8"] { background-color: #70CFF8; }
-.collaborative-editor .collaboration-carets__label[data-color="#94FADB"] { background-color: #94FADB; }
-.collaborative-editor .collaboration-carets__label[data-color="#B9F18D"] { background-color: #B9F18D; }
+.dpuse-collaborative-editor .collaboration-carets__label[data-color='#958DF1'] {
+    background-color: #958df1;
+}
+.dpuse-collaborative-editor .collaboration-carets__label[data-color='#F98181'] {
+    background-color: #f98181;
+}
+.dpuse-collaborative-editor .collaboration-carets__label[data-color='#FBBC88'] {
+    background-color: #fbbc88;
+}
+.dpuse-collaborative-editor .collaboration-carets__label[data-color='#FAF594'] {
+    background-color: #faf594;
+}
+.dpuse-collaborative-editor .collaboration-carets__label[data-color='#70CFF8'] {
+    background-color: #70cff8;
+}
+.dpuse-collaborative-editor .collaboration-carets__label[data-color='#94FADB'] {
+    background-color: #94fadb;
+}
+.dpuse-collaborative-editor .collaboration-carets__label[data-color='#B9F18D'] {
+    background-color: #b9f18d;
+}
 </style>

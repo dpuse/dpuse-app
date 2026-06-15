@@ -1,4 +1,4 @@
-// ── External Dependencies
+// ── External Dependencies & Registrations
 import { shallowRef } from 'vue';
 
 // ── DPUse Framework

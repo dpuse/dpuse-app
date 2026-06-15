@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External Dependencies
+// External Dependencies & Registrations
 import { RefreshCwIcon, TriangleAlertIcon } from 'lucide-vue-next';
 
 // Local Components - Static

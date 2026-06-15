@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ── External Dependencies
+// ── External Dependencies & Registrations
 import { useRegle } from '@regle/core';
 import { UserRoundKeyIcon } from 'lucide-vue-next';
 import { email, required } from '@regle/rules';

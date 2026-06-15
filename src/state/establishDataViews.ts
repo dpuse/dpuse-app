@@ -1,4 +1,4 @@
-// External Dependencies
+// External Dependencies & Registrations
 import type { RouteLocationNormalizedLoadedGeneric } from 'vue-router';
 import { shallowRef } from 'vue';
 

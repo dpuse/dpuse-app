@@ -1,4 +1,4 @@
-// External Dependencies
+// External Dependencies & Registrations
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { computed, ref, shallowRef, watch } from 'vue';
 

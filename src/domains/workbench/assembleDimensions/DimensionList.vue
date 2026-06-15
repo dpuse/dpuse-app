@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External Dependencies
+// External Dependencies & Registrations
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
 // DPUse Framework

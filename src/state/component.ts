@@ -1,4 +1,4 @@
-// External Dependencies
+// External Dependencies & Registrations
 import { type Component, h } from 'vue';
 
 // Local (App) Framework

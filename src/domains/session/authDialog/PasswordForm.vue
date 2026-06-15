@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ── External Dependencies
+// ── External Dependencies & Registrations
 import { reactive } from 'vue';
 import { required } from '@regle/rules';
 import { useRegle } from '@regle/core';

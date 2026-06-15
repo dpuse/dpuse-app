@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T">
-// External Dependencies
+// External Dependencies & Registrations
 import { Settings2 } from 'lucide-vue-next';
 import type { Table } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';

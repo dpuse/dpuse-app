@@ -1,4 +1,4 @@
-// External Dependencies
+// External Dependencies & Registrations
 import { ref } from 'vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -30,9 +30,15 @@ export function start(): void {
 
 export function complete(): void {
     clearTimers();
-    if (!isNavigationDelayed.value) { isNavigationActive.value = false; return; }
+    if (!isNavigationDelayed.value) {
+        isNavigationActive.value = false;
+        return;
+    }
     const remaining = Math.max(0, MIN_VISIBLE_MS - (Date.now() - showedAt!));
-    hideTimer = setTimeout(() => { hideTimer = null; reset(); }, remaining);
+    hideTimer = setTimeout(() => {
+        hideTimer = null;
+        reset();
+    }, remaining);
 }
 
 export function fail(): void {
@@ -43,8 +49,14 @@ export function fail(): void {
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function clearTimers(): void {
-    if (showTimer != null) { clearTimeout(showTimer); showTimer = null; }
-    if (hideTimer != null) { clearTimeout(hideTimer); hideTimer = null; }
+    if (showTimer != null) {
+        clearTimeout(showTimer);
+        showTimer = null;
+    }
+    if (hideTimer != null) {
+        clearTimeout(hideTimer);
+        hideTimer = null;
+    }
 }
 
 function reset(): void {

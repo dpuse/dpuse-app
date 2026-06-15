@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ── External Dependencies
+// ── External Dependencies & Registrations
 import { computed, useAttrs, useId } from 'vue';
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────

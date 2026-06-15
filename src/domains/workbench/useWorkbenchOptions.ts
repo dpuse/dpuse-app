@@ -1,4 +1,4 @@
-// ── External Dependencies
+// ── External Dependencies & Registrations
 import { computed, type ComputedRef } from 'vue';
 
 // ── DPUse Framework
@@ -82,7 +82,7 @@ const WORKBENCH_OPTIONS = [
         step: 5,
         tasks: []
     },
-{
+    {
         id: 'buildDataApps',
         label: { en: 'Build Data Apps', es: 'Crear Aplicaciones de Datos' },
         description: {

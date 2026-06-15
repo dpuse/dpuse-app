@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ── External Dependencies
+// ── External Dependencies & Registrations
 import { type ComponentPublicInstance, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── DPUse Framework

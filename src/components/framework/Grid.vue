@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T">
-// External Dependencies
+// External Dependencies & Registrations
 import { PlusIcon } from 'lucide-vue-next';
 import { computed, onUnmounted, ref, shallowRef } from 'vue';
 

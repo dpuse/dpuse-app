@@ -1,4 +1,4 @@
-// External Dependencies
+// External Dependencies & Registrations
 import { dragAndDrop } from '@formkit/drag-and-drop/vue';
 import { tearDown } from '@formkit/drag-and-drop';
 import { type ComponentPublicInstance, computed, type ComputedRef, nextTick, onBeforeUnmount, ref, watch, type WritableComputedRef } from 'vue';

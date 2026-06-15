@@ -1,4 +1,4 @@
-// External Dependencies
+// External Dependencies & Registrations
 import { createApp } from 'vue';
 import DOMPurify from 'dompurify';
 import { z } from 'zod/v4';
@@ -49,7 +49,7 @@ try {
                 throw new Error(`Blocked TrustedScriptURL: ${url}`);
             },
             // Allow TipTap/ProseMirror to set innerHTML via DOMPurify sanitization.
-            createHTML: sanitizeHTML,
+            createHTML: sanitizeHTML
         });
     }
 

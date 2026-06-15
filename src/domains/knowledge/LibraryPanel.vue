@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ─── External Dependencies
+// ─── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
 import { marked } from 'marked'; // NOTE: 'marked' with DOMPurify is at least 14kB smaller (gzipped) than 'micromark' or 'markdown-it' without DOMPurify. Measured June 2, 2026.
 import { SendHorizonalIcon } from 'lucide-vue-next';

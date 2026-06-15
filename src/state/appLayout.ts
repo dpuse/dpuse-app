@@ -1,4 +1,4 @@
-// External Dependencies
+// External Dependencies & Registrations
 import { ref } from 'vue';
 
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, number | string | null | undefined>">
-// External Dependencies
+// External Dependencies & Registrations
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, getCoreRowModel, useVueTable, type VisibilityState } from '@tanstack/vue-table';
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue';

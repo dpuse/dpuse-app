@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External Dependencies
+// External Dependencies & Registrations
 import { MousePointerClickIcon } from 'lucide-vue-next';
 
 // Options, Properties, Slots & Emits

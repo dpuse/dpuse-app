@@ -1,4 +1,4 @@
-// External Dependencies
+// External Dependencies & Registrations
 import { ref, type Ref } from 'vue';
 
 // Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-// External Dependencies
+// External Dependencies & Registrations
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // Local (App) Framework

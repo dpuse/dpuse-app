@@ -1,4 +1,4 @@
-// External Dependencies
+// External Dependencies & Registrations
 import { computed, type ComputedRef, ref, type ShallowRef, watch } from 'vue';
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 

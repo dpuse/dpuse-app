@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External Dependencies
+// External Dependencies & Registrations
 import { ArrowBigRightIcon } from 'lucide-vue-next';
 import type { ColumnDef } from '@tanstack/vue-table';
 import { computed, markRaw, ref, shallowRef, watch } from 'vue';

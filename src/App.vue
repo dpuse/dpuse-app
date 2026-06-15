@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External Dependencies
+// External Dependencies & Registrations
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';

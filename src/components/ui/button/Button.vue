@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External Dependencies
+// External Dependencies & Registrations
 import { computed } from 'vue';
 import { type RouteLocationRaw, RouterLink } from 'vue-router';
 
@@ -61,7 +61,7 @@ const classes = computed((): (string | string[] | undefined)[] => {
                 COMMON_GRAPHIC_CLASSES,
                 COMMON_ICON_CLASSES,
                 'bg-zinc-50 py-2 px-2.5 [&_svg]:size-5 dark:bg-zinc-300/10',
-                isActive ? 'bg-blue-50! dark:bg-zinc-300/25! cursor-default! pointer-events-none!' : undefined
+                isActive ? 'bg-blue-50! dark:bg-zinc-300/25!' : undefined
             ];
         }
         return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.75 [&_svg]:size-[26px]'];

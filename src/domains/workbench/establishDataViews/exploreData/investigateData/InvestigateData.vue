@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External Dependencies
+// External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
 
 // Local (App) Framework
