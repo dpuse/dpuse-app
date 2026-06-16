@@ -197,7 +197,6 @@ function handleScroll(): void {
 function handleTrackWheel(wheelEvent: WheelEvent): void {
     const element = scrollElement.value;
     if (!element) return;
-    wheelEvent.preventDefault();
     element.scrollBy({ left: wheelEvent.deltaX, top: wheelEvent.deltaY });
 }
 
@@ -285,7 +284,7 @@ function clamp(value: number, min: number, max: number): number {
             @touchstart.passive="handleVerticalTrackTouchStart"
             @mouseenter="handleShowThumbs"
             @focusin="handleShowThumbs"
-            @wheel="handleTrackWheel"
+            @wheel.passive="handleTrackWheel"
         >
             <div class="dpuse-scrollbar-thumb" :style="{ height: verticalThumbHeight + 'px', transform: `translateY(${verticalThumbTop}px)` }" />
         </div>
@@ -307,7 +306,7 @@ function clamp(value: number, min: number, max: number): number {
             @touchstart.passive="handleHorizontalTrackTouchStart"
             @mouseenter="handleShowThumbs"
             @focusin="handleShowThumbs"
-            @wheel="handleTrackWheel"
+            @wheel.passive="handleTrackWheel"
         >
             <div class="dpuse-scrollbar-thumb" :style="{ width: horizontalThumbWidth + 'px', transform: `translateX(${horizontalThumbLeft}px)` }" />
         </div>

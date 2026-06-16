@@ -109,7 +109,8 @@ onMounted(() => {
                 maxTokens: 1024,
                 temperature: 1,
                 thinking: { type: 'enabled', budget_tokens: 1024 }
-            }
+            },
+            rag: true
         },
         initialMessages: [],
         onMessagesChange: (messages): void => {

@@ -39,7 +39,8 @@ const chat = new Chat({
                 maxOutputTokens: 4096,
                 temperature: 1,
                 thinking: { type: 'adaptive' }
-            }
+            },
+            rag: true
         }
     }),
     onError: (error): void => {
