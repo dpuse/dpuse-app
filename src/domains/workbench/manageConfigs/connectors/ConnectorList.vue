@@ -17,13 +17,13 @@ import Card from '@/components/ui/Card.vue';
 import ConnectorForm from './ConnectorForm.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
-import type { TaskConfig } from '@/components/ui/TaskBar.vue';
+// import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
-const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
+// const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
-defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+// defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -93,7 +93,8 @@ const activeItemAction = ref<ItemAction | undefined>();
         </template>
 
         <template #detail="{ item }">
-            <ConnectorForm :connector-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
+            <!-- <ConnectorForm :connector-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" /> -->
+            <ConnectorForm :connector-localised-config="item" />
         </template>
 
         <template #no-selection>
