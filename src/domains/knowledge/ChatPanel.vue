@@ -36,7 +36,7 @@ const chat = new Chat({
             modelId: 'claude-sonnet-4-6',
             options: {
                 effort: 'medium',
-                maxOutputTokens: 1024,
+                maxOutputTokens: 4096,
                 temperature: 1,
                 thinking: { type: 'adaptive' }
             }
@@ -57,12 +57,12 @@ const chat = new Chat({
         const executor = toolExecutors[toolCall.toolName];
         if (!executor) return;
         try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const args = (toolCall as any).args ?? (toolCall as any).input;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- TODO
+            const arguments_ = (toolCall as any).args ?? (toolCall as any).input;
             chat.addToolOutput({
                 tool: toolCall.toolName,
                 toolCallId: toolCall.toolCallId,
-                output: await executor(args)
+                output: await executor(arguments_)
             });
         } catch (error) {
             chat.addToolOutput({
