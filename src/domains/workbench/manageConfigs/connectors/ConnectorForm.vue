@@ -10,7 +10,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local (App) Framework
 import { accountId } from '@/state/session';
-import T from './SelectConnectionForm.json';
+import T from './ConnectorForm.json';
 import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 

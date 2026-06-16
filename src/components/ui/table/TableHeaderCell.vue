@@ -19,7 +19,7 @@ const menuOpen = ref(false);
 onMounted(() => document.addEventListener('click', onDocumentClick));
 onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick));
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Close menu when clicking outside.
 function onDocumentClick(event: MouseEvent): void {

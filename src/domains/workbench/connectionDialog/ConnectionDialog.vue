@@ -79,7 +79,7 @@ watch(viewportIsWide, (isWide) => {
     if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1];
 });
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleCommitDetail(): void {
     const query = { ...route.query };

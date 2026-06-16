@@ -9,7 +9,7 @@ import Button from '@/components/ui/button/Button.vue';
 
 const { name, error } = defineProps<{ name?: string; error: unknown }>();
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleReloadApplication(): void {
     globalThis.location.reload();

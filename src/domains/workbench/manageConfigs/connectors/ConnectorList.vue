@@ -1,94 +1,128 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
-import { computed, defineAsyncComponent, ref, watch } from 'vue';
+// ── External Dependencies & Registrations
+import { computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
-// DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
+// ── DPUse Framework
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
-import type { DimensionConfig } from '@dpuse/dpuse-shared/component/dimension';
-import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
-import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
+import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import { reportAppError } from '@/observability/errorTracking';
-import { t } from '@/state/locale';
-import T from './ConnectorList.json';
-import { useEngine } from '@/services/useEngine';
-import { activeMetaStoreConnectionConfig, dimensionConfigs } from '@/state/session';
+import { localeId } from '@/state/locale';
+import {
+    activeConnectionConfig,
+    activeConnectionNodeConfigs,
+    activeDataViewConfig,
+    connectionLocalisedConfigs,
+    establishDataView,
+    NEW_DATA_VIEW_ID
+} from '@/state/establishDataViews';
+import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
 
-// Local Components - Static
+// ── Local Components - Static
 import Card from '@/components/ui/Card.vue';
-import Grid from '@/components/framework/Grid.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ConnectorForm from './ConnectorForm.vue';
+import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
+import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 
-// Local Components - Dynamic
-const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/ui/placeholders/EmptyPlaceholder.vue'));
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
-const dimensionRetrievalIsActive = ref(false);
+defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const dataSource = computed(
-    (): DataSource<DimensionConfig> => ({
-        rowCount: dimensionConfigs.value?.length ?? 0,
-        getRows: (start: number, end: number): Promise<DimensionConfig[]> => Promise.resolve((dimensionConfigs.value ?? []).slice(start, end))
-    })
-);
+const route = useRoute();
+const router = useRouter();
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(activeMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDimensions(newConnectionConfig), { immediate: true });
+const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
+    rowCount: connectionLocalisedConfigs.value.length,
+    getRows: (start, end): Promise<LocalisedConfig<ConnectionConfig>[]> => Promise.resolve(connectionLocalisedConfigs.value.slice(start, end))
+}));
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<void> {
-    try {
-        if (!connectionConfig) return;
+watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => establishDataView(newLocalMetaStoreConnectionConfig, route));
 
-        const { processRequest } = await useEngine();
-        const findObjectOptions: FindObjectOptions = { storeId: 'dpuMetaStore', nodeId: 'dimensions' };
-        const findObjectResult = (await processRequest('findObject', connectionConfig, findObjectOptions)) as FindObjectResult;
-        if (findObjectResult.path == null) {
-            const createObjectOptions: CreateObjectOptions = { path: '/dpuMetaStore/dimensions', structure: 'id' };
-            await processRequest('createObject', connectionConfig, createObjectOptions);
-        }
+watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.value = localiseConfigs<ConnectionConfig>(newConnectionConfigs, localeId.value, true)), {
+    immediate: true
+});
 
-        const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dimensions', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
-        await processRequest('retrieveRecords', connectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
-            if (data.typeId === 'chunk') {
-                dimensionConfigs.value = (data.properties.records as DimensionConfig[]).map((record) => {
-                    const localisedConfig = record;
-                    return localisedConfig;
-                });
-            } else {
-                dimensionRetrievalIsActive.value = true;
-            }
-        });
-    } catch (error) {
-        reportAppError(new AppError('Failed to retrieve dimensions.', 'dpuse-app.AssembleDimensions.retrieveDimensions', { typeId: 'handled' }, { cause: error }));
-    } finally {
-        // Pending...
-    }
+// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
+
+function handleAddConnection(): void {
+    router.replace({ query: { ...route.query, dlg: 'connection' } });
+}
+
+function handleCommitDetail(): void {
+    router.push({ name: 'selectItem', query: { ...route.query, wbView: 'selectItem' } });
+}
+
+function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
+    activeConnectionConfig.value = connectionLocalisedConfig;
+    activeConnectionNodeConfigs.value = [];
+    resetActiveDataViewConfig(connectionLocalisedConfig);
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<ConnectionConfig>): void {
+    activeDataViewConfig.value =
+        activeDataViewConfig.value == null
+            ? {
+                  id: NEW_DATA_VIEW_ID,
+                  label: { en: 'New Data View' },
+                  description: { en: 'A new data view.' },
+                  firstCreatedAt: null,
+                  icon: null,
+                  iconDark: null,
+                  iconNeutral: null,
+                  lastUpdatedAt: null,
+                  status: null,
+                  statusId: null,
+                  typeId: 'dataView',
+                  connectionId: connectionLocalisedConfig?.id,
+                  connectionNodeConfig: undefined,
+                  previewConfig: undefined,
+                  contentAuditConfig: undefined,
+                  relationshipsAuditConfig: undefined
+              }
+            : {
+                  ...activeDataViewConfig.value,
+                  connectionId: connectionLocalisedConfig?.id,
+                  connectionNodeConfig: undefined,
+                  previewConfig: undefined,
+                  contentAuditConfig: undefined,
+                  relationshipsAuditConfig: undefined
+              };
 }
 </script>
 
 <template>
-    <Grid
-        v-if="dimensionRetrievalIsActive && dimensionConfigs && dimensionConfigs.length > 0"
-        class="flex-1 pb-6"
-        :data-source="dataSource"
-        :row-height="150"
-        :target-column-width="350"
+    <GridDetailPanel
+        :active-item="activeConnectionConfig"
+        add-label="Connection"
+        :data-source="connectionConfigsDataSource"
+        max-detail-width="400px"
+        @add="handleAddConnection"
+        @commit-detail="handleCommitDetail"
+        @select="handleSelectConnection"
     >
-        <template #default="{ item }">
-            <Card v-if="item" :label="item.label as string" />
+        <template #grid-item="{ item }">
+            <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
         </template>
-    </Grid>
 
-    <ScrollArea v-else-if="dimensionRetrievalIsActive">
-        <EmptyPlaceholder :message-item-label="t(T, 'dimensions')" :description-item-label="t(T, 'dimension')" :action-item-label="t(T, 'Dimension')" />
-    </ScrollArea>
+        <template #detail="{ item }">
+            <ConnectorForm :connection-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
+        </template>
+
+        <template #no-selection>
+            <SelectPlaceholder :message="'Select a connector from the list on the left.'" />
+        </template>
+    </GridDetailPanel>
 </template>

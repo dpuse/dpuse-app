@@ -62,7 +62,7 @@ const columnOffsets = computed(() => Array.from({ length: columnCount.value }, (
 
 onUnmounted(() => resizeObserver.disconnect());
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleScrollAreaInitialised(viewport: HTMLElement): void {
     resizeObserver.disconnect();

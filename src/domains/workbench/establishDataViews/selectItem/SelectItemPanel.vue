@@ -124,7 +124,7 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
     applyPreviewConfig(newActiveItem, previewConfig);
 });
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleClearSelection() {}
 

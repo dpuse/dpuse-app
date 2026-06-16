@@ -14,7 +14,7 @@ const { variant = 'large' } = defineProps<{ variant?: 'compact' | 'large' }>();
 const route = useRoute();
 const router = useRouter();
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleClose(): Promise<void> {
     const routeQueryParameters = { ...route.query };

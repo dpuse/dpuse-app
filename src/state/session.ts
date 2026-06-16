@@ -165,7 +165,7 @@ export async function signOut(): Promise<void> {
     await hankoInstance?.logout();
 }
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleBeforeUnload(event: BeforeUnloadEvent): void {
     event.preventDefault();

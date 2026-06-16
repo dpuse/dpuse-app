@@ -53,7 +53,7 @@ watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.v
     immediate: true
 });
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleAddConnection(): void {
     router.replace({ query: { ...route.query, dlg: 'connection' } });

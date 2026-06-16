@@ -60,7 +60,7 @@ watch(
     { immediate: true }
 );
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): void {
     tasksEnabledToNumber.value = taskLocalisedConfig.enableUpTo;

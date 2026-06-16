@@ -8,7 +8,7 @@ const modelValue = defineModel<number>();
 
 const isDragging = ref(false);
 
-// UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleDoubleClick(): void {
     modelValue.value = 50;
