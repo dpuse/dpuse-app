@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, shallowRef, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -40,7 +40,7 @@ const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<Connector
     getRows: (start, end): Promise<LocalisedConfig<ConnectorConfig>[]> => Promise.resolve(connectorLocalisedConfigs.value.slice(start, end))
 }));
 
-// ── Side Effects ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(connectorConfigs, (newConnectorConfigs) => (connectorLocalisedConfigs.value = localiseConfigs<ConnectorConfig>(newConnectorConfigs, localeId.value, true)), {
     immediate: true
@@ -60,16 +60,31 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
     activeConnectorConfig.value = connectionLocalisedConfig;
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+type ItemAction = { id: string; label: string };
+const ITEM_ACTIONS: ItemAction[] = [{ id: 'addConnection', label: 'Add Connection' }];
+const activeItemAction = ref<ItemAction | undefined>();
 </script>
 
 <template>
-    <GridDetailPanel
+    <!-- {{ activeItemAction }} -->
+
+    <!-- <GridDetailPanel
+        v-model:active-item-action="activeItemAction"
         :active-item="activeConnectorConfig"
         add-label="Connection"
         :data-source="connectorConfigsDataSource"
+        :item-actions="ITEM_ACTIONS"
         max-detail-width="400px"
         @add="handleAddConnection"
+        @commit-detail="handleCommitDetail"
+        @select="handleSelectConnection"
+    > -->
+    <GridDetailPanel
+        v-model:active-item-action="activeItemAction"
+        :active-item="activeConnectorConfig"
+        :data-source="connectorConfigsDataSource"
+        :item-actions="ITEM_ACTIONS"
+        max-detail-width="400px"
         @commit-detail="handleCommitDetail"
         @select="handleSelectConnection"
     >

@@ -1,0 +1,128 @@
+<script setup lang="ts">
+// External Dependencies & Registrations
+import { computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
+// DPUse Framework
+import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
+import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+
+// Local (App) Framework
+import type { DataSource } from '@/composables/useDataWindow';
+import { localeId } from '@/state/locale';
+import {
+    activeConnectionConfig,
+    activeConnectionNodeConfigs,
+    activeDataViewConfig,
+    connectionLocalisedConfigs,
+    establishDataView,
+    NEW_DATA_VIEW_ID
+} from '@/state/establishDataViews';
+import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
+
+// Local Components - Static
+import Card from '@/components/ui/Card.vue';
+import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
+import SelectConnectionForm from './ConnectionForm.vue';
+import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+import type { TaskConfig } from '@/components/ui/TaskBar.vue';
+
+// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+
+const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
+
+defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+
+// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const route = useRoute();
+const router = useRouter();
+
+// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
+    rowCount: connectionLocalisedConfigs.value.length,
+    getRows: (start, end): Promise<LocalisedConfig<ConnectionConfig>[]> => Promise.resolve(connectionLocalisedConfigs.value.slice(start, end))
+}));
+
+// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => establishDataView(newLocalMetaStoreConnectionConfig, route));
+
+watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.value = localiseConfigs<ConnectionConfig>(newConnectionConfigs, localeId.value, true)), {
+    immediate: true
+});
+
+// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
+
+function handleAddConnection(): void {
+    router.replace({ query: { ...route.query, dlg: 'connection' } });
+}
+
+function handleCommitDetail(): void {
+    router.push({ name: 'selectItem', query: { ...route.query, wbView: 'selectItem' } });
+}
+
+function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
+    activeConnectionConfig.value = connectionLocalisedConfig;
+    activeConnectionNodeConfigs.value = [];
+    resetActiveDataViewConfig(connectionLocalisedConfig);
+}
+
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<ConnectionConfig>): void {
+    activeDataViewConfig.value =
+        activeDataViewConfig.value == null
+            ? {
+                  id: NEW_DATA_VIEW_ID,
+                  label: { en: 'New Data View' },
+                  description: { en: 'A new data view.' },
+                  firstCreatedAt: null,
+                  icon: null,
+                  iconDark: null,
+                  iconNeutral: null,
+                  lastUpdatedAt: null,
+                  status: null,
+                  statusId: null,
+                  typeId: 'dataView',
+                  connectionId: connectionLocalisedConfig?.id,
+                  connectionNodeConfig: undefined,
+                  previewConfig: undefined,
+                  contentAuditConfig: undefined,
+                  relationshipsAuditConfig: undefined
+              }
+            : {
+                  ...activeDataViewConfig.value,
+                  connectionId: connectionLocalisedConfig?.id,
+                  connectionNodeConfig: undefined,
+                  previewConfig: undefined,
+                  contentAuditConfig: undefined,
+                  relationshipsAuditConfig: undefined
+              };
+}
+</script>
+
+<template>
+    <GridDetailPanel
+        :active-item="activeConnectionConfig"
+        add-label="Connection"
+        :data-source="connectionConfigsDataSource"
+        max-detail-width="400px"
+        @add="handleAddConnection"
+        @commit-detail="handleCommitDetail"
+        @select="handleSelectConnection"
+    >
+        <template #grid-item="{ item }">
+            <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
+        </template>
+
+        <template #detail="{ item }">
+            <SelectConnectionForm :connection-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
+        </template>
+
+        <template #no-selection>
+            <SelectPlaceholder :message="'Select a connection from the list on the left.'" />
+        </template>
+    </GridDetailPanel>
+</template>

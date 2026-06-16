@@ -6,7 +6,7 @@ import { load } from '@/state/component';
 import { complete, fail, start } from '@/state/navigation';
 
 // ── Local Components - Dynamic
-const WorkbenchHomeLayout = load('Workflow', () => import('@/domains/workbench/home/HomeLayout.vue'));
+const WorkbenchHomeLayout = load('WorkbenchHomeLayout', () => import('@/domains/workbench/home/HomeLayout.vue'));
 
 // ── Local Components - Dynamic - Establish Data Views
 const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/domains/workbench/establishDataViews/EstablishDataViewsLayout.vue'));
@@ -14,7 +14,7 @@ const DataViewList = load('DataViewList', () => import('@/domains/workbench/esta
 const SelectConnectionPanel = load('SelectConnection', () => import('@/domains/workbench/establishDataViews/selectConnection/SelectConnectionPanel.vue'));
 const SelectItemPanel = load('SelectItem', () => import('@/domains/workbench/establishDataViews/selectItem/SelectItemPanel.vue'));
 const AuditContentPanel = load('AuditContent', () => import('@/domains/workbench/establishDataViews/auditContent/AuditContentPanel.vue'));
-const ExploreData = load('Investigate', () => import('@/domains/workbench/establishDataViews/exploreData/ExploreData.vue'));
+const ExploreData = load('ExploreData', () => import('@/domains/workbench/establishDataViews/exploreData/ExploreData.vue'));
 
 // ── Local Components - Dynamic - Manage Configs/Contexts
 // const ManageContextsLayout = load('ManageContexts', () => import('@/domains/workbench/manageContexts/ManageContextsLayout.vue'));
@@ -37,9 +37,12 @@ const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbe
 // ── Local Components - Dynamic - Manage Configs
 const ManageConfigsLayout = load('ManageConfigs', () => import('@/domains/workbench/manageConfigs/ManageConfigsLayout.vue'));
 const ManageHomePanel = load('ManageHomePanel', () => import('@/domains/workbench/manageConfigs/home/HomePanel.vue'));
-const ManageConnectorList = load('ManageConnectorsList', () => import('@/domains/workbench/manageConfigs/connectors/ConnectorList.vue'));
-const ManageContextList = load('ManageContextsList', () => import('@/domains/workbench/manageConfigs/contexts/ContextList.vue'));
-const ManageContextPanel = load('ManageContextsPanel', () => import('@/domains/workbench/manageConfigs/contexts/ContextPanel.vue'));
+const ManageConnectionList = load('ManageConnectionList', () => import('@/domains/workbench/manageConfigs/connections/ConnectionList.vue'));
+const ManageConnectorList = load('ManageConnectorList', () => import('@/domains/workbench/manageConfigs/connectors/ConnectorList.vue'));
+const ManageContextList = load('ManageContextList', () => import('@/domains/workbench/manageConfigs/contexts/ContextList.vue'));
+const ManageContextPanel = load('ManageContextPanel', () => import('@/domains/workbench/manageConfigs/contexts/ContextPanel.vue'));
+const ManagePresenterList = load('ManagePresenterList', () => import('@/domains/workbench/manageConfigs/presenters/PresenterList.vue'));
+const ManageTutorialList = load('ManageTutorialList', () => import('@/domains/workbench/manageConfigs/tutorials/TutorialList.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -85,7 +88,7 @@ export const APP_ROUTES = [
                         component: ManageConfigsLayout,
                         children: [
                             { name: 'manageConfigs', path: '', component: ManageHomePanel },
-                            { name: 'manageConnections', path: 'connections', component: { render: (): null => null } },
+                            { name: 'manageConnections', path: 'connections', component: ManageConnectionList },
                             { name: 'manageConnectors', path: 'connectors', component: ManageConnectorList },
                             { name: 'manageContexts', path: 'contexts', component: ManageContextList },
                             { name: 'manageContext', path: 'contexts/:contextId', component: ManageContextPanel },
