@@ -92,8 +92,8 @@ export const APP_ROUTES = [
                             { name: 'manageConnectors', path: 'connectors', component: ManageConnectorList },
                             { name: 'manageContexts', path: 'contexts', component: ManageContextList },
                             { name: 'manageContext', path: 'contexts/:contextId', component: ManageContextPanel },
-                            { name: 'managePresenters', path: 'presenters', component: { render: (): null => null } },
-                            { name: 'manageTutorials', path: 'tutorials', component: { render: (): null => null } }
+                            { name: 'managePresenters', path: 'presenters', component: ManagePresenterList },
+                            { name: 'manageTutorials', path: 'tutorials', component: ManageTutorialList }
                         ]
                     }
                 ]
