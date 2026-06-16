@@ -1,24 +1,16 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, watch } from 'vue';
+import { computed, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
+import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local (App) Framework
+import { connectorConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
-import {
-    activeConnectionConfig,
-    activeConnectionNodeConfigs,
-    activeDataViewConfig,
-    connectionLocalisedConfigs,
-    establishDataView,
-    NEW_DATA_VIEW_ID
-} from '@/state/establishDataViews';
-import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import Card from '@/components/ui/Card.vue';
@@ -35,21 +27,22 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const activeConnectorConfig = shallowRef<LocalisedConfig<ConnectorConfig> | undefined>();
+const connectorLocalisedConfigs = shallowRef<LocalisedConfig<ConnectorConfig>[]>([]);
+
 const route = useRoute();
 const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
-    rowCount: connectionLocalisedConfigs.value.length,
-    getRows: (start, end): Promise<LocalisedConfig<ConnectionConfig>[]> => Promise.resolve(connectionLocalisedConfigs.value.slice(start, end))
+const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectorConfig>>>(() => ({
+    rowCount: connectorLocalisedConfigs.value.length,
+    getRows: (start, end): Promise<LocalisedConfig<ConnectorConfig>[]> => Promise.resolve(connectorLocalisedConfigs.value.slice(start, end))
 }));
 
 // ── Side Effects ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => establishDataView(newLocalMetaStoreConnectionConfig, route));
-
-watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.value = localiseConfigs<ConnectionConfig>(newConnectionConfigs, localeId.value, true)), {
+watch(connectorConfigs, (newConnectorConfigs) => (connectorLocalisedConfigs.value = localiseConfigs<ConnectorConfig>(newConnectorConfigs, localeId.value, true)), {
     immediate: true
 });
 
@@ -63,51 +56,18 @@ function handleCommitDetail(): void {
     router.push({ name: 'selectItem', query: { ...route.query, wbView: 'selectItem' } });
 }
 
-function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
-    activeConnectionConfig.value = connectionLocalisedConfig;
-    activeConnectionNodeConfigs.value = [];
-    resetActiveDataViewConfig(connectionLocalisedConfig);
+function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectorConfig> | undefined): void {
+    activeConnectorConfig.value = connectionLocalisedConfig;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<ConnectionConfig>): void {
-    activeDataViewConfig.value =
-        activeDataViewConfig.value == null
-            ? {
-                  id: NEW_DATA_VIEW_ID,
-                  label: { en: 'New Data View' },
-                  description: { en: 'A new data view.' },
-                  firstCreatedAt: null,
-                  icon: null,
-                  iconDark: null,
-                  iconNeutral: null,
-                  lastUpdatedAt: null,
-                  status: null,
-                  statusId: null,
-                  typeId: 'dataView',
-                  connectionId: connectionLocalisedConfig?.id,
-                  connectionNodeConfig: undefined,
-                  previewConfig: undefined,
-                  contentAuditConfig: undefined,
-                  relationshipsAuditConfig: undefined
-              }
-            : {
-                  ...activeDataViewConfig.value,
-                  connectionId: connectionLocalisedConfig?.id,
-                  connectionNodeConfig: undefined,
-                  previewConfig: undefined,
-                  contentAuditConfig: undefined,
-                  relationshipsAuditConfig: undefined
-              };
-}
 </script>
 
 <template>
     <GridDetailPanel
-        :active-item="activeConnectionConfig"
+        :active-item="activeConnectorConfig"
         add-label="Connection"
-        :data-source="connectionConfigsDataSource"
+        :data-source="connectorConfigsDataSource"
         max-detail-width="400px"
         @add="handleAddConnection"
         @commit-detail="handleCommitDetail"
@@ -118,7 +78,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
         </template>
 
         <template #detail="{ item }">
-            <ConnectorForm :connection-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
+            <ConnectorForm :connector-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
         </template>
 
         <template #no-selection>

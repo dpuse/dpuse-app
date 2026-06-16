@@ -7,7 +7,7 @@ import Button from '@/components/ui/button/Button.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-export type CommitVariant = 'add' | 'select';
+export type CommitVariant = 'add' | 'select' | 'none';
 export type ItemAction = { id: string; label: string };
 const { itemActions = [], commitVariant = 'select' } = defineProps<{ commitVariant?: CommitVariant; itemActions?: ItemAction[] }>();
 

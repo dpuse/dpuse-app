@@ -123,7 +123,7 @@ export default defineConfigWithVueTs(
             'vue/multi-word-component-names': 'warn',
             'vue/no-bare-strings-in-template': ['warn'],
             'vue/no-v-html': 'warn',
-            'vue/require-default-prop': 'warn',
+            'vue/require-default-prop': 'off', // Too much noise for properties with undefined values.
 
             'vuejs-accessibility/label-has-for': ['error', { required: { some: ['id', 'nesting'] } }]
         }

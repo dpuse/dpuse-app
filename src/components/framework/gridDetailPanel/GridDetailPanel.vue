@@ -121,6 +121,7 @@ async function handleSelectItem(row: T): Promise<void> {
                     <div class="relative min-h-0 flex-1">
                         <slot name="detail" :item="activeItem" />
                         <DetailActionBar
+                            v-if="commitVariant !== 'none'"
                             class="absolute right-4 bottom-(--safe-bottom-offset)"
                             :commit-variant="commitVariant"
                             :item-actions="itemActions"
