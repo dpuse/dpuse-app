@@ -114,7 +114,7 @@ export default defineConfigWithVueTs(
                 }
             ],
 
-            'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['App.vue', 'DPUseLogo.vue' /*'src/components/icon(?:/.*)?'*/] }],
+            'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['DPUseLogo.vue' /*'src/components/icon(?:/.*)?'*/] }],
             'unicorn/no-null': 'off',
             'unicorn/prevent-abbreviations': ['error', { ignore: ['env.d.ts'] }],
             'unicorn/switch-case-braces': 'warn',

@@ -1,20 +1,20 @@
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { createApp } from 'vue';
 import DOMPurify from 'dompurify';
 import { z } from 'zod/v4';
 
-// DPUse Framework
+// ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import '@/assets/main.css';
 import { createAppRouter } from '@/router';
 import { reportAppError, reportFatalError } from '@/observability/errorTracking';
 
-// Local Components - Static
+// ── Local Components - Static
 import App from '@/App.vue';
 
-// App Bootstrap ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── App Bootstrap ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 z.config({ jitless: true }); // NOTE: Required by Vercel AI SDK.
 

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { initialiseServices } from '@/state/session';
 import { load } from '@/state/component';
 import T from './App.json';
@@ -12,7 +12,7 @@ import { t } from '@/state/locale';
 import { contentScrollPosition, knowledgePaneIsVisible, sessionMenuIsOpen, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 import { isNavigationActive, isNavigationDelayed } from '@/state/navigation';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue'; // Required by workbench and knowledge toggle buttons which are always visible.
 import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
@@ -21,7 +21,7 @@ import ProgressBar from '@/components/framework/ProgressBar.vue'; // Required so
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
 import WorkbenchLogo from '@/components/branding/WorkbenchLogo.vue'; // Always visible.
 
-// Local Components - Dynamic
+// ── Local Components - Dynamic
 const AccountDialog = defineAsyncComponent(load('AccountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue')));
 const AuthDialog = defineAsyncComponent(load('AuthDialog', () => import('@/domains/session/authDialog/AuthDialog.vue')));
 const ConnectionDialog = defineAsyncComponent(load('ConnectionDialog', () => import('~/src/domains/workbench/connectionDialog/ConnectionDialog.vue')));
@@ -29,12 +29,12 @@ const KnowledgeLayout = defineAsyncComponent(load('KnowledgeLayout', () => impor
 const PaneSplitter = defineAsyncComponent(load('PaneSplitter', () => import('@/components/ui/PaneSplitter.vue')));
 const WorkbenchOptionBar = defineAsyncComponent(load('WorkbenchOptionBar', () => import('@/domains/workbench/optionBar/WorkbenchOptionBar.vue')));
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const PANE_SPLITTER_DEFAULT_PERCENT = 50;
 const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeAppPaneId = ref<'workbench' | 'knowledge' | undefined>();
 
@@ -51,7 +51,7 @@ const workbenchOptionBarIsVisible = ref(false);
 const workbenchPaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
 const workbenchPaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
 
-// Derived State - Dialogs ─────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State - Dialogs ──────────────────────────────────────────────────────────────────────────────────────────
 
 const accountDialogIsVisible = computed(() => route.query.dlg === 'account');
 const authDialogIsVisible = computed(() => route.query.dlg === 'auth');
@@ -59,7 +59,7 @@ const connectionDialogIsVisible = computed(() => route.query.dlg === 'connection
 const isDialogActive = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value);
 const isModalActive = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value || sessionMenuIsOpen.value);
 
-// Derived State - Panes ───────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State - Panes ────────────────────────────────────────────────────────────────────────────────────────────
 
 const knowledgePaneStyle = computed(() => {
     if (knowledgePaneIsVisible.value) return { minWidth: '0', flex: '1' };
@@ -74,7 +74,7 @@ const workbenchPaneStyle = computed(() => {
     return { minWidth: '0', flex: '1' };
 });
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 router
     .isReady()
@@ -85,6 +85,7 @@ router
         activeAppPaneId.value = workbenchPaneActivated.value ? 'workbench' : 'knowledge';
         establishActivePaneId(viewportIsWide.value);
     })
+    // eslint-disable-next-line unicorn/prefer-top-level-await -- top-level await in <script setup> suspends the component; .catch() keeps mount non-blocking.
     .catch(() => {
         // Router failed to initialise — fall back to showing the workbench pane.
         workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = true;
@@ -100,7 +101,7 @@ watch(viewportIsWide, (newViewportIsWide) => {
 
 watch(paneSplitterPercent, (newPaneSplitterPercent) => localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent)));
 
-// Handlers - Knowledge Pane/Panels ────────────────────────────────────────────────────────────────────────────────────
+// ── UI Event Handlers - Knowledge Pane/Panels ────────────────────────────────────────────────────────────────────────
 
 function handleSelectKnowledgePanel(knowledgeViewId: KnowledgeViewId): void {
     activeAppPaneId.value = 'knowledge';
@@ -144,7 +145,7 @@ function toggleKnowledgePane(): void {
     }
 }
 
-// Handlers - Workbench Option Bar ─────────────────────────────────────────────────────────────────────────────────────
+// ── UI Event Handlers - Workbench Option Bar ─────────────────────────────────────────────────────────────────────────
 
 function handleWorkbenchOptionBarHide(): void {
     if (viewportIsWide.value) return;
@@ -152,7 +153,7 @@ function handleWorkbenchOptionBarHide(): void {
     workbenchOptionBarIsVisible.value = false;
 }
 
-// Handlers - Workbench Pane ───────────────────────────────────────────────────────────────────────────────────────────
+// ── UI Event Handlers - Workbench Pane ───────────────────────────────────────────────────────────────────────────────
 
 function handleToggleWorkbenchPane(): void {
     if (viewportIsWide.value) {
@@ -190,9 +191,10 @@ function toggleWorkbenchPane(): void {
     }
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function establishActivePaneId(viewportIsWide: boolean): void {
+    // eslint-disable-next-line sonarjs/no-selector-parameter -- splitting into two methods would just move the if/else to the caller.
     if (viewportIsWide) {
         workbenchPaneIsVisible.value = workbenchPaneIsActive.value;
         knowledgePaneIsVisible.value = knowledgePaneIsActive.value;

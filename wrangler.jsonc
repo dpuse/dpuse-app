@@ -12,7 +12,7 @@
     "observability": {
         "enabled": true
     },
-    "routes": [{ "custom_domain": true, "pattern": "www.dpuse.app", "zone_name": "dpuse.app" }],
+    "routes": [{ "custom_domain": true, "pattern": "my.dpuse.app", "zone_name": "dpuse.app" }],
     "placement": {
         "mode": "off"
     },
