@@ -14,12 +14,12 @@ import { isNavigationActive, isNavigationDelayed } from '@/state/navigation';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue'; // Required by workbench and knowledge toggle buttons which are always visible.
-import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always visible.
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
 import LoadingMask from '@/components/framework/LoadingMask.vue'; // Required so no delay when rendering.
 import ProgressBar from '@/components/framework/ProgressBar.vue'; // Required so no delay when rendering.
 import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
+import WorkbenchLogo from '@/components/branding/WorkbenchLogo.vue'; // Always visible.
 
 // Local Components - Dynamic
 const AccountDialog = defineAsyncComponent(load('AccountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue')));
@@ -249,7 +249,7 @@ function establishPaneSplitterPercent(): number {
             shape="icon"
             @click="handleToggleWorkbenchPane"
         >
-            <DPUseLogo />
+            <WorkbenchLogo />
         </Button>
 
         <!-- Knowledge toggle fixed in top right corner. Always visible. -->
