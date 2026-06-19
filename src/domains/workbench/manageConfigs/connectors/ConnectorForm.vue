@@ -1,10 +1,8 @@
 <script setup lang="ts">
 // External Dependencies & Registrations
-import { ArrowBigRightIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
-import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
@@ -18,11 +16,30 @@ import { useEngine } from '@/services/useEngine';
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
+import Tag from '@/components/ui/Tag.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 const { connectorLocalisedConfig } = defineProps<{ connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> }>();
 const emit = defineEmits<{ submit: [] }>();
+
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const USAGE_LABELS: Record<string, string> = {
+    source: 'Source',
+    destination: 'Destination',
+    bidirectional: 'Bidirectional',
+    unknown: 'Unknown'
+};
+
+const STATUS_COLORS: Record<string, 'amber' | 'green' | 'red'> = {
+    generalAvailability: 'green',
+    releaseCandidate: 'green',
+    beta: 'amber',
+    alpha: 'red',
+    preAlpha: 'red',
+    unavailable: 'red'
+};
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -53,61 +70,34 @@ async function testAuth(): Promise<void> {
     <form class="relative flex h-full flex-col pl-4" data-region="SelectConnectionForm" @submit.prevent="handleSubmit">
         <ScrollArea class="flex-1" scroll-area-padding="screen">
             <div class="flex flex-col gap-y-4 pt-2">
+                <div class="flex flex-wrap gap-1.5">
+                    <Tag :text="`v${connectorLocalisedConfig.version}`" />
+                    <Tag :text="USAGE_LABELS[connectorLocalisedConfig.usageId] ?? connectorLocalisedConfig.usageId" />
+                    <Tag
+                        v-if="connectorLocalisedConfig.status"
+                        :text="connectorLocalisedConfig.status.label"
+                        :color="connectorLocalisedConfig.status.color === 'other' ? undefined : connectorLocalisedConfig.status.color"
+                    />
+                    <Tag v-else-if="connectorLocalisedConfig.statusId" :text="connectorLocalisedConfig.statusId" :color="STATUS_COLORS[connectorLocalisedConfig.statusId]" />
+                </div>
+                <code class="text-xs text-zinc-500 dark:text-zinc-400">{{ connectorLocalisedConfig.id }}</code>
+
                 {{ connectorLocalisedConfig?.description }}
 
-                <div>
-                    <div><strong>Id:</strong> {{ connectorLocalisedConfig?.id }}</div>
-                    <div><strong>Category Id:</strong> {{ connectorLocalisedConfig?.categoryId }}</div>
-                    <div><strong>Status Id:</strong> {{ connectorLocalisedConfig?.statusId }}</div>
-                    <div><strong>Status Id:</strong> {{ connectorLocalisedConfig?.statusId }}</div>
-                    <div><strong>Type Id:</strong> {{ connectorLocalisedConfig?.typeId }}</div>
-                    <div><strong>Type Id:</strong> {{ connectorLocalisedConfig?.typeId }}</div>
-                    <div><strong>Usage Id:</strong> {{ connectorLocalisedConfig?.usageId }}</div>
-                    <div><strong>Version:</strong> {{ connectorLocalisedConfig?.version }}</div>
-                </div>
+                <div><strong>Category Id:</strong> {{ connectorLocalisedConfig?.categoryId }}</div>
 
                 <Button @click="testAuth">Auth</Button>
 
-                <!-- <div>
-                    <strong>Connection:</strong>
-                    <div>id: {{ connectorLocalisedConfig.id }}</div>
-                    <div>label: {{ connectorLocalisedConfig.label }}</div>
-                    <div>description: {{ connectorLocalisedConfig.description }}</div>
-                    <div>notation: {{ connectorLocalisedConfig.notation }}</div>
-                    <div>authorisation: {{ connectorLocalisedConfig.authorisation }}</div>
-                    <div>firstCreatedAt: {{ connectorLocalisedConfig.firstCreatedAt }}</div>
-                    <div>icon: {{ connectorLocalisedConfig.icon != null }}</div>
-                    <div>iconDark: {{ connectorLocalisedConfig.iconDark != null }}</div>
-                    <div>iconNeutral: {{ connectorLocalisedConfig.iconNeutral != null }}</div>
-                    <div>lastUpdatedAt: {{ connectorLocalisedConfig.lastUpdatedAt }}</div>
-                    <div>lastVerifiedAt: {{ connectorLocalisedConfig.lastVerifiedAt }}</div>
-                    <div>status: {{ connectorLocalisedConfig.status }}</div>
-                    <div>statusId: {{ connectorLocalisedConfig.statusId }}</div>
-                    <div>typeId: {{ connectorLocalisedConfig.typeId }}</div>
-                </div> -->
-
                 <div>
-                    <strong>Connector:</strong>
-                    <div>id: {{ connectorLocalisedConfig.id }}</div>
-                    <div>label: {{ connectorLocalisedConfig.label }}</div>
-                    <div>description: {{ connectorLocalisedConfig?.description }}</div>
-                    <div>category: {{ connectorLocalisedConfig?.category }}</div>
-                    <div>categoryId: {{ connectorLocalisedConfig?.categoryId }}</div>
                     <div>firstCreatedAt: {{ connectorLocalisedConfig.firstCreatedAt }}</div>
                     <div>icon: {{ connectorLocalisedConfig.icon != null }}</div>
                     <div>iconDark: {{ connectorLocalisedConfig.iconDark != null }}</div>
                     <div>implementations: {{ connectorLocalisedConfig?.implementations }}</div>
                     <div>operations: {{ connectorLocalisedConfig?.operations }}</div>
                     <div>lastUpdatedAt: {{ connectorLocalisedConfig.lastUpdatedAt }}</div>
-                    <!-- <div>lastVerifiedAt: {{ connectorLocalisedConfig.lastVerifiedAt }}</div> -->
-                    <div>status: {{ connectorLocalisedConfig?.status }}</div>
-                    <div>statusId: {{ connectorLocalisedConfig?.statusId }}</div>
-                    <div>typeId: {{ connectorLocalisedConfig?.typeId }}</div>
-                    <div>usageId: {{ connectorLocalisedConfig?.usageId }}</div>
                     <div>vendorAccountURL: {{ connectorLocalisedConfig?.vendorAccountURL }}</div>
                     <div>vendorDocumentationURL: {{ connectorLocalisedConfig?.vendorDocumentationURL }}</div>
                     <div>vendorHomeURL: {{ connectorLocalisedConfig?.vendorHomeURL }}</div>
-                    <div>version: {{ connectorLocalisedConfig?.version }}</div>
                 </div>
             </div>
         </ScrollArea>

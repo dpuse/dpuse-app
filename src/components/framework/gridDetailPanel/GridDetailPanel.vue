@@ -106,7 +106,7 @@ async function handleSelectItem(row: T): Promise<void> {
                 <!-- Detail Panel -->
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
-                    <div class="ml-4 flex h-10 items-center gap-x-1 border-b border-separator text-sm">
+                    <div class="ml-4 flex h-10 items-center gap-x-1 border-b border-separator">
                         <!-- Icon -->
                         <div class="flex size-7 items-center justify-center">
                             <div v-if="activeItem.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="activeItem.icon || activeItem.iconDark" />
