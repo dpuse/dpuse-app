@@ -1,9 +1,13 @@
 <script setup lang="ts">
+// ── External Dependencies & Registrations
 import { computed } from 'vue';
 
-type TagColor = 'amber' | 'green' | 'other' | 'red';
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
+type TagColor = 'amber' | 'green' | 'other' | 'red';
 const { text, color = 'other' } = defineProps<{ text: string; color?: TagColor }>();
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const colorClasses = computed(() => {
     switch (color) {

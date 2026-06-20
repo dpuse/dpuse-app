@@ -1,16 +1,16 @@
 <script setup lang="ts" generic="T">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { PlusIcon } from 'lucide-vue-next';
 import { computed, onUnmounted, ref, shallowRef } from 'vue';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea, { type ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
@@ -28,11 +28,10 @@ defineSlots<{ default?(properties: { index: number; item: T }): unknown }>();
 
 defineEmits<{ add: []; select: [item: T | undefined] }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const columnCount = ref(1);
 const columnWidth = ref(0);
-const scrollElement = shallowRef<HTMLElement | null>(null);
 const resizeObserver = new ResizeObserver((entries) => {
     const width = entries[0]!.contentRect.width;
     if (isCompact || targetColumnWidth == null) {
@@ -43,6 +42,7 @@ const resizeObserver = new ResizeObserver((entries) => {
         columnWidth.value = Math.floor(width / columnCount.value);
     }
 });
+const scrollElement = shallowRef<HTMLElement | null>(null);
 const { virtualRows, totalSize, getRow } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
@@ -53,12 +53,12 @@ const { virtualRows, totalSize, getRow } = useDataWindow({
     maxBlocksInCache: maxBlocksInCache == null ? undefined : (): number => maxBlocksInCache
 });
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const rowWidth = computed(() => columnCount.value * columnWidth.value);
 const columnOffsets = computed(() => Array.from({ length: columnCount.value }, (_, index) => index));
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onUnmounted(() => resizeObserver.disconnect());
 

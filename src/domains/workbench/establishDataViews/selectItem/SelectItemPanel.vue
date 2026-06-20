@@ -31,6 +31,7 @@ import {
 // Local Components - Static
 import Breadcrumbs from '@/components/framework/Breadcrumbs.vue';
 import Card from '@/components/ui/Card.vue';
+import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
@@ -52,11 +53,9 @@ const emit = defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConf
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeItemAction = ref(ITEM_ACTIONS[0]);
+const activeItemAction = ref('table');
 
 const activeConnectionObjectConfig = shallowRef<ConnectionNodeConfig | undefined>();
-
-const activeItemId = ref<'table' | 'text' | 'details'>('text');
 
 const currentFolderNodes = shallowRef<ConnectionNodeConfig[]>([]);
 
@@ -125,8 +124,6 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
 });
 
 // ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
-
-function handleClearSelection() {}
 
 async function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
     activeConnectionObjectConfig.value = undefined;
@@ -220,13 +217,10 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
 
 <template>
     <GridDetailPanel
-        v-model:active-item-action="activeItemAction"
         :active-item="activeConnectionObjectConfig"
         :data-source="connectionNodeConfigsDataSource"
         :is-compact="true"
-        :item-actions="ITEM_ACTIONS"
         max-list-width="400px"
-        @commit-detail="handleCommitDetail"
         @select="handleSelectConnectionNode($event)"
     >
         <template #header>
@@ -235,46 +229,33 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
             </div>
         </template>
 
-        <template #detail-header="{ item }">
-            <div class="ml-4 flex h-10 items-center gap-x-1 border-b border-separator">
+        <template #grid-item="{ item }">
+            <Card v-if="item" :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
+        </template>
+
+        <template #detail="{ item, clear }">
+            <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
                 <div class="flex size-7 items-center justify-center">
                     <div v-if="item.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="item.icon" />
                     <div v-if="item.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="item.icon" />
                 </div>
                 <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
             </div>
-        </template>
-
-        <template #grid-item="{ item }">
-            <Card v-if="item" :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
-        </template>
-
-        <template #detail>
-            <div class="relative flex h-full flex-col pl-4">
-                <Table v-show="activeItemAction.id === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
-
-                <TextViewer v-show="activeItemAction.id === 'text'" class="flex-1" :text="text" />
-
-                <div v-show="activeItemAction.id === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
-
+            <div class="relative flex min-h-0 flex-1 flex-col pl-4">
+                <Table v-show="activeItemAction === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
+                <TextViewer v-show="activeItemAction === 'text'" class="flex-1" :text="text" />
+                <div v-show="activeItemAction === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
                 <div class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-t border-separator bg-amber-100 text-xs">
                     <div class="absolute top-0 bottom-0 left-0 bg-green-200 dark:bg-green-500/30" :style="{ width: `${previewPercentage}%` }"></div>
                     <div class="relative pl-1">{{ previewMessage }}</div>
                 </div>
-
-                <!-- <ActionBar
-                    v-model="activeItemId"
-                    class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)"
-                    clear-action
-                    commit-action-variant="select"
-                    :item-actions="[
-                        { id: 'table', label: t(T, 'tab.table') },
-                        { id: 'text', label: t(T, 'tab.text') },
-                        { id: 'details', label: t(T, 'tab.details') }
-                    ]"
-                    @clear="handleClearSelection"
-                    @commit="handleSelectItem"
-                /> -->
+                <DetailActionBar
+                    v-model="activeItemAction"
+                    class="absolute right-4 bottom-(--safe-bottom-offset)"
+                    :item-actions="ITEM_ACTIONS"
+                    @clear="clear"
+                    @commit="handleCommitDetail"
+                />
             </div>
         </template>
 

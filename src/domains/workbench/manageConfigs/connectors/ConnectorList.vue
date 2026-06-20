@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, ref, shallowRef, watch } from 'vue';
+import { computed, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -15,6 +15,7 @@ import { localeId } from '@/state/locale';
 // ── Local Components - Static
 import Card from '@/components/ui/Card.vue';
 import ConnectorForm from './ConnectorForm.vue';
+import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 
@@ -48,10 +49,6 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
     activeConnectorConfig.value = connectionLocalisedConfig;
 }
 
-type ItemAction = { id: string; label: string };
-const ITEM_ACTIONS: ItemAction[] = [{ id: 'addConnection', label: 'Add Connection' }];
-const activeItemAction = ref<ItemAction | undefined>();
-
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -69,17 +66,13 @@ function getCategoryConnectorLabel(categoryId: string): string {
 </script>
 
 <template>
-    <GridDetailPanel
-        v-model:active-item-action="activeItemAction"
-        :active-item="activeConnectorConfig"
-        :data-source="connectorConfigsDataSource"
-        :item-actions="ITEM_ACTIONS"
-        max-detail-width="400px"
-        @commit-detail="handleCommitDetail"
-        @select="handleSelectConnection"
-    >
-        <template #detail-header="{ item }">
-            <div class="dpuse-text ml-4 py-4">
+    <GridDetailPanel :active-item="activeConnectorConfig" :data-source="connectorConfigsDataSource" max-detail-width="400px" @select="handleSelectConnection">
+        <template #grid-item="{ item }">
+            <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
+        </template>
+
+        <template #detail="{ item, clear }">
+            <div class="dpuse-text ml-4 flex-none py-4">
                 <div class="text-sm leading-tight text-muted">{{ getCategoryConnectorLabel(item.categoryId) }}</div>
                 <div class="mt-1.5 flex items-center gap-x-1.5">
                     <div v-if="item.icon != null || item.iconDark != null" class="flex-none">
@@ -91,14 +84,10 @@ function getCategoryConnectorLabel(categoryId: string): string {
                     <h2>{{ item.label }}</h2>
                 </div>
             </div>
-        </template>
-
-        <template #grid-item="{ item }">
-            <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
-        </template>
-
-        <template #detail="{ item }">
-            <ConnectorForm :connector-localised-config="item" />
+            <div class="relative min-h-0 flex-1">
+                <ConnectorForm :connector-localised-config="item" />
+                <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @clear="clear" @commit="handleCommitDetail" />
+            </div>
         </template>
 
         <template #no-selection>

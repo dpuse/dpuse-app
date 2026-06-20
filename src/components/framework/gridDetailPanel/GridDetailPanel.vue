@@ -1,48 +1,42 @@
 <script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; iconNeutral?: string | null; label: string }">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { nextTick, ref, watch } from 'vue';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Grid from '@/components/framework/Grid.vue';
 import type { ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
-import DetailActionBar, { type CommitVariant, type ItemAction } from './DetailActionBar.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     activeItem?: T;
     addLabel?: string;
-    commitVariant?: CommitVariant;
     dataSource: DataSource<T>;
     isCompact?: boolean;
-    itemActions?: ItemAction[];
     maxListWidth?: string;
     maxDetailWidth?: string;
     scrollAreaPadding?: ScrollAreaPadding;
 };
-const { activeItem, addLabel, commitVariant, dataSource, isCompact = false, itemActions = [], maxListWidth, maxDetailWidth, scrollAreaPadding } = defineProps<Properties>();
+const { activeItem, addLabel, dataSource, isCompact = false, maxListWidth, maxDetailWidth, scrollAreaPadding } = defineProps<Properties>();
 
 defineSlots<{
     'header'(): unknown;
-    'detail-header'(properties: { item: T }): unknown;
     'grid-item'(properties: { item: T }): unknown;
-    detail(properties: { item: T }): unknown;
+    detail(properties: { item: T; clear: () => void }): unknown;
     'no-selection'(): unknown;
 }>();
 
-const emit = defineEmits<{ add: []; commitDetail: []; select: [item?: T] }>();
+const emit = defineEmits<{ add: []; select: [item?: T] }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const activeItemAction = defineModel<ItemAction>('activeItemAction');
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const detailPaneIsVisible = ref(false);
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
     () => activeItem,
@@ -53,11 +47,7 @@ watch(
 
 // ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleCommitDetail(): Promise<void> {
-    emit('commitDetail');
-}
-
-async function handleClearSelection(): Promise<void> {
+function handleClearSelection(): void {
     detailPaneIsVisible.value = false;
     emit('select');
 }
@@ -103,34 +93,10 @@ async function handleSelectItem(row: T): Promise<void> {
             </div>
 
             <!-- Detail (Right) Pane -->
-            <div class="gdp-detail mr-4 min-w-0 flex-1 border-separator" style="container-type: inline-size">
+            <div class="gdp-detail min-w-0 flex-1 border-separator" style="container-type: inline-size">
                 <!-- Detail Panel -->
-                <div v-if="activeItem" class="flex h-full flex-col">
-                    <!-- Detail Header -->
-                    <slot name="detail-header" :item="activeItem">
-                        <div class="ml-4 flex h-10 items-center gap-x-1 border-b border-separator">
-                            <div class="flex size-7 items-center justify-center">
-                                <div v-if="activeItem.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="activeItem.icon || activeItem.iconDark" />
-                                <div v-if="activeItem.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="activeItem.iconDark || activeItem.icon" />
-                            </div>
-                            <span class="ml-1 min-w-0 truncate">{{ activeItem.label }}</span>
-                        </div>
-                    </slot>
-
-                    <!-- Detail Body -->
-                    <div class="relative min-h-0 flex-1">
-                        <slot name="detail" :item="activeItem" />
-                        <DetailActionBar
-                            v-if="commitVariant !== 'none'"
-                            class="absolute right-4 bottom-(--safe-bottom-offset)"
-                            :commit-variant="commitVariant"
-                            :item-actions="itemActions"
-                            :model-value="activeItemAction?.id"
-                            @update:model-value="activeItemAction = itemActions.find((a) => a.id === $event)"
-                            @clear="handleClearSelection"
-                            @commit="handleCommitDetail"
-                        />
-                    </div>
+                <div v-if="activeItem" class="relative flex h-full min-h-0 flex-col">
+                    <slot name="detail" :item="activeItem" :clear="handleClearSelection" />
                 </div>
 
                 <!-- No Selection -->

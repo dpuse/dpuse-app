@@ -17,6 +17,7 @@ import { localeId, t } from '@/state/locale';
 // Local Components - Static
 import AddConnectionForm from './AddConnectionForm.vue';
 import Card from '@/components/ui/Card.vue';
+import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
@@ -119,27 +120,25 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
             <GridDetailPanel
                 :active-item="activeConnectorConfig"
                 class="flex-1"
-                commit-variant="add"
                 :data-source="connectorConfigsDataSource"
-                @commit-detail="handleCommitDetail"
                 @select="handleSelectConnector"
             >
-                <template #detail-header="{ item }">
-                    <div class="ml-4 flex h-10 items-center gap-x-1 border-b border-separator">
+                <template #grid-item="{ item }">
+                    <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
+                </template>
+
+                <template #detail="{ item, clear }">
+                    <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
                         <div class="flex size-7 items-center justify-center">
                             <div v-if="item.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="item.icon || item.iconDark" />
                             <div v-if="item.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="item.iconDark || item.icon" />
                         </div>
                         <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
                     </div>
-                </template>
-
-                <template #grid-item="{ item }">
-                    <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
-                </template>
-
-                <template #detail="{ item }">
-                    <AddConnectionForm :connector-localised-config="item" />
+                    <div class="relative min-h-0 flex-1">
+                        <AddConnectionForm :connector-localised-config="item" />
+                        <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" commit-variant="add" @clear="clear" @commit="handleCommitDetail" />
+                    </div>
                 </template>
             </GridDetailPanel>
         </DialogModal>

@@ -117,7 +117,7 @@ export default defineConfigWithVueTs(
             'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['DPUseLogo.vue' /*'src/components/icon(?:/.*)?'*/] }],
             'unicorn/no-null': 'off',
             'unicorn/prevent-abbreviations': ['error', { ignore: ['env.d.ts'] }],
-            'unicorn/switch-case-braces': 'warn',
+            'unicorn/switch-case-braces': ['warn', 'avoid'],
             'unicorn/prefer-top-level-await': 'warn',
 
             'vue/multi-word-component-names': ['warn', { ignores: ['Breadcrumbs', 'Button', 'Card', 'Grid', 'Input', 'Separator', 'Table', 'Tag'] }],

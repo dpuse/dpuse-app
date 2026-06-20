@@ -22,6 +22,7 @@ import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/sess
 
 // Local Components - Static
 import Card from '@/components/ui/Card.vue';
+import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectConnectionForm from './SelectConnectionForm.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
@@ -110,25 +111,24 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
         :data-source="connectionConfigsDataSource"
         max-detail-width="400px"
         @add="handleAddConnection"
-        @commit-detail="handleCommitDetail"
         @select="handleSelectConnection"
     >
-        <template #detail-header="{ item }">
-            <div class="ml-4 flex h-10 items-center gap-x-1 border-b border-separator">
+        <template #grid-item="{ item }">
+            <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
+        </template>
+
+        <template #detail="{ item, clear }">
+            <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
                 <div class="flex size-7 items-center justify-center">
                     <div v-if="item.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="item.icon || item.iconDark" />
                     <div v-if="item.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="item.iconDark || item.icon" />
                 </div>
                 <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
             </div>
-        </template>
-
-        <template #grid-item="{ item }">
-            <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
-        </template>
-
-        <template #detail="{ item }">
-            <SelectConnectionForm :connection-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
+            <div class="relative min-h-0 flex-1">
+                <SelectConnectionForm :connection-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
+                <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @clear="clear" @commit="handleCommitDetail" />
+            </div>
         </template>
 
         <template #no-selection>
