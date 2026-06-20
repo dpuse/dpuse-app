@@ -6,6 +6,49 @@ html {
     font-size: 1rem; /* 16px is default */
 }
 
+.dpuse-text h1,
+.dpuse-text h2,
+.dpuse-text h3,
+.dpuse-text h4,
+.dpuse-text h5,
+.dpuse-text h6 {
+    margin: 0;
+    line-height: 24px;
+    font-size: 16px;
+    font-weight: 400;
+    position: relative;
+    font-weight: 600;
+    outline: none;
+}
+.dpuse-text h1,
+.dpuse-text h2,
+.dpuse-text h3,
+.dpuse-text h4,
+.dpuse-text h5,
+.dpuse-text h6,
+.dpuse-text li,
+.dpuse-text p {
+    overflow-wrap: break-word;
+}
+.dpuse-text h1 {
+    letter-spacing: -0.02em;
+    line-height: 40px;
+    font-size: 28px;
+}
+.dpuse-text h2 {
+    letter-spacing: -0.02em;
+    line-height: 32px;
+    font-size: 24px;
+}
+.dpuse-text h3 {
+    letter-spacing: -0.01em;
+    line-height: 28px;
+    font-size: 20px;
+}
+p {
+  line-height: 28px;
+  margin: 0;
+}
 /* Use class-based dark mode (parent has .dark) instead of prefers-color-scheme. */
 @custom-variant dark (&:is(.dark *));
 

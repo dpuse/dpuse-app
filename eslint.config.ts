@@ -120,7 +120,7 @@ export default defineConfigWithVueTs(
             'unicorn/switch-case-braces': 'warn',
             'unicorn/prefer-top-level-await': 'warn',
 
-            'vue/multi-word-component-names': 'warn',
+            'vue/multi-word-component-names': ['warn', { ignores: ['Breadcrumbs', 'Button', 'Card', 'Grid', 'Input', 'Separator', 'Table', 'Tag'] }],
             'vue/no-bare-strings-in-template': ['warn'],
             'vue/no-v-html': 'warn',
             'vue/require-default-prop': 'off', // Too much noise for properties with undefined values.

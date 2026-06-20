@@ -28,6 +28,7 @@ const { activeItem, addLabel, commitVariant, dataSource, isCompact = false, item
 
 defineSlots<{
     'header'(): unknown;
+    'detail-header'(properties: { item: T }): unknown;
     'grid-item'(properties: { item: T }): unknown;
     detail(properties: { item: T }): unknown;
     'no-selection'(): unknown;
@@ -106,16 +107,15 @@ async function handleSelectItem(row: T): Promise<void> {
                 <!-- Detail Panel -->
                 <div v-if="activeItem" class="flex h-full flex-col">
                     <!-- Detail Header -->
-                    <div class="ml-4 flex h-10 items-center gap-x-1 border-b border-separator">
-                        <!-- Icon -->
-                        <div class="flex size-7 items-center justify-center">
-                            <div v-if="activeItem.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="activeItem.icon || activeItem.iconDark" />
-                            <div v-if="activeItem.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="activeItem.iconDark || activeItem.icon" />
+                    <slot name="detail-header" :item="activeItem">
+                        <div class="ml-4 flex h-10 items-center gap-x-1 border-b border-separator">
+                            <div class="flex size-7 items-center justify-center">
+                                <div v-if="activeItem.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="activeItem.icon || activeItem.iconDark" />
+                                <div v-if="activeItem.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="activeItem.iconDark || activeItem.icon" />
+                            </div>
+                            <span class="ml-1 min-w-0 truncate">{{ activeItem.label }}</span>
                         </div>
-
-                        <!-- Label -->
-                        <span class="ml-1 min-w-0 truncate">{{ activeItem.label }}</span>
-                    </div>
+                    </slot>
 
                     <!-- Detail Body -->
                     <div class="relative min-h-0 flex-1">

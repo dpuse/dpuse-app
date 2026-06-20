@@ -113,6 +113,16 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
         @commit-detail="handleCommitDetail"
         @select="handleSelectConnection"
     >
+        <template #detail-header="{ item }">
+            <div class="ml-4 flex h-10 items-center gap-x-1 border-b border-separator">
+                <div class="flex size-7 items-center justify-center">
+                    <div v-if="item.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="item.icon || item.iconDark" />
+                    <div v-if="item.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="item.iconDark || item.icon" />
+                </div>
+                <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
+            </div>
+        </template>
+
         <template #grid-item="{ item }">
             <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
         </template>
