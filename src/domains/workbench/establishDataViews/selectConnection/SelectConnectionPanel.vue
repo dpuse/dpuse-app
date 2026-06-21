@@ -78,7 +78,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
             ? {
                   id: NEW_DATA_VIEW_ID,
                   label: { en: 'New Data View' },
-                  description: { en: 'A new data view.' },
+                  description: { en: ['A new data view.'] },
                   firstCreatedAt: null,
                   icon: null,
                   iconDark: null,

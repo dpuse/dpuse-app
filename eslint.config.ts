@@ -53,7 +53,7 @@ export default defineConfigWithVueTs(
     pluginRegexp.configs['flat/recommended'],
     pluginSecurity.configs.recommended,
     (pluginSonarJS.configs?.recommended ?? {}) as Linter.Config,
-    pluginTailwindCSS.configs['flat/recommended'],
+    pluginTailwindCSS.configs['recommended'],
     pluginUnicorn.configs.recommended,
     { ...pluginPlaywright.configs['flat/recommended'], files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'] },
     { ...pluginVitest.configs.recommended, files: ['src/**/__tests__/*'] },

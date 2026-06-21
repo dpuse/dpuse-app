@@ -61,7 +61,6 @@ async function testAuth(): Promise<void> {
                     <div><strong>Status Id:</strong> {{ connectionLocalisedConfig?.connectorConfig.statusId }}</div>
                     <div><strong>Type Id:</strong> {{ connectionLocalisedConfig?.typeId }}</div>
                     <div><strong>Type Id:</strong> {{ connectionLocalisedConfig?.connectorConfig.typeId }}</div>
-                    <div><strong>Usage Id:</strong> {{ connectionLocalisedConfig?.connectorConfig.usageId }}</div>
                     <div><strong>Version:</strong> {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
                 </div>
 
@@ -102,7 +101,6 @@ async function testAuth(): Promise<void> {
                     <div>status: {{ connectionLocalisedConfig?.connectorConfig.status }}</div>
                     <div>statusId: {{ connectionLocalisedConfig?.connectorConfig.statusId }}</div>
                     <div>typeId: {{ connectionLocalisedConfig?.connectorConfig.typeId }}</div>
-                    <div>usageId: {{ connectionLocalisedConfig?.connectorConfig.usageId }}</div>
                     <div>vendorAccountURL: {{ connectionLocalisedConfig?.connectorConfig.vendorAccountURL }}</div>
                     <div>vendorDocumentationURL: {{ connectionLocalisedConfig?.connectorConfig.vendorDocumentationURL }}</div>
                     <div>vendorHomeURL: {{ connectionLocalisedConfig?.connectorConfig.vendorHomeURL }}</div>

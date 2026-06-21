@@ -62,7 +62,6 @@ async function handleSubmit(): Promise<void> {
                     <div><strong>Status Id:</strong> {{ connectionLocalisedConfig?.connectorConfig.statusId }}</div>
                     <div><strong>Type Id:</strong> {{ connectionLocalisedConfig?.typeId }}</div>
                     <div><strong>Type Id:</strong> {{ connectionLocalisedConfig?.connectorConfig.typeId }}</div>
-                    <div><strong>Usage Id:</strong> {{ connectionLocalisedConfig?.connectorConfig.usageId }}</div>
                     <div><strong>Version:</strong> {{ connectionLocalisedConfig?.connectorConfig.version }}</div> -->
                 </div>
 
@@ -102,7 +101,6 @@ async function handleSubmit(): Promise<void> {
                     <div>status: {{ connectorLocalisedConfig.status }}</div>
                     <div>statusId: {{ connectorLocalisedConfig.statusId }}</div>
                     <div>typeId: {{ connectorLocalisedConfig.typeId }}</div>
-                    <div>usageId: {{ connectorLocalisedConfig.usageId }}</div>
                     <div>vendorAccountURL: {{ connectorLocalisedConfig.vendorAccountURL }}</div>
                     <div>vendorDocumentationURL: {{ connectorLocalisedConfig.vendorDocumentationURL }}</div>
                     <div>vendorHomeURL: {{ connectorLocalisedConfig.vendorHomeURL }}</div>

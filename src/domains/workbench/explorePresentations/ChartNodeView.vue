@@ -1,9 +1,10 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { BarController, BarElement, CategoryScale, Chart, Legend, LinearScale, Title, Tooltip } from 'chart.js';
 import { nodeViewProps, NodeViewWrapper } from '@tiptap/vue-3';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
+// ── External Dependencies & Registrations - Chart.js - TODO: This is just a test, I think we will use Highcharts based presenter in the future.
+import { BarController, BarElement, CategoryScale, Chart, Legend, LinearScale, Title, Tooltip } from 'chart.js';
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────

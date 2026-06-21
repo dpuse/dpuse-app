@@ -8,7 +8,7 @@ interface GetConnectorResult {
     label: string | undefined;
     description: string | undefined;
     categoryId: string;
-    usageId: string;
+
     operations: string[];
     statusId: string | null | undefined;
     vendorHomeURL: string | null;
@@ -24,9 +24,8 @@ export function executeGetConnector(id: string): GetConnectorResult | { error: s
     return {
         id: c.id,
         label: c.label.en ?? c.label.es,
-        description: c.description.en ?? c.description.es,
+        description: (c.description.en ?? c.description.es ?? []).join('\n\n') || undefined,
         categoryId: c.categoryId,
-        usageId: c.usageId,
         operations: c.operations,
         statusId: c.statusId,
         vendorHomeURL: c.vendorHomeURL,

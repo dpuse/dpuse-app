@@ -26,7 +26,7 @@ const emit = defineEmits<{ submit: [] }>();
 const AUTH_METHOD_LABELS: Record<string, string> = {
     apiKey: 'API Key',
     oAuth2: 'OAuth 2.0',
-    none: 'No authentication required'
+    none: 'No authentication is required and only a single connection is supported.'
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -43,13 +43,6 @@ const STATUS_COLORS: Record<string, 'amber' | 'green' | 'red'> = {
     alpha: 'red',
     preAlpha: 'red',
     unavailable: 'red'
-};
-
-const USAGE_LABELS: Record<string, string> = {
-    source: 'Source',
-    destination: 'Destination',
-    bidirectional: 'Bidirectional',
-    unknown: 'Unknown'
 };
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -117,7 +110,6 @@ function getCategoryConnectorLabel(categoryId: string): string {
                 <!-- Tags -->
                 <div class="flex flex-wrap gap-1.5">
                     <Tag :text="`v${connectorLocalisedConfig.version}`" />
-                    <Tag :text="USAGE_LABELS[connectorLocalisedConfig.usageId] ?? connectorLocalisedConfig.usageId" />
                     <Tag
                         v-if="connectorLocalisedConfig.status"
                         :text="connectorLocalisedConfig.status.label"
@@ -127,7 +119,7 @@ function getCategoryConnectorLabel(categoryId: string): string {
                 </div>
 
                 <!-- Description -->
-                <p>{{ connectorLocalisedConfig.description }}</p>
+                <p v-for="paragraph in connectorLocalisedConfig.description" :key="paragraph">{{ paragraph }}</p>
 
                 <!-- Authentication -->
                 <div v-if="authMethods.length > 0" class="flex flex-col gap-y-2">

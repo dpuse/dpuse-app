@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Local (App) Framework
-import type { LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { LocaleDescription, LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Components - Static
 import Button from './button/Button.vue';
@@ -9,7 +9,8 @@ import Button from './button/Button.vue';
 export interface TaskConfig {
     id: string;
     label: LocaleLabel;
-    description: LocaleLabel;
+    description: LocaleDescription;
+
     disabled: boolean;
     enableUpTo: number;
     number: number;

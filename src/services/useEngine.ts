@@ -57,7 +57,6 @@ export async function useEngine(): Promise<EngineWorker> {
         //         status: null,
         //         statusId: 'alpha',
         //         typeId: 'connector',
-        //         usageId: 'bidirectional',
         //         vendorAccountURL: null,
         //         vendorDocumentationURL: null,
         //         vendorHomeURL: null,

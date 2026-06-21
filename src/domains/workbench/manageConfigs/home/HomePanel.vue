@@ -22,7 +22,7 @@ const configOptionConfigs = useConfigOptionConfigs().value.splice(1);
                 shape="minimal"
                 :to="{ name: config.to, query: { ...$route.query, wbView: config.to } }"
             >
-                <Card :description="config.description" :icon="config.icon" :label="config.label" />
+                <Card :description="config.description.join(' ')" :icon="config.icon" :label="config.label" />
             </Button>
         </div>
     </ScrollArea>
