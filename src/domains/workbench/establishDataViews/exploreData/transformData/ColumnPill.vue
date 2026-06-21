@@ -10,7 +10,7 @@ const { name, sortable, tileClass, icon, selected } = defineProps<Properties>();
 
 const emit = defineEmits<{ toggle: [name: string] }>();
 
-// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleClick(): void {
     // In closed (sortable) mode, clicks are for drag only — do not toggle selection

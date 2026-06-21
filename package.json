@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.1381",
+    "version": "0.0.1382",
     "private": true,
     "type": "module",
     "engines": {
@@ -18,11 +18,20 @@
         "@tanstack/vue-table": "^8.21.3",
         "@tanstack/vue-virtual": "^3.13.28",
         "@teamhanko/hanko-frontend-sdk": "^2.7.0",
+        "@tiptap/extension-bold": "^3.27.1",
         "@tiptap/extension-collaboration": "^3.26.1",
         "@tiptap/extension-collaboration-caret": "^3.26.1",
+        "@tiptap/extension-document": "^3.27.1",
+        "@tiptap/extension-dropcursor": "^3.27.1",
+        "@tiptap/extension-gapcursor": "^3.27.1",
+        "@tiptap/extension-heading": "^3.27.1",
+        "@tiptap/extension-italic": "^3.27.1",
+        "@tiptap/extension-paragraph": "^3.27.1",
+        "@tiptap/extension-text": "^3.27.1",
         "@tiptap/pm": "^3.26.1",
         "@tiptap/starter-kit": "^3.26.1",
         "@tiptap/vue-3": "^3.26.1",
+        "@tiptap/y-tiptap": "^3.0.5",
         "chart.js": "^4.5.1",
         "d3-drag": "^3.0.0",
         "d3-force": "^3.0.0",
@@ -36,7 +45,8 @@
         "vue-router": "^5.1.0",
         "web-vitals": "^5.3.0",
         "y-partyserver": "^2.2.0",
-        "yjs": "^13.6.31"
+        "yjs": "^13.6.31",
+        "zod": "^4.4.3"
     },
     "devDependencies": {
         "@cloudflare/vite-plugin": "^1.40.0",

@@ -1,4 +1,4 @@
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { fileURLToPath } from 'node:url';
 // import { mergeConfig, defineConfig, configDefaults } from 'vitest/config'
 // import viteConfig from './vite.config'
@@ -19,7 +19,7 @@ import { configDefaults, defineConfig } from 'vitest/config';
 //   }),
 // )
 
-// Vitest Configuration ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Vitest Configuration ─────────────────────────────────────────────────────────────────────────────────────────────
 
 export default defineConfig({
     plugins: [

@@ -1,22 +1,22 @@
-// DPUse Framework
+// ── DPUse Framework
 // import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 // import type { ConnectionConfig, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 // import type { AuditObjectContentOptions, ConnectionConfig, PreviewObjectOptions, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 import type { EngineCallbackData, EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared/engine';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { engineConfig, toolConfigs } from '@/state/session';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const ENGINE_STORAGE_URL_PREFIX = 'https://engine-eu.dpuse.app';
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 let activeEngineVersion: string | undefined;
 let engineWorker: EngineWorker | undefined;
 
-// Composable ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function useEngine(): Promise<EngineWorker> {
     // "useEngine" is not invoked until all modules have been registered in session. So "engineConfig" will be populated.

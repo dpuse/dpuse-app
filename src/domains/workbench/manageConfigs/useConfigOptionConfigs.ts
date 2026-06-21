@@ -58,7 +58,7 @@ const CONFIG_OPTION_CONFIGS: ConfigOptionConfig[] = [
     }
 ];
 
-// ── Composable ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function useConfigOptionConfigs(): ComputedRef<LocalisedConfig<ConfigOptionConfig>[]> {
     return computed(() => localiseConfigs<ConfigOptionConfig>(CONFIG_OPTION_CONFIGS, localeId.value));

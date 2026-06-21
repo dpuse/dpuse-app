@@ -1,20 +1,20 @@
-// Local (App) Framework
+// ── Local (App) Framework
 import { version } from '~/package.json';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DPUSE_API_HOST = 'api.dpuse.app';
 const FLUSH_INTERVAL_INITIAL = 5000;
 const FLUSH_INTERVAL_SUBSEQUENT = 30_000;
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 let activeSessionId: string | undefined; // Tracked session identity for event attribution.
 let activeUserId: string | undefined; // Tracked user identity for event attribution.
 const pendingEvents: Record<string, unknown>[] = [];
 let flushInterval = FLUSH_INTERVAL_INITIAL;
 
-// Initialisation ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 setInterval(flushEvents, flushInterval);
 document.addEventListener('visibilitychange', () => {
@@ -23,7 +23,7 @@ document.addEventListener('visibilitychange', () => {
     flushInterval = FLUSH_INTERVAL_SUBSEQUENT; // First check is 5secs after load, subsequent checks are every 30secs.
 });
 
-// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function forgetUser(): void {
     activeUserId = undefined;

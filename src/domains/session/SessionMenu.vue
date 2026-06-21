@@ -1,35 +1,35 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
-// DPUse Framework
+// ── DPUse Framework
 import { formatNumberAsDuration } from '@dpuse/dpuse-shared/utilities';
 import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import T from './SessionMenu.json';
 import { expiresIn, isAuthenticated, lifetime, setSessionExpiryTimer, signOut } from '@/state/session';
 import { isPWA, viewportIsWide } from '@/state/appLayout';
 import { localeId, t } from '@/state/locale';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 import ScrollAreaFit from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const APPEARANCE_KEY = 'dpuse-appearance';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const emit = defineEmits<{ continue: [] }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const currentAppearance = ref(localStorage.getItem(APPEARANCE_KEY) ?? 'auto');
 const fullScreenIsSupported = document.fullscreenEnabled;
@@ -44,11 +44,11 @@ const elapsed = computed(() => {
 
 const formattedExpiresIn = computed(() => formatNumberAsDuration(expiresIn.value, 'secs'));
 
-// Initialisation ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 setSessionExpiryTimer(true);
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => document.addEventListener('fullscreenchange', handleFullscreenChange));
 
@@ -57,7 +57,7 @@ onUnmounted(() => {
     document.removeEventListener('fullscreenchange', handleFullscreenChange);
 });
 
-// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleFullscreenChange(): void {
     isFullscreen.value = !!document.fullscreenElement;

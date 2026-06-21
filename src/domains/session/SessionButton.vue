@@ -50,7 +50,7 @@ async function gravatarUrl(email: string, size: number): Promise<string> {
     return `https://gravatar.com/avatar/${hashHex}?s=${size}&d=404`;
 }
 
-// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 const sessionMenuReference = useTemplateRef<ComponentPublicInstance>('sessionMenuReference');
 const handleDocumentPointerDown = (event: PointerEvent): void => {

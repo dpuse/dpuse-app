@@ -1,9 +1,9 @@
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { dragAndDrop } from '@formkit/drag-and-drop/vue';
 import { tearDown } from '@formkit/drag-and-drop';
 import { type ComponentPublicInstance, computed, type ComputedRef, nextTick, onBeforeUnmount, ref, watch, type WritableComputedRef } from 'vue';
 
-// Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface UseSelectColumnSortOptions {
     isOpen: ComputedRef<boolean>;
@@ -15,14 +15,14 @@ interface UseSelectColumnSortResult {
     sortEnabled: ComputedRef<boolean>;
 }
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const SELECT_DRAG_HANDLE_SELECTOR = '[data-select-handle]';
 const SELECT_DRAG_PLACEHOLDER_CLASS = 'select-drag-placeholder';
 const SELECTED_TILE_ATTRIBUTE = 'data-selected';
 const SELECTED_TILE_VALUE = 'true';
 
-// Composable ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function useSelectColumnSort({ isOpen, values }: UseSelectColumnSortOptions): UseSelectColumnSortResult {
     const selectGridElement = ref<HTMLElement>();

@@ -1,17 +1,18 @@
 // ── External Dependencies & Registrations
+import Bold from '@tiptap/extension-bold';
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCaret from '@tiptap/extension-collaboration-caret';
 import { Doc } from 'yjs';
-import StarterKit from '@tiptap/starter-kit';
+import Document from '@tiptap/extension-document';
+import Dropcursor from '@tiptap/extension-dropcursor';
+import Gapcursor from '@tiptap/extension-gapcursor';
+import Heading from '@tiptap/extension-heading';
+import Italic from '@tiptap/extension-italic';
+import Paragraph from '@tiptap/extension-paragraph';
+import Text from '@tiptap/extension-text';
 import YProvider from 'y-partyserver/provider';
 import { type AnyExtension, type Editor, useEditor } from '@tiptap/vue-3';
 import { type MaybeRefOrGetter, onBeforeUnmount, type Ref, ref, type ShallowRef, toValue, watchEffect } from 'vue';
-
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const PARTYKIT_HOST = 'dpuse-partykit.terrell-jm.workers.dev';
-
-export const CURSOR_COLORS = ['#958DF1', '#F98181', '#FBBC88', '#FAF594', '#70CFF8', '#94FADB', '#B9F18D'];
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -20,7 +21,13 @@ export interface CollaborativeUser {
     color: string;
 }
 
-// ── Composable ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const PARTYKIT_HOST = 'dpuse-partykit.terrell-jm.workers.dev';
+
+export const CURSOR_COLORS = ['#958DF1', '#F98181', '#FBBC88', '#FAF594', '#70CFF8', '#94FADB', '#B9F18D'];
+
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function useCollaborativeEditor(
     documentId: string,
@@ -38,7 +45,14 @@ export function useCollaborativeEditor(
     const editor = useEditor({
         injectCSS: false,
         extensions: [
-            StarterKit.configure({ undoRedo: false }),
+            Document,
+            Paragraph,
+            Text,
+            Bold,
+            Italic,
+            Heading,
+            Dropcursor,
+            Gapcursor,
             Collaboration.configure({ document: ydoc }),
             CollaborationCaret.configure({
                 provider,

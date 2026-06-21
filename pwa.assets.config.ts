@@ -1,7 +1,7 @@
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { defineConfig, minimal2023Preset as preset } from '@vite-pwa/assets-generator/config';
 
-// PWA Assets Configuration ────────────────────────────────────────────────────────────────────────────────────────────
+// ── PWA Assets Configuration ─────────────────────────────────────────────────────────────────────────────────────────
 
 export default defineConfig({
     headLinkOptions: { preset: '2023' },

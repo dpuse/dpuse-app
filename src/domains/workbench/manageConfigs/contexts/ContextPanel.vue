@@ -42,7 +42,7 @@ const breadcrumbs = ref<DrillBreadcrumb[]>([{ label: 'Home', onClick: (): void =
 const listTitle = ref('Model Groups');
 const showDetail = ref(false);
 
-// ── UI Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleDrillDown<K extends keyof ActiveLevelConfigMap>(toLevelId: K, toConfig: ActiveLevelConfigMap[K]): void {
     activeConfigLevelId.value = toLevelId;

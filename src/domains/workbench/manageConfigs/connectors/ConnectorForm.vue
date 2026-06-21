@@ -1,33 +1,39 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { computed } from 'vue';
 import { ExternalLinkIcon } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 
-// DPUse Framework
+// ── DPUse Framework
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import T from './ConnectorForm.json';
 import { t } from '@/state/locale';
 
-// Local Components - Static
+// ── Local Components - Static
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Tag from '@/components/ui/Tag.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { connectorLocalisedConfig } = defineProps<{ connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> }>();
 const emit = defineEmits<{ submit: [] }>();
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const USAGE_LABELS: Record<string, string> = {
-    source: 'Source',
-    destination: 'Destination',
-    bidirectional: 'Bidirectional',
-    unknown: 'Unknown'
+const AUTH_METHOD_LABELS: Record<string, string> = {
+    apiKey: 'API Key',
+    oAuth2: 'OAuth 2.0',
+    none: 'No authentication required'
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+    application: 'Application',
+    curatedDataset: 'Curated Dataset',
+    database: 'Database',
+    fileStore: 'File Store'
 };
 
 const STATUS_COLORS: Record<string, 'amber' | 'green' | 'red'> = {
@@ -39,18 +45,19 @@ const STATUS_COLORS: Record<string, 'amber' | 'green' | 'red'> = {
     unavailable: 'red'
 };
 
-const AUTH_METHOD_LABELS: Record<string, string> = {
-    apiKey: 'API Key',
-    oAuth2: 'OAuth 2.0',
-    none: 'No authentication required'
+const USAGE_LABELS: Record<string, string> = {
+    source: 'Source',
+    destination: 'Destination',
+    bidirectional: 'Bidirectional',
+    unknown: 'Unknown'
 };
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const authMethods = computed(() => [
     ...new Set(
@@ -68,18 +75,45 @@ const links = computed(() => {
     return result;
 });
 
-// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
     emit('submit');
     await router.push({ name: 'selectItem', query: { ...route.query, wbView: 'selectItem' } });
 }
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function getCategoryConnectorLabel(categoryId: string): string {
+    return `${CATEGORY_LABELS[categoryId] ?? categoryId} Connector`;
+}
 </script>
 
 <template>
-    <form class="relative flex h-full flex-col pl-4" data-region="ConnectorForm" @submit.prevent="handleSubmit">
-        <ScrollArea class="flex-1" scroll-area-padding="screen">
-            <div class="flex flex-col gap-y-5 pt-2">
+    <form class="flex h-full flex-col pl-4" data-region="ConnectorForm" @submit.prevent="handleSubmit">
+        <ScrollArea scroll-area-padding="screen">
+            <div class="dpuse-text flex flex-col gap-y-4 pt-4">
+                <!-- Header -->
+                <div>
+                    <div class="text-sm leading-tight text-muted">{{ getCategoryConnectorLabel(connectorLocalisedConfig.categoryId) }}</div>
+                    <div class="flex items-center gap-x-1.5">
+                        <div v-if="connectorLocalisedConfig.icon != null || connectorLocalisedConfig.iconDark != null">
+                            <div
+                                v-if="connectorLocalisedConfig.icon != null"
+                                aria-hidden="true"
+                                class="flex size-8 items-center dark:hidden"
+                                v-html="connectorLocalisedConfig.icon"
+                            />
+                            <div
+                                aria-hidden="true"
+                                class="hidden size-8 items-center dark:flex"
+                                v-html="connectorLocalisedConfig.iconDark ?? connectorLocalisedConfig.icon ?? ''"
+                            />
+                        </div>
+                        <h1>{{ connectorLocalisedConfig.label }}</h1>
+                    </div>
+                </div>
+
                 <!-- Tags -->
                 <div class="flex flex-wrap gap-1.5">
                     <Tag :text="`v${connectorLocalisedConfig.version}`" />
@@ -97,7 +131,7 @@ async function handleSubmit(): Promise<void> {
 
                 <!-- Authentication -->
                 <div v-if="authMethods.length > 0" class="flex flex-col gap-y-2">
-                    <div class="text-sm font-medium text-emphasis">{{ t(T, 'Authentication') }}</div>
+                    <h3 class="text-sm font-medium text-emphasis">{{ t(T, 'Authentication') }}</h3>
                     <ul class="flex flex-col gap-y-1">
                         <li v-for="method in authMethods" :key="method" class="text-sm text-muted">
                             {{ AUTH_METHOD_LABELS[method] ?? method }}
@@ -107,7 +141,7 @@ async function handleSubmit(): Promise<void> {
 
                 <!-- Links -->
                 <div v-if="links.length > 0" class="flex flex-col gap-y-2">
-                    <div class="text-sm font-medium text-emphasis">{{ t(T, 'Links') }}</div>
+                    <h3 class="text-sm font-medium text-emphasis">{{ t(T, 'Links') }}</h3>
                     <ul class="flex flex-col gap-y-1">
                         <li v-for="link in links" :key="link.url">
                             <a :href="link.url" class="inline-flex items-center gap-x-1 text-sm text-accent hover:underline" target="_blank" rel="noopener noreferrer">

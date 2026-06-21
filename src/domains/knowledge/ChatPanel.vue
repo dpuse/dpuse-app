@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ─── External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { Chat } from '@ai-sdk/vue';
 import DOMPurify from 'dompurify';
 import { marked } from 'marked'; // NOTE: 'marked' with DOMPurify is at least 14kB smaller (gzipped) than 'micromark' or 'markdown-it' without DOMPurify. Measured June 2, 2026.
@@ -7,20 +7,20 @@ import { ArrowUpIcon, EllipsisVerticalIcon } from 'lucide-vue-next';
 import { DefaultChatTransport, isReasoningUIPart, isTextUIPart, lastAssistantMessageIsCompleteWithToolCalls, type ReasoningUIPart, type TextUIPart, type UIMessage } from 'ai';
 import { onMounted, onUnmounted, ref } from 'vue';
 
-// ─── Tools ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Local (App) Framework
 import { toolExecutors } from './tools';
 
-// ─── Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import KnowledgeHeader from '@/components/framework/header/KnowledgeHeader.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
-// ─── Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { title } = defineProps<{ title: string }>();
 
-// ─── State ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const input = ref('What should I search for to find the latest developments in renewable energy?');
 const isInputExpanded = ref(false);
@@ -78,7 +78,7 @@ const chat = new Chat({
     }
 });
 
-// ─── Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function renderText(text: string): string {
     return DOMPurify.sanitize(marked.parse(text, { async: false }));
@@ -111,7 +111,7 @@ function getMessageSteps(message: UIMessage): AssistantStep[] {
     return steps;
 }
 
-// --- Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 let singleRowHeight = 0;
 
@@ -126,7 +126,7 @@ onMounted(() => {
 });
 onUnmounted(() => scrollObserver?.disconnect());
 
-// ─── UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function onTextareaInput(event: Event): void {
     isInputExpanded.value = (event.target as HTMLTextAreaElement).clientHeight > singleRowHeight;

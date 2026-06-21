@@ -15,7 +15,7 @@ import pluginVueA11y from 'eslint-plugin-vuejs-accessibility';
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting';
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 
-// ── Configuration ────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── ESLint Configuration ─────────────────────────────────────────────────────────────────────────────────────────────
 
 export default defineConfigWithVueTs(
     // Linting scope and module resolver. TypeScript parser is handled by defineConfigWithVueTs.

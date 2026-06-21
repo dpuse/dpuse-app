@@ -45,7 +45,7 @@ watch(
     }
 );
 
-// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleClearSelection(): void {
     detailPaneIsVisible.value = false;
@@ -94,13 +94,13 @@ async function handleSelectItem(row: T): Promise<void> {
 
             <!-- Detail (Right) Pane -->
             <div class="gdp-detail min-w-0 flex-1 border-separator" style="container-type: inline-size">
-                <!-- Detail Panel -->
-                <div v-if="activeItem" class="relative flex h-full min-h-0 flex-col">
+                <!-- Active Item -->
+                <div v-if="activeItem" class="flex h-full min-h-0 flex-col">
                     <slot name="detail" :item="activeItem" :clear="handleClearSelection" />
                 </div>
 
                 <!-- No Selection -->
-                <div v-else class="mt-4 ml-4">
+                <div v-else class="mx-4 mt-4">
                     <slot name="no-selection" />
                 </div>
             </div>

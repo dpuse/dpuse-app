@@ -123,7 +123,7 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
     applyPreviewConfig(newActiveItem, previewConfig);
 });
 
-// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
     activeConnectionObjectConfig.value = undefined;

@@ -95,7 +95,7 @@ const WORKBENCH_OPTIONS: WorkbenchOptionConfig[] = [
     }
 ];
 
-// ── Composable ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function useWorkbenchOptions(): ComputedRef<LocalisedConfig<WorkbenchOptionConfig>[]> {
     return computed(() => localiseConfigs<WorkbenchOptionConfig>(WORKBENCH_OPTIONS, localeId.value));

@@ -135,7 +135,7 @@ export const createAppRouter = (): Router => {
     return router;
 };
 
-// ── UI Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleScrollBehavior(
     _to: Parameters<RouterScrollBehavior>[0],

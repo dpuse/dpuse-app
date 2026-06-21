@@ -101,7 +101,7 @@ watch(viewportIsWide, (newViewportIsWide) => {
 
 watch(paneSplitterPercent, (newPaneSplitterPercent) => localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent)));
 
-// ── UI Event Handlers - Knowledge Pane/Panels ────────────────────────────────────────────────────────────────────────
+// ── Event Handlers - Knowledge Pane/Panels ───────────────────────────────────────────────────────────────────────────
 
 function handleSelectKnowledgePanel(knowledgeViewId: KnowledgeViewId): void {
     activeAppPaneId.value = 'knowledge';
@@ -145,7 +145,7 @@ function toggleKnowledgePane(): void {
     }
 }
 
-// ── UI Event Handlers - Workbench Option Bar ─────────────────────────────────────────────────────────────────────────
+// ── Event Handlers - Workbench Option Bar ────────────────────────────────────────────────────────────────────────────
 
 function handleWorkbenchOptionBarHide(): void {
     if (viewportIsWide.value) return;
@@ -153,7 +153,7 @@ function handleWorkbenchOptionBarHide(): void {
     workbenchOptionBarIsVisible.value = false;
 }
 
-// ── UI Event Handlers - Workbench Pane ───────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers - Workbench Pane ──────────────────────────────────────────────────────────────────────────────────
 
 function handleToggleWorkbenchPane(): void {
     if (viewportIsWide.value) {

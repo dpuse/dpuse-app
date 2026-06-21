@@ -36,7 +36,7 @@ watch(
     { deep: true }
 );
 
-// ── UI Handler ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleApplyChanges(): void {
     updateAttributes({ title: localTitle.value, labels: localLabels.value, data: localData.value });

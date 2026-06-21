@@ -22,7 +22,7 @@ const emit = defineEmits<{ back: []; submit: [password: string] }>();
 const form = reactive({ password: 'datapos1111' });
 const { r$ } = useRegle(form, { password: { required } });
 
-// ── UI Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleBack(): void {
     emit('back');

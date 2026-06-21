@@ -1,38 +1,22 @@
 <script setup lang="ts">
-// ─── External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
 import { marked } from 'marked'; // NOTE: 'marked' with DOMPurify is at least 14kB smaller (gzipped) than 'micromark' or 'markdown-it' without DOMPurify. Measured June 2, 2026.
 import { SendHorizonalIcon } from 'lucide-vue-next';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
 import { onMounted, onUnmounted, ref } from 'vue';
 
-// ─── Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import KnowledgeHeader from '@/components/framework/header/KnowledgeHeader.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
-// ─── Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { title } = defineProps<{ title: string }>();
 
-// ─── Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const PROMPT = 'What should I search for to find the latest developments in renewable energy?';
-
-// ─── State ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const input = ref(PROMPT);
-const scrollElement = ref<HTMLElement | null>(null);
-let scrollObserver: MutationObserver | null = null;
-
-const chatMessages = ref<LibraryChatMessage[]>([]);
-const chatErrorsByUserMessageId = ref<Record<string, string[]>>({});
-const chatStatus = ref('idle');
-
-let client: ChatClient | null = null;
-
-// ─── Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface LibraryChatPart {
     type: string;
@@ -47,7 +31,23 @@ interface LibraryChatMessage {
 
 type AssistantStep = { type: 'thinking'; parts: LibraryChatPart[]; isLast: boolean } | { type: 'text'; parts: LibraryChatPart[]; isLast: boolean };
 
-// ─── Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const PROMPT = 'What should I search for to find the latest developments in renewable energy?';
+
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const input = ref(PROMPT);
+const scrollElement = ref<HTMLElement | null>(null);
+let scrollObserver: MutationObserver | null = null;
+
+const chatMessages = ref<LibraryChatMessage[]>([]);
+const chatErrorsByUserMessageId = ref<Record<string, string[]>>({});
+const chatStatus = ref('idle');
+
+let client: ChatClient | null = null;
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function isTextPart(part: LibraryChatPart): boolean {
     return part.type === 'text';
@@ -96,7 +96,7 @@ function getMessageSteps(message: LibraryChatMessage): AssistantStep[] {
     return steps;
 }
 
-// ─── Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
     client = new ChatClient({
@@ -156,7 +156,7 @@ onMounted(() => {
 
 onUnmounted(() => scrollObserver?.disconnect());
 
-// ─── UI Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSendMessage(): Promise<void> {
     if (client == null) return;

@@ -1,7 +1,7 @@
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { ref, type Ref } from 'vue';
 
-// Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface BreadcrumbConfig {
     id: string;
@@ -17,7 +17,7 @@ type Breadcrumbs<T extends BreadcrumbConfig> = {
     removeLast: () => void;
 };
 
-// Composable ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function useBreadcrumbs<T extends BreadcrumbConfig>(initialItems: T[] = []): Breadcrumbs<T> {
     const breadcrumbs = ref([...initialItems]) as Ref<T[]>;

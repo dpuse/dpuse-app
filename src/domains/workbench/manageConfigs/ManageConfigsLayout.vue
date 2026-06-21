@@ -13,11 +13,13 @@ import HomeIcon from '@/components/icons/HomeIcon.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 import WorkbenchLayout from '../WorkbenchLayout.vue';
 
-// ── States ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const configTypes = useConfigOptionConfigs();
+const configOptionConfigs = useConfigOptionConfigs();
 
-const activeConfigType = ref(configTypes.value[0]);
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const activeConfigOptionConfig = ref(configOptionConfigs.value[0]);
 </script>
 
 <template>
@@ -27,16 +29,16 @@ const activeConfigType = ref(configTypes.value[0]);
         <div class="flex min-h-0 flex-1 flex-col">
             <!-- Task Bar -->
             <div class="mx-4 flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
-                <template v-for="configType in configTypes" :key="configType.id">
+                <template v-for="configOptionConfig in configOptionConfigs" :key="configOptionConfig.id">
                     <Button
                         class="border-y-2 border-t-transparent py-1.25"
-                        :class="configType.id === activeConfigType.id ? 'border-b-blue-400' : 'border-b-transparent'"
+                        :class="configOptionConfig.id === activeConfigOptionConfig.id ? 'border-b-blue-400' : 'border-b-transparent'"
                         shape="minimal"
-                        :to="{ name: configType.to, query: { ...$route.query, wbView: configType.to } }"
-                        @click="activeConfigType = configType"
+                        :to="{ name: configOptionConfig.to, query: { ...$route.query, wbView: configOptionConfig.to } }"
+                        @click="activeConfigOptionConfig = configOptionConfig"
                     >
-                        <HomeIcon v-if="configType.id === 'home'" class="size-5! [&>path]:stroke-[1.25]" />
-                        <div v-else class="text-sm">{{ configType.label }}</div>
+                        <HomeIcon v-if="configOptionConfig.id === 'home'" class="size-5! [&>path]:stroke-[1.25]" />
+                        <div v-else class="text-sm">{{ configOptionConfig.label }}</div>
                     </Button>
                 </template>
             </div>

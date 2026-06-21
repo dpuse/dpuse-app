@@ -144,8 +144,8 @@ function startDrag(axis: 'v' | 'h', dragStartEvent: PointerEvent | TouchEvent): 
     const startScrollLeft = element.scrollLeft;
 
     const { scrollHeight, scrollWidth, clientHeight, clientWidth } = element;
-    const verticalBottomInset = getVerticalBottomInset(element);
-    const verticalTrackHeight = Math.max(0, clientHeight - verticalBottomInset);
+    const verticalTrackElement = verticalTrack.value;
+    const verticalTrackHeight = verticalTrackElement ? verticalTrackElement.getBoundingClientRect().height : Math.max(0, clientHeight);
     const horizontalTrackRightInset = verticalVisible.value ? verticalThumbRightOffset : 0;
     const horizontalTrackWidth = Math.max(0, clientWidth - horizontalTrackRightInset);
     const verticalScrollRange = getScrollableRange(scrollHeight, clientHeight);
@@ -206,7 +206,6 @@ function updateThumbs(): void {
     const element = scrollElement.value;
     if (!element) return;
     const { scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth } = element;
-    const verticalBottomInset = getVerticalBottomInset(element);
 
     const verticalRatio = clientHeight / scrollHeight;
     const horizontalRatio = clientWidth / scrollWidth;
@@ -214,7 +213,8 @@ function updateThumbs(): void {
     verticalVisible.value = verticalRatio < 1;
     horizontalVisible.value = horizontalRatio < 1;
 
-    const verticalTrackHeight = Math.max(0, clientHeight - verticalBottomInset);
+    const verticalTrackElement = verticalTrack.value;
+    const verticalTrackHeight = verticalTrackElement ? verticalTrackElement.getBoundingClientRect().height : Math.max(0, clientHeight);
     const horizontalTrackRightInset = verticalVisible.value ? verticalThumbRightOffset : 0;
     const horizontalTrackWidth = Math.max(0, clientWidth - horizontalTrackRightInset);
 
@@ -234,11 +234,6 @@ function updateThumbs(): void {
 
 function getThumbPosition(scrollOffset: number, scrollRange: number, travel: number): number {
     return scrollRange === 0 || travel === 0 ? 0 : clamp((scrollOffset / scrollRange) * travel, 0, travel);
-}
-
-function getVerticalBottomInset(element: HTMLElement): number {
-    const inset = Number.parseFloat(getComputedStyle(element).paddingBottom);
-    return Number.isFinite(inset) ? inset : 0;
 }
 
 function getTrackTravel(trackLength: number, thumbLength: number): number {
@@ -272,14 +267,6 @@ function clamp(value: number, min: number, max: number): number {
             aria-valuemax="100"
             class="dpuse-scrollbar-track dpuse-scrollbar-track-v"
             :class="{ 'dpuse-scrollbar-visible': thumbsShown }"
-            :style="{
-                bottom:
-                    scrollAreaPadding === 'embedded'
-                        ? 'var(--vertical-scroll-bottom-embedded-inset)'
-                        : scrollAreaPadding === 'screen'
-                          ? 'var(--vertical-scroll-bottom-screen-inset)'
-                          : '0px'
-            }"
             @pointerdown="handleVerticalTrackPointerDown"
             @touchstart.passive="handleVerticalTrackTouchStart"
             @mouseenter="handleShowThumbs"
@@ -342,7 +329,6 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 .none {
-    padding-bottom: 0px;
     padding-right: 16px;
 }
 

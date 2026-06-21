@@ -36,7 +36,7 @@ observer.observe(document.documentElement, { attributeFilter: ['class'] });
 
 onUnmounted(() => observer.disconnect());
 
-// ── UI Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
     await r$.$validate();

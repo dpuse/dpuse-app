@@ -39,7 +39,7 @@ const handleDocumentPointerDown = (event: PointerEvent): void => {
 document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
 onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true }));
 
-// ── UI Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleComplete(config?: LocalisedConfig<WorkbenchOptionConfig>): void {
     // if (config != null) setActiveBenchtopOption(config);

@@ -1,13 +1,13 @@
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { ref } from 'vue';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const APPEARANCE_OBSERVER = new MutationObserver(handleAppearanceChange);
 const MEDIA_QUERY = globalThis.matchMedia('(min-width: 768px)');
 const LANDSCAPE_QUERY = globalThis.matchMedia('(orientation: landscape)');
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const contentScrollPosition = ref(0);
 export const viewportIsWide = ref(MEDIA_QUERY.matches);
@@ -18,7 +18,7 @@ export const knowledgePaneIsVisible = ref(false); // The knowledge pane is actua
 export const sessionMenuIsOpen = ref(false); // The session menu overlay is open.
 export const workbenchPaneIsVisible = ref(false); // The workbench pane is actually rendered (visible) in the layout right now.
 
-// Initialisation ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 MEDIA_QUERY.addEventListener('change', handleMediaQueryChange);
 LANDSCAPE_QUERY.addEventListener('change', handleLandscapeQueryChange);
@@ -31,7 +31,7 @@ if (import.meta.hot) {
     });
 }
 
-// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleAppearanceChange(): void {
     isDarkMode.value = document.documentElement.classList.contains('dark');

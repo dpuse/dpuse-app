@@ -80,7 +80,7 @@ watch(viewportIsWide, (isWide) => {
     if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1];
 });
 
-// ── UI Event Handlers ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleCommitDetail(): void {
     const query = { ...route.query };
@@ -117,12 +117,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
         <DialogModal variant="large">
             <DialogHeader class="flex-none" :title="t(T, 'Manage_Connection')" />
 
-            <GridDetailPanel
-                :active-item="activeConnectorConfig"
-                class="flex-1"
-                :data-source="connectorConfigsDataSource"
-                @select="handleSelectConnector"
-            >
+            <GridDetailPanel :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" @select="handleSelectConnector">
                 <template #grid-item="{ item }">
                     <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
                 </template>

@@ -1,7 +1,7 @@
 // ── External Dependencies & Registrations
 import { connectionConfigs } from '@/state/session';
 
-// ── Tool ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Tools ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function executeGetConnection(id: string): unknown {
     const c = connectionConfigs.value.find((c) => c.id === id);
