@@ -5,7 +5,7 @@ import { EditorContent } from '@tiptap/vue-3';
 import { useRoute } from 'vue-router';
 
 // ── Local (App) Framework
-import { ChartNode } from './ChartNode';
+const { ChartNode } = await import('./ChartNode');
 import { emailAddress } from '@/state/session';
 import { t } from '@/state/locale';
 import T from './DocumentEditorView.json';

@@ -45,7 +45,9 @@ function openDocument(): void {
                 </form>
             </div>
 
-            <RouterView />
+            <Suspense>
+                <RouterView />
+            </Suspense>
         </div>
     </WorkbenchLayout>
 </template>

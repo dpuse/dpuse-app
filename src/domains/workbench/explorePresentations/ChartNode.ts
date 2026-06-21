@@ -1,9 +1,9 @@
 // ── External Dependencies & Registrations
-import { defineAsyncComponent } from 'vue';
 import { VueNodeViewRenderer } from '@tiptap/vue-3';
 import { mergeAttributes, Node } from '@tiptap/core';
 
-const ChartNodeView = defineAsyncComponent(() => import('./ChartNodeView.vue'));
+// ── Local Components - Static
+import ChartNodeView from './ChartNodeView.vue';
 
 // ── TipTap Node ──────────────────────────────────────────────────────────────────────────────────────────────────────
 

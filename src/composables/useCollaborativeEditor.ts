@@ -1,8 +1,10 @@
 // ── External Dependencies & Registrations
+import { type MaybeRefOrGetter, onBeforeUnmount, type Ref, ref, type ShallowRef, toValue, watchEffect } from 'vue';
+
+// ── External Dependencies & Registrations - TipTap
 import Bold from '@tiptap/extension-bold';
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCaret from '@tiptap/extension-collaboration-caret';
-import { Doc } from 'yjs';
 import Document from '@tiptap/extension-document';
 import Dropcursor from '@tiptap/extension-dropcursor';
 import Gapcursor from '@tiptap/extension-gapcursor';
@@ -10,13 +12,15 @@ import Heading from '@tiptap/extension-heading';
 import Italic from '@tiptap/extension-italic';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
-import YProvider from 'y-partyserver/provider';
 import { type AnyExtension, type Editor, useEditor } from '@tiptap/vue-3';
-import { type MaybeRefOrGetter, onBeforeUnmount, type Ref, ref, type ShallowRef, toValue, watchEffect } from 'vue';
+
+// ── External Dependencies & Registrations - yjs & y-partyserver
+import { Doc } from 'yjs';
+import YProvider from 'y-partyserver/provider';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export interface CollaborativeUser {
+interface CollaborativeUser {
     name: MaybeRefOrGetter<string>;
     color: string;
 }
