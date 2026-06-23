@@ -45,9 +45,10 @@ html {
     line-height: 28px;
     font-size: 20px;
 }
+li,
 p {
-  line-height: 28px;
-  margin: 0;
+    line-height: 28px;
+    margin: 0;
 }
 /* Use class-based dark mode (parent has .dark) instead of prefers-color-scheme. */
 @custom-variant dark (&:is(.dark *));

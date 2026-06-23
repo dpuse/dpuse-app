@@ -26,7 +26,7 @@ const emit = defineEmits<{ submit: [] }>();
 const AUTH_METHOD_LABELS: Record<string, string> = {
     apiKey: 'API Key',
     oAuth2: 'OAuth 2.0',
-    none: 'No authentication is required and only a single connection is supported.'
+    none: 'Does not require authentication and can be used without creating a DPUse Account. Only a single connection is supported.'
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -123,9 +123,9 @@ function getCategoryConnectorLabel(categoryId: string): string {
 
                 <!-- Authentication -->
                 <div v-if="authMethods.length > 0" class="flex flex-col gap-y-2">
-                    <h3 class="text-sm font-medium text-emphasis">{{ t(T, 'Authentication') }}</h3>
+                    <h3>{{ t(T, 'Authentication') }}</h3>
                     <ul class="flex flex-col gap-y-1">
-                        <li v-for="method in authMethods" :key="method" class="text-sm text-muted">
+                        <li v-for="method in authMethods" :key="method">
                             {{ AUTH_METHOD_LABELS[method] ?? method }}
                         </li>
                     </ul>
@@ -133,10 +133,10 @@ function getCategoryConnectorLabel(categoryId: string): string {
 
                 <!-- Links -->
                 <div v-if="links.length > 0" class="flex flex-col gap-y-2">
-                    <h3 class="text-sm font-medium text-emphasis">{{ t(T, 'Links') }}</h3>
+                    <h3>{{ t(T, 'Links') }}</h3>
                     <ul class="flex flex-col gap-y-1">
                         <li v-for="link in links" :key="link.url">
-                            <a :href="link.url" class="inline-flex items-center gap-x-1 text-sm text-accent hover:underline" target="_blank" rel="noopener noreferrer">
+                            <a :href="link.url" class="inline-flex items-center gap-x-1 hover:underline" target="_blank" rel="noopener noreferrer">
                                 {{ link.label }}
                                 <ExternalLinkIcon class="size-3" />
                             </a>

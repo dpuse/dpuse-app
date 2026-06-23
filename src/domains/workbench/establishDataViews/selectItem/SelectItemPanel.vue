@@ -252,6 +252,7 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
                 <DetailActionBar
                     v-model="activeItemAction"
                     class="absolute right-4 bottom-(--safe-bottom-offset)"
+                    commit-variant="add"
                     :item-actions="ITEM_ACTIONS"
                     @clear="clear"
                     @commit="handleCommitDetail"

@@ -127,7 +127,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
             </div>
             <div class="relative min-h-0 flex-1">
                 <SelectConnectionForm :connection-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
-                <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @clear="clear" @commit="handleCommitDetail" />
+                <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" commit-variant="add" @clear="clear" @commit="handleCommitDetail" />
             </div>
         </template>
 
