@@ -24,7 +24,7 @@ import WorkbenchLogo from '@/components/branding/WorkbenchLogo.vue'; // Always v
 // ── Local Components - Dynamic
 const AccountDialog = defineAsyncComponent(load('AccountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue')));
 const AuthDialog = defineAsyncComponent(load('AuthDialog', () => import('@/domains/session/authDialog/AuthDialog.vue')));
-const ConnectionDialog = defineAsyncComponent(load('ConnectionDialog', () => import('~/src/domains/workbench/connectionDialog/ConnectionDialog.vue')));
+const ConnectionDialog = defineAsyncComponent(load('ConnectionDialog', () => import('@/domains/workbench/connectionDialog/ConnectionDialog.vue')));
 const KnowledgeLayout = defineAsyncComponent(load('KnowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue')));
 const PaneSplitter = defineAsyncComponent(load('PaneSplitter', () => import('@/components/ui/PaneSplitter.vue')));
 const WorkbenchOptionBar = defineAsyncComponent(load('WorkbenchOptionBar', () => import('@/domains/workbench/optionBar/WorkbenchOptionBar.vue')));

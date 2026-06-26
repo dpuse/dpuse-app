@@ -32,7 +32,7 @@ export async function useEngine(): Promise<EngineWorker> {
         console.error(errorEvent, 'engineWorker@useEngine.1');
     });
     await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: toolConfigs.value || [] });
-    if (import.meta.env.DEV) console.info(`[dpuse:app] ✅ Engine 'dpuse-engine' v${engineVersion} loaded.`);
+    if (import.meta.env.DEV) console.info(`[dpuse:app] ✅  Engine 'dpuse-engine' v${engineVersion} loaded.`);
 
     /*****/
     async function streamCsvToConsole(): Promise<void> {

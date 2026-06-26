@@ -43,7 +43,7 @@ function connectToWebSocket(): WebSocket | undefined {
         let pendingWebSocket: WebSocket | undefined = new WebSocket(url);
 
         pendingWebSocket.addEventListener('open', () => {
-            if (import.meta.env.DEV) console.info('[dpuse:app] ✅ Configuration WebSocket connection opened.');
+            if (import.meta.env.DEV) console.info('[dpuse:app] ✅  Configuration WebSocket connection opened.');
         });
 
         pendingWebSocket.addEventListener('message', (event) => {
@@ -58,25 +58,25 @@ function connectToWebSocket(): WebSocket | undefined {
                         return unregisterConfigurations([eventData.module]);
                 }
             } catch (error) {
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Configuration registration error: ${String(error)}`, error);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ❌  Configuration registration error: ${String(error)}`, error);
             }
         });
 
         pendingWebSocket.addEventListener('close', (event) => {
-            if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️ Configuration WebSocket close event '${event.code}' received.`);
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️  Configuration WebSocket close event '${event.code}' received.`);
             pendingWebSocket = undefined;
             if (!webSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
         });
 
         pendingWebSocket.addEventListener('error', (error) => {
             // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.
-            if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Configuration WebSocket operational error: ${String(error)}`, error);
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ❌  Configuration WebSocket operational error: ${String(error)}`, error);
         });
 
         return pendingWebSocket;
     } catch (error) {
         // TODO: Try and recreate a limited number of times. If no success then display message requesting refresh.
-        if (import.meta.env.DEV) console.info(`[dpuse:app] ❌ Configuration WebSocket creation error: ${String(error)}`, error);
+        if (import.meta.env.DEV) console.info(`[dpuse:app] ❌  Configuration WebSocket creation error: ${String(error)}`, error);
         return undefined;
     }
 }
@@ -103,12 +103,12 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
         // TODO: Only register if new added or new version. Can we import in parallel for efficiency?
         switch (moduleConfig.typeId) {
             case 'app': {
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Workbench '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Workbench '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'engine': {
                 engineConfig.value = moduleConfig as EngineConfig;
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Engine '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Engine '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'connector': {
@@ -119,12 +119,12 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
                 } else {
                     pendingConnectorConfigs[index] = moduleConfig as ConnectorConfig;
                 }
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Connector '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Connector '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'context': {
                 contextConfig.value = moduleConfig as ContextConfig; // Trigger shallow reference change for context.
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Context '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Context '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'presenter': {
@@ -135,7 +135,7 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
                 } else {
                     pendingPresenterConfigs[index] = moduleConfig as PresenterConfig;
                 }
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Presenter '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Presenter '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
             case 'tool': {
@@ -146,7 +146,7 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
                 } else {
                     pendingToolConfigs[index] = moduleConfig as ToolConfig;
                 }
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Tool '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Tool '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
         }

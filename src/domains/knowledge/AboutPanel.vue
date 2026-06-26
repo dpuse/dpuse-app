@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Local (App) Framework
-import { useWorkbenchOptions } from '~/src/domains/workbench/useWorkbenchOptions';
+import { useWorkbenchOptions } from '@/domains/workbench/useWorkbenchOptions';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';

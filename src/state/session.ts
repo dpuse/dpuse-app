@@ -229,7 +229,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
         setSessionExpiryTimer();
         identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value);
 
-        if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️ Authenticated session established (${actionId}).`);
+        if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Authenticated session established (${actionId}).`);
     } else {
         forgetUser();
         clearSessionExpiryTimer();
@@ -247,7 +247,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
         accountId.value = undefined;
         sessionId.value = undefined;
 
-        const icon = actionId === 'validationFailure' ? '⚠️' : 'ℹ️';
+        const icon = actionId === 'validationFailure' ? '⚠️ ' : 'ℹ️ ';
         if (import.meta.env.DEV) console.info(`[dpuse:app] ${icon} Unauthenticated session established (${actionId}).`);
     }
 }

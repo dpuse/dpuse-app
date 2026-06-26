@@ -2,7 +2,7 @@
 // ── Local (App) Framework
 import T from './HomeLayout.json';
 import { t } from '@/state/locale';
-import { useWorkbenchOptions } from '~/src/domains/workbench/useWorkbenchOptions.ts';
+import { useWorkbenchOptions } from '@/domains/workbench/useWorkbenchOptions.ts';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';

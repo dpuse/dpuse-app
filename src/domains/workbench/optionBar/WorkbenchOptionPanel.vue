@@ -9,7 +9,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import { activeBenchtopOptionConfig } from '@/state/activeBenchtop';
 import T from './WorkbenchOptionPanel.json';
 import { t } from '@/state/locale';
-import { useWorkbenchOptions, type WorkbenchOptionConfig } from '~/src/domains/workbench/useWorkbenchOptions';
+import { useWorkbenchOptions, type WorkbenchOptionConfig } from '@/domains/workbench/useWorkbenchOptions';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';

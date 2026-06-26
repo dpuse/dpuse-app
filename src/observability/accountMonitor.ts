@@ -40,7 +40,7 @@ function connectToWebSocket(): WebSocket | undefined {
 
         pendingWebSocket.addEventListener('open', () => {
             // TODO: I think this is where the data is being cleared?
-            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ✅ Account WebSocket connection opened.`);
+            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ✅  Account WebSocket connection opened.`);
         });
 
         pendingWebSocket.addEventListener('message', (event) => {
@@ -52,25 +52,25 @@ function connectToWebSocket(): WebSocket | undefined {
                 }
                 connectionAccountConfigs.value = configs;
             } catch (error) {
-                if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ❌ Account configuration retrieval error: ${String(error)}`, error);
+                if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ❌  Account configuration retrieval error: ${String(error)}`, error);
             }
         });
 
         pendingWebSocket.addEventListener('close', (event) => {
-            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ⚠️ Account WebSocket close event '${event.code}' received.`);
+            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ⚠️  Account WebSocket close event '${event.code}' received.`);
             pendingWebSocket = undefined;
             if (!webSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
         });
 
         pendingWebSocket.addEventListener('error', (error) => {
             // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.
-            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ❌ Account WebSocket operational error: ${String(error)}`, error);
+            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ❌  Account WebSocket operational error: ${String(error)}`, error);
         });
 
         return pendingWebSocket;
     } catch (error) {
         // TODO: Try and recreate a limited number of times. If no success then display message requesting refresh.
-        if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ❌ Account WebSocket creation error: ${String(error)}`, error);
+        if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ❌  Account WebSocket creation error: ${String(error)}`, error);
         return undefined;
     }
 }
