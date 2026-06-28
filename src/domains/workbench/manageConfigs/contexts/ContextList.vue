@@ -6,7 +6,7 @@ import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { DimensionConfig } from '@dpuse/dpuse-shared/component/dimension';
-import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
+import type { EngineCallbackData } from '@dpuse/dpuse-shared/component/module/engine';
 import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local (App) Framework

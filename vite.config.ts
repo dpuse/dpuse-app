@@ -1,6 +1,8 @@
 // ── External Dependencies & Registrations
 import { cloudflare } from '@cloudflare/vite-plugin';
 import { defineConfig } from 'vite';
+import Sonda from 'sonda/vite';
+import { visualizer } from 'rollup-plugin-visualizer';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
@@ -21,7 +23,12 @@ export default defineConfig({
                 manualChunks(id) {
                     // if (id.includes('node_modules/marked')) return 'vendor-marked';
                 }
-            }
+            },
+            plugins: [
+                Sonda({ filename: 'index', format: 'html', gzip: true, brotli: true, open: false, outputDir: './bundle-analysis-reports/sonda' }),
+                visualizer({ filename: './bundle-analysis-reports/rollup-visualiser/index.html', open: false, gzipSize: true, brotliSize: true }),
+                visualizer({ filename: './bundle-analysis-reports/rollup-visualiser/index.json', template: 'raw-data', gzipSize: true, brotliSize: true })
+            ]
         }
     },
     worker: {

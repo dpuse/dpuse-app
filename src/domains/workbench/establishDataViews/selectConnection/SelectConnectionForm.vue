@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
-import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
+import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/component/module/engine';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local (App) Framework
@@ -95,7 +95,7 @@ async function testAuth(): Promise<void> {
                     <div>icon: {{ connectionLocalisedConfig.icon != null }}</div>
                     <div>iconDark: {{ connectionLocalisedConfig.iconDark != null }}</div>
                     <div>implementations: {{ connectionLocalisedConfig?.connectorConfig.implementations }}</div>
-                    <div>operations: {{ connectionLocalisedConfig?.connectorConfig.operations }}</div>
+                    <div>actionNames: {{ connectionLocalisedConfig?.connectorConfig.actionNames }}</div>
                     <div>lastUpdatedAt: {{ connectionLocalisedConfig.lastUpdatedAt }}</div>
                     <div>lastVerifiedAt: {{ connectionLocalisedConfig.lastVerifiedAt }}</div>
                     <div>status: {{ connectionLocalisedConfig?.connectorConfig.status }}</div>

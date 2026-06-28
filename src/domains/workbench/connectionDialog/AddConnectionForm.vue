@@ -6,7 +6,7 @@ import { useRoute, useRouter } from 'vue-router';
 // DPUse Framework
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
-import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/engine';
+import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/component/module/engine';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local (App) Framework
@@ -96,7 +96,7 @@ async function handleSubmit(): Promise<void> {
                     <div>icon: {{ connectorLocalisedConfig.icon != null }}</div>
                     <div>iconDark: {{ connectorLocalisedConfig.iconDark != null }}</div>
                     <div>implementations: {{ connectorLocalisedConfig.implementations }}</div>
-                    <div>operations: {{ connectorLocalisedConfig.operations }}</div>
+                    <div>actions: {{ connectorLocalisedConfig.actionNames }}</div>
                     <div>lastUpdatedAt: {{ connectorLocalisedConfig.lastUpdatedAt }}</div>
                     <div>status: {{ connectorLocalisedConfig.status }}</div>
                     <div>statusId: {{ connectorLocalisedConfig.statusId }}</div>

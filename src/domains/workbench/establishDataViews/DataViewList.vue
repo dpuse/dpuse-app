@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
-import type { EngineCallbackData } from '@dpuse/dpuse-shared/engine';
+import type { EngineCallbackData } from '@dpuse/dpuse-shared/component/module/engine';
 import type { RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // Local (App) Framework

@@ -2,7 +2,7 @@
 // import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 // import type { ConnectionConfig, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 // import type { AuditObjectContentOptions, ConnectionConfig, PreviewObjectOptions, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
-import type { EngineCallbackData, EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared/engine';
+import type { EngineCallbackData, EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared/component/module/engine';
 
 // ── Local (App) Framework
 import { engineConfig, toolConfigs } from '@/state/session';

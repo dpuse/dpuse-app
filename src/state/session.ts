@@ -9,7 +9,7 @@ import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/conne
 import type { ContextConfig } from '@dpuse/dpuse-shared/component/module/context';
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { DimensionConfig } from '@dpuse/dpuse-shared/component/dimension';
-import type { EngineConfig } from '@dpuse/dpuse-shared/engine';
+import type { EngineConfig } from '@dpuse/dpuse-shared/component/module/engine';
 import type { EventQueryConfig } from '@dpuse/dpuse-shared/component/eventQuery';
 import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';

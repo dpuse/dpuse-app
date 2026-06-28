@@ -26,7 +26,7 @@ export default defineConfigWithVueTs(
             'import-x/core-modules': ['@dpuse/dpuse-shared/errors', 'eslint/config'],
             'import-x/resolver': { typescript: { project: ['./tsconfig.json'] } },
             tailwindcss: {
-                config: new URL('src/assets/main.css', import.meta.url).pathname
+                cssConfigPath: new URL('src/assets/main.css', import.meta.url).pathname
             }
         }
     },
@@ -116,7 +116,6 @@ export default defineConfigWithVueTs(
 
             'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['DPUseLogo.vue' /*'src/components/icon(?:/.*)?'*/] }],
             'unicorn/no-null': 'off',
-            'unicorn/prevent-abbreviations': ['error', { ignore: ['env.d.ts'] }],
             'unicorn/switch-case-braces': ['warn', 'avoid'],
             'unicorn/prefer-top-level-await': 'warn',
 
