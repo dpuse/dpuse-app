@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.1387",
+    "version": "0.0.1388",
     "private": true,
     "type": "module",
     "engines": {
@@ -18,7 +18,7 @@
     },
     "scripts": {
         "dev": "vite",
-        "build": "run-p type-check \"build-only {@}\" -- && node -e \"import('@dpuse/dpuse-development').then(m => m.documentBundleSizes())\"",
+        "build": "run-p type-check \"build-only {@}\" -- && node -e \"import('@dpuse/dpuse-development').then(m => m.documentBundleSizes({ moduleLevel: true }))\"",
         "preview": "vite preview",
         "test:unit": "vitest",
         "test:e2e": "playwright test",
@@ -78,7 +78,7 @@
     "devDependencies": {
         "@cloudflare/vite-plugin": "^1.42.3",
         "@cloudflare/workers-types": "^4.20260628.1",
-        "@dpuse/dpuse-development": "^0.3.598",
+        "@dpuse/dpuse-development": "^0.3.600",
         "@eslint-community/eslint-plugin-eslint-comments": "^4.7.2",
         "@playwright/test": "^1.61.1",
         "@tsconfig/node24": "^24.0.4",
