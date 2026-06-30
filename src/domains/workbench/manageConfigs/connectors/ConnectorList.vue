@@ -48,7 +48,7 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
         :active-item="activeConnectorConfig"
         class="min-h-0 flex-1"
         :data-source="connectorConfigsDataSource"
-        max-detail-width="400px"
+        max-detail-width="650px"
         @select="handleSelectConnection"
     >
         <template #grid-item="{ item }">
@@ -56,7 +56,7 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
         </template>
 
         <template #detail="{ item, clear }">
-            <div class="relative min-h-0 flex-1">
+            <div class="relative flex min-h-0 flex-1 flex-col">
                 <ConnectorForm :connector-localised-config="item" />
                 <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @clear="clear" />
             </div>

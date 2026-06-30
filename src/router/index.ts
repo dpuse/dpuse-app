@@ -42,7 +42,7 @@ const ManageConnectorList = load('ManageConnectorList', () => import('@/domains/
 const ManageContextList = load('ManageContextList', () => import('@/domains/workbench/manageConfigs/contexts/ContextList.vue'));
 const ManageContextPanel = load('ManageContextPanel', () => import('@/domains/workbench/manageConfigs/contexts/ContextPanel.vue'));
 const ManagePresenterList = load('ManagePresenterList', () => import('@/domains/workbench/manageConfigs/presenters/PresenterList.vue'));
-const ManageTutorialList = load('ManageTutorialList', () => import('@/domains/workbench/manageConfigs/tutorials/TutorialList.vue'));
+const ManageCookbooksList = load('ManageCookbooksList', () => import('@/domains/workbench/manageConfigs/cookbooks/CookbookList.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -93,7 +93,7 @@ export const APP_ROUTES = [
                             { name: 'manageContexts', path: 'contexts', component: ManageContextList },
                             { name: 'manageContext', path: 'contexts/:contextId', component: ManageContextPanel },
                             { name: 'managePresenters', path: 'presenters', component: ManagePresenterList },
-                            { name: 'manageTutorials', path: 'tutorials', component: ManageTutorialList }
+                            { name: 'manageCookbooks', path: 'cookbooks', component: ManageCookbooksList }
                         ]
                     }
                 ]
@@ -119,9 +119,11 @@ export const createAppRouter = (): Router => {
             if (to.query.wbState !== '1' && to.path !== '/') {
                 // Then we can clear the workbench part of the url if it was not visible. This defers loading the view until required.
                 return { path: '/', query: { ...to.query, d: undefined, wbState: undefined, wbView: to.query.wbView ?? 'workbench', kState: 1, kView: to.query.kView ?? 'about' } };
-            } else if (to.path === '/' && (!('kView' in to.query) || !('kState' in to.query))) {
+            }
+            if (to.path === '/' && (!('kView' in to.query) || !('kState' in to.query))) {
                 return { path: '/workbench', query: { ...to.query, d: undefined, wbState: 1, wbView: 'workbench', kState: undefined, kView: undefined } };
-            } else if ('d' in to.query) {
+            }
+            if ('d' in to.query) {
                 return { path: to.path, query: { ...to.query, d: undefined } };
             }
         }

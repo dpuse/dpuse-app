@@ -1,29 +1,31 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
-import { ArrowBigRightIcon } from 'lucide-vue-next';
+// ── External Dependencies & Registrations
 import { useRoute, useRouter } from 'vue-router';
 
-// DPUse Framework
+// ── DPUse Framework
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
+import { constructConnectorCategoryConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/component/module/engine';
+import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { accountId } from '@/state/session';
 import T from './ConnectionForm.json';
 import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
+import Tag from '@/components/ui/Tag.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> }>();
 const emit = defineEmits<{ submit: [] }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();
@@ -35,7 +37,7 @@ async function handleSubmit(): Promise<void> {
     await router.push({ name: 'selectItem', query: { ...route.query, wbView: 'selectItem' } });
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function testAuth(): Promise<void> {
     if (connectionLocalisedConfig == null) return;
@@ -46,12 +48,68 @@ async function testAuth(): Promise<void> {
         windowCenterY: screen.height / 2
     })) as EngineAuthActionOptions;
 }
+
+function getCategoryConnectorLabel(categoryId: string): string {
+    return `${constructConnectorCategoryConfig(categoryId).label} Connection`;
+}
 </script>
 
 <template>
-    <form class="relative flex h-full flex-col pl-4" data-region="SelectConnectionForm" @submit.prevent="handleSubmit">
+    <form class="flex min-h-0 flex-1 flex-col pl-4" data-region="ConnectionForm" @submit.prevent="handleSubmit">
         <ScrollArea class="flex-1" scroll-area-padding="screen">
-            <div class="flex flex-col gap-y-4 pt-2">
+            <div class="dpuse-text flex flex-col gap-y-4 pt-4">
+                <!-- Header -->
+                <div>
+                    <div class="text-sm leading-tight text-muted">{{ getCategoryConnectorLabel(connectionLocalisedConfig.connectorConfig.categoryId) }}</div>
+                    <div class="flex items-center gap-x-1.5">
+                        <div v-if="connectionLocalisedConfig.icon != null || connectionLocalisedConfig.iconDark != null">
+                            <div
+                                v-if="connectionLocalisedConfig.icon != null"
+                                aria-hidden="true"
+                                class="flex size-8 items-center dark:hidden"
+                                v-html="connectionLocalisedConfig.icon"
+                            />
+                            <div
+                                aria-hidden="true"
+                                class="hidden size-8 items-center dark:flex"
+                                v-html="connectionLocalisedConfig.iconDark ?? connectionLocalisedConfig.icon ?? ''"
+                            />
+                        </div>
+                        <h1>{{ connectionLocalisedConfig.label }}</h1>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <p v-for="paragraph in connectionLocalisedConfig.description" :key="paragraph">{{ paragraph }}</p>
+
+                <!-- Authentication -->
+                <div class="flex flex-col gap-y-2">
+                    <h3>{{ t(T, 'Authentication') }}</h3>
+
+                    <Button class="max-w-40" @click="testAuth">Authenticate</Button>
+                </div>
+
+                <!-- Connector -->
+                <div class="flex flex-col gap-y-2">
+                    <h3>{{ t(T, 'Connector') }}</h3>
+                </div>
+                <!-- Tags -->
+                <div class="flex flex-wrap gap-1.5">
+                    <Tag :text="`v${connectionLocalisedConfig.connectorConfig.version}`" />
+                    <Tag
+                        v-if="connectionLocalisedConfig.status"
+                        :text="connectionLocalisedConfig.status.label"
+                        :color="connectionLocalisedConfig.status.color === 'other' ? undefined : connectionLocalisedConfig.status.color"
+                    />
+                    <Tag
+                        v-else-if="connectionLocalisedConfig.statusId"
+                        :text="connectionLocalisedConfig.statusId"
+                        :color="getComponentStatus(connectionLocalisedConfig.statusId).color === 'other' ? undefined : getComponentStatus(connectionLocalisedConfig.statusId).color"
+                    />
+                </div>
+
+                <!-- Links -->
+
                 {{ connectionLocalisedConfig?.connectorConfig.description.en }}
 
                 <div>
@@ -63,8 +121,6 @@ async function testAuth(): Promise<void> {
                     <div><strong>Type Id:</strong> {{ connectionLocalisedConfig?.connectorConfig.typeId }}</div>
                     <div><strong>Version:</strong> {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
                 </div>
-
-                <Button @click="testAuth">Auth</Button>
 
                 <div>
                     <strong>Connection:</strong>

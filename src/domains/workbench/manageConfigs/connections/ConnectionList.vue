@@ -18,13 +18,6 @@ import ConnectionForm from './ConnectionForm.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
-// import type { TaskConfig } from '@/components/ui/TaskBar.vue';
-
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
-
-// const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
-
-// defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -63,20 +56,12 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
 </script>
 
 <template>
-    <!-- <GridDetailPanel
-        :active-item="activeConnectionConfig"
-        add-label="Connection"
-        :data-source="connectionConfigsDataSource"
-        max-detail-width="400px"
-        @add="handleAddConnection"
-        @commit-detail="handleCommitDetail"
-        @select="handleSelectConnection"
-    > -->
     <GridDetailPanel
         :active-item="activeConnectionConfig"
         add-label="Connection"
+        class="min-h-0 flex-1"
         :data-source="connectionConfigsDataSource"
-        max-detail-width="400px"
+        max-detail-width="650px"
         @add="handleAddConnection"
         @select="handleSelectConnection"
     >
@@ -85,15 +70,7 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
         </template>
 
         <template #detail="{ item, clear }">
-            <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
-                <div class="flex size-7 items-center justify-center">
-                    <div v-if="item.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="item.icon || item.iconDark" />
-                    <div v-if="item.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="item.iconDark || item.icon" />
-                </div>
-                <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
-            </div>
-            <div class="relative min-h-0 flex-1">
-                <!-- <ConnectionForm :connection-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" /> -->
+            <div class="relative flex min-h-0 flex-1 flex-col">
                 <ConnectionForm :connection-localised-config="item" />
                 <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @clear="clear" @commit="handleCommitDetail" />
             </div>

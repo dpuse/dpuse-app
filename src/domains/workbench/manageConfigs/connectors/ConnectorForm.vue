@@ -6,6 +6,8 @@ import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
+import { constructConnectorCategoryConfig } from '@dpuse/dpuse-shared/component/module/connector';
+import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local (App) Framework
@@ -13,6 +15,7 @@ import T from './ConnectorForm.json';
 import { t } from '@/state/locale';
 
 // ── Local Components - Static
+import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Tag from '@/components/ui/Tag.vue';
 
@@ -23,26 +26,10 @@ const emit = defineEmits<{ submit: [] }>();
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const AUTH_METHOD_LABELS: Record<string, string> = {
+const AUTH_METHOD_DESCRIPTIONS: Record<string, string> = {
     apiKey: 'API Key',
     oAuth2: 'OAuth 2.0',
     none: 'Does not require authentication and can be used without creating a DPUse Account. Only a single connection is supported.'
-};
-
-const CATEGORY_LABELS: Record<string, string> = {
-    application: 'Application',
-    curatedDataset: 'Curated Dataset',
-    database: 'Database',
-    fileStore: 'File Store'
-};
-
-const STATUS_COLORS: Record<string, 'amber' | 'green' | 'red'> = {
-    generalAvailability: 'green',
-    releaseCandidate: 'green',
-    beta: 'amber',
-    alpha: 'red',
-    preAlpha: 'red',
-    unavailable: 'red'
 };
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -78,12 +65,12 @@ async function handleSubmit(): Promise<void> {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function getCategoryConnectorLabel(categoryId: string): string {
-    return `${CATEGORY_LABELS[categoryId] ?? categoryId} Connector`;
+    return `${constructConnectorCategoryConfig(categoryId).label} Connector`;
 }
 </script>
 
 <template>
-    <form class="flex h-full flex-col pl-4" data-region="ConnectorForm" @submit.prevent="handleSubmit">
+    <form class="flex min-h-0 flex-1 flex-col pl-4" data-region="ConnectorForm" @submit.prevent="handleSubmit">
         <ScrollArea scroll-area-padding="screen">
             <div class="dpuse-text flex flex-col gap-y-4 pt-4">
                 <!-- Header -->
@@ -115,18 +102,22 @@ function getCategoryConnectorLabel(categoryId: string): string {
                         :text="connectorLocalisedConfig.status.label"
                         :color="connectorLocalisedConfig.status.color === 'other' ? undefined : connectorLocalisedConfig.status.color"
                     />
-                    <Tag v-else-if="connectorLocalisedConfig.statusId" :text="connectorLocalisedConfig.statusId" :color="STATUS_COLORS[connectorLocalisedConfig.statusId]" />
+                    <Tag
+                        v-else-if="connectorLocalisedConfig.statusId"
+                        :text="connectorLocalisedConfig.statusId"
+                        :color="getComponentStatus(connectorLocalisedConfig.statusId).color === 'other' ? undefined : getComponentStatus(connectorLocalisedConfig.statusId).color"
+                    />
                 </div>
 
                 <!-- Description -->
                 <p v-for="paragraph in connectorLocalisedConfig.description" :key="paragraph">{{ paragraph }}</p>
 
                 <!-- Authentication -->
-                <div v-if="authMethods.length > 0" class="flex flex-col gap-y-2">
+                <div class="flex flex-col gap-y-2">
                     <h3>{{ t(T, 'Authentication') }}</h3>
-                    <ul class="flex flex-col gap-y-1">
+                    <ul class="flex list-disc flex-col gap-y-1 pl-5">
                         <li v-for="method in authMethods" :key="method">
-                            {{ AUTH_METHOD_LABELS[method] ?? method }}
+                            {{ AUTH_METHOD_DESCRIPTIONS[method] ?? method }}
                         </li>
                     </ul>
                 </div>
@@ -134,7 +125,7 @@ function getCategoryConnectorLabel(categoryId: string): string {
                 <!-- Links -->
                 <div v-if="links.length > 0" class="flex flex-col gap-y-2">
                     <h3>{{ t(T, 'Links') }}</h3>
-                    <ul class="flex flex-col gap-y-1">
+                    <ul class="flex list-disc flex-col gap-y-1 pl-5">
                         <li v-for="link in links" :key="link.url">
                             <a :href="link.url" class="inline-flex items-center gap-x-1 hover:underline" target="_blank" rel="noopener noreferrer">
                                 {{ link.label }}
@@ -142,6 +133,29 @@ function getCategoryConnectorLabel(categoryId: string): string {
                             </a>
                         </li>
                     </ul>
+                </div>
+
+                <!-- Technical -->
+                <div class="flex flex-col gap-y-2">
+                    <h3>{{ t(T, 'Technical') }}</h3>
+
+                    <ul class="list-disc pl-5">
+                        <li><strong>Connector ID</strong>: {{ connectorLocalisedConfig.id }}'.</li>
+                    </ul>
+                </div>
+                <!-- Technical -->
+                <div class="flex flex-col gap-y-2">
+                    <h3>Source</h3>
+                    <a
+                        :href="`https://github.com/dpuse/${connectorLocalisedConfig.id}`"
+                        class="inline-flex items-center gap-x-1 hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <GitHubLogo class="size-4" />
+                        {{ t(T, 'GitHub_repository') }}
+                        <ExternalLinkIcon class="size-4" />
+                    </a>
                 </div>
             </div>
         </ScrollArea>
