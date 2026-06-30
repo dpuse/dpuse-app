@@ -2,28 +2,16 @@
 import { cloudflare } from '@cloudflare/vite-plugin';
 import { defineConfig } from 'vite';
 import Sonda from 'sonda/vite';
-import { visualizer } from 'rollup-plugin-visualizer';
 import tailwindcss from '@tailwindcss/vite';
+import { visualizer } from 'rollup-plugin-visualizer';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
 
 // ── Vite Configuration ───────────────────────────────────────────────────────────────────────────────────────────────
 
 export default defineConfig({
-    plugins: [vue(), /*vueDevTools(),*/ tailwindcss(), cloudflare()],
-    resolve: {
-        alias: {
-            '~': fileURLToPath(new URL('.', import.meta.url)),
-            '@': fileURLToPath(new URL('src', import.meta.url))
-        }
-    },
     build: {
         rollupOptions: {
-            output: {
-                manualChunks(id) {
-                    // if (id.includes('node_modules/marked')) return 'vendor-marked';
-                }
-            },
             plugins: [
                 Sonda({ filename: 'index', format: 'html', gzip: true, brotli: true, open: false, outputDir: './bundle-analysis-reports/sonda' }),
                 visualizer({ filename: './bundle-analysis-reports/rollup-visualiser/index.html', open: false, gzipSize: true, brotliSize: true }),
@@ -31,8 +19,12 @@ export default defineConfig({
             ]
         }
     },
-    worker: {
-        format: 'es'
+    plugins: [vue(), /*vueDevTools(),*/ tailwindcss(), cloudflare()],
+    resolve: {
+        alias: {
+            '~': fileURLToPath(new URL('.', import.meta.url)),
+            '@': fileURLToPath(new URL('src', import.meta.url))
+        }
     },
     server: {
         headers: {
@@ -61,5 +53,8 @@ export default defineConfig({
             key: '../../localhost/localhost+1-key.pem',
             cert: '../../localhost/localhost+1.pem'
         }
+    },
+    worker: {
+        format: 'es'
     }
 });
