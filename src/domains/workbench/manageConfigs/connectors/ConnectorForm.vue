@@ -28,7 +28,7 @@ const emit = defineEmits<{ submit: [] }>();
 
 const AUTH_METHOD_DESCRIPTIONS: Record<string, string> = {
     apiKey: 'API Key',
-    oAuth2: 'OAuth 2.0',
+    oAuth2: "Requires OAuth 2.0 authentication for each account connected; access is scoped to that account's files and folders only.",
     none: 'Does not require authentication and can be used without creating a DPUse Account. Only a single connection is supported.'
 };
 
