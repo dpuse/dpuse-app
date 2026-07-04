@@ -1,7 +1,7 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.1396",
+    "version": "0.0.1397",
     "private": true,
     "type": "module",
     "engines": {
@@ -56,7 +56,6 @@
         "@tiptap/extension-paragraph": "^3.27.1",
         "@tiptap/extension-text": "^3.27.1",
         "@tiptap/pm": "^3.27.1",
-        "@tiptap/starter-kit": "^3.27.1",
         "@tiptap/vue-3": "^3.27.1",
         "@tiptap/y-tiptap": "^3.0.5",
         "chart.js": "^4.5.1",
