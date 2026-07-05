@@ -1,12 +1,13 @@
 {
     "name": "dpuse-app",
     "description": "The DPUse browser application.",
-    "version": "0.0.1398",
+    "version": "0.0.1399",
     "private": true,
     "type": "module",
     "engines": {
         "node": "^20.19.0 || >=22.12.0"
     },
+    "prettier": "@dpuse/dpuse-development/prettierrc",
     "allowScripts": {
         "esbuild@0.28.1": true,
         "fsevents@2.3.2": true,
@@ -28,7 +29,7 @@
         "format": "prettier --write --experimental-cli src/",
         "index:knowledge": "op run --env-file=.env -- node ./scripts/indexKnowledge.mjs",
         "test:knowledge": "op run --env-file=.env -- node ./scripts/testKnowledge.mjs",
-        "check": "node -e \"import('@dpuse/dpuse-development').then(m => m.checkDependencies())\"",
+        "check": "node -e \"import('@dpuse/dpuse-development').then(m => m.checkConfigFiles())\" && node -e \"import('@dpuse/dpuse-development').then(m => m.checkDependencies())\"",
         "generate-pwa-assets": "pwa-assets-generator --config pwa.assets.config.ts",
         "release": "npm run build && npm run sync && wrangler deploy",
         "sync": "node -e \"import('@dpuse/dpuse-development').then(m => m.syncProjectWithGitHub())\"",
@@ -76,7 +77,7 @@
     "devDependencies": {
         "@cloudflare/vite-plugin": "^1.43.0",
         "@cloudflare/workers-types": "^4.20260702.1",
-        "@dpuse/dpuse-development": "^0.3.657",
+        "@dpuse/dpuse-development": "^0.3.660",
         "@dpuse/eslint-config-dpuse": "^1.0.104",
         "@lucide/vue": "^1.23.0",
         "@playwright/test": "^1.61.1",

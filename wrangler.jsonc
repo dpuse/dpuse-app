@@ -1,7 +1,7 @@
 {
     "$schema": "node_modules/wrangler/config-schema.json",
     "name": "dpuse-app",
-    "compatibility_date": "2026-03-01", // Cloudflare recommends keeping this within ~30 days of today so you receive current runtime fixes and features for Workers and Durable Objects.
+    "compatibility_date": "2026-07-01", // Cloudflare recommends keeping this within ~30 days of today so you receive current runtime fixes and features for Workers and Durable Objects.
     "main": "server/index.ts",
     "assets": {
         "binding": "ASSETS",

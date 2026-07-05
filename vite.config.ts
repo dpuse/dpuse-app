@@ -3,7 +3,6 @@ import { cloudflare } from '@cloudflare/vite-plugin';
 import { defineConfig } from 'vite';
 import Sonda from 'sonda/vite';
 import tailwindcss from '@tailwindcss/vite';
-import { visualizer } from 'rollup-plugin-visualizer';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
 
@@ -12,11 +11,7 @@ import { fileURLToPath, URL } from 'node:url';
 export default defineConfig({
     build: {
         rollupOptions: {
-            plugins: [
-                Sonda({ filename: 'index', format: 'html', gzip: true, brotli: true, open: false, outputDir: './bundle-analysis-reports/sonda' }),
-                visualizer({ filename: './bundle-analysis-reports/rollup-visualiser/index.html', open: false, gzipSize: true, brotliSize: true }),
-                visualizer({ filename: './bundle-analysis-reports/rollup-visualiser/index.json', template: 'raw-data', gzipSize: true, brotliSize: true })
-            ]
+            plugins: [Sonda({ filename: 'index', format: 'json', brotli: true, gzip: false, open: false, outputDir: './bundle-analysis-reports/sonda' })]
         }
     },
     plugins: [vue(), /*vueDevTools(),*/ tailwindcss(), cloudflare()],
