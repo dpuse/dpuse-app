@@ -45,7 +45,7 @@ export function trackEvent(typeId: 'error' | 'interaction' | 'page' | 'performan
         userId: activeUserId,
         spanId: undefined,
         referrer: document.referrer,
-        url: globalThis.location.href,
+        url: location.href,
         ...data
     });
 }

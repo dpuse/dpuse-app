@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies & Registrations
-import { MousePointerClickIcon } from 'lucide-vue-next';
+import { MousePointerClickIcon } from '@lucide/vue';
 
 // Options, Properties, Slots & Emits
 const { message } = defineProps<{ message: string }>();

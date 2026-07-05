@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies & Registrations
-import { ArrowBigRightIcon } from 'lucide-vue-next';
+import { ArrowBigRightIcon } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // DPUse Framework

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies & Registrations
-import { ArrowBigRightIcon } from 'lucide-vue-next';
+import { ArrowBigRightIcon } from '@lucide/vue';
 import type { ColumnDef } from '@tanstack/vue-table';
 import { computed, markRaw, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -246,7 +246,7 @@ async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfi
                 <TextViewer v-show="activeItemAction === 'text'" class="flex-1" :text="text" />
                 <div v-show="activeItemAction === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
                 <div class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-t border-separator bg-amber-100 text-xs">
-                    <div class="absolute top-0 bottom-0 left-0 bg-green-200 dark:bg-green-500/30" :style="{ width: `${previewPercentage}%` }"></div>
+                    <div class="absolute inset-y-0 left-0 bg-green-200 dark:bg-green-500/30" :style="{ width: `${previewPercentage}%` }"></div>
                     <div class="relative pl-1">{{ previewMessage }}</div>
                 </div>
                 <DetailActionBar

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies & Registrations
-import { PlusIcon } from 'lucide-vue-next';
+import { PlusIcon } from '@lucide/vue';
 
 // Options, Properties, Slots & Emits
 defineProps<{ messageItemLabel: string; descriptionItemLabel: string; actionItemLabel: string }>();

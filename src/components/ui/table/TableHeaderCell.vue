@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T">
 // External Dependencies & Registrations
-import { ChevronDown } from 'lucide-vue-next';
+import { ChevronDown } from '@lucide/vue';
 import type { Header } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 
@@ -31,14 +31,14 @@ function onDocumentClick(event: MouseEvent): void {
 
 <template>
     <div class="relative flex h-full items-center select-none" data-region="TableHeaderCell">
-        <span class="text-muted flex-1 truncate px-3 text-xs font-medium tracking-wide uppercase">
+        <span class="flex-1 truncate px-3 text-xs font-medium tracking-wide text-muted uppercase">
             {{ String(header.column.columnDef.header) }}
         </span>
 
         <!-- Column options menu -->
         <div ref="menu" class="relative flex h-full items-center">
-            <button class="text-subtle flex h-full items-center px-1.5 hover:text-zinc-600 dark:hover:text-zinc-200" @click.stop="menuOpen = !menuOpen">
-                <ChevronDown class="h-3 w-3" />
+            <button class="flex h-full items-center px-1.5 text-subtle hover:text-zinc-600 dark:hover:text-zinc-200" @click.stop="menuOpen = !menuOpen">
+                <ChevronDown class="size-3" />
             </button>
 
             <div v-if="menuOpen" class="absolute top-full right-0 z-50 min-w-32 rounded border border-zinc-200 bg-white shadow-md dark:border-zinc-700 dark:bg-zinc-900">

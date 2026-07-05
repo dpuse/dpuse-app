@@ -85,7 +85,7 @@ async function handleSelectItem(row: T): Promise<void> {
                     @add="$emit('add')"
                 >
                     <template #default="{ item }">
-                        <Button class="h-full w-full" :is-active="activeItem === item" shape="minimal" @click="handleSelectItem(item)">
+                        <Button class="size-full" :is-active="activeItem === item" shape="minimal" @click="handleSelectItem(item)">
                             <slot name="grid-item" :item="item" />
                         </Button>
                     </template>

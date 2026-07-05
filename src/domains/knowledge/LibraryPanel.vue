@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
 import { marked } from 'marked'; // NOTE: 'marked' with DOMPurify is at least 14kB smaller (gzipped) than 'micromark' or 'markdown-it' without DOMPurify. Measured June 2, 2026.
-import { SendHorizonalIcon } from 'lucide-vue-next';
+import { SendHorizonalIcon } from '@lucide/vue';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
 import { onMounted, onUnmounted, ref } from 'vue';
 
@@ -192,7 +192,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
                         <div v-for="(errorText, errorIndex) in getMessageErrors(message.id)" :key="`${message.id}-error-${errorIndex}`" class="mt-3 pr-4">
                             <div class="flex gap-3">
                                 <div class="flex w-4 shrink-0 flex-col items-center">
-                                    <div class="mt-1.25 h-2 w-2 shrink-0 rounded-full bg-rose-600"></div>
+                                    <div class="mt-1.25 size-2 shrink-0 rounded-full bg-rose-600"></div>
                                 </div>
                                 <div class="min-w-0 flex-1 pb-4">
                                     <div class="mb-1 text-xs font-medium tracking-wide text-rose-700">Error</div>
@@ -206,7 +206,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
                         <div class="mt-3 pr-4">
                             <div v-for="step in getMessageSteps(message)" :key="step.type" class="flex gap-3">
                                 <div class="flex w-4 shrink-0 flex-col items-center">
-                                    <div class="mt-1.25 h-2 w-2 shrink-0 rounded-full" :class="step.type === 'thinking' ? 'bg-subtle' : 'bg-content'"></div>
+                                    <div class="mt-1.25 size-2 shrink-0 rounded-full" :class="step.type === 'thinking' ? 'bg-subtle' : 'bg-content'"></div>
                                     <div v-if="!step.isLast" class="mt-1 w-px flex-1 bg-separator"></div>
                                 </div>
                                 <div class="min-w-0 flex-1 pb-4">

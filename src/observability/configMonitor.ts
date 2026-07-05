@@ -18,21 +18,25 @@ const TIMEOUT_DELAY = 5000;
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 let webSocket: WebSocket | undefined;
-let webSocketShutdown = false;
+let isWebSocketShutdown = false;
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function initialise(): void {
-    if (!(webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN))) {
-        webSocket = connectToWebSocket();
-        window.addEventListener('pagehide', () => shutdown());
-        window.addEventListener('pageshow', (event) => {
-            if (event.persisted) {
-                webSocketShutdown = false;
-                webSocket = connectToWebSocket();
-            }
-        });
+    if ((webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN))) {
+    	return;
     }
+
+    webSocket = connectToWebSocket();
+    window.addEventListener('pagehide', () => shutdown());
+    window.addEventListener('pageshow', (event) => {
+        if (!event.persisted) {
+        	return;
+        }
+
+        isWebSocketShutdown = false;
+        webSocket = connectToWebSocket();
+    });
 }
 
 // WebSocket helpers ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -65,7 +69,7 @@ function connectToWebSocket(): WebSocket | undefined {
         pendingWebSocket.addEventListener('close', (event) => {
             if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️  Configuration WebSocket close event '${event.code}' received.`);
             pendingWebSocket = undefined;
-            if (!webSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
+            if (!isWebSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
         });
 
         pendingWebSocket.addEventListener('error', (error) => {
@@ -82,7 +86,7 @@ function connectToWebSocket(): WebSocket | undefined {
 }
 
 function shutdown(): void {
-    webSocketShutdown = true;
+    isWebSocketShutdown = true;
     if (webSocket) {
         webSocket.close();
         webSocket = undefined;
@@ -92,9 +96,9 @@ function shutdown(): void {
 // Registration Helpers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
-    let connectorRegistered = false;
-    let presenterRegistered = false;
-    let toolRegistered = false;
+    let isConnectorRegistered = false;
+    let isPresenterRegistered = false;
+    let isToolRegistered = false;
     const pendingConnectorConfigs = [...(connectorConfigs.value ?? [])];
     const pendingPresenterConfigs = [...(presenterConfigs.value ?? [])];
     const pendingToolConfigs = [...(toolConfigs.value ?? [])];
@@ -102,17 +106,15 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
     for (const moduleConfig of moduleConfigs) {
         // TODO: Only register if new added or new version. Can we import in parallel for efficiency?
         switch (moduleConfig.typeId) {
-            case 'app': {
+            case 'app':
                 if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Workbench '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
-            }
-            case 'engine': {
+            case 'engine':
                 engineConfig.value = moduleConfig as EngineConfig;
                 if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Engine '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
-            }
             case 'connector': {
-                connectorRegistered = true;
+                isConnectorRegistered = true;
                 const index = pendingConnectorConfigs.findIndex((connectorConfig) => connectorConfig.id === moduleConfig.id);
                 if (index === -1) {
                     pendingConnectorConfigs.push(moduleConfig as ConnectorConfig);
@@ -122,13 +124,12 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
                 if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Connector '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
             }
-            case 'context': {
+            case 'context':
                 contextConfig.value = moduleConfig as ContextConfig; // Trigger shallow reference change for context.
                 if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Context '${moduleConfig.id}' v${moduleConfig.version} registered.`);
                 break;
-            }
             case 'presenter': {
-                presenterRegistered = true;
+                isPresenterRegistered = true;
                 const index = pendingPresenterConfigs.findIndex((presenterConfig) => presenterConfig.id === moduleConfig.id);
                 if (index === -1) {
                     pendingPresenterConfigs.push(moduleConfig as PresenterConfig);
@@ -139,7 +140,7 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
                 break;
             }
             case 'tool': {
-                toolRegistered = true;
+                isToolRegistered = true;
                 const index = pendingToolConfigs.findIndex((toolConfig) => toolConfig.id === moduleConfig.id);
                 if (index === -1) {
                     pendingToolConfigs.push(moduleConfig as ToolConfig);
@@ -152,11 +153,11 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
         }
     }
 
-    if (connectorRegistered) connectorConfigs.value = [...pendingConnectorConfigs];
+    if (isConnectorRegistered) connectorConfigs.value = [...pendingConnectorConfigs];
 
-    if (presenterRegistered) presenterConfigs.value = [...pendingPresenterConfigs];
+    if (isPresenterRegistered) presenterConfigs.value = [...pendingPresenterConfigs];
 
-    if (toolRegistered) toolConfigs.value = [...pendingToolConfigs];
+    if (isToolRegistered) toolConfigs.value = [...pendingToolConfigs];
 }
 
 function unregisterConfigurations(moduleConfigs: ModuleConfig[]): void {

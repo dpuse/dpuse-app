@@ -42,7 +42,7 @@ try {
     // Without this, `require-trusted-types-for 'script'` blocks `new Worker(blobUrl)` because the URL is a plain string.
     if (globalThis.trustedTypes != null) {
         const sanitizeHTML = (html: string): string => DOMPurify.sanitize(html);
-        globalThis.trustedTypes.createPolicy('default', {
+        trustedTypes.createPolicy('default', {
             // Allow 'blob:' prefixed URLs for Vite's `?worker&inline` worker factory.
             createScriptURL: (url: string): string => {
                 if (url.startsWith('blob:')) return url;

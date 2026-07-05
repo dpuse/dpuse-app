@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
-import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from 'lucide-vue-next';
+import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── Local (App) Framework
@@ -105,7 +105,7 @@ watch(paneSplitterPercent, (newPaneSplitterPercent) => localStorage.setItem(PANE
 
 function handleSelectKnowledgePanel(knowledgeViewId: KnowledgeViewId): void {
     activeAppPaneId.value = 'knowledge';
-    knowledgePaneIsActive.value = knowledgePaneIsVisible.value = route.query.kView !== knowledgeViewId || knowledgePaneIsVisible.value !== true;
+    knowledgePaneIsActive.value = knowledgePaneIsVisible.value = route.query.kView !== knowledgeViewId || !knowledgePaneIsVisible.value;
     if (knowledgePaneIsActive.value) knowledgePaneActivated.value = true;
     router.replace({ query: { ...route.query, kState: knowledgePaneIsVisible.value ? 1 : undefined, kView: knowledgeViewId } });
     knowledgeOptionBarIsVisible.value = false;

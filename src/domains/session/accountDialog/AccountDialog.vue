@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies & Registrations
 import { useRoute } from 'vue-router';
-import { ArrowBigLeftIcon, LoaderCircleIcon } from 'lucide-vue-next';
+import { ArrowBigLeftIcon, LoaderCircleIcon } from '@lucide/vue';
 import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 
 // Local (App) Framework

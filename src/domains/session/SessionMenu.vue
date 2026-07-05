@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
-import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from 'lucide-vue-next';
+import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -69,12 +69,12 @@ function handleManageAccount(): void {
 }
 
 function handleReloadApplication(): void {
-    globalThis.location.reload();
+    location.reload();
 }
 
 function handleSetAppearance(mode: 'dark' | 'light' | 'auto'): void {
-    const prefersDark = globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = mode === 'dark' || (mode === 'auto' && prefersDark);
+    const isPrefersDark = globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = mode === 'dark' || (mode === 'auto' && isPrefersDark);
     localStorage.setItem(APPEARANCE_KEY, mode);
     currentAppearance.value = mode;
     document.documentElement.classList.toggle('dark', isDark);
@@ -106,14 +106,14 @@ async function toggleFullscreen(): Promise<void> {
 </script>
 <template>
     <div
-        class="bg-surface border-separator flex max-w-sm min-w-xs flex-col overflow-hidden shadow-md"
+        class="flex max-w-sm min-w-xs flex-col overflow-hidden border-separator bg-surface shadow-md"
         :class="
             viewportIsWide
                 ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] rounded-md border border-red-500'
                 : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] rounded-t-2xl border-x border-t'
         "
     >
-        <div class="bg-card border-b-boundary flex items-center justify-between border-b px-4 pt-3 pb-2">
+        <div class="flex items-center justify-between border-b border-b-boundary bg-card px-4 pt-3 pb-2">
             <span class="text-lg">Session</span>
             <CloseButton @click="emit('continue')" />
         </div>
@@ -125,7 +125,7 @@ async function toggleFullscreen(): Promise<void> {
                     <div class="flex flex-1 flex-col">
                         <div class="flex flex-col">
                             <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
-                            <div class="text-muted text-sm font-semibold">{{ t(T, 'Appearance') }}</div>
+                            <div class="text-sm font-semibold text-muted">{{ t(T, 'Appearance') }}</div>
                             <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
                             <Separator class="mt-1 mb-2.25 flex-none" />
                         </div>
@@ -163,7 +163,7 @@ async function toggleFullscreen(): Promise<void> {
                     </div>
 
                     <div v-if="fullScreenIsSupported" class="flex flex-none flex-col">
-                        <div class="text-muted text-sm font-semibold">{{ t(T, 'Full_screen') }}</div>
+                        <div class="text-sm font-semibold text-muted">{{ t(T, 'Full_screen') }}</div>
                         <Separator class="mt-1 mb-2.25 flex-none" />
                         <Button class="flex flex-col items-center text-xs" shape="icon" size="sm" @click="handleToggleWindowExpansion">
                             <ShrinkIcon v-if="isFullscreen" class="size-4.5!" />
@@ -174,7 +174,7 @@ async function toggleFullscreen(): Promise<void> {
                 </div>
 
                 <!-- Languages -->
-                <div class="text-muted mt-4 text-sm font-semibold">{{ t(T, 'Language') }}</div>
+                <div class="mt-4 text-sm font-semibold text-muted">{{ t(T, 'Language') }}</div>
                 <Separator class="mt-1 mb-1.25" />
                 <ListItemButton
                     v-for="lang in SUPPORTED_LANGUAGES"

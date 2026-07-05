@@ -10,7 +10,7 @@ export function logError(error: unknown): void {
 
 export function reportFatalError(error: unknown): void {
     // Insert error message into the body of the page
-    const errorDiv = globalThis.document.createElement('div');
+    const errorDiv = document.createElement('div');
     errorDiv.textContent = `Application failed to load: ${error instanceof Error ? error.message : String(error)}`;
     Object.assign(errorDiv.style, {
         position: 'fixed',
@@ -24,7 +24,7 @@ export function reportFatalError(error: unknown): void {
         zIndex: '9999',
         fontFamily: 'monospace, monospace'
     });
-    globalThis.document.body.append(errorDiv);
+    document.body.append(errorDiv);
 
     logErrorToConsole(serialiseError(error));
 }
@@ -37,7 +37,7 @@ export function reportAppError(error: AppError): void {
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function logErrorToConsole(serialisedErrors: SerialisedError[]): void {
-    console.log('[dpuse:app] ❌ ', formatTrace(serialisedErrors));
+    console.log('[dpuse:app] ❌', formatTrace(serialisedErrors));
 }
 
 function formatTrace(serialisedErrors: SerialisedError[]): string {

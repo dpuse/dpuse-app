@@ -38,7 +38,7 @@ const activeOptionId = ref<'transform' | 'investigate'>('investigate');
 
             <button
                 type="button"
-                class="relative -ml-px inline-flex items-center rounded-r-full px-2 py-2 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 focus:z-10"
+                class="relative -ml-px inline-flex items-center rounded-r-full p-2 text-xs text-gray-900 inset-ring-1 inset-ring-gray-300 focus:z-10"
                 :class="
                     activeOptionId === 'investigate'
                         ? 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-600'

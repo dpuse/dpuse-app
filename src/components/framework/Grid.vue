@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T">
 // ── External Dependencies & Registrations
-import { PlusIcon } from 'lucide-vue-next';
+import { PlusIcon } from '@lucide/vue';
 import { computed, onUnmounted, ref, shallowRef } from 'vue';
 
 // ── Local (App) Framework

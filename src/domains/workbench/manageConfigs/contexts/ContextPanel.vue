@@ -82,14 +82,12 @@ function drillUp(toLevelId: keyof ActiveLevelConfigMap): void {
 
 function getListTitle(id: keyof ActiveLevelConfigMap): string {
     if (id === 'dimensionGroup') return 'Dimension Groups';
-    else if (id === 'model') return 'Models';
-    else return 'Model Groups';
+    return id === 'model' ? 'Models' : 'Model Groups';
 }
 
 function getParentLevelId(id: keyof ActiveLevelConfigMap): keyof ActiveLevelConfigMap {
     if (id === 'dimensionGroup') return 'model';
-    else if (id === 'model') return 'modelGroup';
-    else return 'modelGroup';
+    return id === 'model' ? 'modelGroup' : 'modelGroup';
 }
 </script>
 

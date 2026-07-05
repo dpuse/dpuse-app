@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowBigLeftIcon, ArrowBigRightIcon } from 'lucide-vue-next';
+import { ArrowBigLeftIcon, ArrowBigRightIcon } from '@lucide/vue';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';

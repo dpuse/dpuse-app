@@ -27,7 +27,7 @@ function establishLocaleId(): LocaleId {
     for (const languageId of globalThis.navigator?.languages ?? []) {
         const lower = languageId.toLowerCase();
         if (SUPPORTED_LANGUAGES.some((lang) => lang.id === lower)) return lower as LocaleId;
-        const prefix = lower.split('-')[0] as LocaleId;
+        const prefix = lower.split('-', 1)[0] as LocaleId;
         if (prefix && SUPPORTED_LANGUAGES.some((lang) => lang.id === prefix)) return prefix;
     }
     return DEFAULT_LOCALE_ID;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies & Registrations
-import { PlusIcon } from 'lucide-vue-next';
+import { PlusIcon } from '@lucide/vue';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -36,12 +36,10 @@ const router = useRouter();
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const dataSource = computed(
-    (): DataSource<EventQueryConfig> => ({
-        rowCount: eventQueryConfigs.value?.length ?? 0,
-        getRows: (start: number, end: number): Promise<EventQueryConfig[]> => Promise.resolve((eventQueryConfigs.value ?? []).slice(start, end))
-    })
-);
+const dataSource = computed((): DataSource<EventQueryConfig> => ({
+    rowCount: eventQueryConfigs.value?.length ?? 0,
+    getRows: (start: number, end: number): Promise<EventQueryConfig[]> => Promise.resolve((eventQueryConfigs.value ?? []).slice(start, end))
+}));
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -81,7 +79,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
 </script>
 
 <template>
-    <div class="border-separator mx-4 flex flex-none border-b py-1">
+    <div class="mx-4 flex flex-none border-b border-separator py-1">
         <div class="flex-1"></div>
 
         <Button @click="router.push({ name: '???', query: route.query })">

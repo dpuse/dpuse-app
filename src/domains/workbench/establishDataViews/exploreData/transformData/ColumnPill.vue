@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // External Dependencies & Registrations
 import type { Component } from 'vue';
-import { CheckIcon, GripVerticalIcon } from 'lucide-vue-next';
+import { CheckIcon, GripVerticalIcon } from '@lucide/vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 

@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T">
 // External Dependencies & Registrations
-import { Settings2 } from 'lucide-vue-next';
+import { Settings2 } from '@lucide/vue';
 import type { Table } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 
@@ -34,7 +34,7 @@ function onDocumentClick(event: MouseEvent): void {
                 class="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
                 @click.stop="open = !open"
             >
-                <Settings2 class="h-3.5 w-3.5" />
+                <Settings2 class="size-3.5" />
                 Columns
             </button>
 
@@ -46,7 +46,7 @@ function onDocumentClick(event: MouseEvent): void {
                 >
                     <input
                         type="checkbox"
-                        class="h-3.5 w-3.5 rounded accent-zinc-600 dark:accent-zinc-400"
+                        class="size-3.5 rounded accent-zinc-600 dark:accent-zinc-400"
                         :checked="col.getIsVisible()"
                         @change="col.toggleVisibility(!col.getIsVisible())"
                     />

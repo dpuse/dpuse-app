@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies & Registrations
-import { LoaderCircleIcon } from 'lucide-vue-next';
+import { LoaderCircleIcon } from '@lucide/vue';
 import { type ComponentPublicInstance, computed, defineAsyncComponent, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // Local (App) Framework
@@ -33,7 +33,7 @@ const elapsed = computed(() => {
 });
 
 const initials = computed(() => {
-    const local = emailAddress.split('@')[0] ?? '';
+    const local = emailAddress.split('@', 1)[0] ?? '';
     const parts = local.split(/[._-]/);
     return (parts[1] == null ? '?' : (parts[0]!.charAt(0) + parts[1].charAt(0)).toUpperCase()) ?? local.slice(0, 2).toUpperCase();
 });
@@ -80,7 +80,7 @@ function onMenuAfterLeave(): void {}
 
         <AvatarButton
             aria-label="Toggle session panel"
-            class="dpuse-outside-click-ignore relative h-10 w-10"
+            class="dpuse-outside-click-ignore relative size-10"
             :class="{ 'bg-surface shadow-md': !viewportIsWide && !workbenchOptionBarIsVisible }"
             @click="sessionMenuIsOpen = !sessionMenuIsOpen"
         >

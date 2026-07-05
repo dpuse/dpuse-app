@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External Dependencies & Registrations
-import { RefreshCwIcon, TriangleAlertIcon } from 'lucide-vue-next';
+import { RefreshCwIcon, TriangleAlertIcon } from '@lucide/vue';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -12,7 +12,7 @@ const { name, error } = defineProps<{ name?: string; error: unknown }>();
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleReloadApplication(): void {
-    globalThis.location.reload();
+    location.reload();
 }
 </script>
 

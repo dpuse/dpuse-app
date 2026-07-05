@@ -32,10 +32,12 @@ export function load(name: string, importFunction: () => Promise<Component>, sim
                 return { render: (): ReturnType<typeof h> => h(ComponentLoadError, { name, error }) } as Component;
             })
             .finally(() => {
-                if (!isThisNavigationActive) {
-                    activeLoadCount = Math.max(0, activeLoadCount - 1);
-                    if (activeLoadCount === 0) complete();
+                if (isThisNavigationActive) {
+                	return;
                 }
+
+                activeLoadCount = Math.max(0, activeLoadCount - 1);
+                if (activeLoadCount === 0) complete();
             });
     };
 }
