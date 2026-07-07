@@ -1,16 +1,9 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
-import { ref } from 'vue';
-
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
 type Badge = { id: string; color?: string; label: string };
-type Properties = { badges?: Badge[]; description?: string; icon?: string; iconDark?: string; iconNeutral?: string; isCompact?: boolean; label: string; overline?: string };
-const { badges = [], description, icon, iconDark, iconNeutral, isCompact = false, label, overline } = defineProps<Properties>();
-
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const isHovering = ref(false);
+type Properties = { badges?: Badge[]; description?: string; icon?: string; iconDark?: string; isCompact?: boolean; label: string; overline?: string };
+const { badges = [], description, icon, iconDark, isCompact = false, label, overline } = defineProps<Properties>();
 </script>
 
 <template>
@@ -19,10 +12,6 @@ const isHovering = ref(false);
         :class="isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4'"
         data-region="Card"
         role="presentation"
-        @focusin="isHovering = true"
-        @focusout="isHovering = false"
-        @mouseenter="isHovering = true"
-        @mouseleave="isHovering = false"
     >
         <!-- Badges -->
         <div v-if="!isCompact" class="absolute top-0 right-0 flex gap-x-1 pt-1.5 pr-1.5">
@@ -42,11 +31,9 @@ const isHovering = ref(false);
 
         <!-- Icon, Overline & Label -->
         <div class="flex items-center gap-x-2">
-            <div v-if="icon || iconDark || iconNeutral" class="flex flex-none items-center justify-center rounded-md" :class="isCompact ? 'size-6' : 'size-8'">
-                <div v-if="!isHovering" aria-hidden="true" class="block w-full text-zinc-400 dark:hidden dark:text-zinc-400" v-html="iconNeutral || icon || iconDark" />
-                <div v-if="!isHovering" aria-hidden="true" class="hidden w-full text-zinc-400 dark:block dark:text-zinc-400" v-html="iconNeutral || iconDark || icon" />
-                <div v-if="isHovering" aria-hidden="true" class="block w-full text-zinc-400 dark:hidden dark:text-zinc-400" v-html="icon || iconDark" />
-                <div v-if="isHovering" aria-hidden="true" class="hidden w-full text-zinc-400 dark:block dark:text-zinc-400" v-html="iconDark || icon" />
+            <div v-if="icon || iconDark" class="flex flex-none items-center justify-center rounded-md" :class="isCompact ? 'size-6' : 'size-8'">
+                <div aria-hidden="true" class="block w-full text-zinc-400 dark:hidden dark:text-zinc-400" v-html="icon || iconDark" />
+                <div aria-hidden="true" class="hidden w-full text-zinc-400 dark:block dark:text-zinc-400" v-html="iconDark || icon" />
             </div>
 
             <div class="flex flex-col overflow-x-hidden">
