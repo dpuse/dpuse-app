@@ -304,43 +304,45 @@ function establishPaneSplitterPercent(): number {
         <WorkbenchOptionBar v-if="!viewportIsWide" class="z-30" :is-visible="workbenchOptionBarIsVisible" @continue="handleWorkbenchOptionBarHide" />
 
         <!-- Workbench Pane - Contains workbench layout (via RouterView). Rendered once workbench pane is activated and visible. -->
-        <div
-            v-if="workbenchPaneActivated"
-            v-show="workbenchPaneIsVisible"
-            class="grid h-full"
-            :class="viewportIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
-            data-region="workbenchPane"
-            :style="[workbenchPaneStyle, { 'container-type': 'inline-size' }]"
-            @pointerdown="activeAppPaneId = 'workbench'"
-            @scroll.capture="activeAppPaneId = 'workbench'"
-        >
-            <!-- Workbench Option Bar - Only rendered when viewport is wide. -->
-            <WorkbenchOptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleWorkbenchOptionBarHide" />
+        <div class="size-full">
+            <div
+                v-if="workbenchPaneActivated"
+                v-show="workbenchPaneIsVisible"
+                class="grid h-full bg-backdrop"
+                :class="viewportIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
+                data-region="workbenchPane"
+                :style="[workbenchPaneStyle, { 'container-type': 'inline-size' }]"
+                @pointerdown="activeAppPaneId = 'workbench'"
+                @scroll.capture="activeAppPaneId = 'workbench'"
+            >
+                <!-- Workbench Option Bar - Only rendered when viewport is wide. -->
+                <WorkbenchOptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleWorkbenchOptionBarHide" />
 
-            <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
-            <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="workbench-content">
-                <RouterView v-slot="{ Component }">
-                    <Transition name="action-fade" mode="out-in">
-                        <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
-                    </Transition>
-                </RouterView>
+                <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
+                <div class="min-h-0 min-w-0 shadow-sm rounded-xl my-2 mr-2" :class="{ 'col-start-2': viewportIsWide }" data-region="workbench-content">
+                    <RouterView v-slot="{ Component }">
+                        <Transition name="action-fade" mode="out-in">
+                            <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
+                        </Transition>
+                    </RouterView>
+                </div>
             </div>
-        </div>
 
-        <!-- Pane (Vertical) Splitter - Rendered if viewport is wide and both panes are shown. -->
-        <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
+            <!-- Pane (Vertical) Splitter - Rendered if viewport is wide and both panes are shown. -->
+            <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
 
-        <!-- Knowledge Pane - Contains knowledge layout. Rendered once knowledge pane is activated and visible. -->
-        <div
-            v-if="knowledgePaneActivated"
-            v-show="knowledgePaneIsVisible"
-            class="flex h-full"
-            data-region="knowledgePane"
-            :style="knowledgePaneStyle"
-            @pointerdown="activeAppPaneId = 'knowledge'"
-            @scroll.capture="activeAppPaneId = 'knowledge'"
-        >
-            <KnowledgeLayout class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
+            <!-- Knowledge Pane - Contains knowledge layout. Rendered once knowledge pane is activated and visible. -->
+            <div
+                v-if="knowledgePaneActivated"
+                v-show="knowledgePaneIsVisible"
+                class="flex h-full"
+                data-region="knowledgePane"
+                :style="knowledgePaneStyle"
+                @pointerdown="activeAppPaneId = 'knowledge'"
+                @scroll.capture="activeAppPaneId = 'knowledge'"
+            >
+                <KnowledgeLayout class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
+            </div>
         </div>
     </div>
 </template>

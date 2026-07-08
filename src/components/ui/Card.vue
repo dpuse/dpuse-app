@@ -8,7 +8,7 @@ const { badges = [], description, icon, iconDark, isCompact = false, label, over
 
 <template>
     <div
-        class="relative flex size-full cursor-pointer flex-col gap-y-4 bg-card font-light outline -outline-offset-1 outline-boundary transition-colors hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover"
+        class="relative flex size-full cursor-pointer flex-col gap-y-4 bg-white font-light outline -outline-offset-1 outline-[#E5E7EB] transition-colors hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover"
         :class="isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4'"
         data-region="Card"
         role="presentation"
@@ -32,8 +32,12 @@ const { badges = [], description, icon, iconDark, isCompact = false, label, over
         <!-- Icon, Overline & Label -->
         <div class="flex items-center gap-x-2">
             <div v-if="icon || iconDark" class="flex flex-none items-center justify-center rounded-md" :class="isCompact ? 'size-6' : 'size-8'">
-                <div aria-hidden="true" class="block w-full text-zinc-400 dark:hidden dark:text-zinc-400" v-html="icon || iconDark" />
-                <div aria-hidden="true" class="hidden w-full text-zinc-400 dark:block dark:text-zinc-400" v-html="iconDark || icon" />
+                <!-- Only split into two v-html copies when the SVGs actually differ; otherwise rendering the same markup twice duplicates element ids (mask/gradient), which can break references when one copy is display:none. -->
+                <template v-if="icon && iconDark && icon !== iconDark">
+                    <div aria-hidden="true" class="block w-full text-zinc-400 dark:hidden" v-html="icon" />
+                    <div aria-hidden="true" class="hidden w-full text-zinc-400 dark:block" v-html="iconDark" />
+                </template>
+                <div v-else aria-hidden="true" class="w-full text-zinc-400" v-html="icon ?? iconDark" />
             </div>
 
             <div class="flex flex-col overflow-x-hidden">
