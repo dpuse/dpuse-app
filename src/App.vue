@@ -193,9 +193,9 @@ function toggleWorkbenchPane(): void {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function establishActivePaneId(viewportIsWide: boolean): void {
+function establishActivePaneId(isViewportIsWide: boolean): void {
     // eslint-disable-next-line sonarjs/no-selector-parameter -- splitting into two methods would just move the if/else to the caller.
-    if (viewportIsWide) {
+    if (isViewportIsWide) {
         workbenchPaneIsVisible.value = workbenchPaneIsActive.value;
         knowledgePaneIsVisible.value = knowledgePaneIsActive.value;
     } else {
