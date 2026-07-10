@@ -30,190 +30,91 @@ _Email security (SPF/DKIM/DMARC) is not tracked here, as no `dpuse.app` subdomai
 
 <!-- BUNDLE_START -->
 
+The Bundle Analysis Report is generated automatically on each release using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.
+
+_Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._
+
 |Chunk/Module/File|Composition|
 |:------ |:-----------|
-| dist-D8xCmxBb.js | 279.1 kB · gz 83.8 kB · br 73.0 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;prosemirror-view → dist/index.js | `█░░░░░░░░░░░░░░░░░░░` 5.9% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/core → dist/index.js | `█░░░░░░░░░░░░░░░░░░░` 5.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;prosemirror-model → dist/index.js | `█░░░░░░░░░░░░░░░░░░░` 2.5% |
-| &nbsp;&nbsp;&nbsp;&nbsp;prosemirror-transform → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 1.9% |
-| &nbsp;&nbsp;&nbsp;&nbsp;prosemirror-state → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.7% |
-| &nbsp;&nbsp;&nbsp;&nbsp;prosemirror-commands → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/vue-3 → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;prosemirror-schema-list → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;orderedmap → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;prosemirror-keymap → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;w3c-keyname → index.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| ChatPanel-C8zZPeuh.js | 205.4 kB · gz 52.3 kB · br 44.9 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;zod | `██░░░░░░░░░░░░░░░░░░` 8.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;ai → dist/index.js | `█░░░░░░░░░░░░░░░░░░░` 2.7% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@ai-sdk/provider-utils → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 1.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;swrv | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@ai-sdk/provider → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;eventsource-parser | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@ai-sdk/vue → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;lucide-vue-next | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| ChartNode-Dobi6sKL.js | 159.0 kB · gz 54.5 kB · br 47.9 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;chart.js | `██░░░░░░░░░░░░░░░░░░` 10.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@kurkle/color → dist/color.esm.js | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| DocumentEditorView-DlyXWyti.js | 153.0 kB · gz 48.1 kB · br 42.3 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;yjs → dist/yjs.mjs | `█░░░░░░░░░░░░░░░░░░░` 4.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;lib0 | `░░░░░░░░░░░░░░░░░░░░` 1.7% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/y-tiptap → dist/y-tiptap.js | `░░░░░░░░░░░░░░░░░░░░` 1.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/extensions → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;y-partyserver → dist/provider/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;prosemirror-history → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;y-protocols | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;prosemirror-gapcursor → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;rope-sequence → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/extension-collaboration → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;prosemirror-dropcursor → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/extension-collaboration-caret → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/extension-bold → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/extension-heading → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/extension-italic → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/extension-paragraph → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/core → dist/jsx-runtime/jsx-runtime.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;nanoid | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/extension-document → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/extension-text → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/extension-dropcursor → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tiptap/extension-gapcursor → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| index-D_jtjFHo.js | 101.1 kB · gz 37.6 kB · br 33.2 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;dompurify → dist/purify.es.mjs | `░░░░░░░░░░░░░░░░░░░░` 1.9% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 1.9% |
-| &nbsp;&nbsp;&nbsp;&nbsp;vue-router | `░░░░░░░░░░░░░░░░░░░░` 1.8% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@vue/runtime-dom → dist/runtime-dom.esm-bundler.js | `░░░░░░░░░░░░░░░░░░░░` 1.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;lucide-vue-next | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;(runtime) | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;zod → v4/core/core.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| AuthDialog-g5SkKzLG.js | 77.3 kB · gz 24.2 kB · br 21.1 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;@regle/core → dist/regle-core.min.js | `█░░░░░░░░░░░░░░░░░░░` 2.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.8% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@regle/rules → dist/regle-rules.min.js | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
-| &nbsp;&nbsp;&nbsp;&nbsp;lucide-vue-next → dist/esm/icons/user-round-key.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| LibraryPanel-O4VVNP-j.js | 70.2 kB · gz 19.0 kB · br 17.1 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/ai | `░░░░░░░░░░░░░░░░░░░░` 2.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/ai-client | `░░░░░░░░░░░░░░░░░░░░` 1.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;partial-json | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;lucide-vue-next → dist/esm/icons/send-horizontal.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;(runtime) → rolldown/runtime.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| runtime-core.esm-bundler-BcP5EM5M.js | 70.0 kB · gz 26.9 kB · br 24.5 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;@vue/runtime-core → dist/runtime-core.esm-bundler.js | `█░░░░░░░░░░░░░░░░░░░` 4.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@vue/reactivity → dist/reactivity.esm-bundler.js | `░░░░░░░░░░░░░░░░░░░░` 1.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@vue/shared → dist/shared.esm-bundler.js | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| ContextualiseDataLayout-COzQI97y.js | 61.8 kB · gz 21.1 kB · br 18.6 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;d3-selection | `░░░░░░░░░░░░░░░░░░░░` 0.9% |
-| &nbsp;&nbsp;&nbsp;&nbsp;d3-transition | `░░░░░░░░░░░░░░░░░░░░` 0.8% |
-| &nbsp;&nbsp;&nbsp;&nbsp;d3-zoom | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
-| &nbsp;&nbsp;&nbsp;&nbsp;d3-color | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;d3-force | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;d3-quadtree | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;d3-interpolate | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;d3-drag | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;d3-timer | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;d3-dispatch → src/dispatch.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;d3-ease → src/cubic.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| ExploreData-DcWvVic2.js | 56.7 kB · gz 15.2 kB · br 13.5 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;@formkit/drag-and-drop | `░░░░░░░░░░░░░░░░░░░░` 1.9% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 1.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;lucide-vue-next | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| Table-C3H1QJvt.js | 54.9 kB · gz 14.4 kB · br 13.0 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/table-core → build/lib/index.mjs | `█░░░░░░░░░░░░░░░░░░░` 3.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/vue-table → build/lib/index.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;lucide-vue-next | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| KnowledgeHeader-Odcb9_wv.js | 41.2 kB · gz 12.5 kB · br 11.5 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;marked → lib/marked.esm.js | `░░░░░░░░░░░░░░░░░░░░` 1.8% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| sdk.modern-BGKRpR1c.js → @teamhanko/hanko-frontend-sdk → dist/sdk.modern.js | 24.5 kB · gz 7.3 kB · br 6.5 kB · `░░░░░░░░░░░░░░░░░░░░` 1.1% |
-| useDataWindow-Bz5YNUaS.js | 22.7 kB · gz 7.0 kB · br 6.4 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/virtual-core | `░░░░░░░░░░░░░░░░░░░░` 1.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → useDataWindow.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/vue-virtual → dist/esm/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;lucide-vue-next → dist/esm/icons/plus.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| Tag-DAYFXA-U.js | 9.1 kB · gz 3.0 kB · br 2.7 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| ConnectionList-BSW8kv6j.js → src | 8.9 kB · gz 2.6 kB · br 2.3 kB · `░░░░░░░░░░░░░░░░░░░░` 0.5% |
-| ContextPanel-BUIkPLFA.js → src | 7.2 kB · gz 2.5 kB · br 2.3 kB · `░░░░░░░░░░░░░░░░░░░░` 0.5% |
-| SelectConnectionPanel-BZA-EHAR.js → src | 7.2 kB · gz 2.1 kB · br 1.9 kB · `░░░░░░░░░░░░░░░░░░░░` 0.4% |
-| SessionMenu-Cn9xIma7.js | 6.7 kB · gz 2.6 kB · br 2.4 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;lucide-vue-next | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| SelectItemPanel-CanR4uXX.js → src | 6.6 kB · gz 2.9 kB · br 2.6 kB · `░░░░░░░░░░░░░░░░░░░░` 0.5% |
-| ConnectorList-D_JBvq2I.js | 6.0 kB · gz 2.4 kB · br 2.1 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;lucide-vue-next → dist/esm/icons/external-link.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| performanceTracking-PdRw_E2Q.js | 5.7 kB · gz 2.4 kB · br 2.1 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;web-vitals → dist/web-vitals.js | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → performanceTracking.ts | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| ConnectionDialog-DlCPsjYy.js → src | 5.5 kB · gz 2.1 kB · br 1.9 kB · `░░░░░░░░░░░░░░░░░░░░` 0.3% |
-| ScrollArea-Qrmh8xl0.js → src | 5.1 kB · gz 1.9 kB · br 1.6 kB · `░░░░░░░░░░░░░░░░░░░░` 0.4% |
-| AccountDialog-DKbNqTkO.js → src | 4.9 kB · gz 1.9 kB · br 1.6 kB · `░░░░░░░░░░░░░░░░░░░░` 0.3% |
-| useWorkbenchOptions-D-fzRcOp.js → src → useWorkbenchOptions.ts | 4.2 kB · gz 1.4 kB · br 1.2 kB · `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| GridDetailPanel-tymU1ute.js | 3.9 kB · gz 1.7 kB · br 1.5 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;lucide-vue-next → dist/esm/icons/arrow-big-right.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| useConfigOptionConfigs-CDF76TvD.js → src → useConfigOptionConfigs.ts | 3.4 kB · gz 911 B · br 818 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| EstablishDataViewsLayout-jicWc3CX.js → src | 3.2 kB · gz 1.5 kB · br 1.3 kB · `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| Grid-BVrLtVnK.js → src | 3.0 kB · gz 1.4 kB · br 1.3 kB · `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| DataViewList-Bvz3Zk9V.js → src | 2.9 kB · gz 1.4 kB · br 1.2 kB · `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| WorkbenchOptionBar-BVKnfSiX.js → src | 2.9 kB · gz 1.4 kB · br 1.2 kB · `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| Card-DWQqFmIN.js → src | 2.6 kB · gz 1.1 kB · br 956 B · `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| EventQueryList-XgKoErgB.js → src | 2.3 kB · gz 1.2 kB · br 1.1 kB · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| GitHubLogo-C-YF5BG3.js → src | 2.1 kB · gz 1.1 kB · br 1.0 kB · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| DimensionList-FoKwKuaC.js → src | 2.1 kB · gz 1.1 kB · br 971 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| ContextList-B9VWReOJ.js → src | 2.1 kB · gz 1.1 kB · br 971 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| ExplorePresentationsLayout-DKBxxUQ-.js → src | 1.9 kB · gz 1018 B · br 898 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| AboutPanel-BQYBJISV.js → src | 1.7 kB · gz 969 B · br 874 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| KnowledgeLayout-C2AUWD1q.js → src | 1.5 kB · gz 764 B · br 691 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| EmptyPlaceholder-Dholx3ho.js → src | 1.5 kB · gz 789 B · br 690 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| ManageConfigsLayout-BL0Ybjdz.js → src | 1.4 kB · gz 826 B · br 745 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| configMonitor-Chu7uzqA.js → src → configMonitor.ts | 1.4 kB · gz 702 B · br 597 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| HomeLayout-Iap16eXr.js → src | 1.4 kB · gz 752 B · br 686 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dpuse-shared-utilities.es-DBEf96kJ.js → @dpuse/dpuse-shared → dist/dpuse-shared-utilities.es.js | 1.3 kB · gz 675 B · br 598 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| TextField-CRrjfLSU.js → src | 1.3 kB · gz 814 B · br 726 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| ManagePersonalDetailsPanel-Bst-1TYV.js → src → ManagePersonalDetailsPanel.vue | 1.2 kB · gz 327 B · br 257 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| DialogModal-HlOBQzf9.js → src | 1.2 kB · gz 721 B · br 615 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| accountMonitor-K8fRXK4H.js → src → accountMonitor.ts | 1.2 kB · gz 600 B · br 493 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| establishDataViews-DPbauTWz.js → src → establishDataViews.ts | 1.2 kB · gz 649 B · br 544 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| ListItemButton-Bvh4Mpu2.js → src | 1.1 kB · gz 604 B · br 517 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| WorkbenchHeader-BkJV_tmv.js → src | 989 B · gz 591 B · br 549 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| SelectPlaceholder-Djt532yz.js | 925 B · gz 586 B · br 521 B |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;lucide-vue-next → dist/esm/icons/mouse-pointer-click.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| Input-CjKwFZEi.js → src | 871 B · gz 541 B · br 493 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| HomePanel-CkxIylzX.js → src | 857 B · gz 546 B · br 507 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| AssembleDimensionsLayout-BgsnQlmL.js → src | 812 B · gz 486 B · br 433 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| PaneSplitter-CzBGPKY4.js → src | 806 B · gz 514 B · br 442 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| BuildDataAppsLayout-DwUfQUOC.js → src | 797 B · gz 492 B · br 436 B · `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| HomeIcon-DwXnJewB.js → src | 607 B · gz 408 B · br 371 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| CloseButton-DkPXR2ol.js → src | 589 B · gz 384 B · br 325 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| AuditContentPanel-rYialCod.js → src | 563 B · gz 395 B · br 343 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| Separator-gEX25Avu.js → src | 557 B · gz 328 B · br 298 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| useEngine-CZfGwj2k.js → src → useEngine.ts | 509 B · gz 359 B · br 302 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| ManagePreferencesPanel-DYFDgrU0.js → src | 494 B · gz 339 B · br 279 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| DialogHeader-CQemKkWW.js → src | 314 B · gz 251 B · br 214 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| WorkbenchLayout-BTNEvxdk.js → src → WorkbenchLayout.vue | 305 B · gz 253 B · br 213 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| ManageSubscriptionPanel-rSB-8STW.js → src → ManageSubscriptionPanel.vue | 303 B · gz 247 B · br 202 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| ManageDataServiceTokensPanel-B4bVPEEl.js → src → ManageDataServiceTokensPanel.vue | 300 B · gz 244 B · br 202 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| ManageConnectionPanel-BgADVH-3.js → src → ManageConnectionPanel.vue | 297 B · gz 243 B · br 198 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| GenerateTokenPanel-BBNyeFtX.js → src → GenerateTokenPanel.vue | 289 B · gz 237 B · br 196 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| ManageSessionsPanel-Di0gGKut.js → src → ManageSessionsPanel.vue | 289 B · gz 238 B · br 197 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| ReviewActivityPanel-B1zPy-1W.js → src → ReviewActivityPanel.vue | 289 B · gz 238 B · br 196 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| DeleteAccountPanel-BG6A-rlG.js → src → DeleteAccountPanel.vue | 288 B · gz 237 B · br 196 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| ManageAccessPanel-1JuCctsy.js → src → ManageAccessPanel.vue | 287 B · gz 237 B · br 196 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| arrow-big-left-Bkqq31AM.js → lucide-vue-next → dist/esm/icons/arrow-big-left.js | 274 B · gz 205 B · br 179 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| PresenterList-aEvERsfj.js → src | 216 B · gz 193 B · br 157 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| CookbookList-B2GVFF97.js → src | 215 B · gz 197 B · br 159 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| x-BiDyytA_.js → lucide-vue-next → dist/esm/icons/x.js | 143 B · gz 142 B · br 118 B · `░░░░░░░░░░░░░░░░░░░░` 0.0% |
+| dist/client/assets/dist-CJ5Q6wQd.js | 279.8 kB · brotli 73.3 kB |
+| dist/client/assets/ChatPanel-DCpFbEAv.js | 205.4 kB · brotli 44.9 kB |
+| dist/client/assets/ChartNode-C101CmTm.js | 159.0 kB · brotli 47.9 kB |
+| dist/client/assets/DocumentEditorView-BaP4pQJn.js | 155.2 kB · brotli 42.8 kB |
+| dist/client/assets/index-DM8wrwBz.js | 100.6 kB · brotli 33.2 kB |
+| dist/client/assets/AuthDialog-M_1Hc3Ab.js | 77.8 kB · brotli 21.2 kB |
+| dist/client/assets/LibraryPanel-BDCRjp4T.js | 71.6 kB · brotli 17.4 kB |
+| dist/client/assets/runtime-core.esm-bundler-BIebCysl.js | 70.0 kB · brotli 24.5 kB |
+| dist/client/assets/ContextualiseDataLayout-2NmWCxNX.js | 61.8 kB · brotli 18.5 kB |
+| dist/client/assets/ExploreData-CsjqX0Mn.js | 56.7 kB · brotli 13.5 kB |
+| dist/client/assets/Table-CJQS21fv.js | 54.9 kB · brotli 13.0 kB |
+| dist/client/assets/KnowledgeHeader-CjMrXMbZ.js | 41.2 kB · brotli 11.5 kB |
+| dist/client/assets/sdk.modern-BdBoauR-.js | 24.6 kB · brotli 6.5 kB |
+| dist/client/assets/useDataWindow-DqalfpU9.js | 22.9 kB · brotli 6.4 kB |
+| dist/client/assets/Tag-CY5vL2d8.js | 9.0 kB · brotli 2.7 kB |
+| dist/client/assets/ConnectionList-RpD2gMD0.js | 8.8 kB · brotli 2.3 kB |
+| dist/client/assets/ContextPanel-3Gt4dbde.js | 7.2 kB · brotli 2.3 kB |
+| dist/client/assets/SelectConnectionPanel-Bb9oD4hR.js | 7.1 kB · brotli 1.9 kB |
+| dist/client/assets/SessionMenu-Cr78Dosp.js | 6.7 kB · brotli 2.4 kB |
+| dist/client/assets/SelectItemPanel-LUqV4aVO.js | 6.6 kB · brotli 2.6 kB |
+| dist/client/assets/ConnectorList-FgTAgUE3.js | 6.0 kB · brotli 2.1 kB |
+| dist/client/assets/performanceTracking-CoNvNaLU.js | 5.7 kB · brotli 2.1 kB |
+| dist/client/assets/ConnectionDialog-D75d3caU.js | 5.6 kB · brotli 1.9 kB |
+| dist/client/assets/ScrollArea-lnIeppIZ.js | 5.1 kB · brotli 1.7 kB |
+| dist/client/assets/AccountDialog-CJCRRR8o.js | 5.0 kB · brotli 1.7 kB |
+| dist/client/assets/useWorkbenchOptions-LI3ISjwW.js | 4.2 kB · brotli 1.2 kB |
+| dist/client/assets/GridDetailPanel-BqDbuWmd.js | 3.9 kB · brotli 1.5 kB |
+| dist/client/assets/useConfigOptionConfigs-8XtWHvbV.js | 3.4 kB · brotli 814 B |
+| dist/client/assets/EstablishDataViewsLayout-BOE_3gMc.js | 3.2 kB · brotli 1.4 kB |
+| dist/client/assets/DataViewList-UnTtIhUK.js | 3.0 kB · brotli 1.2 kB |
+| dist/client/assets/Grid-b8eWp3Ug.js | 3.0 kB · brotli 1.3 kB |
+| dist/client/assets/WorkbenchOptionBar-DYWYChcz.js | 2.9 kB · brotli 1.3 kB |
+| dist/client/assets/EventQueryList-Dk9RR9n4.js | 2.4 kB · brotli 1.1 kB |
+| dist/client/assets/Card-DehQ_wUP.js | 2.1 kB · brotli 877 B |
+| dist/client/assets/DimensionList-C-J4NJg-.js | 2.1 kB · brotli 987 B |
+| dist/client/assets/ContextList-DBBsT1h0.js | 2.1 kB · brotli 989 B |
+| dist/client/assets/GitHubLogo-fnXHziAK.js | 2.1 kB · brotli 1.0 kB |
+| dist/client/assets/ExplorePresentationsLayout-DDVniEL6.js | 2.0 kB · brotli 922 B |
+| dist/client/assets/configMonitor-DQCb0D7I.js | 1.8 kB · brotli 680 B |
+| dist/client/assets/AboutPanel-CsXOWQCh.js | 1.7 kB · brotli 877 B |
+| dist/client/assets/KnowledgeLayout-CvttK47L.js | 1.6 kB · brotli 722 B |
+| dist/client/assets/EmptyPlaceholder-DDus8vxe.js | 1.5 kB · brotli 689 B |
+| dist/client/assets/ManageConfigsLayout-ixwjbTJ_.js | 1.4 kB · brotli 747 B |
+| dist/client/assets/HomeLayout-CA1L_cqr.js | 1.4 kB · brotli 682 B |
+| dist/client/assets/accountMonitor-BTqoh1Su.js | 1.3 kB · brotli 515 B |
+| dist/client/assets/dpuse-shared-utilities.es-DBEf96kJ.js | 1.3 kB · brotli 598 B |
+| dist/client/assets/TextField-Bu5KkdHo.js | 1.3 kB · brotli 725 B |
+| dist/client/assets/DialogModal-DAW-r4Bx.js | 1.2 kB · brotli 636 B |
+| dist/client/assets/ManagePersonalDetailsPanel-CkdXVHop.js | 1.2 kB · brotli 257 B |
+| dist/client/assets/establishDataViews-BfnMIL-9.js | 1.2 kB · brotli 534 B |
+| dist/client/assets/ListItemButton-Ldu7R44q.js | 1.1 kB · brotli 521 B |
+| dist/client/assets/WorkbenchHeader-DCaWCz4X.js | 989 B · brotli 550 B |
+| dist/client/assets/SelectPlaceholder-B1xmkznR.js | 925 B · brotli 520 B |
+| dist/client/assets/Input-xm0l26iY.js | 871 B · brotli 494 B |
+| dist/client/assets/useApi-s_02lHjl-CTSnjKJW.js | 863 B · brotli 418 B |
+| dist/client/assets/HomePanel-DtSbjnCg.js | 857 B · brotli 508 B |
+| dist/client/assets/AssembleDimensionsLayout-BGBnRJLh.js | 812 B · brotli 436 B |
+| dist/client/assets/PaneSplitter-C--GhAya.js | 806 B · brotli 442 B |
+| dist/client/assets/BuildDataAppsLayout-B8g-9kWQ.js | 797 B · brotli 439 B |
+| dist/client/assets/HomeIcon-DscGQ5Gw.js | 607 B · brotli 371 B |
+| dist/client/assets/CloseButton-DHJsS1CU.js | 589 B · brotli 331 B |
+| dist/client/assets/AuditContentPanel-aV2lSj8q.js | 563 B · brotli 336 B |
+| dist/client/assets/Separator-CmF68kJC.js | 557 B · brotli 296 B |
+| dist/client/assets/useEngine-B1gtPmFx.js | 509 B · brotli 305 B |
+| dist/client/assets/ManagePreferencesPanel-CdRtxGvM.js | 494 B · brotli 281 B |
+| dist/client/assets/DialogHeader-B3fBUesm.js | 314 B · brotli 212 B |
+| dist/client/assets/WorkbenchLayout-BTW5a2jL.js | 305 B · brotli 216 B |
+| dist/client/assets/ManageSubscriptionPanel-CxJWDlph.js | 303 B · brotli 198 B |
+| dist/client/assets/ManageDataServiceTokensPanel-CYuw6haQ.js | 300 B · brotli 199 B |
+| dist/client/assets/ManageConnectionPanel-BXNnNK8V.js | 297 B · brotli 195 B |
+| dist/client/assets/GenerateTokenPanel-Du-spF78.js | 289 B · brotli 193 B |
+| dist/client/assets/ManageSessionsPanel-CIVf0rz8.js | 289 B · brotli 194 B |
+| dist/client/assets/ReviewActivityPanel-DRhtSg_u.js | 289 B · brotli 193 B |
+| dist/client/assets/DeleteAccountPanel-DjGna_W3.js | 288 B · brotli 193 B |
+| dist/client/assets/ManageAccessPanel-B_5141kX.js | 287 B · brotli 193 B |
+| dist/client/assets/arrow-big-left-B7kXRja1.js | 280 B · brotli 191 B |
+| dist/client/assets/PresenterList-DKqBZ9lV.js | 216 B · brotli 157 B |
+| dist/client/assets/CookbookList-BKgt1nRq.js | 215 B · brotli 158 B |
+| dist/client/assets/x-1MCz-SNM.js | 143 B · brotli 119 B |
 
 <!-- BUNDLE_END -->
 

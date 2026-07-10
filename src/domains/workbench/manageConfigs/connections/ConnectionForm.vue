@@ -132,7 +132,6 @@ function getCategoryConnectorLabel(categoryId: string): string {
                     <div>firstCreatedAt: {{ connectionLocalisedConfig.firstCreatedAt }}</div>
                     <div>icon: {{ connectionLocalisedConfig.icon != null }}</div>
                     <div>iconDark: {{ connectionLocalisedConfig.iconDark != null }}</div>
-                    <div>iconNeutral: {{ connectionLocalisedConfig.iconNeutral != null }}</div>
                     <div>lastUpdatedAt: {{ connectionLocalisedConfig.lastUpdatedAt }}</div>
                     <div>lastVerifiedAt: {{ connectionLocalisedConfig.lastVerifiedAt }}</div>
                     <div>status: {{ connectionLocalisedConfig.status }}</div>

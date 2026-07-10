@@ -73,6 +73,7 @@ const config = defineConfigWithVueTs(
                         'dpuse-scrollbar-visible',
                         'dpuse-show-detail',
                         'dpuse-text',
+                        'dpuse-workbench-prose',
                         'gdp-detail',
                         'gdp-grid'
                     ]

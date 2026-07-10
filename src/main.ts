@@ -20,7 +20,7 @@ z.config({ jitless: true }); // NOTE: Required by Vercel AI SDK.
 
 try {
     // Add global error handlers.
-    globalThis.addEventListener('error', (event): void => {
+    addEventListener('error', (event): void => {
         if (event.error instanceof Error) {
             const data = { colno: event.colno, filename: event.filename, lineno: event.lineno, originalMessage: event.message, typeId: 'unhandledRuntime' };
             reportAppError(new AppError('Unhandled error.', 'dpuse.main', data, { cause: event.error }));
@@ -28,19 +28,20 @@ try {
             reportAppError(new AppError('Unhandled error.', 'dpuse.main', { typeId: 'unhandledRuntime' }, { cause: new Error(event.message || 'Unknown error.') }));
         }
     });
-    globalThis.addEventListener('unhandledrejection', (event): void => {
+    addEventListener('unhandledrejection', (event): void => {
         const data = { typeId: 'unhandledPromiseRejection' };
         if (event.reason instanceof Error) {
             reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause: event.reason }));
         } else {
-            reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause: new Error(String(event.reason ?? 'Unknown promise rejection error.')) }));
+            const cause = new Error(String(event.reason ?? 'Unknown promise rejection error.'));
+            reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause }));
         }
         event.preventDefault();
     });
 
     // Define Trusted Types default policy to allow inline worker blob URLs created by Vite's `?worker&inline` transform.
     // Without this, `require-trusted-types-for 'script'` blocks `new Worker(blobUrl)` because the URL is a plain string.
-    if (globalThis.trustedTypes != null) {
+    if (trustedTypes != null) {
         const sanitizeHTML = (html: string): string => DOMPurify.sanitize(html);
         trustedTypes.createPolicy('default', {
             // Allow 'blob:' prefixed URLs for Vite's `?worker&inline` worker factory.

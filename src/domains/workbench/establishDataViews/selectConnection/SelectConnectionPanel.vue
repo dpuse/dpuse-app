@@ -82,7 +82,6 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
                   firstCreatedAt: null,
                   icon: null,
                   iconDark: null,
-                  iconNeutral: null,
                   lastUpdatedAt: null,
                   status: null,
                   statusId: null,
@@ -114,7 +113,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
         @select="handleSelectConnection"
     >
         <template #grid-item="{ item }">
-            <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
+            <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
         </template>
 
         <template #detail="{ item, clear }">

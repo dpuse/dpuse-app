@@ -76,12 +76,11 @@ export async function establishDataView(metaStoreConnectionConfig: ConnectionCon
 
         if (dataViewId === NEW_DATA_VIEW_ID) {
             return setActiveDataViewConfig();
-        } else {
-            const { processRequest } = await useEngine();
-            const getRecordOptions: GetRecordOptions = { path: '/dpuMetaStore/dataViews', id: dataViewId as string }; // TODO: Implement paging.
-            const getRecordResult = (await processRequest('getRecord', metaStoreConnectionConfig, getRecordOptions)) as GetRecordResult;
-            return setActiveDataViewConfig(getRecordResult.record as unknown as DataViewConfig);
         }
+        const { processRequest } = await useEngine();
+        const getRecordOptions: GetRecordOptions = { path: '/dpuMetaStore/dataViews', id: dataViewId as string }; // TODO: Implement paging.
+        const getRecordResult = (await processRequest('getRecord', metaStoreConnectionConfig, getRecordOptions)) as GetRecordResult;
+        return setActiveDataViewConfig(getRecordResult.record as unknown as DataViewConfig);
     } catch (error) {
         throw new AppError('Failed to retrieve data views.', 'dpuse-app.DataViewList.retrieveDataViews', { typeId: 'handled' }, { cause: error });
     }
@@ -104,7 +103,6 @@ export function setActiveDataViewConfig(dataViewConfig?: DataViewConfig): DataVi
         description: {},
         icon: null,
         iconDark: null,
-        iconNeutral: null,
         typeId: 'dataView',
         connectionId: undefined,
         connectionNodeConfig: undefined,

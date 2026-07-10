@@ -17,25 +17,27 @@ const TIMEOUT_DELAY = 5000;
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-let webSocket: WebSocket | undefined;
-let isWebSocketShutdown = false;
+const state: { webSocket: WebSocket | undefined; isWebSocketShutdown: boolean } = {
+    webSocket: undefined,
+    isWebSocketShutdown: false
+};
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function initialise(): void {
-    if ((webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN))) {
-    	return;
+    if (state.webSocket && (state.webSocket.readyState === WebSocket.CONNECTING || state.webSocket.readyState === WebSocket.OPEN)) {
+        return;
     }
 
-    webSocket = connectToWebSocket();
+    state.webSocket = connectToWebSocket();
     window.addEventListener('pagehide', () => shutdown());
     window.addEventListener('pageshow', (event) => {
         if (!event.persisted) {
-        	return;
+            return;
         }
 
-        isWebSocketShutdown = false;
-        webSocket = connectToWebSocket();
+        state.isWebSocketShutdown = false;
+        state.webSocket = connectToWebSocket();
     });
 }
 
@@ -69,7 +71,7 @@ function connectToWebSocket(): WebSocket | undefined {
         pendingWebSocket.addEventListener('close', (event) => {
             if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️  Configuration WebSocket close event '${event.code}' received.`);
             pendingWebSocket = undefined;
-            if (!isWebSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
+            if (!state.isWebSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
         });
 
         pendingWebSocket.addEventListener('error', (error) => {
@@ -86,78 +88,97 @@ function connectToWebSocket(): WebSocket | undefined {
 }
 
 function shutdown(): void {
-    isWebSocketShutdown = true;
-    if (webSocket) {
-        webSocket.close();
-        webSocket = undefined;
+    state.isWebSocketShutdown = true;
+    if (state.webSocket) {
+        state.webSocket.close();
+        state.webSocket = undefined;
     }
 }
 
 // Registration Helpers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
-    let isConnectorRegistered = false;
-    let isPresenterRegistered = false;
-    let isToolRegistered = false;
+    const registrationState = {
+        isConnectorRegistered: false,
+        isPresenterRegistered: false,
+        isToolRegistered: false
+    };
     const pendingConnectorConfigs = [...(connectorConfigs.value ?? [])];
     const pendingPresenterConfigs = [...(presenterConfigs.value ?? [])];
     const pendingToolConfigs = [...(toolConfigs.value ?? [])];
 
     for (const moduleConfig of moduleConfigs) {
-        // TODO: Only register if new added or new version. Can we import in parallel for efficiency?
-        switch (moduleConfig.typeId) {
-            case 'app':
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Workbench '${moduleConfig.id}' v${moduleConfig.version} registered.`);
-                break;
-            case 'engine':
-                engineConfig.value = moduleConfig as EngineConfig;
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Engine '${moduleConfig.id}' v${moduleConfig.version} registered.`);
-                break;
-            case 'connector': {
-                isConnectorRegistered = true;
-                const index = pendingConnectorConfigs.findIndex((connectorConfig) => connectorConfig.id === moduleConfig.id);
-                if (index === -1) {
-                    pendingConnectorConfigs.push(moduleConfig as ConnectorConfig);
-                } else {
-                    pendingConnectorConfigs[index] = moduleConfig as ConnectorConfig;
-                }
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Connector '${moduleConfig.id}' v${moduleConfig.version} registered.`);
-                break;
-            }
-            case 'context':
-                contextConfig.value = moduleConfig as ContextConfig; // Trigger shallow reference change for context.
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Context '${moduleConfig.id}' v${moduleConfig.version} registered.`);
-                break;
-            case 'presenter': {
-                isPresenterRegistered = true;
-                const index = pendingPresenterConfigs.findIndex((presenterConfig) => presenterConfig.id === moduleConfig.id);
-                if (index === -1) {
-                    pendingPresenterConfigs.push(moduleConfig as PresenterConfig);
-                } else {
-                    pendingPresenterConfigs[index] = moduleConfig as PresenterConfig;
-                }
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Presenter '${moduleConfig.id}' v${moduleConfig.version} registered.`);
-                break;
-            }
-            case 'tool': {
-                isToolRegistered = true;
-                const index = pendingToolConfigs.findIndex((toolConfig) => toolConfig.id === moduleConfig.id);
-                if (index === -1) {
-                    pendingToolConfigs.push(moduleConfig as ToolConfig);
-                } else {
-                    pendingToolConfigs[index] = moduleConfig as ToolConfig;
-                }
-                if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Tool '${moduleConfig.id}' v${moduleConfig.version} registered.`);
-                break;
-            }
-        }
+        doRegister(moduleConfig, pendingConnectorConfigs, pendingPresenterConfigs, pendingToolConfigs, registrationState);
     }
 
-    if (isConnectorRegistered) connectorConfigs.value = [...pendingConnectorConfigs];
+    if (registrationState.isConnectorRegistered) connectorConfigs.value = [...pendingConnectorConfigs];
 
-    if (isPresenterRegistered) presenterConfigs.value = [...pendingPresenterConfigs];
+    if (registrationState.isPresenterRegistered) presenterConfigs.value = [...pendingPresenterConfigs];
 
-    if (isToolRegistered) toolConfigs.value = [...pendingToolConfigs];
+    if (registrationState.isToolRegistered) toolConfigs.value = [...pendingToolConfigs];
+}
+
+function doRegister(
+    moduleConfig: ModuleConfig,
+    pendingConnectorConfigs: ConnectorConfig[],
+    pendingPresenterConfigs: PresenterConfig[],
+    pendingToolConfigs: ToolConfig[],
+    registrationState: Record<string, boolean>
+): void {
+    // TODO: Only register if new added or new version. Can we import in parallel for efficiency?
+    switch (moduleConfig.typeId) {
+        case 'app':
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Workbench '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+            return;
+        case 'engine':
+            engineConfig.value = moduleConfig as EngineConfig;
+            // if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Engine '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+            logIt('Engine', moduleConfig);
+            return;
+        case 'connector': {
+            registrationState.isConnectorRegistered = true;
+            const index = pendingConnectorConfigs.findIndex((connectorConfig) => connectorConfig.id === moduleConfig.id);
+            if (index === -1) {
+                pendingConnectorConfigs.push(moduleConfig as ConnectorConfig);
+            } else {
+                pendingConnectorConfigs[index] = moduleConfig as ConnectorConfig;
+            }
+            // if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Connector '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+            logIt('Connector', moduleConfig);
+            return;
+        }
+        case 'context':
+            contextConfig.value = moduleConfig as ContextConfig; // Trigger shallow reference change for context.
+            // if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Context '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+            return;
+        case 'presenter': {
+            registrationState.isPresenterRegistered = true;
+            const index = pendingPresenterConfigs.findIndex((presenterConfig) => presenterConfig.id === moduleConfig.id);
+            if (index === -1) {
+                pendingPresenterConfigs.push(moduleConfig as PresenterConfig);
+            } else {
+                pendingPresenterConfigs[index] = moduleConfig as PresenterConfig;
+            }
+            // if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Presenter '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+            logIt('Presenter', moduleConfig);
+            return;
+        }
+        case 'tool': {
+            registrationState.isToolRegistered = true;
+            const index = pendingToolConfigs.findIndex((toolConfig) => toolConfig.id === moduleConfig.id);
+            if (index === -1) {
+                pendingToolConfigs.push(moduleConfig as ToolConfig);
+            } else {
+                pendingToolConfigs[index] = moduleConfig as ToolConfig;
+            }
+            // if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Tool '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+            return;
+        }
+    }
+}
+
+function logIt(name: string, moduleConfig: ModuleConfig): void {
+    if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  ${name} '${moduleConfig.id}' v${moduleConfig.version} registered.`);
 }
 
 function unregisterConfigurations(moduleConfigs: ModuleConfig[]): void {
@@ -178,7 +199,6 @@ function constructConnectionConfig(connectorConfig: ConnectorConfig): Connection
         firstCreatedAt: null,
         icon: connectorConfig.icon,
         iconDark: connectorConfig.iconDark,
-        iconNeutral: connectorConfig.iconNeutral,
         lastVerifiedAt: 0,
         lastUpdatedAt: null,
         label: connectorConfig.label,

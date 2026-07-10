@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; iconNeutral?: string | null; label: string }">
+<script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; label: string }">
 // ── External Dependencies & Registrations
 import { nextTick, ref, watch } from 'vue';
 
@@ -24,7 +24,7 @@ type Properties = {
 const { activeItem, addLabel, dataSource, isCompact = false, maxListWidth, maxDetailWidth, scrollAreaPadding } = defineProps<Properties>();
 
 defineSlots<{
-    'header'(): unknown;
+    header(): unknown;
     'grid-item'(properties: { item: T }): unknown;
     detail(properties: { item: T; clear: () => void }): unknown;
     'no-selection'(): unknown;

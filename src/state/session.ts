@@ -194,7 +194,6 @@ function constructConnectionConfig(connectorConfig: ConnectorConfig): Connection
         firstCreatedAt: null,
         icon: connectorConfig.icon,
         iconDark: connectorConfig.iconDark,
-        iconNeutral: connectorConfig.iconNeutral,
         lastVerifiedAt: 0,
         lastUpdatedAt: null,
         label: connectorConfig.label,

@@ -66,7 +66,7 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
         @select="handleSelectConnection"
     >
         <template #grid-item="{ item }">
-            <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
+            <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
         </template>
 
         <template #detail="{ item, clear }">

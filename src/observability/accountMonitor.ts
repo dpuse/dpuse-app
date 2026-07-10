@@ -8,26 +8,28 @@ const TIMEOUT_DELAY = 5000;
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-let webSocket: WebSocket | undefined;
-let isWebSocketShutdown = false;
+const state: { webSocket: WebSocket | undefined; isWebSocketShutdown: boolean } = {
+    webSocket: undefined,
+    isWebSocketShutdown: false
+};
 
 // Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function initialise(): void {
-    if ((webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN))) {
-    	return;
+    if (state.webSocket && (state.webSocket.readyState === WebSocket.CONNECTING || state.webSocket.readyState === WebSocket.OPEN)) {
+        return;
     }
 
-    isWebSocketShutdown = false;
-    webSocket = connectToWebSocket();
+    state.isWebSocketShutdown = false;
+    state.webSocket = connectToWebSocket();
     window.addEventListener('pagehide', () => shutdown());
     window.addEventListener('pageshow', (event) => {
         if (!event.persisted) {
-        	return;
+            return;
         }
 
-        isWebSocketShutdown = false;
-        webSocket = connectToWebSocket();
+        state.isWebSocketShutdown = false;
+        state.webSocket = connectToWebSocket();
     });
 }
 
@@ -50,7 +52,9 @@ function connectToWebSocket(): WebSocket | undefined {
         pendingWebSocket.addEventListener('message', (event) => {
             try {
                 const eventData = JSON.parse(event.data);
-                const configs: ConnectionAccountConfig[] = Array.from(eventData.config.connections, connection => ({ connectorId: connection.connectorId }));
+                const configs: ConnectionAccountConfig[] = Array.from(eventData.config.connections, (connection: { connectorId: string }) => ({
+                    connectorId: connection.connectorId
+                }));
                 connectionAccountConfigs.value = configs;
             } catch (error) {
                 if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ❌  Account configuration retrieval error: ${String(error)}`, error);
@@ -60,7 +64,7 @@ function connectToWebSocket(): WebSocket | undefined {
         pendingWebSocket.addEventListener('close', (event) => {
             if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ⚠️  Account WebSocket close event '${event.code}' received.`);
             pendingWebSocket = undefined;
-            if (!isWebSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
+            if (!state.isWebSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
         });
 
         pendingWebSocket.addEventListener('error', (error) => {
@@ -77,9 +81,9 @@ function connectToWebSocket(): WebSocket | undefined {
 }
 
 function shutdown(): void {
-    isWebSocketShutdown = true;
-    if (webSocket) {
-        webSocket.close();
-        webSocket = undefined;
+    state.isWebSocketShutdown = true;
+    if (state.webSocket) {
+        state.webSocket.close();
+        state.webSocket = undefined;
     }
 }

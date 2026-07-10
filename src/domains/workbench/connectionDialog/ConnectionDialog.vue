@@ -119,7 +119,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 
             <GridDetailPanel :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" @select="handleSelectConnector">
                 <template #grid-item="{ item }">
-                    <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :icon-neutral="item.iconNeutral ?? undefined" :label="item.label" />
+                    <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
                 </template>
 
                 <template #detail="{ item, clear }">
