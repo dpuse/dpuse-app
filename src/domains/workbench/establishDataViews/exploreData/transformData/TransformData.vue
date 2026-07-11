@@ -100,8 +100,8 @@ const TYPE_ICON: Record<string, Component> = {
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-let ctr = 0;
-const uid = (): string => String(++ctr);
+const state: { ctr: number } = { ctr: 0 };
+const uid = (): string => String(++state.ctr);
 
 const query = ref<Query>({ select: [], where: [], groupBy: [], having: [], orderBy: [] });
 
@@ -177,7 +177,7 @@ function toggleGroupBy(name: string): void {
 }
 
 function addCondition(target: 'where' | 'having'): void {
-    const draft = target === 'where' ? whereDraft.value : havingDraft.value;
+    const draft = (target === 'where' ? whereDraft : havingDraft).value;
     query.value[target].push({ id: uid(), column: draft.column, op: draft.op, value: draft.value });
     if (target === 'where') whereDraft.value = makeDraft();
     else havingDraft.value = makeDraft();

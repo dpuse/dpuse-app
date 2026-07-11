@@ -1,31 +1,31 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { computed } from 'vue';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { viewportIsWide } from '@/state/appLayout';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { isDialogActive?: boolean; isModalActive?: boolean; isNavigationActive: boolean; isNavigationDelayed: boolean };
-const { isDialogActive = true, isModalActive = false, isNavigationActive, isNavigationDelayed } = defineProps<Properties>();
+type Properties = { isDialogActive?: boolean; isModalActive?: boolean; navigationIsActive: boolean; navigationIsDelayed: boolean };
+const { isDialogActive = true, isModalActive = false, navigationIsActive, navigationIsDelayed } = defineProps<Properties>();
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const isActive = computed(() => isModalActive || isNavigationActive);
-const isDimmed = computed(() => isDialogActive || isNavigationDelayed || (isModalActive && !viewportIsWide.value));
+const maskIsActive = computed(() => isModalActive || navigationIsActive);
+const maskIsDimmed = computed(() => isDialogActive || navigationIsDelayed || (isModalActive && !viewportIsWide.value));
 </script>
 
 <template>
     <!-- No enter transition — transparent blocker appears instantly. Leave fades out. -->
     <Transition name="loading-mask">
         <div
-            v-if="isActive"
+            v-if="maskIsActive"
             aria-hidden="true"
-            :class="['fixed', 'inset-0', 'transition-colors', 'duration-200', 'ease-in-out', 'motion-reduce:transition-none', isDimmed ? 'bg-overlay' : 'bg-transparent']"
+            :class="['fixed', 'inset-0', 'transition-colors', 'duration-200', 'ease-in-out', 'motion-reduce:transition-none', maskIsDimmed ? 'bg-overlay' : 'bg-transparent']"
             data-region="LoadingMask"
         >
-            <div v-if="isNavigationDelayed" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface/80">
+            <div v-if="navigationIsDelayed" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface/80">
                 <p class="text-sm text-muted">Loading…</p>
             </div>
         </div>

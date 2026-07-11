@@ -87,7 +87,8 @@ function getListTitle(id: keyof ActiveLevelConfigMap): string {
 
 function getParentLevelId(id: keyof ActiveLevelConfigMap): keyof ActiveLevelConfigMap {
     if (id === 'dimensionGroup') return 'model';
-    return id === 'model' ? 'modelGroup' : 'modelGroup';
+    //return id === 'model' ? 'modelGroup' : 'modelGroup';
+    return 'modelGroup';
 }
 </script>
 

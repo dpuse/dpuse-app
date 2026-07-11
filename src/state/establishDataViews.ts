@@ -1,8 +1,8 @@
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import type { RouteLocationNormalizedLoadedGeneric } from 'vue-router';
 import { shallowRef } from 'vue';
 
-// DPUse Framework
+// ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { ConnectionConfig, ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';

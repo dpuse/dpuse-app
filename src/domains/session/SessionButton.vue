@@ -5,7 +5,7 @@ import { type ComponentPublicInstance, computed, defineAsyncComponent, onUnmount
 
 // Local (App) Framework
 import { load } from '@/state/component';
-import { expiresIn, isAuthenticated, lifetime } from '@/state/session';
+import { expiresIn, lifetime, sessionIsAuthenticated } from '@/state/session';
 import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
 
 // Local Components - Static
@@ -86,13 +86,13 @@ function onMenuAfterLeave(): void {}
         >
             <Transition name="fade">
                 <!-- Session is authenticated. Show photo or initials. -->
-                <div v-if="isAuthenticated === true" class="absolute inset-0 flex items-center justify-center">
+                <div v-if="sessionIsAuthenticated === true" class="absolute inset-0 flex items-center justify-center">
                     <img v-if="!error" alt="" class="size-9.5 rounded-full" :src="avatarUrl" @error="error = true" />
                     <div v-else class="rounded-full text-xl">{{ initials }}</div>
                 </div>
 
                 <!-- Session is NOT authenticated. Show user silhouette. -->
-                <div v-else-if="isAuthenticated === false" class="absolute inset-0 flex items-center justify-center rounded-full bg-surface">
+                <div v-else-if="sessionIsAuthenticated === false" class="absolute inset-0 flex items-center justify-center rounded-full bg-surface">
                     <svg viewBox="0 0 24 24" fill="currentColor" class="size-8 text-subtle/60">
                         <path
                             fill-rule="evenodd"
@@ -109,7 +109,7 @@ function onMenuAfterLeave(): void {}
             </Transition>
 
             <!-- Circular session-time ring: amber = elapsed (background), green = remaining (foreground) -->
-            <!-- <svg v-if="isAuthenticated === true" class="pointer-events-none absolute inset-0 size-full -rotate-90" viewBox="0 0 40 40" aria-hidden="true">
+            <!-- <svg v-if="sessionIsAuthenticated === true" class="pointer-events-none absolute inset-0 size-full -rotate-90" viewBox="0 0 40 40" aria-hidden="true">
                 <! -- Amber background ring — always full, reveals as green retreats -- >
                 <circle cx="20" cy="20" r="18" fill="none" class="stroke-amber-500" stroke-width="3" />
                 <! -- Green foreground — remaining time, starts at 12 o'clock, shrinks from tail -- >

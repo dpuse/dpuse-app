@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { Chat } from '@ai-sdk/vue';
 import DOMPurify from 'dompurify';
 import { marked } from 'marked'; // NOTE: 'marked' with DOMPurify is at least 14kB smaller (gzipped) than 'micromark' or 'markdown-it' without DOMPurify. Measured June 2, 2026.
+import { useChat } from '@ai-sdk/vue';
 import { ArrowUpIcon, EllipsisVerticalIcon } from '@lucide/vue';
 import { DefaultChatTransport, isReasoningUIPart, isTextUIPart, lastAssistantMessageIsCompleteWithToolCalls, type ReasoningUIPart, type TextUIPart, type UIMessage } from 'ai';
 import { onMounted, onUnmounted, ref } from 'vue';
@@ -23,12 +23,11 @@ const { title } = defineProps<{ title: string }>();
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const input = ref('What should I search for to find the latest developments in renewable energy?');
-const isInputExpanded = ref(false);
+const inputIsExpanded = ref(false);
 const scrollElement = ref<HTMLElement | null>(null);
-let scrollObserver: MutationObserver | null = null;
 const chatErrorsByUserMessageId = ref<Record<string, string[]>>({});
 
-const chat = new Chat({
+const { messages, status, sendMessage, addToolOutput } = useChat({
     transport: new DefaultChatTransport({
         api: 'https://api.dpuse.app/ai/chat',
         body: {
@@ -43,37 +42,37 @@ const chat = new Chat({
             rag: true
         }
     }),
-    onError: (error): void => {
+    onError: (error: Error): void => {
         console.log('onError 1', error);
         const extractedError = error.message;
         const extractedMessage = typeof extractedError === 'string' ? extractedError : JSON.stringify(extractedError);
         console.log('onError 2', extractedMessage);
         appendErrorForLatestUserMessage(extractedMessage);
     },
-    onData: (data): void => {
+    onData: (data: unknown): void => {
         console.log('onData', data);
     },
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
-    onToolCall: async ({ toolCall }): Promise<void> => {
+    onToolCall: async ({ toolCall }: { toolCall: { toolName: string; toolCallId: string } }): Promise<void> => {
         const executor = toolExecutors[toolCall.toolName];
         if (!executor) return;
         try {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any -- TODO
             const arguments_ = (toolCall as any).args ?? (toolCall as any).input;
-            chat.addToolOutput({
+            addToolOutput({
                 tool: toolCall.toolName,
                 toolCallId: toolCall.toolCallId,
                 output: await executor(arguments_)
             });
         } catch (error) {
-            chat.addToolOutput({
+            addToolOutput({
                 tool: toolCall.toolName,
                 toolCallId: toolCall.toolCallId,
                 output: { error: error instanceof Error ? error.message : 'Tool execution failed' }
             });
         }
     },
-    onFinish: (properties): void => {
+    onFinish: (properties: unknown): void => {
         console.log('onFinish', properties);
     }
 });
@@ -89,7 +88,7 @@ function getMessageErrors(messageId: string): string[] {
 }
 
 function appendErrorForLatestUserMessage(errorText: string): void {
-    const latestUserMessage = chat.messages.toReversed().find((message: UIMessage) => message.role === 'user');
+    const latestUserMessage = messages.value.findLast((message: UIMessage) => message.role === 'user');
     const targetMessageId = latestUserMessage?.id;
     if (targetMessageId == null) return;
     const existingErrors = chatErrorsByUserMessageId.value[targetMessageId] ?? [];
@@ -113,38 +112,38 @@ function getMessageSteps(message: UIMessage): AssistantStep[] {
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-let singleRowHeight = 0;
+const state: { scrollObserver: MutationObserver | null; singleRowHeight: number } = { scrollObserver: null, singleRowHeight: 0 };
 
 onMounted(() => {
     const element = document.querySelector<HTMLTextAreaElement>('#comment');
     if (!element) return;
     const savedValue = element.value;
     element.value = '';
-    singleRowHeight = element.clientHeight;
+    state.singleRowHeight = element.clientHeight;
     element.value = savedValue;
-    isInputExpanded.value = element.clientHeight > singleRowHeight;
+    inputIsExpanded.value = element.clientHeight > state.singleRowHeight;
 });
-onUnmounted(() => scrollObserver?.disconnect());
+onUnmounted(() => state.scrollObserver?.disconnect());
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function onTextareaInput(event: Event): void {
-    isInputExpanded.value = (event.target as HTMLTextAreaElement).clientHeight > singleRowHeight;
+    inputIsExpanded.value = (event.target as HTMLTextAreaElement).clientHeight > state.singleRowHeight;
 }
 
 async function handleSendMessage(): Promise<void> {
     const text = input.value.trim();
     if (!text) return;
     input.value = '';
-    await chat.sendMessage({ text });
+    await sendMessage({ text });
 }
 
 function handleScrollAreaInitialised(element: HTMLElement): void {
     scrollElement.value = element;
-    scrollObserver = new MutationObserver(() => {
+    state.scrollObserver = new MutationObserver(() => {
         element.scrollTop = element.scrollHeight;
     });
-    scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
+    state.scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
 }
 </script>
 
@@ -156,7 +155,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
 
         <div class="relative flex min-h-0 flex-1 flex-col pl-4">
             <ScrollArea class="flex flex-1 flex-col" variant="none" scroll-area-padding="embedded" @initialised="handleScrollAreaInitialised">
-                <template v-for="message in chat.messages" :key="message.id">
+                <template v-for="message in messages" :key="message.id">
                     <template v-if="message.role === 'user'">
                         <div v-for="part in message.parts.filter(isTextUIPart)" :key="part.text" class="mt-3 flex">
                             <div class="w-full rounded-md bg-blue-50 px-3 py-2 text-sm">{{ part.text }}</div>
@@ -201,7 +200,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
             <div
                 :class="[
                     'absolute right-4 bottom-(--safe-bottom-offset) left-16 flex flex-none flex-col border border-separator bg-surface py-1 pl-2 sm:min-h-10 sm:flex-row sm:items-center',
-                    isInputExpanded ? 'rounded-2xl' : 'rounded-full'
+                    inputIsExpanded ? 'rounded-2xl' : 'rounded-full'
                 ]"
             >
                 <textarea
@@ -224,7 +223,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
             </div>
 
             <div class="mr-4 flex h-(--status-bar-height) items-center border-t border-separator text-xs text-muted">
-                Status: {{ chat.status }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-sonnet-4-6' }}
+                Status: {{ status }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-sonnet-4-6' }}
             </div>
         </div>
     </div>

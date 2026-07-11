@@ -27,9 +27,9 @@ const { onTrigger } = defineProps<{ onTrigger: (identifier: string) => Promise<v
 const form = reactive({ identifier: 'terrell.jm@icloud.com' });
 const { r$ } = useRegle(form, { identifier: { required, email } });
 
-const isDark = ref(document.documentElement.classList.contains('dark'));
+const appearanceIsDark = ref(document.documentElement.classList.contains('dark'));
 
-const observer = new MutationObserver(() => (isDark.value = document.documentElement.classList.contains('dark')));
+const observer = new MutationObserver(() => (appearanceIsDark.value = document.documentElement.classList.contains('dark')));
 observer.observe(document.documentElement, { attributeFilter: ['class'] });
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -65,9 +65,9 @@ async function handleSubmit(): Promise<void> {
 
         <div class="flex flex-col gap-y-3">
             <Button class="flex justify-start gap-x-2" variant="outline"><UserRoundKeyIcon class="size-5" />{{ t(T, 'Sign_in_with_a_passkey') }}</Button>
-            <Button class="flex justify-start gap-x-2" variant="outline"><AppleLogo class="size-5" :is-dark="isDark" />{{ t(T, 'Sign_in_with_Apple') }}</Button>
+            <Button class="flex justify-start gap-x-2" variant="outline"><AppleLogo class="size-5" :is-dark="appearanceIsDark" />{{ t(T, 'Sign_in_with_Apple') }}</Button>
             <Button class="flex justify-start gap-x-2" variant="outline"><GoogleLogo class="size-5" />{{ t(T, 'Sign_in_with_Google') }}</Button>
-            <Button class="flex justify-start gap-x-2" variant="outline"><GitHubLogo class="size-5" :is-dark="isDark" />{{ t(T, 'Sign_in_with_GitHub') }}</Button>
+            <Button class="flex justify-start gap-x-2" variant="outline"><GitHubLogo class="size-5" :is-dark="appearanceIsDark" />{{ t(T, 'Sign_in_with_GitHub') }}</Button>
             <Button class="flex justify-start gap-x-2" variant="outline"><MicrosoftLogo class="size-5" />{{ t(T, 'Sign_in_with_Microsoft') }}</Button>
         </div>
     </div>

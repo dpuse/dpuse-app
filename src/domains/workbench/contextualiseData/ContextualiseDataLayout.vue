@@ -23,11 +23,10 @@ type GraphLink = SimulationLinkDatum<GraphNode>;
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const container = ref<HTMLDivElement | null>(null);
-let cleanup: (() => void) | null = null;
-let triggerAutoLayout: (() => void) | null = null;
+const state: { cleanup: (() => void) | null; triggerAutoLayout: (() => void) | null } = { cleanup: null, triggerAutoLayout: null };
 
 const onAutoLayout = (): void => {
-    triggerAutoLayout?.();
+    state.triggerAutoLayout?.();
 };
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -147,7 +146,7 @@ onMounted(() => {
     // Keep force simulation idle by default; run it only on explicit request.
     sim.stop();
 
-    triggerAutoLayout = (): void => {
+    state.triggerAutoLayout = (): void => {
         sim.alpha(1);
 
         for (let step = 0; step < 180; step += 1) {
@@ -180,16 +179,16 @@ onMounted(() => {
 
     renderGraph();
 
-    cleanup = (): void => {
+    state.cleanup = (): void => {
         sim.stop();
-        triggerAutoLayout = null;
+        state.triggerAutoLayout = null;
         svg.remove();
     };
 });
 
 onBeforeUnmount(() => {
-    cleanup?.();
-    cleanup = null;
+    state.cleanup?.();
+    state.cleanup = null;
 });
 </script>
 

@@ -1,14 +1,14 @@
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { ref } from 'vue';
 
-// DPUse Framework
+// ── DPUse Framework
 import { DEFAULT_LOCALE_ID, type LocaleId, type LocaleLabel, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const localeId = ref<LocaleId>(establishLocaleId());
 
-// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function n(value: number, options?: Intl.NumberFormatOptions): string {
     return new Intl.NumberFormat(localeId.value, options).format(value);
@@ -21,10 +21,11 @@ export function t(translations: Translations, id: keyof Translations, parameters
     return text;
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function establishLocaleId(): LocaleId {
-    for (const languageId of globalThis.navigator?.languages ?? []) {
+    const languageIds = navigator?.languages ?? [];
+    for (const languageId of languageIds) {
         const lower = languageId.toLowerCase();
         if (SUPPORTED_LANGUAGES.some((lang) => lang.id === lower)) return lower as LocaleId;
         const prefix = lower.split('-', 1)[0] as LocaleId;
@@ -38,6 +39,6 @@ function interpolateParameters(text: string, parameters: Record<string, number |
         if (fixedString != null) {
             return fixedString.slice(1, -1); // Remove surrounding quotes and return fixed string.
         }
-        return parameterId in parameters ? String(parameters[parameterId]) : parameterId; // Return parameter value or parameter identifier if not found.
+        return Object.hasOwn(parameters, parameterId) ? String(parameters[parameterId]) : parameterId; // Return parameter value or parameter identifier if not found.
     });
 }

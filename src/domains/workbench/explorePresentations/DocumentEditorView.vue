@@ -28,9 +28,9 @@ const user = {
     color: CURSOR_COLORS[Math.floor(Math.random() * CURSOR_COLORS.length)]!
 };
 
-const { editor, isConnected } = useCollaborativeEditor(documentId, user, [ChartNode]);
+const { editor, editorIsConnected } = useCollaborativeEditor(documentId, user, [ChartNode]);
 
-const connectionLabel = computed(() => (isConnected.value ? t(T, 'connected') : t(T, 'connecting')));
+const connectionLabel = computed(() => t(T, editorIsConnected.value ? 'connected' : 'connecting'));
 </script>
 
 <template>

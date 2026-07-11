@@ -10,7 +10,7 @@ import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
 // ── Local (App) Framework
 import T from './SessionMenu.json';
-import { expiresIn, isAuthenticated, lifetime, setSessionExpiryTimer, signOut } from '@/state/session';
+import { expiresIn, lifetime, sessionIsAuthenticated, setSessionExpiryTimer, signOut } from '@/state/session';
 import { isPWA, viewportIsWide } from '@/state/appLayout';
 import { localeId, t } from '@/state/locale';
 
@@ -32,8 +32,8 @@ const emit = defineEmits<{ continue: [] }>();
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const currentAppearance = ref(localStorage.getItem(APPEARANCE_KEY) ?? 'auto');
-const fullScreenIsSupported = document.fullscreenEnabled;
-const isFullscreen = ref(!!document.fullscreenElement);
+const isFullScreenSupported = document.fullscreenEnabled;
+const screenIsFullscreen = ref(!!document.fullscreenElement);
 const route = useRoute();
 const router = useRouter();
 
@@ -60,7 +60,7 @@ onUnmounted(() => {
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleFullscreenChange(): void {
-    isFullscreen.value = !!document.fullscreenElement;
+    screenIsFullscreen.value = !!document.fullscreenElement;
 }
 
 function handleManageAccount(): void {
@@ -68,17 +68,18 @@ function handleManageAccount(): void {
     emit('continue');
 }
 
-function handleReloadApplication(): void {
+function handleReloadApp(): void {
     location.reload();
 }
 
-function handleSetAppearance(mode: 'dark' | 'light' | 'auto'): void {
-    const isPrefersDark = globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
+async function handleSetAppearance(mode: 'dark' | 'light' | 'auto'): Promise<void> {
+    const isPrefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = mode === 'dark' || (mode === 'auto' && isPrefersDark);
     localStorage.setItem(APPEARANCE_KEY, mode);
     currentAppearance.value = mode;
     document.documentElement.classList.toggle('dark', isDark);
-    nextTick().then(() => emit('continue'));
+    await nextTick();
+    emit('continue');
 }
 
 function handleSetLanguage(id: LocaleId): void {
@@ -91,8 +92,9 @@ function handleSignInRegister(): void {
     emit('continue');
 }
 
-function handleSignOut(): void {
-    signOut().then(() => emit('continue'));
+async function handleSignOut(): Promise<void> {
+    await signOut();
+    emit('continue');
 }
 
 function handleToggleWindowExpansion(): void {
@@ -162,13 +164,13 @@ async function toggleFullscreen(): Promise<void> {
                         </div>
                     </div>
 
-                    <div v-if="fullScreenIsSupported" class="flex flex-none flex-col">
+                    <div v-if="isFullScreenSupported" class="flex flex-none flex-col">
                         <div class="text-sm font-semibold text-muted">{{ t(T, 'Full_screen') }}</div>
                         <Separator class="mt-1 mb-2.25 flex-none" />
                         <Button class="flex flex-col items-center text-xs" shape="icon" size="sm" @click="handleToggleWindowExpansion">
-                            <ShrinkIcon v-if="isFullscreen" class="size-4.5!" />
+                            <ShrinkIcon v-if="screenIsFullscreen" class="size-4.5!" />
                             <ExpandIcon v-else class="size-4.5!" />
-                            {{ isFullscreen ? t(T, 'Collapse') : t(T, 'Expand') }}
+                            {{ screenIsFullscreen ? t(T, 'Collapse') : t(T, 'Expand') }}
                         </Button>
                     </div>
                 </div>
@@ -191,7 +193,7 @@ async function toggleFullscreen(): Promise<void> {
                 <Separator class="mt-4 mb-2" />
 
                 <!-- Expiry Timer -->
-                <!-- <template v-if="isAuthenticated">
+                <!-- <template v-if="sessionIsAuthenticated">
                     <div class="text-muted text-xs">Expires in {{ formattedExpiresIn }}</div>
                     <div class="mb-1 flex h-1.5 w-full flex-none overflow-hidden rounded-full">
                         <div class="bg-green-500 transition-[width] duration-1000 ease-linear" :style="{ width: `${100 - elapsed}%` }" />
@@ -200,13 +202,13 @@ async function toggleFullscreen(): Promise<void> {
                 </template> -->
 
                 <!-- Manage Account -->
-                <Button v-if="isAuthenticated" class="mt-2 min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>
+                <Button v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>
 
                 <!-- Reload -->
-                <Button v-if="isPWA" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApplication">{{ t(T, 'Reload') }}</Button>
+                <Button v-if="isPWA" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApp">{{ t(T, 'Reload') }}</Button>
 
                 <!-- Sign In / Sign Out -->
-                <Button v-if="isAuthenticated" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</Button>
+                <Button v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</Button>
                 <Button v-else class="mt-2 min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</Button>
             </div>
         </ScrollAreaFit>

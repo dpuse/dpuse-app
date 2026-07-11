@@ -104,7 +104,7 @@ export function useDataWindow<T>({
 
     // Fetch the block if not cached. If already cached, update LRU order so the block is not evicted
     // while it is still in the viewport.
-    function fetchBlock(blockIndex: number): void {
+    async function fetchBlock(blockIndex: number): Promise<void> {
         if (blockCacheMap.has(blockIndex)) {
             recordBlockAccessed(blockIndex);
             return;
@@ -114,21 +114,22 @@ export function useDataWindow<T>({
         const start = blockIndex * cacheBlockSize();
         const end = Math.min(start + cacheBlockSize(), dataSource().rowCount);
         const generation = fetchGeneration;
-        dataSource()
-            .getRows(start, end)
-            .then((rows) => {
-                if (generation !== fetchGeneration) return; // DataSource changed while this fetch was in-flight; discard.
-                while (blockCacheMap.size >= maxBlocksInCache()) {
-                    const evict = blockLruOrder.shift();
-                    if (evict === undefined) break;
-                    blockCacheMap.delete(evict);
-                }
-                blockCacheMap.set(blockIndex, rows);
-                recordBlockAccessed(blockIndex);
-                blockCacheVersion.value++;
-            })
-            .catch((error) => console.error(`[dpuse-app] useDataWindow failed to fetch block ${blockIndex}:`, error))
-            .finally(() => blockPendingSet.delete(blockIndex));
+        try {
+            const rows = await dataSource().getRows(start, end);
+            if (generation !== fetchGeneration) return; // DataSource changed while this fetch was in-flight; discard.
+            while (blockCacheMap.size >= maxBlocksInCache()) {
+                const evict = blockLruOrder.shift();
+                if (evict === undefined) break;
+                blockCacheMap.delete(evict);
+            }
+            blockCacheMap.set(blockIndex, rows);
+            recordBlockAccessed(blockIndex);
+            blockCacheVersion.value++;
+        } catch (error) {
+            console.error(`[dpuse-app] useDataWindow failed to fetch block ${blockIndex}:`, error);
+        } finally {
+            blockPendingSet.delete(blockIndex);
+        }
     }
 
     function getBlockIndex(rowIndex: number): number {

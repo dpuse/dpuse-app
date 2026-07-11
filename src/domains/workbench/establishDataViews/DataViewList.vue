@@ -1,16 +1,16 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-// DPUse Framework
+// ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/component/module/engine';
 import type { RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
@@ -19,39 +19,37 @@ import { useEngine } from '@/services/useEngine';
 import { activeMetaStoreConnectionConfig, dataViewConfigs } from '@/state/session';
 import { establishDataViewsObject, NEW_DATA_VIEW_ID, setActiveDataViewConfig } from '@/state/establishDataViews';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Card from '@/components/ui/Card.vue';
 import Grid from '@/components/framework/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
-// Local Components - Dynamic
+// ── Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const isDataViewsRetrievalFinalised = ref(false);
+const dataViewsRetrievalIsFinalised = ref(false);
 
 const route = useRoute();
 const router = useRouter();
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const dataViewConfigsDataSource = computed(
-    (): DataSource<DataViewConfig> => ({
-        rowCount: dataViewConfigs.value?.length ?? 0,
-        getRows: (start: number, end: number): Promise<DataViewConfig[]> => Promise.resolve((dataViewConfigs.value ?? []).slice(start, end))
-    })
-);
+const dataViewConfigsDataSource = computed((): DataSource<DataViewConfig> => ({
+    rowCount: dataViewConfigs.value?.length ?? 0,
+    getRows: (start: number, end: number): Promise<DataViewConfig[]> => Promise.resolve((dataViewConfigs.value ?? []).slice(start, end))
+}));
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
     activeMetaStoreConnectionConfig,
     (newLocalMetaStoreConnectionConfig) => {
         if (newLocalMetaStoreConnectionConfig == null) {
-            isDataViewsRetrievalFinalised.value = false;
+            dataViewsRetrievalIsFinalised.value = false;
         } else if (dataViewConfigs.value.length === 0) {
             retrieveDataViews(newLocalMetaStoreConnectionConfig);
         }
@@ -79,7 +77,7 @@ function handleSelectDataView(dataViewConfig: DataViewConfig): void {
     }
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function retrieveDataViews(metaStoreConnectionConfig: ConnectionConfig): Promise<void> {
     try {
@@ -93,12 +91,12 @@ async function retrieveDataViews(metaStoreConnectionConfig: ConnectionConfig): P
                 pendingDataViewConfigs.push(...(data.properties.records as DataViewConfig[]));
             } else {
                 dataViewConfigs.value = pendingDataViewConfigs;
-                isDataViewsRetrievalFinalised.value = true;
+                dataViewsRetrievalIsFinalised.value = true;
             }
         });
     } catch (error) {
         dataViewConfigs.value = [];
-        isDataViewsRetrievalFinalised.value = true;
+        dataViewsRetrievalIsFinalised.value = true;
         reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.DataViewList.retrieveDataViews', { typeId: 'handled' }, { cause: error }));
     }
 }
@@ -124,7 +122,7 @@ async function retrieveDataViews(metaStoreConnectionConfig: ConnectionConfig): P
             </template>
         </Grid>
 
-        <ScrollArea v-else-if="isDataViewsRetrievalFinalised" class="flex-1">
+        <ScrollArea v-else-if="dataViewsRetrievalIsFinalised" class="flex-1">
             <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
         </ScrollArea>
 

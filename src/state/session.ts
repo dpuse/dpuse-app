@@ -35,17 +35,19 @@ const LOCAL_META_NODE_CONNECTOR_ID = 'dpuse-connector-dexie-js';
 
 // State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const areUpdatesPending = ref(false);
+const updatesArePending = ref(false);
 export const accountId = ref<string | undefined>();
 export const emailAddress = ref<string | undefined>();
 const emailIsPrimary = ref<boolean | undefined>();
 const emailIsVerified = ref<boolean | undefined>();
 export const expiresAt = ref<number | undefined>();
 export const expiresIn = ref<number | undefined>();
-let expiryTimer: ReturnType<typeof setTimeout> | undefined; // Long-lived authenticated-session-scoped expiry timer.
-let hankoInstance: Hanko | undefined; // Long-lived module-scoped Hanko instance reused across multiple authentication sessions.
-let hankoFlowCleanupFunction: (() => void) | undefined; // Short lived session scoped cleanup callback for the active Hanko flow.
-export const isAuthenticated = ref<boolean | undefined>(); // Undefined if Hanko session validation pending; false if signed OUT; true if signed IN.
+const state: { expiryTimer: ReturnType<typeof setTimeout> | undefined; hankoInstance: Hanko | undefined; hankoFlowCleanupFunction: (() => void) | undefined } = {
+    expiryTimer: undefined, // Long-lived authenticated-session-scoped expiry timer.
+    hankoInstance: undefined, // Long-lived module-scoped Hanko instance reused across multiple authentication sessions.
+    hankoFlowCleanupFunction: undefined // Short lived session scoped cleanup callback for the active Hanko flow.
+};
+export const sessionIsAuthenticated = ref<boolean | undefined>(); // Undefined if Hanko session validation pending; false if signed OUT; true if signed IN.
 export const lifetime = ref<number | undefined>();
 const sessionId = ref<string | undefined>();
 
@@ -87,14 +89,18 @@ export const activeMetaStoreConnectionConfig = computed(() => {
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(areUpdatesPending, (newAreUpdatesPending) => {
+// This module is an app-lifetime singleton: watchers are registered once at import and shared by every consumer,
+// not tied to any one component's lifecycle, so they intentionally live at the top level rather than in a hook.
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
+watch(updatesArePending, (newAreUpdatesPending) => {
     if (newAreUpdatesPending) {
-        globalThis.addEventListener('beforeunload', handleBeforeUnload);
+        addEventListener('beforeunload', handleBeforeUnload);
     } else {
-        globalThis.removeEventListener('beforeunload', handleBeforeUnload);
+        removeEventListener('beforeunload', handleBeforeUnload);
     }
 });
 
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
 watch(
     localeId,
     (newLocaleId) => {
@@ -111,34 +117,18 @@ watch(
 
 export function initialiseServices(): void {
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    import('@teamhanko/hanko-frontend-sdk').then(({ Hanko }) => {
-        hankoInstance = new Hanko(HANKO_API_URL);
-        hankoInstance.onSessionCreated((sessionDetails) => establishSession('created', sessionDetails.claims));
-        hankoInstance.onSessionExpired(() => establishSession('expired'));
-        hankoInstance.onUserDeleted(() => establishSession('deleted'));
-        hankoInstance.onUserLoggedOut(() => establishSession('terminated'));
-        hankoInstance
-            .validateSession()
-            .then((result) => {
-                establishSession('validated', result.is_valid ? result.claims : undefined);
-                import('@/observability/performanceTracking').then((module) => module.initialise());
-            })
-            .catch((error) => {
-                reportAppError(new AppError('Session validation failed.', 'dpuse.sessionStore.useSessionStore.initialiseServices', { typeId: 'handled' }, { cause: error }));
-                establishSession('validationFailure');
-            });
-    });
-    import('@/observability/configMonitor').then((module) => module.initialise());
+    void initialiseHanko();
+    void initialiseConfigMonitor();
 }
 
 export async function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): Promise<void> {
-    hankoFlowCleanupFunction = hankoInstance?.onAfterStateChange(stateHandler);
-    await hankoInstance?.createState(name);
+    state.hankoFlowCleanupFunction = state.hankoInstance?.onAfterStateChange(stateHandler);
+    await state.hankoInstance?.createState(name);
 }
 
 export function destroyFlow(): void {
-    hankoFlowCleanupFunction?.();
-    hankoFlowCleanupFunction = undefined;
+    state.hankoFlowCleanupFunction?.();
+    state.hankoFlowCleanupFunction = undefined;
 }
 
 export function getLocalisedConnection(id: string | undefined, localeId: LocaleId): LocalisedConfig<ConnectionConfig> | undefined {
@@ -147,22 +137,22 @@ export function getLocalisedConnection(id: string | undefined, localeId: LocaleI
     return localiseConfig<ConnectionConfig>(connectionConfig, localeId);
 }
 
-export function setSessionExpiryTimer(runQuickly: boolean = false): void {
+export function setSessionExpiryTimer(isRunQuickly: boolean = false): void {
     clearSessionExpiryTimer();
-    if (runQuickly && expiresAt.value != null) {
+    if (isRunQuickly && expiresAt.value != null) {
         expiresIn.value = Math.max(0, expiresAt.value - Date.now());
     }
-    expiryTimer = globalThis.setInterval(
+    state.expiryTimer = setInterval(
         () => {
             expiresIn.value = Math.max(0, (expiresAt.value ?? 0) - Date.now());
             if (expiresIn.value <= 0) clearSessionExpiryTimer();
         },
-        runQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW
+        isRunQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW
     );
 }
 
 export async function signOut(): Promise<void> {
-    await hankoInstance?.logout();
+    await state.hankoInstance?.logout();
 }
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -181,8 +171,45 @@ function handleVisibilityChange(): void {
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function clearSessionExpiryTimer(): void {
-    globalThis.clearInterval(expiryTimer);
-    expiryTimer = undefined;
+    clearInterval(state.expiryTimer);
+    state.expiryTimer = undefined;
+}
+
+async function initialiseHanko(): Promise<void> {
+    const { Hanko } = await import('@teamhanko/hanko-frontend-sdk');
+    state.hankoInstance = new Hanko(HANKO_API_URL);
+    state.hankoInstance.onSessionCreated((sessionDetails) => establishSession('created', sessionDetails.claims));
+    state.hankoInstance.onSessionExpired(() => establishSession('expired'));
+    state.hankoInstance.onUserDeleted(() => establishSession('deleted'));
+    state.hankoInstance.onUserLoggedOut(() => establishSession('terminated'));
+    try {
+        const result = await state.hankoInstance.validateSession();
+        establishSession('validated', result.is_valid ? result.claims : undefined);
+        void initialisePerformanceTracking();
+    } catch (error) {
+        reportAppError(new AppError('Session validation failed.', 'dpuse.sessionStore.useSessionStore.initialiseServices', { typeId: 'handled' }, { cause: error }));
+        establishSession('validationFailure');
+    }
+}
+
+async function initialiseConfigMonitor(): Promise<void> {
+    const configMonitorModule = await import('@/observability/configMonitor');
+    configMonitorModule.initialise();
+}
+
+async function initialisePerformanceTracking(): Promise<void> {
+    const performanceTrackingModule = await import('@/observability/performanceTracking');
+    performanceTrackingModule.initialise();
+}
+
+async function initialiseAccountMonitor(): Promise<void> {
+    const accountMonitorModule = await import('@/observability/accountMonitor');
+    accountMonitorModule.initialise();
+}
+
+async function terminateAccountMonitor(): Promise<void> {
+    const accountMonitorModule = await import('@/observability/accountMonitor');
+    accountMonitorModule.terminate();
 }
 
 function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
@@ -219,11 +246,11 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
         const establishedAt = claims.issued_at == null ? 0 : Date.parse(claims?.issued_at);
         expiresAt.value = claims.expiration ? Date.parse(claims.expiration) : 0;
         expiresIn.value = Math.max(0, (expiresAt.value || 0) - Date.now());
-        isAuthenticated.value = true;
+        sessionIsAuthenticated.value = true;
         lifetime.value = expiresAt.value - establishedAt;
         sessionId.value = claims.session_id;
 
-        import('@/observability/accountMonitor').then((module) => module.initialise());
+        void initialiseAccountMonitor();
 
         setSessionExpiryTimer();
         identifyUser(claims.subject, claims.session_id, claims.email?.address ?? emailAddress.value);
@@ -233,7 +260,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
         forgetUser();
         clearSessionExpiryTimer();
 
-        import('@/observability/accountMonitor').then((module) => module.terminate());
+        void terminateAccountMonitor();
 
         connectionAccountConfigs.value = [];
         emailAddress.value = undefined;
@@ -241,7 +268,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
         emailIsVerified.value = undefined;
         expiresAt.value = undefined;
         expiresIn.value = undefined;
-        isAuthenticated.value = false;
+        sessionIsAuthenticated.value = false;
         lifetime.value = undefined;
         accountId.value = undefined;
         sessionId.value = undefined;

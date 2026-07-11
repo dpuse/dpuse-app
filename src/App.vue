@@ -10,7 +10,7 @@ import { load } from '@/state/component';
 import T from './App.json';
 import { t } from '@/state/locale';
 import { contentScrollPosition, knowledgePaneIsVisible, sessionMenuIsOpen, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
-import { isNavigationActive, isNavigationDelayed } from '@/state/navigation';
+import { navigationIsActive, navigationIsDelayed } from '@/state/navigation';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue'; // Required by workbench and knowledge toggle buttons which are always visible.
@@ -56,8 +56,8 @@ const workbenchPaneIsActive = ref(false); // On narrow displays a pane can be ac
 const accountDialogIsVisible = computed(() => route.query.dlg === 'account');
 const authDialogIsVisible = computed(() => route.query.dlg === 'auth');
 const connectionDialogIsVisible = computed(() => route.query.dlg === 'connection');
-const isDialogActive = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value);
-const isModalActive = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value || sessionMenuIsOpen.value);
+const dialogIsActive = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value);
+const modalIsActive = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value || sessionMenuIsOpen.value);
 
 // ── Derived State - Panes ────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -78,6 +78,7 @@ const workbenchPaneStyle = computed(() => {
 
 router
     .isReady()
+    // eslint-disable-next-line unicorn/prefer-await -- top-level await in <script setup> suspends the component; .then() keeps mount non-blocking.
     .then(() => {
         // The initial navigation has fully completed. This block intentionally runs once to bootstrap pane state from the initial URL.
         workbenchPaneActivated.value = workbenchPaneIsActive.value = route.path !== '/';
@@ -85,7 +86,7 @@ router
         activeAppPaneId.value = workbenchPaneActivated.value ? 'workbench' : 'knowledge';
         establishActivePaneId(viewportIsWide.value);
     })
-    // eslint-disable-next-line unicorn/prefer-top-level-await -- top-level await in <script setup> suspends the component; .catch() keeps mount non-blocking.
+    // eslint-disable-next-line unicorn/prefer-await, unicorn/prefer-top-level-await -- top-level await in <script setup> suspends the component; .catch() keeps mount non-blocking.
     .catch(() => {
         // Router failed to initialise — fall back to showing the workbench pane.
         workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = true;
@@ -236,10 +237,10 @@ function establishPaneSplitterPercent(): number {
         <!-- Global loading mask - active during route changes and async loads; sustained as scrim when a dialog is open. -->
         <LoadingMask
             class="z-50"
-            :is-dialog-active="isDialogActive"
-            :is-modal-active="isModalActive"
-            :is-navigation-active="isNavigationActive"
-            :is-navigation-delayed="isNavigationDelayed"
+            :is-dialog-active="dialogIsActive"
+            :is-modal-active="modalIsActive"
+            :navigation-is-active="navigationIsActive"
+            :navigation-is-delayed="navigationIsDelayed"
         />
 
         <!-- Workbench toggle fixed in top left corner. Always visible. -->

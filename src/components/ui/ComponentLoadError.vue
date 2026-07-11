@@ -1,17 +1,17 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { RefreshCwIcon, TriangleAlertIcon } from '@lucide/vue';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { name, error } = defineProps<{ name?: string; error: unknown }>();
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleReloadApplication(): void {
+function handleReloadApp(): void {
     location.reload();
 }
 </script>
@@ -30,7 +30,7 @@ function handleReloadApplication(): void {
         <p class="mt-2 rounded px-2 py-1 font-mono text-xs text-amber-900 dark:text-amber-100">
             {{ error instanceof Error ? error.message : String(error) }}
         </p>
-        <Button class="mx-auto mt-4 flex items-center" variant="guarded" @click="handleReloadApplication">
+        <Button class="mx-auto mt-4 flex items-center" variant="guarded" @click="handleReloadApp">
             <RefreshCwIcon class="mr-1.5 size-4" />
             Reload App
         </Button>

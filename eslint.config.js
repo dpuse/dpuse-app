@@ -39,6 +39,10 @@ const config = defineConfigWithVueTs(
             'no-empty': 'warn',
             'prefer-const': 'warn',
 
+            // eslint-plugin-n checks against Node.js runtime support; dpuse-app runs in the browser, so its checks don't apply.
+            'n/no-unsupported-features/es-syntax': 'off',
+            'n/no-unsupported-features/node-builtins': 'off',
+
             '@typescript-eslint/consistent-type-imports': 'warn',
             '@typescript-eslint/explicit-function-return-type': 'warn',
             '@typescript-eslint/no-explicit-any': 'warn',
@@ -49,6 +53,7 @@ const config = defineConfigWithVueTs(
             'sonarjs/cognitive-complexity': 'warn',
             'sonarjs/deprecation': 'warn',
             'sonarjs/no-selector-parameter': 'warn',
+            'sonarjs/todo-tag': 'off',
             'sonarjs/unused-import': 'warn',
             'sonarjs/void-use': 'off', // `void ref.value` is the Vue idiom for explicit dependency tracking in computed().
 
@@ -75,17 +80,19 @@ const config = defineConfigWithVueTs(
                         'dpuse-text',
                         'dpuse-workbench-prose',
                         'gdp-detail',
-                        'gdp-grid'
+                        'gdp-grid',
+                        String.raw`.*stroke-1\.25` // Valid decimal stroke-width utility; the plugin's static class list doesn't recognise it.
                     ]
                 }
             ],
 
             'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['DPUseLogo.vue' /*'src/components/icon(?:/.*)?'*/] }],
+            'unicorn/no-non-function-verb-prefix': 'off',
             'unicorn/prefer-top-level-await': 'warn',
 
             'vue/multi-word-component-names': ['warn', { ignores: ['Breadcrumbs', 'Button', 'Card', 'Grid', 'Input', 'Separator', 'Table', 'Tag'] }],
-            'vue/no-bare-strings-in-template': ['warn'],
-            'vue/no-v-html': 'warn',
+            'vue/no-bare-strings-in-template': 'off',
+            'vue/no-v-html': ['error', { ignorePattern: String.raw`^(?:icon|.*\.icon|renderText\()` }],
             'vue/require-default-prop': 'off', // Too much noise for properties with undefined values.
 
             'vuejs-accessibility/label-has-for': ['error', { required: { some: ['id', 'nesting'] } }]

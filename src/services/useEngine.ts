@@ -13,8 +13,7 @@ const ENGINE_STORAGE_URL_PREFIX = 'https://engine-eu.dpuse.app';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-let activeEngineVersion: string | undefined;
-let engineWorker: EngineWorker | undefined;
+const state: { activeEngineVersion: string | undefined; engineWorker: EngineWorker | undefined } = { activeEngineVersion: undefined, engineWorker: undefined };
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -23,7 +22,7 @@ export async function useEngine(): Promise<EngineWorker> {
     const engineVersion = engineConfig.value!.version as string;
 
     // Return current value if previously imported and a new version has not been published.
-    if (engineWorker != null && activeEngineVersion === engineVersion) return engineWorker;
+    if (state.engineWorker != null && state.activeEngineVersion === engineVersion) return state.engineWorker;
 
     // Import engine and initialise interface.
     const module = await import(/* @vite-ignore */ `${ENGINE_STORAGE_URL_PREFIX}/engine_v${engineVersion}/dpuse-engine.es.js`);
@@ -125,8 +124,8 @@ export async function useEngine(): Promise<EngineWorker> {
     void streamCsvToConsole().catch((error) => console.error('Failed to start stream:', error));
     /*****/
 
-    engineWorker = pendingEngineWorker;
-    activeEngineVersion = engineVersion;
+    state.engineWorker = pendingEngineWorker;
+    state.activeEngineVersion = engineVersion;
 
-    return engineWorker;
+    return state.engineWorker;
 }

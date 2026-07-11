@@ -37,7 +37,7 @@ const activeConfigOptionConfig = ref(configOptionConfigs.value[0]);
                         :to="{ name: configOptionConfig.to, query: { ...$route.query, wbView: configOptionConfig.to } }"
                         @click="activeConfigOptionConfig = configOptionConfig"
                     >
-                        <HomeIcon v-if="configOptionConfig.id === 'home'" class="size-5! [&>path]:stroke-[1.25]" />
+                        <HomeIcon v-if="configOptionConfig.id === 'home'" class="[&>path]:stroke-1.25 size-5!" />
                         <div v-else class="text-sm">{{ configOptionConfig.label }}</div>
                     </Button>
                 </template>

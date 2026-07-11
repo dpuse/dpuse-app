@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 type Badge = { id: string; color?: string; label: string };
 type Properties = { badges?: Badge[]; description?: string; icon?: string; iconDark?: string; isCompact?: boolean; label: string; overline?: string };

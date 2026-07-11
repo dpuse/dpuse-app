@@ -35,10 +35,13 @@ const uiStateId = ref<'enterId' | 'selectSignInMethod' | 'enterPasscode' | 'ente
 
 // Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(() => {
-    constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state))
-        .then(() => (flowConstructed.value = true))
-        .catch((error) => reportAppError(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthDialog.onMounted.constructFlow', { typeId: 'handled' }, { cause: error })));
+onMounted(async () => {
+    try {
+        await constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state));
+        flowConstructed.value = true;
+    } catch (error) {
+        reportAppError(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthDialog.onMounted.constructFlow', { typeId: 'handled' }, { cause: error }));
+    }
 });
 onUnmounted(() => destroyFlow());
 
@@ -89,15 +92,9 @@ async function handleLoginFlowInitState(state: State<'login_init'>): Promise<voi
 }
 
 async function handleLoginFlowMethodChooserState(state: State<'login_method_chooser'>): Promise<void> {
-    if (uiStateId.value === undefined) {
-        const action = state.actions.back;
-        const result = await action.run();
-        if (result.error) console.log(result.error, result);
-    } else {
-        const action = state.actions.continue_to_password_login!;
-        const result = await action.run();
-        if (result.error) console.log(result.error, result);
-    }
+    const action = uiStateId.value === undefined ? state.actions.back : state.actions.continue_to_password_login!;
+    const result = await action.run();
+    if (result.error) console.log(result.error, result);
 }
 
 async function handleLoginFlowPasscodeState(state: State<'passcode_confirmation'>): Promise<void> {

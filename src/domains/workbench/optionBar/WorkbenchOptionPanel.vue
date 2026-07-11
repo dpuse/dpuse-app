@@ -66,7 +66,7 @@ function handleComplete(config?: LocalisedConfig<WorkbenchOptionConfig>): void {
                     :to="{ name: 'workbench', query: { ...$route.query, wbView: 'workbench' } }"
                     @click="handleComplete({ id: 'home', label: '', description: [], icon: '', step: 0, tasks: [] })"
                 >
-                    <HomeIcon aria-hidden="true" class="[&>path]:stroke-[1.25]" />
+                    <HomeIcon aria-hidden="true" class="[&>path]:stroke-1.25" />
                 </Button>
 
                 <template v-for="(config, index) in workflowOptionConfigs" :key="config.id">

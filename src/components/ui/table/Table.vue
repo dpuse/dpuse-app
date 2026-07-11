@@ -1,22 +1,22 @@
 <script setup lang="ts" generic="T extends Record<string, number | string | null | undefined>">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, getCoreRowModel, useVueTable, type VisibilityState } from '@tanstack/vue-table';
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
-// Local Components - Static
+// ── Local Components - Static
 import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';
 import TableHeaderCell from './TableHeaderCell.vue';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000; // Empirically chosen — below this width, flat rendering is cheaper than virtualizer overhead.
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     columnDefinitions: ColumnDef<T>[];
@@ -26,17 +26,17 @@ type Properties = {
 };
 const { columnDefinitions, dataSource, cacheBlockSize = 100, maxBlocksInCache = 10 } = defineProps<Properties>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const scrollElement = useTemplateRef<HTMLDivElement>('scroller');
 
-// State - Toolbar ─────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State - Toolbar ──────────────────────────────────────────────────────────────────────────────────────────────────
 
 const toolbarElement = useTemplateRef<HTMLDivElement>('toolbar');
 const toolbarHeight = ref(0); // Measured so ScrollThumb can be offset to align with the scroll area, not the toolbar.
-let toolbarObserver: ResizeObserver | null = null;
+const state: { toolbarObserver: ResizeObserver | null } = { toolbarObserver: null };
 
-// State - Columns ─────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State - Columns ──────────────────────────────────────────────────────────────────────────────────────────────────
 
 const columnPinningStateMap = shallowRef<ColumnPinningState>({});
 const columnSizingStateMap = shallowRef<ColumnSizingState>({});
@@ -44,10 +44,10 @@ const columnVisibilityStateMap = shallowRef<VisibilityState>({});
 
 // Column virtualization is only activated when the total initial column width exceeds the threshold.
 // Below the threshold, all columns are rendered in a flat flex row — simpler and cheaper.
-const isColumnVirtualisationRequired = computed(() => columnDefinitions.reduce((sum, col) => sum + (col.size ?? 150), 0) > COLUMN_VIRTUALIZATION_THRESHOLD_PX);
+const columnVirtualisationIsRequired = computed(() => columnDefinitions.reduce((sum, col) => sum + (col.size ?? 150), 0) > COLUMN_VIRTUALIZATION_THRESHOLD_PX);
 const columnVirtualizer = useVirtualizer({
     get count() {
-        return isColumnVirtualisationRequired.value ? centerLeafHeaders.value.length : 0;
+        return columnVirtualisationIsRequired.value ? centerLeafHeaders.value.length : 0;
     },
     estimateSize: (index) => centerLeafHeaders.value[index]?.column.getSize() ?? 150,
     getScrollElement: () => scrollElement.value,
@@ -55,7 +55,7 @@ const columnVirtualizer = useVirtualizer({
     overscan: 3
 });
 
-// State - Rows ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State - Rows ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const { virtualRows, totalSize, visibleRowData } = useDataWindow({
     scrollElement,
@@ -64,7 +64,7 @@ const { virtualRows, totalSize, visibleRowData } = useDataWindow({
     maxBlocksInCache: () => maxBlocksInCache
 });
 
-// State - Table ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State - Table ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const table = useVueTable<T>({
     get data(): T[] {
@@ -96,11 +96,11 @@ const table = useVueTable<T>({
     },
     onColumnSizingChange: (updater) => {
         columnSizingStateMap.value = typeof updater === 'function' ? updater(columnSizingStateMap.value) : updater;
-        if (isColumnVirtualisationRequired.value) columnVirtualizer.value.measure();
+        if (columnVirtualisationIsRequired.value) columnVirtualizer.value.measure();
     }
 });
 
-// Derived State - Columns ─────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State - Columns ──────────────────────────────────────────────────────────────────────────────────────────
 
 const centerLeafHeaders = computed(() => table.getCenterLeafHeaders());
 const leftLeafHeaders = computed(() => table.getLeftLeafHeaders());
@@ -108,22 +108,22 @@ const leftPinnedWidth = computed(() => leftLeafHeaders.value.reduce((sum, header
 const rightLeafHeaders = computed(() => table.getRightLeafHeaders());
 const rightPinnedWidth = computed(() => rightLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0));
 const totalCenterWidth = computed(() =>
-    isColumnVirtualisationRequired.value ? columnVirtualizer.value.getTotalSize() : centerLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0)
+    columnVirtualisationIsRequired.value ? columnVirtualizer.value.getTotalSize() : centerLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0)
 );
 const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value + rightPinnedWidth.value);
-const virtualColumns = computed(() => (isColumnVirtualisationRequired.value ? columnVirtualizer.value.getVirtualItems() : []));
+const virtualColumns = computed(() => (columnVirtualisationIsRequired.value ? columnVirtualizer.value.getVirtualItems() : []));
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
     if (!toolbarElement.value) return;
-    toolbarObserver = new ResizeObserver(() => {
+    state.toolbarObserver = new ResizeObserver(() => {
         toolbarHeight.value = toolbarElement.value?.offsetHeight ?? 0;
     });
-    toolbarObserver.observe(toolbarElement.value);
+    state.toolbarObserver.observe(toolbarElement.value);
     toolbarHeight.value = toolbarElement.value.offsetHeight;
 });
-onBeforeUnmount(() => toolbarObserver?.disconnect());
+onBeforeUnmount(() => state.toolbarObserver?.disconnect());
 </script>
 
 <template>
@@ -149,7 +149,7 @@ onBeforeUnmount(() => toolbarObserver?.disconnect());
                     </div>
 
                     <!-- Center headers: flat when below threshold, virtualised when above -->
-                    <template v-if="!isColumnVirtualisationRequired">
+                    <template v-if="!columnVirtualisationIsRequired">
                         <div
                             v-for="centerLeafHeader in centerLeafHeaders"
                             :key="centerLeafHeader.id"
@@ -201,7 +201,7 @@ onBeforeUnmount(() => toolbarObserver?.disconnect());
                         />
 
                         <!-- Center cells: flat when below threshold, virtualised when above -->
-                        <template v-if="!isColumnVirtualisationRequired">
+                        <template v-if="!columnVirtualisationIsRequired">
                             <TableCell
                                 v-for="centerLeafHeader in centerLeafHeaders"
                                 :key="centerLeafHeader.id"

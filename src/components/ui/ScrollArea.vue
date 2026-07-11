@@ -1,13 +1,13 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { onMounted, onUnmounted, ref, useId, useTemplateRef } from 'vue';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const VERTICAL_THUMB_RIGHT_INSET = 2;
 const VERTICAL_THUMB_WIDTH = 6;
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 export type ScrollAreaPadding = 'embedded' | 'none' | 'screen';
 type Properties = { scrollAreaPadding?: ScrollAreaPadding; scrollbarAlwaysVisible?: boolean };
@@ -15,12 +15,12 @@ const { scrollAreaPadding, scrollbarAlwaysVisible = false } = defineProps<Proper
 
 const emit = defineEmits<{ initialised: [scrollElement: HTMLElement] }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const scrollElement = useTemplateRef<HTMLElement>('scrollElement');
 const scrollElementId = useId();
 
-let hideTimer: ReturnType<typeof setTimeout> | null = null;
+const state: { hideTimer: ReturnType<typeof setTimeout> | null } = { hideTimer: null };
 
 const horizontalScrollPercent = ref(0);
 const horizontalThumbLeft = ref(0);
@@ -43,7 +43,7 @@ const verticalThumbTop = ref(0);
 const verticalTrack = useTemplateRef<HTMLElement>('verticalTrack');
 const verticalVisible = ref(false);
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
     const element = scrollElement.value;
@@ -61,10 +61,10 @@ onUnmounted(() => {
     scrollElement.value?.removeEventListener('scroll', handleScroll);
     resizeObserver.disconnect();
     contentObserver.disconnect();
-    if (hideTimer != null) clearTimeout(hideTimer);
+    if (state.hideTimer != null) clearTimeout(state.hideTimer);
 });
 
-// Drag Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Drag Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleVerticalTrackPointerDown(pointerEvent: PointerEvent): void {
     const track = verticalTrack.value;
@@ -121,13 +121,13 @@ function handleHorizontalTrackTouchStart(touchEvent: TouchEvent): void {
 function handleShowThumbs(): void {
     thumbsShown.value = true;
     if (scrollbarAlwaysVisible) return;
-    if (hideTimer != null) clearTimeout(hideTimer);
-    hideTimer = setTimeout(() => {
+    if (state.hideTimer != null) clearTimeout(state.hideTimer);
+    state.hideTimer = setTimeout(() => {
         thumbsShown.value = false;
     }, 1500);
 }
 
-// Drag Helpers ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Drag Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function getScrollOffsetFromPointer(pointerOffset: number, thumbLength: number, travel: number, scrollRange: number): number {
     return scrollRange === 0 || travel === 0 ? 0 : clamp((pointerOffset - thumbLength / 2) / travel, 0, 1) * scrollRange;
@@ -138,8 +138,8 @@ function startDrag(axis: 'v' | 'h', dragStartEvent: PointerEvent | TouchEvent): 
     if (!element) return;
 
     const isTouch = dragStartEvent instanceof TouchEvent;
-    const startY = isTouch ? dragStartEvent.touches[0].clientY : dragStartEvent.clientY;
-    const startX = isTouch ? dragStartEvent.touches[0].clientX : dragStartEvent.clientX;
+    const startY = (isTouch ? dragStartEvent.touches[0] : dragStartEvent).clientY;
+    const startX = (isTouch ? dragStartEvent.touches[0] : dragStartEvent).clientX;
     const startScrollTop = element.scrollTop;
     const startScrollLeft = element.scrollLeft;
 
@@ -151,17 +151,18 @@ function startDrag(axis: 'v' | 'h', dragStartEvent: PointerEvent | TouchEvent): 
     const verticalScrollRange = getScrollableRange(scrollHeight, clientHeight);
     const horizontalScrollRange = getScrollableRange(scrollWidth, clientWidth);
     const verticalTravel = getTrackTravel(verticalTrackHeight, verticalThumbHeight.value);
-    const horizontalTravel = getTrackTravel(horizontalTrackWidth, horizontalThumbWidth.value);
 
     if (axis === 'v' && (verticalTravel === 0 || verticalScrollRange === 0)) return;
+
+    const horizontalTravel = getTrackTravel(horizontalTrackWidth, horizontalThumbWidth.value);
     if (axis === 'h' && (horizontalTravel === 0 || horizontalScrollRange === 0)) return;
 
     const verticalScale = verticalTravel === 0 ? 0 : verticalScrollRange / verticalTravel;
     const horizontalScale = horizontalTravel === 0 ? 0 : horizontalScrollRange / horizontalTravel;
 
     function handleDragMove(dragMoveEvent: PointerEvent | TouchEvent): void {
-        const clientY = dragMoveEvent instanceof TouchEvent ? dragMoveEvent.touches[0].clientY : dragMoveEvent.clientY;
-        const clientX = dragMoveEvent instanceof TouchEvent ? dragMoveEvent.touches[0].clientX : dragMoveEvent.clientX;
+        const clientY = (dragMoveEvent instanceof TouchEvent ? dragMoveEvent.touches[0] : dragMoveEvent).clientY;
+        const clientX = (dragMoveEvent instanceof TouchEvent ? dragMoveEvent.touches[0] : dragMoveEvent).clientX;
         if (axis === 'v') element!.scrollTop = startScrollTop + (clientY - startY) * verticalScale;
         else element!.scrollLeft = startScrollLeft + (clientX - startX) * horizontalScale;
     }
@@ -185,14 +186,14 @@ function startDrag(axis: 'v' | 'h', dragStartEvent: PointerEvent | TouchEvent): 
     }
 }
 
-// Scroll Handlers ─────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Scroll Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleScroll(): void {
     updateThumbs();
     handleShowThumbs();
 }
 
-// Wheel Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Wheel Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleTrackWheel(wheelEvent: WheelEvent): void {
     const element = scrollElement.value;
@@ -200,7 +201,7 @@ function handleTrackWheel(wheelEvent: WheelEvent): void {
     element.scrollBy({ left: wheelEvent.deltaX, top: wheelEvent.deltaY });
 }
 
-// Shared Geometry Helpers ─────────────────────────────────────────────────────────────────────────────────────────────
+// ── Shared Geometry Helpers ──────────────────────────────────────────────────────────────────────────────────────────
 
 function updateThumbs(): void {
     const element = scrollElement.value;

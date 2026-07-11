@@ -90,15 +90,13 @@ const connectionNodeConfigsDataSource = computed<DataSource<ConnectionNodeConfig
 
 // Re-establish the data view when local metastore connection config changes (for example, after a reload or if the metastore connector is reloaded).
 watch(activeMetaStoreConnectionConfig, async (newLocalMetaStoreConnectionConfig) => {
-    if (newLocalMetaStoreConnectionConfig == null) {
-        return;
+    if (newLocalMetaStoreConnectionConfig == null) return;
+
+    const dataViewConfig = await establishDataView(newLocalMetaStoreConnectionConfig, route);
+    if (dataViewConfig.connectionId == null) {
+        router.replace({ name: 'selectConnection', query: { ...route.query, wbView: 'selectConnection' } });
     } else {
-        const dataViewConfig = await establishDataView(newLocalMetaStoreConnectionConfig, route);
-        if (dataViewConfig.connectionId == null) {
-            router.replace({ name: 'selectConnection', query: { ...route.query, wbView: 'selectConnection' } });
-        } else {
-            activeConnectionConfig.value = connectionLocalisedConfigs.value.find((localisedConnectionConfig) => localisedConnectionConfig.id == dataViewConfig.connectionId);
-        }
+        activeConnectionConfig.value = connectionLocalisedConfigs.value.find((localisedConnectionConfig) => localisedConnectionConfig.id == dataViewConfig.connectionId);
     }
 });
 

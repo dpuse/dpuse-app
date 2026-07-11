@@ -1,42 +1,44 @@
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { ref } from 'vue';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const VISIBLE_DELAY_MS = 150;
 const MIN_VISIBLE_MS = 350;
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const isNavigationActive = ref(false);
-export const isNavigationDelayed = ref(false);
+export const navigationIsActive = ref(false);
+export const navigationIsDelayed = ref(false);
 
-let showTimer: ReturnType<typeof setTimeout> | null = null;
-let hideTimer: ReturnType<typeof setTimeout> | null = null;
-let showedAt: number | null = null;
+const state: { showTimer: ReturnType<typeof setTimeout> | null; hideTimer: ReturnType<typeof setTimeout> | null; showedAt: number | null } = {
+    showTimer: null,
+    hideTimer: null,
+    showedAt: null
+};
 
-// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function start(): void {
     clearTimers();
-    isNavigationActive.value = true;
-    isNavigationDelayed.value = false;
-    showTimer = setTimeout(() => {
-        showTimer = null;
-        isNavigationDelayed.value = true;
-        showedAt = Date.now();
+    navigationIsActive.value = true;
+    navigationIsDelayed.value = false;
+    state.showTimer = setTimeout(() => {
+        state.showTimer = null;
+        navigationIsDelayed.value = true;
+        state.showedAt = Date.now();
     }, VISIBLE_DELAY_MS);
 }
 
 export function complete(): void {
     clearTimers();
-    if (!isNavigationDelayed.value) {
-        isNavigationActive.value = false;
+    if (!navigationIsDelayed.value) {
+        navigationIsActive.value = false;
         return;
     }
-    const remaining = Math.max(0, MIN_VISIBLE_MS - (Date.now() - showedAt!));
-    hideTimer = setTimeout(() => {
-        hideTimer = null;
+    const remaining = Math.max(0, MIN_VISIBLE_MS - (Date.now() - state.showedAt!));
+    state.hideTimer = setTimeout(() => {
+        state.hideTimer = null;
         reset();
     }, remaining);
 }
@@ -46,21 +48,21 @@ export function fail(): void {
     reset();
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function clearTimers(): void {
-    if (showTimer != null) {
-        clearTimeout(showTimer);
-        showTimer = null;
+    if (state.showTimer != null) {
+        clearTimeout(state.showTimer);
+        state.showTimer = null;
     }
-    if (hideTimer != null) {
-        clearTimeout(hideTimer);
-        hideTimer = null;
+    if (state.hideTimer != null) {
+        clearTimeout(state.hideTimer);
+        state.hideTimer = null;
     }
 }
 
 function reset(): void {
-    isNavigationActive.value = false;
-    isNavigationDelayed.value = false;
-    showedAt = null;
+    navigationIsActive.value = false;
+    navigationIsDelayed.value = false;
+    state.showedAt = null;
 }

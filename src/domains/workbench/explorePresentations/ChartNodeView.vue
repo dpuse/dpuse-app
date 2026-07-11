@@ -14,7 +14,7 @@ const { node, updateAttributes } = defineProps(nodeViewProps);
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const canvasReference = ref<HTMLCanvasElement | null>(null);
-let chartInstance: Chart | null = null;
+const state: { chartInstance: Chart | null } = { chartInstance: null };
 const localTitle = ref<string>(node.attrs.title);
 const localLabels = ref<string>(node.attrs.labels);
 const localData = ref<string>(node.attrs.data);
@@ -23,7 +23,7 @@ const localData = ref<string>(node.attrs.data);
 
 onMounted(renderChart);
 
-onBeforeUnmount(() => chartInstance?.destroy());
+onBeforeUnmount(() => state.chartInstance?.destroy());
 
 // Sync local state when a collaborator updates the chart externally.
 watch(
@@ -49,15 +49,15 @@ function handleApplyChanges(): void {
 function renderChart(): void {
     if (!canvasReference.value) return;
 
-    chartInstance?.destroy();
+    state.chartInstance?.destroy();
 
     const parsedLabels = localLabels.value
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
-    const parsedData = localData.value.split(',').map((s) => Number.parseFloat(s.trim()) || 0);
+    const parsedData = localData.value.split(',').map((s) => Number(s.trim()) || 0);
 
-    chartInstance = new Chart(canvasReference.value, {
+    state.chartInstance = new Chart(canvasReference.value, {
         type: 'bar',
         data: {
             labels: parsedLabels,

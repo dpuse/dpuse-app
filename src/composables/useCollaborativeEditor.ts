@@ -37,13 +37,13 @@ export function useCollaborativeEditor(
     documentId: string,
     user: CollaborativeUser,
     extensions: AnyExtension[] = []
-): { editor: ShallowRef<Editor | undefined>; isConnected: Ref<boolean> } {
+): { editor: ShallowRef<Editor | undefined>; editorIsConnected: Ref<boolean> } {
     const ydoc = new Doc();
 
-    const isConnected = ref(false);
+    const editorIsConnected = ref(false);
     const provider = new YProvider(PARTYKIT_HOST, documentId, ydoc, { protocol: 'wss' });
     provider.on('status', ({ status }: { status: string }) => {
-        isConnected.value = status === 'connected';
+        editorIsConnected.value = status === 'connected';
     });
 
     const editor = useEditor({
@@ -87,5 +87,5 @@ export function useCollaborativeEditor(
         ydoc.destroy();
     });
 
-    return { editor, isConnected };
+    return { editor, editorIsConnected };
 }

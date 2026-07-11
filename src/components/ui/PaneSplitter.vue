@@ -1,12 +1,12 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { ref } from 'vue';
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const modelValue = defineModel<number>();
 
-const isDragging = ref(false);
+const splitterIsDragging = ref(false);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -15,19 +15,19 @@ function handleDoubleClick(): void {
 }
 
 function handlePointerDown(event: PointerEvent): void {
-    isDragging.value = true;
+    splitterIsDragging.value = true;
     document.body.style.userSelect = 'none';
     (event.target as HTMLElement).setPointerCapture(event.pointerId);
 }
 
 function handlePointerMove(event: PointerEvent): void {
-    if (!isDragging.value) return;
+    if (!splitterIsDragging.value) return;
     const percent = (event.clientX / window.innerWidth) * 100;
     modelValue.value = Math.min(Math.max(percent, 20), 80);
 }
 
 function handlePointerUp(): void {
-    isDragging.value = false;
+    splitterIsDragging.value = false;
     document.body.style.userSelect = '';
 }
 </script>

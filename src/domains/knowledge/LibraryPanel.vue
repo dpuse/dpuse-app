@@ -39,13 +39,12 @@ const PROMPT = 'What should I search for to find the latest developments in rene
 
 const input = ref(PROMPT);
 const scrollElement = ref<HTMLElement | null>(null);
-let scrollObserver: MutationObserver | null = null;
 
 const chatMessages = ref<LibraryChatMessage[]>([]);
 const chatErrorsByUserMessageId = ref<Record<string, string[]>>({});
 const chatStatus = ref('idle');
 
-let client: ChatClient | null = null;
+const state: { client: ChatClient | null; scrollObserver: MutationObserver | null } = { client: null, scrollObserver: null };
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -76,7 +75,7 @@ function getMessageErrors(messageId: string): string[] {
 }
 
 function appendErrorForLatestUserMessage(errorText: string): void {
-    const latestUserMessage = chatMessages.value.toReversed().find((message) => message.role === 'user');
+    const latestUserMessage = chatMessages.value.findLast((message) => message.role === 'user');
     const targetMessageId = latestUserMessage?.id;
     if (targetMessageId == null) return;
     const existingErrors = chatErrorsByUserMessageId.value[targetMessageId] ?? [];
@@ -99,7 +98,7 @@ function getMessageSteps(message: LibraryChatMessage): AssistantStep[] {
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
-    client = new ChatClient({
+    state.client = new ChatClient({
         connection: fetchServerSentEvents('https://api.dpuse.app/ai/chat/tanstack'),
         forwardedProps: {
             providerId: 'anthropic',
@@ -154,24 +153,24 @@ onMounted(() => {
     });
 });
 
-onUnmounted(() => scrollObserver?.disconnect());
+onUnmounted(() => state.scrollObserver?.disconnect());
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSendMessage(): Promise<void> {
-    if (client == null) return;
+    if (state.client == null) return;
     const text = input.value.trim();
     if (!text) return;
     input.value = '';
-    await client.sendMessage(text);
+    await state.client.sendMessage(text);
 }
 
 function handleScrollAreaInitialised(element: HTMLElement): void {
     scrollElement.value = element;
-    scrollObserver = new MutationObserver(() => {
+    state.scrollObserver = new MutationObserver(() => {
         element.scrollTop = element.scrollHeight;
     });
-    scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
+    state.scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
 }
 </script>
 
