@@ -1,8 +1,8 @@
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { computed, ref, shallowRef, watch } from 'vue';
 
-// DPUse Framework
+// ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
@@ -14,26 +14,26 @@ import type { EventQueryConfig } from '@dpuse/dpuse-shared/component/eventQuery'
 import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { localeId } from './locale';
 import { reportAppError } from '@/observability/errorTracking';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
 import { type LocaleId, localiseConfig, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface ConnectionAccountConfig {
     connectorId: string;
 }
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 const EXPIRE_INTERVAL_SLOW = 60_000; // Milliseconds (1 minute).
 const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
 const LOCAL_META_NODE_CONNECTOR_ID = 'dpuse-connector-dexie-js';
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const updatesArePending = ref(false);
 export const accountId = ref<string | undefined>();
@@ -51,7 +51,7 @@ export const sessionIsAuthenticated = ref<boolean | undefined>(); // Undefined i
 export const lifetime = ref<number | undefined>();
 const sessionId = ref<string | undefined>();
 
-// State - Configuration ───────────────────────────────────────────────────────────────────────────────────────────────
+// ── State - Configuration ────────────────────────────────────────────────────────────────────────────────────────────
 
 export const connectionAccountConfigs = shallowRef<ConnectionAccountConfig[]>([]);
 export const connectorConfigs = shallowRef<ConnectorConfig[]>([]);
@@ -63,7 +63,7 @@ export const dimensionConfigs = shallowRef<DimensionConfig[]>([]);
 export const presenterConfigs = shallowRef<PresenterConfig[]>([]);
 export const toolConfigs = shallowRef<ToolConfig[]>([]);
 
-// Derived State - Connection Configurations ───────────────────────────────────────────────────────────────────────────
+// ── Derived State - Connection Configurations ────────────────────────────────────────────────────────────────────────
 
 export const connectionConfigs = computed<ConnectionConfig[]>(() => {
     const configs: ConnectionConfig[] = [];
@@ -87,7 +87,7 @@ export const activeMetaStoreConnectionConfig = computed(() => {
     return metaNodeConnectorConfig ? constructConnectionConfig(metaNodeConnectorConfig) : undefined;
 });
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // This module is an app-lifetime singleton: watchers are registered once at import and shared by every consumer,
 // not tied to any one component's lifecycle, so they intentionally live at the top level rather than in a hook.
@@ -109,11 +109,11 @@ watch(
     { immediate: true }
 );
 
-// Side Effects - Connection Configurations ────────────────────────────────────────────────────────────────────────────
+// ── Side Effects - Connection Configurations ─────────────────────────────────────────────────────────────────────────
 
 // watch(activeMetaStoreConnectionConfig, () => (dataViewConfigs.value = []), { immediate: true }); // TODO: Should we make this conditional?
 
-// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function initialiseServices(): void {
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -168,7 +168,7 @@ function handleVisibilityChange(): void {
     if (expiresIn.value <= 0) clearSessionExpiryTimer();
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function clearSessionExpiryTimer(): void {
     clearInterval(state.expiryTimer);

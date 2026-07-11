@@ -1,4 +1,4 @@
-// DPUse Framework
+// ── DPUse Framework
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { ContextConfig } from '@dpuse/dpuse-shared/component/module/context';
@@ -7,22 +7,22 @@ import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { connectorConfigs, contextConfig, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DPU_API_HOST = 'api.dpuse.app';
 const TIMEOUT_DELAY = 5000;
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const state: { webSocket: WebSocket | undefined; isWebSocketShutdown: boolean } = {
     webSocket: undefined,
     isWebSocketShutdown: false
 };
 
-// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function initialise(): void {
     if (state.webSocket && (state.webSocket.readyState === WebSocket.CONNECTING || state.webSocket.readyState === WebSocket.OPEN)) {
@@ -41,7 +41,7 @@ export function initialise(): void {
     });
 }
 
-// WebSocket helpers ───────────────────────────────────────────────────────────────────────────────────────────────────
+// ── WebSocket helpers ────────────────────────────────────────────────────────────────────────────────────────────────
 
 function connectToWebSocket(): WebSocket | undefined {
     try {
@@ -95,7 +95,7 @@ function shutdown(): void {
     }
 }
 
-// Registration Helpers ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Registration Helpers ─────────────────────────────────────────────────────────────────────────────────────────────
 
 function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
     const registrationState = {
@@ -188,7 +188,7 @@ function unregisterConfigurations(moduleConfigs: ModuleConfig[]): void {
     }
 }
 
-// Connection Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Connection Helpers ───────────────────────────────────────────────────────────────────────────────────────────────
 
 function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
     return {

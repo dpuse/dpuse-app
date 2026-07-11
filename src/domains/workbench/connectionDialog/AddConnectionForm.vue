@@ -1,30 +1,30 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { ArrowBigRightIcon } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 
-// DPUse Framework
+// ── DPUse Framework
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/component/module/engine';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { accountId } from '@/state/session';
 import T from './AddConnectionForm.json';
 import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { connectorLocalisedConfig } = defineProps<{ connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> }>();
 const emit = defineEmits<{ submit: [] }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();
@@ -36,7 +36,7 @@ async function handleSubmit(): Promise<void> {
     // await router.push({ name: 'selectItem', query: { ...route.query, wbView: 'selectItem' } });
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // async function testAuth(): Promise<void> {
 //     if (connectionLocalisedConfig == null) return;

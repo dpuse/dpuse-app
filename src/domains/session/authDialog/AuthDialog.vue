@@ -1,17 +1,17 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
 import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
 import T from './LoginForm.json';
 import { t } from '@/state/locale';
 import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
-// Local Components - Static
+// ── Local Components - Static
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';
@@ -20,9 +20,9 @@ import PasswordForm from '@/domains/session/authDialog/PasswordForm.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();
@@ -33,7 +33,7 @@ const handlePasswordBack = ref<(() => Promise<void>) | undefined>(undefined);
 const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 const uiStateId = ref<'enterId' | 'selectSignInMethod' | 'enterPasscode' | 'enterPassword' | undefined>(undefined);
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(async () => {
     try {
@@ -45,7 +45,7 @@ onMounted(async () => {
 });
 onUnmounted(() => destroyFlow());
 
-// Login flow helpers ──────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Login flow helpers ───────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleLoginFlowStateChange(state: AnyState): Promise<void> {
     switch (state.name) {
@@ -125,7 +125,7 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
     if (result.error) console.log(result.error, result);
 }
 
-// Transition helpers ──────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Transition helpers ───────────────────────────────────────────────────────────────────────────────────────────────
 
 function onBeforeLeave(): void {
     const container = containerElement.value;

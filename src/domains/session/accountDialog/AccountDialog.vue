@@ -1,15 +1,15 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { useRoute } from 'vue-router';
 import { ArrowBigLeftIcon, LoaderCircleIcon } from '@lucide/vue';
 import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { t } from '@/state/locale';
 import T from './AccountDialog.json';
 import { viewportIsWide } from '@/state/appLayout';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import ComponentLoadError from '@/components/ui/ComponentLoadError.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
@@ -18,7 +18,7 @@ import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string; isDestructive?: boolean };
 const OPTION_CONFIGS: OptionLocalisedConfig[] = [
@@ -49,16 +49,16 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
     deleteAccount: defineAsyncComponent(() => import('./DeleteAccountPanel.vue'))
 };
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
 const subPanelError = ref<unknown>(null);
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onErrorCaptured((error) => {
     subPanelError.value = error;

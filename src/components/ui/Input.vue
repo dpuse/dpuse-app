@@ -1,12 +1,12 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { useAttrs, useId } from 'vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { id, label, labelHidden = false } = defineProps<{ id?: string; label: string; labelHidden?: boolean }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const attributes = useAttrs();
 

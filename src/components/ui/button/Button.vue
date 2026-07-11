@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { computed } from 'vue';
 import { type RouteLocationRaw, RouterLink } from 'vue-router';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const COMMON_RECTANGLE_CLASSES = 'rounded-md text-[15px] leading-6 focus-visible:ring-2 px-3 py-1.5';
 const COMMON_GRAPHIC_CLASSES = 'focus-visible:ring-2';
@@ -41,7 +41,7 @@ const COMMON_OUTLINE_CLASSES = [
     'dark:hover:bg-zinc-300/25 dark:active:bg-zinc-300/35 dark:focus-visible:ring-zinc-500 dark:text-content'
 ];
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 export type ButtonShape = 'icon' | 'minimal' | 'rectangle';
 export type ButtonVariant = 'destructive' | 'ghost' | 'guarded' | 'neutral' | 'outline' | 'positive' | 'primary'; // TODO: Check actual usage of 'ghost', 'positive' and 'destructive'.
@@ -50,7 +50,7 @@ type ButtonType = 'button' | 'reset' | 'submit'; // TODO: 'reset' and 'submit' a
 type Properties = { shape?: ButtonShape; variant?: ButtonVariant; size?: ButtonSize; isActive?: boolean; type?: ButtonType; to?: RouteLocationRaw };
 const { shape = 'rectangle', variant = 'neutral', size = 'lg', isActive = false, type = 'button', to } = defineProps<Properties>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const classes = computed((): (string | string[] | undefined)[] => {
     if (shape === 'minimal') return [];

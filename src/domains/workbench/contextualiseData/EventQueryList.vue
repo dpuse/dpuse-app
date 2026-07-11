@@ -1,51 +1,51 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { PlusIcon } from '@lucide/vue';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-// DPUse Framework
+// ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/component/module/engine';
 import type { EventQueryConfig } from '@dpuse/dpuse-shared/component/eventQuery';
 import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import T from './EventQueryList.json';
 import { useEngine } from '@/services/useEngine';
 import { activeMetaStoreConnectionConfig, eventQueryConfigs } from '@/state/session';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Card from '@/components/ui/Card.vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import Grid from '@/components/framework/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
-// Local Components - Dynamic
+// ── Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const eventQueryRetrievalIsActive = ref(false);
 const route = useRoute();
 const router = useRouter();
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dataSource = computed((): DataSource<EventQueryConfig> => ({
     rowCount: eventQueryConfigs.value?.length ?? 0,
     getRows: (start: number, end: number): Promise<EventQueryConfig[]> => Promise.resolve((eventQueryConfigs.value ?? []).slice(start, end))
 }));
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(activeMetaStoreConnectionConfig, (newConnectionConfig) => retrieveEventQueries(newConnectionConfig), { immediate: true });
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promise<void> {
     try {

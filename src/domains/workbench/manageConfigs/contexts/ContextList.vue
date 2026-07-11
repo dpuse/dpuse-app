@@ -2,14 +2,14 @@
 // External Dependencies & Registrations
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
-// DPUse Framework
+// ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { DimensionConfig } from '@dpuse/dpuse-shared/component/dimension';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/component/module/engine';
 import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
@@ -17,32 +17,30 @@ import T from './ContextList.json';
 import { useEngine } from '@/services/useEngine';
 import { activeMetaStoreConnectionConfig, dimensionConfigs } from '@/state/session';
 
-// Local Components - Static
+// ── Local Components - Static
 import Card from '@/components/ui/Card.vue';
 import Grid from '@/components/framework/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
-// Local Components - Dynamic
+// ── Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dimensionRetrievalIsActive = ref(false);
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const dataSource = computed(
-    (): DataSource<DimensionConfig> => ({
-        rowCount: dimensionConfigs.value?.length ?? 0,
-        getRows: (start: number, end: number): Promise<DimensionConfig[]> => Promise.resolve((dimensionConfigs.value ?? []).slice(start, end))
-    })
-);
+const dataSource = computed((): DataSource<DimensionConfig> => ({
+    rowCount: dimensionConfigs.value?.length ?? 0,
+    getRows: (start: number, end: number): Promise<DimensionConfig[]> => Promise.resolve((dimensionConfigs.value ?? []).slice(start, end))
+}));
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(activeMetaStoreConnectionConfig, (newConnectionConfig) => retrieveDimensions(newConnectionConfig), { immediate: true });
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function retrieveDimensions(connectionConfig?: ConnectionConfig): Promise<void> {
     try {

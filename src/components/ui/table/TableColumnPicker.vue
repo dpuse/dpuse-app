@@ -1,19 +1,19 @@
 <script setup lang="ts" generic="T">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { Settings2 } from '@lucide/vue';
 import type { Table } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { table } = defineProps<{ table: Table<T> }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const open = ref(false);
 const pickerElement = useTemplateRef<HTMLDivElement>('picker');
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => document.addEventListener('click', onDocumentClick));
 onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick));

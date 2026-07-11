@@ -1,11 +1,11 @@
 <script setup lang="ts">
-// DPUse Framework
+// ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local Components - Static
+// ── Local Components - Static
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 

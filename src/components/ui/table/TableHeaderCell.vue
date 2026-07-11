@@ -1,20 +1,20 @@
 <script setup lang="ts" generic="T">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { ChevronDown } from '@lucide/vue';
 import type { Header } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { header } = defineProps<{ header: Header<T, unknown> }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const menuElement = useTemplateRef<HTMLDivElement>('menu');
 
 const menuOpen = ref(false);
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => document.addEventListener('click', onDocumentClick));
 onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick));

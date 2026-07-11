@@ -1,12 +1,12 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { computed } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from './Button.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 export type ListItemVariant = 'destructive' | 'neutral';
 const {
@@ -19,7 +19,7 @@ const {
     to?: RouteLocationRaw;
 }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const classes = computed(() => [
     'rounded-md text-[15px] leading-6 focus-visible:ring-2 dark:text-content w-full text-left min-w-0 py-1 px-2 overflow-hidden',

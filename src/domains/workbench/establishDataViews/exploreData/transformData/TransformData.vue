@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import {
     CalendarClockIcon,
     CalendarIcon,
@@ -17,14 +17,14 @@ import {
 } from '@lucide/vue';
 import { type Component, computed, ref } from 'vue';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { useSelectColumnSort } from './useSelectColumnSort';
 
-// Local Components - Static
+// ── Local Components - Static
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import SortableColumnTile from './ColumnPill.vue';
 
-// Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface Column {
     name: string;
@@ -46,7 +46,7 @@ interface Query {
     orderBy: Array<{ column: string; dir: 'ASC' | 'DESC' }>;
 }
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const COLUMNS: Column[] = [
     { name: 'id', type: 'id' },
@@ -98,7 +98,7 @@ const TYPE_ICON: Record<string, Component> = {
     dateTime: CalendarClockIcon
 };
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const state: { ctr: number } = { ctr: 0 };
 const uid = (): string => String(++state.ctr);
@@ -199,7 +199,7 @@ function toggleOrderDirection(name: string): void {
     if (item) item.dir = item.dir === 'ASC' ? 'DESC' : 'ASC';
 }
 
-// Helpers - Styling  ──────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers - Styling  ───────────────────────────────────────────────────────────────────────────────────────────────
 
 function colType(name: string): string {
     return COLUMNS.find((c) => c.name === name)?.type ?? 'text';
@@ -217,7 +217,7 @@ function typeIcon(name: string): Component {
     return TYPE_ICON[colType(name)] ?? TypeIcon;
 }
 
-// Helpers - SQL Preview  ──────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers - SQL Preview  ───────────────────────────────────────────────────────────────────────────────────────────
 
 // function condSql(c: Condition): string {
 //     const rhs = ['IS NULL', 'IS NOT NULL'].includes(c.op) ? '' : ` '${c.value}'`;

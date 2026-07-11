@@ -11,12 +11,12 @@ import { t } from '@/state/locale';
 import T from './DocumentEditorView.json';
 import { CURSOR_COLORS, useCollaborativeEditor } from '@/composables/useCollaborativeEditor';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Separator from '@/components/ui/Separator.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const rawId = route.params.documentId;

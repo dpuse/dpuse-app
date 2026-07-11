@@ -1,26 +1,26 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { drag } from 'd3-drag';
 import { select } from 'd3-selection';
 import { type D3ZoomEvent, zoom } from 'd3-zoom'; // TODO: This adds about 10kB gzipped bring total to 21.66kB.
 import { forceCenter, forceLink, forceManyBody, forceSimulation, type SimulationLinkDatum, type SimulationNodeDatum } from 'd3-force';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { t } from '@/state/locale';
 import T from './ContextualiseDataLayout.json';
 
-// Local Components - Static
+// ── Local Components - Static
 import Separator from '@/components/ui/Separator.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 import WorkbenchLayout from '../WorkbenchLayout.vue';
 
-// Types ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 type GraphNode = SimulationNodeDatum & { id: string };
 type GraphLink = SimulationLinkDatum<GraphNode>;
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const container = ref<HTMLDivElement | null>(null);
 const state: { cleanup: (() => void) | null; triggerAutoLayout: (() => void) | null } = { cleanup: null, triggerAutoLayout: null };
@@ -29,7 +29,7 @@ const onAutoLayout = (): void => {
     state.triggerAutoLayout?.();
 };
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
     if (!container.value) return;

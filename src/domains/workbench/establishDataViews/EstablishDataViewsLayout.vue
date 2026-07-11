@@ -1,21 +1,21 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { useRoute } from 'vue-router';
 import { computed, ref, shallowRef, watch } from 'vue';
 
-// DPUse Framework
+// ── DPUse Framework
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import T from './EstablishDataViewsLayout.json';
 import { localeId, t } from '@/state/locale';
 
-// Local Components - Static
+// ── Local Components - Static
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 import WorkbenchLayout from '../WorkbenchLayout.vue';
 import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const TASK_CONFIGS: TaskConfig[] = [
     { id: 'selectConnection', number: 1, label: { en: 'Connection' }, description: {}, disabled: true, enableUpTo: 1, verb: { en: 'Select' } },
@@ -24,7 +24,7 @@ const TASK_CONFIGS: TaskConfig[] = [
     { id: 'exploreData', number: 4, label: { en: 'Data' }, description: {}, disabled: true, enableUpTo: 5, verb: { en: 'Explore' } }
 ];
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 
@@ -32,13 +32,13 @@ const taskLocalisedConfigs = shallowRef<LocalisedConfig<TaskConfig>[]>([]);
 
 const tasksEnabledToNumber = ref(0);
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeTaskLocalisedConfig = computed(() => TASK_CONFIGS.find((config) => config.id === route.query.wbView));
 
 const navigateBackRouteName = computed(() => (route.query.wbView === 'establishDataViews' ? 'workbench' : 'establishDataViews'));
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
     route,

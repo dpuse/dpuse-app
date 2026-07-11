@@ -1,15 +1,15 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { useRoute, useRouter } from 'vue-router';
 
-// Local Components - Static
+// ── Local Components - Static
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { variant = 'large' } = defineProps<{ variant?: 'compact' | 'large' }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();

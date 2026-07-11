@@ -1,20 +1,20 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { type Component, computed, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 import { type RouteRecordNameGeneric, useRoute, useRouter } from 'vue-router';
 
-// DPUse Framework
+// ── DPUse Framework
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { connectorConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import T from './ConnectionDialog.json';
 import { viewportIsWide } from '@/state/appLayout';
 import { localeId, t } from '@/state/locale';
 
-// Local Components - Static
+// ── Local Components - Static
 import AddConnectionForm from './AddConnectionForm.vue';
 import Card from '@/components/ui/Card.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
@@ -23,7 +23,7 @@ import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string; isDestructive?: boolean };
 const OPTION_CONFIGS: OptionLocalisedConfig[] = [
@@ -46,9 +46,9 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
     managePersonalDetails: defineAsyncComponent(() => import('./ManageConnectionPanel.vue'))
 };
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();
@@ -58,14 +58,14 @@ const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initial
 const connectorLocalisedConfigs = shallowRef<LocalisedConfig<ConnectorConfig>[]>([]);
 const subPanelError = ref<unknown>(null);
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectorConfig>>>(() => ({
     rowCount: connectorLocalisedConfigs.value.length,
     getRows: (start, end): Promise<LocalisedConfig<ConnectorConfig>[]> => Promise.resolve(connectorLocalisedConfigs.value.slice(start, end))
 }));
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onErrorCaptured((error) => {
     subPanelError.value = error;
@@ -92,7 +92,7 @@ function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<Connect
     activeConnectorConfig.value = connectorLocalisedConfig;
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): OptionLocalisedConfig | undefined {
     if (routeName === 'account') {

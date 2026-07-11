@@ -1,13 +1,13 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-// DPUse Framework
+// ── DPUse Framework
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
 import {
@@ -20,7 +20,7 @@ import {
 } from '@/state/establishDataViews';
 import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
 
-// Local Components - Static
+// ── Local Components - Static
 import Card from '@/components/ui/Card.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
@@ -28,25 +28,25 @@ import SelectConnectionForm from './SelectConnectionForm.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
 defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
     rowCount: connectionLocalisedConfigs.value.length,
     getRows: (start, end): Promise<LocalisedConfig<ConnectionConfig>[]> => Promise.resolve(connectionLocalisedConfigs.value.slice(start, end))
 }));
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => establishDataView(newLocalMetaStoreConnectionConfig, route));
 
@@ -70,7 +70,7 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
     resetActiveDataViewConfig(connectionLocalisedConfig);
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<ConnectionConfig>): void {
     activeDataViewConfig.value =

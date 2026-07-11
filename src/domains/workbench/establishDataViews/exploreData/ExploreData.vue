@@ -1,12 +1,12 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { ref } from 'vue';
 
-// Local Components - Static
+// ── Local Components - Static
 import InvestigateData from './investigateData/InvestigateData.vue';
 import TransformData from './transformData/TransformData.vue';
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeOptionId = ref<'transform' | 'investigate'>('investigate');
 </script>

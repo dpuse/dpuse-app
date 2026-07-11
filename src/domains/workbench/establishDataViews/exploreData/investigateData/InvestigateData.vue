@@ -1,14 +1,14 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import type { DataSource } from '@/composables/useDataWindow';
 
-// Local Components - Static
+// ── Local Components - Static
 import Table from '@/components/ui/table/Table.vue';
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const CATEGORIES = ['Alpha', 'Beta', 'Gamma', 'Delta'] as const;
 const TOTAL_ROWS = 100_000;

@@ -1,18 +1,18 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { ArrowBigRightIcon } from '@lucide/vue';
 import type { ColumnDef } from '@tanstack/vue-table';
 import { computed, markRaw, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-// DPUse Framework
+// ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { ConnectionConfig, ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
 import { formatNumberAsDecimalNumber, formatNumberAsStorageSize } from '@dpuse/dpuse-shared/utilities';
 import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import T from './SelectItemPanel.json';
@@ -28,7 +28,7 @@ import {
     setConnectionNodeConfig
 } from '@/state/establishDataViews';
 
-// Local Components - Static
+// ── Local Components - Static
 import Breadcrumbs from '@/components/framework/Breadcrumbs.vue';
 import Card from '@/components/ui/Card.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
@@ -45,13 +45,13 @@ const ITEM_ACTIONS = [
     { id: 'details', label: 'Details' }
 ];
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
 const emit = defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeItemAction = ref('table');
 
@@ -77,7 +77,7 @@ const text = ref<string | undefined>();
 // TODO: Fix this icon data type compatibility issue.
 const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as unknown as ConnectionNodeConfig;
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...currentFolderNodes.value]);
 
@@ -86,7 +86,7 @@ const connectionNodeConfigsDataSource = computed<DataSource<ConnectionNodeConfig
     getRows: (start: number, end: number): Promise<ConnectionNodeConfig[]> => Promise.resolve(activeConnectionNodeConfigs.value.slice(start, end))
 }));
 
-// Side Effects ────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Re-establish the data view when local metastore connection config changes (for example, after a reload or if the metastore connector is reloaded).
 watch(activeMetaStoreConnectionConfig, async (newLocalMetaStoreConnectionConfig) => {
@@ -160,7 +160,7 @@ async function handleCommitDetail(): Promise<void> {
     await router.push({ name: 'auditContent', query: { ...route.query, wbView: 'auditContent' } });
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function resetPreviewState(): void {
     previewPercentage.value = 0;

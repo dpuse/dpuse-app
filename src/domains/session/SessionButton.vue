@@ -1,24 +1,24 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { LoaderCircleIcon } from '@lucide/vue';
 import { type ComponentPublicInstance, computed, defineAsyncComponent, onUnmounted, ref, useTemplateRef } from 'vue';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { load } from '@/state/component';
 import { expiresIn, lifetime, sessionIsAuthenticated } from '@/state/session';
 import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
 
-// Local Components - Static
+// ── Local Components - Static
 import AvatarButton from '@/components/ui/button/AvatarButton.vue';
 
-// Local Components - Dynamic
+// ── Local Components - Dynamic
 const SessionMenu = defineAsyncComponent(load('SessionMenu', () => import('@/domains/session/SessionMenu.vue')));
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { workbenchOptionBarIsVisible } = defineProps<{ workbenchOptionBarIsVisible: boolean }>();
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // ??? Avatar ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

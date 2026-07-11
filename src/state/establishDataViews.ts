@@ -9,7 +9,7 @@ import type { ConnectionConfig, ConnectionNodeConfig } from '@dpuse/dpuse-shared
 import type { ContentAuditConfig, DataViewConfig, PreviewConfig, RelationshipsAuditConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, GetRecordOptions, GetRecordResult } from '@dpuse/dpuse-shared/component/module/connector';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { useEngine } from '@/services/useEngine';
 
 // const options: UpsertRecordsOptions = {
@@ -51,11 +51,11 @@ import { useEngine } from '@/services/useEngine';
 //     console.log('UPSERT RECORDS', data);
 // });
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const NEW_DATA_VIEW_ID = '_new_';
 
-// State ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const activeConnectionConfig = shallowRef<LocalisedConfig<ConnectionConfig> | undefined>();
 export const activeConnectionNodeConfigs = shallowRef<ConnectionNodeConfig[]>([]);
@@ -64,7 +64,7 @@ export const activeDataViewConfig = shallowRef<DataViewConfig | undefined>();
 
 export const connectionLocalisedConfigs = shallowRef<LocalisedConfig<ConnectionConfig>[]>([]);
 
-// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function establishDataView(metaStoreConnectionConfig: ConnectionConfig | undefined, route: RouteLocationNormalizedLoadedGeneric): Promise<DataViewConfig> {
     try {
@@ -152,7 +152,7 @@ export function setRelationshipsAuditConfig(relationshipsAuditConfig?: Relations
     activeDataViewConfig.relationshipsAuditConfig = relationshipsAuditConfig;
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function getActiveDataViewConfig(): DataViewConfig {
     if (!activeDataViewConfig.value) throw new Error("'activeDataViewConfig' is not initialized.");
