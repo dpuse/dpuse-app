@@ -27,7 +27,7 @@ const connectorLocalisedConfigs = shallowRef<LocalisedConfig<ConnectorConfig>[]>
 
 const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectorConfig>>>(() => ({
     rowCount: connectorLocalisedConfigs.value.length,
-    getRows: (start, end): Promise<LocalisedConfig<ConnectorConfig>[]> => Promise.resolve(connectorLocalisedConfigs.value.slice(start, end))
+    getRows: (start, end): Promise<{ rows: LocalisedConfig<ConnectorConfig>[] }> => Promise.resolve({ rows: connectorLocalisedConfigs.value.slice(start, end) })
 }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────

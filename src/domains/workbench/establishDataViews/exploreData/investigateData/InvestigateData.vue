@@ -25,14 +25,14 @@ const DATA_SOURCE: DataSource<{ id: number; name: string; category: string; valu
     getRows(startRow: number, endRow: number) {
         return new Promise((resolve) => {
             setTimeout(() => {
-                resolve(
-                    Array.from({ length: endRow - startRow }, (_, index) => ({
+                resolve({
+                    rows: Array.from({ length: endRow - startRow }, (_, index) => ({
                         id: startRow + index + 1,
                         name: `Record ${startRow + index + 1}`,
                         category: CATEGORIES[(startRow + index) % CATEGORIES.length],
                         value: ((startRow + index + 1) * 1.618).toFixed(2)
                     }))
-                );
+                });
             }, 300);
         });
     }

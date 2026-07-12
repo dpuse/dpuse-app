@@ -38,7 +38,7 @@ const router = useRouter();
 
 const dataSource = computed((): DataSource<EventQueryConfig> => ({
     rowCount: eventQueryConfigs.value?.length ?? 0,
-    getRows: (start: number, end: number): Promise<EventQueryConfig[]> => Promise.resolve((eventQueryConfigs.value ?? []).slice(start, end))
+    getRows: (start: number, end: number): Promise<{ rows: EventQueryConfig[] }> => Promise.resolve({ rows: (eventQueryConfigs.value ?? []).slice(start, end) })
 }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -40,7 +40,7 @@ const router = useRouter();
 
 const dataViewConfigsDataSource = computed((): DataSource<DataViewConfig> => ({
     rowCount: dataViewConfigs.value?.length ?? 0,
-    getRows: (start: number, end: number): Promise<DataViewConfig[]> => Promise.resolve((dataViewConfigs.value ?? []).slice(start, end))
+    getRows: (start: number, end: number): Promise<{ rows: DataViewConfig[] }> => Promise.resolve({ rows: (dataViewConfigs.value ?? []).slice(start, end) })
 }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────

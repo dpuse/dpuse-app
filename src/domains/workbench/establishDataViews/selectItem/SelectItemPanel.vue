@@ -19,14 +19,7 @@ import T from './SelectItemPanel.json';
 import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 import { viewportIsWide } from '@/state/appLayout';
-import {
-    activeConnectionConfig,
-    activeConnectionNodeConfigs,
-    activeDataViewConfig,
-    connectionLocalisedConfigs,
-    establishDataView,
-    setConnectionNodeConfig
-} from '@/state/establishDataViews';
+import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, establishDataView, setConnectionNodeConfig } from '@/state/establishDataViews';
 
 // ── Local Components - Static
 import Breadcrumbs from '@/components/framework/Breadcrumbs.vue';
@@ -59,6 +52,8 @@ const activeConnectionObjectConfig = shallowRef<ConnectionNodeConfig | undefined
 
 const currentFolderNodes = shallowRef<ConnectionNodeConfig[]>([]);
 
+const currentFolderPath = ref('');
+
 const previewRequestId = ref(0);
 
 const previewPercentage = ref(0);
@@ -66,7 +61,7 @@ const previewMessage = ref<string>();
 const previewTableColumnDefinitions = shallowRef<ColumnDef<Record<string, string | null>>[]>([]);
 const previewTableDataSource = shallowRef<DataSource<Record<string, string | null>>>({
     rowCount: 0,
-    getRows: (): Promise<Record<string, string | null>[]> => Promise.resolve([])
+    getRows: (): Promise<{ rows: Record<string, string | null>[] }> => Promise.resolve({ rows: [] })
 });
 
 const route = useRoute();
@@ -81,10 +76,21 @@ const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as
 
 const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...currentFolderNodes.value]);
 
-const connectionNodeConfigsDataSource = computed<DataSource<ConnectionNodeConfig>>(() => ({
-    rowCount: activeConnectionNodeConfigs.value.length,
-    getRows: (start: number, end: number): Promise<ConnectionNodeConfig[]> => Promise.resolve(activeConnectionNodeConfigs.value.slice(start, end))
-}));
+const connectionNodeConfigsDataSource = computed<DataSource<ConnectionNodeConfig>>(() => {
+    const folderPath = currentFolderPath.value; // Read synchronously so this computed (and useDataWindow's cache) resets on navigation.
+    return {
+        rowCount: undefined, // Unknown until the first listNodes response reports totalCount — useDataWindow guarantees that fetch happens.
+        getRows: async (start: number, end: number): Promise<{ rows: ConnectionNodeConfig[]; totalCount: number }> => {
+            const { processRequest } = await useEngine();
+            const result = (await processRequest('listNodes', activeConnectionConfig.value!, {
+                folderPath,
+                limit: end - start,
+                offset: start
+            } as ListNodesOptions)) as ListNodesResult;
+            return { rows: result.connectionNodeConfigs, totalCount: result.totalCount };
+        }
+    };
+});
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -100,7 +106,7 @@ watch(activeMetaStoreConnectionConfig, async (newLocalMetaStoreConnectionConfig)
     }
 });
 
-watch(activeConnectionConfig, async (newActiveConnectionConfig) => await loadFolderNodes(newActiveConnectionConfig, ''), { immediate: true });
+watch(activeConnectionConfig, (newActiveConnectionConfig) => loadFolderNodes(newActiveConnectionConfig, ''), { immediate: true });
 
 watch(activeConnectionObjectConfig, async (newActiveItem) => {
     const currentRequestId = ++previewRequestId.value;
@@ -123,22 +129,22 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
+function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): void {
     activeConnectionObjectConfig.value = undefined;
 
     // if (index === breadcrumbs.value.length - 1) return;
 
     if (index <= 0) {
         currentFolderNodes.value = [];
-        await loadFolderNodes(activeConnectionConfig.value, '');
+        loadFolderNodes(activeConnectionConfig.value, '');
         return;
     }
 
     currentFolderNodes.value = currentFolderNodes.value.slice(0, index);
-    await loadFolderNodes(activeConnectionConfig.value, `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`);
+    loadFolderNodes(activeConnectionConfig.value, `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`);
 }
 
-async function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig | undefined): Promise<void> {
+function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig | undefined): void {
     if (connectionNodeConfig == null) {
         // Clear the selection.
         activeConnectionObjectConfig.value = undefined;
@@ -148,7 +154,7 @@ async function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeCo
     if (connectionNodeConfig.typeId === 'folder') {
         currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
         activeConnectionObjectConfig.value = undefined;
-        await loadFolderNodes(activeConnectionConfig.value, `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`);
+        loadFolderNodes(activeConnectionConfig.value, `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`);
         return;
     }
 
@@ -168,7 +174,7 @@ function resetPreviewState(): void {
     previewTableColumnDefinitions.value = [];
     previewTableDataSource.value = {
         rowCount: 0,
-        getRows: (): Promise<Record<string, string | null>[]> => Promise.resolve([])
+        getRows: (): Promise<{ rows: Record<string, string | null>[] }> => Promise.resolve({ rows: [] })
     };
     text.value = undefined;
 }
@@ -200,16 +206,15 @@ function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewC
 
     previewTableDataSource.value = {
         rowCount: previewRows.length,
-        getRows: (start: number, end: number): Promise<Record<string, string | null>[]> => Promise.resolve(previewRows.slice(start, end))
+        getRows: (start: number, end: number): Promise<{ rows: Record<string, string | null>[] }> => Promise.resolve({ rows: previewRows.slice(start, end) })
     };
 }
 
-async function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfig> | undefined, folderPath: string): Promise<void> {
+// Navigate to a folder. Setting currentFolderPath is all that's needed: connectionNodeConfigsDataSource picks it
+// up reactively, producing a new DataSource object that useDataWindow detects and fetches fresh blocks for.
+function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfig> | undefined, folderPath: string): void {
     if (connectionConfig == null) return;
-
-    const { processRequest } = await useEngine();
-    const listNodesResult = (await processRequest('listNodes', connectionConfig, { folderPath } as ListNodesOptions)) as ListNodesResult;
-    activeConnectionNodeConfigs.value = listNodesResult.connectionNodeConfigs;
+    currentFolderPath.value = folderPath;
 }
 </script>
 

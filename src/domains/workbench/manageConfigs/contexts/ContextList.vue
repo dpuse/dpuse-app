@@ -33,7 +33,7 @@ const dimensionRetrievalIsActive = ref(false);
 
 const dataSource = computed((): DataSource<DimensionConfig> => ({
     rowCount: dimensionConfigs.value?.length ?? 0,
-    getRows: (start: number, end: number): Promise<DimensionConfig[]> => Promise.resolve((dimensionConfigs.value ?? []).slice(start, end))
+    getRows: (start: number, end: number): Promise<{ rows: DimensionConfig[] }> => Promise.resolve({ rows: (dimensionConfigs.value ?? []).slice(start, end) })
 }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────

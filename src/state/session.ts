@@ -69,7 +69,7 @@ export const connectionConfigs = computed<ConnectionConfig[]>(() => {
     const configs: ConnectionConfig[] = [];
 
     for (const connectorConfig of connectorConfigs.value!) {
-        if (connectorConfig.implementations.default.authMethodId === 'none') configs.push(constructConnectionConfig(connectorConfig));
+        if (connectorConfig.implementations.default && connectorConfig.implementations.default.authMethodId === 'none') configs.push(constructConnectionConfig(connectorConfig));
     }
 
     for (const accountConfigs of connectionAccountConfigs.value) {

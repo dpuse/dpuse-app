@@ -4,7 +4,7 @@ import { PlusIcon } from '@lucide/vue';
 import { computed, onUnmounted, ref, shallowRef } from 'vue';
 
 // ── Local (App) Framework
-import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
+import { type DataSource, DEFAULT_CACHE_BLOCK_SIZE, useDataWindow } from '@/composables/useDataWindow';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -43,10 +43,20 @@ const resizeObserver = new ResizeObserver((entries) => {
     }
 });
 const scrollElement = shallowRef<HTMLElement | null>(null);
-const { virtualRows, totalSize, getRow } = useDataWindow({
+// Grid needs its own `count` override to divide the item count by columnCount for its N-per-row layout, which
+// means useDataWindow's built-in self-correcting row count is bypassed for the virtualizer unless we mirror it
+// locally — correctedRowCount starts at the caller's best guess (possibly undefined/unknown) and is kept in sync
+// via onRowCountChange (always a real number, matching useDataWindow's own "guess a block while unknown"
+// fallback). The `?? DEFAULT_CACHE_BLOCK_SIZE` below only covers the brief window before the first
+// onRowCountChange call — same fallback useDataWindow uses internally when cacheBlockSize isn't overridden.
+const correctedRowCount = ref(dataSource.rowCount);
+const { virtualRows, totalSize, getRow, rowCount } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
-    count: () => Math.ceil(dataSource.rowCount / columnCount.value),
+    count: () => Math.ceil((correctedRowCount.value ?? cacheBlockSize ?? DEFAULT_CACHE_BLOCK_SIZE) / columnCount.value),
+    onRowCountChange: (newRowCount) => {
+        correctedRowCount.value = newRowCount;
+    },
     getDataIndexes: (virtualRowIndex) => Array.from({ length: columnCount.value }, (_, col) => virtualRowIndex * columnCount.value + col),
     estimateSize: () => (isCompact ? 48 : rowHeight),
     cacheBlockSize: cacheBlockSize == null ? undefined : (): number => cacheBlockSize,
@@ -74,7 +84,7 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
 <template>
     <div class="relative flex min-h-0 flex-col" data-region="Grid">
         <!-- Body -->
-        <ScrollArea class="flex-1" role="list" :row-count="dataSource.rowCount" :scroll-area-padding="scrollAreaPadding" @initialised="handleScrollAreaInitialised">
+        <ScrollArea class="flex-1" role="list" :row-count="rowCount" :scroll-area-padding="scrollAreaPadding" @initialised="handleScrollAreaInitialised">
             <div :style="{ height: totalSize + 'px', position: 'relative' }">
                 <div
                     v-for="virtualRow in virtualRows"
@@ -84,7 +94,7 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
                 >
                     <template v-for="columnOffset in columnOffsets" :key="columnOffset">
                         <!-- Skip cells beyond the last data item (last row may be partially filled) -->
-                        <div v-if="virtualRow.index * columnCount + columnOffset < dataSource.rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
+                        <div v-if="virtualRow.index * columnCount + columnOffset < rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
                             <div class="h-full pl-4" :class="[isCompact ? 'pt-2' : 'pt-4']">
                                 <slot
                                     v-if="getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
