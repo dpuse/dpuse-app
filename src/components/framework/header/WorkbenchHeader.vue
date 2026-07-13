@@ -18,7 +18,7 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
 
         <component
             :is="to && to !== $route.query.wbView ? 'RouterLink' : 'div'"
-            class="min-w-0"
+            class="min-w-0 text-content"
             :class="{
                 'text-center': !viewportIsWide,
                 'cursor-pointer text-accent hover:underline hover:decoration-blue-800/40 hover:underline-offset-2 dark:hover:decoration-blue-300/40':

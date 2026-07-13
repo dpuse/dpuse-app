@@ -246,7 +246,7 @@ function establishPaneSplitterPercent(): number {
         <!-- Workbench toggle fixed in top left corner. Always visible. -->
         <Button
             :aria-label="t(T, 'wb.toggle.label.aria')"
-            class="fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full! bg-surface"
+            class="fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full!"
             :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
             data-region="workbenchPaneToggle"
             shape="icon"

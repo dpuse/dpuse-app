@@ -99,9 +99,9 @@ html {
     --vertical-scroll-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 21px) + 72px);
 
     /* Light mode colors. */
-    --backdrop: #fdfdfd;
+    --backdrop: var(--color-zinc-50);
     --surface: var(--color-white); /* NOTE: Also 'index.html' and 'public/manifest.webmanifest'. */
-    --card: #fbfbfb;
+    --card: var(--color-zinc-50);
     --card-hover: var(--color-zinc-100);
     --boundary: var(--color-zinc-100);
     --boundary-hover: var(--color-zinc-300);

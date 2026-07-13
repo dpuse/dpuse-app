@@ -32,6 +32,13 @@ const AUTH_METHOD_DESCRIPTIONS: Record<string, string> = {
     none: 'Does not require authentication and can be used without creating a DPUse Account. Only a single connection is supported.'
 };
 
+const CONNECTOR_USAGE_DESCRIPTIONS: Record<string, string> = {
+    bidirectional: 'This connector supports both sourcing and delivering data.',
+    destination: 'This connector is used exclusively for delivering data.',
+    source: 'This connector is used exclusively for sourcing data.',
+    unknown: 'The usage for this connector has not yet been determined.'
+};
+
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
@@ -66,7 +73,7 @@ function getCategoryConnectorLabel(categoryId: string): string {
         <ScrollArea scroll-area-padding="screen">
             <div class="dpuse-text flex flex-col gap-y-4 pt-4">
                 <!-- Header -->
-                <div class="flex items-center">
+                <div class="flex items-center gap-x-4">
                     <div class="flex-1">
                         <!-- Overline -->
                         <div class="dpuse-text-overline">{{ getCategoryConnectorLabel(connectorLocalisedConfig.categoryId) }}</div>
@@ -109,6 +116,8 @@ function getCategoryConnectorLabel(categoryId: string): string {
 
                 <!-- Description -->
                 <p v-for="paragraph in connectorLocalisedConfig.description" :key="paragraph">{{ paragraph }}</p>
+
+                <p>{{ CONNECTOR_USAGE_DESCRIPTIONS[connectorLocalisedConfig.usageId] ?? CONNECTOR_USAGE_DESCRIPTIONS['unknown'] }}</p>
 
                 <!-- Authentication -->
                 <div class="flex flex-col gap-y-2">

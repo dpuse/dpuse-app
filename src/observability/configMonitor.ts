@@ -41,7 +41,7 @@ export function initialise(): void {
     });
 }
 
-// ── WebSocket helpers ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers - WebSocket ──────────────────────────────────────────────────────────────────────────────────────────────
 
 function connectToWebSocket(): WebSocket | undefined {
     try {
@@ -95,7 +95,7 @@ function shutdown(): void {
     }
 }
 
-// ── Registration Helpers ─────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers - Registration ───────────────────────────────────────────────────────────────────────────────────────────
 
 function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
     const registrationState = {
@@ -132,10 +132,10 @@ function doRegister(
             return;
         case 'engine':
             engineConfig.value = moduleConfig as EngineConfig;
-            // if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Engine '${moduleConfig.id}' v${moduleConfig.version} registered.`);
             logIt('Engine', moduleConfig);
             return;
         case 'connector': {
+            if (moduleConfig.id === 'dpuse-connector-template') return;
             registrationState.isConnectorRegistered = true;
             const index = pendingConnectorConfigs.findIndex((connectorConfig) => connectorConfig.id === moduleConfig.id);
             if (index === -1) {
@@ -143,13 +143,11 @@ function doRegister(
             } else {
                 pendingConnectorConfigs[index] = moduleConfig as ConnectorConfig;
             }
-            // if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Connector '${moduleConfig.id}' v${moduleConfig.version} registered.`);
             logIt('Connector', moduleConfig);
             return;
         }
         case 'context':
             contextConfig.value = moduleConfig as ContextConfig; // Trigger shallow reference change for context.
-            // if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Context '${moduleConfig.id}' v${moduleConfig.version} registered.`);
             return;
         case 'presenter': {
             registrationState.isPresenterRegistered = true;
@@ -159,7 +157,6 @@ function doRegister(
             } else {
                 pendingPresenterConfigs[index] = moduleConfig as PresenterConfig;
             }
-            // if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Presenter '${moduleConfig.id}' v${moduleConfig.version} registered.`);
             logIt('Presenter', moduleConfig);
             return;
         }
@@ -171,7 +168,7 @@ function doRegister(
             } else {
                 pendingToolConfigs[index] = moduleConfig as ToolConfig;
             }
-            // if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Tool '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+            logIt('Tool', moduleConfig);
             return;
         }
     }
@@ -188,7 +185,7 @@ function unregisterConfigurations(moduleConfigs: ModuleConfig[]): void {
     }
 }
 
-// ── Connection Helpers ───────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers - Connection ─────────────────────────────────────────────────────────────────────────────────────────────
 
 function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
     return {

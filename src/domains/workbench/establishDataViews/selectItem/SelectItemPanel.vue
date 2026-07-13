@@ -226,9 +226,9 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
     const { processRequest } = await useEngine();
     const options: GetInfoOptions = { path: buildObjectPath(connectionNodeConfig) };
     const { info } = (await processRequest('getInfo', activeConnectionConfig.value!, options)) as GetInfoResult;
-    infoString.value = JSON.stringify(info);
     const infoWithoutChildren = { ...info };
     delete infoWithoutChildren.children;
+    infoString.value = JSON.stringify(infoWithoutChildren);
     console.log(infoWithoutChildren);
 }
 </script>

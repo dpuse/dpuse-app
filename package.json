@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1412",
+    "version": "0.0.1413",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -48,14 +48,14 @@
     },
     "dependencies": {
         "@ai-sdk/vue": "^4.0.22",
-        "@dpuse/dpuse-shared": "^0.3.740",
+        "@dpuse/dpuse-shared": "^0.3.741",
         "@formkit/drag-and-drop": "^0.6.1",
         "@regle/core": "^1.28.3",
         "@regle/rules": "^1.28.3",
         "@tailwindcss/vite": "^4.3.2",
         "@tanstack/ai-client": "^0.20.0",
         "@tanstack/vue-table": "^8.21.3",
-        "@tanstack/vue-virtual": "^3.13.31",
+        "@tanstack/vue-virtual": "^3.13.32",
         "@teamhanko/hanko-frontend-sdk": "^3.0.0",
         "@tiptap/extension-bold": "^3.27.3",
         "@tiptap/extension-collaboration": "^3.27.3",
@@ -87,8 +87,8 @@
     },
     "devDependencies": {
         "@cloudflare/vite-plugin": "1.44.0",
-        "@cloudflare/workers-types": "^5.20260712.1",
-        "@dpuse/dpuse-development": "^0.3.687",
+        "@cloudflare/workers-types": "^5.20260713.1",
+        "@dpuse/dpuse-development": "^0.3.688",
         "@dpuse/eslint-config-dpuse": "^1.0.113",
         "@lucide/vue": "^1.24.0",
         "@playwright/test": "^1.61.1",
@@ -110,7 +110,7 @@
         "@vue/tsconfig": "^0.9.1",
         "eslint": "^10.7.0",
         "eslint-plugin-playwright": "^2.10.5",
-        "eslint-plugin-tailwindcss": "^4.1.0",
+        "eslint-plugin-tailwindcss": "^4.2.0",
         "eslint-plugin-vue": "~10.9.2",
         "eslint-plugin-vuejs-accessibility": "^2.5.0",
         "jsdom": "^29.1.1",
@@ -125,6 +125,6 @@
         "wrangler": "4.110.0"
     },
     "overrides": {
-        "@cloudflare/workers-types": "^5.20260712.1"
+        "@cloudflare/workers-types": "^5.20260713.1"
     }
 }

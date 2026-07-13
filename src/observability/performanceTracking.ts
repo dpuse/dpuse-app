@@ -1,10 +1,10 @@
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
-// Local (App) Framework
+// ── Local (App) Framework
 import { trackEvent } from '@/observability/eventTracking';
 
-// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function initialise(): void {
     onLCP(trackWebVitalMetric);
@@ -14,7 +14,7 @@ export function initialise(): void {
     onTTFB(trackWebVitalMetric);
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function trackWebVitalMetric(metric: Metric): void {
     trackEvent('performance', {
