@@ -1,1 +1,1 @@
-{ "reject": ["typescript", "wrangler", "@cloudflare/vite-plugin", "@cloudflare/workers-types"] }
+{ "reject": ["typescript"] }

@@ -1,9 +1,25 @@
 <script setup lang="ts">
+// ── External Dependencies & Registrations ───────────────────────────────────────────────────────────────────────────
+
+import Button from '@/components/ui/button/Button.vue';
+import { InfoIcon } from '@lucide/vue';
+
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 type Badge = { id: string; color?: string; label: string };
-type Properties = { badges?: Badge[]; description?: string; icon?: string; iconDark?: string; isCompact?: boolean; label: string; overline?: string };
-const { badges = [], description, icon, iconDark, isCompact = false, label, overline } = defineProps<Properties>();
+type ActionTypeId = 'info';
+type Action = { typeId: ActionTypeId; onClick: () => void };
+type Properties = {
+    actions?: Action[];
+    badges?: Badge[];
+    description?: string;
+    icon?: string;
+    iconDark?: string;
+    isCompact?: boolean;
+    label: string;
+    overline?: string;
+};
+const { actions = [], badges = [], description, icon, iconDark, isCompact = false, label, overline } = defineProps<Properties>();
 </script>
 
 <template>
@@ -49,6 +65,15 @@ const { badges = [], description, icon, iconDark, isCompact = false, label, over
         <!-- Description -->
         <div v-if="!isCompact && description" class="line-clamp-2 text-sm text-muted">
             {{ description }}
+        </div>
+
+        <!-- Actions -->
+        <div v-if="actions.length > 0" class="absolute right-0 bottom-0 flex gap-x-1 pr-1.5 pb-1.5">
+            <template v-for="action in actions" :key="action.typeId">
+                <Button v-if="action.typeId === 'info'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick">
+                    <InfoIcon aria-hidden="true" :stroke-width="1.25" />
+                </Button>
+            </template>
         </div>
     </div>
 </template>

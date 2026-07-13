@@ -10,7 +10,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { ConnectionConfig, ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
 import { formatNumberAsDecimalNumber, formatNumberAsStorageSize } from '@dpuse/dpuse-shared/utilities';
-import type { ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
+import type { GetInfoOptions, GetInfoResult, ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // ── Local (App) Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
@@ -117,9 +117,7 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
     if (newActiveItem == null) return;
 
     const { processRequest } = await useEngine();
-    const extension = newActiveItem.extension == null ? '' : `.${newActiveItem.extension}`;
-    const objectPath = `${newActiveItem.folderPath}/${newActiveItem.name}${extension}`;
-    const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: objectPath };
+    const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: buildObjectPath(newActiveItem) };
     const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value!, options)) as PreviewConfig;
 
     if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
@@ -167,6 +165,11 @@ async function handleCommitDetail(): Promise<void> {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function buildObjectPath(connectionNodeConfig: ConnectionNodeConfig): string {
+    const extension = connectionNodeConfig.extension == null ? '' : `.${connectionNodeConfig.extension}`;
+    return `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}${extension}`;
+}
 
 function resetPreviewState(): void {
     previewPercentage.value = 0;
@@ -216,6 +219,18 @@ function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfig> | u
     if (connectionConfig == null) return;
     currentFolderPath.value = folderPath;
 }
+
+const infoString = ref('');
+
+async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
+    const { processRequest } = await useEngine();
+    const options: GetInfoOptions = { path: buildObjectPath(connectionNodeConfig) };
+    const { info } = (await processRequest('getInfo', activeConnectionConfig.value!, options)) as GetInfoResult;
+    infoString.value = JSON.stringify(info);
+    const infoWithoutChildren = { ...info };
+    delete infoWithoutChildren.children;
+    console.log(infoWithoutChildren);
+}
 </script>
 
 <template>
@@ -233,7 +248,7 @@ function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfig> | u
         </template>
 
         <template #grid-item="{ item }">
-            <Card v-if="item" :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
+            <Card v-if="item" :icon="item.icon ?? undefined" :actions="[{ typeId: 'info', onClick: () => getInfo(item) }]" :is-compact="true" :label="item.label" />
         </template>
 
         <template #detail="{ item, clear }">
@@ -264,6 +279,7 @@ function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfig> | u
         </template>
 
         <template #no-selection>
+            {{ infoString }}
             <SelectPlaceholder :message="'Select a connection node from the list on the left.'" />
         </template>
     </GridDetailPanel>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed } from 'vue';
-import { ExternalLinkIcon } from '@lucide/vue';
+import { ExternalLinkIcon, GlobeIcon, InfoIcon, UserRoundIcon } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -47,14 +47,6 @@ const authMethods = computed(() => [
     )
 ]);
 
-const links = computed(() => {
-    const result: { label: string; url: string }[] = [];
-    if (connectorLocalisedConfig.vendorHomeURL != null) result.push({ label: t(T, 'Vendor_website'), url: connectorLocalisedConfig.vendorHomeURL });
-    if (connectorLocalisedConfig.vendorDocumentationURL != null) result.push({ label: t(T, 'Vendor_documentation'), url: connectorLocalisedConfig.vendorDocumentationURL });
-    if (connectorLocalisedConfig.vendorAccountURL != null) result.push({ label: t(T, 'Manage_account'), url: connectorLocalisedConfig.vendorAccountURL });
-    return result;
-});
-
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
@@ -74,39 +66,45 @@ function getCategoryConnectorLabel(categoryId: string): string {
         <ScrollArea scroll-area-padding="screen">
             <div class="dpuse-text flex flex-col gap-y-4 pt-4">
                 <!-- Header -->
-                <div>
-                    <div class="text-sm leading-tight text-muted">{{ getCategoryConnectorLabel(connectorLocalisedConfig.categoryId) }}</div>
-                    <div class="flex items-center gap-x-1.5">
-                        <div v-if="connectorLocalisedConfig.icon != null || connectorLocalisedConfig.iconDark != null">
-                            <div
-                                v-if="connectorLocalisedConfig.icon != null"
-                                aria-hidden="true"
-                                class="flex size-8 items-center dark:hidden"
-                                v-html="connectorLocalisedConfig.icon"
+                <div class="flex items-center">
+                    <div class="flex-1">
+                        <!-- Overline -->
+                        <div class="dpuse-text-overline">{{ getCategoryConnectorLabel(connectorLocalisedConfig.categoryId) }}</div>
+
+                        <!-- Title -->
+                        <div class="flex items-center gap-x-1.5">
+                            <h1>{{ connectorLocalisedConfig.label }}</h1>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="mt-4 flex flex-wrap gap-1.5">
+                            <Tag :text="`v${connectorLocalisedConfig.version}`" />
+                            <Tag
+                                v-if="connectorLocalisedConfig.status"
+                                :text="connectorLocalisedConfig.status.label"
+                                :color="connectorLocalisedConfig.status.color === 'other' ? undefined : connectorLocalisedConfig.status.color"
                             />
-                            <div
-                                aria-hidden="true"
-                                class="hidden size-8 items-center dark:flex"
-                                v-html="connectorLocalisedConfig.iconDark ?? connectorLocalisedConfig.icon ?? ''"
+                            <Tag
+                                v-else-if="connectorLocalisedConfig.statusId"
+                                :text="connectorLocalisedConfig.statusId"
+                                :color="
+                                    getComponentStatus(connectorLocalisedConfig.statusId).color === 'other'
+                                        ? undefined
+                                        : getComponentStatus(connectorLocalisedConfig.statusId).color
+                                "
                             />
                         </div>
-                        <h1>{{ connectorLocalisedConfig.label }}</h1>
                     </div>
-                </div>
 
-                <!-- Tags -->
-                <div class="flex flex-wrap gap-1.5">
-                    <Tag :text="`v${connectorLocalisedConfig.version}`" />
-                    <Tag
-                        v-if="connectorLocalisedConfig.status"
-                        :text="connectorLocalisedConfig.status.label"
-                        :color="connectorLocalisedConfig.status.color === 'other' ? undefined : connectorLocalisedConfig.status.color"
-                    />
-                    <Tag
-                        v-else-if="connectorLocalisedConfig.statusId"
-                        :text="connectorLocalisedConfig.statusId"
-                        :color="getComponentStatus(connectorLocalisedConfig.statusId).color === 'other' ? undefined : getComponentStatus(connectorLocalisedConfig.statusId).color"
-                    />
+                    <!-- Logo -->
+                    <div v-if="connectorLocalisedConfig.icon != null" class="mr-2 flex-none">
+                        <div aria-hidden="true" class="flex h-12 items-center dark:hidden [&>svg]:h-full [&>svg]:w-auto" v-html="connectorLocalisedConfig.icon" />
+                        <div
+                            aria-hidden="true"
+                            class="hidden h-12 items-center dark:flex [&>svg]:h-full [&>svg]:w-auto"
+                            v-html="connectorLocalisedConfig.iconDark ?? connectorLocalisedConfig.icon ?? ''"
+                        />
+                    </div>
                 </div>
 
                 <!-- Description -->
@@ -114,38 +112,49 @@ function getCategoryConnectorLabel(categoryId: string): string {
 
                 <!-- Authentication -->
                 <div class="flex flex-col gap-y-2">
-                    <h3>{{ t(T, 'Authentication') }}</h3>
-                    <ul class="flex list-disc flex-col gap-y-1 pl-5">
-                        <li v-for="method in authMethods" :key="method">
-                            {{ AUTH_METHOD_DESCRIPTIONS[method] ?? method }}
-                        </li>
-                    </ul>
+                    <h2>{{ t(T, 'Authentication') }}</h2>
+                    <p v-for="method in authMethods" :key="method">
+                        {{ AUTH_METHOD_DESCRIPTIONS[method] ?? method }}
+                    </p>
                 </div>
 
                 <!-- Links -->
-                <div v-if="links.length > 0" class="flex flex-col gap-y-2">
-                    <h3>{{ t(T, 'Links') }}</h3>
-                    <ul class="flex list-disc flex-col gap-y-1 pl-5">
-                        <li v-for="link in links" :key="link.url">
-                            <a :href="link.url" class="inline-flex items-center gap-x-1 hover:underline" target="_blank" rel="noopener noreferrer">
-                                {{ link.label }}
-                                <ExternalLinkIcon class="size-3" />
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Technical -->
                 <div class="flex flex-col gap-y-2">
-                    <h3>{{ t(T, 'Technical') }}</h3>
+                    <h2>{{ t(T, 'Links') }}</h2>
 
-                    <ul class="list-disc pl-5">
-                        <li><strong>Connector ID</strong>: {{ connectorLocalisedConfig.id }}'.</li>
-                    </ul>
-                </div>
-                <!-- Technical -->
-                <div class="flex flex-col gap-y-2">
-                    <h3>Source</h3>
+                    <a
+                        v-if="connectorLocalisedConfig.vendorHomeURL"
+                        :href="connectorLocalisedConfig.vendorHomeURL"
+                        class="inline-flex items-center gap-x-1 hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <GlobeIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Website
+                        <ExternalLinkIcon class="size-4" />
+                    </a>
+
+                    <a
+                        v-if="connectorLocalisedConfig.vendorDocumentationURL"
+                        :href="connectorLocalisedConfig.vendorDocumentationURL"
+                        class="inline-flex items-center gap-x-1 hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <InfoIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Documentation
+                        <ExternalLinkIcon class="size-4" />
+                    </a>
+
+                    <a
+                        v-if="connectorLocalisedConfig.vendorAccountURL"
+                        :href="connectorLocalisedConfig.vendorAccountURL"
+                        class="inline-flex items-center gap-x-1 hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <UserRoundIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Sign in
+                        <ExternalLinkIcon class="size-4" />
+                    </a>
+
                     <a
                         :href="`https://github.com/dpuse/${connectorLocalisedConfig.id}`"
                         class="inline-flex items-center gap-x-1 hover:underline"

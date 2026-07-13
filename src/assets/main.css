@@ -31,25 +31,35 @@ html {
     overflow-wrap: break-word;
 }
 .dpuse-text h1 {
-    letter-spacing: -0.02em;
-    line-height: 40px;
     font-size: 28px;
-}
-.dpuse-text h2 {
+    font-weight: 500;
     letter-spacing: -0.02em;
     line-height: 32px;
+}
+.dpuse-text h2 {
+    border-top: 1px solid var(--separator);
     font-size: 24px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 30px;
+    padding-top: 8px;
 }
 .dpuse-text h3 {
+    font-size: 20px;
+    font-weight: 500;
     letter-spacing: -0.01em;
     line-height: 28px;
-    font-size: 20px;
 }
-li,
-p {
+.dpuse-text li,
+.dpuse-text p {
     line-height: 28px;
     margin: 0;
 }
+.dpuse-text .dpuse-text-overline {
+    margin-bottom: 2px;
+    @apply text-sm leading-tight text-muted;
+}
+
 /* Use class-based dark mode (parent has .dark) instead of prefers-color-scheme. */
 @custom-variant dark (&:is(.dark *));
 
