@@ -280,7 +280,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
         <template #no-selection>
             {{ infoString }}
-            <SelectPlaceholder :message="'Select a connection node from the list on the left.'" />
+            <SelectPlaceholder :message="'Select a connection node from the list.'" />
         </template>
     </GridDetailPanel>
 </template>

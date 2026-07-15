@@ -1,3 +1,77 @@
+// ── TODO: Follow-Up Work ─────────────────────────────────────────────────────────────────────────────────────────────
+//
+// This composable went through heavy iteration to reach its current state (real on-demand block fetching, self-
+// correcting row count, debounce, retry) — three separate real bugs were found and fixed along the way (Grid's own
+// `count` override bypassing self-correction entirely, the 0-vs-undefined "unknown" sentinel ambiguity, and the
+// skeleton display being hidden along with the data while the count was unknown). That history is *why* this list
+// exists: reasoning about this file in isolation has already proven insufficient twice.
+//
+// Highest priority — biggest gap between "believed correct" and actually production-ready:
+// 1. Never verified in a live browser. Every fix here, including the two bugs above, was found through code-level
+//    reasoning and manual testing reported back in conversation — never an actual driven browser session. No
+//    project run-skill exists yet for dpuse-app, and full E2E is blocked on Hanko passkey auth not being
+//    scriptable in this environment.
+// 2. Zero automated test coverage for this file. No unit tests for debounce timing, retry/backoff, the
+//    generation-discard-on-dataSource-change logic, bootstrap-from-unknown-count, or LRU eviction.
+//
+// Known, deliberately deferred gaps:
+// 3. `fetchRowsWithRetry` doesn't distinguish retryable from non-retryable failures — a permanent error (e.g. an
+//    invalid folder path) still burns all `FETCH_MAX_RETRIES` attempts and ~900ms of backoff before giving up,
+//    instead of failing fast.
+// 4. No user-visible failure state. A block that exhausts its retries just `console.error`s and stays in permanent
+//    skeleton/loading state forever — no "failed to load" affordance ever reaches the user.
+// 5. No cancellation of in-flight fetches for blocks that scroll back out of view. Can't be fixed from inside this
+//    file: `EngineWorker.processRequest` (dpuse-engine) takes no `AbortSignal` at all, so there's no plumbing from
+//    here down to a connector's own `abortController`, even though most connectors already support one.
+// 6. No cap on concurrent in-flight requests — a big scrollbar jump can fire several fetches at once. Deprioritized:
+//    no evidence this is an actual problem yet.
+// 7. Theoretical: LRU eviction (`maxBlocksInCache`, default 10 × `cacheBlockSize`) could evict a block still in the
+//    viewport if the viewport+overscan ever spans more rows than that — needs an unrealistic row-height/viewport
+//    combination to actually happen.
+//
+// Architectural — deliberately deferred, not forgotten:
+// 8. Only one real consumer exists (SelectItemPanel.vue's folder browser). dexie-js was flagged as needing real
+//    pagination added (it currently returns everything in one call, same as the emulator connectors) but that work
+//    was never started. The block-fetching pattern here is unproven beyond a single example.
+// 9. Whether to adopt a query/cache library (TanStack Query or Pinia Colada) instead of this file's hand-rolled
+//    `blockCacheMap`/`blockLruOrder`/`blockPendingSet`/`fetchGeneration` bookkeeping — deliberately not decided yet.
+//    - Both are functionally equivalent for this use case: caching, dedup, and configurable retry, via an
+//      *imperative* fetch-on-demand API (TanStack Query's `QueryClient.fetchQuery()`/`ensureQueryData()`, or Pinia
+//      Colada's `useQueryCache().fetch()`/`.ensure()`) rather than the reactive `useQuery` hook — block-indexed,
+//      random-access fetching doesn't fit "call a hook a stable number of times per render" well.
+//    - `useInfiniteQuery` (either library) is explicitly *not* the right primitive: it merges sequential pages into
+//      one growing cache entry for "load more"-style scrolling, not random access (jumping straight to block 40 via
+//      a scrollbar drag without having "loaded" the blocks before it).
+//    - Neither would solve items 1, 5, or 6 above — debounce is orthogonal (scroll-timing, not caching), and
+//      cancellation is blocked at the engine-worker layer regardless of caching library.
+//    - TanStack Query: far more mature/battle-tested; doesn't require adding a new dependency paradigm (this app
+//      doesn't use Pinia today).
+//    - Pinia Colada: built by the Vue Router/Pinia author, designed around Vue's reactivity from the start; its
+//      "Paginated Queries" pattern (a reactive key with the page/offset baked in) maps naturally onto block-indexed
+//      fetching, with confirmed random-access support — but it requires adding Pinia as a new dependency, and is
+//      newer/less battle-tested.
+//    - Trigger to revisit: when a second real connector-backed consumer exists (dexie-js pagination is the likely
+//      candidate) — enough data points to confirm the query-key shape generalizes before committing to either.
+//
+// Related, outside this file (dpuse-app / dpuse-engine), surfaced while building this:
+// 10. SelectItemPanel.vue: `setConnectionNodeConfig(newActiveItem)` is commented out, leaving the "Details" tab
+//     permanently empty — this is where `getInfo` output (see dpuse-connector-dbnomics) was meant to land, and the
+//     select-vs-drill-down / per-row info-icon UI design was discussed and agreed but never implemented.
+// 11. SelectItemPanel.vue: minor pre-existing issues from the original review, still not addressed — the duplicate
+//     light/dark icon divs (`ConnectionNodeConfig` has no `iconDark` field, so one is dead markup), the
+//     `activeConnectionConfig.value!` non-null assertion, and the preview status bar's byte-size messaging not
+//     generalizing to non-file connectors (e.g. DBnomics, where size is always undefined).
+// 12. dpuse-engine: `EngineWorker.processRequest` has no `AbortSignal` parameter — the prerequisite for item 5
+//     above, and for any future cancellation support across the app, not just this composable.
+// 13. Do we need cache in the connector and in this component, maybe just this component?
+// 14. Directional prefetch: once debounce settles, speculatively fetch one block past the trailing edge in the
+//     direction of scroll travel (inferred from the delta between consecutive scroll offsets), so a "scroll, pause,
+//     scroll the same direction again" pattern feels instant instead of showing a fetch lag. Skip if that block is
+//     already cached or pending. Deliberately not implemented yet: it burns speculative connector calls that may
+//     never be used, which cuts against being respectful of rate-limited connectors (e.g. DBnomics) — a fast
+//     back-and-forth scroller would waste requests on both sides. If done, keep it capped (exactly one block ahead,
+//     never more) rather than aggressive.
+
 // ── External Dependencies & Registrations
 import { computed, type ComputedRef, ref, type ShallowRef, watch } from 'vue';
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
@@ -7,6 +81,13 @@ import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 // Rows fetched per block by default, and the render-time guess used while a source's count is still unknown — see
 // the virtualizer `count` getter below for why a render guess (not 0) is needed even before any row is confirmed.
 export const DEFAULT_CACHE_BLOCK_SIZE = 100;
+
+// Default trailing-edge debounce before fetching newly-visible blocks after a scroll.
+export const DEFAULT_FETCH_DEBOUNCE_MS = 150;
+
+// Fetch retry attempts (beyond the first) and the base delay for their exponential backoff.
+const FETCH_MAX_RETRIES = 2;
+const FETCH_RETRY_BASE_DELAY_MS = 300;
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -27,6 +108,11 @@ type Options<T> = {
     cacheBlockSize?: () => number;
     maxBlocksInCache?: () => number;
     estimateSize?: () => number;
+    // Trailing-edge debounce (ms) before fetching newly-visible blocks after a scroll. Blocks only visible
+    // transiently mid-scroll are never fetched at all, not just delayed — the fetch only fires once the viewport
+    // has been stable for this long, using whatever is visible at that point. Does not delay the initial/navigation
+    // bootstrap fetch, which stays immediate.
+    fetchDebounceMs?: () => number;
 };
 
 type DataWindow<T> = {
@@ -47,7 +133,8 @@ export function useDataWindow<T>({
     getDataIndexes,
     cacheBlockSize = (): number => DEFAULT_CACHE_BLOCK_SIZE,
     maxBlocksInCache = (): number => 10,
-    estimateSize = (): number => 48
+    estimateSize = (): number => 48,
+    fetchDebounceMs = (): number => DEFAULT_FETCH_DEBOUNCE_MS
 }: Options<T>): DataWindow<T> {
     // Data Block Cache: Local State ───────────────────────────────────────────────────────────────────────────────────
 
@@ -118,9 +205,21 @@ export function useDataWindow<T>({
 
     // Row Virtualizer: Side Effects ───────────────────────────────────────────────────────────────────────────────────
 
-    // Fetch blocks for all data items in the current viewport. fetchBlock also updates LRU for cached blocks.
-    // getDataIndexes maps a virtual row index to one or more data indexes (default 1:1; Grid passes N:1).
-    watch(virtualRows, fetchVisibleBlocks);
+    // Fetch blocks for all data items in the current viewport, debounced (trailing-edge) so a fast scroll never
+    // fetches for blocks that were only ever transiently visible — not merely delayed, never requested at all,
+    // since only the final settled `items` (whatever's visible once scrolling pauses) is ever passed through.
+    // fetchBlock also updates LRU for cached blocks. getDataIndexes maps a virtual row index to one or more data
+    // indexes (default 1:1; Grid passes N:1).
+    let debounceTimeoutId: ReturnType<typeof setTimeout> | undefined;
+    watch(virtualRows, (items) => {
+        if (debounceTimeoutId !== undefined) clearTimeout(debounceTimeoutId);
+        if (import.meta.env.DEV) console.log(`[dpuse-app] useDataWindow debounce reset — ${String(items.length)} virtual rows in view, waiting ${String(fetchDebounceMs())}ms.`);
+        debounceTimeoutId = setTimeout(() => {
+            debounceTimeoutId = undefined;
+            if (import.meta.env.DEV) console.log('[dpuse-app] useDataWindow debounce settled — fetching visible blocks.');
+            fetchVisibleBlocks(items);
+        }, fetchDebounceMs());
+    });
 
     // Row Virtualizer: Helpers ────────────────────────────────────────────────────────────────────────────────────────
 
@@ -155,7 +254,7 @@ export function useDataWindow<T>({
         const end = knownRowCount.value === undefined ? start + cacheBlockSize() : Math.min(start + cacheBlockSize(), knownRowCount.value);
         const generation = fetchGeneration;
         try {
-            const { rows, totalCount } = await dataSource().getRows(start, end);
+            const { rows, totalCount } = await fetchRowsWithRetry(start, end, generation);
             if (generation !== fetchGeneration) return; // DataSource changed while this fetch was in-flight; discard.
             if (totalCount !== undefined) setKnownRowCount(totalCount);
             while (blockCacheMap.size >= maxBlocksInCache()) {
@@ -170,6 +269,24 @@ export function useDataWindow<T>({
             console.error(`[dpuse-app] useDataWindow failed to fetch block ${blockIndex}:`, error);
         } finally {
             blockPendingSet.delete(blockIndex);
+        }
+    }
+
+    // Fetch a row range, retrying transient failures with exponential backoff before giving up. Abandons the retry
+    // (rethrows immediately) if the data source changes mid-backoff — no point retrying a fetch nobody wants anymore.
+    async function fetchRowsWithRetry(start: number, end: number, generation: number): Promise<{ rows: T[]; totalCount?: number }> {
+        for (let attempt = 0; ; attempt++) {
+            logRetrievalAttempt(start, end, attempt);
+            try {
+                const result = await dataSource().getRows(start, end);
+                logRetrievalSuccess(start, end, result.rows.length, result.totalCount);
+                return result;
+            } catch (error) {
+                if (attempt >= FETCH_MAX_RETRIES || generation !== fetchGeneration) throw error;
+                const delayMs = FETCH_RETRY_BASE_DELAY_MS * 2 ** attempt;
+                logRetrievalRetry(start, end, delayMs, error);
+                await sleep(delayMs);
+            }
         }
     }
 
@@ -194,4 +311,24 @@ export function useDataWindow<T>({
     }
 
     return { virtualRows, totalSize, visibleRowData, getRow, rowCount: computed(() => knownRowCount.value ?? cacheBlockSize()) };
+}
+
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function logRetrievalAttempt(start: number, end: number, attempt: number): void {
+    if (!import.meta.env.DEV) return;
+    const label = attempt === 0 ? 'fetching' : `retry attempt ${String(attempt)}`;
+    console.log(`[dpuse-app] useDataWindow ${label} rows [${String(start)}, ${String(end)}).`);
+}
+
+function logRetrievalSuccess(start: number, end: number, rowCount: number, totalCount: number | undefined): void {
+    if (!import.meta.env.DEV) return;
+    console.log(`[dpuse-app] useDataWindow retrieved ${String(rowCount)} rows for [${String(start)}, ${String(end)}) — totalCount: ${totalCount === undefined ? 'unknown' : String(totalCount)}.`);
+}
+
+function logRetrievalRetry(start: number, end: number, delayMs: number, error: unknown): void {
+    if (!import.meta.env.DEV) return;
+    console.log(`[dpuse-app] useDataWindow retrieval failed for [${String(start)}, ${String(end)}), retrying in ${String(delayMs)}ms.`, error);
 }

@@ -102,8 +102,8 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
                                     :index="virtualRow.index * columnCount + columnOffset"
                                 />
 
-                                <div v-else class="flex h-full items-center px-3">
-                                    <div class="h-4 w-3/4 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700" />
+                                <div v-else class="flex h-full items-center py-3">
+                                    <div class="h-10 w-full animate-pulse rounded bg-zinc-100 dark:bg-zinc-800" />
                                 </div>
                             </div>
                         </div>

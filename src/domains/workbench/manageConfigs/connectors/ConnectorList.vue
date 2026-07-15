@@ -63,7 +63,7 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
         </template>
 
         <template #no-selection>
-            <SelectPlaceholder :message="'Select a connector from the list on the left.'" />
+            <SelectPlaceholder :message="'Select a connector from the list.'" />
         </template>
     </GridDetailPanel>
 </template>

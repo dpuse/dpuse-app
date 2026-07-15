@@ -131,7 +131,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
         </template>
 
         <template #no-selection>
-            <SelectPlaceholder :message="'Select a connection from the list on the left.'" />
+            <SelectPlaceholder :message="'Select a connection from the list.'" />
         </template>
     </GridDetailPanel>
 </template>
