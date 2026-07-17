@@ -116,6 +116,7 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
     if (registrationState.isPresenterRegistered) presenterConfigs.value = [...pendingPresenterConfigs];
 
     if (registrationState.isToolRegistered) toolConfigs.value = [...pendingToolConfigs];
+    console.log(111, toolConfigs.value);
 }
 
 function doRegister(

@@ -30,7 +30,8 @@ export async function useEngine(): Promise<EngineWorker> {
     const pendingEngineWorker = engineRuntime.invokeWorker((errorEvent: ErrorEvent) => {
         console.error(errorEvent, 'engineWorker@useEngine.1');
     });
-    await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: toolConfigs.value || [] });
+    console.log(222, toolConfigs.value);
+    await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: toolConfigs.value });
     if (import.meta.env.DEV) console.info(`[dpuse:app] ✅  Engine 'dpuse-engine' v${engineVersion} loaded.`);
 
     /*****/
