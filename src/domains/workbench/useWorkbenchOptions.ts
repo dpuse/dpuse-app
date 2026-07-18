@@ -26,7 +26,7 @@ interface WorkbenchOptionStepConfig {
 
 // ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const WORKBENCH_OPTIONS: WorkbenchOptionConfig[] = [
+const workbenchOptionConfigs: WorkbenchOptionConfig[] = [
     {
         id: 'establishDataViews',
         label: { en: 'Establish Data Views', es: 'Establecer Vistas de Datos' },
@@ -98,5 +98,5 @@ const WORKBENCH_OPTIONS: WorkbenchOptionConfig[] = [
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function useWorkbenchOptions(): ComputedRef<LocalisedConfig<WorkbenchOptionConfig>[]> {
-    return computed(() => localiseConfigs<WorkbenchOptionConfig>(WORKBENCH_OPTIONS, localeId.value));
+    return computed(() => localiseConfigs<WorkbenchOptionConfig>(workbenchOptionConfigs, localeId.value));
 }

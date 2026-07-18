@@ -45,8 +45,8 @@ export async function useEngine(): Promise<EngineWorker> {
         //     authorisation: {},
         //     connectorConfig: {
         //         id: 'dpuse-connector-file-store-emulator',
-        //         label: { 'en-gb': '' },
-        //         description: { 'en-gb': '...' },
+        //         label: { 'en': '' },
+        //         description: { 'en': '...' },
         //         category: null,
         //         categoryId: 'database',
         //         implementations: { default: { authMethodId: 'none' } },
@@ -63,7 +63,7 @@ export async function useEngine(): Promise<EngineWorker> {
         //         version: LATEST_FILE_STORE_EMULATOR_VERSION
         //     },
         //     lastVerifiedAt: 0,
-        //     label: { 'en-gb': '' },
+        //     label: { 'en': '' },
         //     icon: '',
         //     iconDark: '',
         //     lastUpdatedAt: null,

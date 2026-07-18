@@ -116,7 +116,6 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
     if (registrationState.isPresenterRegistered) presenterConfigs.value = [...pendingPresenterConfigs];
 
     if (registrationState.isToolRegistered) toolConfigs.value = [...pendingToolConfigs];
-    console.log(111, toolConfigs.value);
 }
 
 function doRegister(
@@ -129,7 +128,7 @@ function doRegister(
     // TODO: Only register if new added or new version. Can we import in parallel for efficiency?
     switch (moduleConfig.typeId) {
         case 'app':
-            if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Workbench '${moduleConfig.id}' v${moduleConfig.version} registered.`);
+            logIt('App', moduleConfig);
             return;
         case 'engine':
             engineConfig.value = moduleConfig as EngineConfig;

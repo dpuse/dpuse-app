@@ -117,7 +117,7 @@ function getCategoryConnectorLabel(categoryId: string): string {
                 <!-- Description -->
                 <p v-for="paragraph in connectorLocalisedConfig.description" :key="paragraph">{{ paragraph }}</p>
 
-                <p>{{ CONNECTOR_USAGE_DESCRIPTIONS[connectorLocalisedConfig.usageId] ?? CONNECTOR_USAGE_DESCRIPTIONS['unknown'] }}</p>
+                <p>{{ CONNECTOR_USAGE_DESCRIPTIONS[connectorLocalisedConfig.usageId ?? 'unknown'] }}</p>
 
                 <!-- Authentication -->
                 <div class="flex flex-col gap-y-2">
