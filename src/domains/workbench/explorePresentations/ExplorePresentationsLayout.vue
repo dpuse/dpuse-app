@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, onMounted, shallowRef, watch } from 'vue';
+import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── Local (App) Framework
 import type { ComponentReference } from '@dpuse/dpuse-shared/component';
@@ -22,6 +22,7 @@ import WorkbenchLayout from '../WorkbenchLayout.vue';
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activePresentationReference = shallowRef<LocalisedReference<ComponentReference>>();
+const container = useTemplateRef<HTMLDivElement>('container');
 const presentationReferences = shallowRef<LocalisedReference<ComponentReference>[]>();
 const presenter = shallowRef<PresenterInterface>();
 
@@ -66,16 +67,15 @@ onMounted(async () => {
     const presenterModule = module.default;
     presenter.value = new presenterModule(toolConfigs.value) as PresenterInterface;
 
-    // presentationReferences.value = presenter.value.list(); // TODO: Could also use 'defaultPresenter.presentations', though it is a map, not an array.
-    presentationReferences.value = presenter.value.list().map((presentationReference) => localiseReference(presentationReference, 'en'));
-    console.log('ppp', presentationReferences.value);
+    presentationReferences.value = presenter.value.list().map((presentationReference) => localiseReference(presentationReference, 'en')); // TODO: Could also use 'defaultPresenter.presentations', though it is a map, not an array.
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleSelectPresentation(presentationReference: LocalisedReference<ComponentReference> | undefined): void {
+async function handleSelectPresentation(presentationReference: LocalisedReference<ComponentReference> | undefined): Promise<void> {
     activePresentationReference.value = presentationReference;
-    presenter.value!.render('hr/wrkFor/physicalHeadcount', document.querySelector('#container')!);
+    await nextTick();
+    presenter.value!.render(activePresentationReference.value!.path, container.value!);
 }
 </script>
 
@@ -85,31 +85,20 @@ function handleSelectPresentation(presentationReference: LocalisedReference<Comp
 
         <Separator class="mx-4" />
 
-        <!-- <div class="flex min-h-0 flex-1 px-4">
-            <div class="flex flex-none flex-col overflow-y-scroll overscroll-y-none">
-                <div v-for="presentationReference in presentationReferences" :key="presentationReference.id">{{ presentationReference.label.en }}</div>
-            </div>
-
-            <div class="flex-1 overflow-y-scroll overscroll-y-none">
-                <div id="container" class="overflow-y-scroll" />
-            </div>
-        </div> -->
-
         <GridDetailPanel
             :active-item="activePresentationReference"
+            class="min-h-0 flex-1"
             :data-source="presentationReferencesDataSource"
             :is-compact="true"
             max-list-width="400px"
             @select="handleSelectPresentation($event)"
         >
-            <template #header> </template>
-
             <template #grid-item="{ item }">
                 <Card v-if="item" :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
             </template>
 
             <template #detail>
-                <div id="container" class="overflow-y-scroll" />
+                <div ref="container" class="overflow-y-scroll overscroll-y-none px-4" />
             </template>
 
             <template #no-selection>

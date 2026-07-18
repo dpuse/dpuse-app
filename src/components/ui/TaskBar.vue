@@ -18,7 +18,7 @@ export interface TaskConfig {
 }
 const { activeTaskId, items = [] } = defineProps<{ activeTaskId?: string; items?: LocalisedConfig<TaskConfig>[] }>();
 
-defineSlots<{ 'default'(properties: { item: LocalisedConfig<TaskConfig> }): unknown }>();
+defineSlots<{ default(properties: { item: LocalisedConfig<TaskConfig> }): unknown }>();
 
 defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
 </script>

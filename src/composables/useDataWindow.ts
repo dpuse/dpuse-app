@@ -325,7 +325,9 @@ function logRetrievalAttempt(start: number, end: number, attempt: number): void 
 
 function logRetrievalSuccess(start: number, end: number, rowCount: number, totalCount: number | undefined): void {
     if (!import.meta.env.DEV) return;
-    console.log(`[dpuse-app] useDataWindow retrieved ${String(rowCount)} rows for [${String(start)}, ${String(end)}) — totalCount: ${totalCount === undefined ? 'unknown' : String(totalCount)}.`);
+    console.log(
+        `[dpuse-app] useDataWindow retrieved ${String(rowCount)} rows for [${String(start)}, ${String(end)}) — totalCount: ${totalCount === undefined ? 'unknown' : String(totalCount)}.`
+    );
 }
 
 function logRetrievalRetry(start: number, end: number, delayMs: number, error: unknown): void {
