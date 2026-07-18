@@ -60,7 +60,6 @@ const presenterReady = new Promise<void>((resolve) => {
 onMounted(async () => {
     await Promise.all([toolReady, presenterReady]);
 
-    console.log(presenterConfigs.value);
     const defaultPresenter = presenterConfigs.value[0];
     const url = `https://engine-eu.dpuse.app/presenters/default_v${defaultPresenter.version}/dpuse-presenter-default.es.js`;
     const module = await import(/* @vite-ignore */ url);
