@@ -103,6 +103,14 @@ html {
     background-color: var(--card-hover);
 }
 
+.dp-tab-bar {
+    column-gap: 8px;
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: none;
+    padding-bottom: 8px;
+}
+
 /* Use class-based dark mode (parent has .dark) instead of prefers-color-scheme. */
 @custom-variant dark (&:is(.dark *));
 
