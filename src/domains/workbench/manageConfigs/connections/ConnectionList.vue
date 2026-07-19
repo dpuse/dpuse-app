@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── Local (App) Framework
+// ── Local Framework
 import { connectionConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';

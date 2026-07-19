@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Local (App) Framework
+// Local Framework
 import type { LocaleDescription, LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Components - Static

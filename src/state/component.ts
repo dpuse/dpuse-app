@@ -1,7 +1,7 @@
 // ── External Dependencies & Registrations
 import { type Component, h } from 'vue';
 
-// ── Local (App) Framework
+// ── Local Framework
 import ComponentLoadError from '@/components/ui/ComponentLoadError.vue';
 import { complete, fail, navigationIsActive, start } from '@/state/navigation';
 

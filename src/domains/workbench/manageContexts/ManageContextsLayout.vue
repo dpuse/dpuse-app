@@ -4,7 +4,7 @@ import { required } from '@regle/rules';
 import { useRegle } from '@regle/core';
 import { computed, reactive, ref, watch } from 'vue';
 
-// ── Local (App) Framework
+// ── Local Framework
 import { t } from '@/state/locale';
 import T from './ManageContextsLayout.json';
 

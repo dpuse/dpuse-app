@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
 
-// ── Local (App) Framework
+// ── Local Framework
 import type { ComponentReference } from '@dpuse/dpuse-shared/component';
 import type { DataSource } from '@/composables/useDataWindow';
 import type { PresenterInterface } from '@dpuse/dpuse-shared/component/module/presenter';
@@ -89,7 +89,7 @@ async function handleSelectPresentation(presentationReference: LocalisedReferenc
             class="min-h-0 flex-1"
             :data-source="presentationReferencesDataSource"
             :is-compact="true"
-            max-list-width="400px"
+            max-list-width="350px"
             @select="handleSelectPresentation($event)"
         >
             <template #grid-item="{ item }">

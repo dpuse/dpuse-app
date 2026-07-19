@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Local (App) Framework
+// Local Framework
 import { localeId } from '@/state/locale';
 
 // Local Components - Static

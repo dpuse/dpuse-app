@@ -9,7 +9,7 @@ import type { DimensionConfig } from '@dpuse/dpuse-shared/component/dimension';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/component/module/engine';
 import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
-// ── Local (App) Framework
+// ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';

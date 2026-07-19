@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { nextTick, ref, watch } from 'vue';
 
-// ── Local (App) Framework
+// ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 
 // ── Local Components - Static

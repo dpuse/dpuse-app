@@ -2,7 +2,7 @@
 // External Dependencies & Registrations
 import { computed } from 'vue';
 
-// Local (App) Framework
+// Local Framework
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 
 // Local Components - Static

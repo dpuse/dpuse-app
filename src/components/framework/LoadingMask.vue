@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { computed } from 'vue';
 
-// ── Local (App) Framework
+// ── Local Framework
 import { viewportIsWide } from '@/state/appLayout';
 
 // ── Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────

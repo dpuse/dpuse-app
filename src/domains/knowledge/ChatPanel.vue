@@ -7,7 +7,7 @@ import { ArrowUpIcon, EllipsisVerticalIcon } from '@lucide/vue';
 import { DefaultChatTransport, isReasoningUIPart, isTextUIPart, lastAssistantMessageIsCompleteWithToolCalls, type ReasoningUIPart, type TextUIPart, type UIMessage } from 'ai';
 import { onMounted, onUnmounted, ref } from 'vue';
 
-// ── Local (App) Framework
+// ── Local Framework
 import { toolExecutors } from './tools';
 
 // ── Local Components - Static

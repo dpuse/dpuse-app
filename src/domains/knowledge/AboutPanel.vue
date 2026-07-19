@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Local (App) Framework
+// Local Framework
 import { useWorkbenchOptions } from '@/domains/workbench/useWorkbenchOptions';
 
 // Local Components - Static

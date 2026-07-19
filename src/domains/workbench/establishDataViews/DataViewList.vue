@@ -10,7 +10,7 @@ import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/component/module/engine';
 import type { RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
-// ── Local (App) Framework
+// ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';

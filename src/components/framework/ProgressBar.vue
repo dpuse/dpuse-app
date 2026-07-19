@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ── Local (App) Framework
+// ── Local Framework
 import { navigationIsDelayed } from '@/state/navigation';
 </script>
 

@@ -4,7 +4,7 @@
 
 // ── DPUse Tools
 
-// ── Local (App) Framework
+// ── Local Framework
 
 // ── Local Components - Static
 

@@ -6,7 +6,7 @@ import { z } from 'zod/v4';
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 
-// ── Local (App) Framework
+// ── Local Framework
 import '@/assets/main.css';
 import { createAppRouter } from '@/router';
 import { reportAppError, reportFatalError } from '@/observability/errorTracking';

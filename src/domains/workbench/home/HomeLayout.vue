@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ── Local (App) Framework
+// ── Local Framework
 import T from './HomeLayout.json';
 import { t } from '@/state/locale';
 import { useWorkbenchOptions } from '@/domains/workbench/useWorkbenchOptions.ts';

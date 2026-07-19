@@ -3,7 +3,7 @@
 import { PlusIcon } from '@lucide/vue';
 import { computed, onUnmounted, ref, shallowRef } from 'vue';
 
-// ── Local (App) Framework
+// ── Local Framework
 import { type DataSource, DEFAULT_CACHE_BLOCK_SIZE, useDataWindow } from '@/composables/useDataWindow';
 
 // ── Local Components - Static

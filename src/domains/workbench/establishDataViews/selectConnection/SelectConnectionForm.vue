@@ -8,7 +8,7 @@ import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection'
 import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/component/module/engine';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── Local (App) Framework
+// ── Local Framework
 import { accountId } from '@/state/session';
 import T from './SelectConnectionForm.json';
 import { t } from '@/state/locale';

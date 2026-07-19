@@ -9,7 +9,7 @@ import type { ConnectionConfig, ConnectionNodeConfig } from '@dpuse/dpuse-shared
 import type { ContentAuditConfig, DataViewConfig, PreviewConfig, RelationshipsAuditConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, GetRecordOptions, GetRecordResult } from '@dpuse/dpuse-shared/component/module/connector';
 
-// ── Local (App) Framework
+// ── Local Framework
 import { useEngine } from '@/services/useEngine';
 
 // const options: UpsertRecordsOptions = {

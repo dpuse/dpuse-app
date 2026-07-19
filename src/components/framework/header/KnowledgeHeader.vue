@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Local (App) Framework
+// Local Framework
 import { viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
 
 // Options, Properties, Slots & Emits

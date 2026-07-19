@@ -7,7 +7,7 @@ import { type RouteRecordNameGeneric, useRoute, useRouter } from 'vue-router';
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── Local (App) Framework
+// ── Local Framework
 import { connectorConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import T from './ConnectionDialog.json';

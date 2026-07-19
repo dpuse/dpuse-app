@@ -5,7 +5,7 @@ import { type ComponentPublicInstance, onUnmounted, ref, useTemplateRef } from '
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── Local (App) Framework
+// ── Local Framework
 import { activeBenchtopOptionConfig } from '@/state/activeBenchtop';
 import T from './WorkbenchOptionPanel.json';
 import { t } from '@/state/locale';

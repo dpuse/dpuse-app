@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Local (App) Framework
+// Local Framework
 import { t } from '@/state/locale';
 import T from './CookbookList.json';
 

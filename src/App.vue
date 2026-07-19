@@ -4,7 +4,7 @@ import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 
-// ── Local (App) Framework
+// ── Local Framework
 import { initialiseServices } from '@/state/session';
 import { load } from '@/state/component';
 import T from './App.json';

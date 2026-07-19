@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Local (App) Framework
+// Local Framework
 import { knowledgePaneIsVisible, viewportIsWide } from '@/state/appLayout';
 
 // Options, Properties, Slots & Emits

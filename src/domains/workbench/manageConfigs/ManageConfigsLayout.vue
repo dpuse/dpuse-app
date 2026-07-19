@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { ref } from 'vue';
 
-// ── Local (App) Framework
+// ── Local Framework
 import { t } from '@/state/locale';
 import T from './ManageConfigsLayout.json';
 import { useConfigOptionConfigs } from './useConfigOptionConfigs.ts';

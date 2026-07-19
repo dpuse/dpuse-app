@@ -6,7 +6,7 @@ import { type D3ZoomEvent, zoom } from 'd3-zoom'; // TODO: This adds about 10kB 
 import { forceCenter, forceLink, forceManyBody, forceSimulation, type SimulationLinkDatum, type SimulationNodeDatum } from 'd3-force';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
-// ── Local (App) Framework
+// ── Local Framework
 import { t } from '@/state/locale';
 import T from './ContextualiseDataLayout.json';
 
