@@ -3,6 +3,7 @@
 import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── Local Framework
+import { appearanceIsDark } from '@/state/appLayout';
 import type { ComponentReference } from '@dpuse/dpuse-shared/component';
 import type { DataSource } from '@/composables/useDataWindow';
 import type { PresenterInterface } from '@dpuse/dpuse-shared/component/module/presenter';
@@ -56,6 +57,7 @@ const presenterReady = new Promise<void>((resolve) => {
         { immediate: true }
     );
 });
+watch(appearanceIsDark, (isDark) => presenter.value?.setColorMode(isDark ? 'dark' : 'light'));
 
 onMounted(async () => {
     await Promise.all([toolReady, presenterReady]);
@@ -64,7 +66,7 @@ onMounted(async () => {
     const url = `https://engine-eu.dpuse.app/presenters/default_v${defaultPresenter.version}/dpuse-presenter-default.es.js`;
     const module = await import(/* @vite-ignore */ url);
     const presenterModule = module.default;
-    presenter.value = new presenterModule(toolConfigs.value) as PresenterInterface;
+    presenter.value = new presenterModule(toolConfigs.value, appearanceIsDark.value ? 'dark' : 'light') as PresenterInterface;
 
     presentationReferences.value = presenter.value.list().map((presentationReference) => localiseReference(presentationReference, 'en')); // TODO: Could also use 'defaultPresenter.presentations', though it is a map, not an array.
 });
