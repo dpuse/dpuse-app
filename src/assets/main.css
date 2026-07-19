@@ -55,9 +55,52 @@ html {
     line-height: 28px;
     margin: 0;
 }
+.dpuse-text ul,
+.dpuse-text ol {
+    margin: 0;
+    padding-left: 24px;
+}
+.dpuse-text ul {
+    list-style: disc;
+}
+.dpuse-text ol {
+    list-style: decimal;
+}
+.dpuse-text ul ul,
+.dpuse-text ol ul {
+    list-style: circle;
+}
+.dpuse-text blockquote {
+    margin: 0;
+    padding-left: 12px;
+    border-left: 3px solid var(--separator);
+    color: var(--muted);
+}
 .dpuse-text .dpuse-text-overline {
     margin-bottom: 2px;
     @apply text-sm leading-tight text-muted;
+}
+.dpuse-text table {
+    border-collapse: collapse;
+    width: 100%;
+}
+.dpuse-text th,
+.dpuse-text td {
+    border: 1px solid var(--separator);
+    padding: 6px 12px;
+    text-align: left;
+    line-height: 24px;
+}
+.dpuse-text th {
+    background-color: var(--card);
+    color: var(--emphasis);
+    font-weight: 600;
+}
+.dpuse-text td {
+    color: var(--content);
+}
+.dpuse-text tr:hover td {
+    background-color: var(--card-hover);
 }
 
 /* Use class-based dark mode (parent has .dark) instead of prefers-color-scheme. */

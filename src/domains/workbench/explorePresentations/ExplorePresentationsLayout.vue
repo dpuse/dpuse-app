@@ -99,7 +99,7 @@ async function handleSelectPresentation(presentationReference: LocalisedReferenc
             </template>
 
             <template #detail>
-                <div ref="container" class="overflow-y-scroll overscroll-y-none px-4" />
+                <div ref="container" class="dpuse-text overflow-y-scroll overscroll-y-none px-4" />
             </template>
 
             <template #no-selection>
