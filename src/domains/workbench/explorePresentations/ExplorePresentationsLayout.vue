@@ -57,10 +57,7 @@ const presenterReady = new Promise<void>((resolve) => {
         { immediate: true }
     );
 });
-watch(appearanceIsDark, (isDark) => {
-    console.log(111, isDark);
-    presenter.value?.setColorMode(isDark ? 'dark' : 'light');
-});
+watch(appearanceIsDark, (isDark) => presenter.value?.setColorMode(isDark ? 'dark' : 'light'));
 
 onMounted(async () => {
     await Promise.all([toolReady, presenterReady]);
