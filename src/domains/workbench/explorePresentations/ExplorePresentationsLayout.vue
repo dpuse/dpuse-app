@@ -75,8 +75,9 @@ onMounted(async () => {
 
 async function handleSelectPresentation(presentationReference: LocalisedReference<ComponentReference> | undefined): Promise<void> {
     activePresentationReference.value = presentationReference;
+    if (!activePresentationReference.value) return;
     await nextTick();
-    presenter.value!.render(activePresentationReference.value!.path, container.value!);
+    presenter.value!.render(activePresentationReference.value, container.value!);
 }
 </script>
 
