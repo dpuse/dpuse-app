@@ -111,7 +111,7 @@ async function retrieveDataViews(metaStoreConnectionConfig: ConnectionConfig): P
             add-label="Data View"
             class="flex-1"
             :data-source="dataViewConfigsDataSource"
-            :row-height="83"
+            :row-height="80"
             :target-column-width="350"
             @add="handleAddDataView"
         >

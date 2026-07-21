@@ -79,7 +79,7 @@ async function handleSelectItem(row: T): Promise<void> {
                     class="flex-1"
                     :data-source="dataSource"
                     :is-compact="isCompact"
-                    :row-height="83"
+                    :row-height="80"
                     :scroll-area-padding="scrollAreaPadding"
                     :target-column-width="250"
                     @add="$emit('add')"
@@ -100,7 +100,7 @@ async function handleSelectItem(row: T): Promise<void> {
                 </div>
 
                 <!-- No Selection -->
-                <div v-else class="mx-4 mt-4">
+                <div v-else class="mx-4 mt-6">
                     <slot name="no-selection" />
                 </div>
             </div>
