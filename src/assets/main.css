@@ -42,7 +42,8 @@ html {
     font-weight: 400;
     letter-spacing: -0.02em;
     line-height: 30px;
-    padding-top: 8px;
+    margin-top: 48px;
+    padding-top: 24px;
 }
 .dpuse-text h3 {
     font-size: 20px;
@@ -52,8 +53,9 @@ html {
 }
 .dpuse-text li,
 .dpuse-text p {
+    margin-bottom: 12px;
+    margin-top: 16px;
     line-height: 28px;
-    margin: 0;
 }
 .dpuse-text ul,
 .dpuse-text ol {
