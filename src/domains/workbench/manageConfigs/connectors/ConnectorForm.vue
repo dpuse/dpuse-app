@@ -71,7 +71,7 @@ function getCategoryConnectorLabel(categoryId: string): string {
 <template>
     <form class="flex min-h-0 flex-1 flex-col pl-4" data-region="ConnectorForm" @submit.prevent="handleSubmit">
         <ScrollArea scroll-area-padding="screen">
-            <div class="dpuse-text flex flex-col gap-y-4 pt-4">
+            <div class="dpuse-text pt-4">
                 <!-- Header -->
                 <div class="flex items-center gap-x-4">
                     <div class="flex-1">
@@ -120,62 +120,72 @@ function getCategoryConnectorLabel(categoryId: string): string {
                 <p>{{ CONNECTOR_USAGE_DESCRIPTIONS[connectorLocalisedConfig.usageId ?? 'unknown'] }}</p>
 
                 <!-- Authentication -->
-                <div class="flex flex-col gap-y-2">
-                    <h2>{{ t(T, 'Authentication') }}</h2>
-                    <p v-for="method in authMethods" :key="method">
-                        {{ AUTH_METHOD_DESCRIPTIONS[method] ?? method }}
-                    </p>
-                </div>
+                <h2>{{ t(T, 'Authentication') }}</h2>
+                <p v-for="method in authMethods" :key="method">
+                    {{ AUTH_METHOD_DESCRIPTIONS[method] ?? method }}
+                </p>
 
                 <!-- Links -->
-                <div class="flex flex-col gap-y-2">
-                    <h2>{{ t(T, 'Links') }}</h2>
+                <h2>{{ t(T, 'Links') }}</h2>
 
-                    <a
-                        v-if="connectorLocalisedConfig.vendorHomeURL"
-                        :href="connectorLocalisedConfig.vendorHomeURL"
-                        class="inline-flex items-center gap-x-1 hover:underline"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <GlobeIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Website
-                        <ExternalLinkIcon class="size-4" />
-                    </a>
+                <ul>
+                    <li v-if="connectorLocalisedConfig.vendorHomeURL">
+                        <a
+                            :href="connectorLocalisedConfig.vendorHomeURL"
+                            class="inline-flex items-center gap-x-1 hover:underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <GlobeIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Website
+                            <ExternalLinkIcon class="size-4" />
+                        </a>
+                    </li>
 
-                    <a
-                        v-if="connectorLocalisedConfig.vendorDocumentationURL"
-                        :href="connectorLocalisedConfig.vendorDocumentationURL"
-                        class="inline-flex items-center gap-x-1 hover:underline"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <InfoIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Documentation
-                        <ExternalLinkIcon class="size-4" />
-                    </a>
+                    <li v-if="connectorLocalisedConfig.vendorDocumentationURL">
+                        <a
+                            :href="connectorLocalisedConfig.vendorDocumentationURL"
+                            class="inline-flex items-center gap-x-1 hover:underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <InfoIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Documentation
+                            <ExternalLinkIcon class="size-4" />
+                        </a>
+                    </li>
 
-                    <a
-                        v-if="connectorLocalisedConfig.vendorAccountURL"
-                        :href="connectorLocalisedConfig.vendorAccountURL"
-                        class="inline-flex items-center gap-x-1 hover:underline"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <UserRoundIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Sign in
-                        <ExternalLinkIcon class="size-4" />
-                    </a>
+                    <li v-if="connectorLocalisedConfig.vendorAccountURL">
+                        <a
+                            :href="connectorLocalisedConfig.vendorAccountURL"
+                            class="inline-flex items-center gap-x-1 hover:underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <UserRoundIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Sign in
+                            <ExternalLinkIcon class="size-4" />
+                        </a>
+                    </li>
 
-                    <a
-                        :href="`https://github.com/dpuse/${connectorLocalisedConfig.id}`"
-                        class="inline-flex items-center gap-x-1 hover:underline"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <GitHubLogo class="size-4" />
-                        {{ t(T, 'GitHub_repository') }}
-                        <ExternalLinkIcon class="size-4" />
-                    </a>
-                </div>
+                    <li>
+                        <a
+                            :href="`https://github.com/dpuse/${connectorLocalisedConfig.id}`"
+                            class="inline-flex items-center gap-x-1 hover:underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <GitHubLogo class="size-4" />
+                            {{ t(T, 'GitHub_repository') }}
+                            <ExternalLinkIcon class="size-4" />
+                        </a>
+                    </li>
+                </ul>
             </div>
         </ScrollArea>
     </form>
 </template>
+
+<style scoped>
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+</style>
