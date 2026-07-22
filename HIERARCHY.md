@@ -1,3 +1,5 @@
+# Hierarchy
+
 |   Config    |   Config   |    Config     |  Config   | Config |    Usage     |     Usage      |     Usage      |       Usage       |       Usage       |    Usage    |
 | :---------: | :--------: | :-----------: | :-------: | :----: | :----------: | :------------: | :------------: | :---------------: | :---------------: | :---------: |
 |   Module    |            |    Module     |  Module   | Module |              |                |                |                   |                   |             |
@@ -5,7 +7,7 @@
 |    Types    |  Focuses   |    Focuses    |   Types   | Types  |    Types     |                |                |                   |      Focuses      |    Types    |
 | Connections | **Models** | Presentations |  Recipes  |        | Connections  | **Data Views** | **Dimensions** | **Event Queries** | **Presentations** | **Recipes** |
 
-Models
+Model
 . Dimensions
 . . Hierarchies
 . . Levels
