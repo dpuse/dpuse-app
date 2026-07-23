@@ -36,12 +36,13 @@ const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbe
 // ── Local Components - Dynamic - Manage Configs
 const ManageConfigsLayout = load('ManageConfigs', () => import('@/domains/workbench/manageConfigs/ManageConfigsLayout.vue'));
 const ManageHomePanel = load('ManageHomePanel', () => import('@/domains/workbench/manageConfigs/home/HomePanel.vue'));
-const ManageConnectionList = load('ManageConnectionList', () => import('@/domains/workbench/manageConfigs/connections/ConnectionList.vue'));
+// const ManageConnectionList = load('ManageConnectionList', () => import('@/domains/workbench/manageConfigs/connections/ConnectionList.vue'));
 const ManageConnectorList = load('ManageConnectorList', () => import('@/domains/workbench/manageConfigs/connectors/ConnectorList.vue'));
 const ManageContextList = load('ManageContextList', () => import('@/domains/workbench/manageConfigs/contexts/ContextList.vue'));
 const ManageContextPanel = load('ManageContextPanel', () => import('@/domains/workbench/manageConfigs/contexts/ContextPanel.vue'));
 const ManagePresenterList = load('ManagePresenterList', () => import('@/domains/workbench/manageConfigs/presenters/PresenterList.vue'));
 const ManageCookbooksList = load('ManageCookbooksList', () => import('@/domains/workbench/manageConfigs/cookbooks/CookbookList.vue'));
+const ManageToolsList = load('ManageToolsList', () => import('@/domains/workbench/manageConfigs/tools/ToolList.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -84,12 +85,13 @@ export const APP_ROUTES = [
                         component: ManageConfigsLayout,
                         children: [
                             { name: 'manageConfigs', path: '', component: ManageHomePanel },
-                            { name: 'manageConnections', path: 'connections', component: ManageConnectionList },
+                            // { name: 'manageConnections', path: 'connections', component: ManageConnectionList },
                             { name: 'manageConnectors', path: 'connectors', component: ManageConnectorList },
                             { name: 'manageContexts', path: 'contexts', component: ManageContextList },
                             { name: 'manageContext', path: 'contexts/:contextId', component: ManageContextPanel },
                             { name: 'managePresenters', path: 'presenters', component: ManagePresenterList },
-                            { name: 'manageCookbooks', path: 'cookbooks', component: ManageCookbooksList }
+                            { name: 'manageCookbooks', path: 'cookbooks', component: ManageCookbooksList },
+                            { name: 'manageTools', path: 'tools', component: ManageToolsList }
                         ]
                     }
                 ]

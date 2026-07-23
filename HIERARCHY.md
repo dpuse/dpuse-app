@@ -1,11 +1,13 @@
 # Hierarchy
 
-|   Config    |   Config   |    Config     |  Config   | Config |    Usage     |     Usage      |     Usage      |       Usage       |       Usage       |    Usage    |
-| :---------: | :--------: | :-----------: | :-------: | :----: | :----------: | :------------: | :------------: | :---------------: | :---------------: | :---------: |
-|   Module    |            |    Module     |  Module   | Module |              |                |                |                   |                   |             |
-| Connectors  |  Contexts  |  Presenters   | Cookbooks | Tools  | _Connectors_ |                |                |                   |   _Presenters_    | _Cookbooks_ |
-|    Types    |  Focuses   |    Focuses    |   Types   | Types  |    Types     |                |                |                   |      Focuses      |    Types    |
-| Connections | **Models** | Presentations |  Recipes  |        | Connections  | **Data Views** | **Dimensions** | **Event Queries** | **Presentations** | **Recipes** |
+|    Config    |  Config   |    Config     |   Config    |   Config   |      Usage      |     Usage      |     Usage      |       Usage       |          Usage           |    Usage    |
+| :----------: | :-------: | :-----------: | :---------: | :--------: | :-------------: | :------------: | :------------: | :---------------: | :----------------------: | :---------: |
+|  **Module**  |           |  **Module**   | **Module**  | **Module** |                 |                |                |                   |                          |             |
+|    Types     | Contexts  |   Focuses 1   |    Types    |   Types    |      Types      |     Types      |                |                   |        Focuses 1         |    Types    |
+|              | Focuses 1 |   Focuses 2   |             |            |                 |                |                |                   |        Focuses 2         |             |
+|              | Focuses 2 |               |             |            |                 |                |                |                   |                          |             |
+| _Connectors_ | _Models_  | _Presenters_  | _Cookbooks_ |  _Tools_   |  _Connectors_   |  _Connectors_  |                |                   | _Presenters_ _Cookbooks_ |             |
+| Connections  |    ...    | Presentations |   Recipes   |            | **Connections** | **Data Views** | **Dimensions** | **Event Queries** |    **Presentations**     | **Recipes** |
 
 Model
 . Dimensions

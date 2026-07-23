@@ -37,7 +37,7 @@ export function reportAppError(error: AppError): void {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function logErrorToConsole(serialisedErrors: SerialisedError[]): void {
-    console.log('[dpuse:app] ❌', formatTrace(serialisedErrors));
+    console.warn('[dpuse:app] ❌', formatTrace(serialisedErrors));
 }
 
 function formatTrace(serialisedErrors: SerialisedError[]): string {
