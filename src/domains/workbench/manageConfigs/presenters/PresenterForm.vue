@@ -6,10 +6,10 @@ import { useRoute, useRouter } from 'vue-router';
 // ── DPUse Framework
 import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
+import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
 
 // ── Local Framework
-import T from './ToolForm.json';
+import T from './PresenterForm.json';
 import { t } from '@/state/locale';
 
 // ── Local Components - Static
@@ -19,7 +19,7 @@ import Tag from '@/components/ui/Tag.vue';
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
-const { toolLocalisedConfig } = defineProps<{ toolLocalisedConfig: LocalisedConfig<ToolConfig> }>();
+const { presenterLocalisedConfig } = defineProps<{ presenterLocalisedConfig: LocalisedConfig<PresenterConfig> }>();
 const emit = defineEmits<{ submit: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -43,42 +43,46 @@ async function handleSubmit(): Promise<void> {
                 <div class="flex items-center gap-x-4">
                     <div class="flex-1">
                         <!-- Overline -->
-                        <div class="dpuse-text-overline">Tool</div>
+                        <div class="dpuse-text-overline">Presenter</div>
 
                         <!-- Title -->
                         <div class="flex items-center gap-x-1.5">
-                            <h1>{{ toolLocalisedConfig.label }}</h1>
+                            <h1>{{ presenterLocalisedConfig.label }}</h1>
                         </div>
 
                         <!-- Tags -->
                         <div class="mt-4 flex flex-wrap gap-1.5">
-                            <Tag :text="`v${toolLocalisedConfig.version}`" />
+                            <Tag :text="`v${presenterLocalisedConfig.version}`" />
                             <Tag
-                                v-if="toolLocalisedConfig.status"
-                                :text="toolLocalisedConfig.status.label"
-                                :color="toolLocalisedConfig.status.color === 'other' ? undefined : toolLocalisedConfig.status.color"
+                                v-if="presenterLocalisedConfig.status"
+                                :text="presenterLocalisedConfig.status.label"
+                                :color="presenterLocalisedConfig.status.color === 'other' ? undefined : presenterLocalisedConfig.status.color"
                             />
                             <Tag
-                                v-else-if="toolLocalisedConfig.statusId"
-                                :text="toolLocalisedConfig.statusId"
-                                :color="getComponentStatus(toolLocalisedConfig.statusId).color === 'other' ? undefined : getComponentStatus(toolLocalisedConfig.statusId).color"
+                                v-else-if="presenterLocalisedConfig.statusId"
+                                :text="presenterLocalisedConfig.statusId"
+                                :color="
+                                    getComponentStatus(presenterLocalisedConfig.statusId).color === 'other'
+                                        ? undefined
+                                        : getComponentStatus(presenterLocalisedConfig.statusId).color
+                                "
                             />
                         </div>
                     </div>
 
                     <!-- Logo -->
-                    <div v-if="toolLocalisedConfig.icon != null" class="mr-2 flex-none">
-                        <div aria-hidden="true" class="flex h-12 items-center dark:hidden [&>svg]:h-full [&>svg]:w-auto" v-html="toolLocalisedConfig.icon" />
+                    <div v-if="presenterLocalisedConfig.icon != null" class="mr-2 flex-none">
+                        <div aria-hidden="true" class="flex h-12 items-center dark:hidden [&>svg]:h-full [&>svg]:w-auto" v-html="presenterLocalisedConfig.icon" />
                         <div
                             aria-hidden="true"
                             class="hidden h-12 items-center dark:flex [&>svg]:h-full [&>svg]:w-auto"
-                            v-html="toolLocalisedConfig.iconDark ?? toolLocalisedConfig.icon ?? ''"
+                            v-html="presenterLocalisedConfig.iconDark ?? presenterLocalisedConfig.icon ?? ''"
                         />
                     </div>
                 </div>
 
                 <!-- Description -->
-                <p v-for="paragraph in toolLocalisedConfig.description" :key="paragraph">{{ paragraph }}</p>
+                <p v-for="paragraph in presenterLocalisedConfig.description" :key="paragraph">{{ paragraph }}</p>
 
                 <!-- Links -->
                 <h2>{{ t(T, 'Links') }}</h2>
@@ -112,7 +116,7 @@ async function handleSubmit(): Promise<void> {
 
                     <li>
                         <a
-                            :href="`https://github.com/dpuse/${toolLocalisedConfig.id}`"
+                            :href="`https://github.com/dpuse/${presenterLocalisedConfig.id}`"
                             class="inline-flex items-center gap-x-1 hover:underline"
                             target="_blank"
                             rel="noopener noreferrer"

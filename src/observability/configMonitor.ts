@@ -146,6 +146,8 @@ function doRegister(
             logIt('Connector', moduleConfig);
             return;
         }
+        case 'cookbook':
+            return;
         case 'context':
             contextConfig.value = moduleConfig as ContextConfig; // Trigger shallow reference change for context.
             return;
