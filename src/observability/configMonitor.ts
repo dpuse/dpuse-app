@@ -1,13 +1,14 @@
 // ── DPUse Framework
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
+import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbook';
 import type { EngineConfig } from '@dpuse/dpuse-shared/component/module/engine';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
 // ── Local Framework
-import { connectorConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
+import { connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -100,26 +101,28 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
     const registrationState = {
         isConnectorRegistered: false,
         isPresenterRegistered: false,
+        isCookbookRegistered: false,
         isToolRegistered: false
     };
     const pendingConnectorConfigs = [...(connectorConfigs.value ?? [])];
+    const pendingCookbookConfigs = [...(cookbookConfigs.value ?? [])];
     const pendingPresenterConfigs = [...(presenterConfigs.value ?? [])];
     const pendingToolConfigs = [...(toolConfigs.value ?? [])];
 
     for (const moduleConfig of moduleConfigs) {
-        doRegister(moduleConfig, pendingConnectorConfigs, pendingPresenterConfigs, pendingToolConfigs, registrationState);
+        doRegister(moduleConfig, pendingConnectorConfigs, pendingCookbookConfigs, pendingPresenterConfigs, pendingToolConfigs, registrationState);
     }
 
     if (registrationState.isConnectorRegistered) connectorConfigs.value = [...pendingConnectorConfigs];
-
+    if (registrationState.isCookbookRegistered) cookbookConfigs.value = [...pendingCookbookConfigs];
     if (registrationState.isPresenterRegistered) presenterConfigs.value = [...pendingPresenterConfigs];
-
     if (registrationState.isToolRegistered) toolConfigs.value = [...pendingToolConfigs];
 }
 
 function doRegister(
     moduleConfig: ModuleConfig,
     pendingConnectorConfigs: ConnectorConfig[],
+    pendingCookbookConfigs: CookbookConfig[],
     pendingPresenterConfigs: PresenterConfig[],
     pendingToolConfigs: ToolConfig[],
     registrationState: Record<string, boolean>
@@ -146,6 +149,14 @@ function doRegister(
             return;
         }
         case 'cookbook':
+            registrationState.isCookbookRegistered = true;
+            const index = pendingCookbookConfigs.findIndex((cookbookConfig) => cookbookConfig.id === moduleConfig.id);
+            if (index === -1) {
+                pendingCookbookConfigs.push(moduleConfig as CookbookConfig);
+            } else {
+                pendingCookbookConfigs[index] = moduleConfig as CookbookConfig;
+            }
+            logIt('Cookbook', moduleConfig);
             return;
         case 'presenter': {
             registrationState.isPresenterRegistered = true;

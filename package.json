@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1446",
+    "version": "0.0.1447",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -29,6 +29,7 @@
         "workerd@1.20260722.1": true
     },
     "scripts": {
+        "audit": "node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
         "dev": "vite",
         "build": "run-p type-check \"build-only {@}\" -- && node -e \"import('@dpuse/dpuse-development').then(m => m.documentBundleSizes({ moduleLevel: true }))\"",
         "preview": "vite preview",
@@ -43,8 +44,7 @@
         "check": "node -e \"import('@dpuse/dpuse-development').then(m => m.checkConfigFiles())\" && node -e \"import('@dpuse/dpuse-development').then(m => m.checkDependencies())\"",
         "generate-pwa-assets": "pwa-assets-generator --config pwa.assets.config.ts",
         "release": "npm run build && npm run sync && wrangler deploy",
-        "sync": "node -e \"import('@dpuse/dpuse-development').then(m => m.syncProjectWithGitHub())\"",
-        "partykitdeploy": "npm install --prefix partykit && npx wrangler deploy --config partykit/wrangler.jsonc"
+        "sync": "node -e \"import('@dpuse/dpuse-development').then(m => m.syncProjectWithGitHub())\""
     },
     "dependencies": {
         "@ai-sdk/vue": "^4.0.37",

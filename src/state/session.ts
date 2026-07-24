@@ -19,6 +19,7 @@ import { localeId } from './locale';
 import { reportAppError } from '@/observability/errorTracking';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
 import { type LocaleId, localiseConfig, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbook';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -35,7 +36,6 @@ const LOCAL_META_NODE_CONNECTOR_ID = 'dpuse-connector-dexie-js';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const updatesArePending = ref(false);
 export const accountId = ref<string | undefined>();
 export const emailAddress = ref<string | undefined>();
 const emailIsPrimary = ref<boolean | undefined>();
@@ -50,12 +50,14 @@ const state: { expiryTimer: ReturnType<typeof setTimeout> | undefined; hankoInst
 export const sessionIsAuthenticated = ref<boolean | undefined>(); // Undefined if Hanko session validation pending; false if signed OUT; true if signed IN.
 export const lifetime = ref<number | undefined>();
 const sessionId = ref<string | undefined>();
+const updatesArePending = ref(false);
 
 // ── State - Configuration ────────────────────────────────────────────────────────────────────────────────────────────
 
 export const connectionAccountConfigs = shallowRef<ConnectionAccountConfig[]>([]);
 export const connectorConfigs = shallowRef<ConnectorConfig[]>([]);
 export const contextConfig = shallowRef<ContextConfig | undefined>();
+export const cookbookConfigs = shallowRef<CookbookConfig[]>([]);
 export const dataViewConfigs = shallowRef<DataViewConfig[]>([]);
 export const engineConfig = shallowRef<EngineConfig | undefined>();
 export const eventQueryConfigs = shallowRef<EventQueryConfig[]>([]);
