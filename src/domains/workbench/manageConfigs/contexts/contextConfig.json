@@ -1,0 +1,55 @@
+{
+    "id": "default",
+    "label": { "en": "Default Context" },
+    "description": { "en": ["..."] },
+    "firstCreatedAt": null,
+    "icon": null,
+    "iconDark": null,
+    "lastUpdatedAt": null,
+    "status": null,
+    "statusId": "alpha",
+    "typeId": "context",
+    "areas": [
+        { "id": "corpStrat", "label": { "en": "Corporate Strategy" }, "description": [{ "en": "..." }], "models": [] },
+        { "id": "custServ", "label": { "en": "Customer Service" }, "description": [{ "en": "..." }], "models": [] },
+        { "id": "extdata", "label": { "en": "External Data" }, "description": [{ "en": "..." }], "models": [] },
+        { "id": "finAcct", "label": { "en": "Finance & Accounting" }, "description": [{ "en": "..." }], "models": [] },
+        { "id": "govRiskComp", "label": { "en": "Governance, Risk & Compliance" }, "description": [{ "en": "..." }], "models": [] },
+        {
+            "id": "hr",
+            "label": { "en": "Human Resources" },
+            "description": [{ "en": "..." }],
+            "firstCreatedAt": null,
+            "icon": null,
+            "iconDark": null,
+            "lastUpdatedAt": null,
+            "status": null,
+            "statusId": "alpha",
+            "typeId": "contextArea",
+            "order": 1,
+            "models": [
+                {
+                    "id": "wrkForce",
+                    "label": { "en": "Workforce" },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": "",
+                    "entities": [],
+                    "secondaryMeasures": []
+                }
+            ]
+        },
+        { "id": "it", "label": { "en": "Information Technology" }, "description": [{ "en": "..." }], "models": [] },
+        { "id": "legal", "label": { "en": "Legal" }, "description": [{ "en": "..." }], "models": [] },
+        { "id": "opsSupplyChain", "label": { "en": "Operations & Supply Chain" }, "description": [{ "en": "..." }], "models": [] },
+        { "id": "prodDev", "label": { "en": "Product Development" }, "description": [{ "en": "..." }], "models": [] },
+        { "id": "salesMkt", "label": { "en": "Sales & Marketing" }, "description": [{ "en": "..." }], "models": [] }
+    ]
+}

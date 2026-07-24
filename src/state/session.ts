@@ -6,7 +6,7 @@ import { computed, ref, shallowRef, watch } from 'vue';
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
-import type { ContextConfig } from '@dpuse/dpuse-shared/component/module/context';
+import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { DimensionConfig } from '@dpuse/dpuse-shared/component/dimension';
 import type { EngineConfig } from '@dpuse/dpuse-shared/component/module/engine';

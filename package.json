@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1445",
+    "version": "0.0.1446",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -26,7 +26,7 @@
         "sharp@0.33.5": true,
         "sharp@0.34.5": true,
         "unrs-resolver@1.12.2": true,
-        "workerd@1.20260721.1": true
+        "workerd@1.20260722.1": true
     },
     "scripts": {
         "dev": "vite",
@@ -47,8 +47,8 @@
         "partykitdeploy": "npm install --prefix partykit && npx wrangler deploy --config partykit/wrangler.jsonc"
     },
     "dependencies": {
-        "@ai-sdk/vue": "^4.0.34",
-        "@dpuse/dpuse-shared": "^0.3.748",
+        "@ai-sdk/vue": "^4.0.37",
+        "@dpuse/dpuse-shared": "^0.3.751",
         "@formkit/drag-and-drop": "^0.6.1",
         "@regle/core": "^1.28.4",
         "@regle/rules": "^1.28.4",
@@ -70,11 +70,11 @@
         "zod": "^4.4.3"
     },
     "devDependencies": {
-        "@cloudflare/vite-plugin": "1.46.0",
-        "@cloudflare/workers-types": "^5.20260722.1",
-        "@dpuse/dpuse-development": "^0.3.692",
+        "@cloudflare/vite-plugin": "1.47.0",
+        "@cloudflare/workers-types": "^5.20260724.1",
+        "@dpuse/dpuse-development": "^0.3.699",
         "@dpuse/eslint-config-dpuse": "^1.0.113",
-        "@lucide/vue": "^1.25.0",
+        "@lucide/vue": "^1.26.0",
         "@playwright/test": "^1.61.1",
         "@tsconfig/node24": "^24.0.4",
         "@types/d3-drag": "^3.0.7",
@@ -87,7 +87,7 @@
         "@types/trusted-types": "^2.0.7",
         "@vite-pwa/assets-generator": "^1.0.2",
         "@vitejs/plugin-vue": "^6.0.8",
-        "@vitest/eslint-plugin": "^1.6.23",
+        "@vitest/eslint-plugin": "^1.6.24",
         "@vue/eslint-config-prettier": "^10.2.0",
         "@vue/eslint-config-typescript": "^14.9.0",
         "@vue/test-utils": "^2.4.11",
@@ -105,8 +105,7 @@
         "typescript": "^6.0.3",
         "vite": "^8.1.5",
         "vitest": "^4.1.10",
-        "vue-tsc": "^3.3.7",
-        "wrangler": "4.113.0"
-    },
-    "overrides": {}
+        "vue-tsc": "^3.3.8",
+        "wrangler": "4.114.0"
+    }
 }

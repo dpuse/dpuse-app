@@ -1,95 +1,71 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, shallowRef, watch } from 'vue';
 
 // ── Local Framework
-import { appearanceIsDark } from '@/state/appLayout';
 import type { ComponentReference } from '@dpuse/dpuse-shared/component';
-import type { ContextConfig } from '@dpuse/dpuse-shared/component/module/context';
+import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
+import type { ContextModelConfig } from '@dpuse/dpuse-shared/component/context/model';
 import type { DataSource } from '@/composables/useDataWindow';
-import type { PresenterInterface } from '@dpuse/dpuse-shared/component/module/presenter';
-import { type LocalisedConfig, type LocalisedReference, localiseReference } from '@dpuse/dpuse-shared/locale';
-import { presenterConfigs, toolConfigs } from '@/state/session';
+import { localeId } from '@/state/locale';
+import { localiseConfig, type LocalisedConfig, localiseReference } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Components - Static
 import Card from '@/components/ui/Card.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 
-// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-interface FocusConfig {
-    id: string;
-    label: Record<string, string>;
-    description: Record<string, string>[];
-}
+import contextConfigData from './contextConfig.json';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeContextConfig = shallowRef<LocalisedConfig<ContextConfig> | undefined>();
-const contextLocalisedConfigs = shallowRef<LocalisedConfig<ContextConfig>>();
+const activeModelReference = shallowRef<LocalisedConfig<ComponentReference> | undefined>();
+const contextConfig = shallowRef<ContextConfig>(contextConfigData as ContextConfig);
+
+const contextLocalisedConfig = shallowRef<LocalisedConfig<ContextConfig>>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const contextFocusConfigsDataSource = computed<DataSource<LocalisedConfig<FocusConfig>>>(() => ({
-    rowCount: contextLocalisedConfigs.value?.focuses.length ?? 0,
-    getRows: (start, end): Promise<{ rows: LocalisedConfig<FocusConfig>[] }> => Promise.resolve({ rows: contextLocalisedConfigs.value?.models.slice(start, end) })
-}));
+const modelReferencesDataSource = computed<DataSource<LocalisedConfig<ComponentReference>>>(() => getModels());
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const toolReady = new Promise<void>((resolve) => {
-    watch(
-        toolConfigs,
-        (newToolConfigs) => {
-            if (newToolConfigs.length === 0) return;
-            resolve();
-        },
-        { immediate: true }
-    );
-});
-const presenterReady = new Promise<void>((resolve) => {
-    watch(
-        presenterConfigs,
-        (newPresenterConfigs) => {
-            if (newPresenterConfigs.length === 0) return;
-            resolve();
-        },
-        { immediate: true }
-    );
-});
-watch(appearanceIsDark, (isDark) => presenter.value?.setColorMode(isDark ? 'dark' : 'light'));
-
-onMounted(async () => {
-    await Promise.all([toolReady, presenterReady]);
-
-    const defaultPresenter = presenterConfigs.value[0];
-    const url = `https://engine-eu.dpuse.app/presenters/default_v${defaultPresenter.version}/dpuse-presenter-default.es.js`;
-    const module = await import(/* @vite-ignore */ url);
-    const presenterModule = module.default;
-    presenter.value = new presenterModule(toolConfigs.value, appearanceIsDark.value ? 'dark' : 'light') as PresenterInterface;
-
-    presentationReferences.value = presenter.value.list().map((presentationReference) => localiseReference(presentationReference, 'en')); // TODO: Could also use 'defaultPresenter.presentations', though it is a map, not an array.
+watch(contextConfig, (newContextConfig) => (contextLocalisedConfig.value = localiseConfig<ContextConfig>(newContextConfig, localeId.value)), {
+    immediate: true
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleSelectPresentation(presentationReference: LocalisedReference<ComponentReference> | undefined): Promise<void> {
-    activePresentationReference.value = presentationReference;
-    if (!activePresentationReference.value) return;
-    await nextTick();
-    presenter.value!.render(activePresentationReference.value, container.value!);
+async function handleSelectModel(modelReference: LocalisedConfig<ComponentReference> | undefined): Promise<void> {
+    console.log(111, modelReference);
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function getModels(): DataSource<LocalisedConfig<ComponentReference>> {
+    const localisedModels: LocalisedConfig<ComponentReference>[] = [];
+    for (const area of contextConfig.value.areas) {
+        for (const model of area.models) {
+            const lr = localiseReference(model, localeId.value);
+            localisedModels.push(lr);
+        }
+    }
+    return {
+        rowCount: localisedModels.length,
+        // getRows: (start, end): Promise<{ rows: LocalisedConfig<FocusConfig>[] }> => Promise.resolve({ rows: contextLocalisedConfigs.value?.areas.slice(start, end) })
+        getRows: (start, end): Promise<{ rows: LocalisedConfig<ComponentReference>[] }> => Promise.resolve({ rows: localisedModels })
+    };
 }
 </script>
 
 <template>
     <GridDetailPanel
-        :active-item="activePresentationReference"
+        :active-item="activeModelReference"
         class="min-h-0 flex-1"
-        :data-source="presentationReferencesDataSource"
+        :data-source="modelReferencesDataSource"
         :is-compact="true"
         max-list-width="350px"
-        @select="handleSelectPresentation($event)"
+        @select="handleSelectModel($event)"
     >
         <template #grid-item="{ item }">
             <Card v-if="item" :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
