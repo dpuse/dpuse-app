@@ -38,12 +38,12 @@ async function handleSubmit(): Promise<void> {
 <template>
     <form class="flex min-h-0 flex-1 flex-col pl-4" data-region="ConnectorForm" @submit.prevent="handleSubmit">
         <ScrollArea scroll-area-padding="screen">
-            <div class="dpuse-text pt-4">
+            <div class="dpuse-prose pt-4">
                 <!-- Header -->
                 <div class="flex items-center gap-x-4">
                     <div class="flex-1">
                         <!-- Overline -->
-                        <div class="dpuse-text-overline">Cookbook</div>
+                        <div class="dpuse-prose-overline">Cookbook</div>
 
                         <!-- Title -->
                         <div class="flex items-center gap-x-1.5">

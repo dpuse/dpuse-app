@@ -6,12 +6,12 @@ html {
     font-size: 1rem; /* 16px is default */
 }
 
-.dpuse-text h1,
-.dpuse-text h2,
-.dpuse-text h3,
-.dpuse-text h4,
-.dpuse-text h5,
-.dpuse-text h6 {
+.dpuse-prose h1,
+.dpuse-prose h2,
+.dpuse-prose h3,
+.dpuse-prose h4,
+.dpuse-prose h5,
+.dpuse-prose h6 {
     margin: 0;
     line-height: 24px;
     font-size: 16px;
@@ -20,23 +20,23 @@ html {
     font-weight: 600;
     outline: none;
 }
-.dpuse-text h1,
-.dpuse-text h2,
-.dpuse-text h3,
-.dpuse-text h4,
-.dpuse-text h5,
-.dpuse-text h6,
-.dpuse-text li,
-.dpuse-text p {
+.dpuse-prose h1,
+.dpuse-prose h2,
+.dpuse-prose h3,
+.dpuse-prose h4,
+.dpuse-prose h5,
+.dpuse-prose h6,
+.dpuse-prose li,
+.dpuse-prose p {
     overflow-wrap: break-word;
 }
-.dpuse-text h1 {
+.dpuse-prose h1 {
     font-size: 28px;
     font-weight: 500;
     letter-spacing: -0.02em;
     line-height: 32px;
 }
-.dpuse-text h2 {
+.dpuse-prose h2 {
     border-top: 1px solid var(--separator);
     font-size: 24px;
     font-weight: 400;
@@ -46,67 +46,67 @@ html {
     margin-top: 24px;
     padding-top: 8px;
 }
-.dpuse-text h3 {
+.dpuse-prose h3 {
     font-size: 20px;
     font-weight: 500;
     letter-spacing: -0.01em;
     line-height: 28px;
 }
-.dpuse-text li {
+.dpuse-prose li {
     margin-bottom: 4px;
     margin-top: 4px;
     line-height: 28px;
 }
-.dpuse-text p {
+.dpuse-prose p {
     margin-bottom: 12px;
     margin-top: 12px;
     line-height: 28px;
 }
-.dpuse-text ul,
-.dpuse-text ol {
+.dpuse-prose ul,
+.dpuse-prose ol {
     margin: 0;
     padding-left: 24px;
 }
-.dpuse-text ul {
+.dpuse-prose ul {
     list-style: disc;
 }
-.dpuse-text ol {
+.dpuse-prose ol {
     list-style: decimal;
 }
-.dpuse-text ul ul,
-.dpuse-text ol ul {
+.dpuse-prose ul ul,
+.dpuse-prose ol ul {
     list-style: circle;
 }
-.dpuse-text blockquote {
+.dpuse-prose blockquote {
     margin: 0;
     padding-left: 12px;
     border-left: 3px solid var(--separator);
     color: var(--muted);
 }
-.dpuse-text .dpuse-text-overline {
+.dpuse-prose .dpuse-prose-overline {
     margin-bottom: 2px;
     @apply text-sm leading-tight text-muted;
 }
-.dpuse-text table {
+.dpuse-prose table {
     border-collapse: collapse;
     width: 100%;
 }
-.dpuse-text th,
-.dpuse-text td {
+.dpuse-prose th,
+.dpuse-prose td {
     border: 1px solid var(--separator);
     padding: 6px 12px;
     text-align: left;
     line-height: 24px;
 }
-.dpuse-text th {
+.dpuse-prose th {
     background-color: var(--card);
     color: var(--emphasis);
     font-weight: 600;
 }
-.dpuse-text td {
+.dpuse-prose td {
     color: var(--content);
 }
-.dpuse-text tr:hover td {
+.dpuse-prose tr:hover td {
     background-color: var(--card-hover);
 }
 

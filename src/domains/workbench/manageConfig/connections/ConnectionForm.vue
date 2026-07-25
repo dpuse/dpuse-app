@@ -57,7 +57,7 @@ function getCategoryConnectorLabel(categoryId: string): string {
 <template>
     <form class="flex min-h-0 flex-1 flex-col pl-4" data-region="ConnectionForm" @submit.prevent="handleSubmit">
         <ScrollArea class="flex-1" scroll-area-padding="screen">
-            <div class="dpuse-text flex flex-col gap-y-4 pt-4">
+            <div class="dpuse-prose flex flex-col gap-y-4 pt-4">
                 <!-- Header -->
                 <div>
                     <div class="text-sm leading-tight text-muted">{{ getCategoryConnectorLabel(connectionLocalisedConfig.connectorConfig.categoryId) }}</div>
