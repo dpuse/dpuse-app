@@ -47,7 +47,7 @@ const { actions = [], badges = [], description, icon, iconDark, isCompact = fals
 
         <!-- Icon, Overline & Label -->
         <div class="flex items-center gap-x-2">
-            <div v-if="icon || iconDark" class="flex flex-none items-center justify-center rounded-md" :class="isCompact ? 'size-6' : 'size-8'">
+            <div v-if="icon || iconDark" class="flex flex-none items-center justify-center rounded-md" :class="isCompact ? 'size-4.5' : 'size-6.5'">
                 <!-- Only split into two v-html copies when the SVGs actually differ; otherwise rendering the same markup twice duplicates element ids (mask/gradient), which can break references when one copy is display:none. -->
                 <template v-if="icon && iconDark && icon !== iconDark">
                     <div aria-hidden="true" class="block w-full text-zinc-400 dark:hidden [&>svg]:max-h-8 [&>svg]:max-w-8" v-html="icon" />

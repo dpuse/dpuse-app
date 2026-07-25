@@ -11,8 +11,8 @@
     "typeId": "context",
     "areas": [
         {
-            "id": "core",
-            "label": { "en": "Core" },
+            "id": "fdn",
+            "label": { "en": "Foundation" },
             "description": [{ "en": "..." }],
             "firstCreatedAt": null,
             "icon": null,
@@ -124,8 +124,8 @@
                     "path": ""
                 },
                 {
-                    "id": "learn",
-                    "label": { "en": "Learning" },
+                    "id": "comp",
+                    "label": { "en": "Compensation" },
                     "description": [{ "en": "..." }],
                     "firstCreatedAt": null,
                     "icon": null,
@@ -138,8 +138,8 @@
                     "path": ""
                 },
                 {
-                    "id": "talentMgt",
-                    "label": { "en": "Talent Management" },
+                    "id": "learn",
+                    "label": { "en": "Learning" },
                     "description": [{ "en": "..." }],
                     "firstCreatedAt": null,
                     "icon": null,
@@ -152,8 +152,8 @@
                     "path": ""
                 },
                 {
-                    "id": "comp",
-                    "label": { "en": "Compensation" },
+                    "id": "talentMgt",
+                    "label": { "en": "Talent Management" },
                     "description": [{ "en": "..." }],
                     "firstCreatedAt": null,
                     "icon": null,

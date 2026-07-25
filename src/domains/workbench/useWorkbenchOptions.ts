@@ -83,8 +83,8 @@ const workbenchOptionConfigs: WorkbenchOptionConfig[] = [
         tasks: []
     },
     {
-        id: 'manageConfigs',
-        label: { en: 'Manage Configurations', es: '...' },
+        id: 'manageConfig',
+        label: { en: 'Manage Configuration', es: '...' },
         description: {
             en: ['Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.'],
             es: ['...']
