@@ -3,11 +3,10 @@
 import { computed, shallowRef, watch } from 'vue';
 
 // ── Local Framework
-import type { ComponentReference } from '@dpuse/dpuse-shared/component';
 import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
-import type { ContextModelConfig } from '@dpuse/dpuse-shared/component/context/model';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
+import type { ComponentBase, ComponentReference } from '@dpuse/dpuse-shared/component';
 import { localiseConfig, type LocalisedConfig, localiseReference } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Components - Static
@@ -17,16 +16,18 @@ import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vu
 
 import contextConfigData from './contextConfig.json';
 
+type GridListItem<T> = T & { isHeader?: boolean };
+
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeModelReference = shallowRef<LocalisedConfig<ComponentReference> | undefined>();
+const activeModelReference = shallowRef<GridListItem<LocalisedConfig<ComponentReference>> | undefined>();
 const contextConfig = shallowRef<ContextConfig>(contextConfigData as ContextConfig);
 
 const contextLocalisedConfig = shallowRef<LocalisedConfig<ContextConfig>>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const modelReferencesDataSource = computed<DataSource<LocalisedConfig<ComponentReference>>>(() => getModels());
+const modelReferencesDataSource = computed<DataSource<GridListItem<LocalisedConfig<ComponentBase>>>>(() => getModels());
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -36,24 +37,25 @@ watch(contextConfig, (newContextConfig) => (contextLocalisedConfig.value = local
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleSelectModel(modelReference: LocalisedConfig<ComponentReference> | undefined): Promise<void> {
+async function handleSelectModel(modelReference: GridListItem<LocalisedConfig<ComponentBase>> | undefined): Promise<void> {
     console.log(111, modelReference);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function getModels(): DataSource<LocalisedConfig<ComponentReference>> {
-    const localisedModels: LocalisedConfig<ComponentReference>[] = [];
+function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBase>>> {
+    const localisedModels: GridListItem<LocalisedConfig<ComponentBase>>[] = [];
     for (const area of contextConfig.value.areas) {
+        const la = localiseReference(area, localeId.value);
+        localisedModels.push({ ...la, isHeader: true });
         for (const model of area.models) {
             const lr = localiseReference(model, localeId.value);
-            localisedModels.push(lr);
+            localisedModels.push({ ...lr, isHeader: false });
         }
     }
     return {
         rowCount: localisedModels.length,
-        // getRows: (start, end): Promise<{ rows: LocalisedConfig<FocusConfig>[] }> => Promise.resolve({ rows: contextLocalisedConfigs.value?.areas.slice(start, end) })
-        getRows: (start, end): Promise<{ rows: LocalisedConfig<ComponentReference>[] }> => Promise.resolve({ rows: localisedModels })
+        rows: localisedModels
     };
 }
 </script>
@@ -68,7 +70,8 @@ function getModels(): DataSource<LocalisedConfig<ComponentReference>> {
         @select="handleSelectModel($event)"
     >
         <template #grid-item="{ item }">
-            <Card v-if="item" :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
+            <div v-if="item.isHeader" class="text-left text-xs font-semibold uppercase">{{ item.label }}</div>
+            <Card v-else :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
         </template>
 
         <template #detail>

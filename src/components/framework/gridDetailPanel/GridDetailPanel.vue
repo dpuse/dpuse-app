@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; label: string }">
+<script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; label: string; typeId: string; isHeader?: boolean }">
 // ── External Dependencies & Registrations
 import { nextTick, ref, watch } from 'vue';
 

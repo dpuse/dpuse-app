@@ -10,7 +10,64 @@
     "statusId": "alpha",
     "typeId": "context",
     "areas": [
-        { "id": "finAcct", "label": { "en": "Finance & Accounting" }, "description": [{ "en": "..." }], "models": [] },
+        {
+            "id": "core",
+            "label": { "en": "Core" },
+            "description": [{ "en": "..." }],
+            "firstCreatedAt": null,
+            "icon": null,
+            "iconDark": null,
+            "lastUpdatedAt": null,
+            "status": null,
+            "statusId": "alpha",
+            "typeId": "contextArea",
+            "order": 1,
+            "models": [
+                {
+                    "id": "party",
+                    "label": { "en": "Parties" },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                }
+            ]
+        },
+        {
+            "id": "finAcct",
+            "label": { "en": "Finance & Accounting" },
+            "description": [{ "en": "..." }],
+            "firstCreatedAt": null,
+            "icon": null,
+            "iconDark": null,
+            "lastUpdatedAt": null,
+            "status": null,
+            "statusId": "alpha",
+            "typeId": "contextArea",
+            "order": 2,
+            "models": [
+                {
+                    "id": "placeholder",
+                    "label": { "en": "Placeholder..." },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                }
+            ]
+        },
         {
             "id": "hr",
             "label": { "en": "Human Resources" },
@@ -22,7 +79,7 @@
             "status": null,
             "statusId": "alpha",
             "typeId": "contextArea",
-            "order": 1,
+            "order": 3,
             "models": [
                 {
                     "id": "wrkForce",
@@ -36,9 +93,7 @@
                     "statusId": "alpha",
                     "typeId": "contextModel",
                     "order": 1,
-                    "path": "",
-                    "entities": [],
-                    "secondaryMeasures": []
+                    "path": ""
                 },
                 {
                     "id": "recOnboard",
@@ -51,21 +106,255 @@
                     "status": null,
                     "statusId": "alpha",
                     "typeId": "contextModel",
-                    "order": 1,
-                    "path": "",
-                    "entities": [],
-                    "secondaryMeasures": []
+                    "order": 2,
+                    "path": ""
+                },
+                {
+                    "id": "attend",
+                    "label": { "en": "Attendance" },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 3,
+                    "path": ""
+                },
+                {
+                    "id": "learn",
+                    "label": { "en": "Learning" },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 4,
+                    "path": ""
+                },
+                {
+                    "id": "talentMgt",
+                    "label": { "en": "Talent Management" },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 5,
+                    "path": ""
+                },
+                {
+                    "id": "comp",
+                    "label": { "en": "Compensation" },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 6,
+                    "path": ""
                 }
             ]
         },
-        { "id": "salesMkt", "label": { "en": "Sales & Marketing" }, "description": [{ "en": "..." }], "models": [] },
-        { "id": "custServ", "label": { "en": "Customer Service" }, "description": [{ "en": "..." }], "models": [] },
-        { "id": "prodDev", "label": { "en": "Product Development" }, "description": [{ "en": "..." }], "models": [] },
-        { "id": "opsSupplyChain", "label": { "en": "Operations & Supply Chain" }, "description": [{ "en": "..." }], "models": [] },
-        { "id": "it", "label": { "en": "Information Technology" }, "description": [{ "en": "..." }], "models": [] },
-        { "id": "legal", "label": { "en": "Legal" }, "description": [{ "en": "..." }], "models": [] },
-        { "id": "govRiskComp", "label": { "en": "Governance, Risk & Compliance" }, "description": [{ "en": "..." }], "models": [] },
-        { "id": "corpStrat", "label": { "en": "Corporate Strategy" }, "description": [{ "en": "..." }], "models": [] },
-        { "id": "extdata", "label": { "en": "External Data" }, "description": [{ "en": "..." }], "models": [] }
+        {
+            "id": "salesMkt",
+            "label": { "en": "Sales & Marketing" },
+            "description": [{ "en": "..." }],
+            "models": [
+                {
+                    "id": "placeholder",
+                    "label": { "en": "Placeholder..." },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                }
+            ]
+        },
+        {
+            "id": "custServ",
+            "label": { "en": "Customer Service" },
+            "description": [{ "en": "..." }],
+            "models": [
+                {
+                    "id": "placeholder",
+                    "label": { "en": "Placeholder..." },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                }
+            ]
+        },
+        {
+            "id": "prodDev",
+            "label": { "en": "Product Development" },
+            "description": [{ "en": "..." }],
+            "models": [
+                {
+                    "id": "placeholder",
+                    "label": { "en": "Placeholder..." },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                }
+            ]
+        },
+        {
+            "id": "opsSupplyChain",
+            "label": { "en": "Operations & Supply Chain" },
+            "description": [{ "en": "..." }],
+            "models": [
+                {
+                    "id": "placeholder",
+                    "label": { "en": "Placeholder..." },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                }
+            ]
+        },
+        {
+            "id": "it",
+            "label": { "en": "Information Technology" },
+            "description": [{ "en": "..." }],
+            "models": [
+                {
+                    "id": "placeholder",
+                    "label": { "en": "Placeholder..." },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                }
+            ]
+        },
+        {
+            "id": "legal",
+            "label": { "en": "Legal" },
+            "description": [{ "en": "..." }],
+            "models": [
+                {
+                    "id": "placeholder",
+                    "label": { "en": "Placeholder..." },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                }
+            ]
+        },
+        {
+            "id": "govRiskComp",
+            "label": { "en": "Governance, Risk & Compliance" },
+            "description": [{ "en": "..." }],
+            "models": [
+                {
+                    "id": "placeholder",
+                    "label": { "en": "Placeholder..." },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                }
+            ]
+        },
+        {
+            "id": "corpStrat",
+            "label": { "en": "Corporate Strategy" },
+            "description": [{ "en": "..." }],
+            "models": [
+                {
+                    "id": "placeholder",
+                    "label": { "en": "Placeholder..." },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                }
+            ]
+        },
+        {
+            "id": "extdata",
+            "label": { "en": "External Data" },
+            "description": [{ "en": "..." }],
+            "models": [
+                {
+                    "id": "placeholder",
+                    "label": { "en": "Placeholder..." },
+                    "description": [{ "en": "..." }],
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                }
+            ]
+        }
     ]
 }

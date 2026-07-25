@@ -16,13 +16,24 @@ type Properties = {
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     dataSource: DataSource<T>;
     addLabel?: string;
+    headerRowHeight?: number; // Row height for items with isHeader set, in px. Default: 24.
     isCompact?: boolean;
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
     rowHeight?: number; // Row height in px. Default: 48.
     scrollAreaPadding?: ScrollAreaPadding;
     targetColumnWidth?: number; // When set, multiple items are shown per row based on available width.
 };
-const { cacheBlockSize, dataSource, addLabel, isCompact = false, maxBlocksInCache, rowHeight = 48, scrollAreaPadding = 'screen', targetColumnWidth } = defineProps<Properties>();
+const {
+    cacheBlockSize,
+    dataSource,
+    addLabel,
+    headerRowHeight = 24,
+    isCompact = false,
+    maxBlocksInCache,
+    rowHeight = 48,
+    scrollAreaPadding = 'screen',
+    targetColumnWidth
+} = defineProps<Properties>();
 
 defineSlots<{ default?(properties: { index: number; item: T }): unknown }>();
 
@@ -58,7 +69,7 @@ const { virtualRows, totalSize, getRow, rowCount } = useDataWindow({
         correctedRowCount.value = newRowCount;
     },
     getDataIndexes: (virtualRowIndex) => Array.from({ length: columnCount.value }, (_, col) => virtualRowIndex * columnCount.value + col),
-    estimateSize: () => (isCompact ? 48 : rowHeight),
+    estimateSize: getRowHeight,
     cacheBlockSize: cacheBlockSize == null ? undefined : (): number => cacheBlockSize,
     maxBlocksInCache: maxBlocksInCache == null ? undefined : (): number => maxBlocksInCache
 });
@@ -78,6 +89,13 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
     resizeObserver.disconnect();
     scrollElement.value = viewport;
     resizeObserver.observe(viewport);
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function getRowHeight(item: T | undefined): number {
+    if ((item as { isHeader?: boolean } | undefined)?.isHeader === true) return headerRowHeight;
+    return isCompact ? 48 : rowHeight;
 }
 </script>
 

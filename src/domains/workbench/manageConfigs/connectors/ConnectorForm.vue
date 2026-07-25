@@ -130,12 +130,7 @@ function getCategoryConnectorLabel(categoryId: string): string {
 
                 <ul>
                     <li v-if="connectorLocalisedConfig.vendorHomeURL">
-                        <a
-                            :href="connectorLocalisedConfig.vendorHomeURL"
-                            class="inline-flex items-center gap-x-1 hover:underline"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
+                        <a :href="connectorLocalisedConfig.vendorHomeURL" class="inline-flex items-center gap-x-1 hover:underline" target="_blank" rel="noopener noreferrer">
                             <GlobeIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Website
                             <ExternalLinkIcon class="size-4" />
                         </a>
@@ -154,12 +149,7 @@ function getCategoryConnectorLabel(categoryId: string): string {
                     </li>
 
                     <li v-if="connectorLocalisedConfig.vendorAccountURL">
-                        <a
-                            :href="connectorLocalisedConfig.vendorAccountURL"
-                            class="inline-flex items-center gap-x-1 hover:underline"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
+                        <a :href="connectorLocalisedConfig.vendorAccountURL" class="inline-flex items-center gap-x-1 hover:underline" target="_blank" rel="noopener noreferrer">
                             <UserRoundIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Sign in
                             <ExternalLinkIcon class="size-4" />
                         </a>

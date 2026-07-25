@@ -94,8 +94,12 @@ const FETCH_RETRY_BASE_DELAY_MS = 300;
 export type DataSource<T = unknown> = {
     id?: string;
     rowCount: number | undefined; // Caller's best-known count, or undefined if not yet known — distinct from 0 (genuinely empty). useDataWindow guarantees an initial fetch to discover the real total via getRows' totalCount.
-    getRows: (startRow: number, endRow: number) => Promise<{ rows: T[]; totalCount?: number }>;
-};
+} & (
+    | { getRows: (startRow: number, endRow: number) => Promise<{ rows: T[]; totalCount?: number }> }
+    // Fully in-memory data: bypasses the async block-fetch/cache entirely, so getRow (and therefore estimateSize)
+    // gets a real item on its very first, one-shot call instead of undefined — see useDataWindow's getRow.
+    | { rows: T[] }
+);
 
 type Options<T> = {
     scrollElement: Readonly<ShallowRef<HTMLElement | null>>;
@@ -107,7 +111,7 @@ type Options<T> = {
     getDataIndexes?: (virtualRowIndex: number) => number[]; // Maps a virtual row index to data row indexes for block fetching. Defaults to identity (1:1).
     cacheBlockSize?: () => number;
     maxBlocksInCache?: () => number;
-    estimateSize?: () => number;
+    estimateSize?: (item: T | undefined) => number;
     // Trailing-edge debounce (ms) before fetching newly-visible blocks after a scroll. Blocks only visible
     // transiently mid-scroll are never fetched at all, not just delayed — the fetch only fires once the viewport
     // has been stable for this long, using whatever is visible at that point. Does not delay the initial/navigation
@@ -190,7 +194,7 @@ export function useDataWindow<T>({
             return count ? count() : (knownRowCount.value ?? cacheBlockSize());
         },
         getScrollElement: () => scrollElement.value,
-        estimateSize: () => estimateSize(),
+        estimateSize: (index) => estimateSize(getRow((getDataIndexes ? getDataIndexes(index) : [index])[0]!)),
         overscan: 5
     });
 
@@ -239,8 +243,10 @@ export function useDataWindow<T>({
     }
 
     // Fetch the block if not cached. If already cached, update LRU order so the block is not evicted
-    // while it is still in the viewport.
+    // while it is still in the viewport. No-op for sync (rows-based) sources — getRow reads dataSource().rows
+    // directly and there are no blocks to fetch.
     async function fetchBlock(blockIndex: number): Promise<void> {
+        if (!('getRows' in dataSource())) return;
         if (blockCacheMap.has(blockIndex)) {
             recordBlockAccessed(blockIndex);
             return;
@@ -278,7 +284,9 @@ export function useDataWindow<T>({
         for (let attempt = 0; ; attempt++) {
             logRetrievalAttempt(start, end, attempt);
             try {
-                const result = await dataSource().getRows(start, end);
+                const source = dataSource();
+                if (!('getRows' in source)) throw new Error('fetchRowsWithRetry called for a sync (rows-based) DataSource — fetchBlock should have skipped it.');
+                const result = await source.getRows(start, end);
                 logRetrievalSuccess(start, end, result.rows.length, result.totalCount);
                 return result;
             } catch (error) {
@@ -297,6 +305,8 @@ export function useDataWindow<T>({
     // Look up a data row by its flat data index. Returns undefined while the block is loading.
     // Touches blockCacheVersion so any reactive context (computed or template) re-evaluates on fetch completion.
     function getRow(dataIndex: number): T | undefined {
+        const source = dataSource();
+        if ('rows' in source) return source.rows[dataIndex]; // Sync source: always available immediately, no fetch/cache involved.
         if (knownRowCount.value === undefined || dataIndex >= knownRowCount.value) return undefined;
         void blockCacheVersion.value;
         const blockIndex = getBlockIndex(dataIndex);
