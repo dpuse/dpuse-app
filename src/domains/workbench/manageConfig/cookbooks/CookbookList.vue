@@ -7,9 +7,9 @@ import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbo
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import { cookbookConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
-import { cookbookConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import Card from '@/components/ui/Card.vue';

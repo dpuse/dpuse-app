@@ -20,7 +20,7 @@ interface ConfigOptionConfig {
 // ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const CONFIG_OPTION_CONFIGS: ConfigOptionConfig[] = [
-    { id: 'home', label: {}, description: {}, to: 'manageConfigs' },
+    { id: 'home', label: {}, description: {}, to: 'manageConfig' },
     // {
     //     id: 'connections',
     //     label: { en: 'Connections' },

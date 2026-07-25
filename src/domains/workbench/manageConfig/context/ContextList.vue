@@ -2,25 +2,32 @@
 // ── External Dependencies & Registrations
 import { computed, shallowRef, watch } from 'vue';
 
-// ── Local Framework
+// ── DPUse Framework
+import type { ComponentBase } from '@dpuse/dpuse-shared/component';
 import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
+import { localiseConfig, type LocalisedConfig, localiseReference } from '@dpuse/dpuse-shared/locale';
+
+// ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
-import type { ComponentBase, ComponentReference } from '@dpuse/dpuse-shared/component';
-import { localiseConfig, type LocalisedConfig, localiseReference } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Components - Static
 import Card from '@/components/ui/Card.vue';
+import ContextModelPanel from './ContextModelPanel.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 
+// ── Date ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 import contextConfigData from './contextConfig.json';
 
-type GridListItem<T> = T & { isHeader?: boolean };
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+export type GridListItem<T> = T & { isHeader?: boolean };
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeModelReference = shallowRef<GridListItem<LocalisedConfig<ComponentReference>> | undefined>();
+const activeModelReference = shallowRef<GridListItem<LocalisedConfig<ComponentBase>> | undefined>();
 const contextConfig = shallowRef<ContextConfig>(contextConfigData as ContextConfig);
 
 const contextLocalisedConfig = shallowRef<LocalisedConfig<ContextConfig>>();
@@ -38,7 +45,7 @@ watch(contextConfig, (newContextConfig) => (contextLocalisedConfig.value = local
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSelectModel(modelReference: GridListItem<LocalisedConfig<ComponentBase>> | undefined): Promise<void> {
-    console.log(111, modelReference);
+    activeModelReference.value = modelReference;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -74,8 +81,8 @@ function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBase>>> {
             <Card v-else :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
         </template>
 
-        <template #detail>
-            <div ref="container" class="dpuse-text overflow-y-scroll overscroll-y-none px-4 pt-4" />
+        <template #detail="{ item }">
+            <ContextModelPanel :model-reference="item" />
         </template>
 
         <template #no-selection>
