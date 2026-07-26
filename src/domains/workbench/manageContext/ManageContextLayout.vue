@@ -6,7 +6,7 @@ import { computed, reactive, ref, watch } from 'vue';
 
 // ── Local Framework
 import { t } from '@/state/locale';
-import T from './ManageContextsLayout.json';
+import T from './ManageContextLayout.json';
 
 // ── Local Components - Static
 import type { DrillBreadcrumb } from '@/components/framework/drillDetailPanel/DrillDetailPanel.vue';
@@ -387,7 +387,7 @@ const handleAdd = (): void => {
 
 <template>
     <WorkbenchLayout>
-        <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Manage_Contexts')" to="workbench" />
+        <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Manage_Context')" to="workbench" />
 
         <div class="relative mx-4 flex min-h-0 flex-1 flex-col overflow-hidden">
             <Separator class="flex-none" />

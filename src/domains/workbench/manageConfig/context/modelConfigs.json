@@ -1,0 +1,53 @@
+{
+    "parties": {
+        "entities": [
+            { "id": "organisation", "label": "Organisation" },
+            { "id": "organisationalUnit", "label": "Organisational Unit" },
+            { "id": "person", "label": "Person" },
+            { "id": "personLanguage", "label": "Person Language" },
+            { "id": "personNationality", "label": "Person Nationality" }
+        ]
+    },
+    "workforce": {
+        "entities": [
+            {
+                "id": "personEngagement",
+                "label": "Person Engagement",
+                "labelPlural": "Person Engagements",
+                "description": "Person engagement description...",
+                "parents": [{ "entityTypeId": "organisation" }, { "entityTypeId": "person" }],
+                "characteristics": [{ "entityTypeId": "employmentType" }, { "entityTypeId": "employmentAttendance" }],
+                "events": [
+                    { "id": "creation" },
+                    { "id": "activation" },
+                    { "id": "recognition" },
+                    { "id": "correction" },
+                    { "id": "modification" },
+                    { "id": "derecognition" },
+                    { "id": "deactivation" },
+                    { "id": "archival" },
+                    { "id": "deletion" }
+                ],
+                "primaryMeasures": [
+                    { "id": "age", "label": "Tenure" },
+                    { "id": "openingCount", "label": "Opening Headcount" },
+                    { "id": "startingInCount", "label": "Starting Hires" },
+                    { "id": "startingCount", "label": "Starting Headcount" },
+                    { "id": "duringInCount", "label": "Hires" },
+                    { "id": "duringCount", "label": "During Headcount" },
+                    { "id": "weightedCount", "label": "Average Headcount" },
+                    { "id": "duringOutCount", "label": "Ending Terminations" },
+                    { "id": "endingCount", "label": "Ending Headcount" },
+                    { "id": "endingOutCount", "label": "Terminations" },
+                    { "id": "closingCount", "label": "Closing Headcount" }
+                ]
+            },
+            {
+                "id": "positionOccupancy",
+                "label": "Position Occupancy",
+                "labelPlural": "Position Occupancies",
+                "description": "Position occupancy description..."
+            }
+        ]
+    }
+}

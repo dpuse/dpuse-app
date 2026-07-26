@@ -77,7 +77,7 @@ function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBase>>> {
         @select="handleSelectModel($event)"
     >
         <template #grid-item="{ item }">
-            <div v-if="item.isHeader" class="text-left pl-2 text-xs font-semibold text-subtle uppercase">{{ item.label }}</div>
+            <div v-if="item.isHeader" class="pl-2 text-left text-xs font-semibold text-subtle uppercase">{{ item.label }}</div>
             <Card v-else :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
         </template>
 
