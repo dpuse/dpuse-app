@@ -82,6 +82,7 @@ const config = defineConfigWithVueTs(
                         'dpuse-workbench-prose',
                         'gdp-detail',
                         'gdp-grid',
+                        'pell-editor',
                         String.raw`.*stroke-1\.25` // Valid decimal stroke-width utility; the plugin's static class list doesn't recognise it.
                     ]
                 }

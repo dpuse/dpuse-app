@@ -14,6 +14,7 @@ import modelConfigs from './modelConfigs.json';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
+import PellEditor from './PellEditor.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -22,6 +23,7 @@ type Model = { entities: { id: string; label: string }[] };
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const ENTITY_TABS = [
+    { id: 'parents', label: 'Parents' },
     { id: 'characteristics', label: 'Characteristics' },
     { id: 'events', label: 'Events' },
     { id: 'primaryMeasures', label: 'Measures' }
@@ -36,13 +38,17 @@ const { modelReference } = defineProps<{ modelReference: GridListItem<LocalisedC
 const activeModel = shallowRef();
 const activeEntityTab = shallowRef(ENTITY_TABS[0]);
 const expandedEntityId = ref<string | null>(null);
-
-// const activeModelTab = ref(MODEL_TABS[0]);
+const modelDescription = ref('');
 const modelMap = modelConfigs as Record<string, Model>;
+
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
     () => modelReference,
-    (newModelReference) => (activeModel.value = localiseModel(modelMap[newModelReference.id])),
+    (newModelReference) => {
+        modelDescription.value = modelReference.description.join('\n\n');
+        activeModel.value = localiseModel(modelMap[newModelReference.id]);
+    },
     { immediate: true }
 );
 
@@ -64,40 +70,10 @@ function localiseModel(model: Model): Model {
         <!-- Header -->
         <h1 class="flex-none pt-3">{{ modelReference.label }} Model</h1>
 
-        <!-- Task Bar -->
-        <!-- <div class="flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
-            <template v-for="modelTab in MODEL_TABS" :key="modelTab.id">
-                <! -- <Button
-                    class="border-y-2 border-t-transparent py-1.25"
-                    :class="modelTab.id === activeModelTab.id ? 'border-b-blue-400' : 'border-b-transparent'"
-                    shape="minimal"
-                    :to="{ name: modelTab.to, query: { ...$route.query, wbView: modelTab.to } }"
-                    @click="activeModelTab = modelTab"
-                >
-                    <div>{{ modelTab.label }}</div>
-                </Button> -- >
-                <Button
-                    class="border-y-2 border-t-transparent py-1.25"
-                    :class="modelTab.id === activeModelTab.id ? 'border-b-blue-400' : 'border-b-transparent'"
-                    shape="minimal"
-                    @click="activeModelTab = modelTab"
-                >
-                    <div>{{ modelTab.label }}</div>
-                </Button>
-            </template>
-        </div> -->
-
-        <!-- Body -->
-        <!-- <div v-if="activeModelTab.id === 'details'" class="flex-1 pt-2"></div>
-
-        <div v-else-if="activeModelTab.id === 'entities'" class="flex-1 pt-2">
-            <div v-for="entity in activeModel.entities ?? []" :key="entity.id">{{ entity.label }}</div>
-        </div>
-
-        <div v-else-if="activeModelTab.id === 'secondaryMeasures'" class="flex-1 pt-2">Measures...</div> -->
-
         <!-- Description -->
         <p v-for="(paragraph, index) in modelReference.description" :key="index">{{ paragraph }}</p>
+
+        <PellEditor v-model="modelDescription" />
 
         <!-- Dimensions -->
         <h2>Dimensions</h2>
@@ -118,6 +94,10 @@ function localiseModel(model: Model): Model {
                 {{ entity.label }}
             </h4>
             <div v-if="expandedEntityId === entity.id" class="my-1 border-y border-separator">
+                <!-- Description -->
+                <p v-for="(paragraph, index) in entity.description" :key="index">{{ paragraph }}</p>
+
+                <!-- Entity Tabs -->
                 <div class="flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
                     <template v-for="entityTab in ENTITY_TABS" :key="entityTab.id">
                         <Button
@@ -131,14 +111,22 @@ function localiseModel(model: Model): Model {
                     </template>
                 </div>
 
+                <!-- Parents Panel -->
+                <div v-show="activeEntityTab.id === 'parents'" class="py-1">
+                    <div v-for="parent in entity.parents" :key="parent">{{ parent }}</div>
+                </div>
+
+                <!-- Characteristics Panel -->
                 <div v-show="activeEntityTab.id === 'characteristics'" class="py-1">
                     <div v-for="characteristic in entity.characteristics" :key="characteristic">{{ characteristic }}</div>
                 </div>
 
+                <!-- Events Panel -->
                 <div v-show="activeEntityTab.id === 'events'" class="py-1">
                     <div v-for="event in entity.events" :key="event.id">{{ event.id }}</div>
                 </div>
 
+                <!-- Primary Measures Panel -->
                 <div v-show="activeEntityTab.id === 'primaryMeasures'" class="py-1">
                     <div v-for="primaryMeasure in entity.primaryMeasures" :key="primaryMeasure.id">{{ primaryMeasure.id }}</div>
                 </div>
