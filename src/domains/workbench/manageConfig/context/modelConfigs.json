@@ -5,51 +5,116 @@
             {
                 "id": "organisation",
                 "label": "Organisation",
-                "description": [
-                    "Each occurrence of this entity represents a single organisation. An organisation is said to come into existence when it is incorporated or when another entity chooses to recognise it for some purpose. It will no longer exist if it is dissolved or if no other entities choose to recognise it. An organisation usually has a type that defines its function or purpose. There need only be one occurrence of this entity for each organisation no matter how many other entities reference it over time. It is not uncommon for there to be formal relationships between organisations. A common example is a global organisation which is comprised of multiple subsidiaries. We may refer to the regional organisations as sections or divisions. However, for the sake of this module, we define each entity independently. Other modules will address the structural relationship between different organisations."
-                ],
+                "labelPlural": "Organisations",
+                "description": "Each occurrence of this entity represents a single organisation. An organisation is said to come into existence when it is incorporated or when another entity chooses to recognise it for some purpose. It will no longer exist if it is dissolved or if no other entities choose to recognise it. An organisation usually has a type that defines its function or purpose. There need only be one occurrence of this entity for each organisation no matter how many other entities reference it over time. It is not uncommon for there to be formal relationships between organisations. A common example is a global organisation which is comprised of multiple subsidiaries. We may refer to the regional organisations as sections or divisions. However, for the sake of this module, we define each entity independently. Other modules will address the structural relationship between different organisations.",
                 "characteristics": [{ "id": "name", "label": { "en": "Name" }, "type": "string", "entityTypeId": "organisationType" }],
-                "events": [
-                    { "id": "creation" },
-                    {
-                        "id": "activation",
-                        "labelAction": { "en": "Incorporation" },
-                        "labelState": { "en": "Incorporated" },
-                        "description": { "en": "The moment the organisation was incorporated." }
-                    },
-                    { "id": "recognition" },
-                    { "id": "correction" },
-                    { "id": "modification" },
-                    { "id": "derecognition" },
-                    {
-                        "id": "deactivation",
-                        "labelAction": { "en": "Dissolution" },
-                        "labelState": { "en": "Disolved" },
-                        "description": { "en": "The moment the organisation was disolved." }
-                    },
-                    { "id": "archival" },
-                    { "id": "deletion" }
-                ],
-                "primaryMeasures": [
-                    { "id": "age" },
-                    { "id": "openingCount" },
-                    { "id": "startingInCount" },
-                    { "id": "startingCount" },
-                    { "id": "duringInCount" },
-                    { "id": "duringCount" },
-                    { "id": "weightedCount" },
-                    { "id": "duringOutCount" },
-                    { "id": "endingCount" },
-                    { "id": "endingOutCount" },
-                    { "id": "closingCount" }
-                ]
+                "events": {
+                    "creation": null,
+                    "activation": { "labelAction": "Incorporation", "labelState": "Incorporated", "description": "The moment the organisation was incorporated." },
+                    "recognition": null,
+                    "correction": null,
+                    "modification": null,
+                    "derecognition": null,
+                    "deactivation": { "labelAction": "Dissolution", "labelState": "Disolved", "description": "The moment the organisation was disolved." },
+                    "archival": null,
+                    "deletion": null
+                },
+                "primaryMeasures": {
+                    "age": null,
+                    "openingCount": null,
+                    "startingInCount": null,
+                    "startingCount": null,
+                    "duringInCount": null,
+                    "duringCount": null,
+                    "weightedCount": null,
+                    "duringOutCount": null,
+                    "endingCount": null,
+                    "endingOutCount": null,
+                    "closingCount": null
+                }
             },
-            { "id": "organisationalUnit", "label": "Organisational Unit" },
-            { "id": "person", "label": "Person" },
-            { "id": "personLanguage", "label": "Person Language" },
-            { "id": "personNationality", "label": "Person Nationality" }
+            {
+                "id": "organisationalUnit",
+                "label": "Organisational Unit",
+                "labelPlural": "Organisational Units",
+                "description": "Describe organisational units...",
+                "characteristics": [{ "id": "name", "label": "Name", "type": "string" }],
+                "events": {
+                    "creation": null,
+                    "activation": null,
+                    "recognition": null,
+                    "correction": null,
+                    "modification": null,
+                    "derecognition": null,
+                    "deactivation": null,
+                    "archival": null,
+                    "deletion": null
+                },
+                "computations": {
+                    "age": null,
+                    "openingCount": null,
+                    "startingInCount": null,
+                    "startingCount": null,
+                    "duringInCount": null,
+                    "duringCount": null,
+                    "weightedCount": null,
+                    "duringOutCount": null,
+                    "endingCount": null,
+                    "endingOutCount": null,
+                    "closingCount": null
+                }
+            },
+            {
+                "id": "person",
+                "label": "Person",
+                "labelPlural": "People",
+                "description": "Each occurrence of this entity represents a single person. A person is said to come into existence when they are born or when another entity chooses to recognise them for some purpose. They will no longer exist if they are deceased or if no entities choose to recognise them. A person may participate in different roles (e.g. acquaintance, colleague, contact, contractor, employee, relation...) at different times. There need only be one occurrence of this entity for each person, no matter how many roles they play across time.",
+                "characteristics": [
+                    { "id": "familyNames", "label": "Family Names", "type": "string" },
+                    { "id": "givenNames", "label": "Given Names", "type": "string" },
+                    { "entityTypeId": "country" },
+                    { "entityTypeId": "educationLevel" },
+                    { "entityTypeId": "ethnicGroup" },
+                    { "entityTypeId": "gender" },
+                    { "entityTypeId": "location" },
+                    { "entityTypeId": "languagePreference" },
+                    { "entityTypeId": "maritalStatus" },
+                    { "entityTypeId": "nationality" },
+                    { "entityTypeId": "physicalAbility" },
+                    { "entityTypeId": "location" }
+                ],
+                "events": {
+                    "creation": null,
+                    "activation": { "labelAction": "Birth", "labelState": "Born", "description": "The moment the person was born." },
+                    "recognition": null,
+                    "correction": null,
+                    "modification": null,
+                    "derecognition": null,
+                    "deactivation": { "labelAction": "Death", "labelState": "Deceased", "description": "The moment the person died." },
+                    "archival": null,
+                    "deletion": null
+                },
+                "primaryMeasures": {
+                    "age": null,
+                    "openingCount": null,
+                    "startingInCount": null,
+                    "startingCount": null,
+                    "duringInCount": null,
+                    "duringCount": null,
+                    "weightedCount": null,
+                    "duringOutCount": null,
+                    "endingCount": null,
+                    "endingOutCount": null,
+                    "closingCount": null
+                }
+            },
+            { "id": "personLanguage", "label": "Person Language", "labelPlural": "Person Languages", "description": "..." },
+            { "id": "personNationality", "label": "Person Nationality", "labelPlural": "Person Nationalities", "description": "..." }
         ],
-        "pickLists": [],
+        "pickLists": [
+            { "id": "age", "label": "Age", "labelPlural": "Ages" },
+            { "id": "gender", "label": "Gender", "labelPlural": "Genders" }
+        ],
         "secondaryMeasures": []
     },
     "workforce": {
@@ -59,7 +124,7 @@
                 "id": "personEngagement",
                 "label": "Person Engagement",
                 "labelPlural": "Person Engagements",
-                "description": ["Person engagement description..."],
+                "description": "Person engagement description...",
                 "parents": [{ "entityTypeId": "organisation" }, { "entityTypeId": "person" }],
                 "characteristics": [{ "entityTypeId": "engagementType" }, { "entityTypeId": "engagementAttendance" }],
                 "events": [
@@ -91,7 +156,7 @@
                 "id": "positionOccupancy",
                 "label": "Position Occupancy",
                 "labelPlural": "Position Occupancies",
-                "description": ["Position occupancy description..."]
+                "description": "Position occupancy description..."
             }
         ],
         "pickLists": [

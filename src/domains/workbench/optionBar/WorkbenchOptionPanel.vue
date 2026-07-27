@@ -64,7 +64,7 @@ function handleComplete(config?: LocalisedConfig<WorkbenchOptionConfig>): void {
                     :aria-label="t(T, 'home.aria')"
                     shape="icon"
                     :to="{ name: 'workbench', query: { ...$route.query, wbView: 'workbench' } }"
-                    @click="handleComplete({ id: 'home', label: '', description: [], icon: '', step: 0, tasks: [] })"
+                    @click="handleComplete({ id: 'home', label: '', description: '', icon: '', step: 0, tasks: [] })"
                 >
                     <HomeIcon aria-hidden="true" class="[&>path]:stroke-1.25" />
                 </Button>

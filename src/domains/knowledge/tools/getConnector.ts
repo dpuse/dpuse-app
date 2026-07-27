@@ -24,7 +24,7 @@ export function executeGetConnector(id: string): GetConnectorResult | { error: s
     return {
         id: c.id,
         label: c.label.en ?? c.label.es,
-        description: (c.description.en ?? c.description.es ?? []).join('\n\n') || undefined,
+        description: (c.description.en ?? c.description.es ?? '') || undefined,
         categoryId: c.categoryId,
         operations: c.actionNames,
         statusId: c.statusId,

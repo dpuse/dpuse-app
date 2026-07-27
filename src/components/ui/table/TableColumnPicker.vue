@@ -16,6 +16,7 @@ const pickerElement = useTemplateRef<HTMLDivElement>('picker');
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => document.addEventListener('click', onDocumentClick));
+
 onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick));
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import 'pell/dist/pell.css';
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import TurndownService from 'turndown';
 import { init, exec } from 'pell';
@@ -8,7 +9,7 @@ import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
-const properties = defineProps<{ modelValue: string }>();
+const { modelValue } = defineProps<{ modelValue: string }>();
 const emit = defineEmits<{ 'update:modelValue': [string] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -26,13 +27,13 @@ onMounted(() => {
         actions: ['bold', 'italic', 'underline', 'link'],
         defaultParagraphSeparator: 'p'
     });
-    editor.value.content.innerHTML = marked.parse(properties.modelValue, { async: false }) as string;
+    editor.value.content.innerHTML = DOMPurify.sanitize(marked.parse(modelValue, { async: false }));
 });
 
 watch(
-    () => properties.modelValue,
+    () => modelValue,
     (newValue) => {
-        const html = marked.parse(newValue, { async: false }) as string;
+        const html = DOMPurify.sanitize(marked.parse(newValue, { async: false }));
         if (editor.value && editor.value.content.innerHTML !== html) {
             editor.value.content.innerHTML = html;
         }

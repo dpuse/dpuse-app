@@ -1,7 +1,7 @@
 {
     "id": "default",
     "label": { "en": "Default Context" },
-    "description": { "en": ["..."] },
+    "description": { "en": "..." },
     "firstCreatedAt": null,
     "icon": null,
     "iconDark": null,
@@ -13,7 +13,7 @@
         {
             "id": "fdn",
             "label": { "en": "Foundation" },
-            "description": { "en": ["..."] },
+            "description": { "en": "..." },
             "firstCreatedAt": null,
             "icon": null,
             "iconDark": null,
@@ -26,7 +26,9 @@
                 {
                     "id": "parties",
                     "label": { "en": "Parties" },
-                    "description": { "en": ["Parties description...", "More parties description..."] },
+                    "description": {
+                        "en": "Parties are the [Organisations](/contentModels/Entities/organisationEntity.md) and [People](/contentModels/entities/personEntity.md) whose details we wish to document. Collectively we refer to them as parties given that they can be used interchangeably (e.g. you may contract with an organisation or a person; you may sell a product to a company or an individual).\n\nIn this module, we will define these two entities as well as other entities closely related to them. The relationships between organisations and people will be defined in other modules.\n\nAdditional person entities include [Person Nationality](/contentModels/Entities/personNationalityEntity.md) and [Person Language](/contentModels/Entities/personLanguageEntity.md). A person can hold multiple nationalities and speak multiple languages within their lifetime."
+                    },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -42,7 +44,7 @@
         {
             "id": "finAcct",
             "label": { "en": "Finance & Accounting" },
-            "description": { "en": ["..."] },
+            "description": { "en": "..." },
             "firstCreatedAt": null,
             "icon": null,
             "iconDark": null,
@@ -55,7 +57,7 @@
                 {
                     "id": "placeholder",
                     "label": { "en": "Placeholder..." },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -71,7 +73,7 @@
         {
             "id": "hr",
             "label": { "en": "Human Resources" },
-            "description": { "en": ["..."] },
+            "description": { "en": "..." },
             "firstCreatedAt": null,
             "icon": null,
             "iconDark": null,
@@ -84,7 +86,7 @@
                 {
                     "id": "workforce",
                     "label": { "en": "Workforce" },
-                    "description": { "en": ["Workforce description...", "More workforce description..."] },
+                    "description": { "en": "Workforce description...\n\nMore workforce description..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -98,7 +100,7 @@
                 {
                     "id": "recOnboard",
                     "label": { "en": "Recruitment & Onboarding" },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -112,7 +114,7 @@
                 {
                     "id": "attend",
                     "label": { "en": "Attendance" },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -126,7 +128,7 @@
                 {
                     "id": "comp",
                     "label": { "en": "Compensation" },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -140,7 +142,7 @@
                 {
                     "id": "learn",
                     "label": { "en": "Learning" },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -154,7 +156,7 @@
                 {
                     "id": "talentMgt",
                     "label": { "en": "Talent Management" },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -170,12 +172,12 @@
         {
             "id": "salesMkt",
             "label": { "en": "Sales & Marketing" },
-            "description": { "en": ["..."] },
+            "description": { "en": "..." },
             "models": [
                 {
                     "id": "placeholder",
                     "label": { "en": "Placeholder..." },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -191,12 +193,12 @@
         {
             "id": "custServ",
             "label": { "en": "Customer Service" },
-            "description": { "en": ["..."] },
+            "description": { "en": "..." },
             "models": [
                 {
                     "id": "placeholder",
                     "label": { "en": "Placeholder..." },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -212,12 +214,12 @@
         {
             "id": "prodDev",
             "label": { "en": "Product Development" },
-            "description": { "en": ["..."] },
+            "description": { "en": "..." },
             "models": [
                 {
                     "id": "placeholder",
                     "label": { "en": "Placeholder..." },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -233,12 +235,12 @@
         {
             "id": "opsSupplyChain",
             "label": { "en": "Operations & Supply Chain" },
-            "description": { "en": ["..."] },
+            "description": { "en": "..." },
             "models": [
                 {
                     "id": "placeholder",
                     "label": { "en": "Placeholder..." },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -254,12 +256,12 @@
         {
             "id": "it",
             "label": { "en": "Information Technology" },
-            "description": { "en": ["..."] },
+            "description": { "en": "..." },
             "models": [
                 {
                     "id": "placeholder",
                     "label": { "en": "Placeholder..." },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -275,12 +277,12 @@
         {
             "id": "legal",
             "label": { "en": "Legal" },
-            "description": { "en": ["..."] },
+            "description": { "en": "..." },
             "models": [
                 {
                     "id": "placeholder",
                     "label": { "en": "Placeholder..." },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -296,12 +298,12 @@
         {
             "id": "govRiskComp",
             "label": { "en": "Governance, Risk & Compliance" },
-            "description": { "en": ["..."] },
+            "description": { "en": "..." },
             "models": [
                 {
                     "id": "placeholder",
                     "label": { "en": "Placeholder..." },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -317,12 +319,12 @@
         {
             "id": "corpStrat",
             "label": { "en": "Corporate Strategy" },
-            "description": { "en": ["..."] },
+            "description": { "en": "..." },
             "models": [
                 {
                     "id": "placeholder",
                     "label": { "en": "Placeholder..." },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,
@@ -338,12 +340,12 @@
         {
             "id": "extdata",
             "label": { "en": "External Data" },
-            "description": { "en": ["..."] },
+            "description": { "en": "..." },
             "models": [
                 {
                     "id": "placeholder",
                     "label": { "en": "Placeholder..." },
-                    "description": { "en": ["..."] },
+                    "description": { "en": "..." },
                     "firstCreatedAt": null,
                     "icon": null,
                     "iconDark": null,

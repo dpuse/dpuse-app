@@ -56,11 +56,13 @@ html {
     margin-bottom: 4px;
     margin-top: 4px;
     line-height: 28px;
+    max-width: 65ch;
 }
 .dpuse-prose p {
     margin-bottom: 12px;
     margin-top: 12px;
     line-height: 28px;
+    max-width: 65ch;
 }
 .dpuse-prose ul,
 .dpuse-prose ol {

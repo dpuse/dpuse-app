@@ -123,6 +123,7 @@ onMounted(() => {
     state.toolbarObserver.observe(toolbarElement.value);
     toolbarHeight.value = toolbarElement.value.offsetHeight;
 });
+
 onBeforeUnmount(() => state.toolbarObserver?.disconnect());
 </script>
 

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import DOMPurify from 'dompurify';
+import { marked } from 'marked';
 import { ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
@@ -14,7 +16,7 @@ import modelConfigs from './modelConfigs.json';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import PellEditor from './PellEditor.vue';
+import TextEditor from '@/components/ui/TextEditor.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -38,6 +40,7 @@ const { modelReference } = defineProps<{ modelReference: GridListItem<LocalisedC
 const activeModel = shallowRef();
 const activeEntityTab = shallowRef(ENTITY_TABS[0]);
 const expandedEntityId = ref<string | null>(null);
+const purifiedDescription = ref('');
 const modelDescription = ref('');
 const modelMap = modelConfigs as Record<string, Model>;
 
@@ -46,7 +49,8 @@ const modelMap = modelConfigs as Record<string, Model>;
 watch(
     () => modelReference,
     (newModelReference) => {
-        modelDescription.value = modelReference.description.join('\n\n');
+        purifiedDescription.value = DOMPurify.sanitize(marked.parse(newModelReference.description, { async: false }));
+        modelDescription.value = newModelReference.description;
         activeModel.value = localiseModel(modelMap[newModelReference.id]);
     },
     { immediate: true }
@@ -71,9 +75,9 @@ function localiseModel(model: Model): Model {
         <h1 class="flex-none pt-3">{{ modelReference.label }} Model</h1>
 
         <!-- Description -->
-        <p v-for="(paragraph, index) in modelReference.description" :key="index">{{ paragraph }}</p>
+        <div v-html="purifiedDescription" />
 
-        <PellEditor v-model="modelDescription" />
+        <TextEditor v-model="modelDescription" />
 
         <!-- Dimensions -->
         <h2>Dimensions</h2>
@@ -95,7 +99,7 @@ function localiseModel(model: Model): Model {
             </h4>
             <div v-if="expandedEntityId === entity.id" class="my-1 border-y border-separator">
                 <!-- Description -->
-                <p v-for="(paragraph, index) in entity.description" :key="index">{{ paragraph }}</p>
+                <p>{{ entity.description }}</p>
 
                 <!-- Entity Tabs -->
                 <div class="flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
@@ -113,22 +117,28 @@ function localiseModel(model: Model): Model {
 
                 <!-- Parents Panel -->
                 <div v-show="activeEntityTab.id === 'parents'" class="py-1">
-                    <div v-for="parent in entity.parents" :key="parent">{{ parent }}</div>
+                    <div v-for="parent in entity.parents" :key="parent">
+                        {{ parent }}
+                    </div>
                 </div>
 
                 <!-- Characteristics Panel -->
                 <div v-show="activeEntityTab.id === 'characteristics'" class="py-1">
-                    <div v-for="characteristic in entity.characteristics" :key="characteristic">{{ characteristic }}</div>
+                    <div v-for="characteristic in entity.characteristics" :key="characteristic">
+                        {{ characteristic }}
+                    </div>
                 </div>
 
                 <!-- Events Panel -->
                 <div v-show="activeEntityTab.id === 'events'" class="py-1">
-                    <div v-for="event in entity.events" :key="event.id">{{ event.id }}</div>
+                    <!-- <div v-for="event in entity.events" :key="event.id">{{ event.id }}</div> -->
+                    {{ entity.events }}
                 </div>
 
                 <!-- Primary Measures Panel -->
                 <div v-show="activeEntityTab.id === 'primaryMeasures'" class="py-1">
-                    <div v-for="primaryMeasure in entity.primaryMeasures" :key="primaryMeasure.id">{{ primaryMeasure.id }}</div>
+                    <!-- <div v-for="primaryMeasure in entity.primaryMeasures" :key="primaryMeasure.id">{{ primaryMeasure.id }}</div> -->
+                    {{ entity.primaryMeasures }}
                 </div>
             </div>
         </div>

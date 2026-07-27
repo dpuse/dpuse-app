@@ -17,6 +17,7 @@ const menuOpen = ref(false);
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => document.addEventListener('click', onDocumentClick));
+
 onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick));
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
