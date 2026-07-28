@@ -5,7 +5,7 @@ import { marked } from 'marked';
 import Squire from 'squire-rte';
 import TurndownService from 'turndown';
 import { BoldIcon, ItalicIcon, LinkIcon, UnderlineIcon } from '@lucide/vue';
-import { onBeforeUnmount, onMounted, reactive, ref, shallowRef, useAttrs, useId, watch } from 'vue';
+import { nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, useAttrs, useId, watch } from 'vue';
 
 // ── Local Components - Static
 import Button from './button/Button.vue';
@@ -19,11 +19,14 @@ const emit = defineEmits<{ 'update:modelValue': [string] }>();
 
 const activeFormats = reactive({ bold: false, italic: false, underline: false, link: false });
 const attributes = useAttrs();
+const rootElement = ref<HTMLElement>();
 const editorElement = ref<HTMLElement>();
 const editor = shallowRef<Squire>();
 const editorId = id ?? useId();
 const labelId = useId();
 const internalUpdatePending = ref(false);
+const parentCanScroll = ref(true);
+const scrollableAncestorObserver = shallowRef<ResizeObserver>();
 const turndown = new TurndownService();
 turndown.keep(['u']);
 
@@ -67,6 +70,20 @@ function toggleLink(): void {
     editor.value.makeLink(url);
 }
 
+function findScrollableAncestor(element: HTMLElement): HTMLElement | null {
+    let node = element.parentElement;
+    while (node) {
+        const overflowY = getComputedStyle(node).overflowY;
+        if (overflowY === 'auto' || overflowY === 'scroll') return node;
+        node = node.parentElement;
+    }
+    return null;
+}
+
+function updateParentCanScroll(ancestor: HTMLElement): void {
+    parentCanScroll.value = ancestor.scrollHeight > ancestor.clientHeight;
+}
+
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
@@ -83,6 +100,13 @@ onMounted(() => {
     editor.value.addEventListener('pathChange', updateActiveFormats);
     editor.value.addEventListener('select', updateActiveFormats);
     editor.value.addEventListener('cursor', updateActiveFormats);
+
+    const ancestor = findScrollableAncestor(rootElement.value!);
+    if (ancestor) {
+        updateParentCanScroll(ancestor);
+        scrollableAncestorObserver.value = new ResizeObserver(() => updateParentCanScroll(ancestor));
+        scrollableAncestorObserver.value.observe(ancestor);
+    }
 });
 
 watch(
@@ -96,16 +120,21 @@ watch(
         if (editor.value && editor.value.getHTML() !== html) {
             editor.value.setHTML(html);
         }
+        nextTick(() => {
+            const ancestor = findScrollableAncestor(rootElement.value!);
+            if (ancestor) updateParentCanScroll(ancestor);
+        });
     }
 );
 
 onBeforeUnmount(() => {
     editor.value?.destroy();
+    scrollableAncestorObserver.value?.disconnect();
 });
 </script>
 
 <template>
-    <div data-region="TextEditor" class="flex flex-col">
+    <div ref="rootElement" data-region="TextEditor" class="flex flex-col">
         <!-- A contenteditable div can never be a labeled form field, so a real <label for> would be flagged by browsers as unassociated. Its accessible name is wired via aria-labelledby on the editor below instead, and click-to-focus is wired manually here to mirror native <label for> behaviour (pointer-only, same as native; keyboard users already reach the editor directly via Tab). -->
         <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div :id="labelId" :class="labelHidden ? 'sr-only' : 'mb-1 block flex-none text-sm font-medium text-muted'" @click="focusEditor">
@@ -138,7 +167,8 @@ onBeforeUnmount(() => {
                 role="textbox"
                 aria-multiline="true"
                 :aria-labelledby="labelId"
-                class="min-h-10 flex-1 overflow-y-auto overscroll-y-auto px-2.5 outline-none"
+                class="min-h-10 flex-1 overflow-y-auto px-2.5 outline-none"
+                :class="parentCanScroll ? 'overscroll-y-auto' : 'overscroll-y-none'"
             />
         </div>
     </div>

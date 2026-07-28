@@ -51,7 +51,7 @@ function save(): void {
         </div>
 
         <!-- Footer -->
-        <div class="mx-6 flex flex-none justify-end gap-x-2 border-t border-separator pt-4">
+        <div class="mx-6 flex flex-none justify-end gap-x-2">
             <Button variant="outline" @click="close">Cancel</Button>
             <Button variant="primary" @click="save">Save</Button>
         </div>
