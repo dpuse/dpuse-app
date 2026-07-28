@@ -105,7 +105,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <!-- min-h-27.25/21.25 below are explicit floors (label/toolbar natural height + the editor's 40px min), not arbitrary: a flex item with overflow-hidden and no explicit min-height reports 0 as its automatic minimum to its ancestor, so this component would otherwise get crushed to nothing in a compact dialog instead of the dialog body scrolling. -->
+    <!-- TODO: REMOVE min-h-27.25/21.25 below are explicit floors (label/toolbar natural height + the editor's 40px min), not arbitrary: a flex item with overflow-hidden and no explicit min-height reports 0 as its automatic minimum to its ancestor, so this component would otherwise get crushed to nothing in a compact dialog instead of the dialog body scrolling. -->
     <div data-region="TextEditor" class="flex min-h-100 flex-col">
         <!-- A contenteditable div can never be a labeled form field, so a real <label for> would be flagged by browsers as unassociated. Its accessible name is wired via aria-labelledby on the editor below instead, and click-to-focus is wired manually here to mirror native <label for> behaviour (pointer-only, same as native; keyboard users already reach the editor directly via Tab). -->
         <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
@@ -139,7 +139,7 @@ onBeforeUnmount(() => {
                 role="textbox"
                 aria-multiline="true"
                 :aria-labelledby="labelId"
-                class="min-h-10 flex-1 overflow-y-auto px-2.5 outline-none"
+                class="min-h-10 flex-1 overflow-y-auto overscroll-y-none px-2.5 outline-none"
             />
         </div>
     </div>

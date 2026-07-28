@@ -41,7 +41,7 @@ function save(): void {
     >
         <!-- Header -->
         <div class="flex flex-none items-center border-b border-separator pb-3">
-            <div class="flex-1 text-2xl">{{ title }}</div>
+            <div class="flex-1 text-xl">{{ title }}</div>
             <CloseButton class="flex-none" @click="close" />
         </div>
 
