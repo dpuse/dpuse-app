@@ -35,7 +35,7 @@ function save(): void {
 <template>
     <dialog
         ref="dialog"
-        class="m-0 hidden size-full max-h-full max-w-none flex-col bg-surface px-6 py-4 open:flex md:m-auto md:max-h-[85vh] md:w-fit md:rounded-lg md:border-boundary"
+        class="m-0 hidden size-full max-h-full max-w-none flex-col overflow-hidden bg-surface px-6 py-4 open:flex md:m-auto md:max-h-[85vh] md:w-fit md:rounded-lg md:border-boundary"
         @close="close"
         @cancel="close"
     >
@@ -46,12 +46,12 @@ function save(): void {
         </div>
 
         <!-- Body -->
-        <div class="flex min-h-0 flex-1 flex-col gap-y-3 overflow-y-auto overscroll-y-none py-3">
+        <div class="flex min-h-0 flex-1 flex-col gap-y-4 overflow-y-auto overscroll-y-none py-4">
             <slot />
         </div>
 
         <!-- Footer -->
-        <div class="mt-2 flex flex-none justify-end gap-x-2">
+        <div class="flex flex-none justify-end gap-x-2 border-t border-separator pt-4">
             <Button variant="outline" @click="close">Cancel</Button>
             <Button variant="primary" @click="save">Save</Button>
         </div>

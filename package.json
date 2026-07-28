@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1457",
+    "version": "0.0.1458",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -47,7 +47,7 @@
         "sync": "node -e \"import('@dpuse/dpuse-development').then(m => m.syncProjectWithGitHub())\""
     },
     "dependencies": {
-        "@ai-sdk/vue": "^4.0.37",
+        "@ai-sdk/vue": "^4.0.40",
         "@dpuse/dpuse-shared": "^0.3.758",
         "@formkit/drag-and-drop": "^0.6.1",
         "@regle/core": "^1.28.5",
@@ -73,7 +73,7 @@
     },
     "devDependencies": {
         "@cloudflare/vite-plugin": "1.47.0",
-        "@cloudflare/workers-types": "^5.20260727.1",
+        "@cloudflare/workers-types": "^5.20260728.1",
         "@dpuse/dpuse-development": "^0.3.699",
         "@dpuse/eslint-config-dpuse": "^1.0.113",
         "@lucide/vue": "^1.27.0",
@@ -85,7 +85,7 @@
         "@types/d3-zoom": "^3.0.8",
         "@types/eslint-plugin-tailwindcss": "^3.17.0",
         "@types/jsdom": "^28.0.3",
-        "@types/node": "^26.1.1",
+        "@types/node": "^26.1.2",
         "@types/trusted-types": "^2.0.7",
         "@types/turndown": "^5.0.6",
         "@vite-pwa/assets-generator": "^1.0.2",

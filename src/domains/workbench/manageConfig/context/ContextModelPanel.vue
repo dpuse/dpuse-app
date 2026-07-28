@@ -90,7 +90,7 @@ function localiseModel(model: Model): Model {
 
         <BaseDialog v-model="open" :title="`${modelReference.label} Descriptors`" @save="open = false">
             <Input v-model="modelReferenceLabel" label="Label" />
-            <TextEditor v-model="modelDescription" label="Description" />
+            <TextEditor v-model="modelDescription" class="flex-1" label="Description" />
         </BaseDialog>
 
         <!-- Dimensions -->
