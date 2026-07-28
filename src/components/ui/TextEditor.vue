@@ -105,7 +105,6 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <!-- TODO: REMOVE min-h-27.25/21.25 below are explicit floors (label/toolbar natural height + the editor's 40px min), not arbitrary: a flex item with overflow-hidden and no explicit min-height reports 0 as its automatic minimum to its ancestor, so this component would otherwise get crushed to nothing in a compact dialog instead of the dialog body scrolling. -->
     <div data-region="TextEditor" class="flex min-h-100 flex-col">
         <!-- A contenteditable div can never be a labeled form field, so a real <label for> would be flagged by browsers as unassociated. Its accessible name is wired via aria-labelledby on the editor below instead, and click-to-focus is wired manually here to mirror native <label for> behaviour (pointer-only, same as native; keyboard users already reach the editor directly via Tab). -->
         <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
@@ -117,18 +116,18 @@ onBeforeUnmount(() => {
             class="flex flex-1 flex-col overflow-hidden rounded-md bg-surface outline-1 -outline-offset-1 outline-separator focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600 dark:focus-within:outline-indigo-500"
         >
             <!-- Toolbar -->
-            <div class="flex flex-none gap-0.5 border-b border-boundary p-1">
+            <div class="flex flex-none gap-0.5 border-b border-boundary bg-backdrop">
                 <Button shape="icon" size="sm" type="button" :is-active="activeFormats.bold" aria-label="Bold" @mousedown.prevent @click="toggleBold">
-                    <BoldIcon />
+                    <BoldIcon class="size-4.5!" />
                 </Button>
                 <Button shape="icon" size="sm" type="button" :is-active="activeFormats.italic" aria-label="Italic" @mousedown.prevent @click="toggleItalic">
-                    <ItalicIcon />
+                    <ItalicIcon class="size-4.5!" />
                 </Button>
                 <Button shape="icon" size="sm" type="button" :is-active="activeFormats.underline" aria-label="Underline" @mousedown.prevent @click="toggleUnderline">
-                    <UnderlineIcon />
+                    <UnderlineIcon class="size-4.5!" />
                 </Button>
                 <Button shape="icon" size="sm" type="button" :is-active="activeFormats.link" aria-label="Link" @mousedown.prevent @click="toggleLink">
-                    <LinkIcon />
+                    <LinkIcon class="size-4.5!" />
                 </Button>
             </div>
 
