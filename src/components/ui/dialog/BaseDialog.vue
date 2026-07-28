@@ -35,7 +35,7 @@ function save(): void {
 <template>
     <dialog
         ref="dialog"
-        class="p-t-(--safe-top-offset) m-0 hidden size-full max-h-full max-w-none flex-col overflow-hidden bg-surface px-6 py-4 open:flex md:m-auto md:max-h-[85vh] md:w-fit md:rounded-lg md:border-boundary"
+        class="m-0 hidden size-full max-h-full max-w-none flex-col overflow-hidden bg-surface pt-[calc(env(safe-area-inset-top)+24px)] pr-[calc(env(safe-area-inset-right)+24px)] pb-[calc(env(safe-area-inset-bottom)+24px)] pl-[calc(env(safe-area-inset-left)+24px)] open:flex md:m-auto md:max-h-[85vh] md:w-fit md:rounded-lg md:border-boundary"
         @close="close"
         @cancel="close"
     >
