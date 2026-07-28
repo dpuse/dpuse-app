@@ -46,7 +46,7 @@ function save(): void {
         </div>
 
         <!-- Body -->
-        <div class="mx-6 flex min-h-0 flex-1 flex-col gap-y-4 overflow-x-hidden overflow-y-auto overscroll-y-none py-4">
+        <div class="flex min-h-0 flex-1 flex-col gap-y-4 overflow-x-hidden overflow-y-auto overscroll-y-none px-6 py-4">
             <slot />
         </div>
 
