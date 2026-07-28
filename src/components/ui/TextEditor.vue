@@ -105,7 +105,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div data-region="TextEditor" class="flex min-h-100 flex-col">
+    <div data-region="TextEditor" class="flex flex-col">
         <!-- A contenteditable div can never be a labeled form field, so a real <label for> would be flagged by browsers as unassociated. Its accessible name is wired via aria-labelledby on the editor below instead, and click-to-focus is wired manually here to mirror native <label for> behaviour (pointer-only, same as native; keyboard users already reach the editor directly via Tab). -->
         <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div :id="labelId" :class="labelHidden ? 'sr-only' : 'mb-1 block flex-none text-sm font-medium text-muted'" @click="focusEditor">
@@ -138,7 +138,7 @@ onBeforeUnmount(() => {
                 role="textbox"
                 aria-multiline="true"
                 :aria-labelledby="labelId"
-                class="min-h-10 flex-1 overflow-y-auto overscroll-y-none px-2.5 outline-none"
+                class="min-h-10 flex-1 overflow-y-auto overscroll-y-auto px-2.5 outline-none"
             />
         </div>
     </div>
