@@ -24,8 +24,8 @@
             "order": 1,
             "models": [
                 {
-                    "id": "parties",
-                    "label": { "en": "Parties" },
+                    "id": "party",
+                    "label": { "en": "Party" },
                     "description": {
                         "en": "Parties are the [Organisations](/contentModels/Entities/organisationEntity.md) and [People](/contentModels/entities/personEntity.md) whose details we wish to document. Collectively we refer to them as parties given that they can be used interchangeably (e.g. you may contract with an organisation or a person; you may sell a product to a company or an individual).\n\nIn this module, we will define these two entities as well as other entities closely related to them. The relationships between organisations and people will be defined in other modules.\n\nAdditional person entities include [Person Nationality](/contentModels/Entities/personNationalityEntity.md) and [Person Language](/contentModels/Entities/personLanguageEntity.md). A person can hold multiple nationalities and speak multiple languages within their lifetime."
                     },
@@ -72,7 +72,7 @@
         },
         {
             "id": "hr",
-            "label": { "en": "Human Resources" },
+            "label": { "en": "Human Resource" },
             "description": { "en": "..." },
             "firstCreatedAt": null,
             "icon": null,

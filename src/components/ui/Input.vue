@@ -9,16 +9,18 @@ const { id, label, labelHidden = false } = defineProps<{ id?: string; label: str
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const attributes = useAttrs();
-const generatedId = useId();
+const inputId = id ?? useId();
 const modelValue = defineModel<string>();
 </script>
 
 <template>
-    <label :for="id ?? generatedId" :class="labelHidden ? 'sr-only' : ''">{{ label }}</label>
-    <input
-        v-model="modelValue"
-        v-bind="{ id: id ?? generatedId, name: id ?? generatedId, ...attributes }"
-        class="block rounded-md px-3 py-2 outline-1 -outline-offset-1 outline-separator placeholder:text-muted focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:focus:outline-indigo-500"
-        data-region="Input"
-    />
+    <div data-region="Input">
+        <label :for="inputId" :class="labelHidden ? 'sr-only' : 'mb-1 block text-sm font-medium text-muted'">{{ label }}</label>
+        <input
+            v-bind="{ id: inputId, name: inputId, ...attributes }"
+            v-model="modelValue"
+            class="block w-full rounded-md px-3 py-1.5 outline-1 -outline-offset-1 outline-separator placeholder:text-muted focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:focus:outline-indigo-500"
+            data-region="Input"
+        />
+    </div>
 </template>

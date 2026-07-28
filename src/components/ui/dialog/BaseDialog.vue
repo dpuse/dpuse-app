@@ -33,19 +33,21 @@ function save(): void {
 </script>
 
 <template>
-    <dialog ref="dialog" class="m-auto rounded-lg border-boundary bg-surface px-6 py-4 text-content" @close="close" @cancel="close">
+    <dialog ref="dialog" class="m-auto max-h-[calc(100vh-32px)] rounded-none border-boundary bg-surface px-6 py-4 text-content sm:rounded-lg" @close="close" @cancel="close">
         <div class="flex flex-col">
             <!-- Header -->
-            <div class="flex items-center border-b border-separator pb-3">
+            <div class="flex flex-none items-center border-b border-separator pb-3">
                 <div class="flex-1 text-2xl">{{ title }}</div>
                 <CloseButton class="flex-none" @click="close" />
             </div>
 
             <!-- Body -->
-            <slot />
+            <div class="flex flex-1 flex-col gap-y-3 py-3">
+                <slot />
+            </div>
 
             <!-- Footer -->
-            <div class="mt-4 flex justify-end gap-x-2">
+            <div class="mt-2 flex flex-none justify-end gap-x-2">
                 <Button variant="outline" @click="close">Cancel</Button>
                 <Button variant="primary" @click="save">Save</Button>
             </div>

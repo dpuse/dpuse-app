@@ -5,7 +5,7 @@ import { marked } from 'marked';
 import Squire from 'squire-rte';
 import TurndownService from 'turndown';
 import { BoldIcon, ItalicIcon, LinkIcon, UnderlineIcon } from '@lucide/vue';
-import { onBeforeUnmount, onMounted, reactive, ref, shallowRef, useId, watch } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref, shallowRef, useAttrs, useId, watch } from 'vue';
 
 // ── Local Components - Static
 import Button from './button/Button.vue';
@@ -17,16 +17,21 @@ const emit = defineEmits<{ 'update:modelValue': [string] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const activeFormats = reactive({ bold: false, italic: false, underline: false, link: false });
+const attributes = useAttrs();
 const editorElement = ref<HTMLElement>();
 const editor = shallowRef<Squire>();
+const editorId = id ?? useId();
+const labelId = useId();
 const internalUpdatePending = ref(false);
-const generatedId = useId();
 const turndown = new TurndownService();
 turndown.keep(['u']);
 
-const activeFormats = reactive({ bold: false, italic: false, underline: false, link: false });
-
 // ── Behaviour ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function focusEditor(): void {
+    editor.value?.focus();
+}
 
 function updateActiveFormats(): void {
     if (!editor.value) return;
@@ -70,7 +75,8 @@ onMounted(() => {
         sanitizeToDOMFragment: (html: string): DocumentFragment => DOMPurify.sanitize(html, { RETURN_DOM_FRAGMENT: true })
     });
     editor.value.setHTML(DOMPurify.sanitize(marked.parse(modelValue, { async: false })));
-    editor.value.addEventListener('input', () => {
+    editor.value.addEventListener('blur', () => {
+        console.log('blur...');
         internalUpdatePending.value = true;
         emit('update:modelValue', turndown.turndown(editor.value!.getRoot()));
     });
@@ -99,25 +105,41 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <label :for="id ?? generatedId" :class="labelHidden ? 'sr-only' : 'mb-1 block text-xs font-medium text-muted'">{{ label }}</label>
-    <div class="w-full overflow-hidden rounded border border-boundary bg-surface" data-region="TextEditor">
-        <!-- Toolbar -->
-        <div class="flex gap-0.5 border-b border-boundary p-1">
-            <Button shape="icon" size="sm" type="button" :is-active="activeFormats.bold" aria-label="Bold" @click="toggleBold">
-                <BoldIcon />
-            </Button>
-            <Button shape="icon" size="sm" type="button" :is-active="activeFormats.italic" aria-label="Italic" @click="toggleItalic">
-                <ItalicIcon />
-            </Button>
-            <Button shape="icon" size="sm" type="button" :is-active="activeFormats.underline" aria-label="Underline" @click="toggleUnderline">
-                <UnderlineIcon />
-            </Button>
-            <Button shape="icon" size="sm" type="button" :is-active="activeFormats.link" aria-label="Link" @click="toggleLink">
-                <LinkIcon />
-            </Button>
+    <div data-region="TextEditor">
+        <!-- A contenteditable div can never be a labeled form field, so a real <label for> would be flagged by browsers as unassociated. Its accessible name is wired via aria-labelledby on the editor below instead, and click-to-focus is wired manually here to mirror native <label for> behaviour (pointer-only, same as native; keyboard users already reach the editor directly via Tab). -->
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+        <div :id="labelId" :class="labelHidden ? 'sr-only' : 'mb-1 block text-sm font-medium text-muted'" @click="focusEditor">
+            {{ label }}
         </div>
 
-        <!-- Content -->
-        <div :id="id ?? generatedId" ref="editorElement" class="min-h-[2em] p-2.5 text-sm text-content outline-none"></div>
+        <div
+            class="w-full overflow-hidden rounded-md bg-surface outline-1 -outline-offset-1 outline-separator focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600 dark:focus-within:outline-indigo-500"
+        >
+            <!-- Toolbar -->
+            <div class="flex gap-0.5 border-b border-boundary p-1">
+                <Button shape="icon" size="sm" type="button" :is-active="activeFormats.bold" aria-label="Bold" @mousedown.prevent @click="toggleBold">
+                    <BoldIcon />
+                </Button>
+                <Button shape="icon" size="sm" type="button" :is-active="activeFormats.italic" aria-label="Italic" @mousedown.prevent @click="toggleItalic">
+                    <ItalicIcon />
+                </Button>
+                <Button shape="icon" size="sm" type="button" :is-active="activeFormats.underline" aria-label="Underline" @mousedown.prevent @click="toggleUnderline">
+                    <UnderlineIcon />
+                </Button>
+                <Button shape="icon" size="sm" type="button" :is-active="activeFormats.link" aria-label="Link" @mousedown.prevent @click="toggleLink">
+                    <LinkIcon />
+                </Button>
+            </div>
+
+            <!-- Content -->
+            <div
+                ref="editorElement"
+                v-bind="{ id: editorId, name: editorId, ...attributes }"
+                role="textbox"
+                aria-multiline="true"
+                :aria-labelledby="labelId"
+                class="max-h-100 min-h-[2em] overflow-y-scroll overscroll-y-none px-2.5 outline-none"
+            />
+        </div>
     </div>
 </template>

@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
-import { PencilIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from '@lucide/vue';
+import { PencilIcon, SquarePenIcon } from '@lucide/vue';
 import { ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
@@ -81,18 +81,16 @@ function localiseModel(model: Model): Model {
         <div class="flex flex-none items-center gap-x-3 pt-3">
             <h1 class="">{{ modelReference.label }} Model</h1>
             <Button class="" shape="minimal" @click="open = true">
-                <PencilIcon class="size-5" />
+                <SquarePenIcon class="size-5" />
             </Button>
         </div>
 
         <!-- Description -->
         <div v-html="purifiedDescription" />
 
-        <BaseDialog v-model="open" :title="`${modelReference.label} Model`" @save="open = false">
+        <BaseDialog v-model="open" :title="`${modelReference.label} Descriptors`" @save="open = false">
             <Input v-model="modelReferenceLabel" label="Label" />
-            <Input label="Plural Label" />
-
-            <TextEditor id="textEditor" v-model="modelDescription" label="Description" />
+            <TextEditor v-model="modelDescription" label="Description" />
         </BaseDialog>
 
         <!-- Dimensions -->
