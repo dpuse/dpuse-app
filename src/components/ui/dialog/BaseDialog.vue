@@ -35,23 +35,25 @@ function save(): void {
 <template>
     <dialog
         ref="dialog"
-        class="m-0 hidden size-full max-h-full max-w-none flex-col overflow-hidden bg-surface pt-[calc(env(safe-area-inset-top)+24px)] pr-[calc(env(safe-area-inset-right)+24px)] pb-[calc(env(safe-area-inset-bottom)+24px)] pl-[calc(env(safe-area-inset-left)+24px)] open:flex md:m-auto md:max-h-[85vh] md:w-fit md:rounded-lg md:border-boundary"
+        class="m-0 hidden size-full max-h-full max-w-none flex-col overflow-y-hidden bg-surface pt-[calc(env(safe-area-inset-top)+24px)] pr-[calc(env(safe-area-inset-right))] pb-[calc(env(safe-area-inset-bottom)+24px)] pl-[calc(env(safe-area-inset-left))] open:flex md:m-auto md:max-h-[85vh] md:w-fit md:rounded-lg md:border-boundary"
         @close="close"
         @cancel="close"
     >
         <!-- Header -->
-        <div class="flex flex-none items-center border-b border-separator pb-3">
+        <div class="mx-6 flex flex-none items-center border-b border-separator pb-3">
             <div class="flex-1 text-xl">{{ title }}</div>
             <CloseButton class="flex-none" @click="close" />
         </div>
 
         <!-- Body -->
-        <div class="flex min-h-0 flex-1 flex-col gap-y-4 overflow-y-auto overscroll-y-none py-4">
-            <slot />
+        <div class="flex min-h-0 flex-1 flex-col py-4">
+            <div class="flex min-h-0 flex-col gap-y-4 overflow-x-hidden overflow-y-auto overscroll-y-none px-6">
+                <slot />
+            </div>
         </div>
 
         <!-- Footer -->
-        <div class="flex flex-none justify-end gap-x-2 border-t border-separator pt-4">
+        <div class="mx-6 flex flex-none justify-end gap-x-2 border-t border-separator pt-4">
             <Button variant="outline" @click="close">Cancel</Button>
             <Button variant="primary" @click="save">Save</Button>
         </div>
