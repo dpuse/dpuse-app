@@ -55,7 +55,7 @@ watch(
     () => modelReference,
     (newModelReference) => {
         purifiedDescription.value = DOMPurify.sanitize(marked.parse(newModelReference.description, { async: false }));
-        modelDescription.value = newModelReference.description;
+        modelDescription.value = newModelReference.description + newModelReference.description + newModelReference.description + newModelReference.description;
         modelReferenceLabel.value = newModelReference.label;
         activeModel.value = localiseModel(modelMap[newModelReference.id]);
     },

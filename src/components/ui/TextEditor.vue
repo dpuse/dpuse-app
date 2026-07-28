@@ -138,7 +138,7 @@ onBeforeUnmount(() => {
                 role="textbox"
                 aria-multiline="true"
                 :aria-labelledby="labelId"
-                class="max-h-100 min-h-[2em] overflow-y-scroll overscroll-y-none px-2.5 outline-none"
+                class="max-h-100 min-h-[2em] overflow-y-auto px-2.5 outline-none"
             />
         </div>
     </div>

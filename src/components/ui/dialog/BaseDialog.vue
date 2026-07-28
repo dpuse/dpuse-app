@@ -33,35 +33,36 @@ function save(): void {
 </script>
 
 <template>
-    <dialog ref="dialog" class="m-auto max-h-[calc(100vh-32px)] rounded-none border-boundary bg-surface px-6 py-4 text-content sm:rounded-lg" @close="close" @cancel="close">
-        <div class="flex flex-col">
-            <!-- Header -->
-            <div class="flex flex-none items-center border-b border-separator pb-3">
-                <div class="flex-1 text-2xl">{{ title }}</div>
-                <CloseButton class="flex-none" @click="close" />
-            </div>
+    <dialog
+        ref="dialog"
+        class="m-0 hidden size-full max-h-full max-w-none flex-col bg-surface px-6 py-4 open:flex md:m-auto md:max-h-[85vh] md:w-fit md:rounded-lg md:border-boundary"
+        @close="close"
+        @cancel="close"
+    >
+        <!-- Header -->
+        <div class="flex flex-none items-center border-b border-separator pb-3">
+            <div class="flex-1 text-2xl">{{ title }}</div>
+            <CloseButton class="flex-none" @click="close" />
+        </div>
 
-            <!-- Body -->
-            <div class="flex flex-1 flex-col gap-y-3 py-3">
-                <slot />
-            </div>
+        <!-- Body -->
+        <div class="flex min-h-0 flex-1 flex-col gap-y-3 overflow-y-auto overscroll-y-none py-3">
+            <slot />
+        </div>
 
-            <!-- Footer -->
-            <div class="mt-2 flex flex-none justify-end gap-x-2">
-                <Button variant="outline" @click="close">Cancel</Button>
-                <Button variant="primary" @click="save">Save</Button>
-            </div>
+        <!-- Footer -->
+        <div class="mt-2 flex flex-none justify-end gap-x-2">
+            <Button variant="outline" @click="close">Cancel</Button>
+            <Button variant="primary" @click="save">Save</Button>
         </div>
     </dialog>
 </template>
 
 <style scoped>
 dialog {
-    width: min(90vw, 28rem);
     box-shadow:
         0 20px 50px rgb(0 0 0 / 0.25),
         0 2px 6px rgb(0 0 0 / 0.08);
-    opacity: 1;
     transform: scale(1);
     transition:
         opacity 0.15s ease-out,
