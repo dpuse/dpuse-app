@@ -2,6 +2,7 @@
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
+import { PencilIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from '@lucide/vue';
 import { ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
@@ -15,7 +16,9 @@ import type { GridListItem } from './ContextList.vue';
 import modelConfigs from './modelConfigs.json';
 
 // ── Local Components - Static
+import BaseDialog from '@/components/ui/dialog/BaseDialog.vue';
 import Button from '@/components/ui/button/Button.vue';
+import Input from '@/components/ui/Input.vue';
 import TextEditor from '@/components/ui/TextEditor.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -40,8 +43,10 @@ const { modelReference } = defineProps<{ modelReference: GridListItem<LocalisedC
 const activeModel = shallowRef();
 const activeEntityTab = shallowRef(ENTITY_TABS[0]);
 const expandedEntityId = ref<string | null>(null);
+const open = ref(false);
 const purifiedDescription = ref('');
 const modelDescription = ref('');
+const modelReferenceLabel = ref('');
 const modelMap = modelConfigs as Record<string, Model>;
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -51,6 +56,7 @@ watch(
     (newModelReference) => {
         purifiedDescription.value = DOMPurify.sanitize(marked.parse(newModelReference.description, { async: false }));
         modelDescription.value = newModelReference.description;
+        modelReferenceLabel.value = newModelReference.label;
         activeModel.value = localiseModel(modelMap[newModelReference.id]);
     },
     { immediate: true }
@@ -72,12 +78,22 @@ function localiseModel(model: Model): Model {
 <template>
     <div class="dpuse-prose flex-1 overflow-y-auto overscroll-y-none px-4">
         <!-- Header -->
-        <h1 class="flex-none pt-3">{{ modelReference.label }} Model</h1>
+        <div class="flex flex-none items-center gap-x-3 pt-3">
+            <h1 class="">{{ modelReference.label }} Model</h1>
+            <Button class="" shape="minimal" @click="open = true">
+                <PencilIcon class="size-5" />
+            </Button>
+        </div>
 
         <!-- Description -->
         <div v-html="purifiedDescription" />
 
-        <TextEditor v-model="modelDescription" />
+        <BaseDialog v-model="open" :title="`${modelReference.label} Model`" @save="open = false">
+            <Input v-model="modelReferenceLabel" label="Label" />
+            <Input label="Plural Label" />
+
+            <TextEditor id="textEditor" v-model="modelDescription" label="Description" />
+        </BaseDialog>
 
         <!-- Dimensions -->
         <h2>Dimensions</h2>
