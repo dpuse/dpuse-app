@@ -100,18 +100,19 @@ function localiseModel(model: Model): Model {
         <!-- Entities -->
         <h2>Entities</h2>
         <p>Something about entities...</p>
-        <div v-for="entity in activeModel.entities ?? []" :key="entity.id">
+        <div v-for="entity in activeModel.entities ?? []" :key="entity.id" class="mt-2 rounded-md border border-separator">
             <h4
                 role="button"
                 tabindex="0"
                 :aria-expanded="expandedEntityId === entity.id"
+                class="bg-backdrop px-4 py-2"
                 @click="toggleEntity(entity.id)"
                 @keydown.enter="toggleEntity(entity.id)"
                 @keydown.space.prevent="toggleEntity(entity.id)"
             >
                 {{ entity.label }}
             </h4>
-            <div v-if="expandedEntityId === entity.id" class="my-1 border-y border-separator">
+            <div v-if="expandedEntityId === entity.id" class="border-none border-separator px-4 pb-4">
                 <!-- Description -->
                 <p>{{ entity.description }}</p>
 
