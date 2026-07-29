@@ -24,10 +24,42 @@
             "order": 1,
             "models": [
                 {
+                    "id": "asset",
+                    "label": { "en": "Asset" },
+                    "description": {
+                        "en": "Asset model description..."
+                    },
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                },
+                {
+                    "id": "financial",
+                    "label": { "en": "Financial" },
+                    "description": {
+                        "en": "Financial model description..."
+                    },
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                },
+                {
                     "id": "geographic",
                     "label": { "en": "Geographic" },
                     "description": {
-                        "en": "Geographic description..."
+                        "en": "Geographic model description..."
                     },
                     "firstCreatedAt": null,
                     "icon": null,
@@ -44,6 +76,22 @@
                     "label": { "en": "Party" },
                     "description": {
                         "en": "Parties are the [Organisations](/contentModels/Entities/organisationEntity.md) and [People](/contentModels/entities/personEntity.md) whose details we wish to document. Collectively we refer to them as parties given that they can be used interchangeably (e.g. you may contract with an organisation or a person; you may sell a product to a company or an individual).\n\nIn this module, we will define these two entities as well as other entities closely related to them. The relationships between organisations and people will be defined in other modules.\n\nAdditional person entities include [Person Nationality](/contentModels/Entities/personNationalityEntity.md) and [Person Language](/contentModels/Entities/personLanguageEntity.md). A person can hold multiple nationalities and speak multiple languages within their lifetime."
+                    },
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                },
+                {
+                    "id": "product",
+                    "label": { "en": "Product" },
+                    "description": {
+                        "en": "Product model description..."
                     },
                     "firstCreatedAt": null,
                     "icon": null,

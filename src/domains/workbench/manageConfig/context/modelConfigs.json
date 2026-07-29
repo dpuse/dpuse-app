@@ -1,6 +1,35 @@
 {
     "geographic": {
-        "dimensions": [],
+        "dimensions": [
+            { "id": "geoDiv", "label": { "en": "Division" } },
+            { "id": "geoSubDiv", "label": { "en": "Subdivision" } },
+            { "id": "geoCtry", "label": { "en": "Country" } },
+            { "id": "geoCtryDiv", "label": { "en": "Country Division" } },
+            { "id": "geoCtryPstCode", "label": { "en": "Postal Code" } },
+            {
+                "id": "geoCity",
+                "label": { "en": "City" },
+                "labelPlural": { "en": "Cities" },
+                "description": { "en": "..." },
+                "hierarchies": [
+                    {
+                        "id": "def",
+                        "label": { "en": "Default" },
+                        "description": { "en": "..." },
+                        "type": null,
+                        "levels": [],
+                        "children": [
+                            { "id": "#", "label": { "en": "Not Applicable" } },
+                            { "id": "_", "label": { "en": "Not Provided" } },
+                            { "id": "?", "label": { "en": "Unknown" } }
+                        ]
+                    }
+                ]
+            },
+            { "id": "geoCityDiv", "label": { "en": "City Division" } },
+            { "id": "geoTimeZone", "label": { "en": "Time Zone" } },
+            { "id": "geoUrb", "label": { "en": "Urbanicity" } }
+        ],
         "entities": [],
         "pickLists": [],
         "secondaryMeasures": []
@@ -18,27 +47,121 @@
                 "characteristics": [{ "id": "name", "label": { "en": "Name" }, "type": "string", "entityTypeId": "organisationType" }],
                 "events": {
                     "creation": null,
-                    "activation": { "labelAction": "Incorporation", "labelState": "Incorporated", "description": { "en": "The moment the organisation was incorporated." } },
-                    "recognition": null,
+                    "activation": {
+                        "labelAction": { "en": "Incorporation" },
+                        "labelState": { "en": "Incorporated" },
+                        "description": { "en": "The moment the organisation was incorporated. Optional if there is an incorporation event; otherwise, it is mandatory." }
+                    },
+                    "recognition": {
+                        "labelAction": { "en": "Recognition" },
+                        "description": {
+                            "en": "The moment the organisation was recognised for informational purposes. Optional if there is an incorporation event; otherwise, it is mandatory."
+                        }
+                    },
                     "correction": null,
-                    "modification": null,
-                    "derecognition": null,
-                    "deactivation": { "labelAction": "Dissolution", "labelState": "Disolved", "description": { "en": "The moment the organisation was disolved." } },
+                    "modification": {
+                        "labelAction": { "en": "Modification" },
+                        "description": { "en": "The moment the organisations characteristics took on the specified values." }
+                    },
+                    "derecognition": {
+                        "labelAction": { "en": "Derecognition" },
+                        "description": {
+                            "en": "The moment the organisations's recognition was revoked for informational purposes. Optional if there is an dissolution event; otherwise, it is mandatory."
+                        }
+                    },
+                    "deactivation": {
+                        "labelAction": { "en": "Dissolution" },
+                        "labelState": { "en": "Disolved" },
+                        "description": { "en": "The moment the organisation was disolved." }
+                    },
                     "archival": null,
-                    "deletion": null
+                    "deletion": {
+                        "labelAction": { "en": "Deletion" },
+                        "description": {
+                            "en": "The moment the organisations's details were deleted. An occurrence of this event will cause all other events for the organization to be disregarded."
+                        }
+                    }
                 },
                 "primaryMeasures": {
                     "age": null,
-                    "openingCount": null,
+                    "openingCount": {
+                        "label": { "en": "Opening Organisation Count" },
+                        "description": {
+                            "en": "The number of organisations at the moment the reporting period opened. This count is carried forward from the previous reporting period and is equal to the closing count for that period."
+                        },
+                        "events": [
+                            { "open": "incorporation", "close": "dissolution" },
+                            { "open": "recognition", "close": "derecognition" },
+                            { "open": { "first": ["incorporation", "recognition"] }, "close": { "last": ["derecognition", "dissolution"] } }
+                        ]
+                    },
+                    "openingGrowth": {
+                        "label": { "en": "Opening Organisation Growth" },
+                        "description": {
+                            "en": "The number of organisations incorporated or recognised the moment the reporting period started. These organisations are not included in the opening count but are included in the starting count."
+                        },
+                        "events": [{ "first": ["incorporation", "recognition"] }]
+                    },
+
                     "startingInCount": null,
-                    "startingCount": null,
+                    "startingCount": {
+                        "label": { "en": "Starting Organisation Count" },
+                        "description": { "en": "The number of organisations at the moment the reporting period started." }
+                    },
+                    "interveningGrowth": {
+                        "label": { "en": "Intervening Organisation Growth" },
+                        "description": {
+                            "en": "The number of organisations incorporated or recognised during the reporting period but after the moment the reporting period started."
+                        }
+                    },
+                    "growth": {
+                        "label": { "en": "Organisation Growth" },
+                        "description": { "en": "The total number of organisations incorporated or recognised during the reporting period." }
+                    },
                     "duringInCount": null,
-                    "duringCount": null,
-                    "weightedCount": null,
+                    "duringCount": {
+                        "label": { "en": "During Organisation Count" },
+                        "description": {
+                            "en": "A count of the number of organisations during the reporting period. In most cases, each organisation will be counted once; however, if it were derecognised and then recognised again within the period, it would be counted twice."
+                        }
+                    },
+
+                    "weightedCount": {
+                        "label": { "en": "Weighted Organisation Count" },
+                        "description": {
+                            "en": "A weighted count of the number of organisations during the reporting period. If an organisation is active for the entire period, it will be counted as 1; if it is active for half the period, it will be counted as 0.5."
+                        }
+                    },
+                    "decline": {
+                        "label": { "en": "Organisation Decline" },
+                        "description": { "en": "The total number of organisations dissolved or derecognised during the reporting period." }
+                    },
+                    "interveningDecline": {
+                        "label": { "en": "Intervening Organisation Decline" },
+                        "description": {
+                            "en": "The number of organisations dissolved or derecognised during the reporting period but before the moment the reporting period ended."
+                        }
+                    },
                     "duringOutCount": null,
-                    "endingCount": null,
+                    "endingCount": {
+                        "label": { "en": "Ending Organisation Count" },
+                        "description": { "en": "The number of organisations at the moment the reporting period ended." }
+                    },
+                    "closingDecline": {
+                        "label": { "en": "Closing Organisation Decline" },
+                        "description": {
+                            "en": "The number of organisations dissolved or derecognised the moment the reporting period ended. These organisations are not included in the closing count but are included in the ending count."
+                        },
+                        "events": [{ "last": ["derecognition", "dissolution"] }]
+                    },
+
                     "endingOutCount": null,
-                    "closingCount": null
+                    "closingCount": {
+                        "label": { "en": "Closing Organisation Count" },
+                        "description": {
+                            "en": "The number of organisations at the moment the reporting period closed. This count is carried forward to the next reporting period and is equal to the opening count for that period."
+                        }
+                    }
                 }
             },
             {
@@ -58,18 +181,62 @@
                     "archival": null,
                     "deletion": null
                 },
-                "computations": {
+                "primaryMeasures": {
                     "age": null,
-                    "openingCount": null,
+                    "openingCount": {
+                        "label": { "en": "Opening Population Count" },
+                        "description": { "en": "The size of the population carried forward from the previous reporting period." }
+                    },
+                    "openingGrowth": {
+                        "label": { "en": "Opening Population Growth" },
+                        "description": {
+                            "en": "The number of people that joined the population at the moment the reporting period started. These people are not included in the opening count, but are included in the starting count."
+                        }
+                    },
                     "startingInCount": null,
-                    "startingCount": null,
+                    "startingCount": {
+                        "label": { "en": "Starting Population Count" },
+                        "description": { "en": "The size of the population at the moment the reporting period started." }
+                    },
+                    "duringGrowth": {
+                        "label": { "en": "Exclusive Population Growth" },
+                        "description": { "en": "" }
+                    },
+                    "growth": {
+                        "label": { "en": "Population Growth" },
+                        "description": { "en": "" }
+                    },
                     "duringInCount": null,
-                    "duringCount": null,
-                    "weightedCount": null,
+                    "duringCount": {
+                        "label": { "en": "During Population Count" },
+                        "description": { "en": "" }
+                    },
+                    "weightedCount": {
+                        "label": { "en": "Weighted Population Count" },
+                        "description": { "en": "" }
+                    },
+                    "decline": {
+                        "label": { "en": "Population Decline" },
+                        "description": { "en": "" }
+                    },
+                    "duringDecline": {
+                        "label": { "en": "Exclusive Population Decline" },
+                        "description": { "en": "" }
+                    },
                     "duringOutCount": null,
-                    "endingCount": null,
+                    "endingCount": {
+                        "label": { "en": "Ending Population Count" },
+                        "description": { "en": "" }
+                    },
+                    "closingDecline": {
+                        "label": { "en": "Ending Population Decline" },
+                        "description": { "en": "" }
+                    },
                     "endingOutCount": null,
-                    "closingCount": null
+                    "closingCount": {
+                        "label": { "en": "Closing Population Count" },
+                        "description": { "en": "" }
+                    }
                 }
             },
             {
@@ -77,7 +244,7 @@
                 "label": { "en": "Person" },
                 "labelPlural": { "en": "People" },
                 "description": {
-                    "en": "Each occurrence of this entity represents a single person. A person is said to come into existence when they are born or when another entity chooses to recognise them for some purpose. They will no longer exist if they are deceased or if no entities choose to recognise them. A person may participate in different roles (e.g. acquaintance, colleague, contact, contractor, employee, relation...) at different times. There need only be one occurrence of this entity for each person, no matter how many roles they play across time."
+                    "en": "Each occurrence of this entity represents a single person. A person is said to come into existence when they are born or when another entity chooses to recognise them for some purpose. They will no longer exist if they are deceased or if no entities choose to recognise them. A person may participate in different roles (e.g. acquaintance, colleague, contact, contractor, employee, relation...) at different times. There need only be one occurrence of this entity for each person, no matter how many roles they play across time.\n\nEach occurrence of this entity represents a single person. A person is said to come into existence when they are born or when we chooses to recognise them for informational purposes. They will no longer exist if they are deceased or if we choose not to recognise them. A person may participate in different roles (e.g. acquaintance, colleague, contact, contractor, employee, relation...) at different times. There need only be one occurrence of this entity for each person, no matter how many roles they play across time."
                 },
                 "characteristics": [
                     { "id": "familyNames", "label": { "en": "Family Names" }, "type": "string" },
@@ -86,23 +253,45 @@
                     { "entityTypeId": "educationLevel" },
                     { "entityTypeId": "ethnicGroup" },
                     { "entityTypeId": "gender" },
-                    { "entityTypeId": "location" },
                     { "entityTypeId": "languagePreference" },
+                    { "entityTypeId": "location" },
                     { "entityTypeId": "maritalStatus" },
                     { "entityTypeId": "nationality" },
-                    { "entityTypeId": "physicalAbility" },
-                    { "entityTypeId": "location" }
+                    { "entityTypeId": "physicalAbility" }
                 ],
                 "events": {
                     "creation": null,
-                    "activation": { "labelAction": "Birth", "labelState": "Born", "description": { "en": "The moment the person was born." } },
-                    "recognition": null,
+                    "activation": {
+                        "labelAction": "Birth",
+                        "labelState": "Born",
+                        "description": { "en": "The moment the person was born." }
+                    },
+                    "recognition": {
+                        "labelAction": { "en": "Recognition" },
+                        "description": { "en": "The moment the person was recognised for informational purposes." }
+                    },
+
                     "correction": null,
-                    "modification": null,
-                    "derecognition": null,
-                    "deactivation": { "labelAction": "Death", "labelState": "Deceased", "description": { "en": "The moment the person died." } },
+                    "modification": {
+                        "id": "modification",
+                        "labelAction": { "en": "Modification" },
+                        "description": { "en": "The moment associated characteristics took on the specified values." }
+                    },
+                    "derecognition": {
+                        "id": "derecognition",
+                        "labelAction": { "en": "Derecognition" },
+                        "description": { "en": "The moment the person's recognition was revoked for informational purposes." }
+                    },
+                    "deactivation": {
+                        "labelAction": "Death",
+                        "labelState": "Deceased",
+                        "description": { "en": "The moment the person died." }
+                    },
                     "archival": null,
-                    "deletion": null
+                    "deletion": {
+                        "labelAction": { "en": "Deletion" },
+                        "description": { "en": "The moment the person's details were deleted." }
+                    }
                 },
                 "primaryMeasures": {
                     "age": null,
@@ -118,8 +307,100 @@
                     "closingCount": null
                 }
             },
-            { "id": "personLanguage", "label": { "en": "Person Language" }, "labelPlural": { "en": "Person Languages" }, "description": { "en": "..." } },
-            { "id": "personNationality", "label": { "en": "Person Nationality" }, "labelPlural": { "en": "Person Nationalities" }, "description": { "en": "..." } }
+            {
+                "id": "personLanguage",
+                "label": { "en": "Person Language" },
+                "labelPlural": { "en": "Person Languages" },
+                "description": {
+                    "en": "Each occurrence of this entity represents a language spoken by a person. It is possible for a person to speak multiple languages, acquire a new language, and even loose the ability to speak a language.\n\nEach occurrence of this entity represents a language spoken by a person. It is possible for a person to speak multiple languages, acquire a new language, and even loose the ability to speak a language."
+                },
+                "parents": [{ "entityTypeId": "person" }],
+                "characteristics": [{ "id": "name", "label": { "en": "Name" }, "type": "string" }],
+                "events": {
+                    "creation": null,
+                    "activation": null,
+                    "recognition": null,
+                    "correction": null,
+                    "modification": null,
+                    "derecognition": null,
+                    "deactivation": null,
+                    "archival": null,
+                    "deletion": null
+                },
+                "primaryMeasures": {
+                    "age": null,
+                    "openingCount": null,
+                    "startingInCount": null,
+                    "startingCount": null,
+                    "duringInCount": {
+                        "label": "Languages Acquired Count",
+                        "description": "A count of the number of person languages acquired during the reporting period."
+                    },
+                    "duringCount": null,
+                    "weightedCount": null,
+                    "duringOutCount": {
+                        "label": "Languages Lost Count",
+                        "description": "A count of the number of person languages lost during the reporting period."
+                    },
+                    "endingCount": null,
+                    "endingOutCount": null,
+                    "closingCount": {
+                        "label": "Languages Spoken Count",
+                        "description": "A count of the number of person languages as at the end of the reporting period."
+                    },
+                    "personAverageLanguageCount": {
+                        "label": "Person Average Language Count",
+                        "formula": "closingCount/person$closingCount"
+                    }
+                }
+            },
+            {
+                "id": "personNationality",
+                "label": { "en": "Person Nationality" },
+                "labelPlural": { "en": "Person Nationalities" },
+                "description": {
+                    "en": "Each occurrence of this entity represents a nationality held by a person. It is possible for a person to hold multiple nationalities, acquire a new nationality, and loose an existing nationality.\n\nEach occurrence of this entity represents a nationality held by a person. It is possible for a person to hold multiple nationalities, acquire a new nationality, and loose an existing nationality."
+                },
+                "parents": [{ "entityTypeId": "person" }],
+                "characteristics": [{ "id": "name", "label": { "en": "Name" }, "type": "string" }],
+                "events": {
+                    "creation": null,
+                    "activation": null,
+                    "recognition": null,
+                    "correction": null,
+                    "modification": null,
+                    "derecognition": null,
+                    "deactivation": null,
+                    "archival": null,
+                    "deletion": null
+                },
+                "primaryMeasures": {
+                    "age": null,
+                    "openingCount": null,
+                    "startingInCount": null,
+                    "startingCount": null,
+                    "duringInCount": {
+                        "label": "Nationalities Acquired Count",
+                        "description": "A count of the number of person nationalities acquired during the reporting period."
+                    },
+                    "duringCount": null,
+                    "weightedCount": null,
+                    "duringOutCount": {
+                        "label": "Nationalities Lost Count",
+                        "description": "A count of the number of person nationalities lost during the reporting period."
+                    },
+                    "endingCount": null,
+                    "endingOutCount": null,
+                    "closingCount": {
+                        "label": "Nationalities Held Count",
+                        "description": "A count of the number of person nationalities as at the end of the reporting period."
+                    },
+                    "averageNationalityCount": {
+                        "label": "Average Nationality Count",
+                        "formula": "closingCount/person$closingCount"
+                    }
+                }
+            }
         ],
         "pickLists": [
             { "id": "age", "label": { "en": "Age" }, "labelPlural": { "en": "Ages" } },

@@ -105,38 +105,32 @@ function purifyText(text: string): string {
                 </div>
             </BaseDialog>
 
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 451 171" width="451" height="171">
+            <h3>Schematic</h3>
+
+            <svg viewBox="-0.5 -0.5 451 171" width="451" height="171">
                 <rect x="0" y="0" width="120" height="60" fill="#d5e8d4" stroke="#82b366" />
                 <text x="60" y="34" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#000000">Organisation</text>
-
                 <rect x="250" y="0" width="120" height="60" fill="#d5e8d4" stroke="#82b366" />
                 <text x="310" y="34" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#000000">Person</text>
-
                 <rect x="0" y="110" width="120" height="60" fill="#dae8fc" stroke="#6c8ebf" />
                 <text x="60" y="144" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#000000">Organisational Unit</text>
-
                 <rect x="170" y="110" width="120" height="60" fill="#dae8fc" stroke="#6c8ebf" />
                 <text x="230" y="144" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#000000">Person Language</text>
-
                 <rect x="330" y="110" width="120" height="60" fill="#dae8fc" stroke="#6c8ebf" />
                 <text x="390" y="144" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#000000">Person Nationality</text>
-
                 <g fill="none" stroke="#000000" stroke-miterlimit="10">
                     <path d="M 60 60 L 60 94.5" />
                     <path d="M 64 64 L 56 64" />
                     <ellipse cx="60" cy="98" rx="3" ry="3" />
                     <path d="M 64 110 L 60 102 L 56 110 M 60 102 L 60 110" />
-
                     <path d="M 280 60 L 280 85 L 230 85 L 230 94.5" />
                     <path d="M 284 64 L 276 64" />
                     <ellipse cx="230" cy="98" rx="3" ry="3" />
                     <path d="M 234 110 L 230 102 L 226 110 M 230 102 L 230 110" />
-
                     <path d="M 340 60 L 340 85 L 390 85 L 390 94.5" />
                     <path d="M 344 64 L 336 64" />
                     <ellipse cx="390" cy="98" rx="3" ry="3" />
                     <path d="M 394 110 L 390 102 L 386 110 M 390 102 L 390 110" />
-
                     <path d="M 120 140 L 140 140 L 140 80 L 90 80 L 90 94.5" />
                     <path d="M 124 136 L 124 144" />
                     <ellipse cx="90" cy="98" rx="3" ry="3" />
