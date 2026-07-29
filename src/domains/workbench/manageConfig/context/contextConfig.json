@@ -24,6 +24,22 @@
             "order": 1,
             "models": [
                 {
+                    "id": "geographic",
+                    "label": { "en": "Geographic" },
+                    "description": {
+                        "en": "Geographic description..."
+                    },
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                },
+                {
                     "id": "party",
                     "label": { "en": "Party" },
                     "description": {

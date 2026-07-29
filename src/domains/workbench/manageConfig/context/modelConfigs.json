@@ -1,21 +1,29 @@
 {
+    "geographic": {
+        "dimensions": [],
+        "entities": [],
+        "pickLists": [],
+        "secondaryMeasures": []
+    },
     "party": {
         "dimensions": [],
         "entities": [
             {
                 "id": "organisation",
-                "label": "Organisation",
-                "labelPlural": "Organisations",
-                "description": "Each occurrence of this entity represents a single organisation. An organisation is said to come into existence when it is incorporated or when another entity chooses to recognise it for some purpose. It will no longer exist if it is dissolved or if no other entities choose to recognise it.\n\nThere need only be one occurrence of this entity for each organisation no matter how many other entities reference it over time.\n\nAn organisation usually has a type that defines its function or purpose.\n\nIt is not uncommon for there to be formal relationships between organisations. A common example is a global organisation which is comprised of multiple subsidiaries. We may refer to the regional organisations as sections or divisions. However, for the sake of this module, we define each entity independently. Other modules will address the structural relationship between different organisations.",
+                "label": { "en": "Organisation" },
+                "labelPlural": { "en": "Organisations" },
+                "description": {
+                    "en": "Each occurrence of this entity represents a single organisation. An organisation is said to come into existence when it is incorporated or when another entity chooses to recognise it for some purpose. It will no longer exist if it is dissolved or if no other entities choose to recognise it.\n\nThere need only be one occurrence of this entity for each organisation no matter how many other entities reference it over time.\n\nAn organisation usually has a type that defines its function or purpose.\n\nIt is not uncommon for there to be formal relationships between organisations. A common example is a global organisation which is comprised of multiple subsidiaries. We may refer to the regional organisations as sections or divisions. However, for the sake of this module, we define each entity independently. Other modules will address the structural relationship between different organisations."
+                },
                 "characteristics": [{ "id": "name", "label": { "en": "Name" }, "type": "string", "entityTypeId": "organisationType" }],
                 "events": {
                     "creation": null,
-                    "activation": { "labelAction": "Incorporation", "labelState": "Incorporated", "description": "The moment the organisation was incorporated." },
+                    "activation": { "labelAction": "Incorporation", "labelState": "Incorporated", "description": { "en": "The moment the organisation was incorporated." } },
                     "recognition": null,
                     "correction": null,
                     "modification": null,
                     "derecognition": null,
-                    "deactivation": { "labelAction": "Dissolution", "labelState": "Disolved", "description": "The moment the organisation was disolved." },
+                    "deactivation": { "labelAction": "Dissolution", "labelState": "Disolved", "description": { "en": "The moment the organisation was disolved." } },
                     "archival": null,
                     "deletion": null
                 },
@@ -35,10 +43,10 @@
             },
             {
                 "id": "organisationalUnit",
-                "label": "Organisational Unit",
-                "labelPlural": "Organisational Units",
-                "description": "Describe organisational units...",
-                "characteristics": [{ "id": "name", "label": "Name", "type": "string" }],
+                "label": { "en": "Organisational Unit" },
+                "labelPlural": { "en": "Organisational Units" },
+                "description": { "en": "Describe organisational units..." },
+                "characteristics": [{ "id": "name", "label": { "en": "Name" }, "type": "string" }],
                 "events": {
                     "creation": null,
                     "activation": null,
@@ -66,12 +74,14 @@
             },
             {
                 "id": "person",
-                "label": "Person",
-                "labelPlural": "People",
-                "description": "Each occurrence of this entity represents a single person. A person is said to come into existence when they are born or when another entity chooses to recognise them for some purpose. They will no longer exist if they are deceased or if no entities choose to recognise them. A person may participate in different roles (e.g. acquaintance, colleague, contact, contractor, employee, relation...) at different times. There need only be one occurrence of this entity for each person, no matter how many roles they play across time.",
+                "label": { "en": "Person" },
+                "labelPlural": { "en": "People" },
+                "description": {
+                    "en": "Each occurrence of this entity represents a single person. A person is said to come into existence when they are born or when another entity chooses to recognise them for some purpose. They will no longer exist if they are deceased or if no entities choose to recognise them. A person may participate in different roles (e.g. acquaintance, colleague, contact, contractor, employee, relation...) at different times. There need only be one occurrence of this entity for each person, no matter how many roles they play across time."
+                },
                 "characteristics": [
-                    { "id": "familyNames", "label": "Family Names", "type": "string" },
-                    { "id": "givenNames", "label": "Given Names", "type": "string" },
+                    { "id": "familyNames", "label": { "en": "Family Names" }, "type": "string" },
+                    { "id": "givenNames", "label": { "en": "Given Names" }, "type": "string" },
                     { "entityTypeId": "country" },
                     { "entityTypeId": "educationLevel" },
                     { "entityTypeId": "ethnicGroup" },
@@ -85,12 +95,12 @@
                 ],
                 "events": {
                     "creation": null,
-                    "activation": { "labelAction": "Birth", "labelState": "Born", "description": "The moment the person was born." },
+                    "activation": { "labelAction": "Birth", "labelState": "Born", "description": { "en": "The moment the person was born." } },
                     "recognition": null,
                     "correction": null,
                     "modification": null,
                     "derecognition": null,
-                    "deactivation": { "labelAction": "Death", "labelState": "Deceased", "description": "The moment the person died." },
+                    "deactivation": { "labelAction": "Death", "labelState": "Deceased", "description": { "en": "The moment the person died." } },
                     "archival": null,
                     "deletion": null
                 },
@@ -108,12 +118,12 @@
                     "closingCount": null
                 }
             },
-            { "id": "personLanguage", "label": "Person Language", "labelPlural": "Person Languages", "description": "..." },
-            { "id": "personNationality", "label": "Person Nationality", "labelPlural": "Person Nationalities", "description": "..." }
+            { "id": "personLanguage", "label": { "en": "Person Language" }, "labelPlural": { "en": "Person Languages" }, "description": { "en": "..." } },
+            { "id": "personNationality", "label": { "en": "Person Nationality" }, "labelPlural": { "en": "Person Nationalities" }, "description": { "en": "..." } }
         ],
         "pickLists": [
-            { "id": "age", "label": "Age", "labelPlural": "Ages" },
-            { "id": "gender", "label": "Gender", "labelPlural": "Genders" }
+            { "id": "age", "label": { "en": "Age" }, "labelPlural": { "en": "Ages" } },
+            { "id": "gender", "label": { "en": "Gender" }, "labelPlural": { "en": "Genders" } }
         ],
         "secondaryMeasures": []
     },
@@ -122,9 +132,9 @@
         "entities": [
             {
                 "id": "personEngagement",
-                "label": "Person Engagement",
-                "labelPlural": "Person Engagements",
-                "description": "Person engagement description...",
+                "label": { "en": "Person Engagement" },
+                "labelPlural": { "en": "Person Engagements" },
+                "description": { "en": "Person engagement description..." },
                 "parents": [{ "entityTypeId": "organisation" }, { "entityTypeId": "person" }],
                 "characteristics": [{ "entityTypeId": "engagementType" }, { "entityTypeId": "engagementAttendance" }],
                 "events": [
@@ -139,43 +149,43 @@
                     { "id": "deletion" }
                 ],
                 "primaryMeasures": [
-                    { "id": "age", "label": "Tenure" },
-                    { "id": "openingCount", "label": "Opening Headcount" },
-                    { "id": "startingInCount", "label": "Starting Hires" },
-                    { "id": "startingCount", "label": "Starting Headcount" },
-                    { "id": "duringInCount", "label": "Hires" },
-                    { "id": "duringCount", "label": "During Headcount" },
-                    { "id": "weightedCount", "label": "Average Headcount" },
-                    { "id": "duringOutCount", "label": "Ending Terminations" },
-                    { "id": "endingCount", "label": "Ending Headcount" },
-                    { "id": "endingOutCount", "label": "Terminations" },
-                    { "id": "closingCount", "label": "Closing Headcount" }
+                    { "id": "age", "label": { "en": "Tenure" } },
+                    { "id": "openingCount", "label": { "en": "Opening Headcount" } },
+                    { "id": "startingInCount", "label": { "en": "Starting Hires" } },
+                    { "id": "startingCount", "label": { "en": "Starting Headcount" } },
+                    { "id": "duringInCount", "label": { "en": "Hires" } },
+                    { "id": "duringCount", "label": { "en": "During Headcount" } },
+                    { "id": "weightedCount", "label": { "en": "Average Headcount" } },
+                    { "id": "duringOutCount", "label": { "en": "Ending Terminations" } },
+                    { "id": "endingCount", "label": { "en": "Ending Headcount" } },
+                    { "id": "endingOutCount", "label": { "en": "Terminations" } },
+                    { "id": "closingCount", "label": { "en": "Closing Headcount" } }
                 ]
             },
             {
                 "id": "positionOccupancy",
-                "label": "Position Occupancy",
-                "labelPlural": "Position Occupancies",
-                "description": "Position occupancy description..."
+                "label": { "en": "Position Occupancy" },
+                "labelPlural": { "en": "Position Occupancies" },
+                "description": { "en": "Position occupancy description..." }
             }
         ],
         "pickLists": [
             {
                 "id": "engagementAttendance",
-                "label": "Engagement Attendance",
+                "label": { "en": "Engagement Attendance" },
                 "items": [
-                    { "id": "ft", "lable": "Full/Time" },
-                    { "id": "pt", "lable": "Part/Time" },
-                    { "id": "ca", "lable": "Casual" }
+                    { "id": "ft", "label": { "en": "Full/Time" } },
+                    { "id": "pt", "label": { "en": "Part/Time" } },
+                    { "id": "ca", "label": { "en": "Casual" } }
                 ]
             },
             {
                 "id": "engagementType",
-                "label": "Engagement Type",
+                "label": { "en": "Engagement Type" },
                 "items": [
-                    { "id": "ft", "lable": "Full/Time" },
-                    { "id": "pt", "lable": "Part/Time" },
-                    { "id": "ca", "lable": "Casual" }
+                    { "id": "ft", "label": { "en": "Full/Time" } },
+                    { "id": "pt", "label": { "en": "Part/Time" } },
+                    { "id": "ca", "label": { "en": "Casual" } }
                 ]
             }
         ],
