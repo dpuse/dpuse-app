@@ -5,7 +5,7 @@ import { ArrowBigLeftIcon, ArrowBigRightIcon } from '@lucide/vue';
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 export type ItemAction = { id: string; label: string };
 const { itemActions = [], commitVariant } = defineProps<{ commitVariant?: 'add' | 'select'; itemActions?: ItemAction[] }>();

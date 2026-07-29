@@ -6,7 +6,7 @@ import type { RouteLocationRaw } from 'vue-router';
 // ── Local Components - Static
 import Button from './Button.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 export type ListItemVariant = 'destructive' | 'neutral';
 const {

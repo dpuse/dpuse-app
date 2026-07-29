@@ -10,7 +10,7 @@ import { nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, useAtt
 // ── Local Components - Static
 import Button from './button/Button.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 const { id, label, labelHidden = false, modelValue } = defineProps<{ id?: string; label: string; labelHidden?: boolean; modelValue: string }>();
 const emit = defineEmits<{ 'update:modelValue': [string] }>();

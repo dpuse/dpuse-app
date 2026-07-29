@@ -1,59 +1,64 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+// ── External Dependencies & Registrations
+import { useTemplateRef, watch } from 'vue';
 
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 
-const { modelValue, title } = defineProps<{ modelValue: boolean; title: string }>();
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-const emit = defineEmits<{ 'update:modelValue': [boolean]; save: [] }>();
+const { title } = defineProps<{ title: string }>();
+const emit = defineEmits<{ save: [] }>();
+const modelValue = defineModel<boolean>();
 
-const dialog = ref<HTMLDialogElement>();
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(
-    () => modelValue,
-    (open) => {
-        if (!dialog.value) return;
+const dialog = useTemplateRef<HTMLDialogElement>('dialogReference');
 
-        if (open && !dialog.value.open) {
-            dialog.value.showModal();
-        } else if (!open && dialog.value.open) {
-            dialog.value.close();
-        }
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+watch(modelValue, (open) => {
+    if (!dialog.value) return;
+
+    if (open === true && !dialog.value.open) {
+        dialog.value.showModal();
+    } else if (open !== true && dialog.value.open) {
+        dialog.value.close();
     }
-);
+});
 
-function close(): void {
-    emit('update:modelValue', false);
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+function handleClose(): void {
+    modelValue.value = false;
 }
 
-function save(): void {
+function handleSave(): void {
     emit('save');
 }
 </script>
 
 <template>
     <dialog
-        ref="dialog"
-        class="m-0 hidden size-full max-h-full max-w-none flex-col overflow-y-hidden bg-surface pt-[calc(env(safe-area-inset-top)+24px)] pr-[calc(env(safe-area-inset-right))] pb-6 pl-[calc(env(safe-area-inset-left))] open:flex md:m-auto md:max-h-[85vh] md:w-fit md:rounded-lg md:border-boundary"
-        @close="close"
-        @cancel="close"
+        ref="dialogReference"
+        class="m-0 hidden size-full max-h-full max-w-none flex-col overflow-y-hidden bg-surface pt-[calc(env(safe-area-inset-top)+24px)] pr-[calc(env(safe-area-inset-right))] pb-5 pl-[calc(env(safe-area-inset-left))] open:flex md:m-auto md:max-h-[85vh] md:w-fit md:rounded-lg md:border-boundary"
+        @close="handleClose"
+        @cancel="handleClose"
     >
         <!-- Header -->
         <div class="mx-6 flex flex-none items-center border-b border-separator pb-3">
             <div class="flex-1 text-xl">{{ title }}</div>
-            <CloseButton class="flex-none" @click="close" />
+            <CloseButton class="flex-none" @click="handleClose" />
         </div>
 
         <!-- Body -->
-        <div class="flex min-h-0 flex-1 flex-col gap-y-4 overflow-x-hidden overflow-y-auto overscroll-y-none px-6 py-4">
-            <slot />
-        </div>
+        <slot />
 
         <!-- Footer -->
-        <div class="mx-6 flex flex-none justify-end gap-x-2">
-            <Button variant="outline" @click="close">Cancel</Button>
-            <Button variant="primary" @click="save">Save</Button>
+        <div class="mx-6 flex flex-none justify-end gap-x-2 border-t border-separator pt-3">
+            <Button variant="outline" @click="handleClose">Cancel</Button>
+            <Button variant="primary" @click="handleSave">Save</Button>
         </div>
     </dialog>
 </template>

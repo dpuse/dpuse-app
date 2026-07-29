@@ -5,7 +5,7 @@ import { computed } from 'vue';
 // ── Local Framework
 import { viewportIsWide } from '@/state/appLayout';
 
-// ── Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Model Value, Slots & Emits ─────────────────────────────────────────────────────────────────────
 
 type Properties = { isDialogActive?: boolean; isModalActive?: boolean; navigationIsActive: boolean; navigationIsDelayed: boolean };
 const { isDialogActive = true, isModalActive = false, navigationIsActive, navigationIsDelayed } = defineProps<Properties>();

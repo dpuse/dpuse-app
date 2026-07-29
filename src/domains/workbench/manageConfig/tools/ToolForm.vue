@@ -17,7 +17,7 @@ import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Tag from '@/components/ui/Tag.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 const { toolLocalisedConfig } = defineProps<{ toolLocalisedConfig: LocalisedConfig<ToolConfig> }>();
 const emit = defineEmits<{ submit: [] }>();

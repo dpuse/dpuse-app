@@ -14,7 +14,7 @@ import AvatarButton from '@/components/ui/button/AvatarButton.vue';
 // ── Local Components - Dynamic
 const SessionMenu = defineAsyncComponent(load('SessionMenu', () => import('@/domains/session/SessionMenu.vue')));
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 const { workbenchOptionBarIsVisible } = defineProps<{ workbenchOptionBarIsVisible: boolean }>();
 

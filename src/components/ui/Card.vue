@@ -4,7 +4,7 @@
 import Button from '@/components/ui/button/Button.vue';
 import { InfoIcon } from '@lucide/vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 type Badge = { id: string; color?: string; label: string };
 type ActionTypeId = 'info';

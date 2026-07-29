@@ -7,7 +7,7 @@ import { onMounted, onUnmounted, ref, useId, useTemplateRef } from 'vue';
 const VERTICAL_THUMB_RIGHT_INSET = 2;
 const VERTICAL_THUMB_WIDTH = 6;
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 export type ScrollAreaPadding = 'embedded' | 'none' | 'screen';
 type Properties = { scrollAreaPadding?: ScrollAreaPadding; scrollbarAlwaysVisible?: boolean };
