@@ -2,9 +2,11 @@
 // ── External Dependencies & Registrations
 import { ref } from 'vue';
 
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 const modelValue = defineModel<number>();
+
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const splitterIsDragging = ref(false);
 

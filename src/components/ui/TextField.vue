@@ -6,6 +6,7 @@ import { computed, useAttrs, useId } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 const { errors = [], label, type = 'text' } = defineProps<{ errors?: string[]; label?: string; type?: string }>();
+const modelValue = defineModel<string>({ default: '' });
 defineEmits<{ blur: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -13,7 +14,6 @@ defineEmits<{ blur: [] }>();
 const id = useId();
 const attributes = useAttrs();
 const valueHasErrors = computed(() => errors.length > 0);
-const modelValue = defineModel<string>({ default: '' });
 </script>
 
 <template>

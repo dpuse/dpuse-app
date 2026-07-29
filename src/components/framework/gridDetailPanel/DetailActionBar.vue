@@ -9,12 +9,8 @@ import Button from '@/components/ui/button/Button.vue';
 
 export type ItemAction = { id: string; label: string };
 const { itemActions = [], commitVariant } = defineProps<{ commitVariant?: 'add' | 'select'; itemActions?: ItemAction[] }>();
-
-defineEmits<{ clear: []; commit: [] }>();
-
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
 const modelValue = defineModel<string>();
+defineEmits<{ clear: []; commit: [] }>();
 </script>
 
 <template>

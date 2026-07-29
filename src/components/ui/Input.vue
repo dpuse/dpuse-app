@@ -5,12 +5,12 @@ import { useAttrs, useId } from 'vue';
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 const { id, label, labelHidden = false } = defineProps<{ id?: string; label: string; labelHidden?: boolean }>();
+const modelValue = defineModel<string>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const attributes = useAttrs();
 const inputId = id ?? useId();
-const modelValue = defineModel<string>();
 </script>
 
 <template>

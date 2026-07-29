@@ -9,8 +9,8 @@ import CloseButton from '@/components/ui/button/CloseButton.vue';
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 const { title } = defineProps<{ title: string }>();
-const emit = defineEmits<{ save: [] }>();
 const modelValue = defineModel<boolean>();
+const emit = defineEmits<{ save: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -18,12 +18,12 @@ const dialog = useTemplateRef<HTMLDialogElement>('dialogReference');
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(modelValue, (open) => {
+watch(modelValue, (newModelValue) => {
     if (!dialog.value) return;
 
-    if (open === true && !dialog.value.open) {
+    if (newModelValue === true && !dialog.value.open) {
         dialog.value.showModal();
-    } else if (open !== true && dialog.value.open) {
+    } else if (newModelValue !== true && dialog.value.open) {
         dialog.value.close();
     }
 });
