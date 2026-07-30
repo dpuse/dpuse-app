@@ -4,6 +4,7 @@ import * as dagre from '@dagrejs/dagre';
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import { select } from 'd3-selection';
+import { curveBumpY, line } from 'd3-shape';
 import { ChevronRightIcon, PencilIcon } from '@lucide/vue';
 import { onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
@@ -55,12 +56,15 @@ const ERD_NODES: ErdNode[] = [
 
 const ERD_EDGES: ErdEdge[] = [
     { source: 'organisation', target: 'organisationalUnit' },
+    { source: 'organisationalUnit', target: 'organisationalUnit' },
     { source: 'person', target: 'nationality' },
     { source: 'person', target: 'language' }
 ];
 
 const ERD_NODE_WIDTH = 160;
 const ERD_NODE_HEIGHT = 50;
+const ERD_PADDING = 8;
+const ERD_SELF_EDGE_SIZE = 24;
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
@@ -112,19 +116,34 @@ function purifyText(text: string): string {
     return DOMPurify.sanitize(marked.parse(text, { async: false }));
 }
 
+function buildSelfLoopPath(node: { x: number; y: number; width: number; height: number }): string {
+    const rightX = node.x + node.width / 2;
+    const bulgeX = rightX + ERD_SELF_EDGE_SIZE;
+    const topY = node.y - node.height / 4;
+    const bottomY = node.y + node.height / 4;
+    return `M ${rightX} ${topY} C ${bulgeX} ${topY}, ${bulgeX} ${bottomY}, ${rightX} ${bottomY}`;
+}
+
 function renderErd(svgElement: SVGSVGElement): void {
     const graph = new dagre.graphlib.Graph();
     graph.setGraph({ rankdir: 'TB', nodesep: 40, ranksep: 60 });
     graph.setDefaultEdgeLabel(() => ({}));
 
     for (const node of ERD_NODES) graph.setNode(node.id, { width: ERD_NODE_WIDTH, height: ERD_NODE_HEIGHT, label: node.label, type: node.type });
-    for (const edge of ERD_EDGES) graph.setEdge(edge.source, edge.target);
+    for (const edge of ERD_EDGES) {
+        if (edge.source === edge.target) graph.setEdge(edge.source, edge.target, { width: ERD_SELF_EDGE_SIZE, height: ERD_SELF_EDGE_SIZE });
+        else graph.setEdge(edge.source, edge.target);
+    }
 
     dagre.layout(graph);
 
     const { width: graphWidth = 0, height: graphHeight = 0 } = graph.graph();
-    const svg = select(svgElement).attr('viewBox', `0 0 ${graphWidth} ${graphHeight}`).attr('width', graphWidth).attr('height', graphHeight);
+    const viewBoxWidth = graphWidth + ERD_PADDING * 2;
+    const viewBoxHeight = graphHeight + ERD_PADDING * 2;
+    const svg = select(svgElement).attr('viewBox', `0 0 ${viewBoxWidth} ${viewBoxHeight}`).attr('width', viewBoxWidth).attr('height', viewBoxHeight);
     svg.selectAll('*').remove();
+
+    const canvas = svg.append('g').attr('transform', `translate(${ERD_PADDING}, ${ERD_PADDING})`);
 
     svg.append('defs')
         .append('marker')
@@ -139,7 +158,13 @@ function renderErd(svgElement: SVGSVGElement): void {
         .attr('d', 'M 0 0 L 10 5 L 0 10 z')
         .attr('fill', '#6c8ebf');
 
-    svg.append('g')
+    const edgeLine = line<{ x: number; y: number }>()
+        .x((point) => point.x)
+        .y((point) => point.y)
+        .curve(curveBumpY);
+
+    canvas
+        .append('g')
         .attr('fill', 'none')
         .attr('stroke', '#6c8ebf')
         .attr('stroke-width', 1.5)
@@ -147,14 +172,9 @@ function renderErd(svgElement: SVGSVGElement): void {
         .data(graph.edges())
         .join('path')
         .attr('marker-end', 'url(#erd-arrow)')
-        .attr('d', (edge) =>
-            graph
-                .edge(edge)
-                .points.map((point: { x: number; y: number }, index: number) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`)
-                .join(' ')
-        );
+        .attr('d', (edge) => (edge.v === edge.w ? buildSelfLoopPath(graph.node(edge.v)) : edgeLine(graph.edge(edge).points)));
 
-    const nodeGroups = svg
+    const nodeGroups = canvas
         .append('g')
         .selectAll('g')
         .data(graph.nodes())
@@ -179,7 +199,7 @@ function renderErd(svgElement: SVGSVGElement): void {
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'middle')
         .attr('font-family', 'Helvetica, Arial, sans-serif')
-        .attr('font-size', 12)
+        .attr('font-size', 14)
         .attr('fill', '#000000')
         .text((nodeId) => graph.node(nodeId).label);
 }
@@ -208,38 +228,6 @@ function renderErd(svgElement: SVGSVGElement): void {
 
             <h3>Schematic</h3>
 
-            <!-- <svg viewBox="-0.5 -0.5 451 171" width="451" height="171">
-                <rect x="0" y="0" width="120" height="60" fill="#d5e8d4" stroke="#82b366" />
-                <text x="60" y="34" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#000000">Organisation</text>
-                <rect x="250" y="0" width="120" height="60" fill="#d5e8d4" stroke="#82b366" />
-                <text x="310" y="34" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#000000">Person</text>
-                <rect x="0" y="110" width="120" height="60" fill="#dae8fc" stroke="#6c8ebf" />
-                <text x="60" y="144" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#000000">Organisational Unit</text>
-                <rect x="170" y="110" width="120" height="60" fill="#dae8fc" stroke="#6c8ebf" />
-                <text x="230" y="144" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#000000">Person Language</text>
-                <rect x="330" y="110" width="120" height="60" fill="#dae8fc" stroke="#6c8ebf" />
-                <text x="390" y="144" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#000000">Person Nationality</text>
-                <g fill="none" stroke="#000000" stroke-miterlimit="10">
-                    <path d="M 60 60 L 60 94.5" />
-                    <path d="M 64 64 L 56 64" />
-                    <ellipse cx="60" cy="98" rx="3" ry="3" />
-                    <path d="M 64 110 L 60 102 L 56 110 M 60 102 L 60 110" />
-                    <path d="M 280 60 L 280 85 L 230 85 L 230 94.5" />
-                    <path d="M 284 64 L 276 64" />
-                    <ellipse cx="230" cy="98" rx="3" ry="3" />
-                    <path d="M 234 110 L 230 102 L 226 110 M 230 102 L 230 110" />
-                    <path d="M 340 60 L 340 85 L 390 85 L 390 94.5" />
-                    <path d="M 344 64 L 336 64" />
-                    <ellipse cx="390" cy="98" rx="3" ry="3" />
-                    <path d="M 394 110 L 390 102 L 386 110 M 390 102 L 390 110" />
-                    <path d="M 120 140 L 140 140 L 140 80 L 90 80 L 90 94.5" />
-                    <path d="M 124 136 L 124 144" />
-                    <ellipse cx="90" cy="98" rx="3" ry="3" />
-                    <path d="M 86 106 L 94 106 M 90 101.5 L 90 110" />
-                </g>
-            </svg> -->
-
-            <!-- d3 + dagre evaluation: layout computed by dagre, drawn by d3-selection -->
             <svg ref="erdSvg" />
 
             <!-- Dimensions -->
