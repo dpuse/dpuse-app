@@ -169,7 +169,10 @@
                 "label": { "en": "Organisational Unit" },
                 "labelPlural": { "en": "Organisational Units" },
                 "description": { "en": "Describe organisational units..." },
-                "characteristics": [{ "id": "name", "label": { "en": "Name" }, "type": "string" }],
+                "characteristics": [
+                    { "id": "name", "label": { "en": "Name" }, "type": "string" },
+                    { "id": "orgUnitTyp", "label": { "en": "Organisational Unit Type" } }
+                ],
                 "events": {
                     "creation": null,
                     "activation": null,
@@ -247,8 +250,33 @@
                     "en": "Each occurrence of this entity represents a single person. A person is said to come into existence when they are born or when another entity chooses to recognise them for some purpose. They will no longer exist if they are deceased or if no entities choose to recognise them. A person may participate in different roles (e.g. acquaintance, colleague, contact, contractor, employee, relation...) at different times. There need only be one occurrence of this entity for each person, no matter how many roles they play across time.\n\nEach occurrence of this entity represents a single person. A person is said to come into existence when they are born or when we chooses to recognise them for informational purposes. They will no longer exist if they are deceased or if we choose not to recognise them. A person may participate in different roles (e.g. acquaintance, colleague, contact, contractor, employee, relation...) at different times. There need only be one occurrence of this entity for each person, no matter how many roles they play across time."
                 },
                 "characteristics": [
-                    { "id": "familyNames", "label": { "en": "Family Names" }, "type": "string" },
-                    { "id": "givenNames", "label": { "en": "Given Names" }, "type": "string" },
+                    { "id": "entId", "label": { "en": "Entity Id" }, "description": { "en": "The unique identifier assigned to the person." } },
+                    {
+                        "id": "evtMom",
+                        "label": { "en": "Event Moment" },
+                        "content": "moment",
+                        "description": {
+                            "en": "The effective moment of the event. See the events for an explanation of how the effective moment is interpreted for each event."
+                        }
+                    },
+                    {
+                        "id": "evtSeq",
+                        "label": { "en": "Event Sequence" },
+                        "content": "number",
+                        "description": {
+                            "en": "The sequence of the event within the moment. If multiple events occur at the same moment, then we can use this data item to define the sequence."
+                        }
+                    },
+                    {
+                        "id": "evtId",
+                        "label": { "en": "Event Id" },
+                        "description": { "en": "The event identifier. See the events for a list of acceptable identifiers." }
+                    },
+                    { "id": "perId", "label": { "en": "Personal Id" }, "description": { "en": "The person's personal or national identifier." } },
+                    { "id": "famNames", "label": { "en": "Family Names" }, "description": { "en": "The person's family names." } },
+                    { "id": "givNames", "label": { "en": "Given Names" }, "description": { "en": "The person's given names." } },
+                    { "id": "bthDate", "label": { "en": "Date of Birth" }, "content": "day(first('brn'))" },
+                    { "id": "dthDate", "label": { "en": "Date of Death" }, "content": "day(first('dec'))" },
                     { "entityTypeId": "country" },
                     { "entityTypeId": "educationLevel" },
                     { "entityTypeId": "ethnicGroup" },
@@ -257,7 +285,22 @@
                     { "entityTypeId": "location" },
                     { "entityTypeId": "maritalStatus" },
                     { "entityTypeId": "nationality" },
-                    { "entityTypeId": "physicalAbility" }
+                    { "entityTypeId": "physicalAbility" },
+                    { "id": "age", "label": { "en": "Age" }, "content": "ageYears(bthDate)", "lookup": "perAge" },
+                    { "id": "ctryBth", "label": { "en": "Country of Birth" }, "lookup": "core.geographic.geoCountry" },
+                    { "id": "eduLvl", "label": { "en": "Education Level", "lookup": "perEduLvl" } },
+                    { "id": "ethGrp", "label": { "en": "Ethnic Group" }, "lookup": "perEthGrp" },
+                    { "id": "gdr", "label": { "en": "Gender" }, "lookup": "perGdr" },
+                    { "id": "gen", "label": { "en": "Generation" }, "lookup": "perGen" },
+                    { "id": "homeLoc", "label": { "en": "Home Location" }, "lookup": "core.geographic.geoCity" },
+                    { "id": "langPref", "label": { "en": "Language (Preferred)" }, "lookup": "perLang" },
+                    { "id": "marSts", "label": { "en": "Marital Status" }, "lookup": "perMarSts" },
+                    { "id": "min", "label": { "en": "Minority" }, "lookup": "perMin" },
+                    { "id": "primNat", "label": { "en": "Primary Nationality" }, "lookup": "perNat" },
+                    { "id": "physAb", "label": { "en": "Physical Ability" }, "lookup": "perPhyAb" },
+                    { "id": "resLoc", "label": { "en": "Residential Location" }, "lookup": "core.geographic.geoCity" },
+                    { "id": "sexOri", "label": { "en": "Sexual Orientation" }, "lookup": "perSexOri" },
+                    { "id": "vetSts", "label": { "en": "Veteran Status" }, "lookup": "perVetSts" }
                 ],
                 "events": {
                     "creation": null,
@@ -275,36 +318,68 @@
                     "modification": {
                         "id": "modification",
                         "labelAction": { "en": "Modification" },
-                        "description": { "en": "The moment associated characteristics took on the specified values." }
+                        "description": { "en": "The moment associated characteristics took on the specified values. The moment from which the modification applied." }
                     },
                     "derecognition": {
                         "id": "derecognition",
                         "labelAction": { "en": "Derecognition" },
-                        "description": { "en": "The moment the person's recognition was revoked for informational purposes." }
+                        "description": {
+                            "en": "The moment the person's recognition was revoked for informational purposes. The moment from which the person was no longer recognised."
+                        }
                     },
                     "deactivation": {
                         "labelAction": "Death",
                         "labelState": "Deceased",
-                        "description": { "en": "The moment the person died." }
+                        "description": { "en": "The moment the person died. The moment from which the person was no longer alive." }
                     },
                     "archival": null,
                     "deletion": {
                         "labelAction": { "en": "Deletion" },
-                        "description": { "en": "The moment the person's details were deleted." }
+                        "description": { "en": "The moment the person's details were deleted. The moment from which the person entity was deleted." }
                     }
                 },
                 "primaryMeasures": {
                     "age": null,
-                    "openingCount": null,
-                    "startingInCount": null,
-                    "startingCount": null,
-                    "duringInCount": null,
-                    "duringCount": null,
-                    "weightedCount": null,
-                    "duringOutCount": null,
-                    "endingCount": null,
-                    "endingOutCount": null,
-                    "closingCount": null
+                    "openingCount": {
+                        "label": { "en": "Person Opening Count" },
+                        "description": { "en": "The number of people present at the opening moment of a reporting period." }
+                    },
+                    "startingInCount": {
+                        "label": { "en": "Person Starting In Count" },
+                        "description": { "en": "The number of people recognised at the first moment of a reporting period." }
+                    },
+                    "startingCount": {
+                        "label": { "en": "Person Starting Count" },
+                        "description": { "en": "The number of people present at the start of a reporting period." }
+                    },
+                    "duringInCount": {
+                        "label": { "en": "Person During In Count" },
+                        "description": { "en": "The number of people recognised during a reporting period." }
+                    },
+                    "duringCount": {
+                        "label": { "en": "Person During Count" },
+                        "description": { "en": "The number of people present at any moment within the reporting period." }
+                    },
+                    "weightedCount": {
+                        "label": { "en": "Person Weighted Count" },
+                        "description": { "en": "The weighted number of people present within a reporting period." }
+                    },
+                    "duringOutCount": {
+                        "label": { "en": "Person During Out Count" },
+                        "description": { "en": "The number of people derecognised during a reporting period." }
+                    },
+                    "endingCount": {
+                        "label": { "en": "Person Ending Count" },
+                        "description": { "en": "The number of people present at the end of a reporting period." }
+                    },
+                    "endingOutCount": {
+                        "label": { "en": "Person Ending Out Count" },
+                        "description": { "en": "The number of people derecognised at the last moment of a reporting period." }
+                    },
+                    "closingCount": {
+                        "label": { "en": "Person Closing Count" },
+                        "description": { "en": "The number of people present at the closing moment of a reporting period." }
+                    }
                 }
             },
             {
@@ -417,37 +492,81 @@
                 "labelPlural": { "en": "Person Engagements" },
                 "description": { "en": "Person engagement description..." },
                 "parents": [{ "entityTypeId": "organisation" }, { "entityTypeId": "person" }],
-                "characteristics": [{ "entityTypeId": "engagementType" }, { "entityTypeId": "engagementAttendance" }],
-                "events": [
-                    { "id": "creation" },
-                    { "id": "activation" },
-                    { "id": "recognition" },
-                    { "id": "correction" },
-                    { "id": "modification" },
-                    { "id": "derecognition" },
-                    { "id": "deactivation" },
-                    { "id": "archival" },
-                    { "id": "deletion" }
+                "characteristics": [
+                    { "entityTypeId": "engagementType" },
+                    { "entityTypeId": "engagementAttendance" },
+                    { "id": "cstCtr", "label": { "en": "Cost Center" } },
+                    { "id": "empSts", "label": { "en": "Employment Status" } },
+                    { "id": "empTyp", "label": { "en": "Employment Type" } },
+                    { "id": "jobTen", "label": { "en": "Job Tenure" } },
+                    { "id": "loc", "label": { "en": "Location" } },
+                    { "id": "locTen", "label": { "en": "Location Tenure" } },
+                    { "id": "orgTen", "label": { "en": "Organisation Tenure" } },
+                    { "id": "orgUnit", "label": { "en": "Organisational Unit" } },
+                    { "id": "orgUnitTen", "label": { "en": "Organisational Unit Tenure" } },
+                    { "id": "payAmt", "label": { "en": "Payment Amount" } },
+                    { "id": "payGrd", "label": { "en": "Payment Grade" } },
+                    { "id": "posTen", "label": { "en": "Position Tenure" } },
+                    { "id": "rptTo", "label": { "en": "Reports To" } },
+                    { "id": "rptToTen", "label": { "en": "Reports To  Tenure" } },
+                    { "id": "stdWrkHrs", "label": { "en": "Standard Working Hours" } }
                 ],
-                "primaryMeasures": [
-                    { "id": "age", "label": { "en": "Tenure" } },
-                    { "id": "openingCount", "label": { "en": "Opening Headcount" } },
-                    { "id": "startingInCount", "label": { "en": "Starting Hires" } },
-                    { "id": "startingCount", "label": { "en": "Starting Headcount" } },
-                    { "id": "duringInCount", "label": { "en": "Hires" } },
-                    { "id": "duringCount", "label": { "en": "During Headcount" } },
-                    { "id": "weightedCount", "label": { "en": "Average Headcount" } },
-                    { "id": "duringOutCount", "label": { "en": "Ending Terminations" } },
-                    { "id": "endingCount", "label": { "en": "Ending Headcount" } },
-                    { "id": "endingOutCount", "label": { "en": "Terminations" } },
-                    { "id": "closingCount", "label": { "en": "Closing Headcount" } }
-                ]
+                "events": {
+                    "creation": null,
+                    "activation": null,
+                    "recognition": null,
+                    "correction": null,
+                    "modification": null,
+                    "derecognition": null,
+                    "deactivation": null,
+                    "archival": null,
+                    "deletion": null
+                },
+                "primaryMeasures": {
+                    "age": null,
+                    "openingCount": null,
+                    "startingInCount": null,
+                    "startingCount": null,
+                    "duringInCount": null,
+                    "duringCount": null,
+                    "weightedCount": null,
+                    "duringOutCount": null,
+                    "endingCount": null,
+                    "endingOutCount": null,
+                    "closingCount": null
+                }
             },
             {
                 "id": "positionOccupancy",
                 "label": { "en": "Position Occupancy" },
                 "labelPlural": { "en": "Position Occupancies" },
-                "description": { "en": "Position occupancy description..." }
+                "description": { "en": "Position occupancy description..." },
+                "parents": [{ "entityTypeId": "personEngagement" }, { "entityTypeId": "position" }],
+                "characteristics": [],
+                "events": {
+                    "creation": null,
+                    "activation": null,
+                    "recognition": null,
+                    "correction": null,
+                    "modification": null,
+                    "derecognition": null,
+                    "deactivation": null,
+                    "archival": null,
+                    "deletion": null
+                },
+                "primaryMeasures": {
+                    "age": null,
+                    "openingCount": null,
+                    "startingInCount": null,
+                    "startingCount": null,
+                    "duringInCount": null,
+                    "duringCount": null,
+                    "weightedCount": null,
+                    "duringOutCount": null,
+                    "endingCount": null,
+                    "endingOutCount": null,
+                    "closingCount": null
+                }
             }
         ],
         "pickLists": [
