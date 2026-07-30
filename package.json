@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1483",
+    "version": "0.0.1484",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -60,6 +60,7 @@
         "@teamhanko/hanko-frontend-sdk": "^3.0.0",
         "d3-drag": "^3.0.0",
         "d3-force": "^3.0.0",
+        "d3-hierarchy": "^3.1.2",
         "d3-selection": "^3.0.0",
         "d3-shape": "^3.2.0",
         "d3-zoom": "^3.0.0",
@@ -83,6 +84,7 @@
         "@tsconfig/node24": "^24.0.4",
         "@types/d3-drag": "^3.0.7",
         "@types/d3-force": "^3.0.10",
+        "@types/d3-hierarchy": "^3.1.7",
         "@types/d3-selection": "^3.0.11",
         "@types/d3-shape": "^3.1.8",
         "@types/d3-zoom": "^3.0.8",

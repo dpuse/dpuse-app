@@ -3,8 +3,9 @@
 import * as dagre from '@dagrejs/dagre';
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
+import { hierarchy, type HierarchyPointLink, type HierarchyPointNode, tree } from 'd3-hierarchy';
 import { select } from 'd3-selection';
-import { curveBumpY, line } from 'd3-shape';
+import { curveBumpY, line, linkHorizontal } from 'd3-shape';
 import { ChevronRightIcon, PencilIcon } from '@lucide/vue';
 import { onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
@@ -36,6 +37,9 @@ type ErdNodeType = 'primary' | 'child';
 type ErdNode = { id: string; label: string; type: ErdNodeType };
 type ErdEdge = { source: string; target: string };
 
+type DimensionNode = { id: string; label: string; children?: DimensionNode[] };
+type DimensionNodeRole = 'root' | 'branch' | 'leaf';
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const ENTITY_TABS = [
@@ -66,6 +70,42 @@ const ERD_NODE_HEIGHT = 50;
 const ERD_PADDING = 8;
 const ERD_SELF_EDGE_SIZE = 24;
 
+// Evaluation example: strict tree (single parent per node) laid out with d3-hierarchy, drawn with d3-selection.
+const DIMENSION_TREE: DimensionNode = {
+    id: 'geography',
+    label: 'Geography',
+    children: [
+        {
+            id: 'europe',
+            label: 'Europe',
+            children: [
+                { id: 'unitedKingdom', label: 'United Kingdom' },
+                { id: 'germany', label: 'Germany' }
+            ]
+        },
+        {
+            id: 'northAmerica',
+            label: 'North America',
+            children: [
+                { id: 'unitedStates', label: 'United States' },
+                { id: 'canada', label: 'Canada' }
+            ]
+        }
+    ]
+};
+
+const DIMENSION_NODE_WIDTH = 140;
+const DIMENSION_NODE_HEIGHT = 40;
+const DIMENSION_SIBLING_GAP = 24;
+const DIMENSION_LEVEL_GAP = 50;
+const DIMENSION_PADDING = 8;
+
+const DIMENSION_NODE_COLORS: Record<DimensionNodeRole, { fill: string; stroke: string }> = {
+    root: { fill: '#d5e8d4', stroke: '#82b366' },
+    branch: { fill: '#ffe6cc', stroke: '#d79b00' },
+    leaf: { fill: '#dae8fc', stroke: '#6c8ebf' }
+};
+
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 const { modelReference } = defineProps<{ modelReference: GridListItem<LocalisedConfig<ComponentBase>> }>();
@@ -81,11 +121,13 @@ const modelDescription = ref('');
 const modelReferenceLabel = ref('');
 const modelMap = modelConfigs as Record<string, Model>;
 const erdSvgElement = useTemplateRef<SVGSVGElement>('erdSvg');
+const dimensionTreeSvgElement = useTemplateRef<SVGSVGElement>('dimensionTreeSvg');
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
     if (erdSvgElement.value) renderErd(erdSvgElement.value);
+    if (dimensionTreeSvgElement.value) renderDimensionTree(dimensionTreeSvgElement.value);
 });
 
 watch(
@@ -114,6 +156,11 @@ function localiseModel(model: Model): LocalisedModel {
 
 function purifyText(text: string): string {
     return DOMPurify.sanitize(marked.parse(text, { async: false }));
+}
+
+function getDimensionNodeRole(node: HierarchyPointNode<DimensionNode>): DimensionNodeRole {
+    if (node.depth === 0) return 'root';
+    return node.children ? 'branch' : 'leaf';
 }
 
 function buildSelfLoopPath(node: { x: number; y: number; width: number; height: number }): string {
@@ -203,6 +250,58 @@ function renderErd(svgElement: SVGSVGElement): void {
         .attr('fill', '#000000')
         .text((nodeId) => graph.node(nodeId).label);
 }
+
+function renderDimensionTree(svgElement: SVGSVGElement): void {
+    const root = hierarchy(DIMENSION_TREE, (node) => node.children);
+    const treeLayout = tree<DimensionNode>().nodeSize([DIMENSION_NODE_HEIGHT + DIMENSION_SIBLING_GAP, DIMENSION_NODE_WIDTH + DIMENSION_LEVEL_GAP]);
+    const treeRoot = treeLayout(root);
+    const treeNodes = treeRoot.descendants();
+
+    // Screen axes are swapped for a left-to-right tree: node.y (depth) drives horizontal position, node.x (sibling spread) drives vertical.
+    const minX = Math.min(...treeNodes.map((node) => node.y)) - DIMENSION_NODE_WIDTH / 2;
+    const maxX = Math.max(...treeNodes.map((node) => node.y)) + DIMENSION_NODE_WIDTH / 2;
+    const minY = Math.min(...treeNodes.map((node) => node.x)) - DIMENSION_NODE_HEIGHT / 2;
+    const maxY = Math.max(...treeNodes.map((node) => node.x)) + DIMENSION_NODE_HEIGHT / 2;
+
+    const viewBoxWidth = maxX - minX + DIMENSION_PADDING * 2;
+    const viewBoxHeight = maxY - minY + DIMENSION_PADDING * 2;
+    const svg = select(svgElement).attr('viewBox', `0 0 ${viewBoxWidth} ${viewBoxHeight}`).attr('width', viewBoxWidth).attr('height', viewBoxHeight);
+    svg.selectAll('*').remove();
+
+    const canvas = svg.append('g').attr('transform', `translate(${DIMENSION_PADDING - minX}, ${DIMENSION_PADDING - minY})`);
+
+    const linkGenerator = linkHorizontal<HierarchyPointLink<DimensionNode>, HierarchyPointNode<DimensionNode>>()
+        .x((node) => node.y)
+        .y((node) => node.x);
+
+    canvas.append('g').attr('fill', 'none').attr('stroke', '#999999').attr('stroke-width', 1.5).selectAll('path').data(treeRoot.links()).join('path').attr('d', linkGenerator);
+
+    const nodeGroups = canvas
+        .append('g')
+        .selectAll('g')
+        .data(treeNodes)
+        .join('g')
+        .attr('transform', (node) => `translate(${node.y - DIMENSION_NODE_WIDTH / 2}, ${node.x - DIMENSION_NODE_HEIGHT / 2})`);
+
+    nodeGroups
+        .append('rect')
+        .attr('width', DIMENSION_NODE_WIDTH)
+        .attr('height', DIMENSION_NODE_HEIGHT)
+        .attr('rx', 6)
+        .attr('fill', (node) => DIMENSION_NODE_COLORS[getDimensionNodeRole(node)].fill)
+        .attr('stroke', (node) => DIMENSION_NODE_COLORS[getDimensionNodeRole(node)].stroke);
+
+    nodeGroups
+        .append('text')
+        .attr('x', DIMENSION_NODE_WIDTH / 2)
+        .attr('y', DIMENSION_NODE_HEIGHT / 2)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .attr('font-family', 'Helvetica, Arial, sans-serif')
+        .attr('font-size', 12)
+        .attr('fill', '#000000')
+        .text((node) => node.data.label);
+}
 </script>
 
 <template>
@@ -228,7 +327,11 @@ function renderErd(svgElement: SVGSVGElement): void {
 
             <h3>Schematic</h3>
 
+            <!-- d3 + dagre evaluation: layout computed by dagre, drawn by d3-selection -->
             <svg ref="erdSvg" />
+
+            <!-- d3-hierarchy evaluation: strict tree layout, drawn by d3-selection -->
+            <svg ref="dimensionTreeSvg" />
 
             <!-- Dimensions -->
             <h2>Dimensions</h2>
