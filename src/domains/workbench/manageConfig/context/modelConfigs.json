@@ -31,11 +31,364 @@
             { "id": "geoUrb", "label": { "en": "Urbanicity" } }
         ],
         "entities": [],
-        "pickLists": [],
         "secondaryMeasures": []
     },
     "party": {
-        "dimensions": [],
+        "dimensions": [
+            {
+                "id": "perAge",
+                "label": { "en": "Age" },
+                "labelPlural": { "en": "Ages" },
+                "description": {
+                    "en": "This dimension categorises people based on their age. Ages are commonly reported in whole years and grouped into ten and/or five year intervals. A standard age hierarchy is as follow: - OR - Classifies people by their age groups or specific ages. Calculated based on the Date of Birth of the employee. The dimension is usually represented by three grouping levels: This dimension categorises people based on their age. Ages are commonly reported in whole years and grouped into ten and/or five year intervals. A standard age hierarchy is as follow: - OR - Classifies people by their age groups or specific ages. Calculated based on the Date of Birth of the employee. The dimension is usually represented by three grouping levels: This dimension categorises people based on their age. Ages are commonly reported in whole years and grouped into ten and/or five year intervals. A standard age hierarchy is as follow:"
+                },
+                "hierarchies": [
+                    {
+                        "levels": [{ "label": { "en": "10 Year Intervals" } }, { "label": { "en": "5 Year Intervals" } }],
+                        "children": [
+                            {
+                                "id": "0-9",
+                                "children:": [
+                                    { "id": "0-4", "children:": [{ "id": 0 }, { "id": 1 }, { "id": 2 }, { "id": 3 }, { "id": 4 }] },
+                                    { "id": "5-9", "children:": [{ "id": 5 }, { "id": 6 }, { "id": 7 }, { "id": 8 }, { "id": 9 }] }
+                                ]
+                            },
+                            {
+                                "id": "10-19",
+                                "children:": [
+                                    { "id": "10-14", "children:": [{ "id": 10 }, { "id": 11 }, { "id": 12 }, { "id": 13 }, { "id": 14 }] },
+                                    { "id": "15-19", "children:": [{ "id": 15 }, { "id": 16 }, { "id": 17 }, { "id": 18 }, { "id": 19 }] }
+                                ]
+                            },
+                            {
+                                "id": "20-29",
+                                "children:": [
+                                    { "id": "20-24", "children:": [{ "id": 20 }, { "id": 21 }, { "id": 22 }, { "id": 23 }, { "id": 24 }] },
+                                    { "id": "25-29", "children:": [{ "id": 25 }, { "id": 26 }, { "id": 27 }, { "id": 28 }, { "id": 29 }] }
+                                ]
+                            },
+                            {
+                                "id": "30-39",
+                                "children:": [
+                                    { "id": "30-34", "children:": [{ "id": 30 }, { "id": 31 }, { "id": 32 }, { "id": 33 }, { "id": 34 }] },
+                                    { "id": "35-39", "children:": [{ "id": 35 }, { "id": 36 }, { "id": 37 }, { "id": 38 }, { "id": 39 }] }
+                                ]
+                            },
+                            {
+                                "id": "40-49",
+                                "children:": [
+                                    { "id": "40-44", "children:": [{ "id": 40 }, { "id": 41 }, { "id": 42 }, { "id": 43 }, { "id": 44 }] },
+                                    { "id": "45-49", "children:": [{ "id": 45 }, { "id": 46 }, { "id": 47 }, { "id": 48 }, { "id": 49 }] }
+                                ]
+                            },
+                            {
+                                "id": "50-59",
+                                "children:": [
+                                    { "id": "50-54", "children:": [{ "id": 50 }, { "id": 51 }, { "id": 52 }, { "id": 53 }, { "id": 54 }] },
+                                    { "id": "55-59", "children:": [{ "id": 55 }, { "id": 56 }, { "id": 57 }, { "id": 58 }, { "id": 59 }] }
+                                ]
+                            },
+                            {
+                                "id": "60-69",
+                                "children:": [
+                                    { "id": "60-64", "children:": [{ "id": 60 }, { "id": 61 }, { "id": 62 }, { "id": 63 }, { "id": 64 }] },
+                                    { "id": "65-69", "children:": [{ "id": 65 }, { "id": 66 }, { "id": 67 }, { "id": 68 }, { "id": 69 }] }
+                                ]
+                            },
+                            {
+                                "id": "70-79",
+                                "children:": [
+                                    { "id": "70-74", "children:": [{ "id": 70 }, { "id": 71 }, { "id": 72 }, { "id": 73 }, { "id": 74 }] },
+                                    { "id": "75-79", "children:": [{ "id": 75 }, { "id": 76 }, { "id": 77 }, { "id": 78 }, { "id": 79 }] }
+                                ]
+                            },
+                            {
+                                "id": "80-89",
+                                "children:": [
+                                    { "id": "80-84", "children:": [{ "id": 80 }, { "id": 81 }, { "id": 82 }, { "id": 83 }, { "id": 84 }] },
+                                    { "id": "85-89", "children:": [{ "id": 85 }, { "id": 86 }, { "id": 87 }, { "id": 88 }, { "id": 89 }] }
+                                ]
+                            },
+                            {
+                                "id": "90-99",
+                                "children:": [
+                                    { "id": "90-94", "children:": [{ "id": 90 }, { "id": 91 }, { "id": 92 }, { "id": 93 }, { "id": 94 }] },
+                                    { "id": "95-99", "children:": [{ "id": 95 }, { "id": 96 }, { "id": 97 }, { "id": 98 }, { "id": 99 }] }
+                                ]
+                            },
+                            {
+                                "id": "100-109",
+                                "children:": [
+                                    { "id": "101-104", "children:": [{ "id": 100 }, { "id": 101 }, { "id": 102 }, { "id": 103 }, { "id": 104 }] },
+                                    { "id": "105-109", "children:": [{ "id": 105 }, { "id": 106 }, { "id": 107 }, { "id": 108 }, { "id": 109 }] }
+                                ]
+                            },
+                            {
+                                "id": "110-119",
+                                "children:": [
+                                    { "id": "110-114", "children:": [{ "id": 110 }, { "id": 111 }, { "id": 112 }, { "id": 113 }, { "id": 114 }] },
+                                    { "id": "115-119", "children:": [{ "id": 115 }, { "id": 116 }, { "id": 117 }, { "id": 118 }, { "id": 119 }] }
+                                ]
+                            },
+                            { "id": "120+" },
+                            { "id": "#", "label": { "en": "Not Applicable" } },
+                            { "id": "_", "label": { "en": "Not Provided" } },
+                            { "id": "?", "label": { "en": "Unknown" } }
+                        ]
+                    },
+                    {
+                        "id": "edu",
+                        "label": { "en": "Education" },
+                        "description": { "en": "Education-specific brackets. See: https://chatgpt.com/c/68baa209-e514-8321-9f44-a880cd80087e" },
+                        "type": null,
+                        "levels": [],
+                        "children": [
+                            { "id": "0-4", "label": { "en": "Early Childhood" }, "children": [{ "id": 0 }, { "id": 1 }, { "id": 2 }, { "id": 3 }, { "id": 4 }] },
+                            {
+                                "id": "5-11",
+                                "label": { "en": "Primary School" },
+                                "children": [{ "id": 5 }, { "id": 6 }, { "id": 7 }, { "id": 8 }, { "id": 9 }, { "id": 10 }, { "id": 11 }]
+                            },
+                            {
+                                "id": "12-17",
+                                "label": { "en": "Secondary School" },
+                                "children": [{ "id": 12 }, { "id": 13 }, { "id": 14 }, { "id": 15 }, { "id": 16 }, { "id": 17 }]
+                            },
+                            { "id": "18-22", "label": { "en": "College Age" }, "children": [{ "id": 18 }, { "id": 19 }, { "id": 20 }, { "id": 21 }, { "id": 22 }] },
+                            {
+                                "id": "23-29",
+                                "label": { "en": "Postgraduate/Early Career" },
+                                "children": [{ "id": 23 }, { "id": 24 }, { "id": 25 }, { "id": 26 }, { "id": 27 }, { "id": 28 }, { "id": 29 }]
+                            },
+                            { "id": "30+", "label": { "en": "Adult Learner" } },
+                            { "id": "#", "label": { "en": "Not Applicable" } },
+                            { "id": "_", "label": { "en": "Not Provided" } },
+                            { "id": "?", "label": { "en": "Unknown" } }
+                        ]
+                    },
+                    {
+                        "id": "finSrv",
+                        "label": { "en": "Financial Services" },
+                        "description": { "en": "Linked to typical financial needs and risk profiles. See: https://chatgpt.com/c/68baa209-e514-8321-9f44-a880cd80087e" },
+                        "type": null,
+                        "levels": [],
+                        "children": [
+                            { "id": "#", "label": { "en": "Not Applicable" } },
+                            { "id": "_", "label": { "en": "Not Provided" } },
+                            { "id": "?", "label": { "en": "Unknown" } }
+                        ]
+                    },
+                    {
+                        "id": "hlthCare",
+                        "label": { "en": "Healthcare / Public Health" },
+                        "description": {
+                            "en": "Standardized for epidemiology and reporting. Matches WHO/CDC reporting brackets. See: https://chatgpt.com/c/68baa209-e514-8321-9f44-a880cd80087e"
+                        },
+                        "type": null,
+                        "levels": [],
+                        "children": [
+                            { "id": "#", "label": { "en": "Not Applicable" } },
+                            { "id": "_", "label": { "en": "Not Provided" } },
+                            { "id": "?", "label": { "en": "Unknown" } }
+                        ]
+                    },
+                    {
+                        "id": "medAdv",
+                        "label": { "en": "Media / Advertising (Nielsen, Comscore)" },
+                        "description": { "en": "Used for audience measurement. See: https://chatgpt.com/c/68baa209-e514-8321-9f44-a880cd80087e" },
+                        "type": null,
+                        "levels": [],
+                        "children": [
+                            { "id": "#", "label": { "en": "Not Applicable" } },
+                            { "id": "_", "label": { "en": "Not Provided" } },
+                            { "id": "?", "label": { "en": "Unknown" } }
+                        ]
+                    },
+                    {
+                        "id": "mktRet",
+                        "label": { "en": "Marketing / Retail" },
+                        "description": { "en": "Focuses on life stages and buying behavior. See: https://chatgpt.com/c/68baa209-e514-8321-9f44-a880cd80087e" },
+                        "type": null,
+                        "levels": [],
+                        "children": [
+                            { "id": "#", "label": { "en": "Not Applicable" } },
+                            { "id": "_", "label": { "en": "Not Provided" } },
+                            { "id": "?", "label": { "en": "Unknown" } }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "perGdr",
+                "label": { "en": "Gender" },
+                "labelPlural": { "en": "Genders" },
+                "description": {
+                    "en": "This dimension categorises people based on their gender. Depending on the use it may represent biological sexes, gender roles or gender identities. A minimal gender hierarchy is as follows: - OR - Classifies people by their reported gender. Standard categories are: This dimension categorises people based on their gender. Depending on the use it may represent biological sexes, gender roles or gender identities. A minimal gender hierarchy is as follows:"
+                },
+                "hierarchies": [
+                    {
+                        "levels": [{ "label": { "en": "Genders" } }],
+                        "children": [
+                            { "id": "f", "label": { "en": "Female" } },
+                            { "id": "m", "label": { "en": "Male" } },
+                            { "id": "nb", "label": { "en": "Nonbinary" } },
+                            { "id": "*", "label": { "en": "Other" } },
+                            { "id": "#", "label": { "en": "Not Applicable" } },
+                            { "id": "_", "label": { "en": "Not Provided" } },
+                            { "id": "?", "label": { "en": "Unknown" } }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "perGen",
+                "label": { "en": "Generation" },
+                "labelPlural": { "en": "Generations" },
+                "description": {
+                    "en": "This dimension categorises people based on their membership of a cohort of individuals who were born at the same time."
+                },
+                "hierarchies": [
+                    {
+                        "levels": [{ "label": { "en": "Generations" } }, { "label": { "en": "Birth Years" } }],
+                        "children": [
+                            {
+                                "id": "1927-",
+                                "label": { "en": "Greatest Generation" },
+                                "description": { "en": "Grew up during the Great Depression and fought in WWII." }
+                            },
+                            {
+                                "id": "1928-1945",
+                                "label": { "en": "Silent Generation" },
+                                "description": { "en": "Children of the Great Depression & WWII" },
+                                "children": [
+                                    { "id": 1928 },
+                                    { "id": 1929 },
+                                    { "id": 1930 },
+                                    { "id": 1931 },
+                                    { "id": 1932 },
+                                    { "id": 1933 },
+                                    { "id": 1934 },
+                                    { "id": 1935 },
+                                    { "id": 1936 },
+                                    { "id": 1937 },
+                                    { "id": 1938 },
+                                    { "id": 1939 },
+                                    { "id": 1940 },
+                                    { "id": 1941 },
+                                    { "id": 1942 },
+                                    { "id": 1943 },
+                                    { "id": 1944 },
+                                    { "id": 1945 }
+                                ]
+                            },
+                            {
+                                "id": "1946-1964",
+                                "label": { "en": "Baby Boomers" },
+                                "description": { "en": "Post-WWII baby boom, pre-digital era" },
+                                "children": [
+                                    { "id": 1946 },
+                                    { "id": 1947 },
+                                    { "id": 1948 },
+                                    { "id": 1949 },
+                                    { "id": 1950 },
+                                    { "id": 1951 },
+                                    { "id": 1952 },
+                                    { "id": 1953 },
+                                    { "id": 1954 },
+                                    { "id": 1955 },
+                                    { "id": 1956 },
+                                    { "id": 1957 },
+                                    { "id": 1958 },
+                                    { "id": 1959 },
+                                    { "id": 1960 },
+                                    { "id": 1961 },
+                                    { "id": 1962 },
+                                    { "id": 1963 },
+                                    { "id": 1964 }
+                                ]
+                            },
+                            {
+                                "id": "1965-1980",
+                                "label": { "en": "Generation X" },
+                                "description": { "en": "Cold War, rise of PCs, 'latchkey kids'" },
+                                "children": [
+                                    { "id": 1965 },
+                                    { "id": 1966 },
+                                    { "id": 1967 },
+                                    { "id": 1968 },
+                                    { "id": 1969 },
+                                    { "id": 1970 },
+                                    { "id": 1971 },
+                                    { "id": 1972 },
+                                    { "id": 1973 },
+                                    { "id": 1974 },
+                                    { "id": 1975 },
+                                    { "id": 1976 },
+                                    { "id": 1977 },
+                                    { "id": 1978 },
+                                    { "id": 1979 },
+                                    { "id": 1980 }
+                                ]
+                            },
+                            {
+                                "id": "1981-1996",
+                                "label": { "en": "Millennials (Gen Y)" },
+                                "description": { "en": "Grew up with internet, early adulthood during Great Recession" },
+                                "children": [
+                                    { "id": 1981 },
+                                    { "id": 1982 },
+                                    { "id": 1983 },
+                                    { "id": 1984 },
+                                    { "id": 1985 },
+                                    { "id": 1986 },
+                                    { "id": 1987 },
+                                    { "id": 1988 },
+                                    { "id": 1989 },
+                                    { "id": 1990 },
+                                    { "id": 1991 },
+                                    { "id": 1992 },
+                                    { "id": 1993 },
+                                    { "id": 1994 },
+                                    { "id": 1995 },
+                                    { "id": 1996 }
+                                ]
+                            },
+                            {
+                                "id": "1997-2012",
+                                "label": { "en": "Generation Z" },
+                                "description": { "en": "Digital natives, social media generation" },
+                                "children": [
+                                    { "id": 1997 },
+                                    { "id": 1998 },
+                                    { "id": 1999 },
+                                    { "id": 2000 },
+                                    { "id": 2001 },
+                                    { "id": 2002 },
+                                    { "id": 2003 },
+                                    { "id": 2004 },
+                                    { "id": 2005 },
+                                    { "id": 2006 },
+                                    { "id": 2007 },
+                                    { "id": 2008 },
+                                    { "id": 2009 },
+                                    { "id": 2010 },
+                                    { "id": 2011 },
+                                    { "id": 2012 }
+                                ]
+                            },
+                            {
+                                "id": "2013+",
+                                "label": { "en": "Generation Alpha" },
+                                "description": { "en": "Current youngest cohort, born fully into mobile/AI world" }
+                            },
+                            { "id": "#", "label": { "en": "Not Applicable" } },
+                            { "id": "_", "label": { "en": "Not Provided" } },
+                            { "id": "?", "label": { "en": "Unknown" } }
+                        ]
+                    }
+                ]
+            }
+        ],
         "entities": [
             {
                 "id": "organisation",
@@ -477,14 +830,29 @@
                 }
             }
         ],
-        "pickLists": [
-            { "id": "age", "label": { "en": "Age" }, "labelPlural": { "en": "Ages" } },
-            { "id": "gender", "label": { "en": "Gender" }, "labelPlural": { "en": "Genders" } }
-        ],
         "secondaryMeasures": []
     },
     "workforce": {
-        "dimensions": [],
+        "dimensions": [
+            {
+                "id": "engagementAttendance",
+                "label": { "en": "Engagement Attendance" },
+                "items": [
+                    { "id": "ft", "label": { "en": "Full/Time" } },
+                    { "id": "pt", "label": { "en": "Part/Time" } },
+                    { "id": "ca", "label": { "en": "Casual" } }
+                ]
+            },
+            {
+                "id": "engagementType",
+                "label": { "en": "Engagement Type" },
+                "items": [
+                    { "id": "ft", "label": { "en": "Full/Time" } },
+                    { "id": "pt", "label": { "en": "Part/Time" } },
+                    { "id": "ca", "label": { "en": "Casual" } }
+                ]
+            }
+        ],
         "entities": [
             {
                 "id": "personEngagement",
@@ -567,26 +935,6 @@
                     "endingOutCount": null,
                     "closingCount": null
                 }
-            }
-        ],
-        "pickLists": [
-            {
-                "id": "engagementAttendance",
-                "label": { "en": "Engagement Attendance" },
-                "items": [
-                    { "id": "ft", "label": { "en": "Full/Time" } },
-                    { "id": "pt", "label": { "en": "Part/Time" } },
-                    { "id": "ca", "label": { "en": "Casual" } }
-                ]
-            },
-            {
-                "id": "engagementType",
-                "label": { "en": "Engagement Type" },
-                "items": [
-                    { "id": "ft", "label": { "en": "Full/Time" } },
-                    { "id": "pt", "label": { "en": "Part/Time" } },
-                    { "id": "ca", "label": { "en": "Casual" } }
-                ]
             }
         ],
         "secondaryMeasures": []

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import * as dagre from '@dagrejs/dagre';
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
-import { ChevronDownIcon, ChevronRightIcon, PencilIcon } from '@lucide/vue';
-import { ref, shallowRef, watch } from 'vue';
+import { select } from 'd3-selection';
+import { ChevronRightIcon, PencilIcon } from '@lucide/vue';
+import { onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
 import type { ComponentBase } from '@dpuse/dpuse-shared/component';
@@ -29,6 +31,10 @@ type Model = { entities: Entity[] };
 type LocalisedEntity = { id: string; label: string; description: string };
 type LocalisedModel = { entities: LocalisedEntity[] };
 
+type ErdNodeType = 'primary' | 'child';
+type ErdNode = { id: string; label: string; type: ErdNodeType };
+type ErdEdge = { source: string; target: string };
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const ENTITY_TABS = [
@@ -37,6 +43,24 @@ const ENTITY_TABS = [
     { id: 'events', label: 'Events' },
     { id: 'primaryMeasures', label: 'Measures' }
 ];
+
+// Evaluation example: hard-coded ERD fed through dagre for layout, drawn with d3-selection.
+const ERD_NODES: ErdNode[] = [
+    { id: 'organisation', label: 'Organisation', type: 'primary' },
+    { id: 'organisationalUnit', label: 'Organisational Unit', type: 'child' },
+    { id: 'person', label: 'Person', type: 'primary' },
+    { id: 'nationality', label: 'Nationality', type: 'child' },
+    { id: 'language', label: 'Language', type: 'child' }
+];
+
+const ERD_EDGES: ErdEdge[] = [
+    { source: 'organisation', target: 'organisationalUnit' },
+    { source: 'person', target: 'nationality' },
+    { source: 'person', target: 'language' }
+];
+
+const ERD_NODE_WIDTH = 160;
+const ERD_NODE_HEIGHT = 50;
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
@@ -52,8 +76,13 @@ const purifiedDescription = ref('');
 const modelDescription = ref('');
 const modelReferenceLabel = ref('');
 const modelMap = modelConfigs as Record<string, Model>;
+const erdSvgElement = useTemplateRef<SVGSVGElement>('erdSvg');
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+onMounted(() => {
+    if (erdSvgElement.value) renderErd(erdSvgElement.value);
+});
 
 watch(
     () => modelReference,
@@ -82,6 +111,78 @@ function localiseModel(model: Model): LocalisedModel {
 function purifyText(text: string): string {
     return DOMPurify.sanitize(marked.parse(text, { async: false }));
 }
+
+function renderErd(svgElement: SVGSVGElement): void {
+    const graph = new dagre.graphlib.Graph();
+    graph.setGraph({ rankdir: 'TB', nodesep: 40, ranksep: 60 });
+    graph.setDefaultEdgeLabel(() => ({}));
+
+    for (const node of ERD_NODES) graph.setNode(node.id, { width: ERD_NODE_WIDTH, height: ERD_NODE_HEIGHT, label: node.label, type: node.type });
+    for (const edge of ERD_EDGES) graph.setEdge(edge.source, edge.target);
+
+    dagre.layout(graph);
+
+    const { width: graphWidth = 0, height: graphHeight = 0 } = graph.graph();
+    const svg = select(svgElement).attr('viewBox', `0 0 ${graphWidth} ${graphHeight}`).attr('width', graphWidth).attr('height', graphHeight);
+    svg.selectAll('*').remove();
+
+    svg.append('defs')
+        .append('marker')
+        .attr('id', 'erd-arrow')
+        .attr('viewBox', '0 0 10 10')
+        .attr('refX', 9)
+        .attr('refY', 5)
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
+        .attr('orient', 'auto-start-reverse')
+        .append('path')
+        .attr('d', 'M 0 0 L 10 5 L 0 10 z')
+        .attr('fill', '#6c8ebf');
+
+    svg.append('g')
+        .attr('fill', 'none')
+        .attr('stroke', '#6c8ebf')
+        .attr('stroke-width', 1.5)
+        .selectAll('path')
+        .data(graph.edges())
+        .join('path')
+        .attr('marker-end', 'url(#erd-arrow)')
+        .attr('d', (edge) =>
+            graph
+                .edge(edge)
+                .points.map((point: { x: number; y: number }, index: number) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`)
+                .join(' ')
+        );
+
+    const nodeGroups = svg
+        .append('g')
+        .selectAll('g')
+        .data(graph.nodes())
+        .join('g')
+        .attr('transform', (nodeId) => {
+            const node = graph.node(nodeId);
+            return `translate(${node.x - node.width / 2}, ${node.y - node.height / 2})`;
+        });
+
+    nodeGroups
+        .append('rect')
+        .attr('width', (nodeId) => graph.node(nodeId).width)
+        .attr('height', (nodeId) => graph.node(nodeId).height)
+        .attr('rx', 6)
+        .attr('fill', (nodeId) => (graph.node(nodeId).type === 'primary' ? '#d5e8d4' : '#dae8fc'))
+        .attr('stroke', (nodeId) => (graph.node(nodeId).type === 'primary' ? '#82b366' : '#6c8ebf'));
+
+    nodeGroups
+        .append('text')
+        .attr('x', (nodeId) => graph.node(nodeId).width / 2)
+        .attr('y', (nodeId) => graph.node(nodeId).height / 2)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .attr('font-family', 'Helvetica, Arial, sans-serif')
+        .attr('font-size', 12)
+        .attr('fill', '#000000')
+        .text((nodeId) => graph.node(nodeId).label);
+}
 </script>
 
 <template>
@@ -107,7 +208,7 @@ function purifyText(text: string): string {
 
             <h3>Schematic</h3>
 
-            <svg viewBox="-0.5 -0.5 451 171" width="451" height="171">
+            <!-- <svg viewBox="-0.5 -0.5 451 171" width="451" height="171">
                 <rect x="0" y="0" width="120" height="60" fill="#d5e8d4" stroke="#82b366" />
                 <text x="60" y="34" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#000000">Organisation</text>
                 <rect x="250" y="0" width="120" height="60" fill="#d5e8d4" stroke="#82b366" />
@@ -136,7 +237,10 @@ function purifyText(text: string): string {
                     <ellipse cx="90" cy="98" rx="3" ry="3" />
                     <path d="M 86 106 L 94 106 M 90 101.5 L 90 110" />
                 </g>
-            </svg>
+            </svg> -->
+
+            <!-- d3 + dagre evaluation: layout computed by dagre, drawn by d3-selection -->
+            <svg ref="erdSvg" />
 
             <!-- Dimensions -->
             <h2>Dimensions</h2>
