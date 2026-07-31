@@ -1,17 +1,17 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import * as dagre from '@dagrejs/dagre';
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
-import { hierarchy, type HierarchyPointLink, type HierarchyPointNode, tree } from 'd3-hierarchy';
-import { select } from 'd3-selection';
-import { curveBumpY, line, linkHorizontal } from 'd3-shape';
 import { ChevronRightIcon, PencilIcon } from '@lucide/vue';
 import { onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
 import type { ComponentBase } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { D3Tool as D3ToolType, ErdDiagramData, TreeDiagramNode } from '@dpuse/dpuse-tool-d3';
+
+// ── Local Framework
+import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import type { GridListItem } from './ContextList.vue';
@@ -33,13 +33,6 @@ type Model = { entities: Entity[] };
 type LocalisedEntity = { id: string; label: string; description: string };
 type LocalisedModel = { entities: LocalisedEntity[] };
 
-type ErdNodeType = 'primary' | 'child';
-type ErdNode = { id: string; label: string; type: ErdNodeType };
-type ErdEdge = { source: string; target: string };
-
-type DimensionNode = { id: string; label: string; children?: DimensionNode[] };
-type DimensionNodeRole = 'root' | 'branch' | 'leaf';
-
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const ENTITY_TABS = [
@@ -49,29 +42,25 @@ const ENTITY_TABS = [
     { id: 'primaryMeasures', label: 'Measures' }
 ];
 
-// Evaluation example: hard-coded ERD fed through dagre for layout, drawn with d3-selection.
-const ERD_NODES: ErdNode[] = [
-    { id: 'organisation', label: 'Organisation', type: 'primary' },
-    { id: 'organisationalUnit', label: 'Organisational Unit', type: 'child' },
-    { id: 'person', label: 'Person', type: 'primary' },
-    { id: 'nationality', label: 'Nationality', type: 'child' },
-    { id: 'language', label: 'Language', type: 'child' }
-];
+// Evaluation example: hard-coded ERD, laid out and drawn by dpuse-tool-d3's renderErdDiagram (dagre + d3-selection).
+const ERD_DATA: ErdDiagramData = {
+    nodes: [
+        { id: 'organisation', label: 'Organisation', typeId: 'primary' },
+        { id: 'organisationalUnit', label: 'Organisational Unit', typeId: 'child' },
+        { id: 'person', label: 'Person', typeId: 'primary' },
+        { id: 'nationality', label: 'Nationality', typeId: 'child' },
+        { id: 'language', label: 'Language', typeId: 'child' }
+    ],
+    edges: [
+        { source: 'organisation', target: 'organisationalUnit' },
+        { source: 'organisationalUnit', target: 'organisationalUnit' },
+        { source: 'person', target: 'nationality' },
+        { source: 'person', target: 'language' }
+    ]
+};
 
-const ERD_EDGES: ErdEdge[] = [
-    { source: 'organisation', target: 'organisationalUnit' },
-    { source: 'organisationalUnit', target: 'organisationalUnit' },
-    { source: 'person', target: 'nationality' },
-    { source: 'person', target: 'language' }
-];
-
-const ERD_NODE_WIDTH = 160;
-const ERD_NODE_HEIGHT = 50;
-const ERD_PADDING = 8;
-const ERD_SELF_EDGE_SIZE = 24;
-
-// Evaluation example: strict tree (single parent per node) laid out with d3-hierarchy, drawn with d3-selection.
-const DIMENSION_TREE: DimensionNode = {
+// Evaluation example: strict tree (single parent per node), laid out and drawn by dpuse-tool-d3's renderTreeDiagram (d3-hierarchy + d3-selection).
+const DIMENSION_TREE: TreeDiagramNode = {
     id: 'geography',
     label: 'Geography',
     children: [
@@ -94,18 +83,6 @@ const DIMENSION_TREE: DimensionNode = {
     ]
 };
 
-const DIMENSION_NODE_WIDTH = 140;
-const DIMENSION_NODE_HEIGHT = 40;
-const DIMENSION_SIBLING_GAP = 24;
-const DIMENSION_LEVEL_GAP = 50;
-const DIMENSION_PADDING = 8;
-
-const DIMENSION_NODE_COLORS: Record<DimensionNodeRole, { fill: string; stroke: string }> = {
-    root: { fill: '#d5e8d4', stroke: '#82b366' },
-    branch: { fill: '#ffe6cc', stroke: '#d79b00' },
-    leaf: { fill: '#dae8fc', stroke: '#6c8ebf' }
-};
-
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 const { modelReference } = defineProps<{ modelReference: GridListItem<LocalisedConfig<ComponentBase>> }>();
@@ -120,14 +97,28 @@ const purifiedDescription = ref('');
 const modelDescription = ref('');
 const modelReferenceLabel = ref('');
 const modelMap = modelConfigs as Record<string, Model>;
-const erdSvgElement = useTemplateRef<SVGSVGElement>('erdSvg');
-const dimensionTreeSvgElement = useTemplateRef<SVGSVGElement>('dimensionTreeSvg');
+const erdContainer = useTemplateRef<HTMLDivElement>('erdContainer');
+const dimensionTreeContainer = useTemplateRef<HTMLDivElement>('dimensionTreeContainer');
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(() => {
-    if (erdSvgElement.value) renderErd(erdSvgElement.value);
-    if (dimensionTreeSvgElement.value) renderDimensionTree(dimensionTreeSvgElement.value);
+const toolReady = new Promise<void>((resolve) => {
+    watch(
+        toolConfigs,
+        (newToolConfigs) => {
+            if (newToolConfigs.length === 0) return;
+            resolve();
+        },
+        { immediate: true }
+    );
+});
+
+onMounted(async () => {
+    await toolReady;
+
+    const d3Tool = await loadD3Tool();
+    if (erdContainer.value) d3Tool.renderErdDiagram(ERD_DATA, erdContainer.value);
+    if (dimensionTreeContainer.value) d3Tool.renderTreeDiagram(DIMENSION_TREE, dimensionTreeContainer.value);
 });
 
 watch(
@@ -158,149 +149,14 @@ function purifyText(text: string): string {
     return DOMPurify.sanitize(marked.parse(text, { async: false }));
 }
 
-function getDimensionNodeRole(node: HierarchyPointNode<DimensionNode>): DimensionNodeRole {
-    if (node.depth === 0) return 'root';
-    return node.children ? 'branch' : 'leaf';
-}
+async function loadD3Tool(): Promise<D3ToolType> {
+    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-d3');
+    if (!toolModuleConfig) throw new Error('No D3 tool module configuration.');
 
-function buildSelfLoopPath(node: { x: number; y: number; width: number; height: number }): string {
-    const rightX = node.x + node.width / 2;
-    const bulgeX = rightX + ERD_SELF_EDGE_SIZE;
-    const topY = node.y - node.height / 4;
-    const bottomY = node.y + node.height / 4;
-    return `M ${rightX} ${topY} C ${bulgeX} ${topY}, ${bulgeX} ${bottomY}, ${rightX} ${bottomY}`;
-}
-
-function renderErd(svgElement: SVGSVGElement): void {
-    const graph = new dagre.graphlib.Graph();
-    graph.setGraph({ rankdir: 'TB', nodesep: 40, ranksep: 60 });
-    graph.setDefaultEdgeLabel(() => ({}));
-
-    for (const node of ERD_NODES) graph.setNode(node.id, { width: ERD_NODE_WIDTH, height: ERD_NODE_HEIGHT, label: node.label, type: node.type });
-    for (const edge of ERD_EDGES) {
-        if (edge.source === edge.target) graph.setEdge(edge.source, edge.target, { width: ERD_SELF_EDGE_SIZE, height: ERD_SELF_EDGE_SIZE });
-        else graph.setEdge(edge.source, edge.target);
-    }
-
-    dagre.layout(graph);
-
-    const { width: graphWidth = 0, height: graphHeight = 0 } = graph.graph();
-    const viewBoxWidth = graphWidth + ERD_PADDING * 2;
-    const viewBoxHeight = graphHeight + ERD_PADDING * 2;
-    const svg = select(svgElement).attr('viewBox', `0 0 ${viewBoxWidth} ${viewBoxHeight}`).attr('width', viewBoxWidth).attr('height', viewBoxHeight);
-    svg.selectAll('*').remove();
-
-    const canvas = svg.append('g').attr('transform', `translate(${ERD_PADDING}, ${ERD_PADDING})`);
-
-    svg.append('defs')
-        .append('marker')
-        .attr('id', 'erd-arrow')
-        .attr('viewBox', '0 0 10 10')
-        .attr('refX', 9)
-        .attr('refY', 5)
-        .attr('markerWidth', 6)
-        .attr('markerHeight', 6)
-        .attr('orient', 'auto-start-reverse')
-        .append('path')
-        .attr('d', 'M 0 0 L 10 5 L 0 10 z')
-        .attr('fill', '#6c8ebf');
-
-    const edgeLine = line<{ x: number; y: number }>()
-        .x((point) => point.x)
-        .y((point) => point.y)
-        .curve(curveBumpY);
-
-    canvas
-        .append('g')
-        .attr('fill', 'none')
-        .attr('stroke', '#6c8ebf')
-        .attr('stroke-width', 1.5)
-        .selectAll('path')
-        .data(graph.edges())
-        .join('path')
-        .attr('marker-end', 'url(#erd-arrow)')
-        .attr('d', (edge) => (edge.v === edge.w ? buildSelfLoopPath(graph.node(edge.v)) : edgeLine(graph.edge(edge).points)));
-
-    const nodeGroups = canvas
-        .append('g')
-        .selectAll('g')
-        .data(graph.nodes())
-        .join('g')
-        .attr('transform', (nodeId) => {
-            const node = graph.node(nodeId);
-            return `translate(${node.x - node.width / 2}, ${node.y - node.height / 2})`;
-        });
-
-    nodeGroups
-        .append('rect')
-        .attr('width', (nodeId) => graph.node(nodeId).width)
-        .attr('height', (nodeId) => graph.node(nodeId).height)
-        .attr('rx', 6)
-        .attr('fill', (nodeId) => (graph.node(nodeId).type === 'primary' ? '#d5e8d4' : '#dae8fc'))
-        .attr('stroke', (nodeId) => (graph.node(nodeId).type === 'primary' ? '#82b366' : '#6c8ebf'));
-
-    nodeGroups
-        .append('text')
-        .attr('x', (nodeId) => graph.node(nodeId).width / 2)
-        .attr('y', (nodeId) => graph.node(nodeId).height / 2)
-        .attr('text-anchor', 'middle')
-        .attr('dominant-baseline', 'middle')
-        .attr('font-family', 'Helvetica, Arial, sans-serif')
-        .attr('font-size', 14)
-        .attr('fill', '#000000')
-        .text((nodeId) => graph.node(nodeId).label);
-}
-
-function renderDimensionTree(svgElement: SVGSVGElement): void {
-    const root = hierarchy(DIMENSION_TREE, (node) => node.children);
-    const treeLayout = tree<DimensionNode>().nodeSize([DIMENSION_NODE_HEIGHT + DIMENSION_SIBLING_GAP, DIMENSION_NODE_WIDTH + DIMENSION_LEVEL_GAP]);
-    const treeRoot = treeLayout(root);
-    const treeNodes = treeRoot.descendants();
-
-    // Screen axes are swapped for a left-to-right tree: node.y (depth) drives horizontal position, node.x (sibling spread) drives vertical.
-    const minX = Math.min(...treeNodes.map((node) => node.y)) - DIMENSION_NODE_WIDTH / 2;
-    const maxX = Math.max(...treeNodes.map((node) => node.y)) + DIMENSION_NODE_WIDTH / 2;
-    const minY = Math.min(...treeNodes.map((node) => node.x)) - DIMENSION_NODE_HEIGHT / 2;
-    const maxY = Math.max(...treeNodes.map((node) => node.x)) + DIMENSION_NODE_HEIGHT / 2;
-
-    const viewBoxWidth = maxX - minX + DIMENSION_PADDING * 2;
-    const viewBoxHeight = maxY - minY + DIMENSION_PADDING * 2;
-    const svg = select(svgElement).attr('viewBox', `0 0 ${viewBoxWidth} ${viewBoxHeight}`).attr('width', viewBoxWidth).attr('height', viewBoxHeight);
-    svg.selectAll('*').remove();
-
-    const canvas = svg.append('g').attr('transform', `translate(${DIMENSION_PADDING - minX}, ${DIMENSION_PADDING - minY})`);
-
-    const linkGenerator = linkHorizontal<HierarchyPointLink<DimensionNode>, HierarchyPointNode<DimensionNode>>()
-        .x((node) => node.y)
-        .y((node) => node.x);
-
-    canvas.append('g').attr('fill', 'none').attr('stroke', '#999999').attr('stroke-width', 1.5).selectAll('path').data(treeRoot.links()).join('path').attr('d', linkGenerator);
-
-    const nodeGroups = canvas
-        .append('g')
-        .selectAll('g')
-        .data(treeNodes)
-        .join('g')
-        .attr('transform', (node) => `translate(${node.y - DIMENSION_NODE_WIDTH / 2}, ${node.x - DIMENSION_NODE_HEIGHT / 2})`);
-
-    nodeGroups
-        .append('rect')
-        .attr('width', DIMENSION_NODE_WIDTH)
-        .attr('height', DIMENSION_NODE_HEIGHT)
-        .attr('rx', 6)
-        .attr('fill', (node) => DIMENSION_NODE_COLORS[getDimensionNodeRole(node)].fill)
-        .attr('stroke', (node) => DIMENSION_NODE_COLORS[getDimensionNodeRole(node)].stroke);
-
-    nodeGroups
-        .append('text')
-        .attr('x', DIMENSION_NODE_WIDTH / 2)
-        .attr('y', DIMENSION_NODE_HEIGHT / 2)
-        .attr('text-anchor', 'middle')
-        .attr('dominant-baseline', 'middle')
-        .attr('font-family', 'Helvetica, Arial, sans-serif')
-        .attr('font-size', 12)
-        .attr('fill', '#000000')
-        .text((node) => node.data.label);
+    const url = `https://engine-eu.dpuse.app/tools/d3_v${toolModuleConfig.version}/dpuse-tool-d3.es.js`;
+    const module = (await import(/* @vite-ignore */ url)) as { D3Tool: new () => D3ToolType };
+    const D3Tool = module.D3Tool;
+    return new D3Tool();
 }
 </script>
 
@@ -327,11 +183,11 @@ function renderDimensionTree(svgElement: SVGSVGElement): void {
 
             <h3>Schematic</h3>
 
-            <!-- d3 + dagre evaluation: layout computed by dagre, drawn by d3-selection -->
-            <svg ref="erdSvg" />
+            <!-- ERD evaluation: layout and rendering via dpuse-tool-d3's renderErdDiagram (dagre + d3-selection) -->
+            <div ref="erdContainer" />
 
-            <!-- d3-hierarchy evaluation: strict tree layout, drawn by d3-selection -->
-            <svg ref="dimensionTreeSvg" />
+            <!-- Dimension tree evaluation: layout and rendering via dpuse-tool-d3's renderTreeDiagram (d3-hierarchy + d3-selection) -->
+            <div ref="dimensionTreeContainer" />
 
             <!-- Dimensions -->
             <h2>Dimensions</h2>
