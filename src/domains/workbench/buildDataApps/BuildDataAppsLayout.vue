@@ -63,7 +63,7 @@ onMounted(async () => {
                 { id: 'archived', name: 'Archived' }
             ]
         };
-        d3Tool.renderSankeyDiagram(sankeyData, d3SankeyTestContainer.value);
+        await d3Tool.renderSankeyDiagram(sankeyData, d3SankeyTestContainer.value);
     }
 
     const barChartData: BarChartData = {
@@ -75,7 +75,7 @@ onMounted(async () => {
     };
 
     if (d3BarChartTestContainer.value) d3Tool.renderBarChart(barChartData, d3BarChartTestContainer.value);
-    if (d3PlotBarChartTestContainer.value) d3Tool.renderPlotBarChart(barChartData, d3PlotBarChartTestContainer.value);
+    if (d3PlotBarChartTestContainer.value) await d3Tool.renderObservablePlot('bar', barChartData, d3PlotBarChartTestContainer.value);
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -59,7 +59,7 @@ onMounted(async () => {
     if (!container.value) return;
 
     const d3Tool = await loadD3Tool();
-    state.view = d3Tool.renderNetworkDiagram(data, container.value);
+    state.view = await d3Tool.renderNetworkDiagram(data, container.value);
 });
 
 onBeforeUnmount(() => {

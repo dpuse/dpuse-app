@@ -117,8 +117,8 @@ onMounted(async () => {
     await toolReady;
 
     const d3Tool = await loadD3Tool();
-    if (erdContainer.value) d3Tool.renderErdDiagram(ERD_DATA, erdContainer.value);
-    if (dimensionTreeContainer.value) d3Tool.renderTreeDiagram(DIMENSION_TREE, dimensionTreeContainer.value);
+    if (erdContainer.value) await d3Tool.renderErdDiagram(ERD_DATA, erdContainer.value);
+    if (dimensionTreeContainer.value) await d3Tool.renderTreeDiagram(DIMENSION_TREE, dimensionTreeContainer.value);
 });
 
 watch(
