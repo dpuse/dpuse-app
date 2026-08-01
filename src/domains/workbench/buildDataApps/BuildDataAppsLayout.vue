@@ -74,7 +74,7 @@ onMounted(async () => {
         ]
     };
 
-    if (d3BarChartTestContainer.value) d3Tool.renderBarChart(barChartData, d3BarChartTestContainer.value);
+    if (d3BarChartTestContainer.value) await d3Tool.renderBillboardJS(barChartData, d3BarChartTestContainer.value);
     if (d3PlotBarChartTestContainer.value) await d3Tool.renderObservablePlot('bar', barChartData, d3PlotBarChartTestContainer.value);
 });
 
@@ -87,7 +87,7 @@ async function loadD3Tool(version: string): Promise<D3ToolType> {
     return new D3Tool();
 }
 
-// Billboard.js (used by renderBarChart) requires its own stylesheet - unlike the SVG-only renderers, it won't look
+// Billboard.js (used by renderBillboardJS) requires its own stylesheet - unlike the SVG-only renderers, it won't look
 // right without it. Injected as a <link> from the same engine origin the tool's JS already loads from, guarded so a
 // second mount doesn't insert it twice.
 function ensureD3ToolStylesheetLoaded(version: string): void {
