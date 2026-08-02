@@ -1,10 +1,15 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
-import { marked } from 'marked'; // NOTE: 'marked' with DOMPurify is at least 14kB smaller (gzipped) than 'micromark' or 'markdown-it' without DOMPurify. Measured June 2, 2026.
 import { SendHorizonalIcon } from '@lucide/vue';
 import { ChatClient, fetchServerSentEvents } from '@tanstack/ai-client';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue';
+
+// ── DPUse Framework
+import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
+
+// ── Local Framework
+import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -43,6 +48,7 @@ const scrollElement = ref<HTMLElement | null>(null);
 const chatMessages = ref<LibraryChatMessage[]>([]);
 const chatErrorsByUserMessageId = ref<Record<string, string[]>>({});
 const chatStatus = ref('idle');
+const markedTool = shallowRef<MarkedToolType>();
 
 const state: { client: ChatClient | null; scrollObserver: MutationObserver | null } = { client: null, scrollObserver: null };
 
@@ -57,7 +63,8 @@ function isThinkingPart(part: LibraryChatPart): boolean {
 }
 
 function renderText(text: string): string {
-    return DOMPurify.sanitize(marked.parse(text, { async: false }));
+    if (!markedTool.value) return '';
+    return DOMPurify.sanitize(markedTool.value.render(text));
 }
 
 function extractErrorMessage(error: Error): string {
@@ -96,6 +103,22 @@ function getMessageSteps(message: LibraryChatMessage): AssistantStep[] {
 }
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const toolReady = new Promise<void>((resolve) => {
+    watch(
+        toolConfigs,
+        (newToolConfigs) => {
+            if (newToolConfigs.length === 0) return;
+            resolve();
+        },
+        { immediate: true }
+    );
+});
+
+onMounted(async () => {
+    await toolReady;
+    markedTool.value = await loadMarkedTool();
+});
 
 onMounted(() => {
     state.client = new ChatClient({
@@ -171,6 +194,18 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
         element.scrollTop = element.scrollHeight;
     });
     state.scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function loadMarkedTool(): Promise<MarkedToolType> {
+    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-marked-markdown-parser');
+    if (!toolModuleConfig) throw new Error('No Marked tool module configuration.');
+
+    const url = `https://engine-eu.dpuse.app/tools/marked-markdown-parser_v${toolModuleConfig.version}/dpuse-tool-marked-markdown-parser.es.js`;
+    const module = (await import(/* @vite-ignore */ url)) as { MarkedTool: new () => MarkedToolType };
+    const MarkedTool = module.MarkedTool;
+    return new MarkedTool();
 }
 </script>
 

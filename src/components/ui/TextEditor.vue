@@ -1,11 +1,16 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
-import { marked } from 'marked';
 import Squire from 'squire-rte';
 import TurndownService from 'turndown';
 import { BoldIcon, ItalicIcon, LinkIcon, UnderlineIcon } from '@lucide/vue';
 import { nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, useAttrs, useId, watch } from 'vue';
+
+// ── DPUse Framework
+import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
+
+// ── Local Framework
+import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import Button from './button/Button.vue';
@@ -25,6 +30,7 @@ const editor = shallowRef<Squire>();
 const editorId = id ?? useId();
 const labelId = useId();
 const internalUpdatePending = ref(false);
+const markedTool = shallowRef<MarkedToolType>();
 const parentCanScroll = ref(true);
 const scrollableAncestorObserver = shallowRef<ResizeObserver>();
 const turndown = new TurndownService();
@@ -86,12 +92,22 @@ function updateParentCanScroll(ancestor: HTMLElement): void {
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(() => {
+const toolReady = new Promise<void>((resolve) => {
+    watch(
+        toolConfigs,
+        (newToolConfigs) => {
+            if (newToolConfigs.length === 0) return;
+            resolve();
+        },
+        { immediate: true }
+    );
+});
+
+onMounted(async () => {
     editor.value = new Squire(editorElement.value!, {
         blockTag: 'P',
         sanitizeToDOMFragment: (html: string): DocumentFragment => DOMPurify.sanitize(html, { RETURN_DOM_FRAGMENT: true })
     });
-    editor.value.setHTML(DOMPurify.sanitize(marked.parse(modelValue, { async: false })));
     editor.value.addEventListener('blur', () => {
         console.log('blur...');
         internalUpdatePending.value = true;
@@ -107,16 +123,21 @@ onMounted(() => {
         scrollableAncestorObserver.value = new ResizeObserver(() => updateParentCanScroll(ancestor));
         scrollableAncestorObserver.value.observe(ancestor);
     }
+
+    await toolReady;
+    markedTool.value = await loadMarkedTool();
+    editor.value.setHTML(DOMPurify.sanitize(markedTool.value.render(modelValue)));
 });
 
 watch(
     () => modelValue,
-    (newValue) => {
+    async (newValue) => {
         if (internalUpdatePending.value) {
             internalUpdatePending.value = false;
             return;
         }
-        const html = DOMPurify.sanitize(marked.parse(newValue, { async: false }));
+        markedTool.value ??= await loadMarkedTool();
+        const html = DOMPurify.sanitize(markedTool.value.render(newValue));
         if (editor.value && editor.value.getHTML() !== html) {
             editor.value.setHTML(html);
         }
@@ -131,6 +152,18 @@ onBeforeUnmount(() => {
     editor.value?.destroy();
     scrollableAncestorObserver.value?.disconnect();
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function loadMarkedTool(): Promise<MarkedToolType> {
+    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-marked-markdown-parser');
+    if (!toolModuleConfig) throw new Error('No Marked tool module configuration.');
+
+    const url = `https://engine-eu.dpuse.app/tools/marked-markdown-parser_v${toolModuleConfig.version}/dpuse-tool-marked-markdown-parser.es.js`;
+    const module = (await import(/* @vite-ignore */ url)) as { MarkedTool: new () => MarkedToolType };
+    const MarkedTool = module.MarkedTool;
+    return new MarkedTool();
+}
 </script>
 
 <template>

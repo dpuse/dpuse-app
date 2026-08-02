@@ -42,14 +42,17 @@ try {
     // Define Trusted Types default policy to allow inline worker blob URLs created by Vite's `?worker&inline` transform.
     // Without this, `require-trusted-types-for 'script'` blocks `new Worker(blobUrl)` because the URL is a plain string.
     if (trustedTypes != null) {
-        const sanitizeHTML = (html: string): string => DOMPurify.sanitize(html);
+        const sanitizeHTML = (html: string): string => {
+            console.log(111, html);
+            return DOMPurify.sanitize(html);
+        };
         trustedTypes.createPolicy('default', {
             // Allow 'blob:' prefixed URLs for Vite's `?worker&inline` worker factory.
             createScriptURL: (url: string): string => {
                 if (url.startsWith('blob:')) return url;
                 throw new Error(`Blocked TrustedScriptURL: ${url}`);
             },
-            // Allow TipTap/ProseMirror to set innerHTML via DOMPurify sanitization.
+            // TODO: Used to suppress CSP error created by turndown. Not sure why turndown cause this?
             createHTML: sanitizeHTML
         });
     }

@@ -1,13 +1,16 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
-import { marked } from 'marked'; // NOTE: 'marked' with DOMPurify is at least 14kB smaller (gzipped) than 'micromark' or 'markdown-it' without DOMPurify. Measured June 2, 2026.
 import { useChat } from '@ai-sdk/vue';
 import { ArrowUpIcon, EllipsisVerticalIcon } from '@lucide/vue';
 import { DefaultChatTransport, isReasoningUIPart, isTextUIPart, lastAssistantMessageIsCompleteWithToolCalls, type ReasoningUIPart, type TextUIPart, type UIMessage } from 'ai';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue';
+
+// ── DPUse Framework
+import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
+import { toolConfigs } from '@/state/session';
 import { toolExecutors } from './tools';
 
 // ── Local Components - Static
@@ -26,6 +29,7 @@ const input = ref('What should I search for to find the latest developments in r
 const inputIsExpanded = ref(false);
 const scrollElement = ref<HTMLElement | null>(null);
 const chatErrorsByUserMessageId = ref<Record<string, string[]>>({});
+const markedTool = shallowRef<MarkedToolType>();
 
 const { messages, status, sendMessage, addToolOutput } = useChat({
     transport: new DefaultChatTransport({
@@ -80,7 +84,8 @@ const { messages, status, sendMessage, addToolOutput } = useChat({
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function renderText(text: string): string {
-    return DOMPurify.sanitize(marked.parse(text, { async: false }));
+    if (!markedTool.value) return '';
+    return DOMPurify.sanitize(markedTool.value.render(text));
 }
 
 function getMessageErrors(messageId: string): string[] {
@@ -114,6 +119,17 @@ function getMessageSteps(message: UIMessage): AssistantStep[] {
 
 const state: { scrollObserver: MutationObserver | null; singleRowHeight: number } = { scrollObserver: null, singleRowHeight: 0 };
 
+const toolReady = new Promise<void>((resolve) => {
+    watch(
+        toolConfigs,
+        (newToolConfigs) => {
+            if (newToolConfigs.length === 0) return;
+            resolve();
+        },
+        { immediate: true }
+    );
+});
+
 onMounted(() => {
     const element = document.querySelector<HTMLTextAreaElement>('#comment');
     if (!element) return;
@@ -122,6 +138,10 @@ onMounted(() => {
     state.singleRowHeight = element.clientHeight;
     element.value = savedValue;
     inputIsExpanded.value = element.clientHeight > state.singleRowHeight;
+});
+onMounted(async () => {
+    await toolReady;
+    markedTool.value = await loadMarkedTool();
 });
 onUnmounted(() => state.scrollObserver?.disconnect());
 
@@ -144,6 +164,18 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
         element.scrollTop = element.scrollHeight;
     });
     state.scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function loadMarkedTool(): Promise<MarkedToolType> {
+    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-marked-markdown-parser');
+    if (!toolModuleConfig) throw new Error('No Marked tool module configuration.');
+
+    const url = `https://engine-eu.dpuse.app/tools/marked-markdown-parser_v${toolModuleConfig.version}/dpuse-tool-marked-markdown-parser.es.js`;
+    const module = (await import(/* @vite-ignore */ url)) as { MarkedTool: new () => MarkedToolType };
+    const MarkedTool = module.MarkedTool;
+    return new MarkedTool();
 }
 </script>
 

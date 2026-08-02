@@ -1,13 +1,13 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
-import { marked } from 'marked';
 import { ChevronRightIcon, PencilIcon } from '@lucide/vue';
 import { onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
 import type { ComponentBase } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
 import type { D3Tool as D3ToolType, ErdDiagramData, TreeDiagramNode } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
@@ -99,6 +99,7 @@ const modelReferenceLabel = ref('');
 const modelMap = modelConfigs as Record<string, Model>;
 const erdContainer = useTemplateRef<HTMLDivElement>('erdContainer');
 const dimensionTreeContainer = useTemplateRef<HTMLDivElement>('dimensionTreeContainer');
+const markedTool = shallowRef<MarkedToolType>();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -116,18 +117,21 @@ const toolReady = new Promise<void>((resolve) => {
 onMounted(async () => {
     await toolReady;
 
-    const d3Tool = await loadD3Tool();
+    const [markedToolInstance, d3Tool] = await Promise.all([loadMarkedTool(), loadD3Tool()]);
+    markedTool.value = markedToolInstance;
     if (erdContainer.value) await d3Tool.renderErdDiagram(ERD_DATA, erdContainer.value);
     if (dimensionTreeContainer.value) await d3Tool.renderTreeDiagram(DIMENSION_TREE, dimensionTreeContainer.value);
 });
 
 watch(
     () => modelReference,
-    (newModelReference) => {
-        purifiedDescription.value = DOMPurify.sanitize(marked.parse(newModelReference.description, { async: false }));
+    async (newModelReference) => {
         modelDescription.value = newModelReference.description + newModelReference.description + newModelReference.description + newModelReference.description;
         modelReferenceLabel.value = newModelReference.label;
         activeModel.value = localiseModel(modelMap[newModelReference.id]);
+
+        markedTool.value ??= await loadMarkedTool();
+        purifiedDescription.value = DOMPurify.sanitize(markedTool.value.render(newModelReference.description));
     },
     { immediate: true }
 );
@@ -146,7 +150,18 @@ function localiseModel(model: Model): LocalisedModel {
 }
 
 function purifyText(text: string): string {
-    return DOMPurify.sanitize(marked.parse(text, { async: false }));
+    if (!markedTool.value) return '';
+    return DOMPurify.sanitize(markedTool.value.render(text));
+}
+
+async function loadMarkedTool(): Promise<MarkedToolType> {
+    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-marked-markdown-parser');
+    if (!toolModuleConfig) throw new Error('No Marked tool module configuration.');
+
+    const url = `https://engine-eu.dpuse.app/tools/marked-markdown-parser_v${toolModuleConfig.version}/dpuse-tool-marked-markdown-parser.es.js`;
+    const module = (await import(/* @vite-ignore */ url)) as { MarkedTool: new () => MarkedToolType };
+    const MarkedTool = module.MarkedTool;
+    return new MarkedTool();
 }
 
 async function loadD3Tool(): Promise<D3ToolType> {
