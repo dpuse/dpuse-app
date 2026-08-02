@@ -112,7 +112,7 @@ export async function useEngine(): Promise<EngineWorker> {
         //     const auditObjectContentOptionsRust: AuditObjectContentOptions = {
         //         chunkSize: 4096,
         //         encodingId: 'utf8',
-        //         parsingToolName: 'dpuse-tool-rust-csv-core',
+        //         parsingToolName: 'dpuse-tool-rust-csv-core-parser',
         //         path: FILE_PATH,
         //         valueDelimiterId: ','
         //     };
