@@ -80,7 +80,7 @@ async function handleSubmit(): Promise<void> {
                 </div>
 
                 <!-- Description -->
-                <p v-for="paragraph in cookbookLocalisedConfig.description" :key="paragraph">{{ paragraph }}</p>
+                <p>{{ cookbookLocalisedConfig.description }}</p>
 
                 <!-- Links -->
                 <h2>{{ t(T, 'Links') }}</h2>

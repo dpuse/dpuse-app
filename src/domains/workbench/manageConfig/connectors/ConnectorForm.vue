@@ -115,7 +115,7 @@ function getCategoryConnectorLabel(categoryId: string): string {
                 </div>
 
                 <!-- Description -->
-                <p v-for="paragraph in connectorLocalisedConfig.description" :key="paragraph">{{ paragraph }}</p>
+                <p>{{ connectorLocalisedConfig.description }}</p>
 
                 <p>{{ CONNECTOR_USAGE_DESCRIPTIONS[connectorLocalisedConfig.usageId ?? 'unknown'] }}</p>
 

@@ -78,7 +78,7 @@ async function handleSubmit(): Promise<void> {
                 </div>
 
                 <!-- Description -->
-                <p v-for="paragraph in toolLocalisedConfig.description" :key="paragraph">{{ paragraph }}</p>
+                <p>{{ toolLocalisedConfig.description }}</p>
 
                 <!-- Links -->
                 <h2>{{ t(T, 'Links') }}</h2>

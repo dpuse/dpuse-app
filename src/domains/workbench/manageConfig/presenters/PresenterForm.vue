@@ -82,7 +82,7 @@ async function handleSubmit(): Promise<void> {
                 </div>
 
                 <!-- Description -->
-                <p v-for="paragraph in presenterLocalisedConfig.description" :key="paragraph">{{ paragraph }}</p>
+                <p>{{ presenterLocalisedConfig.description }}</p>
 
                 <!-- Links -->
                 <h2>{{ t(T, 'Links') }}</h2>
