@@ -3,7 +3,7 @@
 import { onMounted, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
-import type { BarChartData, D3Tool as D3ToolType, SankeyDiagramData } from '@dpuse/dpuse-tool-d3';
+import type { BarChartData, D3Tool as D3ToolType, SankeyDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // Local Framework
 import { t } from '@/state/locale';
@@ -43,7 +43,7 @@ const toolReady = new Promise<void>((resolve) => {
 onMounted(async () => {
     await toolReady;
 
-    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-d3');
+    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-d3-visualiser');
     if (!toolModuleConfig) throw new Error('No D3 tool module configuration.');
 
     ensureD3ToolStylesheetLoaded(toolModuleConfig.version);
@@ -81,7 +81,7 @@ onMounted(async () => {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function loadD3Tool(version: string): Promise<D3ToolType> {
-    const url = `https://engine-eu.dpuse.app/tools/d3_v${version}/dpuse-tool-d3.es.js`;
+    const url = `https://engine-eu.dpuse.app/tools/d3-visualiser_v${version}/dpuse-tool-d3-visualiser.es.js`;
     const module = (await import(/* @vite-ignore */ url)) as { D3Tool: new () => D3ToolType };
     const D3Tool = module.D3Tool;
     return new D3Tool();
@@ -91,7 +91,7 @@ async function loadD3Tool(version: string): Promise<D3ToolType> {
 // right without it. Injected as a <link> from the same engine origin the tool's JS already loads from, guarded so a
 // second mount doesn't insert it twice.
 function ensureD3ToolStylesheetLoaded(version: string): void {
-    const href = `https://engine-eu.dpuse.app/tools/d3_v${version}/dpuse-tool-d3.css`;
+    const href = `https://engine-eu.dpuse.app/tools/d3-visualiser_v${version}/dpuse-tool-d3-visualiser.css`;
     if (document.head.querySelector(`link[href="${CSS.escape(href)}"]`)) return;
 
     const link = document.createElement('link');

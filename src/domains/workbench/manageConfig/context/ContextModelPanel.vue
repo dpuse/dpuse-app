@@ -8,7 +8,7 @@ import { onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 // ── DPUse Framework
 import type { ComponentBase } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import type { D3Tool as D3ToolType, ErdDiagramData, TreeDiagramNode } from '@dpuse/dpuse-tool-d3';
+import type { D3Tool as D3ToolType, ErdDiagramData, TreeDiagramNode } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
 import { toolConfigs } from '@/state/session';
@@ -42,7 +42,7 @@ const ENTITY_TABS = [
     { id: 'primaryMeasures', label: 'Measures' }
 ];
 
-// Evaluation example: hard-coded ERD, laid out and drawn by dpuse-tool-d3's renderErdDiagram (dagre + d3-selection).
+// Evaluation example: hard-coded ERD, laid out and drawn by dpuse-tool-d3-visualiser's renderErdDiagram (dagre + d3-selection).
 const ERD_DATA: ErdDiagramData = {
     nodes: [
         { id: 'organisation', label: 'Organisation', typeId: 'primary' },
@@ -59,7 +59,7 @@ const ERD_DATA: ErdDiagramData = {
     ]
 };
 
-// Evaluation example: strict tree (single parent per node), laid out and drawn by dpuse-tool-d3's renderTreeDiagram (d3-hierarchy + d3-selection).
+// Evaluation example: strict tree (single parent per node), laid out and drawn by dpuse-tool-d3-visualiser's renderTreeDiagram (d3-hierarchy + d3-selection).
 const DIMENSION_TREE: TreeDiagramNode = {
     id: 'geography',
     label: 'Geography',
@@ -150,10 +150,10 @@ function purifyText(text: string): string {
 }
 
 async function loadD3Tool(): Promise<D3ToolType> {
-    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-d3');
+    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-d3-visualiser');
     if (!toolModuleConfig) throw new Error('No D3 tool module configuration.');
 
-    const url = `https://engine-eu.dpuse.app/tools/d3_v${toolModuleConfig.version}/dpuse-tool-d3.es.js`;
+    const url = `https://engine-eu.dpuse.app/tools/d3-visualiser_v${toolModuleConfig.version}/dpuse-tool-d3-visualiser.es.js`;
     const module = (await import(/* @vite-ignore */ url)) as { D3Tool: new () => D3ToolType };
     const D3Tool = module.D3Tool;
     return new D3Tool();
@@ -183,10 +183,10 @@ async function loadD3Tool(): Promise<D3ToolType> {
 
             <h3>Schematic</h3>
 
-            <!-- ERD evaluation: layout and rendering via dpuse-tool-d3's renderErdDiagram (dagre + d3-selection) -->
+            <!-- ERD evaluation: layout and rendering via dpuse-tool-d3-visualiser's renderErdDiagram (dagre + d3-selection) -->
             <div ref="erdContainer" />
 
-            <!-- Dimension tree evaluation: layout and rendering via dpuse-tool-d3's renderTreeDiagram (d3-hierarchy + d3-selection) -->
+            <!-- Dimension tree evaluation: layout and rendering via dpuse-tool-d3-visualiser's renderTreeDiagram (d3-hierarchy + d3-selection) -->
             <div ref="dimensionTreeContainer" />
 
             <!-- Dimensions -->

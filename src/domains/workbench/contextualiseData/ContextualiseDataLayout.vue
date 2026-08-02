@@ -3,7 +3,7 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 // ── DPUse Framework
-import type { D3NetworkView, D3Tool as D3ToolType, NetworkDiagramData } from '@dpuse/dpuse-tool-d3';
+import type { D3NetworkView, D3Tool as D3ToolType, NetworkDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
 import { t } from '@/state/locale';
@@ -70,10 +70,10 @@ onBeforeUnmount(() => {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function loadD3Tool(): Promise<D3ToolType> {
-    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-d3');
+    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-d3-visualiser');
     if (!toolModuleConfig) throw new Error('No D3 tool module configuration.');
 
-    const url = `https://engine-eu.dpuse.app/tools/d3_v${toolModuleConfig.version}/dpuse-tool-d3.es.js`;
+    const url = `https://engine-eu.dpuse.app/tools/d3-visualiser_v${toolModuleConfig.version}/dpuse-tool-d3-visualiser.es.js`;
     const module = (await import(/* @vite-ignore */ url)) as { D3Tool: new () => D3ToolType };
     const D3Tool = module.D3Tool;
     return new D3Tool();

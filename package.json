@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1493",
+    "version": "0.0.1494",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -49,7 +49,7 @@
     "dependencies": {
         "@ai-sdk/vue": "^4.0.48",
         "@dpuse/dpuse-shared": "^0.3.760",
-        "@dpuse/dpuse-tool-d3": "^0.0.17",
+        "@dpuse/dpuse-tool-d3-visualiser": "^0.0.18",
         "@formkit/drag-and-drop": "^0.6.1",
         "@regle/core": "^1.28.5",
         "@regle/rules": "^1.28.5",
