@@ -1,11 +1,15 @@
 {
+    "generic": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
+    "biographical": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
+    "asset": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
+    "financial": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
     "geographic": {
         "dimensions": [
-            { "id": "geoDiv", "label": { "en": "Division" } },
-            { "id": "geoSubDiv", "label": { "en": "Subdivision" } },
-            { "id": "geoCtry", "label": { "en": "Country" } },
-            { "id": "geoCtryDiv", "label": { "en": "Country Division" } },
-            { "id": "geoCtryPstCode", "label": { "en": "Postal Code" } },
+            { "id": "geoDiv", "label": { "en": "Division" }, "description": { "en": "..." } },
+            { "id": "geoSubDiv", "label": { "en": "Subdivision" }, "description": { "en": "..." } },
+            { "id": "geoCtry", "label": { "en": "Country" }, "description": { "en": "..." } },
+            { "id": "geoCtryDiv", "label": { "en": "Country Division" }, "description": { "en": "..." } },
+            { "id": "geoCtryPstCode", "label": { "en": "Postal Code" }, "description": { "en": "..." } },
             {
                 "id": "geoCity",
                 "label": { "en": "City" },
@@ -26,9 +30,9 @@
                     }
                 ]
             },
-            { "id": "geoCityDiv", "label": { "en": "City Division" } },
-            { "id": "geoTimeZone", "label": { "en": "Time Zone" } },
-            { "id": "geoUrb", "label": { "en": "Urbanicity" } }
+            { "id": "geoCityDiv", "label": { "en": "City Division" }, "description": { "en": "..." } },
+            { "id": "geoTimeZone", "label": { "en": "Time Zone" }, "description": { "en": "..." } },
+            { "id": "geoUrb", "label": { "en": "Urbanicity" }, "description": { "en": "..." } }
         ],
         "entities": [],
         "secondaryMeasures": []
@@ -36,7 +40,7 @@
     "party": {
         "dimensions": [
             {
-                "id": "perAge",
+                "id": "age",
                 "label": { "en": "Age" },
                 "labelPlural": { "en": "Ages" },
                 "description": {
@@ -219,7 +223,34 @@
                 ]
             },
             {
-                "id": "perGdr",
+                "id": "countryOfBirth",
+                "label": { "en": "Country of Birth" },
+                "labelPlural": { "en": "Countries of Birth" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "educationLevel",
+                "label": { "en": "Education Level" },
+                "labelPlural": { "en": "Education Levels" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "ethnicGroup",
+                "label": { "en": "Ethnic Group" },
+                "labelPlural": { "en": "Ethnic Groups" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "gender",
                 "label": { "en": "Gender" },
                 "labelPlural": { "en": "Genders" },
                 "description": {
@@ -241,11 +272,11 @@
                 ]
             },
             {
-                "id": "perGen",
+                "id": "generation",
                 "label": { "en": "Generation" },
                 "labelPlural": { "en": "Generations" },
                 "description": {
-                    "en": "This dimension categorises people based on their membership of a cohort of individuals who were born at the same time."
+                    "en": "This dimension categorises people based on their membership of a cohort of individuals who were born during a specific period of time."
                 },
                 "hierarchies": [
                     {
@@ -387,6 +418,105 @@
                         ]
                     }
                 ]
+            },
+            {
+                "id": "homeLocation",
+                "label": { "en": "Home Location" },
+                "labelPlural": { "en": "Home Locations" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "organisationType",
+                "label": { "en": "Organisation Type" },
+                "labelPlural": { "en": "Organisation Types" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "organisationalUnitType",
+                "label": { "en": "Organisational Unit Type" },
+                "labelPlural": { "en": "Organisational Unit Types" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "maritalStatus",
+                "label": { "en": "Marital Status" },
+                "labelPlural": { "en": "Marital Statuses" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "minority",
+                "label": { "en": "Minority" },
+                "labelPlural": { "en": "Minorities" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "preferredLanguage",
+                "label": { "en": "Preferred Language" },
+                "labelPlural": { "en": "Preferred Languages" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "primaryNationality",
+                "label": { "en": "Primary Nationality" },
+                "labelPlural": { "en": "Primary Nationalities" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "physicalAbility",
+                "label": { "en": "Physical Ability" },
+                "labelPlural": { "en": "Physical Abilities" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "residentialLocation",
+                "label": { "en": "Residential Location" },
+                "labelPlural": { "en": "Residential Locations" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "sexualOrientation",
+                "label": { "en": "Sexual Orientation" },
+                "labelPlural": { "en": "Sexual Orientations" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "veteranStatus",
+                "label": { "en": "Veteran Status" },
+                "labelPlural": { "en": "Veteran Statuses" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
             }
         ],
         "entities": [
@@ -830,8 +960,16 @@
                 }
             }
         ],
-        "secondaryMeasures": []
+        "secondaryMeasures": [
+            {
+                "id": "averageOrgUnitCount",
+                "label": { "en": "Average Organisational Unit Count" },
+                "description": { "en": "The average number of organisational units across the organisations over the reporting period." },
+                "formula": "AVG(orgUnit.endingCount / org.endingCount)"
+            }
+        ]
     },
+    "product": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
     "workforce": {
         "dimensions": [
             {

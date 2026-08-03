@@ -31,11 +31,13 @@ const ContextModelDescriptorsPanel = defineAsyncComponent(() => import('./Contex
 
 type Dimension = { id: string; label: Record<string, string>; description: Record<string, string> };
 type Entity = { id: string; label: Record<string, string>; description: Record<string, string> };
-type Model = { entities: Entity[]; dimensions: Dimension[] };
+type SecondaryMeasure = { id: string; label: Record<string, string>; description: Record<string, string>; formula: string };
+type Model = { entities: Entity[]; dimensions: Dimension[]; secondaryMeasures: SecondaryMeasure[] };
 
 type LocalisedDimensions = { id: string; label: string; description: string };
 type LocalisedEntity = { id: string; label: string; description: string };
-type LocalisedModel = { entities: LocalisedEntity[]; dimensions: LocalisedDimensions[] };
+type LocalisedSecondaryMeasure = { id: string; label: string; description: string; formula: string };
+type LocalisedModel = { entities: LocalisedEntity[]; dimensions: LocalisedDimensions[]; secondaryMeasures: LocalisedSecondaryMeasure[] };
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -97,6 +99,8 @@ const activeModel = shallowRef();
 const activeEntityTab = shallowRef(ENTITY_TABS[0]);
 const expandedDimensionId = ref<string | null>(null);
 const expandedEntityId = ref<string | null>(null);
+
+const expandedSecondaryMeasureId = ref<string | null>(null);
 const open = ref(false);
 const purifiedDescription = ref('');
 const modelDescription = ref('');
@@ -149,8 +153,16 @@ watch(
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
+function toggleDimension(dimensionId: string): void {
+    expandedDimensionId.value = expandedDimensionId.value === dimensionId ? null : dimensionId;
+}
+
 function toggleEntity(entityId: string): void {
     expandedEntityId.value = expandedEntityId.value === entityId ? null : entityId;
+}
+
+function toggleSecondaryMeasure(secondaryMeasureId: string): void {
+    expandedSecondaryMeasureId.value = expandedSecondaryMeasureId.value === secondaryMeasureId ? null : secondaryMeasureId;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -162,7 +174,12 @@ function localiseModel(model: Model): LocalisedModel {
         label: dimension.label.en,
         description: dimension.description.en
     }));
-    return { ...model, entities: localisedEntities, dimensions: localisedDimensions };
+    const localisedSecondaryMeasures: LocalisedSecondaryMeasure[] = Array.from(model.secondaryMeasures, (measure) => ({
+        ...measure,
+        label: measure.label.en,
+        description: measure.description.en
+    }));
+    return { ...model, entities: localisedEntities, dimensions: localisedDimensions, secondaryMeasures: localisedSecondaryMeasures };
 }
 
 function purifyText(text: string): string {
@@ -309,6 +326,8 @@ async function loadD3Tool(): Promise<D3ToolType> {
             <!-- Dimensions -->
             <h2 class="flex flex-none items-center justify-between gap-x-3">Dimensions</h2>
 
+            <p>The dimensions ... this model.</p>
+
             <div
                 v-for="dimension in activeModel.dimensions"
                 :key="dimension.id"
@@ -321,9 +340,9 @@ async function loadD3Tool(): Promise<D3ToolType> {
                     :aria-expanded="expandedDimensionId === dimension.id"
                     class="flex items-center gap-x-2 bg-backdrop py-2 pr-4 pl-2"
                     :class="expandedDimensionId === dimension.id ? 'rounded-t-md' : 'rounded-md'"
-                    @click="toggleEntity(dimension.id)"
-                    @keydown.enter="toggleEntity(dimension.id)"
-                    @keydown.space.prevent="toggleEntity(dimension.id)"
+                    @click="toggleDimension(dimension.id)"
+                    @keydown.enter="toggleDimension(dimension.id)"
+                    @keydown.space.prevent="toggleDimension(dimension.id)"
                 >
                     <ChevronRightIcon class="size-5" stroke-width="1.5" />
                     <div class="flex-1">{{ dimension.label }}</div>
@@ -380,6 +399,77 @@ async function loadD3Tool(): Promise<D3ToolType> {
 
             <!-- Secondary Measures -->
             <h2 class="flex flex-none items-center justify-between gap-x-3">Secondary Measures</h2>
+
+            <p>The measures ... this model.</p>
+
+            <div
+                v-for="measure in activeModel.secondaryMeasures"
+                :key="measure.id"
+                class="mt-2 max-w-prose border"
+                :class="expandedSecondaryMeasureId === measure.id ? 'rounded-md  border-separator' : 'rounded-md border-backdrop'"
+            >
+                <div
+                    role="button"
+                    tabindex="0"
+                    :aria-expanded="expandedSecondaryMeasureId === measure.id"
+                    class="flex items-center gap-x-2 bg-backdrop py-2 pr-4 pl-2"
+                    :class="expandedSecondaryMeasureId === measure.id ? 'rounded-t-md' : 'rounded-md'"
+                    @click="toggleSecondaryMeasure(measure.id)"
+                    @keydown.enter="toggleSecondaryMeasure(measure.id)"
+                    @keydown.space.prevent="toggleSecondaryMeasure(measure.id)"
+                >
+                    <ChevronRightIcon class="size-5" stroke-width="1.5" />
+                    <div class="flex-1">{{ measure.label }}</div>
+                    <Button class="" shape="minimal" @click="open = true">
+                        <SquarePenIcon class="size-5" stroke-width="1.5" />
+                    </Button>
+                </div>
+
+                <div v-if="expandedSecondaryMeasureId === measure.id" class="overflow-y-hidden rounded-b-md px-4 pb-4">
+                    <!-- Description -->
+                    <div v-html="purifyText(measure.description)" />
+
+                    <!-- Entity Tabs -->
+                    <div class="flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
+                        <template v-for="entityTab in ENTITY_TABS" :key="entityTab.id">
+                            <Button
+                                class="border-y-2 border-t-transparent py-1.25"
+                                :class="entityTab.id === activeEntityTab.id ? 'border-b-blue-400' : 'border-b-transparent'"
+                                shape="minimal"
+                                @click="activeEntityTab = entityTab"
+                            >
+                                <div>{{ entityTab.label }}</div>
+                            </Button>
+                        </template>
+                    </div>
+
+                    <!-- Parents Panel -->
+                    <div v-show="activeEntityTab.id === 'parents'" class="py-1">
+                        <div v-for="parent in measure.parents" :key="parent">
+                            {{ parent }}
+                        </div>
+                    </div>
+
+                    <!-- Characteristics Panel -->
+                    <div v-show="activeEntityTab.id === 'characteristics'" class="py-1">
+                        <div v-for="characteristic in measure.characteristics" :key="characteristic">
+                            {{ characteristic }}
+                        </div>
+                    </div>
+
+                    <!-- Events Panel -->
+                    <div v-show="activeEntityTab.id === 'events'" class="py-1">
+                        <!-- <div v-for="event in entity.events" :key="event.id">{{ event.id }}</div> -->
+                        {{ measure.events }}
+                    </div>
+
+                    <!-- Primary Measures Panel -->
+                    <div v-show="activeEntityTab.id === 'primaryMeasures'" class="py-1">
+                        <!-- <div v-for="primaryMeasure in entity.primaryMeasures" :key="primaryMeasure.id">{{ primaryMeasure.id }}</div> -->
+                        {{ measure.primaryMeasures }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>

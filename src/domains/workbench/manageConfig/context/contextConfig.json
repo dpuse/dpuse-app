@@ -24,6 +24,39 @@
             "order": 1,
             "models": [
                 {
+                    "id": "generic",
+                    "label": { "en": "Generic" },
+                    "description": {
+                        "en": "Generic model description..."
+                    },
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                },
+                {
+                    "id": "biographical",
+                    "label": { "en": "Biographical" },
+                    "description": {
+                        "en": "Biographical model description..."
+                    },
+                    "firstCreatedAt": null,
+                    "icon": null,
+                    "iconDark": null,
+                    "lastUpdatedAt": null,
+                    "status": null,
+                    "statusId": "alpha",
+                    "typeId": "contextModel",
+                    "order": 1,
+                    "path": ""
+                },
+
+                {
                     "id": "asset",
                     "label": { "en": "Asset" },
                     "description": {
