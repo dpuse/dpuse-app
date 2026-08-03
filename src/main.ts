@@ -43,7 +43,7 @@ try {
     // Without this, `require-trusted-types-for 'script'` blocks `new Worker(blobUrl)` because the URL is a plain string.
     if (trustedTypes != null) {
         const sanitizeHTML = (html: string): string => {
-            console.log(111, html);
+            console.trace(111, html);
             return DOMPurify.sanitize(html);
         };
         trustedTypes.createPolicy('default', {
@@ -52,7 +52,7 @@ try {
                 if (url.startsWith('blob:')) return url;
                 throw new Error(`Blocked TrustedScriptURL: ${url}`);
             },
-            // TODO: Used to suppress CSP error created by turndown. Not sure why turndown cause this?
+            // TODO: Used to suppress CSP error created by turndown. Not sure why turndown causes this?
             createHTML: sanitizeHTML
         });
     }
