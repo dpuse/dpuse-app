@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { htmlToMarkdown } from '@mdream/js';
 import DOMPurify from 'dompurify';
 import Squire from 'squire-rte';
+import TurndownService from 'turndown';
 import { BoldIcon, ItalicIcon, LinkIcon, UnderlineIcon } from '@lucide/vue';
 import { nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, useAttrs, useId, watch } from 'vue';
 
@@ -33,8 +33,8 @@ const internalUpdatePending = ref(false);
 const markedTool = shallowRef<MarkedToolType>();
 const parentCanScroll = ref(true);
 const scrollableAncestorObserver = shallowRef<ResizeObserver>();
-
-const markdownOptions = { plugins: { tagOverrides: { u: { enter: '<u>', exit: '</u>', isInline: true, collapsesInnerWhiteSpace: false } } } };
+const turndown = new TurndownService();
+turndown.keep(['u']);
 
 // ── Behaviour ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -111,7 +111,7 @@ onMounted(async () => {
     editor.value.addEventListener('blur', () => {
         console.log('blur...');
         internalUpdatePending.value = true;
-        emit('update:modelValue', htmlToMarkdown(editor.value!.getRoot().innerHTML, markdownOptions));
+        emit('update:modelValue', turndown.turndown(editor.value!.getRoot()));
     });
     editor.value.addEventListener('pathChange', updateActiveFormats);
     editor.value.addEventListener('select', updateActiveFormats);
