@@ -837,6 +837,7 @@
             {
                 "id": "engagementAttendance",
                 "label": { "en": "Engagement Attendance" },
+                "description": { "en": "..." },
                 "items": [
                     { "id": "ft", "label": { "en": "Full/Time" } },
                     { "id": "pt", "label": { "en": "Part/Time" } },
@@ -846,6 +847,7 @@
             {
                 "id": "engagementType",
                 "label": { "en": "Engagement Type" },
+                "description": { "en": "..." },
                 "items": [
                     { "id": "ft", "label": { "en": "Full/Time" } },
                     { "id": "pt", "label": { "en": "Part/Time" } },

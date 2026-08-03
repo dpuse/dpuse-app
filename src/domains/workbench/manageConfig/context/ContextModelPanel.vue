@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
-import { ChevronRightIcon, PencilIcon } from '@lucide/vue';
-import { onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { ChevronRightIcon, LoaderCircleIcon, NetworkIcon, SquarePenIcon, WorkflowIcon } from '@lucide/vue';
+import { defineAsyncComponent, onErrorCaptured, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
 import type { ComponentBase } from '@dpuse/dpuse-shared/component';
@@ -22,16 +22,20 @@ import modelConfigs from './modelConfigs.json';
 // ── Local Components - Static
 import BaseDialog from '@/components/ui/dialog/BaseDialog.vue';
 import Button from '@/components/ui/button/Button.vue';
-import Input from '@/components/ui/Input.vue';
-import TextEditor from '@/components/ui/TextEditor.vue';
+import ComponentLoadError from '@/components/ui/ComponentLoadError.vue';
+
+// ── Local Components - Dynamic
+const ContextModelDescriptorsPanel = defineAsyncComponent(() => import('./ContextModelDescriptorsPanel.vue'));
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+type Dimension = { id: string; label: Record<string, string>; description: Record<string, string> };
 type Entity = { id: string; label: Record<string, string>; description: Record<string, string> };
-type Model = { entities: Entity[] };
+type Model = { entities: Entity[]; dimensions: Dimension[] };
 
+type LocalisedDimensions = { id: string; label: string; description: string };
 type LocalisedEntity = { id: string; label: string; description: string };
-type LocalisedModel = { entities: LocalisedEntity[] };
+type LocalisedModel = { entities: LocalisedEntity[]; dimensions: LocalisedDimensions[] };
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -91,6 +95,7 @@ const { modelReference } = defineProps<{ modelReference: GridListItem<LocalisedC
 
 const activeModel = shallowRef();
 const activeEntityTab = shallowRef(ENTITY_TABS[0]);
+const expandedDimensionId = ref<string | null>(null);
 const expandedEntityId = ref<string | null>(null);
 const open = ref(false);
 const purifiedDescription = ref('');
@@ -100,8 +105,14 @@ const modelMap = modelConfigs as Record<string, Model>;
 const erdContainer = useTemplateRef<HTMLDivElement>('erdContainer');
 const dimensionTreeContainer = useTemplateRef<HTMLDivElement>('dimensionTreeContainer');
 const markedTool = shallowRef<MarkedToolType>();
+const descriptorsPanelError = ref<unknown>(null);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+onErrorCaptured((error) => {
+    descriptorsPanelError.value = error;
+    return false;
+});
 
 const toolReady = new Promise<void>((resolve) => {
     watch(
@@ -146,7 +157,12 @@ function toggleEntity(entityId: string): void {
 
 function localiseModel(model: Model): LocalisedModel {
     const localisedEntities: LocalisedEntity[] = Array.from(model.entities, (entity) => ({ ...entity, label: entity.label.en, description: entity.description.en }));
-    return { ...model, entities: localisedEntities };
+    const localisedDimensions: LocalisedEntity[] = Array.from(model.dimensions, (dimension) => ({
+        ...dimension,
+        label: dimension.label.en,
+        description: dimension.description.en
+    }));
+    return { ...model, entities: localisedEntities, dimensions: localisedDimensions };
 }
 
 function purifyText(text: string): string {
@@ -176,46 +192,56 @@ async function loadD3Tool(): Promise<D3ToolType> {
 </script>
 
 <template>
-    <div class="dpuse-prose flex-1 overflow-y-auto overscroll-y-none px-4">
+    <div class="dpuse-prose flex-1 overflow-y-auto overscroll-y-none px-4 pb-(--vertical-scroll-bottom-screen-inset)">
         <div class="max-w-prose">
             <!-- Header -->
-            <div class="flex flex-none items-center gap-x-3 pt-3">
-                <h1 class="">{{ modelReference.label }} Model</h1>
-                <Button class="" shape="minimal" @click="open = true">
-                    <PencilIcon class="size-5" stroke-width="1.25" />
+            <h1 class="flex flex-none items-center justify-between gap-x-3 pt-6">
+                {{ modelReference.label }} Model
+                <Button class="mr-4" shape="minimal" @click="open = true">
+                    <SquarePenIcon class="size-5" stroke-width="1.5" />
                 </Button>
-            </div>
+            </h1>
 
             <!-- Description -->
             <div v-html="purifiedDescription" />
 
             <BaseDialog v-model="open" :title="`${modelReference.label} Descriptors`" @save="open = false">
-                <div class="flex min-h-0 max-w-prose flex-1 flex-col gap-y-4 overflow-x-hidden overflow-y-auto overscroll-y-none px-6 py-4">
-                    <Input v-model="modelReferenceLabel" label="Label" />
-                    <TextEditor v-model="modelDescription" class="min-h-25 flex-1" label="Description" />
-                </div>
+                <ComponentLoadError v-if="descriptorsPanelError" :error="descriptorsPanelError" name="ContextModelDescriptorsPanel" class="flex-1" />
+                <Suspense v-else-if="open">
+                    <template #default>
+                        <ContextModelDescriptorsPanel v-model:label="modelReferenceLabel" v-model:description="modelDescription" />
+                    </template>
+                    <template #fallback>
+                        <div class="flex flex-1 items-center justify-center">
+                            <LoaderCircleIcon class="animate-spin text-muted" />
+                        </div>
+                    </template>
+                </Suspense>
             </BaseDialog>
 
-            <h3>Schematic</h3>
+            <!-- <h3>Schematic</h3> -->
 
             <!-- ERD evaluation: layout and rendering via dpuse-tool-d3-visualiser's renderErdDiagram (dagre + d3-selection) -->
-            <div ref="erdContainer" />
+            <!-- <div ref="erdContainer" /> -->
 
             <!-- Dimension tree evaluation: layout and rendering via dpuse-tool-d3-visualiser's renderTreeDiagram (d3-hierarchy + d3-selection) -->
-            <div ref="dimensionTreeContainer" />
-
-            <!-- Dimensions -->
-            <h2>Dimensions</h2>
-            <p>Something about dimensions...</p>
+            <!-- <div ref="dimensionTreeContainer" /> -->
 
             <!-- Entities -->
-            <h2>Entities</h2>
-            <p>Something about entities...</p>
+            <h2 class="flex flex-none items-center justify-between gap-x-3">
+                Entities
+                <Button class="mr-4" shape="minimal" @click="open = true">
+                    <NetworkIcon class="size-5" stroke-width="1.5" />
+                </Button>
+            </h2>
+
+            <p>The entities that make up this model.</p>
+
             <div
-                v-for="entity in activeModel.entities ?? []"
+                v-for="entity in activeModel.entities"
                 :key="entity.id"
-                class="mt-2 max-w-prose"
-                :class="expandedEntityId === entity.id ? 'rounded-md border border-separator' : 'rounded-md'"
+                class="mt-2 max-w-prose border"
+                :class="expandedEntityId === entity.id ? 'rounded-md  border-separator' : 'rounded-md border-backdrop'"
             >
                 <div
                     role="button"
@@ -227,12 +253,13 @@ async function loadD3Tool(): Promise<D3ToolType> {
                     @keydown.enter="toggleEntity(entity.id)"
                     @keydown.space.prevent="toggleEntity(entity.id)"
                 >
-                    <ChevronRightIcon class="size-4.5" stroke-width="1.5" />
+                    <ChevronRightIcon class="size-5" stroke-width="1.5" />
                     <div class="flex-1">{{ entity.label }}</div>
                     <Button class="" shape="minimal" @click="open = true">
-                        <PencilIcon class="size-4.5" stroke-width="1.25" />
+                        <SquarePenIcon class="size-5" stroke-width="1.5" />
                     </Button>
                 </div>
+
                 <div v-if="expandedEntityId === entity.id" class="overflow-y-hidden rounded-b-md px-4 pb-4">
                     <!-- Description -->
                     <div v-html="purifyText(entity.description)" />
@@ -278,10 +305,81 @@ async function loadD3Tool(): Promise<D3ToolType> {
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Secondary Measures -->
-        <h2>Secondary Measures</h2>
-        <p>Something about secondary measures...</p>
+            <!-- Dimensions -->
+            <h2 class="flex flex-none items-center justify-between gap-x-3">Dimensions</h2>
+
+            <div
+                v-for="dimension in activeModel.dimensions"
+                :key="dimension.id"
+                class="mt-2 max-w-prose border"
+                :class="expandedDimensionId === dimension.id ? 'rounded-md  border-separator' : 'rounded-md border-backdrop'"
+            >
+                <div
+                    role="button"
+                    tabindex="0"
+                    :aria-expanded="expandedDimensionId === dimension.id"
+                    class="flex items-center gap-x-2 bg-backdrop py-2 pr-4 pl-2"
+                    :class="expandedDimensionId === dimension.id ? 'rounded-t-md' : 'rounded-md'"
+                    @click="toggleEntity(dimension.id)"
+                    @keydown.enter="toggleEntity(dimension.id)"
+                    @keydown.space.prevent="toggleEntity(dimension.id)"
+                >
+                    <ChevronRightIcon class="size-5" stroke-width="1.5" />
+                    <div class="flex-1">{{ dimension.label }}</div>
+                    <Button class="" shape="minimal" @click="open = true">
+                        <SquarePenIcon class="size-5" stroke-width="1.5" />
+                    </Button>
+                </div>
+
+                <div v-if="expandedDimensionId === dimension.id" class="overflow-y-hidden rounded-b-md px-4 pb-4">
+                    <!-- Description -->
+                    <div v-html="purifyText(dimension.description)" />
+
+                    <!-- Entity Tabs -->
+                    <div class="flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
+                        <template v-for="entityTab in ENTITY_TABS" :key="entityTab.id">
+                            <Button
+                                class="border-y-2 border-t-transparent py-1.25"
+                                :class="entityTab.id === activeEntityTab.id ? 'border-b-blue-400' : 'border-b-transparent'"
+                                shape="minimal"
+                                @click="activeEntityTab = entityTab"
+                            >
+                                <div>{{ entityTab.label }}</div>
+                            </Button>
+                        </template>
+                    </div>
+
+                    <!-- Parents Panel -->
+                    <div v-show="activeEntityTab.id === 'parents'" class="py-1">
+                        <div v-for="parent in dimension.parents" :key="parent">
+                            {{ parent }}
+                        </div>
+                    </div>
+
+                    <!-- Characteristics Panel -->
+                    <div v-show="activeEntityTab.id === 'characteristics'" class="py-1">
+                        <div v-for="characteristic in dimension.characteristics" :key="characteristic">
+                            {{ characteristic }}
+                        </div>
+                    </div>
+
+                    <!-- Events Panel -->
+                    <div v-show="activeEntityTab.id === 'events'" class="py-1">
+                        <!-- <div v-for="event in entity.events" :key="event.id">{{ event.id }}</div> -->
+                        {{ dimension.events }}
+                    </div>
+
+                    <!-- Primary Measures Panel -->
+                    <div v-show="activeEntityTab.id === 'primaryMeasures'" class="py-1">
+                        <!-- <div v-for="primaryMeasure in entity.primaryMeasures" :key="primaryMeasure.id">{{ primaryMeasure.id }}</div> -->
+                        {{ dimension.primaryMeasures }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secondary Measures -->
+            <h2 class="flex flex-none items-center justify-between gap-x-3">Secondary Measures</h2>
+        </div>
     </div>
 </template>

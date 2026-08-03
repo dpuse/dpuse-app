@@ -176,8 +176,8 @@ html {
     --accent: var(--color-blue-800);
 }
 
-/* Dark mode colors. */
 .dark {
+    /* Dark mode colors. */
     --backdrop: var(--color-zinc-900);
     --surface: var(--color-zinc-950); /* NOTE: Also 'index.html'. */
     --card: var(--color-zinc-900);
