@@ -38,17 +38,17 @@ const workbenchOptionConfigs: WorkbenchOptionConfig[] = [
         step: 1,
         tasks: []
     },
-    {
-        id: 'assembleDimensions',
-        label: { en: 'Assemble Dimensions', es: 'Dimensiones de Ensamblaje' },
-        description: {
-            en: 'Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.',
-            es: '...'
-        },
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-network-icon lucide-network"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>',
-        step: 2,
-        tasks: []
-    },
+    // {
+    //     id: 'assembleDimensions',
+    //     label: { en: 'Assemble Dimensions', es: 'Dimensiones de Ensamblaje' },
+    //     description: {
+    //         en: 'Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.',
+    //         es: '...'
+    //     },
+    //     icon: '<svg viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-network-icon lucide-network"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>',
+    //     step: 2,
+    //     tasks: []
+    // },
     {
         id: 'contextualiseData',
         label: { en: 'Contextualise Data', es: 'Contextualizar Datos' },
@@ -82,17 +82,17 @@ const workbenchOptionConfigs: WorkbenchOptionConfig[] = [
         step: 5,
         tasks: []
     },
-    {
-        id: 'manageContext',
-        label: { en: 'Manage Context', es: '...' },
-        description: {
-            en: 'Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.',
-            es: '...'
-        },
-        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layers-icon lucide-layers"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></svg>',
-        step: 0,
-        tasks: []
-    },
+    // {
+    //     id: 'manageContext',
+    //     label: { en: 'Manage Context', es: '...' },
+    //     description: {
+    //         en: 'Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.',
+    //         es: '...'
+    //     },
+    //     icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layers-icon lucide-layers"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></svg>',
+    //     step: 0,
+    //     tasks: []
+    // },
     {
         id: 'manageConfig',
         label: { en: 'Manage Configuration', es: '...' },

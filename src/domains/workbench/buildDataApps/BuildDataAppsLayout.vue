@@ -21,6 +21,8 @@ import WorkbenchLayout from '../WorkbenchLayout.vue';
 const d3SankeyTestContainer = useTemplateRef<HTMLDivElement>('d3SankeyTestContainer');
 const d3BarChartTestContainer = useTemplateRef<HTMLDivElement>('d3BarChartTestContainer');
 const d3PlotBarChartTestContainer = useTemplateRef<HTMLDivElement>('d3PlotBarChartTestContainer');
+const d3NativeBarChartTestContainer = useTemplateRef<HTMLDivElement>('d3NativeBarChartTestContainer');
+const d3TanStackChartsTestContainer = useTemplateRef<HTMLDivElement>('d3TanStackChartsTestContainer');
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 // TODO(test): dpuse-tool-d3 Sankey diagram & bar chart (Billboard.js and Observable Plot, same data) smoke test -
@@ -76,6 +78,8 @@ onMounted(async () => {
 
     if (d3BarChartTestContainer.value) await d3Tool.renderBillboardJS(barChartData, d3BarChartTestContainer.value);
     if (d3PlotBarChartTestContainer.value) await d3Tool.renderObservablePlot('bar', barChartData, d3PlotBarChartTestContainer.value);
+    if (d3NativeBarChartTestContainer.value) await d3Tool.renderD3BarChart(barChartData, d3NativeBarChartTestContainer.value);
+    if (d3TanStackChartsTestContainer.value) await d3Tool.renderTanStackCharts(barChartData, d3TanStackChartsTestContainer.value);
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -127,6 +131,20 @@ function ensureD3ToolStylesheetLoaded(version: string): void {
                 <div class="flex-none px-4 pt-4">
                     <p class="mb-2 text-sm text-subtle">dpuse-tool-d3 test - Bar chart (Observable Plot)</p>
                     <div ref="d3PlotBarChartTestContainer" class="h-80 w-full" />
+                </div>
+                <Separator class="mx-4" />
+
+                <!-- TODO(test): dpuse-tool-d3 native D3 bar chart smoke test - remove once the tool has a real call site. -->
+                <div class="flex-none px-4 pt-4">
+                    <p class="mb-2 text-sm text-subtle">dpuse-tool-d3 test - Bar chart (D3)</p>
+                    <div ref="d3NativeBarChartTestContainer" class="h-80 w-full" />
+                </div>
+                <Separator class="mx-4" />
+
+                <!-- TODO(test): dpuse-tool-d3 TanStack Charts bar chart smoke test - remove once the tool has a real call site. -->
+                <div class="flex-none px-4 pt-4">
+                    <p class="mb-2 text-sm text-subtle">dpuse-tool-d3 test - Bar chart (TanStack Charts)</p>
+                    <div ref="d3TanStackChartsTestContainer" class="h-80 w-full" />
                 </div>
                 <Separator class="mx-4" />
 

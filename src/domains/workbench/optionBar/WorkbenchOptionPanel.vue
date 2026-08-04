@@ -70,7 +70,7 @@ function handleComplete(config?: LocalisedConfig<WorkbenchOptionConfig>): void {
                 </Button>
 
                 <template v-for="(config, index) in workflowOptionConfigs" :key="config.id">
-                    <Separator v-if="index === 0 || index === 1 || index === 3 || index === 5" class="w-10 flex-none" />
+                    <Separator v-if="index === 0 || index === 3 || index === 4" class="w-10 flex-none" />
 
                     <Button :aria-label="config.label" shape="icon" :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }" @click="handleComplete(config)">
                         <div aria-hidden="true" v-html="config.icon" />

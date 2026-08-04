@@ -31,7 +31,7 @@ const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/
 const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/buildDataApps/BuildDataAppsLayout.vue'));
 
 // ── Local Components - Dynamic - Manage Context
-const ManageContextLayout = load('ManageContext', () => import('@/domains/workbench/manageContext/ManageContextLayout.vue'));
+// const ManageContextLayout = load('ManageContext', () => import('@/domains/workbench/manageContext/ManageContextLayout.vue'));
 
 // ── Local Components - Dynamic - Manage Configs
 const ManageConfigsLayout = load('ManageConfig', () => import('@/domains/workbench/manageConfig/ManageConfigLayout.vue'));
@@ -79,7 +79,7 @@ export const APP_ROUTES = [
                         children: [{ name: 'explorePresentations', path: '', component: { render: (): null => null } }]
                     },
                     { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsLayout },
-                    { name: 'manageContext', path: 'manageContext', component: ManageContextLayout },
+                    // { name: 'manageContext', path: 'manageContext', component: ManageContextLayout },
                     {
                         path: 'manageConfig',
                         component: ManageConfigsLayout,
