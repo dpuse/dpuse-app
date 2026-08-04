@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1504",
+    "version": "0.0.1505",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -59,7 +59,6 @@
         "@tanstack/vue-table": "^9.0.0",
         "@tanstack/vue-virtual": "^3.13.35",
         "@teamhanko/hanko-frontend-sdk": "^3.0.0",
-        "apexcharts": "^6.7.0",
         "dompurify": "^3.4.13",
         "squire-rte": "^2.4.8",
         "tailwindcss": "^4.3.3",
