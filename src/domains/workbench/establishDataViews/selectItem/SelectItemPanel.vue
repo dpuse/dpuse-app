@@ -29,6 +29,7 @@ import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPa
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import Table from '@/components/ui/table/Table.vue';
+import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 import TextViewer from '@/components/ui/TextViewer.vue';
 
@@ -58,7 +59,7 @@ const previewRequestId = ref(0);
 
 const previewPercentage = ref(0);
 const previewMessage = ref<string>();
-const previewTableColumnDefinitions = shallowRef<ColumnDef<Record<string, string | null>>[]>([]);
+const previewTableColumnDefinitions = shallowRef<ColumnDef<TableFeatureSet, Record<string, string | null>>[]>([]);
 const previewTableDataSource = shallowRef<DataSource<Record<string, string | null>>>({
     rowCount: 0,
     getRows: (): Promise<{ rows: Record<string, string | null>[] }> => Promise.resolve({ rows: [] })
@@ -197,7 +198,7 @@ function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewC
 
     const previewColumnKeys = previewConfig.columnConfigs.map((config, index) => config.label.en ?? String(index));
 
-    previewTableColumnDefinitions.value = previewColumnKeys.map<ColumnDef<Record<string, string | null>>>((columnKey) => ({
+    previewTableColumnDefinitions.value = previewColumnKeys.map<ColumnDef<TableFeatureSet, Record<string, string | null>>>((columnKey) => ({
         accessorKey: columnKey,
         header: columnKey
     }));

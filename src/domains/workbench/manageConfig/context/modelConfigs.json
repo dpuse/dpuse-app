@@ -1,6 +1,6 @@
 {
-    "generic": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
-    "biographical": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
+    "placeholder": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
+    "general": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
     "asset": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
     "financial": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
     "geographic": {
@@ -420,27 +420,27 @@
                 ]
             },
             {
+                "id": "preferredLanguage",
+                "label": { "en": "Language (Preferred)" },
+                "labelPlural": { "en": "Languages (Preferred)" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
                 "id": "homeLocation",
-                "label": { "en": "Home Location" },
-                "labelPlural": { "en": "Home Locations" },
+                "label": { "en": "Location (Home)" },
+                "labelPlural": { "en": "Locations (Home)" },
                 "description": {
                     "en": "..."
                 },
                 "hierarchies": []
             },
             {
-                "id": "organisationType",
-                "label": { "en": "Organisation Type" },
-                "labelPlural": { "en": "Organisation Types" },
-                "description": {
-                    "en": "..."
-                },
-                "hierarchies": []
-            },
-            {
-                "id": "organisationalUnitType",
-                "label": { "en": "Organisational Unit Type" },
-                "labelPlural": { "en": "Organisational Unit Types" },
+                "id": "residentialLocation",
+                "label": { "en": "Location (Residential)" },
+                "labelPlural": { "en": "Locations (Residential)" },
                 "description": {
                     "en": "..."
                 },
@@ -465,18 +465,27 @@
                 "hierarchies": []
             },
             {
-                "id": "preferredLanguage",
-                "label": { "en": "Preferred Language" },
-                "labelPlural": { "en": "Preferred Languages" },
+                "id": "primaryNationality",
+                "label": { "en": "Nationality (Primary)" },
+                "labelPlural": { "en": "Nationalities (Primary)" },
                 "description": {
                     "en": "..."
                 },
                 "hierarchies": []
             },
             {
-                "id": "primaryNationality",
-                "label": { "en": "Primary Nationality" },
-                "labelPlural": { "en": "Primary Nationalities" },
+                "id": "organisationType",
+                "label": { "en": "Organisation Type" },
+                "labelPlural": { "en": "Organisation Types" },
+                "description": {
+                    "en": "..."
+                },
+                "hierarchies": []
+            },
+            {
+                "id": "organisationalUnitType",
+                "label": { "en": "Organisational Unit Type" },
+                "labelPlural": { "en": "Organisational Unit Types" },
                 "description": {
                     "en": "..."
                 },
@@ -486,15 +495,6 @@
                 "id": "physicalAbility",
                 "label": { "en": "Physical Ability" },
                 "labelPlural": { "en": "Physical Abilities" },
-                "description": {
-                    "en": "..."
-                },
-                "hierarchies": []
-            },
-            {
-                "id": "residentialLocation",
-                "label": { "en": "Residential Location" },
-                "labelPlural": { "en": "Residential Locations" },
                 "description": {
                     "en": "..."
                 },
@@ -995,6 +995,70 @@
         ],
         "entities": [
             {
+                "id": "job",
+                "label": { "en": "Job" },
+                "labelPlural": { "en": "Jobs" },
+                "description": { "en": "Job description..." },
+                "parents": [{ "entityTypeId": "organisation" }],
+                "characteristics": [],
+                "events": {
+                    "creation": null,
+                    "activation": null,
+                    "recognition": null,
+                    "correction": null,
+                    "modification": null,
+                    "derecognition": null,
+                    "deactivation": null,
+                    "archival": null,
+                    "deletion": null
+                },
+                "primaryMeasures": {
+                    "age": null,
+                    "openingCount": null,
+                    "startingInCount": null,
+                    "startingCount": null,
+                    "duringInCount": null,
+                    "duringCount": null,
+                    "weightedCount": null,
+                    "duringOutCount": null,
+                    "endingCount": null,
+                    "endingOutCount": null,
+                    "closingCount": null
+                }
+            },
+            {
+                "id": "position",
+                "label": { "en": "Position" },
+                "labelPlural": { "en": "Positions" },
+                "description": { "en": "Position description..." },
+                "parents": [{ "entityTypeId": "organisation" }, { "entityTypeId": "job" }],
+                "characteristics": [],
+                "events": {
+                    "creation": null,
+                    "activation": null,
+                    "recognition": null,
+                    "correction": null,
+                    "modification": null,
+                    "derecognition": null,
+                    "deactivation": null,
+                    "archival": null,
+                    "deletion": null
+                },
+                "primaryMeasures": {
+                    "age": null,
+                    "openingCount": null,
+                    "startingInCount": null,
+                    "startingCount": null,
+                    "duringInCount": null,
+                    "duringCount": null,
+                    "weightedCount": null,
+                    "duringOutCount": null,
+                    "endingCount": null,
+                    "endingOutCount": null,
+                    "closingCount": null
+                }
+            },
+            {
                 "id": "personEngagement",
                 "label": { "en": "Person Engagement" },
                 "labelPlural": { "en": "Person Engagements" },
@@ -1019,6 +1083,38 @@
                     { "id": "rptToTen", "label": { "en": "Reports To  Tenure" } },
                     { "id": "stdWrkHrs", "label": { "en": "Standard Working Hours" } }
                 ],
+                "events": {
+                    "creation": null,
+                    "activation": null,
+                    "recognition": null,
+                    "correction": null,
+                    "modification": null,
+                    "derecognition": null,
+                    "deactivation": null,
+                    "archival": null,
+                    "deletion": null
+                },
+                "primaryMeasures": {
+                    "age": null,
+                    "openingCount": null,
+                    "startingInCount": null,
+                    "startingCount": null,
+                    "duringInCount": null,
+                    "duringCount": null,
+                    "weightedCount": null,
+                    "duringOutCount": null,
+                    "endingCount": null,
+                    "endingOutCount": null,
+                    "closingCount": null
+                }
+            },
+            {
+                "id": "engagementContract",
+                "label": { "en": "Engagement Contract" },
+                "labelPlural": { "en": "Engagement Contracts" },
+                "description": { "en": "Engagement contract description..." },
+                "parents": [{ "entityTypeId": "personEngagement" }],
+                "characteristics": [],
                 "events": {
                     "creation": null,
                     "activation": null,
@@ -1078,5 +1174,10 @@
             }
         ],
         "secondaryMeasures": []
-    }
+    },
+    "recruitmentOnboarding": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
+    "attendance": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
+    "compensation": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
+    "learning": { "dimensions": [], "entities": [], "secondaryMeasures": [] },
+    "talentManagement": { "dimensions": [], "entities": [], "secondaryMeasures": [] }
 }

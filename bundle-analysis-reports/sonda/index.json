@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-08-03T20:47:41.648Z",
+    "generatedAt": "2026-08-04T12:23:04.954Z",
     "integration": "vite",
     "sources": false,
     "gzip": false,
@@ -18,23 +18,23 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/AboutPanel-CpqNSuKo.js",
+      "name": "dist/client/assets/AboutPanel-BdohBlj9.js",
       "type": "script",
       "uncompressed": 1762,
       "gzip": 0,
-      "brotli": 872
+      "brotli": 873
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/AccountDialog-C-FKr3vk.js",
+      "name": "dist/client/assets/AccountDialog-MUS-sRCj.js",
       "type": "script",
       "uncompressed": 5221,
       "gzip": 0,
-      "brotli": 1782
+      "brotli": 1784
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/accountMonitor-Y76oprl1.js",
+      "name": "dist/client/assets/accountMonitor-vczG5l-c.js",
       "type": "script",
       "uncompressed": 1378,
       "gzip": 0,
@@ -50,7 +50,7 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/AssembleDimensionsLayout-BncJVa43.js",
+      "name": "dist/client/assets/AssembleDimensionsLayout-BJ2ZaDBy.js",
       "type": "script",
       "uncompressed": 769,
       "gzip": 0,
@@ -66,19 +66,19 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/AuthDialog-Cy0MBkZG.js",
+      "name": "dist/client/assets/AuthDialog-B7UAwOqS.js",
       "type": "script",
       "uncompressed": 12331,
       "gzip": 0,
-      "brotli": 4332
+      "brotli": 4331
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/BuildDataAppsLayout-DciXa13j.js",
+      "name": "dist/client/assets/BuildDataAppsLayout-Ce-DzB_N.js",
       "type": "script",
       "uncompressed": 2998,
       "gzip": 0,
-      "brotli": 1161
+      "brotli": 1155
     },
     {
       "kind": "asset",
@@ -90,19 +90,19 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/Card-C-umXnzY.js",
+      "name": "dist/client/assets/Card-DPVZfqEU.js",
       "type": "script",
       "uncompressed": 2815,
       "gzip": 0,
-      "brotli": 1105
+      "brotli": 1104
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ChatPanel-C1i5cO_u.js",
+      "name": "dist/client/assets/ChatPanel-Bb1abnaz.js",
       "type": "script",
-      "uncompressed": 211549,
+      "uncompressed": 154878,
       "gzip": 0,
-      "brotli": 46472
+      "brotli": 36602
     },
     {
       "kind": "asset",
@@ -122,7 +122,7 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/configMonitor-BTXfUtM0.js",
+      "name": "dist/client/assets/configMonitor-DDpNDaPo.js",
       "type": "script",
       "uncompressed": 2021,
       "gzip": 0,
@@ -130,51 +130,67 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ConnectionDialog-iTe7GTin.js",
+      "name": "dist/client/assets/ConnectionDialog-DBKr0a8E.js",
       "type": "script",
       "uncompressed": 5711,
       "gzip": 0,
-      "brotli": 1970
+      "brotli": 1971
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ConnectorList-C9ftrtb4.js",
+      "name": "dist/client/assets/ConnectorList-B2xTdBmw.js",
       "type": "script",
       "uncompressed": 12782,
       "gzip": 0,
-      "brotli": 4179
+      "brotli": 4184
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ContextList-CM7zH8N0.js",
+      "name": "dist/client/assets/ContextDimensionTreeDiagramPanel-DDGAyj45.js",
       "type": "script",
-      "uncompressed": 54732,
+      "uncompressed": 989,
       "gzip": 0,
-      "brotli": 9879
+      "brotli": 503
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ContextModelDescriptorsPanel-BTY3BRLz.js",
+      "name": "dist/client/assets/ContextErdDiagramPanel-SUbDyiWo.js",
+      "type": "script",
+      "uncompressed": 1939,
+      "gzip": 0,
+      "brotli": 674
+    },
+    {
+      "kind": "asset",
+      "name": "dist/client/assets/ContextList-DaBLI1Nk.js",
+      "type": "script",
+      "uncompressed": 56753,
+      "gzip": 0,
+      "brotli": 9947
+    },
+    {
+      "kind": "asset",
+      "name": "dist/client/assets/ContextModelDescriptorsPanel-CJ9-S8gw.js",
       "type": "script",
       "uncompressed": 75846,
       "gzip": 0,
-      "brotli": 21512
+      "brotli": 21499
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ContextualiseDataLayout-DuMMz1TO.js",
+      "name": "dist/client/assets/ContextualiseDataLayout-BxRWWxUn.js",
       "type": "script",
       "uncompressed": 2019,
       "gzip": 0,
-      "brotli": 916
+      "brotli": 918
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/CookbookList-e1Whrns4.js",
+      "name": "dist/client/assets/CookbookList-DQH-D-S7.js",
       "type": "script",
       "uncompressed": 4165,
       "gzip": 0,
-      "brotli": 1640
+      "brotli": 1656
     },
     {
       "kind": "asset",
@@ -186,11 +202,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/DataViewList-BbM9meIE.js",
+      "name": "dist/client/assets/DataViewList-5gViYnex.js",
       "type": "script",
       "uncompressed": 3022,
       "gzip": 0,
-      "brotli": 1284
+      "brotli": 1289
     },
     {
       "kind": "asset",
@@ -226,11 +242,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/DimensionList-BSI3ABYD.js",
+      "name": "dist/client/assets/DimensionList-CCl9GAgj.js",
       "type": "script",
       "uncompressed": 2101,
       "gzip": 0,
-      "brotli": 964
+      "brotli": 967
     },
     {
       "kind": "asset",
@@ -250,43 +266,43 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/establishDataViews-DhFPQ4RS.js",
+      "name": "dist/client/assets/establishDataViews-DQmALaLp.js",
       "type": "script",
       "uncompressed": 1178,
       "gzip": 0,
-      "brotli": 536
+      "brotli": 533
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/EstablishDataViewsLayout-C0hbfBDj.js",
+      "name": "dist/client/assets/EstablishDataViewsLayout-DsY5uQsB.js",
       "type": "script",
       "uncompressed": 3298,
       "gzip": 0,
-      "brotli": 1399
+      "brotli": 1402
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/EventQueryList-C4kCpuaB.js",
+      "name": "dist/client/assets/EventQueryList-D8fQyJMK.js",
       "type": "script",
       "uncompressed": 2419,
       "gzip": 0,
-      "brotli": 1125
+      "brotli": 1129
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ExploreData-BNmWFQj1.js",
+      "name": "dist/client/assets/ExploreData-CqzAZYOT.js",
       "type": "script",
       "uncompressed": 58119,
       "gzip": 0,
-      "brotli": 13932
+      "brotli": 13922
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ExplorePresentationsLayout-DwefF_qP.js",
+      "name": "dist/client/assets/ExplorePresentationsLayout-CAR6bmwd.js",
       "type": "script",
       "uncompressed": 2178,
       "gzip": 0,
-      "brotli": 1053
+      "brotli": 1055
     },
     {
       "kind": "asset",
@@ -330,47 +346,47 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/HomeLayout-CeihTh9a.js",
+      "name": "dist/client/assets/HomeLayout-CkedSmfS.js",
       "type": "script",
       "uncompressed": 1373,
       "gzip": 0,
-      "brotli": 677
+      "brotli": 689
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/HomePanel-CAZiE5TU.js",
+      "name": "dist/client/assets/HomePanel-DhMgUY0K.js",
       "type": "script",
       "uncompressed": 848,
       "gzip": 0,
-      "brotli": 488
+      "brotli": 491
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/index-BIdquF2p.js",
+      "name": "dist/client/assets/index-DKWlPANR.js",
       "type": "script",
-      "uncompressed": 79555,
+      "uncompressed": 79805,
       "gzip": 0,
-      "brotli": 26264
+      "brotli": 26351
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/Input-fqtbOQxX.js",
+      "name": "dist/client/assets/Input-jS2xZiSu.js",
       "type": "script",
       "uncompressed": 929,
       "gzip": 0,
-      "brotli": 510
+      "brotli": 514
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/KnowledgeHeader-B_IWGLLC.js",
+      "name": "dist/client/assets/KnowledgeHeader-DE2O_5n5.js",
       "type": "script",
       "uncompressed": 991,
       "gzip": 0,
-      "brotli": 524
+      "brotli": 523
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/KnowledgeLayout-D4QBZ103.js",
+      "name": "dist/client/assets/KnowledgeLayout-B8jQ5uRc.js",
       "type": "script",
       "uncompressed": 1748,
       "gzip": 0,
@@ -378,11 +394,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/LibraryPanel-Cv88XzDT.js",
+      "name": "dist/client/assets/LibraryPanel-BUiC-uUF.js",
       "type": "script",
       "uncompressed": 78489,
       "gzip": 0,
-      "brotli": 19024
+      "brotli": 19009
     },
     {
       "kind": "asset",
@@ -402,11 +418,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ManageConfigLayout-DApbd4iB.js",
+      "name": "dist/client/assets/ManageConfigLayout-BgLHu4ry.js",
       "type": "script",
       "uncompressed": 1419,
       "gzip": 0,
-      "brotli": 731
+      "brotli": 732
     },
     {
       "kind": "asset",
@@ -418,11 +434,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ManageContextLayout-CF_ZaLyt.js",
+      "name": "dist/client/assets/ManageContextLayout-C7nIETkm.js",
       "type": "script",
       "uncompressed": 13768,
       "gzip": 0,
-      "brotli": 3474
+      "brotli": 3484
     },
     {
       "kind": "asset",
@@ -442,11 +458,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ManagePreferencesPanel-DSJjnOfa.js",
+      "name": "dist/client/assets/ManagePreferencesPanel-BJ0jfm9C.js",
       "type": "script",
       "uncompressed": 528,
       "gzip": 0,
-      "brotli": 292
+      "brotli": 316
     },
     {
       "kind": "asset",
@@ -474,11 +490,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/performanceTracking-BZdCrEVM.js",
+      "name": "dist/client/assets/performanceTracking-Cj0QPDH9.js",
       "type": "script",
       "uncompressed": 8787,
       "gzip": 0,
-      "brotli": 2971
+      "brotli": 2980
     },
     {
       "kind": "asset",
@@ -490,7 +506,7 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/PresenterList-87iZs7oJ.js",
+      "name": "dist/client/assets/PresenterList-DG0ZiCJa.js",
       "type": "script",
       "uncompressed": 4188,
       "gzip": 0,
@@ -530,19 +546,19 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/SelectConnectionPanel-BjGDmOrf.js",
+      "name": "dist/client/assets/SelectConnectionPanel-uFmSpjFx.js",
       "type": "script",
       "uncompressed": 7290,
       "gzip": 0,
-      "brotli": 1921
+      "brotli": 1923
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/SelectItemPanel-D_aTyg7Y.js",
+      "name": "dist/client/assets/SelectItemPanel-D67O4bdv.js",
       "type": "script",
       "uncompressed": 7189,
       "gzip": 0,
-      "brotli": 2869
+      "brotli": 2876
     },
     {
       "kind": "asset",
@@ -562,19 +578,19 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/SessionMenu-EjCjka83.js",
+      "name": "dist/client/assets/SessionMenu-h-QAt2Am.js",
       "type": "script",
       "uncompressed": 6936,
       "gzip": 0,
-      "brotli": 2471
+      "brotli": 2469
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/Table-cGsEswoY.js",
+      "name": "dist/client/assets/Table-BbQRQ8Xo.js",
       "type": "script",
-      "uncompressed": 56350,
+      "uncompressed": 52312,
       "gzip": 0,
-      "brotli": 13361
+      "brotli": 12181
     },
     {
       "kind": "asset",
@@ -586,19 +602,19 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/TextField-CiFu2jpP.js",
+      "name": "dist/client/assets/TextField-CebxAxZ-.js",
       "type": "script",
       "uncompressed": 67653,
       "gzip": 0,
-      "brotli": 17764
+      "brotli": 17780
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ToolList-DtvtNZJ2.js",
+      "name": "dist/client/assets/ToolList-COM6smRH.js",
       "type": "script",
       "uncompressed": 4073,
       "gzip": 0,
-      "brotli": 1630
+      "brotli": 1640
     },
     {
       "kind": "asset",
@@ -610,7 +626,7 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/useConfigOptionConfigs-BzYF-mbf.js",
+      "name": "dist/client/assets/useConfigOptionConfigs-BoSO1KRT.js",
       "type": "script",
       "uncompressed": 3714,
       "gzip": 0,
@@ -626,35 +642,35 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/useEngine-JZqYs-wr.js",
+      "name": "dist/client/assets/useEngine-BdR0lU_a.js",
       "type": "script",
       "uncompressed": 669,
       "gzip": 0,
-      "brotli": 338
+      "brotli": 340
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/useWorkbenchOptions-eWQu0TZA.js",
+      "name": "dist/client/assets/useWorkbenchOptions-DEOL9ANb.js",
       "type": "script",
       "uncompressed": 5237,
       "gzip": 0,
-      "brotli": 1365
+      "brotli": 1363
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/WorkbenchLayout-CHIAVrcZ.js",
+      "name": "dist/client/assets/WorkbenchLayout-CJT0utVF.js",
       "type": "script",
       "uncompressed": 1244,
       "gzip": 0,
-      "brotli": 647
+      "brotli": 645
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/WorkbenchOptionBar-CcyLKTVm.js",
+      "name": "dist/client/assets/WorkbenchOptionBar-DAYf_ogq.js",
       "type": "script",
       "uncompressed": 3016,
       "gzip": 0,
-      "brotli": 1303
+      "brotli": 1314
     },
     {
       "kind": "asset",
@@ -690,7 +706,7 @@
       "name": "node_modules/@ai-sdk/provider-utils/dist/index.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 118398
+      "uncompressed": 117219
     },
     {
       "kind": "filesystem",
@@ -13420,10 +13436,570 @@
     },
     {
       "kind": "filesystem",
-      "name": "node_modules/@tanstack/table-core/build/lib/index.mjs",
+      "name": "node_modules/@tanstack/store/dist/alien.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 138845
+      "uncompressed": 5633
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/store/dist/atom.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 5509
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/store/dist/index.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 297
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/store/dist/shallow.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1140
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/store/dist/store.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1132
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/cells/constructCell.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1039
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/cells/coreCellsFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 664
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/cells/coreCellsFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1355
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/columns/constructColumn.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2483
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/columns/coreColumnsFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2156
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/columns/coreColumnsFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 5620
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/coreFeatures.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 825
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/headers/buildHeaderGroups.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4763
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/headers/constructHeader.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1322
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/headers/coreHeadersFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1651
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/headers/coreHeadersFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4377
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/reactivity/coreReactivityFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 526
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/row-models/coreRowModelsFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1650
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/row-models/coreRowModelsFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 6272
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/row-models/createCoreRowModel.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2114
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/rows/constructRow.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1281
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/rows/coreRowsFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2166
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/rows/coreRowsFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 7135
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/table/constructTable.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 5892
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/table/coreTablesFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 546
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/core/table/coreTablesFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4945
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/cell-selection/cellSelectionFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 6071
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/cell-selection/cellSelectionFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 32008
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/cell-selection/cellSelectionGeometry.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 5153
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/cell-spanning/cellSpanningFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1643
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/cell-spanning/cellSpanningFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 8845
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-faceting/columnFacetingFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1688
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-faceting/columnFacetingFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4604
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-faceting/createFacetedMinMaxValues.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2079
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-faceting/createFacetedRowModel.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1764
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-faceting/createFacetedUniqueValues.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2004
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-filtering/columnFilteringFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2087
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-filtering/columnFilteringFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 7902
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-filtering/createFilteredRowModel.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4734
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-filtering/filterFns.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 14980
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-filtering/filterRowsUtils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 3114
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-grouping/columnGroupingFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2305
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-grouping/columnGroupingFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 5334
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-grouping/createGroupedRowModel.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 5784
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-ordering/columnOrderingFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2028
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-ordering/columnOrderingFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 5993
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-pinning/columnPinningFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 8109
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-pinning/columnPinningFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 19159
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-resizing/columnResizingFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1633
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-resizing/columnResizingFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 8927
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-sizing/columnSizingFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 3532
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-sizing/columnSizingFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 8893
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-visibility/columnVisibilityFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 3461
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/column-visibility/columnVisibilityFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 9010
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/global-filtering/globalFilteringFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1796
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/global-filtering/globalFilteringFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2961
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-aggregation/aggregationFns.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 9138
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-aggregation/rowAggregationFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1566
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-aggregation/rowAggregationFeature.types.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 297
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-aggregation/rowAggregationFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 9477
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-expanding/createExpandedRowModel.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1734
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-expanding/rowExpandingFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2353
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-expanding/rowExpandingFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 9393
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-pagination/createPaginatedRowModel.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2011
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-pagination/rowPaginationFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2242
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-pagination/rowPaginationFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 8626
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-pinning/rowPinningFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2210
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-pinning/rowPinningFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 6376
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-selection/rowSelectionFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 5127
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-selection/rowSelectionFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 21482
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-sorting/createSortedRowModel.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4055
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-sorting/rowSortingFeature.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2405
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-sorting/rowSortingFeature.utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 10710
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/row-sorting/sortFns.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 7915
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/features/stockFeatures.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2065
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/helpers/columnHelper.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1104
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/helpers/metaHelper.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 944
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/helpers/tableFeatures.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1859
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/helpers/tableOptions.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 320
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/index.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 7260
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/table-core/dist/utils.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 8867
     },
     {
       "kind": "filesystem",
@@ -13448,10 +14024,45 @@
     },
     {
       "kind": "filesystem",
-      "name": "node_modules/@tanstack/vue-table/build/lib/index.mjs",
+      "name": "node_modules/@tanstack/vue-table/dist/createTableHook.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 4305
+      "uncompressed": 4847
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/vue-table/dist/FlexRender.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2202
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/vue-table/dist/index.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 286
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/vue-table/dist/merge-proxy.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1904
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/vue-table/dist/reactivity.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1811
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/vue-table/dist/useTable.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2551
     },
     {
       "kind": "filesystem",
@@ -13549,7 +14160,7 @@
       "name": "node_modules/ai/dist/index.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 581643
+      "uncompressed": 585886
     },
     {
       "kind": "filesystem",
@@ -13563,7 +14174,7 @@
       "name": "node_modules/dompurify/dist/purify.es.mjs",
       "type": "script",
       "format": "esm",
-      "uncompressed": 117877
+      "uncompressed": 121978
     },
     {
       "kind": "filesystem",
@@ -13725,76 +14336,6 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 8963
-    },
-    {
-      "kind": "filesystem",
-      "name": "node_modules/zod/v3/errors.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 243
-    },
-    {
-      "kind": "filesystem",
-      "name": "node_modules/zod/v3/external.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 205
-    },
-    {
-      "kind": "filesystem",
-      "name": "node_modules/zod/v3/helpers/errorUtil.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 300
-    },
-    {
-      "kind": "filesystem",
-      "name": "node_modules/zod/v3/helpers/parseUtil.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 3601
-    },
-    {
-      "kind": "filesystem",
-      "name": "node_modules/zod/v3/helpers/typeAliases.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 11
-    },
-    {
-      "kind": "filesystem",
-      "name": "node_modules/zod/v3/helpers/util.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 4055
-    },
-    {
-      "kind": "filesystem",
-      "name": "node_modules/zod/v3/index.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 99
-    },
-    {
-      "kind": "filesystem",
-      "name": "node_modules/zod/v3/locales/en.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 5602
-    },
-    {
-      "kind": "filesystem",
-      "name": "node_modules/zod/v3/types.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 131268
-    },
-    {
-      "kind": "filesystem",
-      "name": "node_modules/zod/v3/ZodError.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 4366
     },
     {
       "kind": "filesystem",
@@ -14361,7 +14902,7 @@
       "name": "package.json",
       "type": "script",
       "format": "esm",
-      "uncompressed": 3691
+      "uncompressed": 3690
     },
     {
       "kind": "filesystem",
@@ -14921,7 +15462,7 @@
       "name": "src/components/ui/table/Table.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 11278
+      "uncompressed": 11322
     },
     {
       "kind": "filesystem",
@@ -14939,6 +15480,13 @@
     },
     {
       "kind": "filesystem",
+      "name": "src/components/ui/table/tableFeatures.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 289
+    },
+    {
+      "kind": "filesystem",
       "name": "src/components/ui/table/TableHeaderCell.vue",
       "type": "component",
       "format": "other",
@@ -14949,7 +15497,7 @@
       "name": "src/components/ui/table/TableHeaderCell.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 4656
+      "uncompressed": 4654
     },
     {
       "kind": "filesystem",
@@ -15796,7 +16344,35 @@
       "name": "src/domains/workbench/manageConfig/context/contextConfig.json",
       "type": "script",
       "format": "esm",
-      "uncompressed": 10209
+      "uncompressed": 9985
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/domains/workbench/manageConfig/context/ContextDimensionTreeDiagramPanel.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 390
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/domains/workbench/manageConfig/context/ContextDimensionTreeDiagramPanel.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1690
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/domains/workbench/manageConfig/context/ContextErdDiagramPanel.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 370
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/domains/workbench/manageConfig/context/ContextErdDiagramPanel.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 3252
     },
     {
       "kind": "filesystem",
@@ -15838,14 +16414,14 @@
       "name": "src/domains/workbench/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 21986
+      "uncompressed": 22839
     },
     {
       "kind": "filesystem",
       "name": "src/domains/workbench/manageConfig/context/modelConfigs.json",
       "type": "script",
       "format": "esm",
-      "uncompressed": 35943
+      "uncompressed": 38330
     },
     {
       "kind": "filesystem",
@@ -16221,7 +16797,7 @@
     },
     {
       "kind": "import",
-      "source": "src/domains/workbench/assembleDimensions/DimensionList.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/App.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
@@ -16233,13 +16809,13 @@
     },
     {
       "kind": "import",
-      "source": "src/App.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/domains/workbench/contextualiseData/ContextualiseDataLayout.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
     {
       "kind": "import",
-      "source": "src/domains/workbench/buildDataApps/BuildDataAppsLayout.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/domains/workbench/assembleDimensions/DimensionList.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
@@ -16251,19 +16827,7 @@
     },
     {
       "kind": "import",
-      "source": "src/domains/workbench/contextualiseData/ContextualiseDataLayout.vue?vue&type=script&setup=true&lang.ts",
-      "target": "vite/preload-helper.js",
-      "original": "\u0000vite/preload-helper.js"
-    },
-    {
-      "kind": "import",
-      "source": "src/state/session.ts",
-      "target": "vite/preload-helper.js",
-      "original": "\u0000vite/preload-helper.js"
-    },
-    {
-      "kind": "import",
-      "source": "src/services/useEngine.ts",
+      "source": "src/domains/workbench/buildDataApps/BuildDataAppsLayout.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
@@ -16275,13 +16839,19 @@
     },
     {
       "kind": "import",
-      "source": "src/domains/knowledge/KnowledgeLayout.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/services/useEngine.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
     {
       "kind": "import",
-      "source": "src/domains/session/SessionButton.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/state/session.ts",
+      "target": "vite/preload-helper.js",
+      "original": "\u0000vite/preload-helper.js"
+    },
+    {
+      "kind": "import",
+      "source": "src/domains/knowledge/KnowledgeLayout.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
@@ -16300,6 +16870,24 @@
     {
       "kind": "import",
       "source": "src/domains/workbench/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
+      "target": "vite/preload-helper.js",
+      "original": "\u0000vite/preload-helper.js"
+    },
+    {
+      "kind": "import",
+      "source": "src/domains/session/SessionButton.vue?vue&type=script&setup=true&lang.ts",
+      "target": "vite/preload-helper.js",
+      "original": "\u0000vite/preload-helper.js"
+    },
+    {
+      "kind": "import",
+      "source": "src/domains/workbench/manageConfig/context/ContextDimensionTreeDiagramPanel.vue?vue&type=script&setup=true&lang.ts",
+      "target": "vite/preload-helper.js",
+      "original": "\u0000vite/preload-helper.js"
+    },
+    {
+      "kind": "import",
+      "source": "src/domains/workbench/manageConfig/context/ContextErdDiagramPanel.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
@@ -16503,6 +17091,18 @@
     },
     {
       "kind": "dynamic-import",
+      "source": "src/domains/workbench/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
+      "target": "src/domains/workbench/manageConfig/context/ContextErdDiagramPanel.vue",
+      "original": null
+    },
+    {
+      "kind": "dynamic-import",
+      "source": "src/domains/workbench/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
+      "target": "src/domains/workbench/manageConfig/context/ContextDimensionTreeDiagramPanel.vue",
+      "original": null
+    },
+    {
+      "kind": "dynamic-import",
       "source": "src/domains/workbench/connectionDialog/ConnectionDialog.vue?vue&type=script&setup=true&lang.ts",
       "target": "src/domains/workbench/connectionDialog/ManageConnectionPanel.vue",
       "original": null
@@ -16699,6 +17299,12 @@
       "name": "@tanstack/devtools-event-client",
       "paths": [
         "node_modules/@tanstack/devtools-event-client"
+      ]
+    },
+    {
+      "name": "@tanstack/store",
+      "paths": [
+        "node_modules/@tanstack/store"
       ]
     },
     {

@@ -24,10 +24,10 @@
             "order": 1,
             "models": [
                 {
-                    "id": "generic",
-                    "label": { "en": "Generic" },
+                    "id": "general",
+                    "label": { "en": "General" },
                     "description": {
-                        "en": "Generic model description..."
+                        "en": "General model description..."
                     },
                     "firstCreatedAt": null,
                     "icon": null,
@@ -39,23 +39,6 @@
                     "order": 1,
                     "path": ""
                 },
-                {
-                    "id": "biographical",
-                    "label": { "en": "Biographical" },
-                    "description": {
-                        "en": "Biographical model description..."
-                    },
-                    "firstCreatedAt": null,
-                    "icon": null,
-                    "iconDark": null,
-                    "lastUpdatedAt": null,
-                    "status": null,
-                    "statusId": "alpha",
-                    "typeId": "contextModel",
-                    "order": 1,
-                    "path": ""
-                },
-
                 {
                     "id": "asset",
                     "label": { "en": "Asset" },
@@ -197,7 +180,7 @@
                     "path": ""
                 },
                 {
-                    "id": "recOnboard",
+                    "id": "recruitmentOnboarding",
                     "label": { "en": "Recruitment & Onboarding" },
                     "description": { "en": "..." },
                     "firstCreatedAt": null,
@@ -211,7 +194,7 @@
                     "path": ""
                 },
                 {
-                    "id": "attend",
+                    "id": "attendance",
                     "label": { "en": "Attendance" },
                     "description": { "en": "..." },
                     "firstCreatedAt": null,
@@ -225,7 +208,7 @@
                     "path": ""
                 },
                 {
-                    "id": "comp",
+                    "id": "compensation",
                     "label": { "en": "Compensation" },
                     "description": { "en": "..." },
                     "firstCreatedAt": null,
@@ -239,7 +222,7 @@
                     "path": ""
                 },
                 {
-                    "id": "learn",
+                    "id": "learning",
                     "label": { "en": "Learning" },
                     "description": { "en": "..." },
                     "firstCreatedAt": null,
@@ -253,7 +236,7 @@
                     "path": ""
                 },
                 {
-                    "id": "talentMgt",
+                    "id": "talentManagement",
                     "label": { "en": "Talent Management" },
                     "description": { "en": "..." },
                     "firstCreatedAt": null,

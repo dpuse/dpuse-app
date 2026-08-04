@@ -1,12 +1,15 @@
-<script setup lang="ts" generic="T">
+<script setup lang="ts" generic="T extends RowData">
 // ── External Dependencies & Registrations
 import { Settings2 } from '@lucide/vue';
-import type { Table } from '@tanstack/vue-table';
+import type { RowData, Table } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
+
+// ── Local Components - Static
+import type { TableFeatureSet } from './tableFeatures';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-const { table } = defineProps<{ table: Table<T> }>();
+const { table } = defineProps<{ table: Table<TableFeatureSet, T> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

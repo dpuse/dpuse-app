@@ -1,14 +1,13 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
-import { ChevronRightIcon, LoaderCircleIcon, NetworkIcon, SquarePenIcon, WorkflowIcon } from '@lucide/vue';
-import { defineAsyncComponent, onErrorCaptured, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { ChevronRightIcon, LoaderCircleIcon, NetworkIcon, SquarePenIcon } from '@lucide/vue';
+import { defineAsyncComponent, onErrorCaptured, onMounted, ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
 import type { ComponentBase } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
-import type { D3Tool as D3ToolType, ErdDiagramData, TreeDiagramNode } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
 import { toolConfigs } from '@/state/session';
@@ -26,6 +25,8 @@ import ComponentLoadError from '@/components/ui/ComponentLoadError.vue';
 
 // ── Local Components - Dynamic
 const ContextModelDescriptorsPanel = defineAsyncComponent(() => import('./ContextModelDescriptorsPanel.vue'));
+const ContextErdDiagramPanel = defineAsyncComponent(() => import('./ContextErdDiagramPanel.vue'));
+const ContextDimensionTreeDiagramPanel = defineAsyncComponent(() => import('./ContextDimensionTreeDiagramPanel.vue'));
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -48,47 +49,6 @@ const ENTITY_TABS = [
     { id: 'primaryMeasures', label: 'Measures' }
 ];
 
-// Evaluation example: hard-coded ERD, laid out and drawn by dpuse-tool-d3-visualiser's renderErdDiagram (dagre + d3-selection).
-const ERD_DATA: ErdDiagramData = {
-    nodes: [
-        { id: 'organisation', label: 'Organisation', typeId: 'primary' },
-        { id: 'organisationalUnit', label: 'Organisational Unit', typeId: 'child' },
-        { id: 'person', label: 'Person', typeId: 'primary' },
-        { id: 'nationality', label: 'Nationality', typeId: 'child' },
-        { id: 'language', label: 'Language', typeId: 'child' }
-    ],
-    edges: [
-        { source: 'organisation', target: 'organisationalUnit' },
-        { source: 'organisationalUnit', target: 'organisationalUnit' },
-        { source: 'person', target: 'nationality' },
-        { source: 'person', target: 'language' }
-    ]
-};
-
-// Evaluation example: strict tree (single parent per node), laid out and drawn by dpuse-tool-d3-visualiser's renderTreeDiagram (d3-hierarchy + d3-selection).
-const DIMENSION_TREE: TreeDiagramNode = {
-    id: 'geography',
-    label: 'Geography',
-    children: [
-        {
-            id: 'europe',
-            label: 'Europe',
-            children: [
-                { id: 'unitedKingdom', label: 'United Kingdom' },
-                { id: 'germany', label: 'Germany' }
-            ]
-        },
-        {
-            id: 'northAmerica',
-            label: 'North America',
-            children: [
-                { id: 'unitedStates', label: 'United States' },
-                { id: 'canada', label: 'Canada' }
-            ]
-        }
-    ]
-};
-
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 const { modelReference } = defineProps<{ modelReference: GridListItem<LocalisedConfig<ComponentBase>> }>();
@@ -102,19 +62,31 @@ const expandedEntityId = ref<string | null>(null);
 
 const expandedSecondaryMeasureId = ref<string | null>(null);
 const open = ref(false);
+const erdDialogOpen = ref(false);
+const dimensionTreeDialogOpen = ref(false);
 const purifiedDescription = ref('');
 const modelDescription = ref('');
 const modelReferenceLabel = ref('');
 const modelMap = modelConfigs as Record<string, Model>;
-const erdContainer = useTemplateRef<HTMLDivElement>('erdContainer');
-const dimensionTreeContainer = useTemplateRef<HTMLDivElement>('dimensionTreeContainer');
 const markedTool = shallowRef<MarkedToolType>();
 const descriptorsPanelError = ref<unknown>(null);
+const erdPanelError = ref<unknown>(null);
+const dimensionTreeDiagramPanelError = ref<unknown>(null);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onErrorCaptured((error) => {
     descriptorsPanelError.value = error;
+    return false;
+});
+
+onErrorCaptured((error) => {
+    erdPanelError.value = error;
+    return false;
+});
+
+onErrorCaptured((error) => {
+    dimensionTreeDiagramPanelError.value = error;
     return false;
 });
 
@@ -132,10 +104,7 @@ const toolReady = new Promise<void>((resolve) => {
 onMounted(async () => {
     await toolReady;
 
-    const [markedToolInstance, d3Tool] = await Promise.all([loadMarkedTool(), loadD3Tool()]);
-    markedTool.value = markedToolInstance;
-    if (erdContainer.value) await d3Tool.renderErdDiagram(ERD_DATA, erdContainer.value);
-    if (dimensionTreeContainer.value) await d3Tool.renderTreeDiagram(DIMENSION_TREE, dimensionTreeContainer.value);
+    markedTool.value = await loadMarkedTool();
 });
 
 watch(
@@ -196,16 +165,6 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
     const MarkedTool = module.MarkedTool;
     return new MarkedTool();
 }
-
-async function loadD3Tool(): Promise<D3ToolType> {
-    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-d3-visualiser');
-    if (!toolModuleConfig) throw new Error('No D3 tool module configuration.');
-
-    const url = `https://engine-eu.dpuse.app/tools/d3-visualiser_v${toolModuleConfig.version}/dpuse-tool-d3-visualiser.es.js`;
-    const module = (await import(/* @vite-ignore */ url)) as { D3Tool: new () => D3ToolType };
-    const D3Tool = module.D3Tool;
-    return new D3Tool();
-}
 </script>
 
 <template>
@@ -236,21 +195,27 @@ async function loadD3Tool(): Promise<D3ToolType> {
                 </Suspense>
             </BaseDialog>
 
-            <!-- <h3>Schematic</h3> -->
-
-            <!-- ERD evaluation: layout and rendering via dpuse-tool-d3-visualiser's renderErdDiagram (dagre + d3-selection) -->
-            <!-- <div ref="erdContainer" /> -->
-
-            <!-- Dimension tree evaluation: layout and rendering via dpuse-tool-d3-visualiser's renderTreeDiagram (d3-hierarchy + d3-selection) -->
-            <!-- <div ref="dimensionTreeContainer" /> -->
-
             <!-- Entities -->
             <h2 class="flex flex-none items-center justify-between gap-x-3">
                 Entities
-                <Button class="mr-4" shape="minimal" @click="open = true">
+                <Button class="mr-4" shape="minimal" @click="erdDialogOpen = true">
                     <NetworkIcon class="size-5" stroke-width="1.5" />
                 </Button>
             </h2>
+
+            <BaseDialog v-model="erdDialogOpen" title="Sample ERD Diagram" @save="erdDialogOpen = false">
+                <ComponentLoadError v-if="erdPanelError" :error="erdPanelError" name="ContextErdDiagramPanel" class="flex-1" />
+                <Suspense v-else-if="erdDialogOpen">
+                    <template #default>
+                        <ContextErdDiagramPanel />
+                    </template>
+                    <template #fallback>
+                        <div class="flex flex-1 items-center justify-center">
+                            <LoaderCircleIcon class="animate-spin text-muted" />
+                        </div>
+                    </template>
+                </Suspense>
+            </BaseDialog>
 
             <p>The entities that make up this model.</p>
 
@@ -272,7 +237,7 @@ async function loadD3Tool(): Promise<D3ToolType> {
                 >
                     <ChevronRightIcon class="size-5" stroke-width="1.5" />
                     <div class="flex-1">{{ entity.label }}</div>
-                    <Button class="" shape="minimal" @click="open = true">
+                    <Button shape="minimal" @click="open = true">
                         <SquarePenIcon class="size-5" stroke-width="1.5" />
                     </Button>
                 </div>
@@ -326,6 +291,20 @@ async function loadD3Tool(): Promise<D3ToolType> {
             <!-- Dimensions -->
             <h2 class="flex flex-none items-center justify-between gap-x-3">Dimensions</h2>
 
+            <BaseDialog v-model="dimensionTreeDialogOpen" title="Sample Dimension Tree Diagram" @save="dimensionTreeDialogOpen = false">
+                <ComponentLoadError v-if="dimensionTreeDiagramPanelError" :error="dimensionTreeDiagramPanelError" name="ContextDimensionTreeDiagramPanel" class="flex-1" />
+                <Suspense v-else-if="dimensionTreeDialogOpen">
+                    <template #default>
+                        <ContextDimensionTreeDiagramPanel />
+                    </template>
+                    <template #fallback>
+                        <div class="flex flex-1 items-center justify-center">
+                            <LoaderCircleIcon class="animate-spin text-muted" />
+                        </div>
+                    </template>
+                </Suspense>
+            </BaseDialog>
+
             <p>The dimensions ... this model.</p>
 
             <div
@@ -346,7 +325,10 @@ async function loadD3Tool(): Promise<D3ToolType> {
                 >
                     <ChevronRightIcon class="size-5" stroke-width="1.5" />
                     <div class="flex-1">{{ dimension.label }}</div>
-                    <Button class="" shape="minimal" @click="open = true">
+                    <Button class="mr-1" shape="minimal" @click="dimensionTreeDialogOpen = true">
+                        <NetworkIcon class="size-5" stroke-width="1.5" />
+                    </Button>
+                    <Button shape="minimal" @click="open = true">
                         <SquarePenIcon class="size-5" stroke-width="1.5" />
                     </Button>
                 </div>
@@ -420,7 +402,7 @@ async function loadD3Tool(): Promise<D3ToolType> {
                 >
                     <ChevronRightIcon class="size-5" stroke-width="1.5" />
                     <div class="flex-1">{{ measure.label }}</div>
-                    <Button class="" shape="minimal" @click="open = true">
+                    <Button shape="minimal" @click="open = true">
                         <SquarePenIcon class="size-5" stroke-width="1.5" />
                     </Button>
                 </div>

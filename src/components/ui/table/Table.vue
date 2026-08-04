@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends Record<string, number | string | null | undefined>">
 // ── External Dependencies & Registrations
 import { useVirtualizer } from '@tanstack/vue-virtual';
-import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, getCoreRowModel, useVueTable, type VisibilityState } from '@tanstack/vue-table';
+import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, type ColumnVisibilityState, useTable } from '@tanstack/vue-table';
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue';
 
 // ── Local Framework
@@ -11,6 +11,7 @@ import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';
 import TableHeaderCell from './TableHeaderCell.vue';
+import { type TableFeatureSet, tableFeatureSet } from './tableFeatures';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -19,7 +20,7 @@ const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000; // Empirically chosen — below
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 type Properties = {
-    columnDefinitions: ColumnDef<T>[];
+    columnDefinitions: ColumnDef<TableFeatureSet, T>[];
     dataSource: DataSource<T>;
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
@@ -38,9 +39,9 @@ const state: { toolbarObserver: ResizeObserver | null } = { toolbarObserver: nul
 
 // ── State - Columns ──────────────────────────────────────────────────────────────────────────────────────────────────
 
-const columnPinningStateMap = shallowRef<ColumnPinningState>({});
+const columnPinningStateMap = shallowRef<ColumnPinningState>({ start: [], end: [] });
 const columnSizingStateMap = shallowRef<ColumnSizingState>({});
-const columnVisibilityStateMap = shallowRef<VisibilityState>({});
+const columnVisibilityStateMap = shallowRef<ColumnVisibilityState>({});
 
 // Column virtualization is only activated when the total initial column width exceeds the threshold.
 // Below the threshold, all columns are rendered in a flat flex row — simpler and cheaper.
@@ -66,14 +67,14 @@ const { virtualRows, totalSize, visibleRowData } = useDataWindow({
 
 // ── State - Table ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const table = useVueTable<T>({
+const table = useTable<TableFeatureSet, T>({
+    features: tableFeatureSet,
     get data(): T[] {
         return []; // Always empty — rows are rendered via useDataWindow, never via TanStack Table.
     },
     get columns() {
         return columnDefinitions;
     },
-    getCoreRowModel: getCoreRowModel(),
     enableColumnResizing: true,
     defaultColumn: { enableResizing: true, enableHiding: true, enablePinning: true, size: 150 },
     columnResizeMode: 'onEnd', // Snaps on mouse-up — avoids 60fps reactivity cascade during drag.
@@ -103,9 +104,9 @@ const table = useVueTable<T>({
 // ── Derived State - Columns ──────────────────────────────────────────────────────────────────────────────────────────
 
 const centerLeafHeaders = computed(() => table.getCenterLeafHeaders());
-const leftLeafHeaders = computed(() => table.getLeftLeafHeaders());
+const leftLeafHeaders = computed(() => table.getStartLeafHeaders());
 const leftPinnedWidth = computed(() => leftLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0));
-const rightLeafHeaders = computed(() => table.getRightLeafHeaders());
+const rightLeafHeaders = computed(() => table.getEndLeafHeaders());
 const rightPinnedWidth = computed(() => rightLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0));
 const totalCenterWidth = computed(() =>
     columnVirtualisationIsRequired.value ? columnVirtualizer.value.getTotalSize() : centerLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0)
@@ -144,7 +145,7 @@ onBeforeUnmount(() => state.toolbarObserver?.disconnect());
                         v-for="leftLeafHeader in leftLeafHeaders"
                         :key="leftLeafHeader.id"
                         class="sticky shrink-0 border-r border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900"
-                        :style="{ left: leftLeafHeader.column.getStart('left') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 2 }"
+                        :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                     >
                         <TableHeaderCell :header="leftLeafHeader" />
                     </div>
@@ -177,7 +178,7 @@ onBeforeUnmount(() => state.toolbarObserver?.disconnect());
                         v-for="rightLeafHeader in rightLeafHeaders"
                         :key="rightLeafHeader.id"
                         class="sticky shrink-0 border-l border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900"
-                        :style="{ right: rightLeafHeader.column.getAfter('right') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 2 }"
+                        :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                     >
                         <TableHeaderCell :header="rightLeafHeader" />
                     </div>
@@ -198,7 +199,7 @@ onBeforeUnmount(() => state.toolbarObserver?.disconnect());
                             :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
                             :loading="visibleRowData[i] === undefined"
                             class="sticky shrink-0 border-r border-zinc-100 bg-white group-hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:group-hover:bg-zinc-900"
-                            :style="{ left: leftLeafHeader.column.getStart('left') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 1 }"
+                            :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 1 }"
                         />
 
                         <!-- Center cells: flat when below threshold, virtualised when above -->
@@ -231,7 +232,7 @@ onBeforeUnmount(() => state.toolbarObserver?.disconnect());
                             :value="visibleRowData[i]?.[rightLeafHeader.column.id]"
                             :loading="visibleRowData[i] === undefined"
                             class="sticky shrink-0 border-l border-zinc-100 bg-white group-hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:group-hover:bg-zinc-900"
-                            :style="{ right: rightLeafHeader.column.getAfter('right') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 1 }"
+                            :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 1 }"
                         />
                     </div>
                 </div>

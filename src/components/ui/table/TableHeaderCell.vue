@@ -1,12 +1,15 @@
-<script setup lang="ts" generic="T">
+<script setup lang="ts" generic="T extends RowData">
 // ── External Dependencies & Registrations
 import { ChevronDown } from '@lucide/vue';
-import type { Header } from '@tanstack/vue-table';
+import type { Header, RowData } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
+
+// ── Local Components - Static
+import type { TableFeatureSet } from './tableFeatures';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-const { header } = defineProps<{ header: Header<T, unknown> }>();
+const { header } = defineProps<{ header: Header<TableFeatureSet, T, unknown> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -44,20 +47,20 @@ function onDocumentClick(event: MouseEvent): void {
 
             <div v-if="menuOpen" class="absolute top-full right-0 z-50 min-w-32 rounded border border-zinc-200 bg-white shadow-md dark:border-zinc-700 dark:bg-zinc-900">
                 <button
-                    v-if="header.column.getIsPinned() !== 'left'"
+                    v-if="header.column.getIsPinned() !== 'start'"
                     class="flex w-full items-center px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                     @click="
-                        header.column.pin('left');
+                        header.column.pin('start');
                         menuOpen = false;
                     "
                 >
                     Pin Left
                 </button>
                 <button
-                    v-if="header.column.getIsPinned() !== 'right'"
+                    v-if="header.column.getIsPinned() !== 'end'"
                     class="flex w-full items-center px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                     @click="
-                        header.column.pin('right');
+                        header.column.pin('end');
                         menuOpen = false;
                     "
                 >

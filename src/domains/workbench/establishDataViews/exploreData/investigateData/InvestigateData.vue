@@ -7,13 +7,14 @@ import type { DataSource } from '@/composables/useDataWindow';
 
 // ── Local Components - Static
 import Table from '@/components/ui/table/Table.vue';
+import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const CATEGORIES = ['Alpha', 'Beta', 'Gamma', 'Delta'] as const;
 const TOTAL_ROWS = 100_000;
 
-const COLUMN_DEFINITIONS: ColumnDef<Record<string, number | string | null>>[] = [
+const COLUMN_DEFINITIONS: ColumnDef<TableFeatureSet, Record<string, number | string | null>>[] = [
     { accessorKey: 'id', header: 'ID', size: 120 },
     { accessorKey: 'name', header: 'Name', size: 120 },
     { accessorKey: 'category', header: 'Category', size: 120 },
