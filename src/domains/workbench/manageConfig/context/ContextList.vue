@@ -19,7 +19,7 @@ import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vu
 
 // ── Date ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-import contextConfigData from './contextConfig.json';
+import contextConfigData from './data/contextConfig.json';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

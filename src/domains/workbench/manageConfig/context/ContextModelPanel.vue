@@ -16,7 +16,7 @@ import { toolConfigs } from '@/state/session';
 import type { GridListItem } from './ContextList.vue';
 
 // ── Data
-import modelConfigs from './modelConfigs.json';
+import modelConfigs from './data/modelConfigs.json';
 
 // ── Local Components - Static
 import BaseDialog from '@/components/ui/dialog/BaseDialog.vue';

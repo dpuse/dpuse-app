@@ -51,7 +51,7 @@ function handleComplete(config?: LocalisedConfig<WorkbenchOptionConfig>): void {
 <template>
     <nav
         aria-label="Workbench options"
-        class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-r border-boundary bg-backdrop pt-[calc(55px)] pb-[calc(var(--vertical-scroll-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
+        class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-r border-separator bg-backdrop pt-[calc(55px)] pb-[calc(var(--vertical-scroll-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
         data-region="WorkbenchOptionPanel"
     >
         <!-- Separator -->

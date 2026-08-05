@@ -25,7 +25,8 @@ import WorkbenchLayout from '../WorkbenchLayout.vue';
 const activePresentationReference = shallowRef<LocalisedReference<ComponentReference>>();
 const container = useTemplateRef<HTMLDivElement>('container');
 const presentationReferences = shallowRef<LocalisedReference<ComponentReference>[]>();
-const presenter = shallowRef<PresenterInterface>();
+const presenters: PresenterInterface[] = [];
+const presenterByPresentationReference = new WeakMap<LocalisedReference<ComponentReference>, PresenterInterface>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -57,18 +58,27 @@ const presenterReady = new Promise<void>((resolve) => {
         { immediate: true }
     );
 });
-watch(appearanceIsDark, (isDark) => presenter.value?.setColorMode(isDark ? 'dark' : 'light'));
+watch(appearanceIsDark, (isDark) => {
+    for (const presenter of presenters) presenter.setColorMode(isDark ? 'dark' : 'light');
+});
 
 onMounted(async () => {
     await Promise.all([toolReady, presenterReady]);
 
-    const defaultPresenter = presenterConfigs.value[0];
-    const url = `https://engine-eu.dpuse.app/presenters/default_v${defaultPresenter.version}/dpuse-presenter-default.es.js`;
-    const module = await import(/* @vite-ignore */ url);
-    const presenterModule = module.default;
-    presenter.value = new presenterModule(toolConfigs.value, appearanceIsDark.value ? 'dark' : 'light') as PresenterInterface;
+    for (const presenterConfig of presenterConfigs.value) {
+        const presenterId = presenterConfig.id.split('-').pop();
 
-    presentationReferences.value = presenter.value.list().map((presentationReference) => localiseReference(presentationReference, 'en')); // TODO: Could also use 'defaultPresenter.presentations', though it is a map, not an array.
+        const url = `https://engine-eu.dpuse.app/presenters/${presenterId}_v${presenterConfig.version}/${presenterConfig.id}.es.js`;
+        const module = await import(/* @vite-ignore */ url);
+        const presenterModule = module.default;
+        const presenter = new presenterModule(toolConfigs.value, appearanceIsDark.value ? 'dark' : 'light') as PresenterInterface;
+        presenters.push(presenter);
+
+        const newPresentationReferences = presenter.list().map((presentationReference) => localiseReference(presentationReference, 'en')); // TODO: Could also use 'presenterConfig.presentations', though it is a map, not an array.
+        for (const presentationReference of newPresentationReferences) presenterByPresentationReference.set(presentationReference, presenter);
+
+        presentationReferences.value = [...(presentationReferences.value ?? []), ...newPresentationReferences];
+    }
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -76,8 +86,10 @@ onMounted(async () => {
 async function handleSelectPresentation(presentationReference: LocalisedReference<ComponentReference> | undefined): Promise<void> {
     activePresentationReference.value = presentationReference;
     if (!activePresentationReference.value) return;
+    const presenter = presenterByPresentationReference.get(activePresentationReference.value);
+    if (!presenter) return;
     await nextTick();
-    presenter.value!.render(activePresentationReference.value, container.value!);
+    presenter.render(activePresentationReference.value, container.value!);
 }
 </script>
 
