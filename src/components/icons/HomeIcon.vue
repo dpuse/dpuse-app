@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6" data-region="HomeIcon">
+    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.1" stroke="currentColor" class="size-6" data-region="HomeIcon">
         <path
             stroke-linecap="round"
             stroke-linejoin="round"

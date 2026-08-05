@@ -16,10 +16,6 @@ const SelectItemPanel = load('SelectItem', () => import('@/domains/workbench/est
 const AuditContentPanel = load('AuditContent', () => import('@/domains/workbench/establishDataViews/auditContent/AuditContentPanel.vue'));
 const ExploreData = load('ExploreData', () => import('@/domains/workbench/establishDataViews/exploreData/ExploreData.vue'));
 
-// ── Local Components - Dynamic - Assemble Dimensions
-const AssembleDimensionsLayout = load('AssembleDimensions', () => import('@/domains/workbench/assembleDimensions/AssembleDimensionsLayout.vue'));
-const DimensionList = load('DimensionList', () => import('@/domains/workbench/assembleDimensions/DimensionList.vue'));
-
 // ── Local Components - Dynamic - Contextualise Data
 const ContextualiseDataLayout = load('ContextualiseData', () => import('@/domains/workbench/contextualiseData/ContextualiseDataLayout.vue'));
 const EventQueryList = load('EventQueryList', () => import('@/domains/workbench/contextualiseData/EventQueryList.vue'));
@@ -30,16 +26,11 @@ const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/
 // ── Local Components - Dynamic - Build Data Apps
 const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/buildDataApps/BuildDataAppsLayout.vue'));
 
-// ── Local Components - Dynamic - Manage Context
-// const ManageContextLayout = load('ManageContext', () => import('@/domains/workbench/manageContext/ManageContextLayout.vue'));
-
 // ── Local Components - Dynamic - Manage Configs
 const ManageConfigsLayout = load('ManageConfig', () => import('@/domains/workbench/manageConfig/ManageConfigLayout.vue'));
 const ManageHomePanel = load('ManageHomePanel', () => import('@/domains/workbench/manageConfig/home/HomePanel.vue'));
-// const ManageConnectionList = load('ManageConnectionList', () => import('@/domains/workbench/manageConfig/connections/ConnectionList.vue'));
 const ManageConnectorList = load('ManageConnectorList', () => import('@/domains/workbench/manageConfig/connectors/ConnectorList.vue'));
 const ManageContextList = load('ManageContextList', () => import('@/domains/workbench/manageConfig/context/ContextList.vue'));
-// const ManageContextPanel = load('ManageContextPanel', () => import('@/domains/workbench/manageConfig/context/ContextPanel.vue'));
 const ManagePresenterList = load('ManagePresenterList', () => import('@/domains/workbench/manageConfig/presenters/PresenterList.vue'));
 const ManageCookbooksList = load('ManageCookbooksList', () => import('@/domains/workbench/manageConfig/cookbooks/CookbookList.vue'));
 const ManageToolsList = load('ManageToolsList', () => import('@/domains/workbench/manageConfig/tools/ToolList.vue'));
@@ -71,7 +62,6 @@ export const APP_ROUTES = [
                             }
                         ]
                     },
-                    { path: 'assembleDimensions', component: AssembleDimensionsLayout, children: [{ name: 'assembleDimensions', path: '', component: DimensionList }] },
                     { path: 'contextualiseData', component: ContextualiseDataLayout, children: [{ name: 'contextualiseData', path: '', component: EventQueryList }] },
                     {
                         path: 'explorePresentations',
@@ -79,16 +69,13 @@ export const APP_ROUTES = [
                         children: [{ name: 'explorePresentations', path: '', component: { render: (): null => null } }]
                     },
                     { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsLayout },
-                    // { name: 'manageContext', path: 'manageContext', component: ManageContextLayout },
                     {
                         path: 'manageConfig',
                         component: ManageConfigsLayout,
                         children: [
                             { name: 'manageConfig', path: '', component: ManageHomePanel },
-                            // { name: 'manageConnections', path: 'connections', component: ManageConnectionList },
                             { name: 'manageConnectors', path: 'connectors', component: ManageConnectorList },
                             { name: 'manageConfigContext', path: 'context', component: ManageContextList },
-                            // { name: 'manageContext', path: 'context/:contextId', component: ManageContextPanel },
                             { name: 'managePresenters', path: 'presenters', component: ManagePresenterList },
                             { name: 'manageCookbooks', path: 'cookbooks', component: ManageCookbooksList },
                             { name: 'manageTools', path: 'tools', component: ManageToolsList }

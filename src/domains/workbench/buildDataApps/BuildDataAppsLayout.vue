@@ -14,10 +14,10 @@ import WorkbenchLayout from '../WorkbenchLayout.vue';
     <WorkbenchLayout>
         <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Build_Data_Apps')" to="workbench" />
 
+        <Separator class="mx-4" />
+
         <ScrollArea class="flex-1" scroll-area-padding="screen">
             <div class="relative flex min-h-0 flex-1 flex-col">
-                <Separator class="mx-4" />
-
                 <RouterView />
             </div>
         </ScrollArea>

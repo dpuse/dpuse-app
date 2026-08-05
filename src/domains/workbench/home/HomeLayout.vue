@@ -27,7 +27,7 @@ const workflowOptionConfigs = useWorkbenchOptions();
         <ScrollArea class="flex-1" scroll-area-padding="screen">
             <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
                 <Button
-                    v-for="config in workflowOptionConfigs"
+                    v-for="config in workflowOptionConfigs.filter((config) => config.step > 0)"
                     :key="config.id"
                     class="mt-4 ml-4"
                     shape="minimal"
