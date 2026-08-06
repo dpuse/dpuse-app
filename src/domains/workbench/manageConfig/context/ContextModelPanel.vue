@@ -16,7 +16,7 @@ import { toolConfigs } from '@/state/session';
 import type { GridListItem } from './ContextList.vue';
 
 // ── Data
-import modelConfigs from './data/modelConfigs.json';
+import modelConfigsData from './data/modelConfigs.json'; // TODO: remove once loadModel fetches remotely
 
 // ── Local Components - Static
 import BaseDialog from '@/components/ui/dialog/BaseDialog.vue';
@@ -67,7 +67,7 @@ const dimensionTreeDialogOpen = ref(false);
 const purifiedDescription = ref('');
 const modelDescription = ref('');
 const modelReferenceLabel = ref('');
-const modelMap = modelConfigs as Record<string, Model>;
+// const modelMap = modelConfigs as Record<string, Model>;
 const markedTool = shallowRef<MarkedToolType>();
 const descriptorsPanelError = ref<unknown>(null);
 const erdPanelError = ref<unknown>(null);
@@ -107,12 +107,20 @@ onMounted(async () => {
     markedTool.value = await loadMarkedTool();
 });
 
+// ── Async Loaders
+async function loadModel(modelId: string): Promise<Model> {
+    // Future: return (await fetch(`/api/model-configs/${modelId}`)).json() as Promise<Model>;
+    return (modelConfigsData as Record<string, Model>)[modelId];
+}
+
 watch(
     () => modelReference,
     async (newModelReference) => {
-        modelDescription.value = newModelReference.description + newModelReference.description + newModelReference.description + newModelReference.description;
+        modelDescription.value = newModelReference.description;
         modelReferenceLabel.value = newModelReference.label;
-        activeModel.value = localiseModel(modelMap[newModelReference.id]);
+
+        activeModel.value = undefined; // clear while the newly-selected model loads
+        activeModel.value = localiseModel(await loadModel(newModelReference.id));
 
         markedTool.value ??= await loadMarkedTool();
         purifiedDescription.value = DOMPurify.sanitize(markedTool.value.render(newModelReference.description));
@@ -220,7 +228,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
             <p>The entities that make up this model.</p>
 
             <div
-                v-for="entity in activeModel.entities"
+                v-for="entity in activeModel?.entities ?? []"
                 :key="entity.id"
                 class="mt-2 max-w-prose border"
                 :class="expandedEntityId === entity.id ? 'rounded-md  border-separator' : 'rounded-md border-backdrop'"
@@ -308,7 +316,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
             <p>The dimensions ... this model.</p>
 
             <div
-                v-for="dimension in activeModel.dimensions"
+                v-for="dimension in activeModel?.dimensions ?? []"
                 :key="dimension.id"
                 class="mt-2 max-w-prose border"
                 :class="expandedDimensionId === dimension.id ? 'rounded-md  border-separator' : 'rounded-md border-backdrop'"
@@ -385,7 +393,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
             <p>The measures ... this model.</p>
 
             <div
-                v-for="measure in activeModel.secondaryMeasures"
+                v-for="measure in activeModel?.secondaryMeasures ?? []"
                 :key="measure.id"
                 class="mt-2 max-w-prose border"
                 :class="expandedSecondaryMeasureId === measure.id ? 'rounded-md  border-separator' : 'rounded-md border-backdrop'"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, shallowRef, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
 import type { ComponentBase } from '@dpuse/dpuse-shared/component';
@@ -17,7 +17,7 @@ import ContextModelPanel from './ContextModelPanel.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 
-// ── Date ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 import contextConfigData from './data/contextConfig.json';
 
@@ -28,18 +28,30 @@ export type GridListItem<T> = T & { isHeader?: boolean };
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeModelReference = shallowRef<GridListItem<LocalisedConfig<ComponentBase>> | undefined>();
-const contextConfig = shallowRef<ContextConfig>(contextConfigData as ContextConfig);
-
+const contextConfig = shallowRef<ContextConfig>();
 const contextLocalisedConfig = shallowRef<LocalisedConfig<ContextConfig>>();
+const contextConfigIsLoading = ref(true);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const modelReferencesDataSource = computed<DataSource<GridListItem<LocalisedConfig<ComponentBase>>>>(() => getModels());
+const modelReferencesDataSource = computed<DataSource<GridListItem<LocalisedConfig<ComponentBase>>>>(() => (contextConfig.value ? getModels() : { rowCount: 0, rows: [] }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(contextConfig, (newContextConfig) => (contextLocalisedConfig.value = localiseConfig<ContextConfig>(newContextConfig, localeId.value)), {
-    immediate: true
+async function loadContextConfig(): Promise<ContextConfig> {
+    // TODO: return (await fetch('/api/context-config')).json() as Promise<ContextConfig>;
+    return contextConfigData as ContextConfig;
+}
+
+// eslint-disable-next-line unicorn/prefer-top-level-await -- Prefer this approach to using Suspense.
+(async (): Promise<void> => {
+    contextConfig.value = await loadContextConfig();
+    contextConfigIsLoading.value = false;
+})();
+
+watch(contextConfig, (newContextConfig) => {
+    if (!newContextConfig) return;
+    contextLocalisedConfig.value = localiseConfig<ContextConfig>(newContextConfig, localeId.value);
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -52,7 +64,7 @@ async function handleSelectModel(modelReference: GridListItem<LocalisedConfig<Co
 
 function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBase>>> {
     const localisedModels: GridListItem<LocalisedConfig<ComponentBase>>[] = [];
-    for (const area of contextConfig.value.areas) {
+    for (const area of contextConfig.value!.areas) {
         const la = localiseReference(area, localeId.value);
         localisedModels.push({ ...la, isHeader: true });
         for (const model of area.models) {

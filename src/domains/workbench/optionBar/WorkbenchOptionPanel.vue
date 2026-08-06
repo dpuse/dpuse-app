@@ -69,7 +69,9 @@ function handleComplete(config?: LocalisedConfig<WorkbenchOptionConfig>): void {
                     <HomeIcon aria-hidden="true" class="[&>path]:stroke-1.25" />
                 </Button>
 
-                <template v-for="config in workflowOptionConfigs.filter((config) => config.step > 0)" :key="config.id">
+                <template v-for="config in workflowOptionConfigs" :key="config.id">
+                    <!-- <Separator v-if="index === 0" class="w-10 flex-none" /> -->
+
                     <Button :aria-label="config.label" shape="icon" :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }" @click="handleComplete(config)">
                         <div aria-hidden="true" v-html="config.icon" />
                     </Button>
@@ -78,12 +80,5 @@ function handleComplete(config?: LocalisedConfig<WorkbenchOptionConfig>): void {
         </ScrollArea>
 
         <Separator class="mx-3" />
-        <div class="flex flex-col items-center gap-y-2 py-2">
-            <template v-for="config in workflowOptionConfigs.filter((config) => config.step === 0)" :key="config.id">
-                <Button :aria-label="config.label" shape="icon" :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }" @click="handleComplete(config)">
-                    <div aria-hidden="true" v-html="config.icon" />
-                </Button>
-            </template>
-        </div>
     </nav>
 </template>

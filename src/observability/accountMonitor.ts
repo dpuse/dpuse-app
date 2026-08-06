@@ -52,7 +52,8 @@ function connectToWebSocket(): WebSocket | undefined {
         pendingWebSocket.addEventListener('message', (event) => {
             try {
                 const eventData = JSON.parse(event.data);
-                const configs: ConnectionAccountConfig[] = Array.from(eventData.config.connections, (connection: { connectorId: string }) => ({
+                const connections = eventData.config?.connections ?? [];
+                const configs: ConnectionAccountConfig[] = Array.from(connections, (connection: { connectorId: string }) => ({
                     connectorId: connection.connectorId
                 }));
                 connectionAccountConfigs.value = configs;

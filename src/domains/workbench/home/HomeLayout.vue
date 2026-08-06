@@ -12,29 +12,60 @@ import Separator from '@/components/ui/Separator.vue';
 import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
 import WorkbenchLayout from '../WorkbenchLayout.vue';
 
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const workflowOptionConfigs = useWorkbenchOptions();
 </script>
 
 <template>
-    <WorkbenchLayout class="dpuse-workbench-prose" data-layout="WorkbenchHome">
+    <WorkbenchLayout data-layout="WorkbenchHome">
         <!-- Header -->
         <WorkbenchHeader :overline="t(T, 'wb.label')" :title="t(T, 'wb.wf.label')" />
 
-        <!-- Workflow Steps -->
         <Separator class="mx-4" />
+
+        <!-- Workflow Steps -->
         <ScrollArea class="flex-1" scroll-area-padding="screen">
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
-                <Button
-                    v-for="config in workflowOptionConfigs.filter((config) => config.step > 0)"
-                    :key="config.id"
-                    class="mt-4 ml-4"
-                    shape="minimal"
-                    :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
-                >
-                    <Card :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
-                </Button>
+            <div class="max-w-4xl">
+                <h2 class="mt-4 ml-4">Workflow</h2>
+
+                <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
+                    <Button
+                        v-for="config in workflowOptionConfigs.slice(0, 3)"
+                        :key="config.id"
+                        class="mt-4 ml-4"
+                        shape="minimal"
+                        :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
+                    >
+                        <Card :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
+                    </Button>
+                </div>
+
+                <h2 class="mt-4 ml-4">Build Data Apps</h2>
+                <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
+                    <Button
+                        v-for="config in workflowOptionConfigs.slice(3, 4)"
+                        :key="config.id"
+                        class="mt-4 ml-4"
+                        shape="minimal"
+                        :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
+                    >
+                        <Card :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
+                    </Button>
+                </div>
+
+                <h2 class="mt-4 ml-4">Configuration</h2>
+                <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
+                    <Button
+                        v-for="config in workflowOptionConfigs.slice(4)"
+                        :key="config.id"
+                        class="mt-4 ml-4"
+                        shape="minimal"
+                        :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
+                    >
+                        <Card :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
+                    </Button>
+                </div>
             </div>
         </ScrollArea>
     </WorkbenchLayout>

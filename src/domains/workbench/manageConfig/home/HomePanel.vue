@@ -14,16 +14,18 @@ const configOptionConfigs = useConfigOptionConfigs().value.splice(1);
 
 <template>
     <ScrollArea class="flex-1" scroll-area-padding="screen">
-        <div class="grid max-w-4xl grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
-            <Button
-                v-for="config in configOptionConfigs"
-                :key="config.id"
-                class="mt-4 ml-4"
-                shape="minimal"
-                :to="{ name: config.to, query: { ...$route.query, wbView: config.to } }"
-            >
-                <Card :description="config.description" :icon="config.icon" :label="config.label" />
-            </Button>
+        <div class="max-w-4xl">
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
+                <Button
+                    v-for="config in configOptionConfigs"
+                    :key="config.id"
+                    class="mt-4 ml-4"
+                    shape="minimal"
+                    :to="{ name: config.to, query: { ...$route.query, wbView: config.to } }"
+                >
+                    <Card :description="config.description" :icon="config.icon" :label="config.label" />
+                </Button>
+            </div>
         </div>
     </ScrollArea>
 </template>

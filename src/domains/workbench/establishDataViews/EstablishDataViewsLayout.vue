@@ -27,9 +27,7 @@ const TASK_CONFIGS: TaskConfig[] = [
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
-
 const taskLocalisedConfigs = shallowRef<LocalisedConfig<TaskConfig>[]>([]);
-
 const tasksEnabledToNumber = ref(0);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────

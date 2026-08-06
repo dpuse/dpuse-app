@@ -25,14 +25,19 @@ import Card from '@/components/ui/Card.vue';
 import Grid from '@/components/framework/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
+import { useWorkbenchOptions } from '../useWorkbenchOptions';
 
 // ── Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));
 
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const workflowOptionConfigs = useWorkbenchOptions();
+
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const dataViewsRetrievalIsFinalised = ref(false);
-
+const dataViewConfigsAreRetrieved = ref(false);
+const dataViewIcon = workflowOptionConfigs.value[0].icon;
 const route = useRoute();
 const router = useRouter();
 
@@ -47,11 +52,11 @@ const dataViewConfigsDataSource = computed((): DataSource<DataViewConfig> => ({
 
 watch(
     activeMetaStoreConnectionConfig,
-    (newLocalMetaStoreConnectionConfig) => {
-        if (newLocalMetaStoreConnectionConfig == null) {
-            dataViewsRetrievalIsFinalised.value = false;
+    (newActiveMetaStoreConnectionConfig) => {
+        if (newActiveMetaStoreConnectionConfig == null) {
+            dataViewConfigsAreRetrieved.value = false;
         } else if (dataViewConfigs.value.length === 0) {
-            retrieveDataViews(newLocalMetaStoreConnectionConfig);
+            retrieveDataViews(newActiveMetaStoreConnectionConfig);
         }
     },
     { immediate: true }
@@ -88,15 +93,15 @@ async function retrieveDataViews(metaStoreConnectionConfig: ConnectionConfig): P
         const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dataViews', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
         await processRequest('retrieveRecords', metaStoreConnectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
             if (data.typeId === 'chunk') {
-                pendingDataViewConfigs.push(...(data.properties.records as DataViewConfig[]));
+                pendingDataViewConfigs.push(...(data.properties.records as DataViewConfig[]).map((config) => ({ ...config, icon: dataViewIcon })));
             } else {
                 dataViewConfigs.value = pendingDataViewConfigs;
-                dataViewsRetrievalIsFinalised.value = true;
+                dataViewConfigsAreRetrieved.value = true;
             }
         });
     } catch (error) {
         dataViewConfigs.value = [];
-        dataViewsRetrievalIsFinalised.value = true;
+        dataViewConfigsAreRetrieved.value = true;
         reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.DataViewList.retrieveDataViews', { typeId: 'handled' }, { cause: error }));
     }
 }
@@ -116,13 +121,13 @@ async function retrieveDataViews(metaStoreConnectionConfig: ConnectionConfig): P
             @add="handleAddDataView"
         >
             <template #default="{ item }">
-                <Button class="w-full" shape="minimal" @click="handleSelectDataView(item)">
-                    <Card :icon="item.icon ?? undefined" icon-color="#4d83e0" :label="item.label as string" />
+                <Button class="size-full" shape="minimal" @click="handleSelectDataView(item)">
+                    <Card :icon="item.icon ?? undefined" :label="item.label as string" />
                 </Button>
             </template>
         </Grid>
 
-        <ScrollArea v-else-if="dataViewsRetrievalIsFinalised" class="flex-1">
+        <ScrollArea v-else-if="dataViewConfigsAreRetrieved" class="flex-1">
             <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
         </ScrollArea>
 
