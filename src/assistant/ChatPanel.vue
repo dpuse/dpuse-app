@@ -181,7 +181,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
 
 <template>
     <div class="flex h-full flex-col">
-        <AssistantHeader class="mx-4 flex-none" :overline="'Assistant'" :title="title" />
+        <AssistantHeader class="mx-4 flex-none" :title="title" />
 
         <Separator class="mx-4" />
 

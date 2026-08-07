@@ -3,7 +3,7 @@
 import { studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 
 // Options, Properties, Slots & Emits
-const { overline, title, to } = defineProps<{ overline: string; title: string; to?: string }>();
+const { overline, title, to } = defineProps<{ overline?: string; title: string; to?: string }>();
 </script>
 
 <template>
@@ -26,7 +26,7 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
             }"
             :to="{ name: to, query: { ...$route.query, sView: to } }"
         >
-            <div class="truncate text-sm leading-tight">
+            <div v-if="overline" class="truncate text-sm leading-tight">
                 {{ overline }}
             </div>
             <div class="truncate leading-snug">
