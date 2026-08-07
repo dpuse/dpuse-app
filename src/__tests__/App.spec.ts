@@ -10,7 +10,7 @@ describe('App', () => {
         await router.isReady();
         const wrapper = mount(App, { global: { plugins: [router] } });
 
-        expect(wrapper.find('button[aria-label="Toggle workbench panel"]').exists()).toBe(true);
-        expect(wrapper.find('button[aria-label="Toggle knowledge panel"]').exists()).toBe(true);
+        expect(wrapper.find('button[aria-label="Toggle studio panel"]').exists()).toBe(true);
+        expect(wrapper.find('button[aria-label="Toggle assistant panel"]').exists()).toBe(true);
     });
 });

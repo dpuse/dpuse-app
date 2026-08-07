@@ -19,7 +19,7 @@ const KNOWLEDGE_PANELS: Record<KnowledgeViewId, { component: Component; label: s
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-const { workbenchPaneIsHidden } = defineProps<{ workbenchPaneIsHidden: boolean }>();
+const { studioPaneIsHidden } = defineProps<{ studioPaneIsHidden: boolean }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -35,11 +35,6 @@ const activeView = computed(() => {
 
 <template>
     <div class="flex h-full min-w-0 flex-col">
-        <component
-            :is="activeView.component"
-            :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]"
-            :title="activeView.label"
-            :workbench-pane-is-hidden="workbenchPaneIsHidden"
-        />
+        <component :is="activeView.component" :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="activeView.label" :studio-pane-is-hidden="studioPaneIsHidden" />
     </div>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Local Framework
-import { viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
+import { studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 
 // Options, Properties, Slots & Emits
 const { overline, title, to } = defineProps<{ overline: string; title: string; to?: string }>();
@@ -9,7 +9,7 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
 <template>
     <header
         class="mt-[env(safe-area-inset-top)] flex h-13.75 flex-none flex-col justify-center text-lg font-light"
-        :class="viewportIsWide ? (workbenchPaneIsVisible ? 'pr-40 pl-0' : 'pr-40 pl-10') : 'px-14'"
+        :class="viewportIsWide ? (studioPaneIsVisible ? 'pr-40 pl-0' : 'pr-40 pl-10') : 'px-14'"
         data-region="AssistantHeader"
     >
         <!-- Content indented from left and right to allow for logos when display is narrow.

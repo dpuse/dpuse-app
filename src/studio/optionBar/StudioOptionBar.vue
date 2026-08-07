@@ -3,7 +3,7 @@
 import { viewportIsWide } from '@/state/appLayout';
 
 // Local Components - Static
-import WorkbenchOptionPanel from './WorkbenchOptionPanel.vue';
+import StudioOptionPanel from './StudioOptionPanel.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
@@ -13,15 +13,15 @@ defineEmits<{ continue: [] }>();
 </script>
 
 <template>
-    <div class="h-full" data-region="WorkbenchOptionBar">
-        <WorkbenchOptionPanel v-if="viewportIsWide" class="flex" @continue="$emit('continue')" />
+    <div class="h-full" data-region="StudioOptionBar">
+        <StudioOptionPanel v-if="viewportIsWide" class="flex" @continue="$emit('continue')" />
 
         <Transition appear name="horizontal-slide-ltr">
             <div v-if="!viewportIsWide && isVisible" class="fixed inset-0">
                 <!-- TODO: Could the following be converted to a common mask? -->
                 <div class="absolute inset-0 mt-[env(safe-area-inset-top)] bg-overlay" role="button" tabIndex="-1" @click="$emit('continue')" @keydown="$emit('continue')" />
 
-                <WorkbenchOptionPanel class="dpuse-horizontal-slide-ltr-element relative mr-auto shadow-md" @continue="$emit('continue')" />
+                <StudioOptionPanel class="dpuse-horizontal-slide-ltr-element relative mr-auto shadow-md" @continue="$emit('continue')" />
             </div>
         </Transition>
     </div>

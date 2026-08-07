@@ -16,7 +16,7 @@ export const orientationIsLandscape = ref(LANDSCAPE_QUERY.matches);
 export const isPWA = matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches;
 export const knowledgePaneIsVisible = ref(false); // The knowledge pane is actually rendered (visible) in the layout right now.
 export const sessionMenuIsOpen = ref(false); // The session menu overlay is open.
-export const workbenchPaneIsVisible = ref(false); // The workbench pane is actually rendered (visible) in the layout right now.
+export const studioPaneIsVisible = ref(false); // The studio pane is actually rendered (visible) in the layout right now.
 
 // ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
 

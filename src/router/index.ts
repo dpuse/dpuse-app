@@ -6,7 +6,7 @@ import { load } from '@/state/component';
 import { complete, fail, start } from '@/state/navigation';
 
 // ── Local Components - Dynamic
-const WorkbenchHomeLayout = load('WorkbenchHomeLayout', () => import('@/studio/home/HomeLayout.vue'));
+const StudioHomeLayout = load('StudioHomeLayout', () => import('@/studio/home/StudioHomeLayout.vue'));
 
 // ── Local Components - Dynamic - Establish Data Views
 const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/studio/establishDataViews/EstablishDataViewsLayout.vue'));
@@ -43,9 +43,9 @@ export const APP_ROUTES = [
         children: [
             { path: '', component: { render: (): null => null } }, // Matches exactly '/'. beforeEach handles the default redirect to knowledge about.
             {
-                path: 'workbench',
+                path: 'studio',
                 children: [
-                    { name: 'workbench', path: '', component: WorkbenchHomeLayout },
+                    { name: 'studio', path: '', component: StudioHomeLayout },
                     {
                         path: 'establishDataViews',
                         component: EstablishDataViewsLayout,
@@ -97,16 +97,16 @@ export const createAppRouter = (): Router => {
         scrollBehavior: handleScrollBehavior
     });
 
-    // Default to /workbench when no workbench route or knowledge argument is present.
+    // Default to /studio when no studio route or knowledge argument is present.
     router.beforeEach((to, from) => {
         if (from === START_LOCATION) {
             // Then the page is loading.
             if (to.query.wbState !== '1' && to.path !== '/') {
-                // Then we can clear the workbench part of the url if it was not visible. This defers loading the view until required.
-                return { path: '/', query: { ...to.query, d: undefined, wbState: undefined, wbView: to.query.wbView ?? 'workbench', kState: 1, kView: to.query.kView ?? 'about' } };
+                // Then we can clear the studio part of the url if it was not visible. This defers loading the view until required.
+                return { path: '/', query: { ...to.query, d: undefined, wbState: undefined, wbView: to.query.wbView ?? 'studio', kState: 1, kView: to.query.kView ?? 'about' } };
             }
             if (to.path === '/' && (!('kView' in to.query) || !('kState' in to.query))) {
-                return { path: '/workbench', query: { ...to.query, d: undefined, wbState: 1, wbView: 'workbench', kState: undefined, kView: undefined } };
+                return { path: '/studio', query: { ...to.query, d: undefined, wbState: 1, wbView: 'studio', kState: undefined, kView: undefined } };
             }
             if ('d' in to.query) {
                 return { path: to.path, query: { ...to.query, d: undefined } };

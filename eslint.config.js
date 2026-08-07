@@ -79,7 +79,7 @@ const config = defineConfigWithVueTs(
                         'dpuse-show-detail',
                         'dpuse-prose',
                         'dpuse-prose-overline',
-                        'dpuse-workbench-prose',
+                        'dpuse-studio-prose',
                         'gdp-detail',
                         'gdp-grid',
                         'pell-editor',

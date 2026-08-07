@@ -9,14 +9,14 @@ import { initialiseServices } from '@/state/session';
 import { load } from '@/state/component';
 import T from './App.json';
 import { t } from '@/state/locale';
-import { contentScrollPosition, knowledgePaneIsVisible, sessionMenuIsOpen, viewportIsWide, workbenchPaneIsVisible } from '@/state/appLayout';
+import { contentScrollPosition, knowledgePaneIsVisible, sessionMenuIsOpen, viewportIsWide, studioPaneIsVisible } from '@/state/appLayout';
 import { navigationIsActive, navigationIsDelayed } from '@/state/navigation';
 
 // ── Local Components - Static
-import Button from '@/components/ui/button/Button.vue'; // Required by workbench and knowledge toggle buttons which are always visible.
+import Button from '@/components/ui/button/Button.vue'; // Required by studio and knowledge toggle buttons which are always visible.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always visible.
-import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
+import type { KnowledgeViewId } from '~/src/assistant/KnowledgeLayout.vue';
 import LoadingMask from '@/components/framework/LoadingMask.vue'; // Required so no delay when rendering.
 import ProgressBar from '@/components/framework/ProgressBar.vue'; // Required so no delay when rendering.
 import SessionButton from '@/session/SessionButton.vue'; // Always visible.
@@ -25,9 +25,9 @@ import SessionButton from '@/session/SessionButton.vue'; // Always visible.
 const AccountDialog = defineAsyncComponent(load('AccountDialog', () => import('@/session/accountDialog/AccountDialog.vue')));
 const AuthDialog = defineAsyncComponent(load('AuthDialog', () => import('@/session/authDialog/AuthDialog.vue')));
 const ConnectionDialog = defineAsyncComponent(load('ConnectionDialog', () => import('@/studio/connectionDialog/ConnectionDialog.vue')));
-const KnowledgeLayout = defineAsyncComponent(load('KnowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue')));
+const KnowledgeLayout = defineAsyncComponent(load('KnowledgeLayout', () => import('~/src/assistant/KnowledgeLayout.vue')));
 const PaneSplitter = defineAsyncComponent(load('PaneSplitter', () => import('@/components/ui/PaneSplitter.vue')));
-const WorkbenchOptionBar = defineAsyncComponent(load('WorkbenchOptionBar', () => import('@/studio/optionBar/WorkbenchOptionBar.vue')));
+const StudioOptionBar = defineAsyncComponent(load('StudioOptionBar', () => import('@/studio/optionBar/StudioOptionBar.vue')));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -36,7 +36,7 @@ const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeAppPaneId = ref<'workbench' | 'knowledge' | undefined>();
+const activeAppPaneId = ref<'studio' | 'knowledge' | undefined>();
 
 const knowledgeOptionBarIsVisible = ref(false);
 const knowledgePaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
@@ -47,9 +47,9 @@ const paneSplitterPercent = ref(establishPaneSplitterPercent());
 const route = useRoute();
 const router = useRouter();
 
-const workbenchOptionBarIsVisible = ref(false);
-const workbenchPaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
-const workbenchPaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
+const studioOptionBarIsVisible = ref(false);
+const studioPaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
+const studioPaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
 
 // ── Derived State - Dialogs ──────────────────────────────────────────────────────────────────────────────────────────
 
@@ -66,10 +66,10 @@ const knowledgePaneStyle = computed(() => {
     return { width: '0' };
 });
 
-const paneSplitterIsVisible = computed(() => workbenchPaneIsVisible.value && knowledgePaneIsVisible.value);
+const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && knowledgePaneIsVisible.value);
 
-const workbenchPaneStyle = computed(() => {
-    if (!workbenchPaneIsVisible.value) return { width: '0' };
+const studioPaneStyle = computed(() => {
+    if (!studioPaneIsVisible.value) return { width: '0' };
     if (knowledgePaneIsVisible.value) return { minWidth: '0', width: paneSplitterPercent.value + '%' };
     return { minWidth: '0', flex: '1' };
 });
@@ -81,17 +81,17 @@ router
     // eslint-disable-next-line unicorn/prefer-await -- top-level await in <script setup> suspends the component; .then() keeps mount non-blocking.
     .then(() => {
         // The initial navigation has fully completed. This block intentionally runs once to bootstrap pane state from the initial URL.
-        workbenchPaneActivated.value = workbenchPaneIsActive.value = route.path !== '/';
+        studioPaneActivated.value = studioPaneIsActive.value = route.path !== '/';
         knowledgePaneActivated.value = knowledgePaneIsActive.value = route.query.kState === '1' && 'kView' in route.query;
-        activeAppPaneId.value = workbenchPaneActivated.value ? 'workbench' : 'knowledge';
+        activeAppPaneId.value = studioPaneActivated.value ? 'studio' : 'knowledge';
         establishActivePaneId(viewportIsWide.value);
     })
     // eslint-disable-next-line unicorn/prefer-await, unicorn/prefer-top-level-await -- top-level await in <script setup> suspends the component; .catch() keeps mount non-blocking.
     .catch(() => {
-        // Router failed to initialise — fall back to showing the workbench pane.
-        workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = true;
+        // Router failed to initialise — fall back to showing the studio pane.
+        studioPaneActivated.value = studioPaneIsActive.value = studioPaneIsVisible.value = true;
         knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = false;
-        activeAppPaneId.value = 'workbench';
+        activeAppPaneId.value = 'studio';
     });
 
 onMounted(() => initialiseServices());
@@ -114,9 +114,9 @@ function handleSelectKnowledgePanel(knowledgeViewId: KnowledgeViewId): void {
 
 function handleToggleKnowledgePane(): void {
     if (viewportIsWide.value) {
-        if (knowledgePaneIsVisible.value && !workbenchPaneIsVisible.value) return; // Don't close the knowledge pane if it's the only one visible.
+        if (knowledgePaneIsVisible.value && !studioPaneIsVisible.value) return; // Don't close the knowledge pane if it's the only one visible.
         toggleKnowledgePane();
-        activeAppPaneId.value = knowledgePaneIsVisible.value ? 'knowledge' : 'workbench';
+        activeAppPaneId.value = knowledgePaneIsVisible.value ? 'knowledge' : 'studio';
         return;
     }
 
@@ -128,8 +128,8 @@ function handleToggleKnowledgePane(): void {
 
     // Display is narrow, switching to this pane — close other option bar first if open.
     activeAppPaneId.value = 'knowledge';
-    workbenchOptionBarIsVisible.value = false;
-    workbenchPaneIsVisible.value = false;
+    studioOptionBarIsVisible.value = false;
+    studioPaneIsVisible.value = false;
     toggleKnowledgePane();
 }
 
@@ -138,57 +138,57 @@ function toggleKnowledgePane(): void {
         // Then - toggle knowledge pane, ensure knowledge pane is activated (may be first time), and update route properties.
         knowledgePaneIsActive.value = knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
         if (knowledgePaneIsActive.value) knowledgePaneActivated.value = true;
-        router.replace({ query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
+        router.replace({ query: { ...route.query, wbState: studioPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
     } else {
         // Else - knowledge pane has never been activated, active and navigate to last 'about' route.
         knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = true;
-        router.replace({ query: { ...route.query, kView: 'about', wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: 1 } });
+        router.replace({ query: { ...route.query, kView: 'about', wbState: studioPaneIsVisible.value ? 1 : undefined, kState: 1 } });
     }
 }
 
-// ── Event Handlers - Workbench Option Bar ────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers - Studio Option Bar ────────────────────────────────────────────────────────────────────────────
 
-function handleWorkbenchOptionBarHide(): void {
+function handleStudioOptionBarHide(): void {
     if (viewportIsWide.value) return;
     knowledgeOptionBarIsVisible.value = false;
-    workbenchOptionBarIsVisible.value = false;
+    studioOptionBarIsVisible.value = false;
 }
 
-// ── Event Handlers - Workbench Pane ──────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers - Studio Pane ──────────────────────────────────────────────────────────────────────────────────
 
-function handleToggleWorkbenchPane(): void {
+function handleToggleStudioPane(): void {
     if (viewportIsWide.value) {
-        if (workbenchPaneIsVisible.value && !knowledgePaneIsVisible.value) return; // Don't close the workbench pane if it's the only one visible.
-        toggleWorkbenchPane();
-        activeAppPaneId.value = workbenchPaneIsVisible.value ? 'workbench' : 'knowledge';
+        if (studioPaneIsVisible.value && !knowledgePaneIsVisible.value) return; // Don't close the studio pane if it's the only one visible.
+        toggleStudioPane();
+        activeAppPaneId.value = studioPaneIsVisible.value ? 'studio' : 'knowledge';
         return;
     }
 
     // Display is narrow, pane already visible — toggle its option bar.
-    if (workbenchPaneIsVisible.value) {
-        workbenchOptionBarIsVisible.value = !workbenchOptionBarIsVisible.value;
+    if (studioPaneIsVisible.value) {
+        studioOptionBarIsVisible.value = !studioOptionBarIsVisible.value;
         return;
     }
 
     // Display is narrow, switching to this pane — close other option bar first if open.
-    activeAppPaneId.value = 'workbench';
+    activeAppPaneId.value = 'studio';
     knowledgeOptionBarIsVisible.value = false;
     knowledgePaneIsVisible.value = false;
-    toggleWorkbenchPane();
+    toggleStudioPane();
 }
 
-function toggleWorkbenchPane(): void {
+function toggleStudioPane(): void {
     if (route.path === '/') {
-        // Then - workbench pane has never been activated, active and navigate to last known route.
-        workbenchPaneActivated.value = workbenchPaneIsActive.value = workbenchPaneIsVisible.value = true;
+        // Then - studio pane has never been activated, active and navigate to last known route.
+        studioPaneActivated.value = studioPaneIsActive.value = studioPaneIsVisible.value = true;
         router.replace({
-            name: (Array.isArray(route.query.wbView) ? route.query.wbView[0] : route.query.wbView) ?? 'workbench',
+            name: (Array.isArray(route.query.wbView) ? route.query.wbView[0] : route.query.wbView) ?? 'studio',
             query: { ...route.query, wbState: 1, kState: knowledgePaneIsVisible.value ? 1 : undefined }
         });
     } else {
-        // Else - toggle workbench pane and update route properties.
-        workbenchPaneIsActive.value = workbenchPaneIsVisible.value = !workbenchPaneIsVisible.value;
-        router.replace({ query: { ...route.query, wbState: workbenchPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
+        // Else - toggle studio pane and update route properties.
+        studioPaneIsActive.value = studioPaneIsVisible.value = !studioPaneIsVisible.value;
+        router.replace({ query: { ...route.query, wbState: studioPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
     }
 }
 
@@ -197,10 +197,10 @@ function toggleWorkbenchPane(): void {
 function establishActivePaneId(isViewportIsWide: boolean): void {
     // eslint-disable-next-line sonarjs/no-selector-parameter -- splitting into two methods would just move the if/else to the caller.
     if (isViewportIsWide) {
-        workbenchPaneIsVisible.value = workbenchPaneIsActive.value;
+        studioPaneIsVisible.value = studioPaneIsActive.value;
         knowledgePaneIsVisible.value = knowledgePaneIsActive.value;
     } else {
-        workbenchPaneIsVisible.value = workbenchPaneIsActive.value && activeAppPaneId.value === 'workbench';
+        studioPaneIsVisible.value = studioPaneIsActive.value && activeAppPaneId.value === 'studio';
         knowledgePaneIsVisible.value = knowledgePaneIsActive.value && activeAppPaneId.value === 'knowledge';
     }
 }
@@ -217,10 +217,10 @@ function establishPaneSplitterPercent(): number {
 <template>
     <div class="fixed inset-0 flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
         <!--
-          z-10: Content: WorkbenchPane (includes fixed WorkbenchOptionBar), PaneSplitter & KnowledgePane
+          z-10: Content: StudioPane (includes fixed StudioOptionBar), PaneSplitter & KnowledgePane
           z-20: topFadeOut, knowledgeActionBar
-          z-30: WorkbenchOptionBar (floating)
-          z-40: workbenchPaneToggle
+          z-30: StudioOptionBar (floating)
+          z-40: studioPaneToggle
           z-49: SessionButton
           z-50: LoadingMask (global — navigation and async component loads)
           z-51: SessionMenu
@@ -243,14 +243,14 @@ function establishPaneSplitterPercent(): number {
             :navigation-is-delayed="navigationIsDelayed"
         />
 
-        <!-- Workbench toggle fixed in top left corner. Always visible. -->
+        <!-- Studio toggle fixed in top left corner. Always visible. -->
         <Button
             :aria-label="t(T, 'wb.toggle.label.aria')"
             class="fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full!"
             :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
-            data-region="workbenchPaneToggle"
+            data-region="studioPaneToggle"
             shape="icon"
-            @click="handleToggleWorkbenchPane"
+            @click="handleToggleStudioPane"
         >
             <DPUseLogo />
         </Button>
@@ -284,7 +284,7 @@ function establishPaneSplitterPercent(): number {
         </div>
 
         <!-- Session Button - Always visible. -->
-        <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-49" :workbench-option-bar-is-visible="workbenchOptionBarIsVisible" />
+        <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-49" :studio-option-bar-is-visible="studioOptionBarIsVisible" />
 
         <!-- Authentication Dialog - Activated using URL parameter 'dlg=auth'. -->
         <Transition name="action-fade">
@@ -301,25 +301,25 @@ function establishPaneSplitterPercent(): number {
             <ConnectionDialog v-if="connectionDialogIsVisible" class="z-60" />
         </Transition>
 
-        <!-- Workbench Option Bar - Only rendered when viewport is narrow. -->
-        <WorkbenchOptionBar v-if="!viewportIsWide" class="z-30" :is-visible="workbenchOptionBarIsVisible" @continue="handleWorkbenchOptionBarHide" />
+        <!-- Studio Option Bar - Only rendered when viewport is narrow. -->
+        <StudioOptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" />
 
-        <!-- Workbench Pane - Contains workbench layout (via RouterView). Rendered once workbench pane is activated and visible. -->
+        <!-- Studio Pane - Contains studio layout (via RouterView). Rendered once studio pane is activated and visible. -->
         <div
-            v-if="workbenchPaneActivated"
-            v-show="workbenchPaneIsVisible"
+            v-if="studioPaneActivated"
+            v-show="studioPaneIsVisible"
             class="grid h-full"
             :class="viewportIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
-            data-region="workbenchPane"
-            :style="[workbenchPaneStyle, { 'container-type': 'inline-size' }]"
-            @pointerdown="activeAppPaneId = 'workbench'"
-            @scroll.capture="activeAppPaneId = 'workbench'"
+            data-region="studioPane"
+            :style="[studioPaneStyle, { 'container-type': 'inline-size' }]"
+            @pointerdown="activeAppPaneId = 'studio'"
+            @scroll.capture="activeAppPaneId = 'studio'"
         >
-            <!-- Workbench Option Bar - Only rendered when viewport is wide. -->
-            <WorkbenchOptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleWorkbenchOptionBarHide" />
+            <!-- Studio Option Bar - Only rendered when viewport is wide. -->
+            <StudioOptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleStudioOptionBarHide" />
 
             <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
-            <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="workbench-content">
+            <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="studio-content">
                 <RouterView v-slot="{ Component }">
                     <Transition name="action-fade" mode="out-in">
                         <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
@@ -341,7 +341,7 @@ function establishPaneSplitterPercent(): number {
             @pointerdown="activeAppPaneId = 'knowledge'"
             @scroll.capture="activeAppPaneId = 'knowledge'"
         >
-            <KnowledgeLayout class="flex-1" :workbench-pane-is-hidden="!workbenchPaneIsVisible" />
+            <KnowledgeLayout class="flex-1" :studio-pane-is-hidden="!studioPaneIsVisible" />
         </div>
     </div>
 </template>

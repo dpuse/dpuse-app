@@ -16,7 +16,7 @@ const SessionMenu = defineAsyncComponent(load('SessionMenu', () => import('@/ses
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-const { workbenchOptionBarIsVisible } = defineProps<{ workbenchOptionBarIsVisible: boolean }>();
+const { studioOptionBarIsVisible } = defineProps<{ studioOptionBarIsVisible: boolean }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -81,7 +81,7 @@ function onMenuAfterLeave(): void {}
         <AvatarButton
             aria-label="Toggle session panel"
             class="dpuse-outside-click-ignore relative size-10"
-            :class="{ 'bg-surface shadow-md': !viewportIsWide && !workbenchOptionBarIsVisible }"
+            :class="{ 'bg-surface shadow-md': !viewportIsWide && !studioOptionBarIsVisible }"
             @click="sessionMenuIsOpen = !sessionMenuIsOpen"
         >
             <Transition name="fade">

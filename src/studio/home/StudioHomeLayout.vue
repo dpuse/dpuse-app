@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── Local Framework
-import T from './HomeLayout.json';
+import T from './StudioHomeLayout.json';
 import { t } from '@/state/locale';
 import { useStudioOptions } from '@/studio/useStudioOptions.ts';
 

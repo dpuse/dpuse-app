@@ -7,7 +7,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { activeBenchtopOptionConfig } from '@/state/activeBenchtop';
-import T from './WorkbenchOptionPanel.json';
+import T from './StudioOptionPanel.json';
 import { t } from '@/state/locale';
 import { useStudioOptions, type StudioOptionConfig } from '@/studio/useStudioOptions';
 
@@ -50,9 +50,9 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
 
 <template>
     <nav
-        aria-label="Workbench options"
+        aria-label="Studio options"
         class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-r border-separator bg-backdrop pt-[calc(55px)] pb-[calc(var(--vertical-scroll-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
-        data-region="WorkbenchOptionPanel"
+        data-region="StudioOptionPanel"
     >
         <!-- Separator -->
         <div class="mx-3 h-px flex-none bg-separator" />
@@ -63,7 +63,7 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
                 <Button
                     :aria-label="t(T, 'home.aria')"
                     shape="icon"
-                    :to="{ name: 'workbench', query: { ...$route.query, wbView: 'workbench' } }"
+                    :to="{ name: 'studio', query: { ...$route.query, wbView: 'studio' } }"
                     @click="handleComplete({ id: 'home', label: '', description: '', icon: '', step: 0, tasks: [] })"
                 >
                     <!-- <HomeIcon aria-hidden="true" class="[&>path]:stroke-1.25" /> -->
