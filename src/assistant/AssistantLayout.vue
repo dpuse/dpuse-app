@@ -10,8 +10,8 @@ const LibraryView = defineAsyncComponent(() => import('./LibraryPanel.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export type KnowledgeViewId = 'about' | 'library' | 'chat';
-const KNOWLEDGE_PANELS: Record<KnowledgeViewId, { component: Component; label: string }> = {
+export type AssistantViewId = 'about' | 'library' | 'chat';
+const KNOWLEDGE_PANELS: Record<AssistantViewId, { component: Component; label: string }> = {
     about: { component: AboutView, label: 'About' },
     library: { component: LibraryView, label: 'Library' },
     chat: { component: ChatView, label: 'Chat' }
@@ -28,7 +28,7 @@ const route = useRoute();
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeView = computed(() => {
-    const parameter = route.query.kView as KnowledgeViewId | undefined;
+    const parameter = route.query.kView as AssistantViewId | undefined;
     return KNOWLEDGE_PANELS[parameter ?? 'about'] ?? KNOWLEDGE_PANELS.about;
 });
 </script>

@@ -9,12 +9,12 @@ const LANDSCAPE_QUERY = matchMedia('(orientation: landscape)');
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+export const assistantPaneIsVisible = ref(false); // The assistant pane is actually rendered (visible) in the layout right now.
 export const contentScrollPosition = ref(0);
 export const viewportIsWide = ref(MEDIA_QUERY.matches);
 export const appearanceIsDark = ref(document.documentElement.classList.contains('dark'));
 export const orientationIsLandscape = ref(LANDSCAPE_QUERY.matches);
 export const isPWA = matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches;
-export const knowledgePaneIsVisible = ref(false); // The knowledge pane is actually rendered (visible) in the layout right now.
 export const sessionMenuIsOpen = ref(false); // The session menu overlay is open.
 export const studioPaneIsVisible = ref(false); // The studio pane is actually rendered (visible) in the layout right now.
 

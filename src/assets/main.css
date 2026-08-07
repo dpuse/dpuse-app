@@ -195,7 +195,7 @@ html {
 
 /* Content column: left margin scales with viewport width (clamped 0–5rem), max-width 56rem, right margin absorbs remaining space. */
 @layer utilities {
-    .dpuse-workbench-prose {
+    .dpuse-studio-prose {
         @apply mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] max-w-4xl;
     }
 }

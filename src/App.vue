@@ -9,14 +9,14 @@ import { initialiseServices } from '@/state/session';
 import { load } from '@/state/component';
 import T from './App.json';
 import { t } from '@/state/locale';
-import { contentScrollPosition, knowledgePaneIsVisible, sessionMenuIsOpen, viewportIsWide, studioPaneIsVisible } from '@/state/appLayout';
+import { assistantPaneIsVisible, contentScrollPosition, sessionMenuIsOpen, studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 import { navigationIsActive, navigationIsDelayed } from '@/state/navigation';
 
 // ── Local Components - Static
-import Button from '@/components/ui/button/Button.vue'; // Required by studio and knowledge toggle buttons which are always visible.
+import AssistantLogo from '@/components/branding/AssistantLogo.vue'; // Always visible.
+import type { AssistantViewId } from '@/assistant/AssistantLayout.vue';
+import Button from '@/components/ui/button/Button.vue'; // Required by studio and assistant toggle buttons which are always visible.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
-import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always visible.
-import type { KnowledgeViewId } from '~/src/assistant/KnowledgeLayout.vue';
 import LoadingMask from '@/components/framework/LoadingMask.vue'; // Required so no delay when rendering.
 import ProgressBar from '@/components/framework/ProgressBar.vue'; // Required so no delay when rendering.
 import SessionButton from '@/session/SessionButton.vue'; // Always visible.
@@ -25,7 +25,7 @@ import SessionButton from '@/session/SessionButton.vue'; // Always visible.
 const AccountDialog = defineAsyncComponent(load('AccountDialog', () => import('@/session/accountDialog/AccountDialog.vue')));
 const AuthDialog = defineAsyncComponent(load('AuthDialog', () => import('@/session/authDialog/AuthDialog.vue')));
 const ConnectionDialog = defineAsyncComponent(load('ConnectionDialog', () => import('@/studio/connectionDialog/ConnectionDialog.vue')));
-const KnowledgeLayout = defineAsyncComponent(load('KnowledgeLayout', () => import('~/src/assistant/KnowledgeLayout.vue')));
+const AssistantLayout = defineAsyncComponent(load('AssistantLayout', () => import('@/assistant/AssistantLayout.vue')));
 const PaneSplitter = defineAsyncComponent(load('PaneSplitter', () => import('@/components/ui/PaneSplitter.vue')));
 const StudioOptionBar = defineAsyncComponent(load('StudioOptionBar', () => import('@/studio/optionBar/StudioOptionBar.vue')));
 
@@ -36,11 +36,11 @@ const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeAppPaneId = ref<'studio' | 'knowledge' | undefined>();
+const activeAppPaneId = ref<'studio' | 'assistant' | undefined>();
 
-const knowledgeOptionBarIsVisible = ref(false);
-const knowledgePaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
-const knowledgePaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
+const assistantOptionBarIsVisible = ref(false);
+const assistantPaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
+const assistantPaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
 
 const paneSplitterPercent = ref(establishPaneSplitterPercent());
 
@@ -61,16 +61,16 @@ const modalIsActive = computed(() => accountDialogIsVisible.value || authDialogI
 
 // ── Derived State - Panes ────────────────────────────────────────────────────────────────────────────────────────────
 
-const knowledgePaneStyle = computed(() => {
-    if (knowledgePaneIsVisible.value) return { minWidth: '0', flex: '1' };
+const assistantPaneStyle = computed(() => {
+    if (assistantPaneIsVisible.value) return { minWidth: '0', flex: '1' };
     return { width: '0' };
 });
 
-const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && knowledgePaneIsVisible.value);
+const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assistantPaneIsVisible.value);
 
 const studioPaneStyle = computed(() => {
     if (!studioPaneIsVisible.value) return { width: '0' };
-    if (knowledgePaneIsVisible.value) return { minWidth: '0', width: paneSplitterPercent.value + '%' };
+    if (assistantPaneIsVisible.value) return { minWidth: '0', width: paneSplitterPercent.value + '%' };
     return { minWidth: '0', flex: '1' };
 });
 
@@ -82,15 +82,15 @@ router
     .then(() => {
         // The initial navigation has fully completed. This block intentionally runs once to bootstrap pane state from the initial URL.
         studioPaneActivated.value = studioPaneIsActive.value = route.path !== '/';
-        knowledgePaneActivated.value = knowledgePaneIsActive.value = route.query.kState === '1' && 'kView' in route.query;
-        activeAppPaneId.value = studioPaneActivated.value ? 'studio' : 'knowledge';
+        assistantPaneActivated.value = assistantPaneIsActive.value = route.query.kState === '1' && 'kView' in route.query;
+        activeAppPaneId.value = studioPaneActivated.value ? 'studio' : 'assistant';
         establishActivePaneId(viewportIsWide.value);
     })
     // eslint-disable-next-line unicorn/prefer-await, unicorn/prefer-top-level-await -- top-level await in <script setup> suspends the component; .catch() keeps mount non-blocking.
     .catch(() => {
         // Router failed to initialise — fall back to showing the studio pane.
         studioPaneActivated.value = studioPaneIsActive.value = studioPaneIsVisible.value = true;
-        knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = false;
+        assistantPaneActivated.value = assistantPaneIsActive.value = assistantPaneIsVisible.value = false;
         activeAppPaneId.value = 'studio';
     });
 
@@ -102,46 +102,46 @@ watch(viewportIsWide, (newViewportIsWide) => {
 
 watch(paneSplitterPercent, (newPaneSplitterPercent) => localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent)));
 
-// ── Event Handlers - Knowledge Pane/Panels ───────────────────────────────────────────────────────────────────────────
+// ── Event Handlers - Assistant Pane/Panels ───────────────────────────────────────────────────────────────────────────
 
-function handleSelectKnowledgePanel(knowledgeViewId: KnowledgeViewId): void {
-    activeAppPaneId.value = 'knowledge';
-    knowledgePaneIsActive.value = knowledgePaneIsVisible.value = route.query.kView !== knowledgeViewId || !knowledgePaneIsVisible.value;
-    if (knowledgePaneIsActive.value) knowledgePaneActivated.value = true;
-    router.replace({ query: { ...route.query, kState: knowledgePaneIsVisible.value ? 1 : undefined, kView: knowledgeViewId } });
-    knowledgeOptionBarIsVisible.value = false;
+function handleSelectAssistantPanel(assistantViewId: AssistantViewId): void {
+    activeAppPaneId.value = 'assistant';
+    assistantPaneIsActive.value = assistantPaneIsVisible.value = route.query.kView !== assistantViewId || !assistantPaneIsVisible.value;
+    if (assistantPaneIsActive.value) assistantPaneActivated.value = true;
+    router.replace({ query: { ...route.query, kState: assistantPaneIsVisible.value ? 1 : undefined, kView: assistantViewId } });
+    assistantOptionBarIsVisible.value = false;
 }
 
-function handleToggleKnowledgePane(): void {
+function handleToggleAssistantPane(): void {
     if (viewportIsWide.value) {
-        if (knowledgePaneIsVisible.value && !studioPaneIsVisible.value) return; // Don't close the knowledge pane if it's the only one visible.
-        toggleKnowledgePane();
-        activeAppPaneId.value = knowledgePaneIsVisible.value ? 'knowledge' : 'studio';
+        if (assistantPaneIsVisible.value && !studioPaneIsVisible.value) return; // Don't close the assistant pane if it's the only one visible.
+        toggleAssistantPane();
+        activeAppPaneId.value = assistantPaneIsVisible.value ? 'assistant' : 'studio';
         return;
     }
 
     // Display is narrow, pane already visible — toggle its option bar.
-    if (knowledgePaneIsVisible.value) {
-        knowledgeOptionBarIsVisible.value = !knowledgeOptionBarIsVisible.value;
+    if (assistantPaneIsVisible.value) {
+        assistantOptionBarIsVisible.value = !assistantOptionBarIsVisible.value;
         return;
     }
 
     // Display is narrow, switching to this pane — close other option bar first if open.
-    activeAppPaneId.value = 'knowledge';
+    activeAppPaneId.value = 'assistant';
     studioOptionBarIsVisible.value = false;
     studioPaneIsVisible.value = false;
-    toggleKnowledgePane();
+    toggleAssistantPane();
 }
 
-function toggleKnowledgePane(): void {
+function toggleAssistantPane(): void {
     if ('kView' in route.query) {
-        // Then - toggle knowledge pane, ensure knowledge pane is activated (may be first time), and update route properties.
-        knowledgePaneIsActive.value = knowledgePaneIsVisible.value = !knowledgePaneIsVisible.value;
-        if (knowledgePaneIsActive.value) knowledgePaneActivated.value = true;
-        router.replace({ query: { ...route.query, wbState: studioPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
+        // Then - toggle assistant pane, ensure assistant pane is activated (may be first time), and update route properties.
+        assistantPaneIsActive.value = assistantPaneIsVisible.value = !assistantPaneIsVisible.value;
+        if (assistantPaneIsActive.value) assistantPaneActivated.value = true;
+        router.replace({ query: { ...route.query, wbState: studioPaneIsVisible.value ? 1 : undefined, kState: assistantPaneIsVisible.value ? 1 : undefined } });
     } else {
-        // Else - knowledge pane has never been activated, active and navigate to last 'about' route.
-        knowledgePaneActivated.value = knowledgePaneIsActive.value = knowledgePaneIsVisible.value = true;
+        // Else - assistant pane has never been activated, active and navigate to last 'about' route.
+        assistantPaneActivated.value = assistantPaneIsActive.value = assistantPaneIsVisible.value = true;
         router.replace({ query: { ...route.query, kView: 'about', wbState: studioPaneIsVisible.value ? 1 : undefined, kState: 1 } });
     }
 }
@@ -150,7 +150,7 @@ function toggleKnowledgePane(): void {
 
 function handleStudioOptionBarHide(): void {
     if (viewportIsWide.value) return;
-    knowledgeOptionBarIsVisible.value = false;
+    assistantOptionBarIsVisible.value = false;
     studioOptionBarIsVisible.value = false;
 }
 
@@ -158,9 +158,9 @@ function handleStudioOptionBarHide(): void {
 
 function handleToggleStudioPane(): void {
     if (viewportIsWide.value) {
-        if (studioPaneIsVisible.value && !knowledgePaneIsVisible.value) return; // Don't close the studio pane if it's the only one visible.
+        if (studioPaneIsVisible.value && !assistantPaneIsVisible.value) return; // Don't close the studio pane if it's the only one visible.
         toggleStudioPane();
-        activeAppPaneId.value = studioPaneIsVisible.value ? 'studio' : 'knowledge';
+        activeAppPaneId.value = studioPaneIsVisible.value ? 'studio' : 'assistant';
         return;
     }
 
@@ -172,8 +172,8 @@ function handleToggleStudioPane(): void {
 
     // Display is narrow, switching to this pane — close other option bar first if open.
     activeAppPaneId.value = 'studio';
-    knowledgeOptionBarIsVisible.value = false;
-    knowledgePaneIsVisible.value = false;
+    assistantOptionBarIsVisible.value = false;
+    assistantPaneIsVisible.value = false;
     toggleStudioPane();
 }
 
@@ -183,12 +183,12 @@ function toggleStudioPane(): void {
         studioPaneActivated.value = studioPaneIsActive.value = studioPaneIsVisible.value = true;
         router.replace({
             name: (Array.isArray(route.query.wbView) ? route.query.wbView[0] : route.query.wbView) ?? 'studio',
-            query: { ...route.query, wbState: 1, kState: knowledgePaneIsVisible.value ? 1 : undefined }
+            query: { ...route.query, wbState: 1, kState: assistantPaneIsVisible.value ? 1 : undefined }
         });
     } else {
         // Else - toggle studio pane and update route properties.
         studioPaneIsActive.value = studioPaneIsVisible.value = !studioPaneIsVisible.value;
-        router.replace({ query: { ...route.query, wbState: studioPaneIsVisible.value ? 1 : undefined, kState: knowledgePaneIsVisible.value ? 1 : undefined } });
+        router.replace({ query: { ...route.query, wbState: studioPaneIsVisible.value ? 1 : undefined, kState: assistantPaneIsVisible.value ? 1 : undefined } });
     }
 }
 
@@ -198,10 +198,10 @@ function establishActivePaneId(isViewportIsWide: boolean): void {
     // eslint-disable-next-line sonarjs/no-selector-parameter -- splitting into two methods would just move the if/else to the caller.
     if (isViewportIsWide) {
         studioPaneIsVisible.value = studioPaneIsActive.value;
-        knowledgePaneIsVisible.value = knowledgePaneIsActive.value;
+        assistantPaneIsVisible.value = assistantPaneIsActive.value;
     } else {
         studioPaneIsVisible.value = studioPaneIsActive.value && activeAppPaneId.value === 'studio';
-        knowledgePaneIsVisible.value = knowledgePaneIsActive.value && activeAppPaneId.value === 'knowledge';
+        assistantPaneIsVisible.value = assistantPaneIsActive.value && activeAppPaneId.value === 'assistant';
     }
 }
 
@@ -217,8 +217,8 @@ function establishPaneSplitterPercent(): number {
 <template>
     <div class="fixed inset-0 flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
         <!--
-          z-10: Content: StudioPane (includes fixed StudioOptionBar), PaneSplitter & KnowledgePane
-          z-20: topFadeOut, knowledgeActionBar
+          z-10: Content: StudioPane (includes fixed StudioOptionBar), PaneSplitter & AssistantPane
+          z-20: topFadeOut, assistantActionBar
           z-30: StudioOptionBar (floating)
           z-40: studioPaneToggle
           z-49: SessionButton
@@ -255,18 +255,18 @@ function establishPaneSplitterPercent(): number {
             <DPUseLogo />
         </Button>
 
-        <!-- Knowledge toggle fixed in top right corner. Always visible. -->
-        <div class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20 flex" data-region="knowledgeActionBar">
-            <nav v-if="viewportIsWide || knowledgeOptionBarIsVisible" aria-label="Knowledge options" data-region="knowledgeOptionBar">
-                <Button :aria-label="t(T, 'k.select.about.aria')" shape="icon" @click="handleSelectKnowledgePanel('about')">
+        <!-- Assistant toggle fixed in top right corner. Always visible. -->
+        <div class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20 flex" data-region="assistantActionBar">
+            <nav v-if="viewportIsWide || assistantOptionBarIsVisible" aria-label="Assistant options" data-region="assistantOptionBar">
+                <Button :aria-label="t(T, 'k.select.about.aria')" shape="icon" @click="handleSelectAssistantPanel('about')">
                     <InfoIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
 
-                <Button :aria-label="t(T, 'k.select.library.aria')" shape="icon" @click="handleSelectKnowledgePanel('library')">
+                <Button :aria-label="t(T, 'k.select.library.aria')" shape="icon" @click="handleSelectAssistantPanel('library')">
                     <LibraryBigIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
 
-                <Button :aria-label="t(T, 'k.select.chat.aria')" shape="icon" @click="handleSelectKnowledgePanel('chat')">
+                <Button :aria-label="t(T, 'k.select.chat.aria')" shape="icon" @click="handleSelectAssistantPanel('chat')">
                     <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
             </nav>
@@ -275,11 +275,11 @@ function establishPaneSplitterPercent(): number {
                 :aria-label="t(T, 'k.toggle.label.aria')"
                 class="rounded-full! bg-surface"
                 :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
-                data-region="knowledgePaneToggle"
+                data-region="assistantPaneToggle"
                 shape="icon"
-                @click="handleToggleKnowledgePane"
+                @click="handleToggleAssistantPane"
             >
-                <KnowledgeLogo />
+                <AssistantLogo />
             </Button>
         </div>
 
@@ -331,17 +331,17 @@ function establishPaneSplitterPercent(): number {
         <!-- Pane (Vertical) Splitter - Rendered if viewport is wide and both panes are shown. -->
         <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
 
-        <!-- Knowledge Pane - Contains knowledge layout. Rendered once knowledge pane is activated and visible. -->
+        <!-- Assistant Pane - Contains assistant layout. Rendered once assistant pane is activated and visible. -->
         <div
-            v-if="knowledgePaneActivated"
-            v-show="knowledgePaneIsVisible"
+            v-if="assistantPaneActivated"
+            v-show="assistantPaneIsVisible"
             class="flex h-full"
-            data-region="knowledgePane"
-            :style="knowledgePaneStyle"
-            @pointerdown="activeAppPaneId = 'knowledge'"
-            @scroll.capture="activeAppPaneId = 'knowledge'"
+            data-region="assistantPane"
+            :style="assistantPaneStyle"
+            @pointerdown="activeAppPaneId = 'assistant'"
+            @scroll.capture="activeAppPaneId = 'assistant'"
         >
-            <KnowledgeLayout class="flex-1" :studio-pane-is-hidden="!studioPaneIsVisible" />
+            <AssistantLayout class="flex-1" :studio-pane-is-hidden="!studioPaneIsVisible" />
         </div>
     </div>
 </template>
