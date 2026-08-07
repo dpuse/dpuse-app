@@ -11,7 +11,7 @@ const LibraryView = defineAsyncComponent(() => import('./LibraryPanel.vue'));
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export type AssistantViewId = 'about' | 'library' | 'chat';
-const KNOWLEDGE_PANELS: Record<AssistantViewId, { component: Component; label: string }> = {
+const ASSISTANT_PANELS: Record<AssistantViewId, { component: Component; label: string }> = {
     about: { component: AboutView, label: 'About' },
     library: { component: LibraryView, label: 'Library' },
     chat: { component: ChatView, label: 'Chat' }
@@ -29,12 +29,12 @@ const route = useRoute();
 
 const activeView = computed(() => {
     const parameter = route.query.kView as AssistantViewId | undefined;
-    return KNOWLEDGE_PANELS[parameter ?? 'about'] ?? KNOWLEDGE_PANELS.about;
+    return ASSISTANT_PANELS[parameter ?? 'about'] ?? ASSISTANT_PANELS.about;
 });
 </script>
 
 <template>
     <div class="flex h-full min-w-0 flex-col">
-        <component :is="activeView.component" :breadcrumbs="[{ id: 'knowledge', label: 'Knowledge' }]" :title="activeView.label" :studio-pane-is-hidden="studioPaneIsHidden" />
+        <component :is="activeView.component" :breadcrumbs="[{ id: 'assistant', label: 'Assistant' }]" :title="activeView.label" :studio-pane-is-hidden="studioPaneIsHidden" />
     </div>
 </template>

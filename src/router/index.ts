@@ -41,7 +41,7 @@ export const APP_ROUTES = [
     {
         path: '/',
         children: [
-            { path: '', component: { render: (): null => null } }, // Matches exactly '/'. beforeEach handles the default redirect to knowledge about.
+            { path: '', component: { render: (): null => null } }, // Matches exactly '/'. beforeEach handles the default redirect to assistant about.
             {
                 path: 'studio',
                 children: [
@@ -97,7 +97,7 @@ export const createAppRouter = (): Router => {
         scrollBehavior: handleScrollBehavior
     });
 
-    // Default to /studio when no studio route or knowledge argument is present.
+    // Default to /studio when no studio route or assistant argument is present.
     router.beforeEach((to, from) => {
         if (from === START_LOCATION) {
             // Then the page is loading.
