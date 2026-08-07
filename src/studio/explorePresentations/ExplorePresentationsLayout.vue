@@ -95,7 +95,7 @@ async function handleSelectPresentation(presentationReference: LocalisedReferenc
 
 <template>
     <StudioLayout>
-        <StudioHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Explore_Presentations')" to="studio" />
+        <StudioHeader class="flex-none px-4" :title="t(T, 'Explore_Presentations')" to="studio" />
 
         <Separator class="mx-4" />
 

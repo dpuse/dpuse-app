@@ -9,4 +9,4 @@ import type { StudioOptionConfig } from '../studio/useStudioOptions';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const activeBenchtopOptionConfig = shallowRef<LocalisedConfig<StudioOptionConfig> | undefined>();
+export const activeStudioOptionConfig = shallowRef<LocalisedConfig<StudioOptionConfig> | undefined>();

@@ -6,10 +6,10 @@ import { type ComponentPublicInstance, onUnmounted, ref, useTemplateRef } from '
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { activeBenchtopOptionConfig } from '@/state/activeBenchtop';
+import { activeStudioOptionConfig } from '@/state/activeStudioOption';
 import T from './StudioOptionPanel.json';
 import { t } from '@/state/locale';
-import { useStudioOptions, type StudioOptionConfig } from '@/studio/useStudioOptions';
+import { type StudioOptionConfig, useStudioOptions } from '@/studio/useStudioOptions';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -42,8 +42,8 @@ onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPoin
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
-    // if (config != null) setActiveBenchtopOption(config);
-    if (config != null) activeBenchtopOptionConfig.value = config;
+    // if (config != null) setActiveStudioOption(config);
+    if (config != null) activeStudioOptionConfig.value = config;
     emit('continue');
 }
 </script>
@@ -57,7 +57,7 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
         <!-- Separator -->
         <div class="mx-3 h-px flex-none bg-separator" />
 
-        <!-- Benchtop options scroller -->
+        <!-- Studio options scroller -->
         <ScrollArea class="flex-1">
             <div class="flex flex-col items-center gap-y-2 py-2">
                 <Button
