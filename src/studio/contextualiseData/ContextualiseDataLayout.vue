@@ -12,8 +12,8 @@ import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import Separator from '@/components/ui/Separator.vue';
-import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
-import WorkbenchLayout from '../WorkbenchLayout.vue';
+import StudioHeader from '@/components/framework/header/StudioHeader.vue';
+import StudioLayout from '../StudioLayout.vue';
 
 // ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -81,8 +81,8 @@ async function loadD3Tool(): Promise<D3ToolType> {
 </script>
 
 <template>
-    <WorkbenchLayout>
-        <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Contextualise_Data')" to="workbench" />
+    <StudioLayout>
+        <StudioHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Contextualise_Data')" to="workbench" />
 
         <!-- <div class="relative flex min-h-0 flex-1 flex-col">
             <Separator class="mx-4" />
@@ -96,5 +96,5 @@ async function loadD3Tool(): Promise<D3ToolType> {
             </button>
         </div>
         <div ref="container" class="w-full flex-1" />
-    </WorkbenchLayout>
+    </StudioLayout>
 </template>

@@ -9,13 +9,13 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import { activeBenchtopOptionConfig } from '@/state/activeBenchtop';
 import T from './WorkbenchOptionPanel.json';
 import { t } from '@/state/locale';
-import { useWorkbenchOptions, type WorkbenchOptionConfig } from '@/domains/workbench/useWorkbenchOptions';
+import { useStudioOptions, type StudioOptionConfig } from '@/studio/useStudioOptions';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import HomeIcon from '@/components/icons/HomeIcon.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
+import StudioHomeIcon from '@/components/icons/StudioHomeIcon.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
@@ -25,7 +25,7 @@ const emit = defineEmits<{ continue: [] }>();
 
 const homeMenuIsOpen = ref(false);
 const homeMenuReference = useTemplateRef<ComponentPublicInstance>('homeMenuReference');
-const workflowOptionConfigs = useWorkbenchOptions();
+const workflowOptionConfigs = useStudioOptions();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -41,7 +41,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPoin
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleComplete(config?: LocalisedConfig<WorkbenchOptionConfig>): void {
+function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
     // if (config != null) setActiveBenchtopOption(config);
     if (config != null) activeBenchtopOptionConfig.value = config;
     emit('continue');
@@ -66,7 +66,8 @@ function handleComplete(config?: LocalisedConfig<WorkbenchOptionConfig>): void {
                     :to="{ name: 'workbench', query: { ...$route.query, wbView: 'workbench' } }"
                     @click="handleComplete({ id: 'home', label: '', description: '', icon: '', step: 0, tasks: [] })"
                 >
-                    <HomeIcon aria-hidden="true" class="[&>path]:stroke-1.25" />
+                    <!-- <HomeIcon aria-hidden="true" class="[&>path]:stroke-1.25" /> -->
+                    <StudioHomeIcon aria-hidden="true" />
                 </Button>
 
                 <template v-for="config in workflowOptionConfigs" :key="config.id">

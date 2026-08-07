@@ -10,8 +10,8 @@ import { useConfigOptionConfigs } from './useConfigOptionConfigs.ts';
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
-import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
-import WorkbenchLayout from '../WorkbenchLayout.vue';
+import StudioHeader from '@/components/framework/header/StudioHeader.vue';
+import StudioLayout from '../StudioLayout.vue';
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -23,8 +23,8 @@ const activeConfigOptionConfig = ref(configOptionConfigs.value[0]);
 </script>
 
 <template>
-    <WorkbenchLayout>
-        <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Manage_Configs')" to="workbench" />
+    <StudioLayout>
+        <StudioHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Manage_Configs')" to="workbench" />
 
         <div class="flex min-h-0 flex-1 flex-col">
             <!-- Task Bar -->
@@ -46,5 +46,5 @@ const activeConfigOptionConfig = ref(configOptionConfigs.value[0]);
             <!-- Body -->
             <RouterView />
         </div>
-    </WorkbenchLayout>
+    </StudioLayout>
 </template>

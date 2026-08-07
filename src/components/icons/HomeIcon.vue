@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Sourced from heroicons https://heroicons.com/.
+// Originally sourced from heroicons https://heroicons.com/.
 </script>
 
 <template>

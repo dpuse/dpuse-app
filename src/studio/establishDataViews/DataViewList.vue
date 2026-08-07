@@ -25,14 +25,14 @@ import Card from '@/components/ui/Card.vue';
 import Grid from '@/components/framework/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
-import { useWorkbenchOptions } from '../useWorkbenchOptions';
+import { useStudioOptions } from '../useStudioOptions';
 
 // ── Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const workflowOptionConfigs = useWorkbenchOptions();
+const workflowOptionConfigs = useStudioOptions();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

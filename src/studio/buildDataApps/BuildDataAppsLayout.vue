@@ -6,13 +6,13 @@ import T from './BuildDataAppsLayout.json';
 // Local Components - Static
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
-import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
-import WorkbenchLayout from '../WorkbenchLayout.vue';
+import StudioHeader from '@/components/framework/header/StudioHeader.vue';
+import StudioLayout from '../StudioLayout.vue';
 </script>
 
 <template>
-    <WorkbenchLayout>
-        <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Build_Data_Apps')" to="workbench" />
+    <StudioLayout>
+        <StudioHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Build_Data_Apps')" to="workbench" />
 
         <Separator class="mx-4" />
 
@@ -21,5 +21,5 @@ import WorkbenchLayout from '../WorkbenchLayout.vue';
                 <RouterView />
             </div>
         </ScrollArea>
-    </WorkbenchLayout>
+    </StudioLayout>
 </template>

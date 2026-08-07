@@ -147,11 +147,6 @@ export function setContentAuditConfig(contentAuditConfig?: ContentAuditConfig): 
     activeDataViewConfig.relationshipsAuditConfig = undefined;
 }
 
-export function setRelationshipsAuditConfig(relationshipsAuditConfig?: RelationshipsAuditConfig): void {
-    const activeDataViewConfig = getActiveDataViewConfig();
-    activeDataViewConfig.relationshipsAuditConfig = relationshipsAuditConfig;
-}
-
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function getActiveDataViewConfig(): DataViewConfig {

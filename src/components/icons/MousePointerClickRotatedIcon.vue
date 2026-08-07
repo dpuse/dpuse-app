@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Sourced from lucide (mouse-pointer-click) https://lucide.dev/icons/mouse-pointer-click, rotated -45deg and baked into the path data.
+// Originally sourced from lucide (mouse-pointer-click) https://lucide.dev/icons/mouse-pointer-click, rotated -45deg and baked into the path data.
 </script>
 
 <template>

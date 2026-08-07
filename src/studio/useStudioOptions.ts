@@ -9,24 +9,24 @@ import { localeId } from '@/state/locale';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export interface WorkbenchOptionConfig {
+export interface StudioOptionConfig {
     id: string;
     label: LocaleLabel;
     description: LocaleDescription;
     icon: string;
     step: number;
-    tasks: WorkbenchOptionTaskConfig[];
+    tasks: StudioOptionTaskConfig[];
 }
 
-interface WorkbenchOptionTaskConfig {
+interface StudioOptionTaskConfig {
     id: string;
     label: LocaleLabel;
     description: LocaleDescription;
 }
 
-// ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const workbenchOptionConfigs: WorkbenchOptionConfig[] = [
+const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
     {
         id: 'establishDataViews',
         label: { en: 'Establish Data Views', es: 'Establecer Vistas de Datos' },
@@ -81,6 +81,6 @@ const workbenchOptionConfigs: WorkbenchOptionConfig[] = [
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export function useWorkbenchOptions(): ComputedRef<LocalisedConfig<WorkbenchOptionConfig>[]> {
-    return computed(() => localiseConfigs<WorkbenchOptionConfig>(workbenchOptionConfigs, localeId.value));
+export function useStudioOptions(): ComputedRef<LocalisedConfig<StudioOptionConfig>[]> {
+    return computed(() => localiseConfigs<StudioOptionConfig>(STUDIO_OPTION_CONFIGS, localeId.value));
 }

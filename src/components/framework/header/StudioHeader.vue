@@ -3,14 +3,14 @@
 import { knowledgePaneIsVisible, viewportIsWide } from '@/state/appLayout';
 
 // Options, Properties, Slots & Emits
-const { overline, title, to } = defineProps<{ overline: string; title: string; to?: string }>();
+const { overline, title, to } = defineProps<{ overline?: string; title: string; to?: string }>();
 </script>
 
 <template>
     <header
         class="mt-[env(safe-area-inset-top)] flex h-13.75 flex-none flex-col justify-center text-lg font-light"
         :class="viewportIsWide ? (knowledgePaneIsVisible ? 'pl-4 pr-0' : 'pr-44 pl-4') : 'px-14'"
-        data-region="WorkbenchHeader"
+        data-region="StudioHeader"
     >
         <!-- Content indented from left and right to allow for logos when display is narrow.
              Content indented from right to allow for knowledge bar when display is wide.
@@ -26,7 +26,7 @@ const { overline, title, to } = defineProps<{ overline: string; title: string; t
             }"
             :to="{ name: to, query: { ...$route.query, wbView: to } }"
         >
-            <div class="truncate text-sm leading-tight">
+            <div v-if="overline" class="truncate text-sm leading-tight">
                 {{ overline }}
             </div>
             <div class="truncate leading-snug">

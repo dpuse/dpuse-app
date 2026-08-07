@@ -17,8 +17,8 @@ import Card from '@/components/ui/Card.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
-import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
-import WorkbenchLayout from '../WorkbenchLayout.vue';
+import StudioHeader from '@/components/framework/header/StudioHeader.vue';
+import StudioLayout from '../StudioLayout.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -94,8 +94,8 @@ async function handleSelectPresentation(presentationReference: LocalisedReferenc
 </script>
 
 <template>
-    <WorkbenchLayout>
-        <WorkbenchHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Explore_Presentations')" to="workbench" />
+    <StudioLayout>
+        <StudioHeader class="flex-none px-4" :overline="t(T, 'wb.label')" :title="t(T, 'Explore_Presentations')" to="workbench" />
 
         <Separator class="mx-4" />
 
@@ -119,7 +119,7 @@ async function handleSelectPresentation(presentationReference: LocalisedReferenc
                 <SelectPlaceholder :message="'Select a presentation from the list.'" />
             </template>
         </GridDetailPanel>
-    </WorkbenchLayout>
+    </StudioLayout>
 </template>
 
 <style scoped>

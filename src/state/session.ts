@@ -7,19 +7,19 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
+import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbook';
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { DimensionConfig } from '@dpuse/dpuse-shared/component/dimension';
 import type { EngineConfig } from '@dpuse/dpuse-shared/component/module/engine';
 import type { EventQueryConfig } from '@dpuse/dpuse-shared/component/eventQuery';
 import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
+import { type LocaleId, localiseConfig, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { localeId } from './locale';
 import { reportAppError } from '@/observability/errorTracking';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
-import { type LocaleId, localiseConfig, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbook';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

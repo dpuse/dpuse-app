@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-08-05T14:13:26.873Z",
+    "generatedAt": "2026-08-07T12:09:00.854Z",
     "integration": "vite",
     "sources": false,
     "gzip": false,
@@ -18,27 +18,27 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/AboutPanel-BLI5IF7S.js",
+      "name": "dist/client/assets/AboutPanel-uhSVJ85o.js",
       "type": "script",
-      "uncompressed": 1762,
+      "uncompressed": 1759,
       "gzip": 0,
-      "brotli": 883
+      "brotli": 878
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/AccountDialog-BnkV7G7e.js",
+      "name": "dist/client/assets/AccountDialog-D5YNfT32.js",
       "type": "script",
       "uncompressed": 5221,
       "gzip": 0,
-      "brotli": 1782
+      "brotli": 1790
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/accountMonitor-CZUllt7k.js",
+      "name": "dist/client/assets/accountMonitor-BmFsLuHg.js",
       "type": "script",
-      "uncompressed": 1378,
+      "uncompressed": 1383,
       "gzip": 0,
-      "brotli": 519
+      "brotli": 521
     },
     {
       "kind": "asset",
@@ -50,6 +50,14 @@
     },
     {
       "kind": "asset",
+      "name": "dist/client/assets/AssistantHeader-CMdCNHzO.js",
+      "type": "script",
+      "uncompressed": 991,
+      "gzip": 0,
+      "brotli": 531
+    },
+    {
+      "kind": "asset",
       "name": "dist/client/assets/AuditContentPanel-Djdetw9X.js",
       "type": "script",
       "uncompressed": 563,
@@ -58,19 +66,19 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/AuthDialog-BVRjMgP6.js",
+      "name": "dist/client/assets/AuthDialog-Cg1RhkmR.js",
       "type": "script",
       "uncompressed": 79840,
       "gzip": 0,
-      "brotli": 21823
+      "brotli": 21803
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/BuildDataAppsLayout-C_Oume4y.js",
+      "name": "dist/client/assets/BuildDataAppsLayout-CzUi-Tur.js",
       "type": "script",
-      "uncompressed": 875,
+      "uncompressed": 872,
       "gzip": 0,
-      "brotli": 465
+      "brotli": 461
     },
     {
       "kind": "asset",
@@ -82,19 +90,19 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/Card-C2zpl6_k.js",
+      "name": "dist/client/assets/Card-DAcYXPiR.js",
       "type": "script",
       "uncompressed": 2815,
       "gzip": 0,
-      "brotli": 1105
+      "brotli": 1106
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ChatPanel-DbaKgzJa.js",
+      "name": "dist/client/assets/ChatPanel-CiQR3FWP.js",
       "type": "script",
       "uncompressed": 154878,
       "gzip": 0,
-      "brotli": 36589
+      "brotli": 36558
     },
     {
       "kind": "asset",
@@ -114,31 +122,31 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/configMonitor-Dyd4l2tE.js",
+      "name": "dist/client/assets/configMonitor-Ch7vxzJk.js",
       "type": "script",
       "uncompressed": 2021,
       "gzip": 0,
-      "brotli": 735
+      "brotli": 734
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ConnectionDialog--8pNQXNB.js",
+      "name": "dist/client/assets/ConnectionDialog-C2w8Saj6.js",
       "type": "script",
       "uncompressed": 5711,
       "gzip": 0,
-      "brotli": 1977
+      "brotli": 1979
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ConnectorList-DggplGGd.js",
+      "name": "dist/client/assets/ConnectorList-xgyXMsMH.js",
       "type": "script",
       "uncompressed": 12782,
       "gzip": 0,
-      "brotli": 4190
+      "brotli": 4181
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ContextDimensionTreeDiagramPanel-BkPHJSQi.js",
+      "name": "dist/client/assets/ContextDimensionTreeDiagramPanel-gA0037Ll.js",
       "type": "script",
       "uncompressed": 989,
       "gzip": 0,
@@ -146,43 +154,43 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ContextErdDiagramPanel-EIJD7Clu.js",
+      "name": "dist/client/assets/ContextErdDiagramPanel-C0DiXy1s.js",
       "type": "script",
       "uncompressed": 1939,
       "gzip": 0,
-      "brotli": 674
+      "brotli": 671
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ContextList-BJB7OFon.js",
+      "name": "dist/client/assets/ContextList-BeJpgeAr.js",
       "type": "script",
-      "uncompressed": 56750,
+      "uncompressed": 56872,
       "gzip": 0,
-      "brotli": 9935
+      "brotli": 9957
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ContextModelDescriptorsPanel-kp1k1CFe.js",
+      "name": "dist/client/assets/ContextModelDescriptorsPanel-DsKvB-5S.js",
       "type": "script",
       "uncompressed": 75846,
       "gzip": 0,
-      "brotli": 21527
+      "brotli": 21488
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ContextualiseDataLayout-B5Pn3tv-.js",
+      "name": "dist/client/assets/ContextualiseDataLayout-LoRbTYY0.js",
       "type": "script",
-      "uncompressed": 2019,
+      "uncompressed": 2016,
       "gzip": 0,
-      "brotli": 915
+      "brotli": 914
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/CookbookList-CTp0pZPS.js",
+      "name": "dist/client/assets/CookbookList-BiUgiD_c.js",
       "type": "script",
       "uncompressed": 4165,
       "gzip": 0,
-      "brotli": 1641
+      "brotli": 1635
     },
     {
       "kind": "asset",
@@ -194,11 +202,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/DataViewList-C6WhyABK.js",
+      "name": "dist/client/assets/DataViewList-BQ4uCwAv.js",
       "type": "script",
-      "uncompressed": 3022,
+      "uncompressed": 3101,
       "gzip": 0,
-      "brotli": 1283
+      "brotli": 1319
     },
     {
       "kind": "asset",
@@ -250,31 +258,31 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/establishDataViews-zYWvYzYE.js",
+      "name": "dist/client/assets/establishDataViews-DuEvnR99.js",
       "type": "script",
       "uncompressed": 1178,
       "gzip": 0,
-      "brotli": 540
+      "brotli": 537
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/EstablishDataViewsLayout-DCX-nwXU.js",
+      "name": "dist/client/assets/EstablishDataViewsLayout-DwnaocnN.js",
       "type": "script",
-      "uncompressed": 3298,
+      "uncompressed": 3295,
       "gzip": 0,
-      "brotli": 1400
+      "brotli": 1389
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/EventQueryList-ECdom5RM.js",
+      "name": "dist/client/assets/EventQueryList-DawRwAMX.js",
       "type": "script",
       "uncompressed": 2419,
       "gzip": 0,
-      "brotli": 1121
+      "brotli": 1125
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ExploreData-KbX-ZC9n.js",
+      "name": "dist/client/assets/ExploreData-BaiL-yZk.js",
       "type": "script",
       "uncompressed": 58119,
       "gzip": 0,
@@ -282,11 +290,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ExplorePresentationsLayout-DRyqGrlx.js",
+      "name": "dist/client/assets/ExplorePresentationsLayout-DV3pGCzv.js",
       "type": "script",
-      "uncompressed": 2296,
+      "uncompressed": 2293,
       "gzip": 0,
-      "brotli": 1133
+      "brotli": 1135
     },
     {
       "kind": "asset",
@@ -306,19 +314,19 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/Grid-pRq8wUbd.js",
+      "name": "dist/client/assets/Grid-BmPS90li.js",
       "type": "script",
-      "uncompressed": 3227,
+      "uncompressed": 3226,
       "gzip": 0,
-      "brotli": 1430
+      "brotli": 1424
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/GridDetailPanel-DFL1iRrP.js",
+      "name": "dist/client/assets/GridDetailPanel-HXKQhloK.js",
       "type": "script",
       "uncompressed": 1935,
       "gzip": 0,
-      "brotli": 910
+      "brotli": 909
     },
     {
       "kind": "asset",
@@ -330,59 +338,51 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/HomeLayout-CnqigTpy.js",
+      "name": "dist/client/assets/HomeLayout-BvteAXPZ.js",
       "type": "script",
-      "uncompressed": 1393,
+      "uncompressed": 2318,
       "gzip": 0,
-      "brotli": 681
+      "brotli": 727
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/HomePanel-CqbpqnSX.js",
+      "name": "dist/client/assets/HomePanel-DQ7eMzXG.js",
       "type": "script",
-      "uncompressed": 848,
+      "uncompressed": 873,
       "gzip": 0,
-      "brotli": 486
+      "brotli": 497
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/index-F5cuy7FA.js",
+      "name": "dist/client/assets/index-BbRqpCe_.js",
       "type": "script",
-      "uncompressed": 79088,
+      "uncompressed": 79081,
       "gzip": 0,
-      "brotli": 26203
+      "brotli": 26220
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/Input-OQuip1m1.js",
+      "name": "dist/client/assets/Input-CZ0h16P6.js",
       "type": "script",
       "uncompressed": 929,
       "gzip": 0,
-      "brotli": 513
+      "brotli": 521
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/KnowledgeHeader-BzL8VvIl.js",
+      "name": "dist/client/assets/KnowledgeLayout-DVgewPgw.js",
       "type": "script",
-      "uncompressed": 991,
+      "uncompressed": 1745,
       "gzip": 0,
-      "brotli": 524
+      "brotli": 800
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/KnowledgeLayout-BvGyU8WJ.js",
-      "type": "script",
-      "uncompressed": 1748,
-      "gzip": 0,
-      "brotli": 799
-    },
-    {
-      "kind": "asset",
-      "name": "dist/client/assets/LibraryPanel-DiOkiH2l.js",
+      "name": "dist/client/assets/LibraryPanel-0c5-YcDU.js",
       "type": "script",
       "uncompressed": 78489,
       "gzip": 0,
-      "brotli": 18996
+      "brotli": 18997
     },
     {
       "kind": "asset",
@@ -402,11 +402,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ManageConfigLayout-D4VltGZ4.js",
+      "name": "dist/client/assets/ManageConfigLayout-CnXDIQJB.js",
       "type": "script",
-      "uncompressed": 1419,
+      "uncompressed": 1416,
       "gzip": 0,
-      "brotli": 734
+      "brotli": 732
     },
     {
       "kind": "asset",
@@ -434,11 +434,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ManagePreferencesPanel-CpTupHX6.js",
+      "name": "dist/client/assets/ManagePreferencesPanel-DKnVS7XI.js",
       "type": "script",
       "uncompressed": 528,
       "gzip": 0,
-      "brotli": 294
+      "brotli": 293
     },
     {
       "kind": "asset",
@@ -466,11 +466,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/performanceTracking-BG35nM1l.js",
+      "name": "dist/client/assets/performanceTracking-CWp1uN6b.js",
       "type": "script",
       "uncompressed": 8787,
       "gzip": 0,
-      "brotli": 2973
+      "brotli": 2969
     },
     {
       "kind": "asset",
@@ -482,11 +482,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/PresenterList-CuJYdyJo.js",
+      "name": "dist/client/assets/PresenterList-B1_FtWjP.js",
       "type": "script",
       "uncompressed": 4183,
       "gzip": 0,
-      "brotli": 1631
+      "brotli": 1633
     },
     {
       "kind": "asset",
@@ -522,19 +522,19 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/SelectConnectionPanel-1BcZaPs_.js",
+      "name": "dist/client/assets/SelectConnectionPanel-6XHGAS1k.js",
       "type": "script",
       "uncompressed": 7290,
       "gzip": 0,
-      "brotli": 1919
+      "brotli": 1916
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/SelectItemPanel-B3xKmUcj.js",
+      "name": "dist/client/assets/SelectItemPanel-CTw3vmWA.js",
       "type": "script",
       "uncompressed": 7188,
       "gzip": 0,
-      "brotli": 2860
+      "brotli": 2865
     },
     {
       "kind": "asset",
@@ -554,19 +554,27 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/SessionMenu-DNUTV8KG.js",
+      "name": "dist/client/assets/SessionMenu-Drbi-mjf.js",
       "type": "script",
       "uncompressed": 6936,
       "gzip": 0,
-      "brotli": 2475
+      "brotli": 2473
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/Table-Bnv6OvFc.js",
+      "name": "dist/client/assets/StudioLayout-rMk17HAg.js",
+      "type": "script",
+      "uncompressed": 1269,
+      "gzip": 0,
+      "brotli": 660
+    },
+    {
+      "kind": "asset",
+      "name": "dist/client/assets/Table-BsqedGVA.js",
       "type": "script",
       "uncompressed": 52312,
       "gzip": 0,
-      "brotli": 12186
+      "brotli": 12183
     },
     {
       "kind": "asset",
@@ -578,11 +586,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ToolList-DQkgS3V2.js",
+      "name": "dist/client/assets/ToolList-SuugyT67.js",
       "type": "script",
       "uncompressed": 4073,
       "gzip": 0,
-      "brotli": 1633
+      "brotli": 1630
     },
     {
       "kind": "asset",
@@ -594,11 +602,11 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/useConfigOptionConfigs-CfgSJdhm.js",
+      "name": "dist/client/assets/useConfigOptionConfigs-CvNetMDw.js",
       "type": "script",
       "uncompressed": 3714,
       "gzip": 0,
-      "brotli": 923
+      "brotli": 924
     },
     {
       "kind": "asset",
@@ -610,35 +618,27 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/useEngine-PFo0LiZ3.js",
+      "name": "dist/client/assets/useEngine-CRSVX2tA.js",
       "type": "script",
-      "uncompressed": 669,
+      "uncompressed": 644,
       "gzip": 0,
-      "brotli": 343
+      "brotli": 328
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/useWorkbenchOptions-CulrTGIT.js",
+      "name": "dist/client/assets/useStudioOptions-BAhFUbUX.js",
       "type": "script",
-      "uncompressed": 3640,
+      "uncompressed": 3586,
       "gzip": 0,
-      "brotli": 1154
+      "brotli": 1138
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/WorkbenchLayout-CTST7Xkw.js",
+      "name": "dist/client/assets/WorkbenchOptionBar-CfnitG_W.js",
       "type": "script",
-      "uncompressed": 1244,
+      "uncompressed": 3281,
       "gzip": 0,
-      "brotli": 645
-    },
-    {
-      "kind": "asset",
-      "name": "dist/client/assets/WorkbenchOptionBar-B1EyKAlX.js",
-      "type": "script",
-      "uncompressed": 3320,
-      "gzip": 0,
-      "brotli": 1305
+      "brotli": 1427
     },
     {
       "kind": "asset",
@@ -14898,11 +14898,11 @@
       "name": "src/App.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 16293
+      "uncompressed": 16271
     },
     {
       "kind": "filesystem",
-      "name": "src/App.vue?vue&type=style&index=0&scoped=c0225c10&lang.css",
+      "name": "src/App.vue?vue&type=style&index=0&scoped=f706a49f&lang.css",
       "type": "style",
       "format": "other",
       "uncompressed": 0
@@ -15017,7 +15017,7 @@
       "name": "src/components/framework/Grid.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 6265
+      "uncompressed": 6264
     },
     {
       "kind": "filesystem",
@@ -15056,31 +15056,31 @@
     },
     {
       "kind": "filesystem",
-      "name": "src/components/framework/header/KnowledgeHeader.vue",
+      "name": "src/components/framework/header/AssistantHeader.vue",
       "type": "component",
       "format": "other",
       "uncompressed": 334
     },
     {
       "kind": "filesystem",
-      "name": "src/components/framework/header/KnowledgeHeader.vue?vue&type=script&setup=true&lang.ts",
+      "name": "src/components/framework/header/AssistantHeader.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
       "uncompressed": 1864
     },
     {
       "kind": "filesystem",
-      "name": "src/components/framework/header/WorkbenchHeader.vue",
+      "name": "src/components/framework/header/StudioHeader.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 334
+      "uncompressed": 328
     },
     {
       "kind": "filesystem",
-      "name": "src/components/framework/header/WorkbenchHeader.vue?vue&type=script&setup=true&lang.ts",
+      "name": "src/components/framework/header/StudioHeader.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1875
+      "uncompressed": 1989
     },
     {
       "kind": "filesystem",
@@ -15151,6 +15151,20 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1022
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/components/icons/StudioHomeIcon.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 310
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/components/icons/StudioHomeIcon.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 943
     },
     {
       "kind": "filesystem",
@@ -15535,7 +15549,7 @@
       "name": "src/domains/knowledge/AboutPanel.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 3187
+      "uncompressed": 3167
     },
     {
       "kind": "filesystem",
@@ -15553,7 +15567,7 @@
     },
     {
       "kind": "filesystem",
-      "name": "src/domains/knowledge/ChatPanel.vue?vue&type=style&index=0&scoped=c5fa606e&lang.css",
+      "name": "src/domains/knowledge/ChatPanel.vue?vue&type=style&index=0&scoped=47a0ac08&lang.css",
       "type": "style",
       "format": "other",
       "uncompressed": 0
@@ -15588,7 +15602,7 @@
     },
     {
       "kind": "filesystem",
-      "name": "src/domains/knowledge/LibraryPanel.vue?vue&type=style&index=0&scoped=9161bc90&lang.css",
+      "name": "src/domains/knowledge/LibraryPanel.vue?vue&type=style&index=0&scoped=f4d84194&lang.css",
       "type": "style",
       "format": "other",
       "uncompressed": 0
@@ -15847,699 +15861,6 @@
     },
     {
       "kind": "filesystem",
-      "name": "src/domains/workbench/buildDataApps/BuildDataAppsLayout.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 186
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/buildDataApps/BuildDataAppsLayout.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 350
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/buildDataApps/BuildDataAppsLayout.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 1521
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/connectionDialog/AddConnectionForm.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 1814
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/connectionDialog/AddConnectionForm.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 352
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/connectionDialog/AddConnectionForm.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 4134
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/connectionDialog/ConnectionDialog.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 529
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/connectionDialog/ConnectionDialog.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 350
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/connectionDialog/ConnectionDialog.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 6674
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/connectionDialog/ManageConnectionPanel.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 466
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/contextualiseData/ContextualiseDataLayout.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 468
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/contextualiseData/ContextualiseDataLayout.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 366
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/contextualiseData/ContextualiseDataLayout.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 3322
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/contextualiseData/EventQueryList.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 19
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/contextualiseData/EventQueryList.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 348
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/contextualiseData/EventQueryList.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 4602
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/auditContent/AuditContentPanel.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 382
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/auditContent/AuditContentPanel.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 1179
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/DataViewList.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 19
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/DataViewList.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 346
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/DataViewList.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 5768
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/EstablishDataViewsLayout.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 499
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/EstablishDataViewsLayout.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 370
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/EstablishDataViewsLayout.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 4201
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/exploreData/ExploreData.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 368
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/exploreData/ExploreData.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 2579
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/exploreData/investigateData/InvestigateData.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 408
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/exploreData/investigateData/InvestigateData.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 1374
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/exploreData/transformData/ColumnPill.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 394
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/exploreData/transformData/ColumnPill.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 2111
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/exploreData/transformData/TransformData.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 706
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/exploreData/transformData/TransformData.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 40268
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/exploreData/transformData/TransformData.vue?vue&type=style&index=0&scoped=ac414aeb&lang.css",
-      "type": "style",
-      "format": "other",
-      "uncompressed": 0
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/exploreData/transformData/useSelectColumnSort.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 2107
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/selectConnection/SelectConnectionForm.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 1814
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/selectConnection/SelectConnectionForm.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 396
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/selectConnection/SelectConnectionForm.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 8387
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/selectConnection/SelectConnectionPanel.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 398
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/selectConnection/SelectConnectionPanel.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 5645
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/selectItem/SelectItemPanel.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 316
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/selectItem/SelectItemPanel.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 374
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/establishDataViews/selectItem/SelectItemPanel.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 12564
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/explorePresentations/ExplorePresentationsLayout.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 200
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/explorePresentations/ExplorePresentationsLayout.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 673
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/explorePresentations/ExplorePresentationsLayout.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 4957
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/explorePresentations/ExplorePresentationsLayout.vue?vue&type=style&index=0&scoped=e54f93e6&lang.css",
-      "type": "style",
-      "format": "other",
-      "uncompressed": 0
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/home/HomeLayout.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 183
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/home/HomeLayout.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 314
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/home/HomeLayout.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 2553
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/connectors/ConnectorForm.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 613
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/connectors/ConnectorForm.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 643
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/connectors/ConnectorForm.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 8637
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/connectors/ConnectorForm.vue?vue&type=style&index=0&scoped=7185087c&lang.css",
-      "type": "style",
-      "format": "other",
-      "uncompressed": 0
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/connectors/ConnectorList.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 358
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/connectors/ConnectorList.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 2732
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/context/ContextDimensionTreeDiagramPanel.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 390
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/context/ContextDimensionTreeDiagramPanel.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 1690
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/context/ContextErdDiagramPanel.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 370
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/context/ContextErdDiagramPanel.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 3252
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/context/ContextList.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 348
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/context/ContextList.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 2953
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/context/ContextModelDescriptorsPanel.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 382
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/context/ContextModelDescriptorsPanel.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 1362
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/context/ContextModelPanel.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 360
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 22844
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/context/data/contextConfig.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 9985
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/context/data/modelConfigs.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 38330
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/cookbooks/CookbookForm.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 613
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/cookbooks/CookbookForm.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 637
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/cookbooks/CookbookForm.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 4739
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/cookbooks/CookbookForm.vue?vue&type=style&index=0&scoped=82744064&lang.css",
-      "type": "style",
-      "format": "other",
-      "uncompressed": 0
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/cookbooks/CookbookList.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 354
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/cookbooks/CookbookList.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 2708
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/home/HomePanel.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 338
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/home/HomePanel.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 1710
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/ManageConfigLayout.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 165
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/ManageConfigLayout.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 346
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/ManageConfigLayout.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 2955
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/presenters/PresenterForm.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 613
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/presenters/PresenterForm.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 643
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/presenters/PresenterForm.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 4759
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/presenters/PresenterForm.vue?vue&type=style&index=0&scoped=15f9a136&lang.css",
-      "type": "style",
-      "format": "other",
-      "uncompressed": 0
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/presenters/PresenterList.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 358
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/presenters/PresenterList.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 2732
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/tools/ToolForm.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 613
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/tools/ToolForm.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 613
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/tools/ToolForm.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 4659
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/tools/ToolForm.vue?vue&type=style&index=0&scoped=82ecdd79&lang.css",
-      "type": "style",
-      "format": "other",
-      "uncompressed": 0
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/tools/ToolList.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 338
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/tools/ToolList.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 2612
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/manageConfig/useConfigOptionConfigs.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 4121
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/optionBar/WorkbenchOptionBar.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 616
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/optionBar/WorkbenchOptionBar.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 1890
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/optionBar/WorkbenchOptionBar.vue?vue&type=style&index=0&scoped=05f29cd2&lang.css",
-      "type": "style",
-      "format": "other",
-      "uncompressed": 0
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/optionBar/WorkbenchOptionPanel.json",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 62
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/optionBar/WorkbenchOptionPanel.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 344
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/optionBar/WorkbenchOptionPanel.vue?vue&type=script&setup=true&lang.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 4896
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/useWorkbenchOptions.ts",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 4172
-    },
-    {
-      "kind": "filesystem",
-      "name": "src/domains/workbench/WorkbenchLayout.vue",
-      "type": "component",
-      "format": "other",
-      "uncompressed": 528
-    },
-    {
-      "kind": "filesystem",
       "name": "src/main.ts",
       "type": "script",
       "format": "esm",
@@ -16550,7 +15871,7 @@
       "name": "src/observability/accountMonitor.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 2434
+      "uncompressed": 2478
     },
     {
       "kind": "filesystem",
@@ -16585,14 +15906,14 @@
       "name": "src/router/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 5931
+      "uncompressed": 5733
     },
     {
       "kind": "filesystem",
       "name": "src/services/useEngine.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1276
+      "uncompressed": 1238
     },
     {
       "kind": "filesystem",
@@ -16620,7 +15941,7 @@
       "name": "src/state/establishDataViews.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 3921
+      "uncompressed": 3715
     },
     {
       "kind": "filesystem",
@@ -16642,6 +15963,699 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 8047
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/buildDataApps/BuildDataAppsLayout.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 186
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/buildDataApps/BuildDataAppsLayout.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 328
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/buildDataApps/BuildDataAppsLayout.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1503
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/connectionDialog/AddConnectionForm.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1814
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/connectionDialog/AddConnectionForm.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 330
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/connectionDialog/AddConnectionForm.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4134
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/connectionDialog/ConnectionDialog.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 529
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/connectionDialog/ConnectionDialog.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 328
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/connectionDialog/ConnectionDialog.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 6674
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/connectionDialog/ManageConnectionPanel.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 466
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/contextualiseData/ContextualiseDataLayout.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 468
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/contextualiseData/ContextualiseDataLayout.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 344
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/contextualiseData/ContextualiseDataLayout.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 3304
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/contextualiseData/EventQueryList.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 19
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/contextualiseData/EventQueryList.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 326
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/contextualiseData/EventQueryList.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4602
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/auditContent/AuditContentPanel.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 360
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/auditContent/AuditContentPanel.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1179
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/DataViewList.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 19
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/DataViewList.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 324
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/DataViewList.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 5974
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/EstablishDataViewsLayout.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 499
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/EstablishDataViewsLayout.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 348
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/EstablishDataViewsLayout.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4183
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/exploreData/ExploreData.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 346
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/exploreData/ExploreData.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2579
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/exploreData/investigateData/InvestigateData.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 386
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/exploreData/investigateData/InvestigateData.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1374
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/exploreData/transformData/ColumnPill.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 372
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/exploreData/transformData/ColumnPill.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2111
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/exploreData/transformData/TransformData.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 673
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/exploreData/transformData/TransformData.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 40271
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/exploreData/transformData/TransformData.vue?vue&type=style&index=0&scoped=2c335069&lang.css",
+      "type": "style",
+      "format": "other",
+      "uncompressed": 0
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/exploreData/transformData/useSelectColumnSort.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2107
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/selectConnection/SelectConnectionForm.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1814
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/selectConnection/SelectConnectionForm.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 374
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/selectConnection/SelectConnectionForm.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 8387
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/selectConnection/SelectConnectionPanel.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 376
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/selectConnection/SelectConnectionPanel.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 5645
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/selectItem/SelectItemPanel.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 316
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/selectItem/SelectItemPanel.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 352
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/establishDataViews/selectItem/SelectItemPanel.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 12564
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/explorePresentations/ExplorePresentationsLayout.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 200
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/explorePresentations/ExplorePresentationsLayout.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 640
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/explorePresentations/ExplorePresentationsLayout.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4939
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/explorePresentations/ExplorePresentationsLayout.vue?vue&type=style&index=0&scoped=44b4795c&lang.css",
+      "type": "style",
+      "format": "other",
+      "uncompressed": 0
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/home/HomeLayout.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 186
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/home/HomeLayout.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 292
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/home/HomeLayout.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4711
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/connectors/ConnectorForm.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 613
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/connectors/ConnectorForm.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 610
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/connectors/ConnectorForm.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 8637
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/connectors/ConnectorForm.vue?vue&type=style&index=0&scoped=7343981b&lang.css",
+      "type": "style",
+      "format": "other",
+      "uncompressed": 0
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/connectors/ConnectorList.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 336
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/connectors/ConnectorList.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2732
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/context/ContextDimensionTreeDiagramPanel.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 368
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/context/ContextDimensionTreeDiagramPanel.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1690
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/context/ContextErdDiagramPanel.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 348
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/context/ContextErdDiagramPanel.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 3252
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/context/ContextList.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 326
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/context/ContextList.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 3256
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/context/ContextModelDescriptorsPanel.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 360
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/context/ContextModelDescriptorsPanel.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1362
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/context/ContextModelPanel.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 338
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 22860
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/context/data/contextConfig.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 9985
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/context/data/modelConfigs.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 38330
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/cookbooks/CookbookForm.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 613
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/cookbooks/CookbookForm.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 604
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/cookbooks/CookbookForm.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4739
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/cookbooks/CookbookForm.vue?vue&type=style&index=0&scoped=a1976dcf&lang.css",
+      "type": "style",
+      "format": "other",
+      "uncompressed": 0
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/cookbooks/CookbookList.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 332
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/cookbooks/CookbookList.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2708
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/home/HomePanel.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 316
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/home/HomePanel.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1785
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/ManageConfigLayout.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 165
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/ManageConfigLayout.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 324
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/ManageConfigLayout.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2937
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/presenters/PresenterForm.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 613
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/presenters/PresenterForm.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 610
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/presenters/PresenterForm.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4759
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/presenters/PresenterForm.vue?vue&type=style&index=0&scoped=7c4f5519&lang.css",
+      "type": "style",
+      "format": "other",
+      "uncompressed": 0
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/presenters/PresenterList.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 336
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/presenters/PresenterList.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2732
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/tools/ToolForm.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 613
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/tools/ToolForm.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 580
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/tools/ToolForm.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4659
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/tools/ToolForm.vue?vue&type=style&index=0&scoped=ac49e7d4&lang.css",
+      "type": "style",
+      "format": "other",
+      "uncompressed": 0
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/tools/ToolList.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 316
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/tools/ToolList.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2612
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/manageConfig/useConfigOptionConfigs.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4121
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/optionBar/WorkbenchOptionBar.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 583
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/optionBar/WorkbenchOptionBar.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1890
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/optionBar/WorkbenchOptionBar.vue?vue&type=style&index=0&scoped=a4dab431&lang.css",
+      "type": "style",
+      "format": "other",
+      "uncompressed": 0
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/optionBar/WorkbenchOptionPanel.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 62
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/optionBar/WorkbenchOptionPanel.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 322
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/optionBar/WorkbenchOptionPanel.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 3939
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/StudioLayout.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 525
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/studio/useStudioOptions.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4053
     },
     {
       "kind": "filesystem",
@@ -16673,19 +16687,19 @@
     },
     {
       "kind": "import",
-      "source": "src/domains/workbench/establishDataViews/DataViewList.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/studio/establishDataViews/DataViewList.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
     {
       "kind": "import",
-      "source": "src/domains/workbench/contextualiseData/ContextualiseDataLayout.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/studio/contextualiseData/EventQueryList.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
     {
       "kind": "import",
-      "source": "src/domains/workbench/contextualiseData/EventQueryList.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/studio/contextualiseData/ContextualiseDataLayout.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
@@ -16703,13 +16717,13 @@
     },
     {
       "kind": "import",
-      "source": "src/domains/workbench/explorePresentations/ExplorePresentationsLayout.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/studio/explorePresentations/ExplorePresentationsLayout.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
     {
       "kind": "import",
-      "source": "src/domains/knowledge/KnowledgeLayout.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/studio/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
@@ -16721,13 +16735,13 @@
     },
     {
       "kind": "import",
-      "source": "src/domains/workbench/connectionDialog/ConnectionDialog.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/studio/connectionDialog/ConnectionDialog.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
     {
       "kind": "import",
-      "source": "src/domains/workbench/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/domains/knowledge/KnowledgeLayout.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
@@ -16739,13 +16753,19 @@
     },
     {
       "kind": "import",
-      "source": "src/domains/workbench/manageConfig/context/ContextDimensionTreeDiagramPanel.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/studio/manageConfig/context/ContextDimensionTreeDiagramPanel.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
     {
       "kind": "import",
-      "source": "src/domains/workbench/manageConfig/context/ContextErdDiagramPanel.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/studio/manageConfig/context/ContextErdDiagramPanel.vue?vue&type=script&setup=true&lang.ts",
+      "target": "vite/preload-helper.js",
+      "original": "\u0000vite/preload-helper.js"
+    },
+    {
+      "kind": "import",
+      "source": "src/components/ui/TextEditor.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
@@ -16762,123 +16782,117 @@
       "original": "\u0000vite/preload-helper.js"
     },
     {
-      "kind": "import",
-      "source": "src/components/ui/TextEditor.vue?vue&type=script&setup=true&lang.ts",
-      "target": "vite/preload-helper.js",
-      "original": "\u0000vite/preload-helper.js"
-    },
-    {
       "kind": "dynamic-import",
-      "source": "src/domains/workbench/contextualiseData/EventQueryList.vue?vue&type=script&setup=true&lang.ts",
-      "target": "src/components/ui/placeholders/EmptyPlaceholder.vue",
+      "source": "src/studio/connectionDialog/ConnectionDialog.vue?vue&type=script&setup=true&lang.ts",
+      "target": "src/studio/connectionDialog/ManageConnectionPanel.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/home/HomeLayout.vue",
+      "target": "src/studio/home/HomeLayout.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/establishDataViews/EstablishDataViewsLayout.vue",
+      "target": "src/studio/establishDataViews/EstablishDataViewsLayout.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/establishDataViews/DataViewList.vue",
+      "target": "src/studio/establishDataViews/DataViewList.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/establishDataViews/selectConnection/SelectConnectionPanel.vue",
+      "target": "src/studio/establishDataViews/selectConnection/SelectConnectionPanel.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/establishDataViews/selectItem/SelectItemPanel.vue",
+      "target": "src/studio/establishDataViews/selectItem/SelectItemPanel.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/establishDataViews/auditContent/AuditContentPanel.vue",
+      "target": "src/studio/establishDataViews/auditContent/AuditContentPanel.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/establishDataViews/exploreData/ExploreData.vue",
+      "target": "src/studio/establishDataViews/exploreData/ExploreData.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/contextualiseData/ContextualiseDataLayout.vue",
+      "target": "src/studio/contextualiseData/ContextualiseDataLayout.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/contextualiseData/EventQueryList.vue",
+      "target": "src/studio/contextualiseData/EventQueryList.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/explorePresentations/ExplorePresentationsLayout.vue",
+      "target": "src/studio/explorePresentations/ExplorePresentationsLayout.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/buildDataApps/BuildDataAppsLayout.vue",
+      "target": "src/studio/buildDataApps/BuildDataAppsLayout.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/manageConfig/ManageConfigLayout.vue",
+      "target": "src/studio/manageConfig/ManageConfigLayout.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/manageConfig/home/HomePanel.vue",
+      "target": "src/studio/manageConfig/home/HomePanel.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/manageConfig/connectors/ConnectorList.vue",
+      "target": "src/studio/manageConfig/connectors/ConnectorList.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/manageConfig/context/ContextList.vue",
+      "target": "src/studio/manageConfig/context/ContextList.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/manageConfig/presenters/PresenterList.vue",
+      "target": "src/studio/manageConfig/presenters/PresenterList.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/manageConfig/cookbooks/CookbookList.vue",
+      "target": "src/studio/manageConfig/cookbooks/CookbookList.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/router/index.ts",
-      "target": "src/domains/workbench/manageConfig/tools/ToolList.vue",
+      "target": "src/studio/manageConfig/tools/ToolList.vue",
       "original": null
     },
     {
@@ -16896,7 +16910,7 @@
     {
       "kind": "dynamic-import",
       "source": "src/App.vue?vue&type=script&setup=true&lang.ts",
-      "target": "src/domains/workbench/connectionDialog/ConnectionDialog.vue",
+      "target": "src/studio/connectionDialog/ConnectionDialog.vue",
       "original": null
     },
     {
@@ -16914,43 +16928,43 @@
     {
       "kind": "dynamic-import",
       "source": "src/App.vue?vue&type=script&setup=true&lang.ts",
-      "target": "src/domains/workbench/optionBar/WorkbenchOptionBar.vue",
+      "target": "src/studio/optionBar/WorkbenchOptionBar.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
-      "source": "src/domains/workbench/establishDataViews/DataViewList.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/studio/establishDataViews/DataViewList.vue?vue&type=script&setup=true&lang.ts",
       "target": "src/components/ui/placeholders/EmptyPlaceholder.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
-      "source": "src/domains/workbench/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
-      "target": "src/domains/workbench/manageConfig/context/ContextModelDescriptorsPanel.vue",
-      "original": null
-    },
-    {
-      "kind": "dynamic-import",
-      "source": "src/domains/workbench/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
-      "target": "src/domains/workbench/manageConfig/context/ContextErdDiagramPanel.vue",
-      "original": null
-    },
-    {
-      "kind": "dynamic-import",
-      "source": "src/domains/workbench/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
-      "target": "src/domains/workbench/manageConfig/context/ContextDimensionTreeDiagramPanel.vue",
-      "original": null
-    },
-    {
-      "kind": "dynamic-import",
-      "source": "src/domains/workbench/connectionDialog/ConnectionDialog.vue?vue&type=script&setup=true&lang.ts",
-      "target": "src/domains/workbench/connectionDialog/ManageConnectionPanel.vue",
+      "source": "src/studio/contextualiseData/EventQueryList.vue?vue&type=script&setup=true&lang.ts",
+      "target": "src/components/ui/placeholders/EmptyPlaceholder.vue",
       "original": null
     },
     {
       "kind": "dynamic-import",
       "source": "src/domains/session/SessionButton.vue?vue&type=script&setup=true&lang.ts",
       "target": "src/domains/session/SessionMenu.vue",
+      "original": null
+    },
+    {
+      "kind": "dynamic-import",
+      "source": "src/studio/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
+      "target": "src/studio/manageConfig/context/ContextModelDescriptorsPanel.vue",
+      "original": null
+    },
+    {
+      "kind": "dynamic-import",
+      "source": "src/studio/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
+      "target": "src/studio/manageConfig/context/ContextErdDiagramPanel.vue",
+      "original": null
+    },
+    {
+      "kind": "dynamic-import",
+      "source": "src/studio/manageConfig/context/ContextModelPanel.vue?vue&type=script&setup=true&lang.ts",
+      "target": "src/studio/manageConfig/context/ContextDimensionTreeDiagramPanel.vue",
       "original": null
     },
     {

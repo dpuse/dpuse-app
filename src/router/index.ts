@@ -6,34 +6,34 @@ import { load } from '@/state/component';
 import { complete, fail, start } from '@/state/navigation';
 
 // ── Local Components - Dynamic
-const WorkbenchHomeLayout = load('WorkbenchHomeLayout', () => import('@/domains/workbench/home/HomeLayout.vue'));
+const WorkbenchHomeLayout = load('WorkbenchHomeLayout', () => import('@/studio/home/HomeLayout.vue'));
 
 // ── Local Components - Dynamic - Establish Data Views
-const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/domains/workbench/establishDataViews/EstablishDataViewsLayout.vue'));
-const DataViewList = load('DataViewList', () => import('@/domains/workbench/establishDataViews/DataViewList.vue'));
-const SelectConnectionPanel = load('SelectConnection', () => import('@/domains/workbench/establishDataViews/selectConnection/SelectConnectionPanel.vue'));
-const SelectItemPanel = load('SelectItem', () => import('@/domains/workbench/establishDataViews/selectItem/SelectItemPanel.vue'));
-const AuditContentPanel = load('AuditContent', () => import('@/domains/workbench/establishDataViews/auditContent/AuditContentPanel.vue'));
-const ExploreData = load('ExploreData', () => import('@/domains/workbench/establishDataViews/exploreData/ExploreData.vue'));
+const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/studio/establishDataViews/EstablishDataViewsLayout.vue'));
+const DataViewList = load('DataViewList', () => import('@/studio/establishDataViews/DataViewList.vue'));
+const SelectConnectionPanel = load('SelectConnection', () => import('@/studio/establishDataViews/selectConnection/SelectConnectionPanel.vue'));
+const SelectItemPanel = load('SelectItem', () => import('@/studio/establishDataViews/selectItem/SelectItemPanel.vue'));
+const AuditContentPanel = load('AuditContent', () => import('@/studio/establishDataViews/auditContent/AuditContentPanel.vue'));
+const ExploreData = load('ExploreData', () => import('@/studio/establishDataViews/exploreData/ExploreData.vue'));
 
 // ── Local Components - Dynamic - Contextualise Data
-const ContextualiseDataLayout = load('ContextualiseData', () => import('@/domains/workbench/contextualiseData/ContextualiseDataLayout.vue'));
-const EventQueryList = load('EventQueryList', () => import('@/domains/workbench/contextualiseData/EventQueryList.vue'));
+const ContextualiseDataLayout = load('ContextualiseData', () => import('@/studio/contextualiseData/ContextualiseDataLayout.vue'));
+const EventQueryList = load('EventQueryList', () => import('@/studio/contextualiseData/EventQueryList.vue'));
 
 // ── Local Components - Dynamic - Explore Presentations
-const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/domains/workbench/explorePresentations/ExplorePresentationsLayout.vue'));
+const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/studio/explorePresentations/ExplorePresentationsLayout.vue'));
 
 // ── Local Components - Dynamic - Build Data Apps
-const BuildDataAppsLayout = load('BuildDataApps', () => import('@/domains/workbench/buildDataApps/BuildDataAppsLayout.vue'));
+const BuildDataAppsLayout = load('BuildDataApps', () => import('@/studio/buildDataApps/BuildDataAppsLayout.vue'));
 
 // ── Local Components - Dynamic - Manage Configs
-const ManageConfigsLayout = load('ManageConfig', () => import('@/domains/workbench/manageConfig/ManageConfigLayout.vue'));
-const ManageHomePanel = load('ManageHomePanel', () => import('@/domains/workbench/manageConfig/home/HomePanel.vue'));
-const ManageConnectorList = load('ManageConnectorList', () => import('@/domains/workbench/manageConfig/connectors/ConnectorList.vue'));
-const ManageContextList = load('ManageContextList', () => import('@/domains/workbench/manageConfig/context/ContextList.vue'));
-const ManagePresenterList = load('ManagePresenterList', () => import('@/domains/workbench/manageConfig/presenters/PresenterList.vue'));
-const ManageCookbooksList = load('ManageCookbooksList', () => import('@/domains/workbench/manageConfig/cookbooks/CookbookList.vue'));
-const ManageToolsList = load('ManageToolsList', () => import('@/domains/workbench/manageConfig/tools/ToolList.vue'));
+const ManageConfigsLayout = load('ManageConfig', () => import('@/studio/manageConfig/ManageConfigLayout.vue'));
+const ManageHomePanel = load('ManageHomePanel', () => import('@/studio/manageConfig/home/HomePanel.vue'));
+const ManageConnectorList = load('ManageConnectorList', () => import('@/studio/manageConfig/connectors/ConnectorList.vue'));
+const ManageContextList = load('ManageContextList', () => import('@/studio/manageConfig/context/ContextList.vue'));
+const ManagePresenterList = load('ManagePresenterList', () => import('@/studio/manageConfig/presenters/PresenterList.vue'));
+const ManageCookbooksList = load('ManageCookbooksList', () => import('@/studio/manageConfig/cookbooks/CookbookList.vue'));
+const ManageToolsList = load('ManageToolsList', () => import('@/studio/manageConfig/tools/ToolList.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

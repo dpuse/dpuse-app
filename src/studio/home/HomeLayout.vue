@@ -2,25 +2,25 @@
 // ── Local Framework
 import T from './HomeLayout.json';
 import { t } from '@/state/locale';
-import { useWorkbenchOptions } from '@/domains/workbench/useWorkbenchOptions.ts';
+import { useStudioOptions } from '@/studio/useStudioOptions.ts';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Card from '@/components/ui/Card.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
-import WorkbenchHeader from '@/components/framework/header/WorkbenchHeader.vue';
-import WorkbenchLayout from '../WorkbenchLayout.vue';
+import StudioHeader from '@/components/framework/header/StudioHeader.vue';
+import StudioLayout from '../StudioLayout.vue';
 
-// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const workflowOptionConfigs = useWorkbenchOptions();
+const studioOptionConfigs = useStudioOptions();
 </script>
 
 <template>
-    <WorkbenchLayout data-layout="WorkbenchHome">
+    <StudioLayout>
         <!-- Header -->
-        <WorkbenchHeader :overline="t(T, 'wb.label')" :title="t(T, 'wb.wf.label')" />
+        <StudioHeader :title="t(T, 'wb.wf.label')" />
 
         <Separator class="mx-4" />
 
@@ -31,7 +31,7 @@ const workflowOptionConfigs = useWorkbenchOptions();
 
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
                     <Button
-                        v-for="config in workflowOptionConfigs.slice(0, 3)"
+                        v-for="config in studioOptionConfigs.slice(0, 3)"
                         :key="config.id"
                         class="mt-4 ml-4"
                         shape="minimal"
@@ -44,7 +44,7 @@ const workflowOptionConfigs = useWorkbenchOptions();
                 <h2 class="mt-4 ml-4">Build Data Apps</h2>
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
                     <Button
-                        v-for="config in workflowOptionConfigs.slice(3, 4)"
+                        v-for="config in studioOptionConfigs.slice(3, 4)"
                         :key="config.id"
                         class="mt-4 ml-4"
                         shape="minimal"
@@ -57,7 +57,7 @@ const workflowOptionConfigs = useWorkbenchOptions();
                 <h2 class="mt-4 ml-4">Configuration</h2>
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
                     <Button
-                        v-for="config in workflowOptionConfigs.slice(4)"
+                        v-for="config in studioOptionConfigs.slice(4)"
                         :key="config.id"
                         class="mt-4 ml-4"
                         shape="minimal"
@@ -68,5 +68,5 @@ const workflowOptionConfigs = useWorkbenchOptions();
                 </div>
             </div>
         </ScrollArea>
-    </WorkbenchLayout>
+    </StudioLayout>
 </template>

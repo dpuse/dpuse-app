@@ -13,7 +13,7 @@ import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import KnowledgeHeader from '@/components/framework/header/KnowledgeHeader.vue';
+import AssistantHeader from '@/components/framework/header/AssistantHeader.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
@@ -211,7 +211,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
 
 <template>
     <div class="flex h-full flex-col">
-        <KnowledgeHeader class="mx-4 flex-none" :overline="'Knowledge'" :title="title" />
+        <AssistantHeader class="mx-4 flex-none" :overline="'Knowledge'" :title="title" />
 
         <Separator class="mx-4" />
 

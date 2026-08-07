@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Local Framework
-import { useWorkbenchOptions } from '@/domains/workbench/useWorkbenchOptions';
+import { useStudioOptions } from '@/studio/useStudioOptions';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -8,7 +8,7 @@ import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const workflowOptionConfigs = useWorkbenchOptions();
+const workflowOptionConfigs = useStudioOptions();
 </script>
 
 <template>

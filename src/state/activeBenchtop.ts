@@ -5,8 +5,8 @@ import { shallowRef } from 'vue';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import type { WorkbenchOptionConfig } from '../domains/workbench/useWorkbenchOptions';
+import type { StudioOptionConfig } from '../studio/useStudioOptions';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const activeBenchtopOptionConfig = shallowRef<LocalisedConfig<WorkbenchOptionConfig> | undefined>();
+export const activeBenchtopOptionConfig = shallowRef<LocalisedConfig<StudioOptionConfig> | undefined>();
