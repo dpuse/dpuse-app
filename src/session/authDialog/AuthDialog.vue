@@ -15,8 +15,8 @@ import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';
-import LoginForm from '@/domains/session/authDialog/LoginForm.vue';
-import PasswordForm from '@/domains/session/authDialog/PasswordForm.vue';
+import LoginForm from '@/session/authDialog/LoginForm.vue';
+import PasswordForm from '@/session/authDialog/PasswordForm.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 

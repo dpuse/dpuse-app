@@ -19,11 +19,11 @@ import KnowledgeLogo from '@/components/branding/KnowledgeLogo.vue'; // Always v
 import type { KnowledgeViewId } from '@/domains/knowledge/KnowledgeLayout.vue';
 import LoadingMask from '@/components/framework/LoadingMask.vue'; // Required so no delay when rendering.
 import ProgressBar from '@/components/framework/ProgressBar.vue'; // Required so no delay when rendering.
-import SessionButton from '@/domains/session/SessionButton.vue'; // Always visible.
+import SessionButton from '@/session/SessionButton.vue'; // Always visible.
 
 // ── Local Components - Dynamic
-const AccountDialog = defineAsyncComponent(load('AccountDialog', () => import('@/domains/session/accountDialog/AccountDialog.vue')));
-const AuthDialog = defineAsyncComponent(load('AuthDialog', () => import('@/domains/session/authDialog/AuthDialog.vue')));
+const AccountDialog = defineAsyncComponent(load('AccountDialog', () => import('@/session/accountDialog/AccountDialog.vue')));
+const AuthDialog = defineAsyncComponent(load('AuthDialog', () => import('@/session/authDialog/AuthDialog.vue')));
 const ConnectionDialog = defineAsyncComponent(load('ConnectionDialog', () => import('@/studio/connectionDialog/ConnectionDialog.vue')));
 const KnowledgeLayout = defineAsyncComponent(load('KnowledgeLayout', () => import('@/domains/knowledge/KnowledgeLayout.vue')));
 const PaneSplitter = defineAsyncComponent(load('PaneSplitter', () => import('@/components/ui/PaneSplitter.vue')));
