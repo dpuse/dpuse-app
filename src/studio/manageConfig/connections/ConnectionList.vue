@@ -47,7 +47,7 @@ function handleAddConnection(): void {
 }
 
 function handleCommitDetail(): void {
-    router.push({ name: 'selectItem', query: { ...route.query, wbView: 'selectItem' } });
+    router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } });
 }
 
 function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {

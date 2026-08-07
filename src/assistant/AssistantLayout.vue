@@ -28,7 +28,7 @@ const route = useRoute();
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeView = computed(() => {
-    const parameter = route.query.kView as AssistantViewId | undefined;
+    const parameter = route.query.aView as AssistantViewId | undefined;
     return ASSISTANT_PANELS[parameter ?? 'about'] ?? ASSISTANT_PANELS.about;
 });
 </script>

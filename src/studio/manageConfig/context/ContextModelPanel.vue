@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
-import { ChevronRightIcon, LoaderCircleIcon, NetworkIcon, SquarePenIcon } from '@lucide/vue';
-import { defineAsyncComponent, onErrorCaptured, onMounted, ref, shallowRef, watch } from 'vue';
+import { ChevronRightIcon, NetworkIcon, SquarePenIcon } from '@lucide/vue';
+import { onMounted, ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
 import type { ComponentBase } from '@dpuse/dpuse-shared/component';
@@ -21,12 +21,12 @@ import modelConfigsData from './data/modelConfigs.json'; // TODO: remove once lo
 // ── Local Components - Static
 import BaseDialog from '@/components/ui/dialog/BaseDialog.vue';
 import Button from '@/components/ui/button/Button.vue';
-import ComponentLoadError from '@/components/ui/ComponentLoadError.vue';
+import { defineAsyncPanel } from '@/components/ui/asyncPanel';
 
 // ── Local Components - Dynamic
-const ContextModelDescriptorsPanel = defineAsyncComponent(() => import('./ContextModelDescriptorsPanel.vue'));
-const ContextErdDiagramPanel = defineAsyncComponent(() => import('./ContextErdDiagramPanel.vue'));
-const ContextDimensionTreeDiagramPanel = defineAsyncComponent(() => import('./ContextDimensionTreeDiagramPanel.vue'));
+const ContextModelDescriptorsPanel = defineAsyncPanel(() => import('./ContextModelDescriptorsPanel.vue'), 'ContextModelDescriptorsPanel');
+const ContextErdDiagramPanel = defineAsyncPanel(() => import('./ContextErdDiagramPanel.vue'), 'ContextErdDiagramPanel');
+const ContextDimensionTreeDiagramPanel = defineAsyncPanel(() => import('./ContextDimensionTreeDiagramPanel.vue'), 'ContextDimensionTreeDiagramPanel');
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -69,26 +69,8 @@ const modelDescription = ref('');
 const modelReferenceLabel = ref('');
 // const modelMap = modelConfigs as Record<string, Model>;
 const markedTool = shallowRef<MarkedToolType>();
-const descriptorsPanelError = ref<unknown>(null);
-const erdPanelError = ref<unknown>(null);
-const dimensionTreeDiagramPanelError = ref<unknown>(null);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-onErrorCaptured((error) => {
-    descriptorsPanelError.value = error;
-    return false;
-});
-
-onErrorCaptured((error) => {
-    erdPanelError.value = error;
-    return false;
-});
-
-onErrorCaptured((error) => {
-    dimensionTreeDiagramPanelError.value = error;
-    return false;
-});
 
 const toolReady = new Promise<void>((resolve) => {
     watch(
@@ -190,17 +172,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
             <div v-html="purifiedDescription" />
 
             <BaseDialog v-model="open" :title="`${modelReference.label} Descriptors`" @save="open = false">
-                <ComponentLoadError v-if="descriptorsPanelError" :error="descriptorsPanelError" name="ContextModelDescriptorsPanel" class="flex-1" />
-                <Suspense v-else-if="open">
-                    <template #default>
-                        <ContextModelDescriptorsPanel v-model:label="modelReferenceLabel" v-model:description="modelDescription" />
-                    </template>
-                    <template #fallback>
-                        <div class="flex flex-1 items-center justify-center">
-                            <LoaderCircleIcon class="animate-spin text-muted" />
-                        </div>
-                    </template>
-                </Suspense>
+                <ContextModelDescriptorsPanel v-if="open" v-model:label="modelReferenceLabel" v-model:description="modelDescription" />
             </BaseDialog>
 
             <!-- Entities -->
@@ -212,17 +184,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
             </h2>
 
             <BaseDialog v-model="erdDialogOpen" title="Sample ERD Diagram" @save="erdDialogOpen = false">
-                <ComponentLoadError v-if="erdPanelError" :error="erdPanelError" name="ContextErdDiagramPanel" class="flex-1" />
-                <Suspense v-else-if="erdDialogOpen">
-                    <template #default>
-                        <ContextErdDiagramPanel />
-                    </template>
-                    <template #fallback>
-                        <div class="flex flex-1 items-center justify-center">
-                            <LoaderCircleIcon class="animate-spin text-muted" />
-                        </div>
-                    </template>
-                </Suspense>
+                <ContextErdDiagramPanel v-if="erdDialogOpen" />
             </BaseDialog>
 
             <p>The entities that make up this model.</p>
@@ -300,17 +262,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
             <h2 class="flex flex-none items-center justify-between gap-x-3">Dimensions</h2>
 
             <BaseDialog v-model="dimensionTreeDialogOpen" title="Sample Dimension Tree Diagram" @save="dimensionTreeDialogOpen = false">
-                <ComponentLoadError v-if="dimensionTreeDiagramPanelError" :error="dimensionTreeDiagramPanelError" name="ContextDimensionTreeDiagramPanel" class="flex-1" />
-                <Suspense v-else-if="dimensionTreeDialogOpen">
-                    <template #default>
-                        <ContextDimensionTreeDiagramPanel />
-                    </template>
-                    <template #fallback>
-                        <div class="flex flex-1 items-center justify-center">
-                            <LoaderCircleIcon class="animate-spin text-muted" />
-                        </div>
-                    </template>
-                </Suspense>
+                <ContextDimensionTreeDiagramPanel v-if="dimensionTreeDialogOpen" />
             </BaseDialog>
 
             <p>The dimensions ... this model.</p>

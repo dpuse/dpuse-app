@@ -101,7 +101,7 @@ watch(activeMetaStoreConnectionConfig, async (newLocalMetaStoreConnectionConfig)
 
     const dataViewConfig = await establishDataView(newLocalMetaStoreConnectionConfig, route);
     if (dataViewConfig.connectionId == null) {
-        router.replace({ name: 'selectConnection', query: { ...route.query, wbView: 'selectConnection' } });
+        router.replace({ name: 'selectConnection', query: { ...route.query, sView: 'selectConnection' } });
     } else {
         activeConnectionConfig.value = connectionLocalisedConfigs.value.find((localisedConnectionConfig) => localisedConnectionConfig.id == dataViewConfig.connectionId);
     }
@@ -162,7 +162,7 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
 
 async function handleCommitDetail(): Promise<void> {
     emit('task-completed', taskLocalisedConfig);
-    await router.push({ name: 'auditContent', query: { ...route.query, wbView: 'auditContent' } });
+    await router.push({ name: 'auditContent', query: { ...route.query, sView: 'auditContent' } });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

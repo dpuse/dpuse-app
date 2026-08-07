@@ -63,7 +63,7 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
                 <Button
                     :aria-label="t(T, 'home.aria')"
                     shape="icon"
-                    :to="{ name: 'studio', query: { ...$route.query, wbView: 'studio' } }"
+                    :to="{ name: 'studio', query: { ...$route.query, sView: 'studio' } }"
                     @click="handleComplete({ id: 'home', label: '', description: '', icon: '', step: 0, tasks: [] })"
                 >
                     <!-- <HomeIcon aria-hidden="true" class="[&>path]:stroke-1.25" /> -->
@@ -73,7 +73,7 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
                 <template v-for="config in workflowOptionConfigs" :key="config.id">
                     <!-- <Separator v-if="index === 0" class="w-10 flex-none" /> -->
 
-                    <Button :aria-label="config.label" shape="icon" :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }" @click="handleComplete(config)">
+                    <Button :aria-label="config.label" shape="icon" :to="{ name: config.id, query: { ...$route.query, sView: config.id } }" @click="handleComplete(config)">
                         <div aria-hidden="true" v-html="config.icon" />
                     </Button>
                 </template>

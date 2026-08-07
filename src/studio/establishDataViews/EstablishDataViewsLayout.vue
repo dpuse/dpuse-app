@@ -32,16 +32,16 @@ const tasksEnabledToNumber = ref(0);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeTaskLocalisedConfig = computed(() => TASK_CONFIGS.find((config) => config.id === route.query.wbView));
+const activeTaskLocalisedConfig = computed(() => TASK_CONFIGS.find((config) => config.id === route.query.sView));
 
-const navigateBackRouteName = computed(() => (route.query.wbView === 'establishDataViews' ? 'studio' : 'establishDataViews'));
+const navigateBackRouteName = computed(() => (route.query.sView === 'establishDataViews' ? 'studio' : 'establishDataViews'));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
     route,
     (newRoute) => {
-        const pendingEnableStepsUpTo = TASK_CONFIGS.find((config) => config.id === newRoute.query.wbView)?.enableUpTo ?? 0;
+        const pendingEnableStepsUpTo = TASK_CONFIGS.find((config) => config.id === newRoute.query.sView)?.enableUpTo ?? 0;
         if (pendingEnableStepsUpTo > tasksEnabledToNumber.value) tasksEnabledToNumber.value = pendingEnableStepsUpTo;
     },
     { immediate: true }

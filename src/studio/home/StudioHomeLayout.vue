@@ -35,7 +35,7 @@ const studioOptionConfigs = useStudioOptions();
                         :key="config.id"
                         class="mt-4 ml-4"
                         shape="minimal"
-                        :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
+                        :to="{ name: config.id, query: { ...$route.query, sView: config.id } }"
                     >
                         <Card :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                     </Button>
@@ -48,7 +48,7 @@ const studioOptionConfigs = useStudioOptions();
                         :key="config.id"
                         class="mt-4 ml-4"
                         shape="minimal"
-                        :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
+                        :to="{ name: config.id, query: { ...$route.query, sView: config.id } }"
                     >
                         <Card :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                     </Button>
@@ -61,7 +61,7 @@ const studioOptionConfigs = useStudioOptions();
                         :key="config.id"
                         class="mt-4 ml-4"
                         shape="minimal"
-                        :to="{ name: config.id, query: { ...$route.query, wbView: config.id } }"
+                        :to="{ name: config.id, query: { ...$route.query, sView: config.id } }"
                     >
                         <Card :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                     </Button>

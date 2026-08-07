@@ -21,7 +21,7 @@ const configOptionConfigs = useConfigOptionConfigs().value.splice(1);
                     :key="config.id"
                     class="mt-4 ml-4"
                     shape="minimal"
-                    :to="{ name: config.to, query: { ...$route.query, wbView: config.to } }"
+                    :to="{ name: config.to, query: { ...$route.query, sView: config.to } }"
                 >
                     <Card :description="config.description" :icon="config.icon" :label="config.label" />
                 </Button>

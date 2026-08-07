@@ -34,7 +34,7 @@ const activeConfigOptionConfig = ref(configOptionConfigs.value[0]);
                         class="border-y-2 border-t-transparent py-1.25"
                         :class="configOptionConfig.id === activeConfigOptionConfig.id ? 'border-b-blue-400' : 'border-b-transparent'"
                         shape="minimal"
-                        :to="{ name: configOptionConfig.to, query: { ...$route.query, wbView: configOptionConfig.to } }"
+                        :to="{ name: configOptionConfig.to, query: { ...$route.query, sView: configOptionConfig.to } }"
                         @click="activeConfigOptionConfig = configOptionConfig"
                     >
                         <HomeIcon v-if="configOptionConfig.id === 'home'" class="[&>path]:stroke-1.25 size-5!" />

@@ -101,12 +101,12 @@ export const createAppRouter = (): Router => {
     router.beforeEach((to, from) => {
         if (from === START_LOCATION) {
             // Then the page is loading.
-            if (to.query.wbState !== '1' && to.path !== '/') {
+            if (to.query.sState !== '1' && to.path !== '/') {
                 // Then we can clear the studio part of the url if it was not visible. This defers loading the view until required.
-                return { path: '/', query: { ...to.query, d: undefined, wbState: undefined, wbView: to.query.wbView ?? 'studio', kState: 1, kView: to.query.kView ?? 'about' } };
+                return { path: '/', query: { ...to.query, d: undefined, sState: undefined, sView: to.query.sView ?? 'studio', aState: 1, aView: to.query.aView ?? 'about' } };
             }
-            if (to.path === '/' && (!('kView' in to.query) || !('kState' in to.query))) {
-                return { path: '/studio', query: { ...to.query, d: undefined, wbState: 1, wbView: 'studio', kState: undefined, kView: undefined } };
+            if (to.path === '/' && (!('aView' in to.query) || !('aState' in to.query))) {
+                return { path: '/studio', query: { ...to.query, d: undefined, sState: 1, sView: 'studio', aState: undefined, aView: undefined } };
             }
             if ('d' in to.query) {
                 return { path: to.path, query: { ...to.query, d: undefined } };

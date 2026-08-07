@@ -66,19 +66,19 @@ watch(
 
 function handleAddDataView(): void {
     setActiveDataViewConfig();
-    router.push({ name: 'selectConnection', params: { dataViewId: NEW_DATA_VIEW_ID }, query: { ...route.query, wbView: 'selectConnection' } });
+    router.push({ name: 'selectConnection', params: { dataViewId: NEW_DATA_VIEW_ID }, query: { ...route.query, sView: 'selectConnection' } });
 }
 
 function handleSelectDataView(dataViewConfig: DataViewConfig): void {
     setActiveDataViewConfig(dataViewConfig);
     if (dataViewConfig.connectionId == null) {
-        router.push({ name: 'selectConnection', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, wbView: 'selectConnection' } });
+        router.push({ name: 'selectConnection', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'selectConnection' } });
     } else if (dataViewConfig.connectionNodeConfig == null) {
-        router.push({ name: 'selectItem', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, wbView: 'selectItem' } });
+        router.push({ name: 'selectItem', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'selectItem' } });
     } else if (dataViewConfig.contentAuditConfig == null) {
-        router.push({ name: 'auditContent', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, wbView: 'auditContent' } });
+        router.push({ name: 'auditContent', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'auditContent' } });
     } else {
-        router.push({ name: 'exploreData', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, wbView: 'exploreData' } });
+        router.push({ name: 'exploreData', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'exploreData' } });
     }
 }
 

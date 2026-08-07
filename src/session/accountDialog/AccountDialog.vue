@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import { ArrowBigLeftIcon } from '@lucide/vue';
 import { useRoute } from 'vue-router';
-import { ArrowBigLeftIcon, LoaderCircleIcon } from '@lucide/vue';
-import { type Component, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
+import { type Component, shallowRef, watch } from 'vue';
 
 // ── Local Framework
 import { t } from '@/state/locale';
@@ -11,7 +11,7 @@ import { viewportIsWide } from '@/state/appLayout';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import ComponentLoadError from '@/components/ui/ComponentLoadError.vue';
+import { defineAsyncPanel } from '@/components/ui/asyncPanel';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
@@ -38,15 +38,15 @@ const OPTION_CONFIGS: OptionLocalisedConfig[] = [
     { id: 'deleteAccount', icon: '', label: 'Delete account', isDestructive: true }
 ];
 const OPTION_COMPONENT_MAP: Record<string, Component> = {
-    managePersonalDetails: defineAsyncComponent(() => import('./ManagePersonalDetailsPanel.vue')),
-    manageSubscription: defineAsyncComponent(() => import('./ManageSubscriptionPanel.vue')),
-    managePreferences: defineAsyncComponent(() => import('./ManagePreferencesPanel.vue')),
-    manageAccess: defineAsyncComponent(() => import('./ManageAccessPanel.vue')),
-    manageSessions: defineAsyncComponent(() => import('./ManageSessionsPanel.vue')),
-    reviewActivity: defineAsyncComponent(() => import('./ReviewActivityPanel.vue')),
-    manageDataServiceTokens: defineAsyncComponent(() => import('./ManageDataServiceTokensPanel.vue')),
-    generateToken: defineAsyncComponent(() => import('./GenerateTokenPanel.vue')),
-    deleteAccount: defineAsyncComponent(() => import('./DeleteAccountPanel.vue'))
+    managePersonalDetails: defineAsyncPanel(() => import('./ManagePersonalDetailsPanel.vue'), 'AccountPanel'),
+    manageSubscription: defineAsyncPanel(() => import('./ManageSubscriptionPanel.vue'), 'AccountPanel'),
+    managePreferences: defineAsyncPanel(() => import('./ManagePreferencesPanel.vue'), 'AccountPanel'),
+    manageAccess: defineAsyncPanel(() => import('./ManageAccessPanel.vue'), 'AccountPanel'),
+    manageSessions: defineAsyncPanel(() => import('./ManageSessionsPanel.vue'), 'AccountPanel'),
+    reviewActivity: defineAsyncPanel(() => import('./ReviewActivityPanel.vue'), 'AccountPanel'),
+    manageDataServiceTokens: defineAsyncPanel(() => import('./ManageDataServiceTokensPanel.vue'), 'AccountPanel'),
+    generateToken: defineAsyncPanel(() => import('./GenerateTokenPanel.vue'), 'AccountPanel'),
+    deleteAccount: defineAsyncPanel(() => import('./DeleteAccountPanel.vue'), 'AccountPanel')
 };
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
@@ -56,14 +56,8 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
 const route = useRoute();
 
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig()); // TODO: Use route to set this!
-const subPanelError = ref<unknown>(null);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-onErrorCaptured((error) => {
-    subPanelError.value = error;
-    return false;
-});
 
 watch(viewportIsWide, (isWide) => {
     if (isWide && !activeOptionConfig.value) activeOptionConfig.value = OPTION_CONFIGS[1];
@@ -134,17 +128,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                     </div>
 
                     <ScrollArea scroll-area-padding="none">
-                        <ComponentLoadError v-if="subPanelError" :error="subPanelError" name="AccountPanel" class="flex-1" />
-                        <Suspense v-else>
-                            <template #default>
-                                <component :is="OPTION_COMPONENT_MAP[activeOptionConfig?.id ?? '']" class="flex-1" />
-                            </template>
-                            <template #fallback>
-                                <div class="flex flex-1 items-center justify-center">
-                                    <LoaderCircleIcon class="animate-spin text-muted" />
-                                </div>
-                            </template>
-                        </Suspense>
+                        <component :is="OPTION_COMPONENT_MAP[activeOptionConfig?.id ?? '']" class="flex-1" />
                     </ScrollArea>
                 </div>
             </div>

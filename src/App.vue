@@ -82,7 +82,7 @@ router
     .then(() => {
         // The initial navigation has fully completed. This block intentionally runs once to bootstrap pane state from the initial URL.
         studioPaneActivated.value = studioPaneIsActive.value = route.path !== '/';
-        assistantPaneActivated.value = assistantPaneIsActive.value = route.query.kState === '1' && 'kView' in route.query;
+        assistantPaneActivated.value = assistantPaneIsActive.value = route.query.aState === '1' && 'aView' in route.query;
         activeAppPaneId.value = studioPaneActivated.value ? 'studio' : 'assistant';
         establishActivePaneId(viewportIsWide.value);
     })
@@ -106,9 +106,9 @@ watch(paneSplitterPercent, (newPaneSplitterPercent) => localStorage.setItem(PANE
 
 function handleSelectAssistantPanel(assistantViewId: AssistantViewId): void {
     activeAppPaneId.value = 'assistant';
-    assistantPaneIsActive.value = assistantPaneIsVisible.value = route.query.kView !== assistantViewId || !assistantPaneIsVisible.value;
+    assistantPaneIsActive.value = assistantPaneIsVisible.value = route.query.aView !== assistantViewId || !assistantPaneIsVisible.value;
     if (assistantPaneIsActive.value) assistantPaneActivated.value = true;
-    router.replace({ query: { ...route.query, kState: assistantPaneIsVisible.value ? 1 : undefined, kView: assistantViewId } });
+    router.replace({ query: { ...route.query, aState: assistantPaneIsVisible.value ? 1 : undefined, aView: assistantViewId } });
     assistantOptionBarIsVisible.value = false;
 }
 
@@ -134,15 +134,15 @@ function handleToggleAssistantPane(): void {
 }
 
 function toggleAssistantPane(): void {
-    if ('kView' in route.query) {
+    if ('aView' in route.query) {
         // Then - toggle assistant pane, ensure assistant pane is activated (may be first time), and update route properties.
         assistantPaneIsActive.value = assistantPaneIsVisible.value = !assistantPaneIsVisible.value;
         if (assistantPaneIsActive.value) assistantPaneActivated.value = true;
-        router.replace({ query: { ...route.query, wbState: studioPaneIsVisible.value ? 1 : undefined, kState: assistantPaneIsVisible.value ? 1 : undefined } });
+        router.replace({ query: { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined } });
     } else {
         // Else - assistant pane has never been activated, active and navigate to last 'about' route.
         assistantPaneActivated.value = assistantPaneIsActive.value = assistantPaneIsVisible.value = true;
-        router.replace({ query: { ...route.query, kView: 'about', wbState: studioPaneIsVisible.value ? 1 : undefined, kState: 1 } });
+        router.replace({ query: { ...route.query, aView: 'about', sState: studioPaneIsVisible.value ? 1 : undefined, aState: 1 } });
     }
 }
 
@@ -182,13 +182,13 @@ function toggleStudioPane(): void {
         // Then - studio pane has never been activated, active and navigate to last known route.
         studioPaneActivated.value = studioPaneIsActive.value = studioPaneIsVisible.value = true;
         router.replace({
-            name: (Array.isArray(route.query.wbView) ? route.query.wbView[0] : route.query.wbView) ?? 'studio',
-            query: { ...route.query, wbState: 1, kState: assistantPaneIsVisible.value ? 1 : undefined }
+            name: (Array.isArray(route.query.sView) ? route.query.sView[0] : route.query.sView) ?? 'studio',
+            query: { ...route.query, sState: 1, aState: assistantPaneIsVisible.value ? 1 : undefined }
         });
     } else {
         // Else - toggle studio pane and update route properties.
         studioPaneIsActive.value = studioPaneIsVisible.value = !studioPaneIsVisible.value;
-        router.replace({ query: { ...route.query, wbState: studioPaneIsVisible.value ? 1 : undefined, kState: assistantPaneIsVisible.value ? 1 : undefined } });
+        router.replace({ query: { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined } });
     }
 }
 

@@ -37,7 +37,7 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
             }"
             role="tab"
             shape="minimal"
-            :to="!item.disabled && item.id != null ? { name: item.id, query: { ...$route.query, wbView: item.id } } : undefined"
+            :to="!item.disabled && item.id != null ? { name: item.id, query: { ...$route.query, sView: item.id } } : undefined"
             @click="$emit('select', item)"
         >
             <div
