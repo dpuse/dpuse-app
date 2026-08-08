@@ -12,7 +12,7 @@ import { localeId } from '@/state/locale';
 import { presenterConfigs } from '@/state/session';
 
 // ── Local Components - Static
-import ComponentCard from '@/components/ui/ComponentCard.vue';
+import ComponentCard from '@/components/framework/ComponentCard.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import PresenterForm from './PresenterForm.vue';

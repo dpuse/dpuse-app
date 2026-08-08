@@ -12,7 +12,7 @@ import { connectionLocalisedConfigs } from '@/state/dataViews';
 import type { DataSource } from '@/composables/useDataWindow';
 
 // ── Local Components - Static
-import ComponentCard from '@/components/ui/ComponentCard.vue';
+import ComponentCard from '@/components/framework/ComponentCard.vue';
 import ConnectionForm from './ConnectionForm.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';

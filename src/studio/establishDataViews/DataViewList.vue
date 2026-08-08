@@ -16,7 +16,7 @@ import { dataViewConfigs, dataViewConfigsAreRetrieved, dataViewLocalisedConfigs,
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import ComponentCard from '@/components/ui/ComponentCard.vue';
+import ComponentCard from '@/components/framework/ComponentCard.vue';
 import Grid from '@/components/framework/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';

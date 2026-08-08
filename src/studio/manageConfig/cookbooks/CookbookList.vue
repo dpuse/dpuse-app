@@ -12,7 +12,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
 
 // ── Local Components - Static
-import ComponentCard from '@/components/ui/ComponentCard.vue';
+import ComponentCard from '@/components/framework/ComponentCard.vue';
 import CookbookForm from './CookbookForm.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';

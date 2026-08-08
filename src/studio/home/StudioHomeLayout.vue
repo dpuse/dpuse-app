@@ -6,7 +6,7 @@ import { useStudioOptions } from '@/studio/useStudioOptions.ts';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import ComponentCard from '@/components/ui/ComponentCard.vue';
+import ComponentCard from '@/components/framework/ComponentCard.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '@/components/framework/header/StudioHeader.vue';
