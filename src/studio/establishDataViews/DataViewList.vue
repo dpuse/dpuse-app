@@ -5,13 +5,14 @@ import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
+import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { t } from '@/state/locale';
 import T from './DataViewList.json';
-import { dataViewConfigs, dataViewConfigsAreRetrieved, NEW_DATA_VIEW_ID, retrieveDataViewConfigs, setActiveDataViewConfig } from '@/state/dataViews';
+import { dataViewConfigs, dataViewConfigsAreRetrieved, dataViewLocalisedConfigs, NEW_DATA_VIEW_ID, retrieveDataViewConfigs, setActiveDataViewConfig } from '@/state/dataViews';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -30,20 +31,24 @@ const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Constructs a computed data source wrapper for the data view configurations. Data view configurations are set by watcher below.
-const dataViewConfigsDataSource = computed((): DataSource<DataViewConfig> => ({
-    rowCount: dataViewConfigs.value?.length ?? 0,
-    getRows: (start: number, end: number): Promise<{ rows: DataViewConfig[] }> => Promise.resolve({ rows: (dataViewConfigs.value ?? []).slice(start, end) })
+// Constructs a computed data source wrapper for the data view configurations which are set by the watcher below.
+const dataViewConfigsDataSource = computed((): DataSource<LocalisedConfig<DataViewConfig>> => ({
+    rowCount: dataViewLocalisedConfigs.value.length,
+    getRows: (start: number, end: number): Promise<{ rows: LocalisedConfig<DataViewConfig>[] }> => Promise.resolve({ rows: dataViewLocalisedConfigs.value.slice(start, end) })
 }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// On a page refresh, this component may load before the configuration is available; otherwise it is likely already available. Sets data view configurations.
+// On a page refresh, this component may load before the meta store connection configuration is available;
+// otherwise it is likely already available. Uses this connection to set data view configurations which are referenced by the computed data source above.
 watch(
     activeMetaStoreConnectionConfig,
     (newActiveMetaStoreConnectionConfig) => {
-        if (newActiveMetaStoreConnectionConfig && !dataViewConfigs.value) {
-            retrieveDataViewConfigs(newActiveMetaStoreConnectionConfig);
+        if (newActiveMetaStoreConnectionConfig) {
+            if (!dataViewConfigsAreRetrieved.value) retrieveDataViewConfigs(newActiveMetaStoreConnectionConfig);
+        } else {
+            dataViewConfigs.value = undefined;
+            dataViewConfigsAreRetrieved.value = false;
         }
     },
     { immediate: true }
@@ -56,7 +61,12 @@ function handleAddDataView(): void {
     router.push({ name: 'selectConnection', params: { dataViewId: NEW_DATA_VIEW_ID }, query: { ...route.query, sView: 'selectConnection' } });
 }
 
-function handleSelectDataView(dataViewConfig: DataViewConfig): void {
+function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
+    console.log(dataViewLocalisedConfig);
+}
+
+function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
+    const dataViewConfig = dataViewConfigs.value!.find((config) => config.id === dataViewLocalisedConfig.id)!;
     setActiveDataViewConfig(dataViewConfig);
     if (dataViewConfig.connectionId == null) {
         router.push({ name: 'selectConnection', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'selectConnection' } });
@@ -71,27 +81,29 @@ function handleSelectDataView(dataViewConfig: DataViewConfig): void {
 </script>
 
 <template>
-    <Separator class="mx-4 flex-none" />
+    <div class="flex flex-col">
+        <Separator class="mx-4 flex-none" />
 
-    <Grid
-        v-if="dataViewConfigs && dataViewConfigs.length > 0"
-        add-label="Data View"
-        class="flex-1"
-        :data-source="dataViewConfigsDataSource"
-        :row-height="80"
-        :target-column-width="350"
-        @add="handleAddDataView"
-    >
-        <template #default="{ item }">
-            <Button class="size-full" shape="minimal" @click="handleSelectDataView(item)">
-                <Card :icon="item.icon ?? undefined" :label="item.label as string" />
-            </Button>
-        </template>
-    </Grid>
+        <Grid
+            v-if="dataViewConfigs && dataViewConfigs.length > 0"
+            add-label="Data View"
+            class="flex-1"
+            :data-source="dataViewConfigsDataSource"
+            :row-height="80"
+            :target-column-width="350"
+            @add="handleAddDataView"
+        >
+            <template #default="{ item }">
+                <Button class="size-full" shape="minimal" @click="handleSelectDataView(item)">
+                    <Card :actions="[{ typeId: 'delete', onClick: handleDeleteDataView }]" :icon="item.icon ?? undefined" :item="item" :label="item.label" />
+                </Button>
+            </template>
+        </Grid>
 
-    <ScrollArea v-else-if="dataViewConfigsAreRetrieved" class="flex-1">
-        <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
-    </ScrollArea>
+        <ScrollArea v-else-if="dataViewConfigsAreRetrieved" class="flex-1">
+            <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
+        </ScrollArea>
 
-    <div v-else class="flex flex-1 flex-col items-center justify-center">Loading...</div>
+        <div v-else class="flex flex-1 flex-col items-center justify-center">Loading...</div>
+    </div>
 </template>

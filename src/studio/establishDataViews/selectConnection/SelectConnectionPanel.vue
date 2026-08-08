@@ -5,13 +5,12 @@ import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
-import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
-import { localeId } from '@/state/locale';
 import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
-import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import Card from '@/components/ui/Card.vue';
@@ -42,10 +41,6 @@ const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<Connecti
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => getDataViewRecord(newLocalMetaStoreConnectionConfig, route));
-
-watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.value = localiseConfigs<ConnectionConfig>(newConnectionConfigs, localeId.value, true)), {
-    immediate: true
-});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

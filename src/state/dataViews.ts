@@ -1,11 +1,10 @@
 // ── External Dependencies & Registrations
 import type { RouteLocationNormalizedLoadedGeneric } from 'vue-router';
-import { ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/component/module/engine';
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { ConnectionConfig, ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { ContentAuditConfig, DataViewConfig, PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type {
@@ -17,8 +16,11 @@ import type {
     RetrieveRecordsOptions,
     UpsertRecordsOptions
 } from '@dpuse/dpuse-shared/component/module/connector';
+import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import { connectionConfigs } from '@/state/session';
+import { localeId } from '@/state/locale';
 import { reportAppError } from '@/observability/errorTracking';
 import { useEngine } from '@/services/useEngine';
 import { useStudioOptions } from '@/studio/useStudioOptions';
@@ -26,26 +28,11 @@ import { useStudioOptions } from '@/studio/useStudioOptions';
 const options: UpsertRecordsOptions = {
     path: '/dpuMetaStore/dataViews',
     records: [
-        {
-            id: '1',
-            label: { en: 'Data View 1' }
-        },
-        {
-            id: '2',
-            label: { en: 'Data View 2' }
-        },
-        {
-            id: '3',
-            label: { en: 'Data View 3' }
-        },
-        {
-            id: '4',
-            label: { en: 'Data View 4' }
-        },
-        {
-            id: '5',
-            label: { en: 'Data View 5' }
-        }
+        { id: '1', label: { en: 'Data View 1' }, description: { en: '...' } },
+        { id: '2', label: { en: 'Data View 2' }, description: { en: '...' } },
+        { id: '3', label: { en: 'Data View 3' }, description: { en: '...' } },
+        { id: '4', label: { en: 'Data View 4' }, description: { en: '...' } },
+        { id: '5', label: { en: 'Data View 5' }, description: { en: '...' } }
     ]
 };
 
@@ -60,9 +47,14 @@ export const activeConnectionNodeConfigs = shallowRef<ConnectionNodeConfig[]>([]
 
 export const activeDataViewConfig = shallowRef<DataViewConfig | undefined>();
 
-export const connectionLocalisedConfigs = shallowRef<LocalisedConfig<ConnectionConfig>[]>([]);
 export const dataViewConfigs = shallowRef<DataViewConfig[] | undefined>();
 export const dataViewConfigsAreRetrieved = ref(false);
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+export const connectionLocalisedConfigs = computed((): LocalisedConfig<ConnectionConfig>[] => localiseConfigs<ConnectionConfig>(connectionConfigs.value, localeId.value, true));
+
+export const dataViewLocalisedConfigs = computed((): LocalisedConfig<DataViewConfig>[] => localiseConfigs<DataViewConfig>(dataViewConfigs.value ?? [], localeId.value));
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 

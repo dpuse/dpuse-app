@@ -1,16 +1,15 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, shallowRef, watch } from 'vue';
+import { computed, shallowRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
-import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { connectionConfigs } from '@/state/session';
+import { connectionLocalisedConfigs } from '@/state/dataViews';
 import type { DataSource } from '@/composables/useDataWindow';
-import { localeId } from '@/state/locale';
 
 // ── Local Components - Static
 import Card from '@/components/ui/Card.vue';
@@ -22,7 +21,6 @@ import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vu
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeConnectionConfig = shallowRef<LocalisedConfig<ConnectionConfig> | undefined>();
-const connectionLocalisedConfigs = shallowRef<LocalisedConfig<ConnectionConfig>[]>([]);
 
 const route = useRoute();
 const router = useRouter();
@@ -33,12 +31,6 @@ const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<Connecti
     rowCount: connectionLocalisedConfigs.value.length,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<ConnectionConfig>[] }> => Promise.resolve({ rows: connectionLocalisedConfigs.value.slice(start, end) })
 }));
-
-// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.value = localiseConfigs<ConnectionConfig>(newConnectionConfigs, localeId.value, true)), {
-    immediate: true
-});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
