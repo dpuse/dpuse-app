@@ -58,7 +58,6 @@ export const connectionAccountConfigs = shallowRef<ConnectionAccountConfig[]>([]
 export const connectorConfigs = shallowRef<ConnectorConfig[]>([]);
 export const contextConfig = shallowRef<ContextConfig | undefined>();
 export const cookbookConfigs = shallowRef<CookbookConfig[]>([]);
-export const dataViewConfigs = shallowRef<DataViewConfig[]>([]);
 export const engineConfig = shallowRef<EngineConfig | undefined>();
 export const eventQueryConfigs = shallowRef<EventQueryConfig[]>([]);
 export const dimensionConfigs = shallowRef<DimensionConfig[]>([]);
@@ -110,10 +109,6 @@ watch(
     },
     { immediate: true }
 );
-
-// ── Side Effects - Connection Configurations ─────────────────────────────────────────────────────────────────────────
-
-// watch(activeMetaStoreConnectionConfig, () => (dataViewConfigs.value = []), { immediate: true }); // TODO: Should we make this conditional?
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

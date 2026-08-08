@@ -19,7 +19,7 @@ import T from './SelectItemPanel.json';
 import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 import { viewportIsWide } from '@/state/appLayout';
-import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, establishDataView, setConnectionNodeConfig } from '@/state/establishDataViews';
+import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, setConnectionNodeConfig } from '@/state/dataViews';
 
 // ── Local Components - Static
 import Breadcrumbs from '@/components/framework/Breadcrumbs.vue';
@@ -99,7 +99,7 @@ const connectionNodeConfigsDataSource = computed<DataSource<ConnectionNodeConfig
 watch(activeMetaStoreConnectionConfig, async (newLocalMetaStoreConnectionConfig) => {
     if (newLocalMetaStoreConnectionConfig == null) return;
 
-    const dataViewConfig = await establishDataView(newLocalMetaStoreConnectionConfig, route);
+    const dataViewConfig = await getDataViewRecord(newLocalMetaStoreConnectionConfig, route);
     if (dataViewConfig.connectionId == null) {
         router.replace({ name: 'selectConnection', query: { ...route.query, sView: 'selectConnection' } });
     } else {

@@ -10,14 +10,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
-import {
-    activeConnectionConfig,
-    activeConnectionNodeConfigs,
-    activeDataViewConfig,
-    connectionLocalisedConfigs,
-    establishDataView,
-    NEW_DATA_VIEW_ID
-} from '@/state/establishDataViews';
+import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
 import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
 
 // ── Local Components - Static
@@ -48,7 +41,7 @@ const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<Connecti
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => establishDataView(newLocalMetaStoreConnectionConfig, route));
+watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => getDataViewRecord(newLocalMetaStoreConnectionConfig, route));
 
 watch(connectionConfigs, (newConnectionConfigs) => (connectionLocalisedConfigs.value = localiseConfigs<ConnectionConfig>(newConnectionConfigs, localeId.value, true)), {
     immediate: true

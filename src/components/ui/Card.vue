@@ -9,16 +9,7 @@ import { InfoIcon } from '@lucide/vue';
 type Badge = { id: string; color?: string; label: string };
 type ActionTypeId = 'info';
 type Action = { typeId: ActionTypeId; onClick: () => void };
-type Properties = {
-    actions?: Action[];
-    badges?: Badge[];
-    description?: string;
-    icon?: string;
-    iconDark?: string;
-    isCompact?: boolean;
-    label: string;
-    overline?: string;
-};
+type Properties = { actions?: Action[]; badges?: Badge[]; description?: string; icon?: string; iconDark?: string; isCompact?: boolean; label: string; overline?: string };
 const { actions = [], badges = [], description, icon, iconDark, isCompact = false, label, overline } = defineProps<Properties>();
 </script>
 

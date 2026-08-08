@@ -1,23 +1,17 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, defineAsyncComponent, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
-import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
-import type { EngineCallbackData } from '@dpuse/dpuse-shared/component/module/engine';
-import type { RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // ── Local Framework
+import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
-import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import T from './DataViewList.json';
-import { useEngine } from '@/services/useEngine';
-import { activeMetaStoreConnectionConfig, dataViewConfigs } from '@/state/session';
-import { establishDataViewsObject, NEW_DATA_VIEW_ID, setActiveDataViewConfig } from '@/state/establishDataViews';
+import { dataViewConfigs, dataViewConfigsAreRetrieved, NEW_DATA_VIEW_ID, retrieveDataViewConfigs, setActiveDataViewConfig } from '@/state/dataViews';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -25,24 +19,18 @@ import Card from '@/components/ui/Card.vue';
 import Grid from '@/components/framework/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
-import { useStudioOptions } from '../useStudioOptions';
 
 // ── Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));
 
-// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const workflowOptionConfigs = useStudioOptions();
-
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const dataViewConfigsAreRetrieved = ref(false);
-const dataViewIcon = workflowOptionConfigs.value[0].icon;
 const route = useRoute();
 const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Constructs a computed data source wrapper for the data view configurations. Data view configurations are set by watcher below.
 const dataViewConfigsDataSource = computed((): DataSource<DataViewConfig> => ({
     rowCount: dataViewConfigs.value?.length ?? 0,
     getRows: (start: number, end: number): Promise<{ rows: DataViewConfig[] }> => Promise.resolve({ rows: (dataViewConfigs.value ?? []).slice(start, end) })
@@ -50,13 +38,12 @@ const dataViewConfigsDataSource = computed((): DataSource<DataViewConfig> => ({
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// On a page refresh, this component may load before the configuration is available; otherwise it is likely already available. Sets data view configurations.
 watch(
     activeMetaStoreConnectionConfig,
     (newActiveMetaStoreConnectionConfig) => {
-        if (newActiveMetaStoreConnectionConfig == null) {
-            dataViewConfigsAreRetrieved.value = false;
-        } else if (dataViewConfigs.value.length === 0) {
-            retrieveDataViews(newActiveMetaStoreConnectionConfig);
+        if (newActiveMetaStoreConnectionConfig && !dataViewConfigs.value) {
+            retrieveDataViewConfigs(newActiveMetaStoreConnectionConfig);
         }
     },
     { immediate: true }
@@ -81,56 +68,30 @@ function handleSelectDataView(dataViewConfig: DataViewConfig): void {
         router.push({ name: 'exploreData', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'exploreData' } });
     }
 }
-
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-async function retrieveDataViews(metaStoreConnectionConfig: ConnectionConfig): Promise<void> {
-    try {
-        await establishDataViewsObject(metaStoreConnectionConfig);
-
-        const { processRequest } = await useEngine();
-        const pendingDataViewConfigs: DataViewConfig[] = [];
-        const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dataViews', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
-        await processRequest('retrieveRecords', metaStoreConnectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
-            if (data.typeId === 'chunk') {
-                pendingDataViewConfigs.push(...(data.properties.records as DataViewConfig[]).map((config) => ({ ...config, icon: dataViewIcon })));
-            } else {
-                dataViewConfigs.value = pendingDataViewConfigs;
-                dataViewConfigsAreRetrieved.value = true;
-            }
-        });
-    } catch (error) {
-        dataViewConfigs.value = [];
-        dataViewConfigsAreRetrieved.value = true;
-        reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.DataViewList.retrieveDataViews', { typeId: 'handled' }, { cause: error }));
-    }
-}
 </script>
 
 <template>
-    <div class="flex flex-col">
-        <Separator class="mx-4 flex-none" />
+    <Separator class="mx-4 flex-none" />
 
-        <Grid
-            v-if="dataViewConfigs && dataViewConfigs.length > 0"
-            add-label="Data View"
-            class="flex-1"
-            :data-source="dataViewConfigsDataSource"
-            :row-height="80"
-            :target-column-width="350"
-            @add="handleAddDataView"
-        >
-            <template #default="{ item }">
-                <Button class="size-full" shape="minimal" @click="handleSelectDataView(item)">
-                    <Card :icon="item.icon ?? undefined" :label="item.label as string" />
-                </Button>
-            </template>
-        </Grid>
+    <Grid
+        v-if="dataViewConfigs && dataViewConfigs.length > 0"
+        add-label="Data View"
+        class="flex-1"
+        :data-source="dataViewConfigsDataSource"
+        :row-height="80"
+        :target-column-width="350"
+        @add="handleAddDataView"
+    >
+        <template #default="{ item }">
+            <Button class="size-full" shape="minimal" @click="handleSelectDataView(item)">
+                <Card :icon="item.icon ?? undefined" :label="item.label as string" />
+            </Button>
+        </template>
+    </Grid>
 
-        <ScrollArea v-else-if="dataViewConfigsAreRetrieved" class="flex-1">
-            <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
-        </ScrollArea>
+    <ScrollArea v-else-if="dataViewConfigsAreRetrieved" class="flex-1">
+        <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
+    </ScrollArea>
 
-        <div v-else class="flex flex-1 flex-col items-center justify-center">Loading...</div>
-    </div>
+    <div v-else class="flex flex-1 flex-col items-center justify-center">Loading...</div>
 </template>

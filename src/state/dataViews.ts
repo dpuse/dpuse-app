@@ -1,55 +1,53 @@
 // ── External Dependencies & Registrations
 import type { RouteLocationNormalizedLoadedGeneric } from 'vue-router';
-import { shallowRef } from 'vue';
+import { ref, shallowRef } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
+import type { EngineCallbackData } from '@dpuse/dpuse-shared/component/module/engine';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { ConnectionConfig, ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
-import type { ContentAuditConfig, DataViewConfig, PreviewConfig, RelationshipsAuditConfig } from '@dpuse/dpuse-shared/component/dataView';
-import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, GetRecordOptions, GetRecordResult } from '@dpuse/dpuse-shared/component/module/connector';
+import type { ContentAuditConfig, DataViewConfig, PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
+import type {
+    CreateObjectOptions,
+    FindObjectOptions,
+    FindObjectResult,
+    GetRecordOptions,
+    GetRecordResult,
+    RetrieveRecordsOptions,
+    UpsertRecordsOptions
+} from '@dpuse/dpuse-shared/component/module/connector';
 
 // ── Local Framework
+import { reportAppError } from '@/observability/errorTracking';
 import { useEngine } from '@/services/useEngine';
+import { useStudioOptions } from '@/studio/useStudioOptions';
 
-// const options: UpsertRecordsOptions = {
-//     path: '/dpuMetaStore/dataViews',
-//     records: [
-//         {
-//             id: '1',
-//             label: 'Data View 1',
-//             icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
-//             iconColor: '#4d83e0'
-//         },
-//         {
-//             id: '2',
-//             label: 'Data View 2',
-//             icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
-//             iconColor: '#4d83e0'
-//         },
-//         {
-//             id: '3',
-//             label: 'Data View 3',
-//             icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
-//             iconColor: '#4d83e0'
-//         },
-//         {
-//             id: '4',
-//             label: 'Data View 4',
-//             icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
-//             iconColor: '#4d83e0'
-//         },
-//         {
-//             id: '5',
-//             label: 'Data View 5',
-//             icon: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-database-zap-icon lucide-database-zap'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5V19A9 3 0 0 0 15 21.84'/><path d='M21 5V8'/><path d='M21 12L18 17H22L19 22'/><path d='M3 12A9 3 0 0 0 14.59 14.87'/></svg>",
-//             iconColor: '#4d83e0'
-//         }
-//     ]
-// };
-// await processRequest('upsertRecords', connectionConfig, options, (data: EngineCallbackData) => {
-//     console.log('UPSERT RECORDS', data);
-// });
+const options: UpsertRecordsOptions = {
+    path: '/dpuMetaStore/dataViews',
+    records: [
+        {
+            id: '1',
+            label: { en: 'Data View 1' }
+        },
+        {
+            id: '2',
+            label: { en: 'Data View 2' }
+        },
+        {
+            id: '3',
+            label: { en: 'Data View 3' }
+        },
+        {
+            id: '4',
+            label: { en: 'Data View 4' }
+        },
+        {
+            id: '5',
+            label: { en: 'Data View 5' }
+        }
+    ]
+};
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -63,14 +61,48 @@ export const activeConnectionNodeConfigs = shallowRef<ConnectionNodeConfig[]>([]
 export const activeDataViewConfig = shallowRef<DataViewConfig | undefined>();
 
 export const connectionLocalisedConfigs = shallowRef<LocalisedConfig<ConnectionConfig>[]>([]);
+export const dataViewConfigs = shallowRef<DataViewConfig[] | undefined>();
+export const dataViewConfigsAreRetrieved = ref(false);
+
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const workflowOptionConfigs = useStudioOptions();
+const dataViewIcon = workflowOptionConfigs.value[0].icon;
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export async function establishDataView(metaStoreConnectionConfig: ConnectionConfig | undefined, route: RouteLocationNormalizedLoadedGeneric): Promise<DataViewConfig> {
+export async function retrieveDataViewConfigs(metaStoreConnectionConfig: ConnectionConfig): Promise<void> {
+    try {
+        await establishDataViewObject(metaStoreConnectionConfig);
+
+        const { processRequest } = await useEngine();
+
+        await processRequest('upsertRecords', metaStoreConnectionConfig, options, (data: EngineCallbackData) => {
+            console.log('UPSERT RECORDS', data);
+        });
+
+        const pendingDataViewConfigs: DataViewConfig[] = [];
+        const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dataViews', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
+        await processRequest('retrieveRecords', metaStoreConnectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
+            if (data.typeId === 'chunk') {
+                pendingDataViewConfigs.push(...(data.properties.records as DataViewConfig[]).map((config) => ({ ...config, icon: dataViewIcon })));
+            } else {
+                dataViewConfigs.value = pendingDataViewConfigs;
+                dataViewConfigsAreRetrieved.value = true;
+            }
+        });
+    } catch (error) {
+        dataViewConfigs.value = undefined;
+        dataViewConfigsAreRetrieved.value = true;
+        reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.DataViewList.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error }));
+    }
+}
+
+export async function getDataViewRecord(metaStoreConnectionConfig: ConnectionConfig | undefined, route: RouteLocationNormalizedLoadedGeneric): Promise<DataViewConfig> {
     try {
         if (metaStoreConnectionConfig == null) throw new Error('Unable to establish Data View, no connection configuration.');
 
-        await establishDataViewsObject(metaStoreConnectionConfig);
+        await establishDataViewObject(metaStoreConnectionConfig);
 
         const dataViewId = route.params.dataViewId as string;
 
@@ -80,19 +112,10 @@ export async function establishDataView(metaStoreConnectionConfig: ConnectionCon
         const { processRequest } = await useEngine();
         const getRecordOptions: GetRecordOptions = { path: '/dpuMetaStore/dataViews', id: dataViewId as string }; // TODO: Implement paging.
         const getRecordResult = (await processRequest('getRecord', metaStoreConnectionConfig, getRecordOptions)) as GetRecordResult;
+        console.log(333, getRecordResult.record);
         return setActiveDataViewConfig(getRecordResult.record as unknown as DataViewConfig);
     } catch (error) {
-        throw new AppError('Failed to retrieve data views.', 'dpuse-app.DataViewList.retrieveDataViews', { typeId: 'handled' }, { cause: error });
-    }
-}
-
-export async function establishDataViewsObject(metaStoreConnectionConfig: ConnectionConfig): Promise<void> {
-    const { processRequest } = await useEngine();
-    const findObjectOptions: FindObjectOptions = { storeId: 'dpuMetaStore', nodeId: 'dataViews' };
-    const findObjectResult = (await processRequest('findObject', metaStoreConnectionConfig, findObjectOptions)) as FindObjectResult;
-    if (findObjectResult.path == null) {
-        const createObjectOptions: CreateObjectOptions = { path: '/dpuMetaStore/dataViews', structure: 'id' };
-        await processRequest('createObject', metaStoreConnectionConfig, createObjectOptions);
+        throw new AppError('Failed to retrieve data views.', 'dpuse-app.DataViewList.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error });
     }
 }
 
@@ -148,6 +171,16 @@ export function setContentAuditConfig(contentAuditConfig?: ContentAuditConfig): 
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function establishDataViewObject(metaStoreConnectionConfig: ConnectionConfig): Promise<void> {
+    const { processRequest } = await useEngine();
+    const findObjectOptions: FindObjectOptions = { storeId: 'dpuMetaStore', nodeId: 'dataViews' };
+    const findObjectResult = (await processRequest('findObject', metaStoreConnectionConfig, findObjectOptions)) as FindObjectResult;
+    if (findObjectResult.path == null) {
+        const createObjectOptions: CreateObjectOptions = { path: '/dpuMetaStore/dataViews', structure: 'id' };
+        await processRequest('createObject', metaStoreConnectionConfig, createObjectOptions);
+    }
+}
 
 function getActiveDataViewConfig(): DataViewConfig {
     if (!activeDataViewConfig.value) throw new Error("'activeDataViewConfig' is not initialized.");
