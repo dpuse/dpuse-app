@@ -62,7 +62,7 @@ const scrollElement = shallowRef<HTMLElement | null>(null);
 // fallback). The `?? DEFAULT_CACHE_BLOCK_SIZE` below only covers the brief window before the first
 // onRowCountChange call — same fallback useDataWindow uses internally when cacheBlockSize isn't overridden.
 const correctedRowCount = ref(dataSource.rowCount);
-const { virtualRows, totalSize, getRow, rowCount } = useDataWindow({
+const { virtualRows, totalSize, getRow, rowCount, knownRowCount } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
     count: () => Math.ceil((correctedRowCount.value ?? cacheBlockSize ?? DEFAULT_CACHE_BLOCK_SIZE) / columnCount.value),
@@ -79,12 +79,12 @@ const { virtualRows, totalSize, getRow, rowCount } = useDataWindow({
 
 const rowWidth = computed(() => columnCount.value * columnWidth.value);
 const columnOffsets = computed(() => Array.from({ length: columnCount.value }, (_, index) => index));
-// Distinct from useDataWindow's own `rowCount` (self-corrected, never undefined — see its comment): this reads the
-// caller's raw dataSource.rowCount directly, since only the caller knows whether "not yet known" (busy) is distinct
-// from "confirmed 0" (empty).
+// Uses useDataWindow's knownRowCount (not the coerced `rowCount`, and not dataSource.rowCount directly) — a
+// caller's dataSource.rowCount may stay undefined forever by design (e.g. SelectItemPanel's folder browser, which
+// only learns its count from a resolved fetch's totalCount, never writes it back to its own DataSource object).
 const state = computed<'busy' | 'empty' | 'rows'>(() => {
-    if (dataSource.rowCount === undefined) return 'busy';
-    if (dataSource.rowCount === 0) return 'empty';
+    if (knownRowCount.value === undefined) return 'busy';
+    if (knownRowCount.value === 0) return 'empty';
     return 'rows';
 });
 

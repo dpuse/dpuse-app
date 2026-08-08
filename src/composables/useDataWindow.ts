@@ -125,6 +125,11 @@ type DataWindow<T> = {
     visibleRowData: ComputedRef<(T | undefined)[]>;
     getRow: (dataIndex: number) => T | undefined;
     rowCount: ComputedRef<number>; // Self-corrected count, matching the virtualizer's own render count (a block-sized guess while unknown, never 0-while-unknown) — prefer this over dataSource().rowCount.
+    // Uncoerced version of the above: undefined until the real count is confirmed (via dataSource().rowCount or a
+    // resolved fetch's totalCount), distinct from 0 (confirmed empty). A caller's dataSource().rowCount may stay
+    // undefined forever by design (e.g. a source that only learns its count from getRows' totalCount) — this is
+    // the only reliable "is it still unknown" signal for busy/empty UI state; prefer it over dataSource().rowCount.
+    knownRowCount: ComputedRef<number | undefined>;
 };
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -320,7 +325,14 @@ export function useDataWindow<T>({
         blockLruOrder.push(blockIndex);
     }
 
-    return { virtualRows, totalSize, visibleRowData, getRow, rowCount: computed(() => knownRowCount.value ?? cacheBlockSize()) };
+    return {
+        virtualRows,
+        totalSize,
+        visibleRowData,
+        getRow,
+        rowCount: computed(() => knownRowCount.value ?? cacheBlockSize()),
+        knownRowCount: computed(() => knownRowCount.value)
+    };
 }
 
 function sleep(ms: number): Promise<void> {
