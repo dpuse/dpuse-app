@@ -15,10 +15,10 @@ import { navigationIsActive, navigationIsDelayed } from '@/state/navigation';
 // ── Local Components - Static
 import AssistantLogo from '@/components/branding/AssistantLogo.vue'; // Always visible.
 import type { AssistantViewId } from '@/assistant/AssistantLayout.vue';
+import BusyBar from '@/components/framework/BusyBar.vue'; // Required so no delay when rendering.
 import Button from '@/components/ui/button/Button.vue'; // Required by studio and assistant toggle buttons which are always visible.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import LoadingMask from '@/components/framework/LoadingMask.vue'; // Required so no delay when rendering.
-import ProgressBar from '@/components/framework/ProgressBar.vue'; // Required so no delay when rendering.
 import SessionButton from '@/session/SessionButton.vue'; // Always visible.
 
 // ── Local Components - Dynamic
@@ -225,14 +225,16 @@ function establishPaneSplitterPercent(): number {
           z-50: LoadingMask (global — navigation and async component loads)
           z-51: SessionMenu
           z-60: DialogLayout/AuthDialog, DialogLayout/AccountDialog & DialogLayout/ConnectionDialogDialog
-          z-70: ProgressBar
+          z-70: BusyBar (navigation)
           -->
 
         <!-- Mask - Semi-transparent mask over the top safe area, so scrolling content fades out beneath it. -->
         <div class="fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-surface/80 via-25% to-surface/95" data-region="topFadeOut" />
 
         <!-- Navigation progress bar. Always visible. -->
-        <ProgressBar class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-70" />
+        <Transition name="action-fade">
+            <BusyBar v-if="navigationIsDelayed" class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-70" />
+        </Transition>
 
         <!-- Global loading mask - active during route changes and async loads; sustained as scrim when a dialog is open. -->
         <LoadingMask
@@ -345,21 +347,3 @@ function establishPaneSplitterPercent(): number {
         </div>
     </div>
 </template>
-
-<style scoped>
-.action-fade-enter-active,
-.action-fade-leave-active {
-    transition: opacity 0.15s ease;
-}
-.action-fade-enter-from,
-.action-fade-leave-to {
-    opacity: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .action-fade-enter-active,
-    .action-fade-leave-active {
-        transition: none;
-    }
-}
-</style>

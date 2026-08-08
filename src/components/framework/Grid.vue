@@ -7,6 +7,7 @@ import { computed, onUnmounted, ref, shallowRef } from 'vue';
 import { type DataSource, DEFAULT_CACHE_BLOCK_SIZE, useDataWindow } from '@/composables/useDataWindow';
 
 // ── Local Components - Static
+import BusyBar from '@/components/framework/BusyBar.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea, { type ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
 
@@ -35,7 +36,7 @@ const {
     targetColumnWidth
 } = defineProps<Properties>();
 
-defineSlots<{ default?(properties: { index: number; item: T }): unknown }>();
+defineSlots<{ default?(properties: { index: number; item: T }): unknown; empty?(): unknown }>();
 
 defineEmits<{ add: []; select: [item: T | undefined] }>();
 
@@ -78,6 +79,14 @@ const { virtualRows, totalSize, getRow, rowCount } = useDataWindow({
 
 const rowWidth = computed(() => columnCount.value * columnWidth.value);
 const columnOffsets = computed(() => Array.from({ length: columnCount.value }, (_, index) => index));
+// Distinct from useDataWindow's own `rowCount` (self-corrected, never undefined — see its comment): this reads the
+// caller's raw dataSource.rowCount directly, since only the caller knows whether "not yet known" (busy) is distinct
+// from "confirmed 0" (empty).
+const state = computed<'busy' | 'empty' | 'rows'>(() => {
+    if (dataSource.rowCount === undefined) return 'busy';
+    if (dataSource.rowCount === 0) return 'empty';
+    return 'rows';
+});
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -102,33 +111,41 @@ function getRowHeight(item: T | undefined): number {
 <template>
     <div class="relative flex min-h-0 flex-col" data-region="Grid">
         <!-- Body -->
-        <ScrollArea class="flex-1" role="list" :row-count="rowCount" :scroll-area-padding="scrollAreaPadding" @initialised="handleScrollAreaInitialised">
-            <div :class="{ 'mt-2': isCompact }" :style="{ height: totalSize + 'px', position: 'relative' }">
-                <div
-                    v-for="virtualRow in virtualRows"
-                    :key="virtualRow.index"
-                    class="absolute top-0 left-0 flex"
-                    :style="{ transform: `translateY(${virtualRow.start}px)`, height: `${virtualRow.size}px`, width: `${rowWidth}px` }"
-                >
-                    <template v-for="columnOffset in columnOffsets" :key="columnOffset">
-                        <!-- Skip cells beyond the last data item (last row may be partially filled) -->
-                        <div v-if="virtualRow.index * columnCount + columnOffset < rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
-                            <div class="h-full pl-4" :class="[isCompact ? 'pt-2' : 'pt-4']">
-                                <slot
-                                    v-if="getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
-                                    :item="getRow(virtualRow.index * columnCount + columnOffset) as T"
-                                    :index="virtualRow.index * columnCount + columnOffset"
-                                />
+        <Transition mode="out-in" name="action-fade">
+            <BusyBar v-if="state === 'busy'" class="mx-4" />
 
-                                <div v-else class="flex h-full items-center py-3">
-                                    <div class="h-10 w-full animate-pulse rounded bg-zinc-100 dark:bg-zinc-800" />
+            <ScrollArea v-else-if="state === 'empty'" class="flex-1" :scroll-area-padding="scrollAreaPadding">
+                <slot name="empty" />
+            </ScrollArea>
+
+            <ScrollArea v-else class="flex-1" role="list" :row-count="rowCount" :scroll-area-padding="scrollAreaPadding" @initialised="handleScrollAreaInitialised">
+                <div :class="{ 'mt-2': isCompact }" :style="{ height: totalSize + 'px', position: 'relative' }">
+                    <div
+                        v-for="virtualRow in virtualRows"
+                        :key="virtualRow.index"
+                        class="absolute top-0 left-0 flex"
+                        :style="{ transform: `translateY(${virtualRow.start}px)`, height: `${virtualRow.size}px`, width: `${rowWidth}px` }"
+                    >
+                        <template v-for="columnOffset in columnOffsets" :key="columnOffset">
+                            <!-- Skip cells beyond the last data item (last row may be partially filled) -->
+                            <div v-if="virtualRow.index * columnCount + columnOffset < rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
+                                <div class="h-full pl-4" :class="[isCompact ? 'pt-2' : 'pt-4']">
+                                    <slot
+                                        v-if="getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
+                                        :item="getRow(virtualRow.index * columnCount + columnOffset) as T"
+                                        :index="virtualRow.index * columnCount + columnOffset"
+                                    />
+
+                                    <div v-else class="flex h-full items-center py-3">
+                                        <div class="h-10 w-full animate-pulse rounded bg-zinc-100 dark:bg-zinc-800" />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </template>
+                        </template>
+                    </div>
                 </div>
-            </div>
-        </ScrollArea>
+            </ScrollArea>
+        </Transition>
 
         <!-- Floating Add Button (Optional) -->
         <Button v-if="addLabel" class="absolute right-(--safe-right-offset) bottom-(--safe-bottom-offset)" shape="minimal" @click="$emit('add')">

@@ -18,7 +18,6 @@ import { dataViewConfigs, dataViewConfigsAreRetrieved, dataViewLocalisedConfigs,
 import Button from '@/components/ui/button/Button.vue';
 import ComponentCard from '@/components/framework/ComponentCard.vue';
 import Grid from '@/components/framework/Grid.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
 // ── Local Components - Dynamic
@@ -32,8 +31,9 @@ const router = useRouter();
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Constructs a computed data source wrapper for the data view configurations which are set by the watcher below.
+// rowCount stays undefined (busy) until retrieval completes, distinct from 0 (confirmed empty) — see DataSource.rowCount.
 const dataViewConfigsDataSource = computed((): DataSource<LocalisedConfig<DataViewConfig>> => ({
-    rowCount: dataViewLocalisedConfigs.value.length,
+    rowCount: dataViewConfigsAreRetrieved.value ? dataViewLocalisedConfigs.value.length : undefined,
     getRows: (start: number, end: number): Promise<{ rows: LocalisedConfig<DataViewConfig>[] }> => Promise.resolve({ rows: dataViewLocalisedConfigs.value.slice(start, end) })
 }));
 
@@ -84,26 +84,16 @@ function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewC
     <div class="flex flex-col">
         <Separator class="mx-4 flex-none" />
 
-        <Grid
-            v-if="dataViewConfigs && dataViewConfigs.length > 0"
-            add-label="Data View"
-            class="flex-1"
-            :data-source="dataViewConfigsDataSource"
-            :row-height="80"
-            :target-column-width="350"
-            @add="handleAddDataView"
-        >
+        <Grid add-label="Data View" class="flex-1" :data-source="dataViewConfigsDataSource" :row-height="80" :target-column-width="350" @add="handleAddDataView">
             <template #default="{ item }">
                 <Button class="size-full" shape="minimal" @click="handleSelectDataView(item)">
                     <ComponentCard :actions="[{ typeId: 'delete', onClick: handleDeleteDataView }]" :icon="item.icon ?? undefined" :item="item" :label="item.label" />
                 </Button>
             </template>
+
+            <template #empty>
+                <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
+            </template>
         </Grid>
-
-        <ScrollArea v-else-if="dataViewConfigsAreRetrieved" class="flex-1">
-            <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
-        </ScrollArea>
-
-        <div v-else class="flex flex-1 flex-col items-center justify-center">Loading...</div>
     </div>
 </template>

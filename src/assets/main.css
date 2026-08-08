@@ -114,6 +114,22 @@ html {
     background-color: var(--card-hover);
 }
 
+/* Shared fade transition for content-swap regions (dialogs, route views, busy/empty/loaded states). */
+.action-fade-enter-active,
+.action-fade-leave-active {
+    transition: opacity 0.15s ease;
+}
+.action-fade-enter-from,
+.action-fade-leave-to {
+    opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+    .action-fade-enter-active,
+    .action-fade-leave-active {
+        transition: none;
+    }
+}
+
 .dp-tab-bar {
     column-gap: 8px;
     display: flex;
