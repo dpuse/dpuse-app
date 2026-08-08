@@ -20,7 +20,7 @@ import { activeMetaStoreConnectionConfig, eventQueryConfigs } from '@/state/sess
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import Card from '@/components/ui/Card.vue';
+import ComponentCard from '@/components/ui/ComponentCard.vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import Grid from '@/components/framework/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
@@ -95,7 +95,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
         :target-column-width="350"
     >
         <template #default="{ item }">
-            <Card v-if="item" :label="item.label as string" />
+            <ComponentCard v-if="item" :label="item.label as string" />
         </template>
     </Grid>
 

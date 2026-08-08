@@ -12,7 +12,7 @@ import { localeId } from '@/state/locale';
 import { presenterConfigs } from '@/state/session';
 
 // ── Local Components - Static
-import Card from '@/components/ui/Card.vue';
+import ComponentCard from '@/components/ui/ComponentCard.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import PresenterForm from './PresenterForm.vue';
@@ -46,7 +46,7 @@ function handleSelectPresenter(presenterLocalisedConfig: LocalisedConfig<Present
 <template>
     <GridDetailPanel :active-item="activePresenterConfig" class="min-h-0 flex-1" :data-source="presenterConfigsDataSource" max-detail-width="650px" @select="handleSelectPresenter">
         <template #grid-item="{ item }">
-            <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
+            <ComponentCard v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
         </template>
 
         <template #detail="{ item, clear }">

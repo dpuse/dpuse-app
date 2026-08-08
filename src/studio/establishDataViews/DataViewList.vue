@@ -16,7 +16,7 @@ import { dataViewConfigs, dataViewConfigsAreRetrieved, dataViewLocalisedConfigs,
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import Card from '@/components/ui/Card.vue';
+import ComponentCard from '@/components/ui/ComponentCard.vue';
 import Grid from '@/components/framework/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
@@ -95,7 +95,7 @@ function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewC
         >
             <template #default="{ item }">
                 <Button class="size-full" shape="minimal" @click="handleSelectDataView(item)">
-                    <Card :actions="[{ typeId: 'delete', onClick: handleDeleteDataView }]" :icon="item.icon ?? undefined" :item="item" :label="item.label" />
+                    <ComponentCard :actions="[{ typeId: 'delete', onClick: handleDeleteDataView }]" :icon="item.icon ?? undefined" :item="item" :label="item.label" />
                 </Button>
             </template>
         </Grid>

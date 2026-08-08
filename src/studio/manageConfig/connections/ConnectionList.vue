@@ -12,7 +12,7 @@ import { connectionLocalisedConfigs } from '@/state/dataViews';
 import type { DataSource } from '@/composables/useDataWindow';
 
 // ── Local Components - Static
-import Card from '@/components/ui/Card.vue';
+import ComponentCard from '@/components/ui/ComponentCard.vue';
 import ConnectionForm from './ConnectionForm.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
@@ -58,7 +58,7 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
         @select="handleSelectConnection"
     >
         <template #grid-item="{ item }">
-            <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
+            <ComponentCard v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
         </template>
 
         <template #detail="{ item, clear }">

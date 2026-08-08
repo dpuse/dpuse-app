@@ -12,7 +12,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
 
 // ── Local Components - Static
-import Card from '@/components/ui/Card.vue';
+import ComponentCard from '@/components/ui/ComponentCard.vue';
 import ContextModelPanel from './ContextModelPanel.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
@@ -90,7 +90,7 @@ function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBase>>> {
     >
         <template #grid-item="{ item }">
             <div v-if="item.isHeader" class="pl-2 text-left text-xs font-semibold text-subtle uppercase">{{ item.label }}</div>
-            <Card v-else :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
+            <ComponentCard v-else :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
         </template>
 
         <template #detail="{ item }">

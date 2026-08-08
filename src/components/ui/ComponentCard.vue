@@ -29,7 +29,7 @@ const { actions = [], badges = [], description, icon, iconDark, isCompact = fals
     <div
         class="relative flex size-full cursor-pointer flex-col gap-y-4 bg-card font-light outline -outline-offset-1 outline-boundary transition-colors hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover"
         :class="isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4'"
-        data-region="Card"
+        data-region="ComponentCard"
         role="presentation"
     >
         <!-- Badges -->

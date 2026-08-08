@@ -4,7 +4,7 @@ import { useConfigOptionConfigs } from '../useConfigOptionConfigs';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import Card from '@/components/ui/Card.vue';
+import ComponentCard from '@/components/ui/ComponentCard.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -23,7 +23,7 @@ const configOptionConfigs = useConfigOptionConfigs().value.splice(1);
                     shape="minimal"
                     :to="{ name: config.to, query: { ...$route.query, sView: config.to } }"
                 >
-                    <Card :description="config.description" :icon="config.icon" :label="config.label" />
+                    <ComponentCard :description="config.description" :icon="config.icon" :label="config.label" />
                 </Button>
             </div>
         </div>

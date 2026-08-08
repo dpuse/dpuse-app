@@ -6,7 +6,7 @@ import { useStudioOptions } from '@/studio/useStudioOptions.ts';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import Card from '@/components/ui/Card.vue';
+import ComponentCard from '@/components/ui/ComponentCard.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '@/components/framework/header/StudioHeader.vue';
@@ -37,7 +37,7 @@ const studioOptionConfigs = useStudioOptions();
                         shape="minimal"
                         :to="{ name: config.id, query: { ...$route.query, sView: config.id } }"
                     >
-                        <Card :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
+                        <ComponentCard :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                     </Button>
                 </div>
 
@@ -50,7 +50,7 @@ const studioOptionConfigs = useStudioOptions();
                         shape="minimal"
                         :to="{ name: config.id, query: { ...$route.query, sView: config.id } }"
                     >
-                        <Card :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
+                        <ComponentCard :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                     </Button>
                 </div>
 
@@ -63,7 +63,7 @@ const studioOptionConfigs = useStudioOptions();
                         shape="minimal"
                         :to="{ name: config.id, query: { ...$route.query, sView: config.id } }"
                     >
-                        <Card :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
+                        <ComponentCard :description="config.description" :icon="config.icon" :label="config.label" :overline="t(T, 'wb.wf.step', { number: config.step })" />
                     </Button>
                 </div>
             </div>

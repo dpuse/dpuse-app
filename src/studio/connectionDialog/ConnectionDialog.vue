@@ -16,7 +16,7 @@ import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
 import AddConnectionForm from './AddConnectionForm.vue';
-import Card from '@/components/ui/Card.vue';
+import ComponentCard from '@/components/ui/ComponentCard.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
@@ -119,7 +119,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 
             <GridDetailPanel :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" @select="handleSelectConnector">
                 <template #grid-item="{ item }">
-                    <Card v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
+                    <ComponentCard v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
                 </template>
 
                 <template #detail="{ item, clear }">
