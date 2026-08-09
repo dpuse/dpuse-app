@@ -10,6 +10,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // ── Local Framework
 import { connectionLocalisedConfigs } from '@/state/dataViews';
 import type { DataSource } from '@/composables/useDataWindow';
+import { configsAreRetrieved } from '@/state/session';
 
 // ── Local Components - Static
 import ComponentCard from '@/components/framework/ComponentCard.vue';
@@ -28,7 +29,7 @@ const router = useRouter();
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
-    rowCount: connectionLocalisedConfigs.value.length,
+    rowCount: configsAreRetrieved.value ? connectionLocalisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<ConnectionConfig>[] }> => Promise.resolve({ rows: connectionLocalisedConfigs.value.slice(start, end) })
 }));
 

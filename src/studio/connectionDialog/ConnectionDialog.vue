@@ -8,7 +8,7 @@ import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/conne
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { connectorConfigs } from '@/state/session';
+import { configsAreRetrieved, connectorConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import T from './ConnectionDialog.json';
 import { viewportIsWide } from '@/state/appLayout';
@@ -61,7 +61,7 @@ const subPanelError = ref<unknown>(null);
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectorConfig>>>(() => ({
-    rowCount: connectorLocalisedConfigs.value.length,
+    rowCount: configsAreRetrieved.value ? connectorLocalisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<ConnectorConfig>[] }> => Promise.resolve({ rows: connectorLocalisedConfigs.value.slice(start, end) })
 }));
 

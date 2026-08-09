@@ -8,7 +8,7 @@ import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection'
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { activeMetaStoreConnectionConfig } from '@/state/session';
+import { activeMetaStoreConnectionConfig, configsAreRetrieved } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
 
@@ -34,7 +34,7 @@ const router = useRouter();
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
-    rowCount: connectionLocalisedConfigs.value.length,
+    rowCount: configsAreRetrieved.value ? connectionLocalisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<ConnectionConfig>[] }> => Promise.resolve({ rows: connectionLocalisedConfigs.value.slice(start, end) })
 }));
 

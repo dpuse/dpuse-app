@@ -124,22 +124,22 @@ onMounted(() => {
     state.client = new ChatClient({
         connection: fetchServerSentEvents('https://api.dpuse.app/ai/chat/tanstack'),
         forwardedProps: {
-            // providerId: 'anthropic',
-            // modelId: 'claude-sonnet-4-6',
-            // options: {
-            //     effort: 'medium',
-            //     maxTokens: 1024,
-            //     temperature: 1,
-            //     thinking: { type: 'enabled', budget_tokens: 1024 }
-            // },
-            // rag: true
-            providerId: 'openAI',
-            modelId: 'gpt-4.1',
+            providerId: 'anthropic',
+            modelId: 'claude-sonnet-4-6',
             options: {
-                maxOutputTokens: 1024,
-                temperature: 1
+                effort: 'medium',
+                maxTokens: 1024,
+                temperature: 1,
+                thinking: { type: 'enabled', budget_tokens: 1024 }
             },
             rag: true
+            // providerId: 'openAI',
+            // modelId: 'gpt-4.1',
+            // options: {
+            //     maxOutputTokens: 1024,
+            //     temperature: 1
+            // },
+            // rag: true
         },
         initialMessages: [],
         onMessagesChange: (messages): void => {
@@ -288,7 +288,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
                 </div>
             </div>
 
-            <div class="flex h-(--status-bar-height) items-center text-xs text-muted">Status: {{ chatStatus }}; Provider: {{ 'OpenAI' }}; Model: {{ 'gpt-4.1' }}</div>
+            <div class="flex h-(--status-bar-height) items-center text-xs text-muted">Status: {{ chatStatus }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-sonnet-4-6' }}</div>
         </div>
     </div>
 </template>

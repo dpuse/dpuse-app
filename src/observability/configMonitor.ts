@@ -8,7 +8,7 @@ import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/prese
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
 // ── Local Framework
-import { connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
+import { configsAreRetrieved, connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -57,7 +57,9 @@ function connectToWebSocket(): WebSocket | undefined {
                 const eventData = JSON.parse(event.data);
                 switch (eventData.typeId) {
                     case 'init':
-                        return registerConfigurations(eventData.modules);
+                        registerConfigurations(eventData.modules);
+                        configsAreRetrieved.value = true;
+                        return;
                     case 'deploy':
                         return registerConfigurations([eventData.module]);
                     case 'delete':

@@ -31,7 +31,7 @@ const presenterByPresentationReference = new WeakMap<LocalisedReference<Componen
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const presentationReferencesDataSource = computed((): DataSource<LocalisedReference<ComponentReferenceConfig>> => ({
-    rowCount: presentationReferences.value?.length ?? 0,
+    rowCount: presentationReferences.value?.length,
     getRows: (start: number, end: number): Promise<{ rows: LocalisedReference<ComponentReferenceConfig>[] }> =>
         Promise.resolve({ rows: (presentationReferences.value ?? []).slice(start, end) })
 }));

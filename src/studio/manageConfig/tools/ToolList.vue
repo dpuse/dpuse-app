@@ -9,7 +9,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
-import { toolConfigs } from '@/state/session';
+import { configsAreRetrieved, toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import ComponentCard from '@/components/framework/ComponentCard.vue';
@@ -26,7 +26,7 @@ const toolLocalisedConfigs = shallowRef<LocalisedConfig<ToolConfig>[]>([]);
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const toolConfigsDataSource = computed<DataSource<LocalisedConfig<ToolConfig>>>(() => ({
-    rowCount: toolLocalisedConfigs.value.length,
+    rowCount: configsAreRetrieved.value ? toolLocalisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<ToolConfig>[] }> => Promise.resolve({ rows: toolLocalisedConfigs.value.slice(start, end) })
 }));
 

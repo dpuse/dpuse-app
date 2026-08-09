@@ -7,7 +7,7 @@ import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbo
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { cookbookConfigs } from '@/state/session';
+import { configsAreRetrieved, cookbookConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
 
@@ -26,7 +26,7 @@ const cookbookLocalisedConfigs = shallowRef<LocalisedConfig<CookbookConfig>[]>([
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const cookbookConfigsDataSource = computed<DataSource<LocalisedConfig<CookbookConfig>>>(() => ({
-    rowCount: cookbookLocalisedConfigs.value.length,
+    rowCount: configsAreRetrieved.value ? cookbookLocalisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<CookbookConfig>[] }> => Promise.resolve({ rows: cookbookLocalisedConfigs.value.slice(start, end) })
 }));
 

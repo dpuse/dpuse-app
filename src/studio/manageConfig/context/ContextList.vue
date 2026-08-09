@@ -34,7 +34,9 @@ const contextConfigIsLoading = ref(true);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const modelReferencesDataSource = computed<DataSource<GridListItem<LocalisedConfig<ComponentBaseConfig>>>>(() => (contextConfig.value ? getModels() : { rowCount: 0, rows: [] }));
+const modelReferencesDataSource = computed<DataSource<GridListItem<LocalisedConfig<ComponentBaseConfig>>>>(() =>
+    contextConfigIsLoading.value ? { rowCount: undefined, rows: [] } : getModels()
+);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 

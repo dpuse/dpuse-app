@@ -63,6 +63,9 @@ export const eventQueryConfigs = shallowRef<EventQueryConfig[]>([]);
 export const dimensionConfigs = shallowRef<DimensionConfig[]>([]);
 export const presenterConfigs = shallowRef<PresenterConfig[]>([]);
 export const toolConfigs = shallowRef<ToolConfig[]>([]);
+// True once configMonitor's initial WebSocket handshake has been processed — distinct from any one config array
+// being non-empty, since a freshly connected session's config arrays start empty (busy) rather than confirmed-empty.
+export const configsAreRetrieved = ref(false);
 
 // ── Derived State - Connection Configurations ────────────────────────────────────────────────────────────────────────
 
