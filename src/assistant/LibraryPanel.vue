@@ -12,8 +12,8 @@ import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-mark
 import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
 import AssistantHeader from '@/components/framework/header/AssistantHeader.vue';
+import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
@@ -124,13 +124,20 @@ onMounted(() => {
     state.client = new ChatClient({
         connection: fetchServerSentEvents('https://api.dpuse.app/ai/chat/tanstack'),
         forwardedProps: {
-            providerId: 'anthropic',
-            modelId: 'claude-sonnet-4-6',
+            // providerId: 'anthropic',
+            // modelId: 'claude-sonnet-4-6',
+            // options: {
+            //     effort: 'medium',
+            //     maxTokens: 1024,
+            //     temperature: 1,
+            //     thinking: { type: 'enabled', budget_tokens: 1024 }
+            // },
+            // rag: true
+            providerId: 'openAI',
+            modelId: 'gpt-4.1',
             options: {
-                effort: 'medium',
-                maxTokens: 1024,
-                temperature: 1,
-                thinking: { type: 'enabled', budget_tokens: 1024 }
+                maxOutputTokens: 1024,
+                temperature: 1
             },
             rag: true
         },
@@ -281,7 +288,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
                 </div>
             </div>
 
-            <div class="flex h-(--status-bar-height) items-center text-xs text-muted">Status: {{ chatStatus }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-sonnet-4-6' }}</div>
+            <div class="flex h-(--status-bar-height) items-center text-xs text-muted">Status: {{ chatStatus }}; Provider: {{ 'OpenAI' }}; Model: {{ 'gpt-4.1' }}</div>
         </div>
     </div>
 </template>

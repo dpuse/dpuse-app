@@ -35,13 +35,19 @@ const { messages, status, sendMessage, addToolOutput } = useChat({
     transport: new DefaultChatTransport({
         api: 'https://api.dpuse.app/ai/chat',
         body: {
-            providerId: 'anthropic',
-            modelId: 'claude-sonnet-4-6',
+            // providerId: 'anthropic',
+            // modelId: 'claude-sonnet-4-6',
+            // options: {
+            //     effort: 'medium',
+            //     maxOutputTokens: 4096,
+            //     temperature: 1,
+            //     thinking: { type: 'adaptive' }
+            // },
+            providerId: 'openai',
+            modelId: 'gpt-4.1',
             options: {
-                effort: 'medium',
                 maxOutputTokens: 4096,
-                temperature: 1,
-                thinking: { type: 'adaptive' }
+                temperature: 1
             },
             rag: true
         }
@@ -255,7 +261,8 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
             </div>
 
             <div class="mr-4 flex h-(--status-bar-height) items-center border-t border-separator text-xs text-muted">
-                Status: {{ status }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-sonnet-4-6' }}
+                <!-- Status: {{ status }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-sonnet-4-6' }} -->
+                Status: {{ status }}; Provider: {{ 'OpenAI' }}; Model: {{ 'gpt-4.1' }}
             </div>
         </div>
     </div>
