@@ -26,6 +26,7 @@ const { activeItem, addLabel, dataSource, isCompact = false, maxListWidth, maxDe
 defineSlots<{
     header(): unknown;
     'grid-item'(properties: { item: T }): unknown;
+    empty(): unknown;
     detail(properties: { item: T; clear: () => void }): unknown;
     'no-selection'(): unknown;
 }>();
@@ -88,6 +89,10 @@ async function handleSelectItem(row: T): Promise<void> {
                         <Button class="size-full" :is-active="activeItem === item" shape="minimal" @click="handleSelectItem(item)">
                             <slot name="grid-item" :item="item" />
                         </Button>
+                    </template>
+
+                    <template #empty>
+                        <slot name="empty" />
                     </template>
                 </Grid>
             </div>

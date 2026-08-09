@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, defineAsyncComponent, watch } from 'vue';
+import { computed, defineAsyncComponent, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -23,9 +23,11 @@ import {
 } from '@/state/dataViews';
 
 // ── Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
 import ComponentCard from '@/components/framework/ComponentCard.vue';
-import Grid from '@/components/framework/Grid.vue';
+import DataViewSummaryPanel from './DataViewSummaryPanel.vue';
+import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
+import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
+import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
 
 // ── Local Components - Dynamic
@@ -35,6 +37,9 @@ const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/plac
 
 const route = useRoute();
 const router = useRouter();
+
+const activeDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig> | undefined>();
+const detailActionId = ref<string>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -62,6 +67,15 @@ watch(
     { immediate: true }
 );
 
+// Detail action bar reports clicks via v-model rather than dedicated events, so route them to the matching handler here.
+watch(detailActionId, (newDetailActionId) => {
+    if (newDetailActionId == null || !activeDataViewLocalisedConfig.value) return;
+    const dataViewLocalisedConfig = activeDataViewLocalisedConfig.value;
+    detailActionId.value = undefined;
+    if (newDetailActionId === 'continue') handleContinueDataView(dataViewLocalisedConfig);
+    else if (newDetailActionId === 'delete') handleDeleteDataView(dataViewLocalisedConfig);
+});
+
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleAddDataView(): void {
@@ -70,11 +84,15 @@ function handleAddDataView(): void {
 }
 
 function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
-    console.log(dataViewLocalisedConfig);
+    if (activeDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id) activeDataViewLocalisedConfig.value = undefined;
     removeDataViewRecord(activeMetaStoreConnectionConfig.value, dataViewLocalisedConfig.id);
 }
 
-function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
+function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig> | undefined): void {
+    activeDataViewLocalisedConfig.value = dataViewLocalisedConfig;
+}
+
+function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
     const dataViewConfig = dataViewConfigs.value!.find((config) => config.id === dataViewLocalisedConfig.id)!;
     setActiveDataViewConfig(dataViewConfig);
     if (dataViewConfig.connectionId == null) {
@@ -90,19 +108,44 @@ function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewC
 </script>
 
 <template>
-    <div class="flex flex-col">
+    <div class="flex min-h-0 flex-1 flex-col">
         <Separator class="mx-4 flex-none" />
 
-        <Grid add-label="Data View" class="flex-1" :data-source="dataViewConfigsDataSource" :row-height="80" :target-column-width="350" @add="handleAddDataView">
-            <template #default="{ item }">
-                <Button class="size-full" shape="minimal" @click="handleSelectDataView(item)">
-                    <ComponentCard :actions="[{ typeId: 'delete', onClick: handleDeleteDataView }]" :icon="item.icon ?? undefined" :item="item" :label="item.label" />
-                </Button>
+        <GridDetailPanel
+            :active-item="activeDataViewLocalisedConfig"
+            add-label="Data View"
+            class="min-h-0 flex-1"
+            :data-source="dataViewConfigsDataSource"
+            max-detail-width="650px"
+            @add="handleAddDataView"
+            @select="handleSelectDataView"
+        >
+            <template #grid-item="{ item }">
+                <ComponentCard :icon="item.icon ?? undefined" :label="item.label" />
             </template>
 
             <template #empty>
                 <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
             </template>
-        </Grid>
+
+            <template #detail="{ item, clear }">
+                <div class="relative flex min-h-0 flex-1 flex-col">
+                    <DataViewSummaryPanel class="min-h-0 flex-1 pl-4" :data-view-localised-config="item" />
+                    <DetailActionBar
+                        v-model="detailActionId"
+                        class="absolute right-4 bottom-(--safe-bottom-offset)"
+                        :item-actions="[
+                            { id: 'continue', label: t(T, 'Continue') },
+                            { id: 'delete', label: t(T, 'Delete') }
+                        ]"
+                        @clear="clear"
+                    />
+                </div>
+            </template>
+
+            <template #no-selection>
+                <SelectPlaceholder :message="'Select a data view from the list.'" />
+            </template>
+        </GridDetailPanel>
     </div>
 </template>

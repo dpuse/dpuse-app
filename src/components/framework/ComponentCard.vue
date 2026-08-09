@@ -1,15 +1,15 @@
-<script setup lang="ts" generic="T = ComponentConfig">
+<script setup lang="ts" generic="T = BaseConfig">
 // ── External Dependencies & Registrations ───────────────────────────────────────────────────────────────────────────
 
+import type { BaseConfig } from '@dpuse/dpuse-shared';
 import Button from '@/components/ui/button/Button.vue';
-import type { ComponentConfig } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import { InfoIcon, TrashIcon } from '@lucide/vue';
+import { InfoIcon, PencilIcon, TrashIcon } from '@lucide/vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 type Badge = { id: string; color?: string; label: string };
-type ActionTypeId = 'delete' | 'info';
+type ActionTypeId = 'edit' | 'delete' | 'info';
 type Action<T> = { typeId: ActionTypeId; onClick: (item: LocalisedConfig<T>) => void };
 type Properties<T> = {
     actions?: Action<T>[];
@@ -73,11 +73,14 @@ const { actions = [], badges = [], description, icon, iconDark, isCompact = fals
         <!-- Actions -->
         <div v-if="actions.length > 0 && item" class="absolute right-0 bottom-0 flex gap-x-1 pr-1.5 pb-1.5">
             <template v-for="action in actions" :key="action.typeId">
-                <Button v-if="action.typeId === 'delete'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick(item)">
-                    <TrashIcon aria-hidden="true" :stroke-width="1.25" />
-                </Button>
                 <Button v-if="action.typeId === 'info'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick(item)">
                     <InfoIcon aria-hidden="true" :stroke-width="1.25" />
+                </Button>
+                <Button v-if="action.typeId === 'edit'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick(item)">
+                    <PencilIcon aria-hidden="true" :stroke-width="1.25" />
+                </Button>
+                <Button v-if="action.typeId === 'delete'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick(item)">
+                    <TrashIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
             </template>
         </div>

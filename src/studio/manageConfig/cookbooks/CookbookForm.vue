@@ -56,13 +56,13 @@ async function handleSubmit(): Promise<void> {
                             <Tag
                                 v-if="cookbookLocalisedConfig.status"
                                 :text="cookbookLocalisedConfig.status.label"
-                                :color="cookbookLocalisedConfig.status.color === 'other' ? undefined : cookbookLocalisedConfig.status.color"
+                                :color="cookbookLocalisedConfig.status.color === 'red' ? undefined : cookbookLocalisedConfig.status.color"
                             />
                             <Tag
                                 v-else-if="cookbookLocalisedConfig.statusId"
                                 :text="cookbookLocalisedConfig.statusId"
                                 :color="
-                                    getComponentStatus(cookbookLocalisedConfig.statusId).color === 'other' ? undefined : getComponentStatus(cookbookLocalisedConfig.statusId).color
+                                    getComponentStatus(cookbookLocalisedConfig.statusId).color === 'red' ? undefined : getComponentStatus(cookbookLocalisedConfig.statusId).color
                                 "
                             />
                         </div>

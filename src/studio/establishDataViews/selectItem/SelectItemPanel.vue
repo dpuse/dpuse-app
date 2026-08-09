@@ -77,18 +77,18 @@ const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as
 
 const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...currentFolderNodes.value]);
 
-const connectionNodeConfigsDataSource = computed<DataSource<ConnectionNodeConfig>>(() => {
+const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionNodeConfig>>>(() => {
     const folderPath = currentFolderPath.value; // Read synchronously so this computed (and useDataWindow's cache) resets on navigation.
     return {
         rowCount: undefined, // Unknown until the first listNodes response reports totalCount — useDataWindow guarantees that fetch happens.
-        getRows: async (start: number, end: number): Promise<{ rows: ConnectionNodeConfig[]; totalCount: number }> => {
+        getRows: async (start: number, end: number): Promise<{ rows: LocalisedConfig<ConnectionNodeConfig>[]; totalCount: number }> => {
             const { processRequest } = await useEngine();
             const result = (await processRequest('listNodes', activeConnectionConfig.value!, {
                 folderPath,
                 limit: end - start,
                 offset: start
             } as ListNodesOptions)) as ListNodesResult;
-            return { rows: result.connectionNodeConfigs, totalCount: result.totalCount };
+            return { rows: result.connectionNodeConfigs as unknown as LocalisedConfig<ConnectionNodeConfig>[], totalCount: result.totalCount };
         }
     };
 });
@@ -249,7 +249,14 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         </template>
 
         <template #grid-item="{ item }">
-            <ComponentCard v-if="item" :icon="item.icon ?? undefined" :actions="[{ typeId: 'info', onClick: () => getInfo(item) }]" :is-compact="true" :label="item.label" />
+            <ComponentCard
+                v-if="item"
+                :icon="item.icon ?? undefined"
+                :actions="[{ typeId: 'info', onClick: () => getInfo(item) }]"
+                :is-compact="true"
+                :item="item"
+                :label="item.label"
+            />
         </template>
 
         <template #detail="{ item, clear }">

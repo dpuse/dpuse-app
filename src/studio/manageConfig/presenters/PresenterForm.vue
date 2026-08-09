@@ -56,15 +56,13 @@ async function handleSubmit(): Promise<void> {
                             <Tag
                                 v-if="presenterLocalisedConfig.status"
                                 :text="presenterLocalisedConfig.status.label"
-                                :color="presenterLocalisedConfig.status.color === 'other' ? undefined : presenterLocalisedConfig.status.color"
+                                :color="presenterLocalisedConfig.status.color === 'red' ? undefined : presenterLocalisedConfig.status.color"
                             />
                             <Tag
                                 v-else-if="presenterLocalisedConfig.statusId"
                                 :text="presenterLocalisedConfig.statusId"
                                 :color="
-                                    getComponentStatus(presenterLocalisedConfig.statusId).color === 'other'
-                                        ? undefined
-                                        : getComponentStatus(presenterLocalisedConfig.statusId).color
+                                    getComponentStatus(presenterLocalisedConfig.statusId).color === 'red' ? undefined : getComponentStatus(presenterLocalisedConfig.statusId).color
                                 "
                             />
                         </div>

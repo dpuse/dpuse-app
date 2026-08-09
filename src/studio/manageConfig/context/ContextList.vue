@@ -3,7 +3,7 @@
 import { computed, ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
-import type { ComponentBase } from '@dpuse/dpuse-shared/component';
+import type { ComponentBaseConfig } from '@dpuse/dpuse-shared/component';
 import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
 import { localiseConfig, type LocalisedConfig, localiseReference } from '@dpuse/dpuse-shared/locale';
 
@@ -27,14 +27,14 @@ export type GridListItem<T> = T & { isHeader?: boolean };
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeModelReference = shallowRef<GridListItem<LocalisedConfig<ComponentBase>> | undefined>();
+const activeModelReference = shallowRef<GridListItem<LocalisedConfig<ComponentBaseConfig>> | undefined>();
 const contextConfig = shallowRef<ContextConfig>();
 const contextLocalisedConfig = shallowRef<LocalisedConfig<ContextConfig>>();
 const contextConfigIsLoading = ref(true);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const modelReferencesDataSource = computed<DataSource<GridListItem<LocalisedConfig<ComponentBase>>>>(() => (contextConfig.value ? getModels() : { rowCount: 0, rows: [] }));
+const modelReferencesDataSource = computed<DataSource<GridListItem<LocalisedConfig<ComponentBaseConfig>>>>(() => (contextConfig.value ? getModels() : { rowCount: 0, rows: [] }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -56,14 +56,14 @@ watch(contextConfig, (newContextConfig) => {
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleSelectModel(modelReference: GridListItem<LocalisedConfig<ComponentBase>> | undefined): Promise<void> {
+async function handleSelectModel(modelReference: GridListItem<LocalisedConfig<ComponentBaseConfig>> | undefined): Promise<void> {
     activeModelReference.value = modelReference;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBase>>> {
-    const localisedModels: GridListItem<LocalisedConfig<ComponentBase>>[] = [];
+function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBaseConfig>>> {
+    const localisedModels: GridListItem<LocalisedConfig<ComponentBaseConfig>>[] = [];
     for (const area of contextConfig.value!.areas) {
         const la = localiseReference(area, localeId.value);
         localisedModels.push({ ...la, isHeader: true });

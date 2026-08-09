@@ -99,12 +99,12 @@ function getCategoryConnectorLabel(categoryId: string): string {
                     <Tag
                         v-if="connectionLocalisedConfig.status"
                         :text="connectionLocalisedConfig.status.label"
-                        :color="connectionLocalisedConfig.status.color === 'other' ? undefined : connectionLocalisedConfig.status.color"
+                        :color="connectionLocalisedConfig.status.color === 'red' ? undefined : connectionLocalisedConfig.status.color"
                     />
                     <Tag
                         v-else-if="connectionLocalisedConfig.statusId"
                         :text="connectionLocalisedConfig.statusId"
-                        :color="getComponentStatus(connectionLocalisedConfig.statusId).color === 'other' ? undefined : getComponentStatus(connectionLocalisedConfig.statusId).color"
+                        :color="getComponentStatus(connectionLocalisedConfig.statusId).color === 'red' ? undefined : getComponentStatus(connectionLocalisedConfig.statusId).color"
                     />
                 </div>
 

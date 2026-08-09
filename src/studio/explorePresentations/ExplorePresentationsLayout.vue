@@ -4,7 +4,7 @@ import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from
 
 // ── Local Framework
 import { appearanceIsDark } from '@/state/appLayout';
-import type { ComponentReference } from '@dpuse/dpuse-shared/component';
+import type { ComponentReferenceConfig } from '@dpuse/dpuse-shared/component';
 import type { DataSource } from '@/composables/useDataWindow';
 import type { PresenterInterface } from '@dpuse/dpuse-shared/component/module/presenter';
 import { t } from '@/state/locale';
@@ -22,17 +22,17 @@ import StudioLayout from '../StudioLayout.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activePresentationReference = shallowRef<LocalisedReference<ComponentReference>>();
+const activePresentationReference = shallowRef<LocalisedReference<ComponentReferenceConfig>>();
 const container = useTemplateRef<HTMLDivElement>('container');
-const presentationReferences = shallowRef<LocalisedReference<ComponentReference>[]>();
+const presentationReferences = shallowRef<LocalisedReference<ComponentReferenceConfig>[]>();
 const presenters: PresenterInterface[] = [];
-const presenterByPresentationReference = new WeakMap<LocalisedReference<ComponentReference>, PresenterInterface>();
+const presenterByPresentationReference = new WeakMap<LocalisedReference<ComponentReferenceConfig>, PresenterInterface>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const presentationReferencesDataSource = computed((): DataSource<LocalisedReference<ComponentReference>> => ({
+const presentationReferencesDataSource = computed((): DataSource<LocalisedReference<ComponentReferenceConfig>> => ({
     rowCount: presentationReferences.value?.length ?? 0,
-    getRows: (start: number, end: number): Promise<{ rows: LocalisedReference<ComponentReference>[] }> =>
+    getRows: (start: number, end: number): Promise<{ rows: LocalisedReference<ComponentReferenceConfig>[] }> =>
         Promise.resolve({ rows: (presentationReferences.value ?? []).slice(start, end) })
 }));
 
@@ -83,7 +83,7 @@ onMounted(async () => {
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleSelectPresentation(presentationReference: LocalisedReference<ComponentReference> | undefined): Promise<void> {
+async function handleSelectPresentation(presentationReference: LocalisedReference<ComponentReferenceConfig> | undefined): Promise<void> {
     activePresentationReference.value = presentationReference;
     if (!activePresentationReference.value) return;
     const presenter = presenterByPresentationReference.get(activePresentationReference.value);

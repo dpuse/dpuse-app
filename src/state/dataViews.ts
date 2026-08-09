@@ -13,8 +13,8 @@ import type {
     FindObjectResult,
     GetRecordOptions,
     GetRecordResult,
-    RetrieveRecordsOptions,
     RemoveRecordsOptions,
+    RetrieveRecordsOptions,
     UpsertRecordsOptions
 } from '@dpuse/dpuse-shared/component/module/connector';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
@@ -119,11 +119,9 @@ export async function removeDataViewRecord(metaStoreConnectionConfig: Connection
 
         const { processRequest } = await useEngine();
         const removeRecordOptions: RemoveRecordsOptions = { path: '/dpuMetaStore/dataViews', keys: [id] }; // TODO: Implement paging.
-        console.log(333, removeRecordOptions);
-        const xxx = await processRequest('removeRecords', metaStoreConnectionConfig, removeRecordOptions);
-        console.log(444, xxx);
+        await processRequest('removeRecords', metaStoreConnectionConfig, removeRecordOptions);
     } catch (error) {
-        throw new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.removeDataViewRecord', { typeId: 'handled' }, { cause: error });
+        throw new AppError('Failed to remove data view.', 'dpuse-app.dataViews.removeDataViewRecord', { typeId: 'handled' }, { cause: error });
     }
 }
 

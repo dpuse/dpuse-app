@@ -5,7 +5,7 @@ import { ChevronRightIcon, NetworkIcon, SquarePenIcon } from '@lucide/vue';
 import { onMounted, ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
-import type { ComponentBase } from '@dpuse/dpuse-shared/component';
+import type { ComponentBaseConfig } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
@@ -51,7 +51,7 @@ const ENTITY_TABS = [
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-const { modelReference } = defineProps<{ modelReference: GridListItem<LocalisedConfig<ComponentBase>> }>();
+const { modelReference } = defineProps<{ modelReference: GridListItem<LocalisedConfig<ComponentBaseConfig>> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
