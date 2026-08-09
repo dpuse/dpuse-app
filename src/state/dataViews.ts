@@ -14,6 +14,7 @@ import type {
     GetRecordOptions,
     GetRecordResult,
     RetrieveRecordsOptions,
+    RemoveRecordsOptions,
     UpsertRecordsOptions
 } from '@dpuse/dpuse-shared/component/module/connector';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
@@ -86,7 +87,7 @@ export async function retrieveDataViewConfigs(metaStoreConnectionConfig: Connect
     } catch (error) {
         dataViewConfigs.value = undefined;
         dataViewConfigsAreRetrieved.value = true;
-        reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.DataViewList.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error }));
+        reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error }));
     }
 }
 
@@ -104,10 +105,25 @@ export async function getDataViewRecord(metaStoreConnectionConfig: ConnectionCon
         const { processRequest } = await useEngine();
         const getRecordOptions: GetRecordOptions = { path: '/dpuMetaStore/dataViews', id: dataViewId as string }; // TODO: Implement paging.
         const getRecordResult = (await processRequest('getRecord', metaStoreConnectionConfig, getRecordOptions)) as GetRecordResult;
-        console.log(333, getRecordResult.record);
         return setActiveDataViewConfig(getRecordResult.record as unknown as DataViewConfig);
     } catch (error) {
-        throw new AppError('Failed to retrieve data views.', 'dpuse-app.DataViewList.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error });
+        throw new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error });
+    }
+}
+
+export async function removeDataViewRecord(metaStoreConnectionConfig: ConnectionConfig | undefined, id: string): Promise<void> {
+    try {
+        if (metaStoreConnectionConfig == null) throw new Error('Unable to establish Data View, no connection configuration.');
+
+        await establishDataViewObject(metaStoreConnectionConfig);
+
+        const { processRequest } = await useEngine();
+        const removeRecordOptions: RemoveRecordsOptions = { path: '/dpuMetaStore/dataViews', keys: [id] }; // TODO: Implement paging.
+        console.log(333, removeRecordOptions);
+        const xxx = await processRequest('removeRecords', metaStoreConnectionConfig, removeRecordOptions);
+        console.log(444, xxx);
+    } catch (error) {
+        throw new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.removeDataViewRecord', { typeId: 'handled' }, { cause: error });
     }
 }
 

@@ -12,7 +12,15 @@ import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { t } from '@/state/locale';
 import T from './DataViewList.json';
-import { dataViewConfigs, dataViewConfigsAreRetrieved, dataViewLocalisedConfigs, NEW_DATA_VIEW_ID, retrieveDataViewConfigs, setActiveDataViewConfig } from '@/state/dataViews';
+import {
+    dataViewConfigs,
+    dataViewConfigsAreRetrieved,
+    dataViewLocalisedConfigs,
+    NEW_DATA_VIEW_ID,
+    removeDataViewRecord,
+    retrieveDataViewConfigs,
+    setActiveDataViewConfig
+} from '@/state/dataViews';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -63,6 +71,7 @@ function handleAddDataView(): void {
 
 function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
     console.log(dataViewLocalisedConfig);
+    removeDataViewRecord(activeMetaStoreConnectionConfig.value, dataViewLocalisedConfig.id);
 }
 
 function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
