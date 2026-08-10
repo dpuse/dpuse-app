@@ -9,6 +9,7 @@ import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue';
 import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
+import { tanstackClientTools } from './tools/tanstackClientTools';
 import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
@@ -123,6 +124,7 @@ onMounted(async () => {
 onMounted(() => {
     state.client = new ChatClient({
         connection: fetchServerSentEvents('https://api.dpuse.app/ai/chat/tanstack'),
+        tools: tanstackClientTools,
         forwardedProps: {
             providerId: 'anthropic',
             modelId: 'claude-sonnet-4-6',
@@ -130,7 +132,7 @@ onMounted(() => {
                 effort: 'medium',
                 maxTokens: 1024,
                 temperature: 1,
-                thinking: { type: 'enabled', budget_tokens: 1024 }
+                thinking: { type: 'adaptive' }
             },
             rag: true
             // providerId: 'openAI',
@@ -222,7 +224,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
 
         <Separator class="mx-4" />
 
-        <div class="flex min-h-0 flex-1 flex-col pl-4">
+        <div class="dpuse-prose flex min-h-0 flex-1 flex-col pl-4">
             <ScrollArea class="flex flex-1 flex-col" variant="none" @initialised="handleScrollAreaInitialised">
                 <template v-for="message in chatMessages" :key="message.id">
                     <template v-if="message.role === 'user'">

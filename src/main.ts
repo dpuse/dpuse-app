@@ -38,11 +38,10 @@ try {
         event.preventDefault();
     });
 
-    // Define Trusted Types default policy to allow inline worker blob URLs created by Vite's `?worker&inline` transform.
-    // Without this, `require-trusted-types-for 'script'` blocks `new Worker(blobUrl)` because the URL is a plain string.
     if (trustedTypes != null) {
         trustedTypes.createPolicy('default', {
-            // Allow 'blob:' prefixed URLs for Vite's `?worker&inline` worker factory.
+            // Allow inline worker blob URLs created by Vite's `?worker&inline` transform. Without this,
+            // `require-trusted-types-for 'script'` blocks `new Worker(blobUrl)` because the URL is a plain string.
             createScriptURL: (url: string): string => {
                 if (url.startsWith('blob:')) return url;
                 throw new Error(`Blocked TrustedScriptURL: ${url}`);

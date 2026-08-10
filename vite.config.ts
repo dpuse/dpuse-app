@@ -37,7 +37,7 @@ export default defineConfig({
                 // Billboard.js and Observable Plot means this prior more restrictive version need to be changes to use 'unsafe-online' - "style-src 'self' blob: https://engine-eu.dpuse.app 'sha256-SdKjLjFfgWLlCCSqd9sP4eqvpEsB18lplK/UUx0ukfk=' 'nonce-highcharts";'
                 " style-src 'self' blob: https://engine-eu.dpuse.app 'unsafe-inline';" + // blob: is for SpeedHighlight in MicroMarkTool; https://engine-eu.dpuse.app is for dynamically-loaded tool stylesheets (e.g. dpuse-tool-d3-visualiser's Billboard.js CSS); 'unsafe-inline' is required in dev mode as Vite injects Tailwind CSS as inline <style> elements for HMR. Hashes required in production are not required here because of 'unsafe-inline' setting.
                 " worker-src 'self' blob:;" +
-                ' trusted-types default vue dompurify dpuse-sanitizer highcharts;' +
+                " trusted-types default vue dompurify dpuse-sanitizer highcharts 'allow-duplicates';" +
                 " require-trusted-types-for 'script';",
             'Cross-Origin-Resource-Policy': 'same-origin',
             'Cross-Origin-Opener-Policy': 'same-origin-allow-popups', // '-allow-popups' suffix is required for vendor (Dropbox...) authentication window popups.
