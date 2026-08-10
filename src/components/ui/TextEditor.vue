@@ -9,7 +9,7 @@ import { nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, useAtt
 // ── DPUse Framework
 import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
-// ── Local Framework
+// ── API Framework
 import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static

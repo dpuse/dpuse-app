@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ── Local Framework
+// ── API Framework
 import T from './StudioHomeLayout.json';
 import { t } from '@/state/locale';
 import { useStudioOptions } from '@/studio/useStudioOptions.ts';

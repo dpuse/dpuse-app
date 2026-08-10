@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── Local Framework
+// ── API Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { t } from '@/state/locale';

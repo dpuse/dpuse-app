@@ -17,7 +17,7 @@ import {
 } from '@lucide/vue';
 import { type Component, computed, ref } from 'vue';
 
-// ── Local Framework
+// ── API Framework
 import { useSelectColumnSort } from './useSelectColumnSort.ts';
 
 // ── Local Components - Static

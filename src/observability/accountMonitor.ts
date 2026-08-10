@@ -1,4 +1,4 @@
-// ── Local Framework
+// ── API Framework
 import { accountId, type ConnectionAccountConfig, connectionAccountConfigs } from '@/state/session';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

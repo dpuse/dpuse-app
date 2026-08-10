@@ -4,7 +4,7 @@ import { computed, type ComputedRef } from 'vue';
 // ── DPUse Framework
 import { type LocaleDescription, type LocaleLabel, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── Local Framework
+// ── API Framework
 import { localeId } from '@/state/locale';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────

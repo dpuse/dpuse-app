@@ -5,7 +5,7 @@ import { onMounted, useTemplateRef } from 'vue';
 // ── DPUse Framework
 import type { D3Tool as D3ToolType, ErdDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
-// ── Local Framework
+// ── API Framework
 import { toolConfigs } from '@/state/session';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

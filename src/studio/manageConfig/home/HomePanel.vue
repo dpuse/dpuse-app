@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ── Local Framework
+// ── API Framework
 import { useConfigOptionConfigs } from '../useConfigOptionConfigs';
 
 // ── Local Components - Static

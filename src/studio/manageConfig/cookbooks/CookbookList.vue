@@ -6,7 +6,7 @@ import { computed, shallowRef, watch } from 'vue';
 import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbook';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── Local Framework
+// ── API Framework
 import { configsAreRetrieved, cookbookConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';

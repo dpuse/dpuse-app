@@ -6,7 +6,7 @@ import { computed, shallowRef, watch } from 'vue';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── Local Framework
+// ── API Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
 import { configsAreRetrieved, toolConfigs } from '@/state/session';

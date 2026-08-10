@@ -6,7 +6,7 @@ import { computed, shallowRef, watch } from 'vue';
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── Local Framework
+// ── API Framework
 import { configsAreRetrieved, connectorConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';

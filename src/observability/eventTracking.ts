@@ -1,4 +1,4 @@
-// ── Local Framework
+// ── API Framework
 import { version } from '~/package.json';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

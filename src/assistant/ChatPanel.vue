@@ -9,7 +9,7 @@ import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue';
 // ── DPUse Framework
 import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
-// ── Local Framework
+// ── API Framework
 import { toolConfigs } from '@/state/session';
 import { toolExecutors } from './tools';
 

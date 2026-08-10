@@ -4,7 +4,7 @@ import { ArrowBigLeftIcon } from '@lucide/vue';
 import { useRoute } from 'vue-router';
 import { type Component, shallowRef, watch } from 'vue';
 
-// ── Local Framework
+// ── API Framework
 import { t } from '@/state/locale';
 import T from './AccountDialog.json';
 import { viewportIsWide } from '@/state/appLayout';

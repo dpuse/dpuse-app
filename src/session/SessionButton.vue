@@ -3,7 +3,7 @@
 import { LoaderCircleIcon } from '@lucide/vue';
 import { type ComponentPublicInstance, computed, defineAsyncComponent, onUnmounted, ref, useTemplateRef } from 'vue';
 
-// ── Local Framework
+// ── API Framework
 import { load } from '@/state/component';
 import { expiresIn, lifetime, sessionIsAuthenticated } from '@/state/session';
 import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';

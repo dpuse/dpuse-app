@@ -4,7 +4,7 @@ import { useVirtualizer } from '@tanstack/vue-virtual';
 import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, type ColumnVisibilityState, useTable } from '@tanstack/vue-table';
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue';
 
-// ── Local Framework
+// ── API Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // ── Local Components - Static

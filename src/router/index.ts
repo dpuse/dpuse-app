@@ -1,7 +1,7 @@
 // ── External Dependencies & Registrations
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior, START_LOCATION } from 'vue-router';
 
-// ── Local Framework
+// ── API Framework
 import { load } from '@/state/component';
 import { complete, fail, start } from '@/state/navigation';
 

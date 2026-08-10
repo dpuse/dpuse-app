@@ -19,7 +19,7 @@ import type {
 } from '@dpuse/dpuse-shared/component/module/connector';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── Local Framework
+// ── API Framework
 import { connectionConfigs } from '@/state/session';
 import { localeId } from '@/state/locale';
 import { reportAppError } from '@/observability/errorTracking';

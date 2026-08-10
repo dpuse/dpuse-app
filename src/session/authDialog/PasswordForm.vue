@@ -4,7 +4,7 @@ import { reactive } from 'vue';
 import { required } from '@regle/rules';
 import { useRegle } from '@regle/core';
 
-// ── Local Framework
+// ── API Framework
 import T from './PasswordForm.json';
 import { t } from '@/state/locale';
 

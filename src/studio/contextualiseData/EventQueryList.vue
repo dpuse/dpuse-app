@@ -12,7 +12,7 @@ import type { EventQueryConfig } from '@dpuse/dpuse-shared/component/eventQuery'
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
-// ── Local Framework
+// ── API Framework
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import T from './EventQueryList.json';

@@ -5,7 +5,7 @@ import { UserRoundKeyIcon } from '@lucide/vue';
 import { email, required } from '@regle/rules';
 import { onUnmounted, reactive, ref } from 'vue';
 
-// ── Local Framework
+// ── API Framework
 import T from './LoginForm.json';
 import { t } from '@/state/locale';
 

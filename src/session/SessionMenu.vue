@@ -8,7 +8,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { formatNumberAsDuration } from '@dpuse/dpuse-shared/utilities';
 import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
-// ── Local Framework
+// ── API Framework
 import T from './SessionMenu.json';
 import { expiresIn, lifetime, sessionIsAuthenticated, setSessionExpiryTimer, signOut } from '@/state/session';
 import { isPWA, viewportIsWide } from '@/state/appLayout';
