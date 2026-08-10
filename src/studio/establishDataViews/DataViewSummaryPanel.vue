@@ -7,7 +7,7 @@ import { CircleCheckIcon, CircleDashedIcon } from '@lucide/vue';
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── API Framework
+// ── Local Framework
 import T from './DataViewSummaryPanel.json';
 import { t } from '@/state/locale';
 

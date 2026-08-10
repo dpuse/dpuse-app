@@ -9,7 +9,7 @@ import type { ComponentBaseConfig } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
-// ── API Framework
+// ── Local Framework
 import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static

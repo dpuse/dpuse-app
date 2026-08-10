@@ -7,7 +7,7 @@ import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
-// ── API Framework
+// ── Local Framework
 import { configsAreRetrieved, connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

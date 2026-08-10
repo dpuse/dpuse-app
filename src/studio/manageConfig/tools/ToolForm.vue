@@ -8,7 +8,7 @@ import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
-// ── API Framework
+// ── Local Framework
 import T from './ToolForm.json';
 import { t } from '@/state/locale';
 

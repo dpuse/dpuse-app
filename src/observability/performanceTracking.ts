@@ -1,7 +1,7 @@
 // ── External Dependencies & Registrations
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
-// ── API Framework
+// ── Local Framework
 import { trackEvent } from '@/observability/eventTracking';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -7,7 +7,7 @@ import type { ComponentBaseConfig } from '@dpuse/dpuse-shared/component';
 import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
 import { localiseConfig, type LocalisedConfig, localiseReference } from '@dpuse/dpuse-shared/locale';
 
-// ── API Framework
+// ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
 

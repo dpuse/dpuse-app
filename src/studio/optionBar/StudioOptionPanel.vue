@@ -5,7 +5,7 @@ import { type ComponentPublicInstance, onUnmounted, ref, useTemplateRef } from '
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── API Framework
+// ── Local Framework
 import { activeStudioOptionConfig } from '@/state/activeStudioOption';
 import T from './StudioOptionPanel.json';
 import { t } from '@/state/locale';

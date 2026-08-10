@@ -8,7 +8,7 @@ import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
 
-// ── API Framework
+// ── Local Framework
 import T from './PresenterForm.json';
 import { t } from '@/state/locale';
 

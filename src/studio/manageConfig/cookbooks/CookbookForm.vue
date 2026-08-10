@@ -8,7 +8,7 @@ import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbo
 import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── API Framework
+// ── Local Framework
 import T from './CookbookForm.json';
 import { t } from '@/state/locale';
 

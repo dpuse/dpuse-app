@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
 
-// ── API Framework
+// ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 
 // ── Local Components - Static

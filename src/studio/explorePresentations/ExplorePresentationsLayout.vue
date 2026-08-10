@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
 
-// ── API Framework
+// ── Local Framework
 import { appearanceIsDark } from '@/state/appLayout';
 import type { ComponentReferenceConfig } from '@dpuse/dpuse-shared/component';
 import type { DataSource } from '@/composables/useDataWindow';

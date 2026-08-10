@@ -6,7 +6,7 @@ import { computed, shallowRef, watch } from 'vue';
 import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── API Framework
+// ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
 import { configsAreRetrieved, presenterConfigs } from '@/state/session';

@@ -9,7 +9,7 @@ import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/conne
 import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/component/module/engine';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── API Framework
+// ── Local Framework
 import { accountId } from '@/state/session';
 import T from './AddConnectionForm.json';
 import { t } from '@/state/locale';

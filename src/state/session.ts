@@ -16,7 +16,7 @@ import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/prese
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 import { type LocaleId, localiseConfig, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── API Framework
+// ── Local Framework
 import { localeId } from './locale';
 import { reportAppError } from '@/observability/errorTracking';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';

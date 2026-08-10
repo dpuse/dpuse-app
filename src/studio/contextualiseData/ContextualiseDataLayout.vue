@@ -5,7 +5,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 // ── DPUse Framework
 import type { D3NetworkView, D3Tool as D3ToolType, NetworkDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
-// ── API Framework
+// ── Local Framework
 import { t } from '@/state/locale';
 import T from './ContextualiseDataLayout.json';
 import { toolConfigs } from '@/state/session';

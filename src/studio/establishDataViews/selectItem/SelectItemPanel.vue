@@ -12,7 +12,7 @@ import type { ConnectionConfig, ConnectionNodeConfig } from '@dpuse/dpuse-shared
 import { formatNumberAsDecimalNumber, formatNumberAsStorageSize } from '@dpuse/dpuse-shared/utilities';
 import type { GetInfoOptions, GetInfoResult, ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
-// ── API Framework
+// ── Local Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import T from './SelectItemPanel.json';

@@ -6,7 +6,7 @@ import { computed, ref, shallowRef, watch } from 'vue';
 // ── DPUse Framework
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── API Framework
+// ── Local Framework
 import T from './EstablishDataViewsLayout.json';
 import { localeId, t } from '@/state/locale';
 

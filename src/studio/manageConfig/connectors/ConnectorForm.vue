@@ -10,7 +10,7 @@ import { constructConnectorCategoryConfig } from '@dpuse/dpuse-shared/component/
 import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── API Framework
+// ── Local Framework
 import T from './ConnectorForm.json';
 import { t } from '@/state/locale';
 
