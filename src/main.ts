@@ -1,6 +1,5 @@
 // ── External Dependencies & Registrations
 import { createApp } from 'vue';
-// import DOMPurify from 'dompurify';
 // import { z } from 'zod/v4';
 
 // ── DPUse Framework
@@ -42,29 +41,23 @@ try {
     // Define Trusted Types default policy to allow inline worker blob URLs created by Vite's `?worker&inline` transform.
     // Without this, `require-trusted-types-for 'script'` blocks `new Worker(blobUrl)` because the URL is a plain string.
     if (trustedTypes != null) {
-        // const sanitizeHTML = (html: string): string => DOMPurify.sanitize(html);
         trustedTypes.createPolicy('default', {
             // Allow 'blob:' prefixed URLs for Vite's `?worker&inline` worker factory.
             createScriptURL: (url: string): string => {
                 if (url.startsWith('blob:')) return url;
                 throw new Error(`Blocked TrustedScriptURL: ${url}`);
             },
-            // Also required by turndown (used in TextEditor.vue): on load it probes `new DOMParser().parseFromString('', 'text/html')`
-            // to decide whether to use the native parser. That call is always made with an empty string, so returning '' below
-            // changes nothing for it either way.
-            //
-            // Deliberately NOT a sanitizer (createHTML: sanitizeHTML, above, commented out). DOMPurify used to be loaded eagerly
-            // here purely to back this policy, which cost every single page load ~10KB gzip even though most sessions never hit
-            // a raw HTML sink. Sanitization now happens only at the specific call sites that need it, instead of centrally here:
-            //   - Vue's `v-html` sites (ChatPanel, LibraryPanel, ContextModelPanel, TextEditor) call DOMPurify.sanitize()
-            //     themselves before assigning - v-html never reaches this policy anyway, since Vue registers its own 'vue'
-            //     Trusted Types policy (a plain pass-through, no sanitising) for it.
-            //   - Presenter plugins (e.g. dpuse-presenter-default's `renderTo.innerHTML = html`) are handed a sanitizing
-            //     function by loadSanitizeHTML() (see '@/security/trustedTypesSanitizer') via their constructor, before the
-            //     app ever dynamically imports the presenter module. Presenters are loaded from a remote URL and cannot be
-            //     trusted to sanitize themselves, so this is the mechanism that keeps sanitization under this app's control.
-            // Any HTML sink write that bypasses both of those paths is intentionally blanked here rather than silently trusted.
-            createHTML: (): string => ''
+            // A deliberate pass-through, not a sanitizer. This exists only so Trusted-Types-unaware code (turndown's
+            // native-parser probe in TextEditor.vue, and third-party charting libraries like TanStack Charts and
+            // Unovis that write their own internally-generated, non-user-supplied markup via raw 'innerHTML =') keeps
+            // working under `require-trusted-types-for 'script'`, rather than throwing or silently losing content.
+            // It was briefly a fail-safe that blanked unrecognised writes instead, but that broke exactly those
+            // libraries' legitimate internal rendering with no real security benefit: a malicious script already
+            // running on the page doesn't need this sink at all (it has direct, unrestricted DOM APIs), so this
+            // policy was never a defence against that. Actual sanitization happens at the specific call sites that
+            // render externally-influenced content - Vue's `v-html` sites (ChatPanel, LibraryPanel, ContextModelPanel,
+            // TextEditor) and the presenter packages - which call DOMPurify.sanitize() themselves before assigning.
+            createHTML: (html: string): string => html
         });
     }
 
