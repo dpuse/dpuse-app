@@ -127,14 +127,21 @@ onMounted(() => {
         tools: tanstackClientTools,
         forwardedProps: {
             providerId: 'anthropic',
-            modelId: 'claude-sonnet-4-6',
+            modelId: 'claude-haiku-4-5',
             options: {
-                effort: 'medium',
                 maxTokens: 1024,
-                temperature: 1,
-                thinking: { type: 'adaptive' }
+                temperature: 1
             },
             rag: true
+            // providerId: 'anthropic',
+            // modelId: 'claude-sonnet-4-6',
+            // options: {
+            //     effort: 'medium',
+            //     maxTokens: 1024,
+            //     temperature: 1,
+            //     thinking: { type: 'adaptive' }
+            // },
+            // rag: true
             // providerId: 'openAI',
             // modelId: 'gpt-4.1',
             // options: {
@@ -290,7 +297,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
                 </div>
             </div>
 
-            <div class="flex h-(--status-bar-height) items-center text-xs text-muted">Status: {{ chatStatus }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-sonnet-4-6' }}</div>
+            <div class="flex h-(--status-bar-height) items-center text-xs text-muted">Status: {{ chatStatus }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-haiku-4-5' }}</div>
         </div>
     </div>
 </template>
