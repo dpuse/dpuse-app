@@ -6,6 +6,7 @@ import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from
 import { appearanceIsDark } from '@/state/appLayout';
 import type { ComponentReferenceConfig } from '@dpuse/dpuse-shared/component';
 import type { DataSource } from '@/composables/useDataWindow';
+import { loadSanitizeHTML } from '@/security/trustedTypesSanitizer';
 import type { PresenterInterface } from '@dpuse/dpuse-shared/component/module/presenter';
 import { t } from '@/state/locale';
 import T from './ExplorePresentationsLayout.json';
@@ -65,13 +66,17 @@ watch(appearanceIsDark, (isDark) => {
 onMounted(async () => {
     await Promise.all([toolReady, presenterReady]);
 
+    // Must resolve before the first `import(url)` below: it claims the 'dompurify' and 'dpuse-sanitizer' Trusted
+    // Types policy names for this trusted code, before any remotely-loaded presenter module gets a chance to.
+    const sanitizeHTML = await loadSanitizeHTML();
+
     for (const presenterConfig of presenterConfigs.value) {
         const presenterId = presenterConfig.id.split('-').pop();
 
         const url = `https://engine-eu.dpuse.app/presenters/${presenterId}_v${presenterConfig.version}/${presenterConfig.id}.es.js`;
         const module = await import(/* @vite-ignore */ url);
         const presenterModule = module.default;
-        const presenter = new presenterModule(toolConfigs.value, appearanceIsDark.value ? 'dark' : 'light') as PresenterInterface;
+        const presenter = new presenterModule(toolConfigs.value, appearanceIsDark.value ? 'dark' : 'light', sanitizeHTML) as PresenterInterface;
         presenters.push(presenter);
 
         const newPresentationReferences = presenter.list().map((presentationReference) => localiseReference(presentationReference, 'en')); // TODO: Could also use 'presenterConfig.presentations', though it is a map, not an array.

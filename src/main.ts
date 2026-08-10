@@ -1,7 +1,7 @@
 // ── External Dependencies & Registrations
 import { createApp } from 'vue';
-import DOMPurify from 'dompurify';
-import { z } from 'zod/v4';
+// import DOMPurify from 'dompurify';
+// import { z } from 'zod/v4';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -16,7 +16,7 @@ import App from '@/App.vue';
 
 // ── App Bootstrap ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-z.config({ jitless: true }); // NOTE: Required by Vercel AI SDK.
+// z.config({ jitless: true }); // NOTE: Required by Vercel AI SDK.
 
 try {
     // Add global error handlers.
@@ -42,7 +42,7 @@ try {
     // Define Trusted Types default policy to allow inline worker blob URLs created by Vite's `?worker&inline` transform.
     // Without this, `require-trusted-types-for 'script'` blocks `new Worker(blobUrl)` because the URL is a plain string.
     if (trustedTypes != null) {
-        const sanitizeHTML = (html: string): string => DOMPurify.sanitize(html);
+        // const sanitizeHTML = (html: string): string => DOMPurify.sanitize(html);
         trustedTypes.createPolicy('default', {
             // Allow 'blob:' prefixed URLs for Vite's `?worker&inline` worker factory.
             createScriptURL: (url: string): string => {
@@ -50,18 +50,21 @@ try {
                 throw new Error(`Blocked TrustedScriptURL: ${url}`);
             },
             // Also required by turndown (used in TextEditor.vue): on load it probes `new DOMParser().parseFromString('', 'text/html')`
-            // to decide whether to use the native parser. That call is a Trusted Types HTML sink with no policy of its own, so it
-            // resolves to this default policy. Without 'createHTML' here the probe throws (caught internally by turndown, so nothing
-            // breaks) and turndown falls back to a slower manual HTML parser instead of the native one.
+            // to decide whether to use the native parser. That call is always made with an empty string, so returning '' below
+            // changes nothing for it either way.
             //
-            // More importantly, this is the only sanitisation fallback for code that writes HTML straight to the DOM outside
-            // Vue - e.g. dpuse-presenter-default's micromark rendering does `renderTo.innerHTML = html` directly and never
-            // calls DOMPurify itself, relying on micromark being safe-by-construction plus this policy as a backstop. It does
-            // NOT cover Vue's `v-html`: Vue registers its own 'vue' Trusted Types policy (a plain pass-through, no sanitising),
-            // so `v-html` bindings never reach this function at all. Every v-html call site in this app (ChatPanel, LibraryPanel,
-            // ContextModelPanel) must therefore call DOMPurify.sanitize() explicitly before assigning to a v-html-bound ref -
-            // there is no CSP-level safety net behind them if that sanitisation is ever forgotten.
-            createHTML: sanitizeHTML
+            // Deliberately NOT a sanitizer (createHTML: sanitizeHTML, above, commented out). DOMPurify used to be loaded eagerly
+            // here purely to back this policy, which cost every single page load ~10KB gzip even though most sessions never hit
+            // a raw HTML sink. Sanitization now happens only at the specific call sites that need it, instead of centrally here:
+            //   - Vue's `v-html` sites (ChatPanel, LibraryPanel, ContextModelPanel, TextEditor) call DOMPurify.sanitize()
+            //     themselves before assigning - v-html never reaches this policy anyway, since Vue registers its own 'vue'
+            //     Trusted Types policy (a plain pass-through, no sanitising) for it.
+            //   - Presenter plugins (e.g. dpuse-presenter-default's `renderTo.innerHTML = html`) are handed a sanitizing
+            //     function by loadSanitizeHTML() (see '@/security/trustedTypesSanitizer') via their constructor, before the
+            //     app ever dynamically imports the presenter module. Presenters are loaded from a remote URL and cannot be
+            //     trusted to sanitize themselves, so this is the mechanism that keeps sanitization under this app's control.
+            // Any HTML sink write that bypasses both of those paths is intentionally blanked here rather than silently trusted.
+            createHTML: (): string => ''
         });
     }
 
