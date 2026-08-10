@@ -23,7 +23,7 @@ import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfig
 
 // ── Local Components - Static
 import Breadcrumbs from '@/components/framework/Breadcrumbs.vue';
-import ComponentCard from '@/components/framework/ComponentCard.vue';
+import ConfigCard from '@/components/framework/ConfigCard.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
@@ -249,14 +249,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         </template>
 
         <template #grid-item="{ item }">
-            <ComponentCard
-                v-if="item"
-                :icon="item.icon ?? undefined"
-                :actions="[{ typeId: 'info', onClick: () => getInfo(item) }]"
-                :is-compact="true"
-                :item="item"
-                :label="item.label"
-            />
+            <ConfigCard v-if="item" :actions="[{ typeId: 'info', onClick: () => getInfo(item) }]" :config="item" :is-compact="true" />
         </template>
 
         <template #detail="{ item, clear }">

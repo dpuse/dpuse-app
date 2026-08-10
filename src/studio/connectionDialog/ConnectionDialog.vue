@@ -8,15 +8,15 @@ import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/conne
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { configsAreRetrieved, connectorConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import T from './ConnectionDialog.json';
 import { viewportIsWide } from '@/state/appLayout';
+import { configsAreRetrieved, connectorConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
 import AddConnectionForm from './AddConnectionForm.vue';
-import ComponentCard from '@/components/framework/ComponentCard.vue';
+import ConfigCard from '@/components/framework/ConfigCard.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
@@ -119,7 +119,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 
             <GridDetailPanel :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" @select="handleSelectConnector">
                 <template #grid-item="{ item }">
-                    <ComponentCard v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
+                    <ConfigCard v-if="item" :config="item" />
                 </template>
 
                 <template #detail="{ item, clear }">

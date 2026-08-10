@@ -12,7 +12,7 @@ import { localeId } from '@/state/locale';
 import { configsAreRetrieved, toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
-import ComponentCard from '@/components/framework/ComponentCard.vue';
+import ConfigCard from '@/components/framework/ConfigCard.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
@@ -46,7 +46,7 @@ function handleSelectTool(toolLocalisedConfig: LocalisedConfig<ToolConfig> | und
 <template>
     <GridDetailPanel :active-item="activeToolConfig" class="min-h-0 flex-1" :data-source="toolConfigsDataSource" max-detail-width="650px" @select="handleSelectTool">
         <template #grid-item="{ item }">
-            <ComponentCard v-if="item" :icon="item.icon ?? undefined" :icon-dark="item.iconDark ?? undefined" :label="item.label" />
+            <ConfigCard v-if="item" :config="item" />
         </template>
 
         <template #detail="{ item, clear }">

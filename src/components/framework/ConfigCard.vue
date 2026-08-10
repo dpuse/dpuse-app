@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T = BaseConfig">
+<script setup lang="ts" generic="T extends BaseConfig = BaseConfig">
 // ── External Dependencies & Registrations ───────────────────────────────────────────────────────────────────────────
 
 import type { BaseConfig } from '@dpuse/dpuse-shared';
@@ -11,25 +11,15 @@ import { InfoIcon, PencilIcon, TrashIcon } from '@lucide/vue';
 type Badge = { id: string; color?: string; label: string };
 type ActionTypeId = 'edit' | 'delete' | 'info';
 type Action<T> = { typeId: ActionTypeId; onClick: (item: LocalisedConfig<T>) => void };
-type Properties<T> = {
-    actions?: Action<T>[];
-    badges?: Badge[];
-    description?: string;
-    icon?: string;
-    iconDark?: string;
-    isCompact?: boolean;
-    item?: LocalisedConfig<T>;
-    label: string;
-    overline?: string;
-};
-const { actions = [], badges = [], description, icon, iconDark, isCompact = false, item, label, overline } = defineProps<Properties<T>>();
+type Properties<T> = { actions?: Action<T>[]; badges?: Badge[]; config: LocalisedConfig<T>; isCompact?: boolean; overline?: string };
+const { actions = [], badges = [], config, isCompact = false, overline } = defineProps<Properties<T>>();
 </script>
 
 <template>
     <div
         class="relative flex size-full cursor-pointer flex-col gap-y-4 bg-card font-light outline -outline-offset-1 outline-boundary transition-colors hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover"
         :class="isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4'"
-        data-region="ComponentCard"
+        data-region="ConfigCard"
         role="presentation"
     >
         <!-- Badges -->
@@ -50,36 +40,36 @@ const { actions = [], badges = [], description, icon, iconDark, isCompact = fals
 
         <!-- Icon, Overline & Label -->
         <div class="flex items-center gap-x-2">
-            <div v-if="icon || iconDark" class="flex flex-none items-center justify-center rounded-md" :class="isCompact ? 'size-4.5' : 'size-6.5'">
+            <div v-if="config.icon || config.iconDark" class="flex flex-none items-center justify-center rounded-md" :class="isCompact ? 'size-4.5' : 'size-6.5'">
                 <!-- Only split into two v-html copies when the SVGs actually differ; otherwise rendering the same markup twice duplicates element ids (mask/gradient), which can break references when one copy is display:none. -->
-                <template v-if="icon && iconDark && icon !== iconDark">
-                    <div aria-hidden="true" class="block w-full text-zinc-400 dark:hidden [&>svg]:max-h-8 [&>svg]:max-w-8" v-html="icon" />
-                    <div aria-hidden="true" class="hidden w-full text-zinc-400 dark:block [&>svg]:max-h-8 [&>svg]:max-w-8" v-html="iconDark" />
+                <template v-if="config.icon && config.iconDark && config.icon !== config.iconDark">
+                    <div aria-hidden="true" class="block w-full text-zinc-400 dark:hidden [&>svg]:max-h-8 [&>svg]:max-w-8" v-html="config.icon" />
+                    <div aria-hidden="true" class="hidden w-full text-zinc-400 dark:block [&>svg]:max-h-8 [&>svg]:max-w-8" v-html="config.iconDark" />
                 </template>
-                <div v-else aria-hidden="true" class="w-full text-zinc-400 [&>svg]:max-h-8 [&>svg]:max-w-8" v-html="icon ?? iconDark" />
+                <div v-else aria-hidden="true" class="w-full text-zinc-400 [&>svg]:max-h-8 [&>svg]:max-w-8" v-html="config.icon ?? config.iconDark" />
             </div>
 
             <div class="flex flex-col overflow-x-hidden">
                 <div v-if="!isCompact && overline" class="min-w-0 truncate text-xs leading-tight font-normal text-muted">{{ overline }}</div>
-                <div class="min-w-0 truncate text-[16px] leading-tight">{{ label }}</div>
+                <div class="min-w-0 truncate text-[16px] leading-tight">{{ config.label }}</div>
             </div>
         </div>
 
         <!-- Description -->
-        <div v-if="!isCompact && description" class="line-clamp-2 text-sm text-muted">
-            {{ description }}
+        <div v-if="!isCompact && config.description" class="line-clamp-2 text-sm text-muted">
+            {{ config.description }}
         </div>
 
         <!-- Actions -->
-        <div v-if="actions.length > 0 && item" class="absolute right-0 bottom-0 flex gap-x-1 pr-1.5 pb-1.5">
+        <div v-if="actions.length > 0 && config" class="absolute right-0 bottom-0 flex gap-x-1 pr-1.5 pb-1.5">
             <template v-for="action in actions" :key="action.typeId">
-                <Button v-if="action.typeId === 'info'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick(item)">
+                <Button v-if="action.typeId === 'info'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick(config)">
                     <InfoIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
-                <Button v-if="action.typeId === 'edit'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick(item)">
+                <Button v-if="action.typeId === 'edit'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick(config)">
                     <PencilIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
-                <Button v-if="action.typeId === 'delete'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick(item)">
+                <Button v-if="action.typeId === 'delete'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick(config)">
                     <TrashIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
             </template>

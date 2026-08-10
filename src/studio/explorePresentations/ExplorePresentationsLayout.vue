@@ -13,7 +13,7 @@ import { type LocalisedReference, localiseReference } from '@dpuse/dpuse-shared/
 import { presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
-import ComponentCard from '@/components/framework/ComponentCard.vue';
+import ConfigCard from '@/components/framework/ConfigCard.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
@@ -108,7 +108,7 @@ async function handleSelectPresentation(presentationReference: LocalisedReferenc
             @select="handleSelectPresentation($event)"
         >
             <template #grid-item="{ item }">
-                <ComponentCard v-if="item" :icon="item.icon ?? undefined" :is-compact="true" :label="item.label" />
+                <ConfigCard v-if="item" :config="item" :is-compact="true" />
             </template>
 
             <template #detail>

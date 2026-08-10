@@ -23,7 +23,7 @@ import {
 } from '@/state/dataViews';
 
 // ── Local Components - Static
-import ComponentCard from '@/components/framework/ComponentCard.vue';
+import ConfigCard from '@/components/framework/ConfigCard.vue';
 import DataViewSummaryPanel from './DataViewSummaryPanel.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
@@ -121,7 +121,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
             @select="handleSelectDataView"
         >
             <template #grid-item="{ item }">
-                <ComponentCard :icon="item.icon ?? undefined" :label="item.label" />
+                <ConfigCard :config="item" />
             </template>
 
             <template #empty>

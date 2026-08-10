@@ -149,8 +149,8 @@ html {
 
     --color-backdrop: var(--backdrop); /* Sidebar (secondary) background */
     --color-surface: var(--surface); /* Content (primary) background */
-    --color-card: var(--card); /* ComponentCard background */
-    --color-card-hover: var(--card-hover); /* ComponentCard background (hover) */
+    --color-card: var(--card); /* ConfigCard background */
+    --color-card-hover: var(--card-hover); /* ConfigCard background (hover) */
     --color-boundary: var(--boundary); /* Border/outline */
     --color-boundary-hover: var(--boundary-hover); /* Border/outline (hover) */
     --color-separator: var(--separator); /* Divider/separator */

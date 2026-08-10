@@ -64,7 +64,7 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
                     :aria-label="t(T, 'home.aria')"
                     shape="icon"
                     :to="{ name: 'studio', query: { ...$route.query, sView: 'studio' } }"
-                    @click="handleComplete({ id: 'home', label: '', description: '', icon: '', step: 0, tasks: [] })"
+                    @click="handleComplete({ id: 'home', label: '', description: '', icon: '', iconDark: null, step: 0, tasks: [] })"
                 >
                     <!-- <HomeIcon aria-hidden="true" class="[&>path]:stroke-1.25" /> -->
                     <StudioHomeIcon aria-hidden="true" />

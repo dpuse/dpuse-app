@@ -9,6 +9,7 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { EngineCallbackData } from '@dpuse/dpuse-shared/component/module/engine';
 import type { EventQueryConfig } from '@dpuse/dpuse-shared/component/eventQuery';
+import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // ── Local Framework
@@ -20,7 +21,7 @@ import { activeMetaStoreConnectionConfig, eventQueryConfigs } from '@/state/sess
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import ComponentCard from '@/components/framework/ComponentCard.vue';
+import ConfigCard from '@/components/framework/ConfigCard.vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import Grid from '@/components/framework/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
@@ -36,9 +37,10 @@ const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const dataSource = computed((): DataSource<EventQueryConfig> => ({
+const dataSource = computed((): DataSource<LocalisedConfig<EventQueryConfig>> => ({
     rowCount: eventQueryConfigs.value?.length ?? 0,
-    getRows: (start: number, end: number): Promise<{ rows: EventQueryConfig[] }> => Promise.resolve({ rows: (eventQueryConfigs.value ?? []).slice(start, end) })
+    getRows: (start: number, end: number): Promise<{ rows: LocalisedConfig<EventQueryConfig>[] }> =>
+        Promise.resolve({ rows: ((eventQueryConfigs.value as unknown as LocalisedConfig<EventQueryConfig>[]) ?? []).slice(start, end) })
 }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -95,7 +97,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
         :target-column-width="350"
     >
         <template #default="{ item }">
-            <ComponentCard v-if="item" :label="item.label as string" />
+            <ConfigCard v-if="item" :config="item" />
         </template>
     </Grid>
 
