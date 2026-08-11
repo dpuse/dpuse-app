@@ -2,12 +2,13 @@
 // ── External Dependencies & Registrations
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, type ColumnVisibilityState, useTable } from '@tanstack/vue-table';
-import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue';
+import { computed, onBeforeUnmount, onMounted, shallowRef, useId, useTemplateRef } from 'vue';
 
 // ── Local Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // ── Local Components - Static
+import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from '../ScrollThumb.vue';
 import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';
 import TableHeaderCell from './TableHeaderCell.vue';
@@ -34,14 +35,11 @@ const { columnDefinitions, dataSource, cacheBlockSize = 100, maxBlocksInCache = 
 // sticky content inside the body: see the template comment above it and syncHeaderScroll below for why.
 
 const scrollElement = useTemplateRef<HTMLDivElement>('scroller');
+const scrollElementId = useId();
 const innerScrollElement = useTemplateRef<HTMLDivElement>('innerScroller');
+const innerScrollElementId = useId();
 const headerViewport = useTemplateRef<HTMLDivElement>('headerViewport');
-
-// ── State - Toolbar ──────────────────────────────────────────────────────────────────────────────────────────────────
-
-const toolbarElement = useTemplateRef<HTMLDivElement>('toolbar');
-const toolbarHeight = ref(0); // Measured so ScrollThumb can be offset to align with the scroll area, not the toolbar.
-const state: { toolbarObserver: ResizeObserver | null } = { toolbarObserver: null };
+const verticalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('verticalThumb');
 
 // ── State - Columns ──────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -132,21 +130,11 @@ const virtualColumns = computed(() => (columnVirtualisationIsRequired.value ? co
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
-    if (!toolbarElement.value) return;
-    state.toolbarObserver = new ResizeObserver(() => {
-        toolbarHeight.value = toolbarElement.value?.offsetHeight ?? 0;
-    });
-    state.toolbarObserver.observe(toolbarElement.value);
-    toolbarHeight.value = toolbarElement.value.offsetHeight;
-});
-
-onMounted(() => {
     scrollElement.value?.addEventListener('wheel', handleBodyWheel, { passive: true });
     innerScrollElement.value?.addEventListener('scroll', syncHeaderScroll, { passive: true });
 });
 
 onBeforeUnmount(() => {
-    state.toolbarObserver?.disconnect();
     scrollElement.value?.removeEventListener('wheel', handleBodyWheel);
     innerScrollElement.value?.removeEventListener('scroll', syncHeaderScroll);
 });
@@ -181,7 +169,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
 <template>
     <div class="relative flex h-full flex-col overflow-y-hidden" data-region="Table2">
         <!-- Toolbar -->
-        <div ref="toolbar">
+        <div>
             <TableColumnPicker :table="table" />
         </div>
 
@@ -237,66 +225,87 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
         </div>
 
         <!-- Body — outer (vertical-only) drives the row virtualizer, inner (horizontal-only, nested) drives the
-             column virtualizer. -->
-        <div ref="scroller" class="flex-1 overflow-y-auto overflow-x-hidden overscroll-none">
-            <div ref="innerScroller" class="overflow-x-auto overflow-y-hidden overscroll-none" @scroll="syncHeaderScroll">
-                <div :style="{ minWidth: totalWidth + 'px' }">
-                    <!-- Virtual rows spacer -->
-                    <div class="relative" :style="{ height: totalSize + 'px' }">
-                        <div
-                            v-for="(vRow, i) in virtualRows"
-                            :key="vRow.index"
-                            class="group absolute top-0 flex border-b border-zinc-100 bg-white dark:border-zinc-800 dark:bg-zinc-950"
-                            :style="{ transform: `translateY(${vRow.start}px)`, height: vRow.size + 'px', width: totalWidth + 'px' }"
-                        >
-                            <!-- Left pinned cells -->
-                            <TableCell
-                                v-for="leftLeafHeader in leftLeafHeaders"
-                                :key="leftLeafHeader.id"
-                                :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
-                                :loading="visibleRowData[i] === undefined"
-                                class="sticky shrink-0 border-r border-zinc-100 bg-white group-hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:group-hover:bg-zinc-900"
-                                :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 1 }"
-                            />
-
-                            <!-- Center cells: flat when below threshold, virtualised when above -->
-                            <template v-if="!columnVirtualisationIsRequired">
+             column virtualizer. Wrapped in its own position:relative container so the ScrollThumb tracks below
+             are scoped to this region, not the toolbar/header above it. -->
+        <div class="relative flex min-h-0 flex-1 flex-col">
+            <div :id="scrollElementId" ref="scroller" class="dpuse-table-scroll-v flex-1 overflow-y-auto overflow-x-hidden overscroll-none">
+                <div :id="innerScrollElementId" ref="innerScroller" class="dpuse-table-scroll-h overflow-x-auto overflow-y-hidden overscroll-none" @scroll="syncHeaderScroll">
+                    <div :style="{ minWidth: totalWidth + 'px' }">
+                        <!-- Virtual rows spacer -->
+                        <div class="relative" :style="{ height: totalSize + 'px' }">
+                            <div
+                                v-for="(vRow, i) in virtualRows"
+                                :key="vRow.index"
+                                class="group absolute top-0 flex border-b border-zinc-100 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+                                :style="{ transform: `translateY(${vRow.start}px)`, height: vRow.size + 'px', width: totalWidth + 'px' }"
+                            >
+                                <!-- Left pinned cells -->
                                 <TableCell
-                                    v-for="centerLeafHeader in centerLeafHeaders"
-                                    :key="centerLeafHeader.id"
-                                    :value="visibleRowData[i]?.[centerLeafHeader.column.id]"
+                                    v-for="leftLeafHeader in leftLeafHeaders"
+                                    :key="leftLeafHeader.id"
+                                    :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
                                     :loading="visibleRowData[i] === undefined"
-                                    class="shrink-0"
-                                    :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
+                                    class="sticky shrink-0 border-r border-zinc-100 bg-white group-hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:group-hover:bg-zinc-900"
+                                    :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 1 }"
                                 />
-                            </template>
 
-                            <div v-else class="relative shrink-0 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900" :style="{ width: totalCenterWidth + 'px' }">
+                                <!-- Center cells: flat when below threshold, virtualised when above -->
+                                <template v-if="!columnVirtualisationIsRequired">
+                                    <TableCell
+                                        v-for="centerLeafHeader in centerLeafHeaders"
+                                        :key="centerLeafHeader.id"
+                                        :value="visibleRowData[i]?.[centerLeafHeader.column.id]"
+                                        :loading="visibleRowData[i] === undefined"
+                                        class="shrink-0"
+                                        :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
+                                    />
+                                </template>
+
+                                <div v-else class="relative shrink-0 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900" :style="{ width: totalCenterWidth + 'px' }">
+                                    <TableCell
+                                        v-for="virtualColumn in virtualColumns"
+                                        :key="virtualColumn.index"
+                                        :value="visibleRowData[i]?.[centerLeafHeaders[virtualColumn.index]!.column.id]"
+                                        :loading="visibleRowData[i] === undefined"
+                                        class="absolute top-0 h-full"
+                                        :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
+                                    />
+                                </div>
+
+                                <!-- Right pinned cells -->
                                 <TableCell
-                                    v-for="virtualColumn in virtualColumns"
-                                    :key="virtualColumn.index"
-                                    :value="visibleRowData[i]?.[centerLeafHeaders[virtualColumn.index]!.column.id]"
+                                    v-for="rightLeafHeader in rightLeafHeaders"
+                                    :key="rightLeafHeader.id"
+                                    :value="visibleRowData[i]?.[rightLeafHeader.column.id]"
                                     :loading="visibleRowData[i] === undefined"
-                                    class="absolute top-0 h-full"
-                                    :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
+                                    class="sticky shrink-0 border-l border-zinc-100 bg-white group-hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:group-hover:bg-zinc-900"
+                                    :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 1 }"
                                 />
                             </div>
-
-                            <!-- Right pinned cells -->
-                            <TableCell
-                                v-for="rightLeafHeader in rightLeafHeaders"
-                                :key="rightLeafHeader.id"
-                                :value="visibleRowData[i]?.[rightLeafHeader.column.id]"
-                                :loading="visibleRowData[i] === undefined"
-                                class="sticky shrink-0 border-l border-zinc-100 bg-white group-hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:group-hover:bg-zinc-900"
-                                :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 1 }"
-                            />
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- <ScrollThumb :scroll-element="scrollElement" :row-count="dataSource.rowCount" :style="{ top: toolbarHeight + 'px' }" /> -->
+            <ScrollThumb ref="verticalThumb" orientation="vertical" :scroll-element="scrollElement" :cross-scroll-element="innerScrollElement" />
+            <ScrollThumb
+                orientation="horizontal"
+                :scroll-element="innerScrollElement"
+                :cross-scroll-element="scrollElement"
+                :cross-inset-end="verticalThumb?.visible ? SCROLL_THUMB_CROSS_INSET : 0"
+            />
+        </div>
     </div>
 </template>
+
+<style scoped>
+.dpuse-table-scroll-v,
+.dpuse-table-scroll-h {
+    scrollbar-width: none;
+}
+
+.dpuse-table-scroll-v::-webkit-scrollbar,
+.dpuse-table-scroll-h::-webkit-scrollbar {
+    display: none;
+}
+</style>
