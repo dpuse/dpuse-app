@@ -32,9 +32,10 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
             <!-- <div v-if="overline" class="truncate text-sm leading-tight">
                 {{ overline }}
             </div> -->
-            <div v-if="overline" class="flex min-w-0 items-center gap-x-0.5 leading-snug" :class="{ 'justify-center': !viewportIsWide }">
-                <ChevronLeftIcon class="size-5 flex-none text-zinc-400" :stroke-width="2" />
+            <div v-if="overline" class="flex min-w-0 items-center gap-x-0.5 text-sm leading-tight" :class="{ 'justify-center': !viewportIsWide }">
+                <ArrowLeftIcon class="-ml-1 size-4 flex-none text-zinc-400" :stroke-width="2" />
                 <span class="min-w-0 truncate">{{ overline }}</span>
+                <span class="size-5 flex-none" />
             </div>
             <div class="flex min-w-0 items-center gap-x-0.5 leading-snug" :class="{ 'justify-center': !viewportIsWide }">
                 <!-- <ChevronLeftIcon class="size-5 flex-none text-zinc-400" :stroke-width="2" /> -->

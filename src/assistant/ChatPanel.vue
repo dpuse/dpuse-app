@@ -16,7 +16,7 @@ import { toolExecutors } from './tools';
 // ── Local Components - Static
 import AssistantHeader from './AssistantHeader.vue';
 import Button from '@/components/ui/button/Button.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/ScrollArea2.vue';
 import Separator from '@/components/ui/Separator.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────

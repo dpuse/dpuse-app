@@ -1,6 +1,6 @@
 // ── External Dependencies & Registrations
 import { createApp } from 'vue';
-import { z } from 'zod/v4';
+import { z } from 'zod/v4'; // TODO: Required by Vercel AI SDK.
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -15,7 +15,7 @@ import App from '@/App.vue';
 
 // ── App Bootstrap ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-z.config({ jitless: true }); // NOTE: Required by Vercel AI SDK.
+z.config({ jitless: true }); // TODO: Required by Vercel AI SDK.
 
 try {
     // Add global error handlers.

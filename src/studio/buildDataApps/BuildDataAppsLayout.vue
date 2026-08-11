@@ -12,7 +12,7 @@ import StudioLayout from '../StudioLayout.vue';
 
 <template>
     <StudioLayout>
-        <StudioHeader class="flex-none px-4" :title="t(T, 'Build_Data_Apps')" to="studio" />
+        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Build_Data_Apps')" to="studio" />
 
         <Separator class="mx-4" />
 
