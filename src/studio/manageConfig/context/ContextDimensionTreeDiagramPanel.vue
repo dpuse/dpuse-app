@@ -8,6 +8,9 @@ import type { D3Tool as D3ToolType, TreeDiagramNode } from '@dpuse/dpuse-tool-d3
 // ── Local Framework
 import { toolConfigs } from '@/state/session';
 
+// ── Local Components - Static
+import ScrollArea from '@/components/ui/ScrollArea2.vue';
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Evaluation example: strict tree (single parent per node), laid out and drawn by dpuse-tool-d3-visualiser's renderTreeDiagram (d3-hierarchy + d3-selection).
@@ -59,5 +62,7 @@ async function loadD3Tool(): Promise<D3ToolType> {
 </script>
 
 <template>
-    <div ref="container" class="min-h-0 flex-1 overflow-auto p-6" />
+    <ScrollArea class="min-h-0 flex-1">
+        <div ref="container" class="p-6" />
+    </ScrollArea>
 </template>
