@@ -11,7 +11,7 @@ import T from './EstablishDataViewsLayout.json';
 import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
-import StudioHeader from '@/components/framework/header/StudioHeader.vue';
+import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
 import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
 
@@ -68,7 +68,7 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
 <template>
     <StudioLayout>
         <!-- Header -->
-        <StudioHeader class="flex-none px-4" :title="t(T, 'Establish_Data_Views')" :to="navigateBackRouteName" />
+        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Establish_Data_Views')" :to="navigateBackRouteName" />
 
         <!-- Task Bar -->
         <TaskBar v-if="activeTaskLocalisedConfig" :active-task-id="activeTaskLocalisedConfig.id" class="mx-4 flex flex-none" :items="taskLocalisedConfigs" />

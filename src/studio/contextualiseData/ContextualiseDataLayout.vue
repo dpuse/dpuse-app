@@ -12,7 +12,7 @@ import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import Separator from '@/components/ui/Separator.vue';
-import StudioHeader from '@/components/framework/header/StudioHeader.vue';
+import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
 
 // ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────

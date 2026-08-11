@@ -5,16 +5,16 @@ import { type Component, computed, defineAsyncComponent } from 'vue';
 
 // ── Local Components - Dynamic
 const AboutView = defineAsyncComponent(() => import('./AboutPanel.vue'));
-// const ChatView = defineAsyncComponent(() => import('./ChatPanel.vue'));
+const ChatView = defineAsyncComponent(() => import('./ChatPanel.vue'));
 const LibraryView = defineAsyncComponent(() => import('./LibraryPanel.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export type AssistantViewId = 'about' | 'library';
+export type AssistantViewId = 'about' | 'chat' | 'library';
 const ASSISTANT_PANELS: Record<AssistantViewId, { component: Component; label: string }> = {
     about: { component: AboutView, label: 'About' },
-    library: { component: LibraryView, label: 'Library' }
-    // chat: { component: ChatView, label: 'Chat' }
+    library: { component: LibraryView, label: 'Library' },
+    chat: { component: ChatView, label: 'Chat' }
 };
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────

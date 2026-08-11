@@ -13,7 +13,7 @@ import { tanstackClientTools } from './tools/tanstackClientTools';
 import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
-import AssistantHeader from '@/components/framework/header/AssistantHeader.vue';
+import AssistantHeader from './AssistantHeader.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';

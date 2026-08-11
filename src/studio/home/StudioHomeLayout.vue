@@ -9,7 +9,7 @@ import Button from '@/components/ui/button/Button.vue';
 import ConfigCard from '@/components/framework/ConfigCard.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
-import StudioHeader from '@/components/framework/header/StudioHeader.vue';
+import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────

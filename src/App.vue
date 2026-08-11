@@ -268,9 +268,9 @@ function establishPaneSplitterPercent(): number {
                     <LibraryBigIcon aria-hidden="true" :stroke-width="1.25" />
                 </Button>
 
-                <!-- <Button :aria-label="t(T, 'k.select.chat.aria')" shape="icon" @click="handleSelectAssistantPanel('chat')">
+                <Button :aria-label="t(T, 'k.select.chat.aria')" shape="icon" @click="handleSelectAssistantPanel('chat')">
                     <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
-                </Button> -->
+                </Button>
             </nav>
 
             <Button

@@ -10,7 +10,7 @@ import { useConfigOptionConfigs } from './useConfigOptionConfigs.ts';
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
-import StudioHeader from '@/components/framework/header/StudioHeader.vue';
+import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────

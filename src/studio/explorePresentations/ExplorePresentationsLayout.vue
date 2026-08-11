@@ -17,7 +17,7 @@ import ConfigCard from '@/components/framework/ConfigCard.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
-import StudioHeader from '@/components/framework/header/StudioHeader.vue';
+import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
