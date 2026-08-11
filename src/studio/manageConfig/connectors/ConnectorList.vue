@@ -51,7 +51,7 @@ function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<Connect
 
         <template #detail="{ item, clear }">
             <div class="relative flex min-h-0 flex-1 flex-col">
-                <ConnectorForm :connector-localised-config="item" />
+                <ConnectorForm :connector-localised-config="item" @clear="clear" />
                 <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @clear="clear" />
             </div>
         </template>

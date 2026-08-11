@@ -24,7 +24,7 @@ const activeConfigOptionConfig = ref(configOptionConfigs.value[0]);
 
 <template>
     <StudioLayout>
-        <StudioHeader class="flex-none px-4" :title="t(T, 'Manage_Configs')" to="studio" />
+        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Manage_Configs')" to="studio" />
 
         <div class="flex min-h-0 flex-1 flex-col">
             <!-- Task Bar -->

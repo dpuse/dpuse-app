@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed } from 'vue';
-import { ExternalLinkIcon, GlobeIcon, InfoIcon, UserRoundIcon } from '@lucide/vue';
+import { ArrowLeftIcon, ExternalLinkIcon, GlobeIcon, InfoIcon, UserRoundIcon } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -22,7 +22,7 @@ import Tag from '@/components/ui/Tag.vue';
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 const { connectorLocalisedConfig } = defineProps<{ connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> }>();
-const emit = defineEmits<{ submit: [] }>();
+const emit = defineEmits<{ clear: []; submit: [] }>();
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -76,7 +76,14 @@ function getCategoryConnectorLabel(categoryId: string): string {
                 <div class="flex items-center gap-x-4">
                     <div class="flex-1">
                         <!-- Overline -->
-                        <div class="dpuse-prose-overline">{{ getCategoryConnectorLabel(connectorLocalisedConfig.categoryId) }}</div>
+                        <div class="flex min-w-0 items-center gap-x-0.5 text-sm leading-tight group-hover:text-blue-500" @click="$emit('clear')">
+                            <ArrowLeftIcon class="size-3.75 flex-none" :stroke-width="1.25" />
+                            <span class="min-w-0 truncate">{{ getCategoryConnectorLabel(connectorLocalisedConfig.categoryId) }}</span>
+                            <span class="size-5 flex-none" />
+                        </div>
+
+                        <!-- Overline -->
+                        <!-- <div class="dpuse-prose-overline">{{ getCategoryConnectorLabel(connectorLocalisedConfig.categoryId) }}</div> -->
 
                         <!-- Title -->
                         <div class="flex items-center gap-x-1.5">
