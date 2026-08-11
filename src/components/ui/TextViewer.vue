@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Local Components - Static
-import ScrollArea from './ScrollArea.vue';
+import ScrollArea from './ScrollArea2.vue';
 
 // Options, Properties, Slots & Emits
 const { text } = defineProps<{ text?: string }>();

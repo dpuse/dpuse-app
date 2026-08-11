@@ -56,6 +56,7 @@ onMounted(() => {
     if (!element || !inner) return;
     element.addEventListener('scroll', handleScroll, { passive: true });
     inner.addEventListener('scroll', handleScroll, { passive: true });
+    element.addEventListener('wheel', handleContentWheel, { passive: true });
     resizeObserver.observe(element);
     resizeObserver.observe(inner);
     for (const child of inner.children) resizeObserver.observe(child);
@@ -68,6 +69,7 @@ onMounted(() => {
 onUnmounted(() => {
     scrollElement.value?.removeEventListener('scroll', handleScroll);
     innerScrollElement.value?.removeEventListener('scroll', handleScroll);
+    scrollElement.value?.removeEventListener('wheel', handleContentWheel);
     resizeObserver.disconnect();
     contentObserver.disconnect();
     if (state.hideTimer != null) clearTimeout(state.hideTimer);
@@ -209,6 +211,14 @@ function handleScroll(): void {
 function handleTrackWheel(wheelEvent: WheelEvent): void {
     scrollElement.value?.scrollBy({ top: wheelEvent.deltaY });
     innerScrollElement.value?.scrollBy({ left: wheelEvent.deltaX });
+}
+
+// Wheeling over content hits the inner (horizontal-only) element first. Because it's a scroll container
+// even with overflow-y: hidden, it claims the wheel event and drops the vertical component instead of
+// letting it bubble to the outer scroller natively, so the vertical component is routed here explicitly.
+function handleContentWheel(wheelEvent: WheelEvent): void {
+    if (wheelEvent.deltaY === 0) return;
+    scrollElement.value?.scrollBy({ top: wheelEvent.deltaY });
 }
 
 // ── Shared Geometry Helpers ──────────────────────────────────────────────────────────────────────────────────────────

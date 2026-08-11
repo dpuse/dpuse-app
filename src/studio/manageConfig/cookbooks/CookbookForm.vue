@@ -14,7 +14,7 @@ import { t } from '@/state/locale';
 
 // ── Local Components - Static
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/ScrollArea2.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────

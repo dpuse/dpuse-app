@@ -12,7 +12,7 @@ import T from './DataViewSummaryPanel.json';
 import { t } from '@/state/locale';
 
 // ── Local Components - Static
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/ScrollArea2.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 

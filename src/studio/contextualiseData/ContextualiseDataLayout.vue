@@ -82,7 +82,7 @@ async function loadD3Tool(): Promise<D3ToolType> {
 
 <template>
     <StudioLayout>
-        <StudioHeader class="flex-none px-4" :title="t(T, 'Contextualise_Data')" to="studio" />
+        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Contextualise_Data')" to="studio" />
 
         <!-- <div class="relative flex min-h-0 flex-1 flex-col">
             <Separator class="mx-4" />
