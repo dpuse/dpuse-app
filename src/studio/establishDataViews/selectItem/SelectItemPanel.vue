@@ -28,7 +28,7 @@ import DetailActionBar from '@/components/framework/gridDetailPanel/DetailAction
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
-import Table from '@/components/ui/table/Table.vue';
+import Table from '@/components/ui/table/Table2.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 import TextViewer from '@/components/ui/TextViewer.vue';
