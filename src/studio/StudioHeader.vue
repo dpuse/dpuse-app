@@ -11,7 +11,7 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
 
 <template>
     <header
-        class="mt-[env(safe-area-inset-top)] flex h-13.75 flex-none flex-col justify-center text-lg font-light"
+        class="mt-[env(safe-area-inset-top)] flex h-13.75 flex-none flex-col justify-center text-lg"
         :class="viewportIsWide ? (assistantPaneIsVisible ? 'pl-4 pr-0' : 'pr-44 pl-4') : 'px-14'"
         data-region="StudioHeader"
     >
@@ -27,13 +27,13 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
         >
             <!-- Overline -->
             <div v-if="overline" class="flex min-w-0 items-center gap-x-0.5 text-sm leading-tight group-hover:text-blue-500" :class="{ 'justify-center': !viewportIsWide }">
-                <ArrowLeftIcon class="-ml-1 size-3.75 flex-none" :stroke-width="1.25" />
+                <ArrowLeftIcon class="-ml-1 size-4 flex-none" :stroke-width="2" />
                 <span class="min-w-0 truncate">{{ overline }}</span>
                 <span class="size-5 flex-none" />
             </div>
 
             <!-- Title -->
-            <div class="truncate leading-snug">
+            <div class="truncate leading-snug font-light">
                 {{ title }}
             </div>
         </component>

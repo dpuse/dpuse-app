@@ -7,9 +7,9 @@ import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/conne
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { configsAreRetrieved, connectorConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
+import { configsAreRetrieved, connectorConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
@@ -52,7 +52,7 @@ function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<Connect
         <template #detail="{ item, clear }">
             <div class="relative flex min-h-0 flex-1 flex-col">
                 <ConnectorForm :connector-localised-config="item" @clear="clear" />
-                <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @clear="clear" />
+                <!-- <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @clear="clear" /> -->
             </div>
         </template>
 

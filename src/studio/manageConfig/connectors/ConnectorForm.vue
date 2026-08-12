@@ -15,6 +15,7 @@ import T from './ConnectorForm.json';
 import { t } from '@/state/locale';
 
 // ── Local Components - Static
+import Button from '@/components/ui/button/Button.vue';
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import ScrollArea from '@/components/ui/ScrollArea2.vue';
 import Tag from '@/components/ui/Tag.vue';
@@ -54,62 +55,45 @@ const authMethods = computed(() => [
     )
 ]);
 
+const connectorStatus = computed(() => (connectorLocalisedConfig.statusId ? getComponentStatus(connectorLocalisedConfig.statusId) : undefined));
+
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleSubmit(): Promise<void> {
     emit('submit');
     await router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } });
 }
-
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function getCategoryConnectorLabel(categoryId: string): string {
-    return `${constructConnectorCategoryConfig(categoryId).label} Connector`;
-}
 </script>
 
 <template>
-    <form class="flex min-h-0 flex-1 flex-col pl-4" data-region="ConnectorForm" @submit.prevent="handleSubmit">
+    <form class="relative flex min-h-0 flex-1 flex-col pl-4" data-region="ConnectorForm" @submit.prevent="handleSubmit">
         <ScrollArea scroll-area-padding="screen">
             <div class="dpuse-prose pt-4">
                 <!-- Header -->
-                <div class="flex items-center gap-x-4">
-                    <div class="flex-1">
-                        <!-- Overline -->
-                        <div class="flex min-w-0 items-center gap-x-0.5 text-sm leading-tight group-hover:text-blue-500" @click="$emit('clear')">
-                            <ArrowLeftIcon class="size-3.75 flex-none" :stroke-width="1.25" />
-                            <span class="min-w-0 truncate">{{ getCategoryConnectorLabel(connectorLocalisedConfig.categoryId) }}</span>
-                            <span class="size-5 flex-none" />
-                        </div>
+                <div class="flex items-start gap-x-4">
+                    <div class="min-w-0 flex-1">
+                        <Button class="group block w-full min-w-0 cursor-pointer text-left" shape="minimal" @click="$emit('clear')">
+                            <!-- Overline -->
+                            <div class="flex min-w-0 items-center gap-x-0.5 text-sm leading-tight group-hover:text-blue-500">
+                                <ArrowLeftIcon class="size-4 flex-none" />
+                                <span class="min-w-0 truncate">Connectors</span>
+                                <span class="size-5 flex-none" />
+                            </div>
 
-                        <!-- Overline -->
-                        <!-- <div class="dpuse-prose-overline">{{ getCategoryConnectorLabel(connectorLocalisedConfig.categoryId) }}</div> -->
-
-                        <!-- Title -->
-                        <div class="flex items-center gap-x-1.5">
-                            <h1>{{ connectorLocalisedConfig.label }}</h1>
-                        </div>
+                            <!-- Title -->
+                            <h1 class="min-w-0 text-left wrap-break-word whitespace-normal">{{ connectorLocalisedConfig.label }}</h1>
+                        </Button>
 
                         <!-- Tags -->
-                        <div class="mt-4 flex flex-wrap gap-1.5">
+                        <div class="mt-2 flex flex-wrap gap-1.5">
+                            <Tag :text="connectorLocalisedConfig.categoryId" />
                             <Tag :text="`v${connectorLocalisedConfig.version}`" />
-                            <Tag
-                                v-if="connectorLocalisedConfig.status"
-                                :text="connectorLocalisedConfig.status.label"
-                                :color="connectorLocalisedConfig.status.color === 'red' ? undefined : connectorLocalisedConfig.status.color"
-                            />
-                            <Tag
-                                v-else-if="connectorLocalisedConfig.statusId"
-                                :text="connectorLocalisedConfig.statusId"
-                                :color="
-                                    getComponentStatus(connectorLocalisedConfig.statusId).color === 'red' ? undefined : getComponentStatus(connectorLocalisedConfig.statusId).color
-                                "
-                            />
+                            <Tag v-if="connectorStatus" :text="connectorLocalisedConfig.statusId ?? ''" :color="connectorStatus.color" />
                         </div>
                     </div>
 
                     <!-- Logo -->
-                    <div v-if="connectorLocalisedConfig.icon != null" class="mr-2 flex-none">
+                    <div v-if="connectorLocalisedConfig.icon != null" class="max-w-1/4 flex-none">
                         <div aria-hidden="true" class="flex h-12 items-center dark:hidden [&>svg]:h-full [&>svg]:w-auto" v-html="connectorLocalisedConfig.icon" />
                         <div
                             aria-hidden="true"
@@ -175,6 +159,13 @@ function getCategoryConnectorLabel(categoryId: string): string {
                 </ul>
             </div>
         </ScrollArea>
+
+        <div class="absolute inset-x-0 bottom-0 flex items-center border-t border-separator bg-white px-4 py-1 text-sm dark:bg-zinc-900">
+            <Button class="flex items-center gap-x-1.5" shape="minimal">
+                <InfoIcon class="size-4" />
+                Info
+            </Button>
+        </div>
     </form>
 </template>
 

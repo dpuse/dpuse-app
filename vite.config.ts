@@ -12,7 +12,8 @@ export default defineConfig({
     build: {
         rollupOptions: {
             plugins: [Sonda({ filename: 'index', format: 'json', brotli: true, gzip: false, open: false, outputDir: './bundle-analysis-reports/sonda' })]
-        }
+        },
+        sourcemap: true
     },
     plugins: [vue(), /*vueDevTools(),*/ tailwindcss(), cloudflare()],
     resolve: {

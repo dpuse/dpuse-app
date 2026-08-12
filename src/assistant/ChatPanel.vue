@@ -10,6 +10,7 @@ import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue';
 import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
+import type { AssistantModelConfig } from './modelConfigs';
 import { toolConfigs } from '@/state/session';
 import { toolExecutors } from './tools';
 
@@ -21,7 +22,9 @@ import Separator from '@/components/ui/Separator.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-const { title } = defineProps<{ title: string }>();
+const { modelConfig, title } = defineProps<{ modelConfig: AssistantModelConfig; title: string }>();
+
+const emit = defineEmits<{ statusChange: [status: string] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -35,20 +38,9 @@ const { messages, status, sendMessage, addToolOutput } = useChat({
     transport: new DefaultChatTransport({
         api: 'https://api.dpuse.app/ai/chat',
         body: {
-            // providerId: 'anthropic',
-            // modelId: 'claude-sonnet-4-6',
-            // options: {
-            //     effort: 'medium',
-            //     maxOutputTokens: 4096,
-            //     temperature: 1,
-            //     thinking: { type: 'adaptive' }
-            // },
-            providerId: 'openai',
-            modelId: 'gpt-4.1',
-            options: {
-                maxOutputTokens: 4096,
-                temperature: 1
-            },
+            providerId: modelConfig.providerId,
+            modelId: modelConfig.modelId,
+            options: modelConfig.options,
             rag: true
         }
     }),
@@ -150,6 +142,8 @@ onMounted(async () => {
     markedTool.value = await loadMarkedTool();
 });
 onUnmounted(() => state.scrollObserver?.disconnect());
+
+watch(status, (newStatus) => emit('statusChange', newStatus), { immediate: true });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -258,11 +252,6 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
                         <ArrowUpIcon class="size-5.5" stroke-width="2.5" />
                     </Button>
                 </div>
-            </div>
-
-            <div class="mr-4 flex h-(--status-bar-height) items-center border-t border-separator text-xs text-muted">
-                <!-- Status: {{ status }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-sonnet-4-6' }} -->
-                Status: {{ status }}; Provider: {{ 'OpenAI' }}; Model: {{ 'gpt-4.1' }}
             </div>
         </div>
     </div>

@@ -9,6 +9,7 @@ import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue';
 import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
+import type { AssistantModelConfig } from './modelConfigs';
 import { tanstackClientTools } from './tools/tanstackClientTools';
 import { toolConfigs } from '@/state/session';
 
@@ -20,7 +21,9 @@ import Separator from '@/components/ui/Separator.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-const { title } = defineProps<{ title: string }>();
+const { modelConfig, title } = defineProps<{ modelConfig: AssistantModelConfig; title: string }>();
+
+const emit = defineEmits<{ statusChange: [status: string] }>();
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -126,29 +129,10 @@ onMounted(() => {
         connection: fetchServerSentEvents('https://api.dpuse.app/ai/chat/tanstack'),
         tools: tanstackClientTools,
         forwardedProps: {
-            providerId: 'anthropic',
-            modelId: 'claude-haiku-4-5',
-            options: {
-                maxTokens: 1024,
-                temperature: 1
-            },
+            providerId: modelConfig.providerId,
+            modelId: modelConfig.modelId,
+            options: modelConfig.options,
             rag: true
-            // providerId: 'anthropic',
-            // modelId: 'claude-sonnet-4-6',
-            // options: {
-            //     effort: 'medium',
-            //     maxTokens: 1024,
-            //     temperature: 1,
-            //     thinking: { type: 'adaptive' }
-            // },
-            // rag: true
-            // providerId: 'openAI',
-            // modelId: 'gpt-4.1',
-            // options: {
-            //     maxOutputTokens: 1024,
-            //     temperature: 1
-            // },
-            // rag: true
         },
         initialMessages: [],
         onMessagesChange: (messages): void => {
@@ -193,6 +177,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => state.scrollObserver?.disconnect());
+
+watch(chatStatus, (newStatus) => emit('statusChange', newStatus), { immediate: true });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -296,8 +282,6 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
                     </Button>
                 </div>
             </div>
-
-            <div class="flex h-(--status-bar-height) items-center text-xs text-muted">Status: {{ chatStatus }}; Provider: {{ 'Anthropic' }}; Model: {{ 'claude-haiku-4-5' }}</div>
         </div>
     </div>
 </template>

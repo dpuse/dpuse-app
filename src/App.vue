@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
-import { InfoIcon, LibraryBigIcon, MessageCircleMoreIcon } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
@@ -14,7 +13,6 @@ import { navigationIsActive, navigationIsDelayed } from '@/state/navigation';
 
 // ── Local Components - Static
 import AssistantLogo from '@/components/branding/AssistantLogo.vue'; // Always visible.
-import type { AssistantViewId } from '@/assistant/AssistantLayout.vue';
 import BusyBar from '@/components/framework/BusyBar.vue'; // Can be no delay when rendering.
 import Button from '@/components/ui/button/Button.vue'; // Required by studio and assistant toggle buttons which are always visible.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
@@ -38,7 +36,6 @@ const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
 
 const activeAppPaneId = ref<'studio' | 'assistant' | undefined>();
 
-const assistantOptionBarIsVisible = ref(false);
 const assistantPaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
 const assistantPaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
 
@@ -104,14 +101,6 @@ watch(paneSplitterPercent, (newPaneSplitterPercent) => localStorage.setItem(PANE
 
 // ── Event Handlers - Assistant Pane/Panels ───────────────────────────────────────────────────────────────────────────
 
-function handleSelectAssistantPanel(assistantViewId: AssistantViewId): void {
-    activeAppPaneId.value = 'assistant';
-    assistantPaneIsActive.value = assistantPaneIsVisible.value = route.query.aView !== assistantViewId || !assistantPaneIsVisible.value;
-    if (assistantPaneIsActive.value) assistantPaneActivated.value = true;
-    router.replace({ query: { ...route.query, aState: assistantPaneIsVisible.value ? 1 : undefined, aView: assistantViewId } });
-    assistantOptionBarIsVisible.value = false;
-}
-
 function handleToggleAssistantPane(): void {
     if (viewportIsWide.value) {
         if (assistantPaneIsVisible.value && !studioPaneIsVisible.value) return; // Don't close the assistant pane if it's the only one visible.
@@ -120,11 +109,8 @@ function handleToggleAssistantPane(): void {
         return;
     }
 
-    // Display is narrow, pane already visible — toggle its option bar.
-    if (assistantPaneIsVisible.value) {
-        assistantOptionBarIsVisible.value = !assistantOptionBarIsVisible.value;
-        return;
-    }
+    // Display is narrow, pane already visible — its own task bar handles navigation, so there's nothing to toggle.
+    if (assistantPaneIsVisible.value) return;
 
     // Display is narrow, switching to this pane — close other option bar first if open.
     activeAppPaneId.value = 'assistant';
@@ -150,7 +136,6 @@ function toggleAssistantPane(): void {
 
 function handleStudioOptionBarHide(): void {
     if (viewportIsWide.value) return;
-    assistantOptionBarIsVisible.value = false;
     studioOptionBarIsVisible.value = false;
 }
 
@@ -170,9 +155,8 @@ function handleToggleStudioPane(): void {
         return;
     }
 
-    // Display is narrow, switching to this pane — close other option bar first if open.
+    // Display is narrow, switching to this pane — close the assistant pane first if open.
     activeAppPaneId.value = 'studio';
-    assistantOptionBarIsVisible.value = false;
     assistantPaneIsVisible.value = false;
     toggleStudioPane();
 }
@@ -218,7 +202,7 @@ function establishPaneSplitterPercent(): number {
     <div class="fixed inset-0 flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
         <!--
           z-10: Content: StudioPane (includes fixed StudioOptionBar), PaneSplitter & AssistantPane
-          z-20: topFadeOut, assistantActionBar
+          z-20: topFadeOut, assistantPaneToggle
           z-30: StudioOptionBar (floating)
           z-40: studioPaneToggle
           z-49: SessionButton
@@ -258,32 +242,16 @@ function establishPaneSplitterPercent(): number {
         </Button>
 
         <!-- Assistant toggle fixed in top right corner. Always visible. -->
-        <div class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20 flex" data-region="assistantActionBar">
-            <nav v-if="viewportIsWide || assistantOptionBarIsVisible" aria-label="Assistant options" data-region="assistantOptionBar">
-                <Button :aria-label="t(T, 'k.select.about.aria')" shape="icon" @click="handleSelectAssistantPanel('about')">
-                    <InfoIcon aria-hidden="true" :stroke-width="1.25" />
-                </Button>
-
-                <Button :aria-label="t(T, 'k.select.library.aria')" shape="icon" @click="handleSelectAssistantPanel('library')">
-                    <LibraryBigIcon aria-hidden="true" :stroke-width="1.25" />
-                </Button>
-
-                <Button :aria-label="t(T, 'k.select.chat.aria')" shape="icon" @click="handleSelectAssistantPanel('chat')">
-                    <MessageCircleMoreIcon aria-hidden="true" :stroke-width="1.25" />
-                </Button>
-            </nav>
-
-            <Button
-                :aria-label="t(T, 'k.toggle.label.aria')"
-                class="rounded-full! bg-surface"
-                :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
-                data-region="assistantPaneToggle"
-                shape="icon"
-                @click="handleToggleAssistantPane"
-            >
-                <AssistantLogo />
-            </Button>
-        </div>
+        <Button
+            :aria-label="t(T, 'k.toggle.label.aria')"
+            class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20 rounded-full! bg-surface"
+            :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
+            data-region="assistantPaneToggle"
+            shape="icon"
+            @click="handleToggleAssistantPane"
+        >
+            <AssistantLogo />
+        </Button>
 
         <!-- Session Button - Always visible. -->
         <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-49" :studio-option-bar-is-visible="studioOptionBarIsVisible" />

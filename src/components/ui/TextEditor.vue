@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// TODO: Move turndown to marked tool, or own tool if it is to be used by both marked and micromark.
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
 import Squire from 'squire-rte';
