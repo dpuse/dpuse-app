@@ -12,7 +12,7 @@ const workflowOptionConfigs = useStudioOptions();
 </script>
 
 <template>
-    <ScrollArea>
+    <ScrollArea class="min-h-0 flex-1">
         <article class="bg-white py-24 sm:py-32">
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <!-- Hero Section -->

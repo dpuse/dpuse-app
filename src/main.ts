@@ -54,7 +54,7 @@ try {
             // libraries' legitimate internal rendering with no real security benefit: a malicious script already
             // running on the page doesn't need this sink at all (it has direct, unrestricted DOM APIs), so this
             // policy was never a defence against that. Actual sanitization happens at the specific call sites that
-            // render externally-influenced content - Vue's `v-html` sites (ChatPanel, LibraryPanel, ContextModelPanel,
+            // render externally-influenced content - Vue's `v-html` sites (ChatPanel, ContextModelPanel,
             // TextEditor) and the presenter packages - which call DOMPurify.sanitize() themselves before assigning.
             createHTML: (html: string): string => html
         });
