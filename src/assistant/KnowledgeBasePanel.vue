@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { SearchIcon, XIcon } from '@lucide/vue';
 
 // ── Local Components - Static
@@ -8,10 +8,6 @@ import Button from '@/components/ui/button/Button.vue';
 import Input from '@/components/ui/Input.vue';
 import ScrollArea from '@/components/ui/ScrollArea2.vue';
 import Tag from '@/components/ui/Tag.vue';
-
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
-
-const emit = defineEmits<{ statusChange: [status: string] }>();
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -106,19 +102,7 @@ const searchResults = computed<KnowledgeBaseDocument[]>(() => {
 
 const searchHasRun = computed(() => query.value.trim().length > 0 || activeFilterId.value !== 'all');
 
-// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-watch(
-    [activeModeId, searchResults],
-    ([newModeId, newSearchResults]) => {
-        if (newModeId === 'index') {
-            emit('statusChange', `${SAMPLE_DOCUMENTS.length} documents`);
-        } else {
-            emit('statusChange', `${newSearchResults.length} result${newSearchResults.length === 1 ? '' : 's'}`);
-        }
-    },
-    { immediate: true }
-);
+const resultCountLabel = computed(() => `${searchResults.value.length} result${searchResults.value.length === 1 ? '' : 's'}`);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -170,6 +154,8 @@ function handleClearQuery(): void {
                     <XIcon :stroke-width="1.5" />
                 </Button>
             </div>
+
+            <div class="mt-1 pr-4 text-xs text-muted">{{ resultCountLabel }}</div>
 
             <div class="mt-3 flex flex-none gap-x-2 overflow-x-auto pr-4" role="tablist" aria-label="Document type">
                 <Button

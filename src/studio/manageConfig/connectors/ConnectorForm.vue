@@ -66,16 +66,16 @@ async function handleSubmit(): Promise<void> {
 </script>
 
 <template>
-    <form class="relative flex min-h-0 flex-1 flex-col pl-4" data-region="ConnectorForm" @submit.prevent="handleSubmit">
+    <form class="flex min-h-0 flex-1 flex-col pl-4" data-region="ConnectorForm" @submit.prevent="handleSubmit">
         <ScrollArea scroll-area-padding="screen">
             <div class="dpuse-prose pt-4">
                 <!-- Header -->
                 <div class="flex items-start gap-x-4">
-                    <div class="min-w-0 flex-1">
+                    <div class="flex min-w-0 flex-1 flex-col">
                         <Button class="group block w-full min-w-0 cursor-pointer text-left" shape="minimal" @click="$emit('clear')">
                             <!-- Overline -->
-                            <div class="flex min-w-0 items-center gap-x-0.5 text-sm leading-tight group-hover:text-blue-500">
-                                <ArrowLeftIcon class="size-4 flex-none" />
+                            <div class="flex min-w-0 items-center gap-x-0.5 leading-tight group-hover:text-blue-500">
+                                <ArrowLeftIcon class="size-5 flex-none" />
                                 <span class="min-w-0 truncate">Connectors</span>
                                 <span class="size-5 flex-none" />
                             </div>
@@ -93,13 +93,21 @@ async function handleSubmit(): Promise<void> {
                     </div>
 
                     <!-- Logo -->
-                    <div v-if="connectorLocalisedConfig.icon != null" class="max-w-1/4 flex-none">
-                        <div aria-hidden="true" class="flex h-12 items-center dark:hidden [&>svg]:h-full [&>svg]:w-auto" v-html="connectorLocalisedConfig.icon" />
-                        <div
-                            aria-hidden="true"
-                            class="hidden h-12 items-center dark:flex [&>svg]:h-full [&>svg]:w-auto"
-                            v-html="connectorLocalisedConfig.iconDark ?? connectorLocalisedConfig.icon ?? ''"
-                        />
+                    <div class="flex max-w-1/4 flex-none flex-col items-end gap-y-2">
+                        <Button shape="minimal">
+                            <div class="flex items-center gap-x-1 text-subtle">
+                                <InfoIcon class="size-5" />
+                                About
+                            </div>
+                        </Button>
+                        <div v-if="connectorLocalisedConfig.icon != null">
+                            <div aria-hidden="true" class="flex h-12 items-center dark:hidden [&>svg]:h-full [&>svg]:w-auto" v-html="connectorLocalisedConfig.icon" />
+                            <div
+                                aria-hidden="true"
+                                class="hidden h-12 items-center dark:flex [&>svg]:h-full [&>svg]:w-auto"
+                                v-html="connectorLocalisedConfig.iconDark ?? connectorLocalisedConfig.icon ?? ''"
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -159,13 +167,6 @@ async function handleSubmit(): Promise<void> {
                 </ul>
             </div>
         </ScrollArea>
-
-        <div class="absolute inset-x-0 bottom-0 flex items-center border-t border-separator bg-white px-4 py-1 text-sm dark:bg-zinc-900">
-            <Button class="flex items-center gap-x-1.5" shape="minimal">
-                <InfoIcon class="size-4" />
-                Info
-            </Button>
-        </div>
     </form>
 </template>
 

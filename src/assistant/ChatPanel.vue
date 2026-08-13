@@ -33,7 +33,7 @@ const { modelConfig, vendorConfigs, vendorId } = defineProps<{
     vendorId: AssistantVendorId;
 }>();
 
-const emit = defineEmits<{ statusChange: [status: string]; vendorChange: [vendorId: AssistantVendorId, modelConfig: AssistantModelConfig] }>();
+const emit = defineEmits<{ vendorChange: [vendorId: AssistantVendorId, modelConfig: AssistantModelConfig] }>();
 
 // A vendor change always remounts this panel (see AssistantLayout's :key), so the choice here is fixed for the panel's lifetime.
 const SessionComponent = vendorId === 'tanstack' ? ChatSessionTanstack : ChatSessionVercel;
@@ -76,8 +76,6 @@ onMounted(async () => {
 });
 
 onUnmounted(() => state.scrollObserver?.disconnect());
-
-watch(status, (newStatus) => emit('statusChange', newStatus), { immediate: true });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -161,7 +159,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
         </ScrollArea>
 
         <!-- Input - in-flow, always rounded, with an action bar (vendor/model, status, send) attached below the text box. -->
-        <div class="my-3 mr-4 flex flex-none flex-col border-y border-separator">
+        <div class="my-3 mr-4 ml-16 flex flex-none flex-col rounded-md border border-separator md:ml-0">
             <textarea
                 id="comment"
                 v-model="input"

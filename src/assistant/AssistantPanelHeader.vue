@@ -66,7 +66,7 @@ function handleSelectView(viewId: AssistantViewId): void {
             {{ ASSISTANT_TABS[2].label }}
         </Button>
         <Button
-            class="ml-auto flex flex-none items-center gap-x-1.5 border-y-2 border-t-transparent py-1.25"
+            class="ml-auto flex flex-none items-center text-subtle gap-x-1.5 border-y-2 border-t-transparent py-1.25"
             :class="activeViewId === ASSISTANT_TABS[0].id ? 'border-b-blue-400 text-accent' : 'border-b-transparent text-muted'"
             shape="minimal"
             @click="handleSelectView(ASSISTANT_TABS[0].id)"

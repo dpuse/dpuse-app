@@ -20,10 +20,10 @@ const KnowledgeBaseView = defineAsyncComponent(() => import('./KnowledgeBasePane
 const VENDOR_ID_KEY = 'dpuse-assistantVendorId';
 const VENDOR_MODEL_ID_KEY_PREFIX = 'dpuse-assistantVendorModelId-';
 
-const ASSISTANT_PANELS: Record<AssistantViewId, { component: Component; label: string }> = {
-    about: { component: AboutView, label: 'About' },
-    chat: { component: ChatView, label: 'Chat' },
-    knowledgeBase: { component: KnowledgeBaseView, label: 'Library' }
+const ASSISTANT_PANELS: Record<AssistantViewId, Component> = {
+    about: AboutView,
+    chat: ChatView,
+    knowledgeBase: KnowledgeBaseView
 };
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
@@ -39,8 +39,6 @@ const modelIdByVendorId = ref<Record<AssistantVendorId, string>>({
     tanstack: establishVendorModelId('tanstack'),
     vercel: establishVendorModelId('vercel')
 });
-
-const statusText = ref('');
 
 const route = useRoute();
 
@@ -65,17 +63,7 @@ const activeModelConfig = computed<AssistantModelConfig>(() => {
 // Keying on the vendor+model forces the Chat panel to remount (and so re-establish its session) whenever either changes.
 const activePanelKey = computed(() => `${activeViewId.value}:${vendorId.value}:${activeModelConfig.value.id}`);
 
-// Plain text only — no interactive elements, so it stays usable right up to the edge of the screen on mobile.
-const statusBarText = computed(() => {
-    const segments = [activeView.value.label];
-    if (activeViewId.value === 'chat') segments.push(`${activeVendorConfig.value.label} — ${activeModelConfig.value.providerLabel} · ${activeModelConfig.value.modelId}`);
-    if (statusText.value) segments.push(statusText.value);
-    return segments.join(' — ');
-});
-
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-watch(activeViewId, () => (statusText.value = ''));
 
 watch(vendorId, (newVendorId) => localStorage.setItem(VENDOR_ID_KEY, newVendorId));
 
@@ -92,10 +80,6 @@ watch(
 function handleVendorChange(newVendorId: AssistantVendorId, newModelConfig: AssistantModelConfig): void {
     vendorId.value = newVendorId;
     modelIdByVendorId.value = { ...modelIdByVendorId.value, [newVendorId]: newModelConfig.id };
-}
-
-function handleStatusChange(status: string): void {
-    statusText.value = status;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -127,19 +111,13 @@ function establishVendorModelId(id: AssistantVendorId): string {
         <AssistantPanelHeader :title="'Assistant'" />
 
         <component
-            :is="activeView.component"
+            :is="activeView"
             :key="activePanelKey"
             :model-config="activeModelConfig"
             :studio-pane-is-hidden="studioPaneIsHidden"
             :vendor-configs="ASSISTANT_VENDOR_CONFIGS"
             :vendor-id="vendorId"
-            @status-change="handleStatusChange"
             @vendor-change="handleVendorChange"
         />
-
-        <!-- Status Bar - plain text, no interactive elements. Shared across About, Chat & Knowledge Base. -->
-        <div class="mx-4 flex h-(--status-bar-height) flex-none items-center border-t border-separator text-xs text-muted" data-region="AssistantStatusBar">
-            {{ statusBarText }}
-        </div>
     </div>
 </template>
