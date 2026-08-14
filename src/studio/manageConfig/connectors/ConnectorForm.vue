@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { computed } from 'vue';
 import { ArrowLeftIcon, ExternalLinkIcon, GlobeIcon, InfoIcon, UserRoundIcon } from '@lucide/vue';
-import { useRoute, useRouter } from 'vue-router';
+// import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
@@ -16,6 +16,7 @@ import { t } from '@/state/locale';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
+import CloseButton from '@/components/ui/button/CloseButton.vue';
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import ScrollArea from '@/components/ui/ScrollArea2.vue';
 import Tag from '@/components/ui/Tag.vue';
@@ -42,8 +43,8 @@ const CONNECTOR_USAGE_DESCRIPTIONS: Record<string, string> = {
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const route = useRoute();
-const router = useRouter();
+// const route = useRoute();
+// const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -54,53 +55,41 @@ const authMethods = computed(() => [
             .filter((id) => id !== 'disabled')
     )
 ]);
-
 const connectorStatus = computed(() => (connectorLocalisedConfig.statusId ? getComponentStatus(connectorLocalisedConfig.statusId) : undefined));
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleSubmit(): Promise<void> {
-    emit('submit');
-    await router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } });
-}
+// async function handleSubmit(): Promise<void> {
+//     emit('submit');
+//     await router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } });
+// }
 </script>
 
 <template>
-    <form class="flex min-h-0 flex-1 flex-col pl-4" data-region="ConnectorForm" @submit.prevent="handleSubmit">
+    <div class="flex min-h-0 flex-1 flex-col pl-4" data-region="ConnectorPanel">
         <ScrollArea scroll-area-padding="screen">
-            <div class="dpuse-prose pt-4">
+            <div class="dpuse-prose relative pt-4">
                 <!-- Header -->
-                <div class="mb-6 flex items-start gap-x-8">
-                    <div class="flex min-w-0 flex-1 flex-col">
-                        <Button class="group block w-full min-w-0 cursor-pointer text-left" shape="minimal" @click="$emit('clear')">
-                            <!-- Overline -->
-                            <div class="flex min-w-0 items-center gap-x-0.5 leading-tight group-hover:text-blue-500">
-                                <ArrowLeftIcon class="size-5 flex-none md:hidden" />
-                                <span class="min-w-0 truncate">Connectors</span>
-                                <span class="size-5 flex-none md:hidden" />
-                            </div>
-
-                            <!-- Title -->
-                            <h1 class="min-w-0 text-left wrap-break-word whitespace-normal">{{ connectorLocalisedConfig.label }}</h1>
-                        </Button>
-
-                        <!-- Tags -->
-                        <div class="mt-2 flex flex-wrap gap-1.5">
-                            <Tag :text="connectorLocalisedConfig.categoryId" />
-                            <Tag :text="`v${connectorLocalisedConfig.version}`" />
-                            <Tag v-if="connectorStatus" :text="connectorLocalisedConfig.statusId ?? ''" :color="connectorStatus.color" />
-                        </div>
+                <Button class="group block w-full min-w-0 cursor-pointer text-left md:pointer-events-none" shape="minimal" @click="$emit('clear')">
+                    <!-- Overline -->
+                    <div class="mr-9 flex min-w-0 items-center gap-x-0.5 text-sm leading-tight text-muted group-hover:text-blue-500">
+                        <ArrowLeftIcon class="size-4 flex-none md:hidden" />
+                        <span class="min-w-0 truncate">Connectors </span>
                     </div>
 
-                    <!-- Logo -->
-                    <div v-if="connectorLocalisedConfig.icon != null" class="flex max-w-1/4 flex-none flex-col items-end gap-y-2">
-                        <div aria-hidden="true" class="flex h-12 items-center dark:hidden [&>svg]:h-full [&>svg]:w-auto" v-html="connectorLocalisedConfig.icon" />
-                        <div
-                            aria-hidden="true"
-                            class="hidden h-12 items-center dark:flex [&>svg]:h-full [&>svg]:w-auto"
-                            v-html="connectorLocalisedConfig.iconDark ?? connectorLocalisedConfig.icon ?? ''"
-                        />
-                    </div>
+                    <!-- Title -->
+                    <h1 class="mr-9! min-w-0 text-left wrap-break-word whitespace-normal">
+                        {{ connectorLocalisedConfig.label }}
+                    </h1>
+                </Button>
+
+                <CloseButton class="absolute top-2 right-0 hidden md:block" @click="$emit('clear')" />
+
+                <!-- Tags -->
+                <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
+                    <Tag :text="connectorLocalisedConfig.categoryId" />
+                    <Tag :text="`v${connectorLocalisedConfig.version}`" />
+                    <Tag v-if="connectorStatus" :text="connectorLocalisedConfig.statusId ?? ''" :color="connectorStatus.color" />
                 </div>
 
                 <!-- Description -->
@@ -114,9 +103,11 @@ async function handleSubmit(): Promise<void> {
                     {{ AUTH_METHOD_DESCRIPTIONS[method] ?? method }}
                 </p>
 
+                <!-- Connections -->
+                <h2>Connections</h2>
+
                 <!-- Links -->
                 <h2>{{ t(T, 'Links') }}</h2>
-
                 <ul>
                     <li v-if="connectorLocalisedConfig.vendorHomeURL">
                         <a :href="connectorLocalisedConfig.vendorHomeURL" class="inline-flex items-center gap-x-1 hover:underline" target="_blank" rel="noopener noreferrer">
@@ -159,7 +150,7 @@ async function handleSubmit(): Promise<void> {
                 </ul>
             </div>
         </ScrollArea>
-    </form>
+    </div>
 </template>
 
 <style scoped>

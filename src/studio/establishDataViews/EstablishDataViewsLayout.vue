@@ -33,7 +33,6 @@ const tasksEnabledToNumber = ref(0);
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeTaskLocalisedConfig = computed(() => TASK_CONFIGS.find((config) => config.id === route.query.sView));
-
 const navigateBackRouteName = computed(() => (route.query.sView === 'establishDataViews' ? 'studio' : 'establishDataViews'));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -74,11 +73,11 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
         <TaskBar v-if="activeTaskLocalisedConfig" :active-task-id="activeTaskLocalisedConfig.id" class="mx-4 flex flex-none" :items="taskLocalisedConfigs" />
 
         <!-- Data View List or Active Task Panel -->
-        <div class="relative flex min-h-0 flex-1 flex-col">
-            <RouterView v-slot="{ Component }">
-                <component :is="Component" v-if="route.name === 'establishDataViews'" class="min-h-0 flex-1" />
-                <component :is="Component" v-else class="min-h-0 flex-1" :task-localised-config="activeTaskLocalisedConfig" @task-completed="handleTaskCompleted" />
-            </RouterView>
-        </div>
+        <!-- <div class="relative flex min-h-0 flex-1 flex-col"> -->
+        <RouterView v-slot="{ Component }">
+            <component :is="Component" v-if="route.name === 'establishDataViews'" class="min-h-0 flex-1" />
+            <component :is="Component" v-else class="min-h-0 flex-1" :task-localised-config="activeTaskLocalisedConfig" @task-completed="handleTaskCompleted" />
+        </RouterView>
+        <!-- </div> -->
     </StudioLayout>
 </template>

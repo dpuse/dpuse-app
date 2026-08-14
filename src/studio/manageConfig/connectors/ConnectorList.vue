@@ -32,16 +32,9 @@ const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<Connector
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(
-    connectorConfigs,
-    (newConnectorConfigs) => {
-        connectorLocalisedConfigs.value = localiseConfigs<ConnectorConfig>(newConnectorConfigs, localeId.value, true);
-        activeConnectorConfig.value = connectorLocalisedConfigs.value[0];
-    },
-    {
-        immediate: true
-    }
-);
+watch(connectorConfigs, (newConnectorConfigs) => (connectorLocalisedConfigs.value = localiseConfigs<ConnectorConfig>(newConnectorConfigs, localeId.value, true)), {
+    immediate: true
+});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
