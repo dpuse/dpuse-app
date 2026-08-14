@@ -10,14 +10,14 @@ import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import T from './ConnectorForm.json';
+import T from './ConnectorPanel.json';
 import { t } from '@/state/locale';
 
 // ── Local Components - Static
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import ScrollArea from '@/components/ui/ScrollArea2.vue';
-import StudioDocumentPanel from '../../StudioDocumentPanel.vue';
 import StudioDetailPanel from '../../StudioDetailPanel.vue';
+import StudioDocumentPanel from '../../StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
@@ -55,7 +55,7 @@ const connectorStatus = computed(() => (connectorLocalisedConfig.statusId ? getC
 <template>
     <StudioDetailPanel data-region="ConnectorPanel">
         <ScrollArea scroll-area-padding="screen">
-            <StudioDocumentPanel :overline="'Connectors'" :title="connectorLocalisedConfig.label" @clear="$emit('clear')">
+            <StudioDocumentPanel :overline="'Connectors'" :title="connectorLocalisedConfig.label" @close="$emit('clear')">
                 <!-- Tags -->
                 <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
                     <Tag :text="connectorLocalisedConfig.categoryId" />
@@ -123,10 +123,3 @@ const connectorStatus = computed(() => (connectorLocalisedConfig.statusId ? getC
         </ScrollArea>
     </StudioDetailPanel>
 </template>
-
-<style scoped>
-ul {
-    list-style: none;
-    padding-left: 0;
-}
-</style>

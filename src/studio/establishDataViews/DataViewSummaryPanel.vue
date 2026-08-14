@@ -12,10 +12,9 @@ import T from './DataViewSummaryPanel.json';
 import { t } from '@/state/locale';
 
 // ── Local Components - Static
-import CloseButton from '@/components/ui/button/CloseButton.vue';
 import ScrollArea from '@/components/ui/ScrollArea2.vue';
-import StudioDocumentPanel from '../StudioDocumentPanel.vue';
 import StudioDetailPanel from '../StudioDetailPanel.vue';
+import StudioDocumentPanel from '../StudioDocumentPanel.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
@@ -36,7 +35,7 @@ const progressSteps = computed(() => [
 <template>
     <StudioDetailPanel data-region="DataViewSummaryPanel">
         <ScrollArea class="flex-1" scroll-area-padding="screen">
-            <StudioDocumentPanel :overline="'Establish Data Views'" :title="dataViewLocalisedConfig.label" @clear="$emit('clear')">
+            <StudioDocumentPanel :overline="'Establish Data Views'" :title="dataViewLocalisedConfig.label" @close="$emit('clear')">
                 <!-- Description -->
                 <!-- <p v-if="dataViewLocalisedConfig.description">{{ dataViewLocalisedConfig.description }}</p> -->
                 <p v-if="dataViewLocalisedConfig.description">Retrieves data from the XXX object via the YYYY connection 'ZZZ Connection'.</p>
@@ -54,10 +53,3 @@ const progressSteps = computed(() => [
         </ScrollArea>
     </StudioDetailPanel>
 </template>
-
-<style scoped>
-ul {
-    list-style: none;
-    padding-left: 0;
-}
-</style>

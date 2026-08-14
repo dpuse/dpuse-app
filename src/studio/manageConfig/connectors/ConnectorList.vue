@@ -13,8 +13,8 @@ import { configsAreRetrieved, connectorConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
-import ConnectorForm from './ConnectorForm.vue';
-import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
+import ConnectorPanel from './ConnectorPanel.vue';
+// import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 
@@ -50,10 +50,10 @@ function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<Connect
         </template>
 
         <template #detail="{ item, clear }">
-            <div class="relative flex min-h-0 flex-1 flex-col">
-                <ConnectorForm :connector-localised-config="item" @clear="clear" />
-                <!-- <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @clear="clear" /> -->
-            </div>
+            <!-- <div class="relative flex min-h-0 flex-1 flex-col"> -->
+            <ConnectorPanel :connector-localised-config="item" @clear="clear" />
+            <!-- <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @clear="clear" /> -->
+            <!-- </div> -->
         </template>
 
         <template #no-selection>
