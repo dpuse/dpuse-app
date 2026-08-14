@@ -55,7 +55,7 @@ const progressSteps = computed(() => [
 
                 <!-- Description -->
                 <!-- <p v-if="dataViewLocalisedConfig.description">{{ dataViewLocalisedConfig.description }}</p> -->
-                <p v-if="dataViewLocalisedConfig.description">Retrieves the records from the XXX table via the YYY connector.</p>
+                <p v-if="dataViewLocalisedConfig.description">Retrieves data from the XXX object via the YYYY connection 'ZZZ Connection'.</p>
 
                 <!-- Setup Progress -->
                 <h2>{{ t(T, 'Setup_progress') }}</h2>
