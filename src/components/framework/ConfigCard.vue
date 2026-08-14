@@ -11,14 +11,19 @@ import { InfoIcon, PencilIcon, TrashIcon } from '@lucide/vue';
 type Badge = { id: string; color?: string; label: string };
 type ActionTypeId = 'edit' | 'delete' | 'info';
 type Action<T> = { typeId: ActionTypeId; onClick: (item: LocalisedConfig<T>) => void };
-type Properties<T> = { actions?: Action<T>[]; badges?: Badge[]; config: LocalisedConfig<T>; isCompact?: boolean; overline?: string };
-const { actions = [], badges = [], config, isCompact = false, overline } = defineProps<Properties<T>>();
+type Properties<T> = { actions?: Action<T>[]; badges?: Badge[]; config: LocalisedConfig<T>; isCompact?: boolean; overline?: string; selected?: boolean };
+const { actions = [], badges = [], config, isCompact = false, overline, selected = false } = defineProps<Properties<T>>();
 </script>
 
 <template>
     <div
-        class="relative flex size-full cursor-pointer flex-col gap-y-4 bg-card font-light outline -outline-offset-1 outline-boundary transition-colors hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover"
-        :class="isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4'"
+        class="relative flex size-full cursor-pointer flex-col gap-y-4 outline -outline-offset-1 transition-colors"
+        :class="[
+            isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4',
+            selected
+                ? 'bg-sky-50 outline-sky-200 hover:bg-sky-100 hover:outline-sky-200'
+                : 'bg-card outline-boundary hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover'
+        ]"
         data-region="ConfigCard"
         role="presentation"
     >

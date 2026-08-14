@@ -70,14 +70,14 @@ async function handleSubmit(): Promise<void> {
         <ScrollArea scroll-area-padding="screen">
             <div class="dpuse-prose pt-4">
                 <!-- Header -->
-                <div class="flex items-start gap-x-4">
+                <div class="mb-6 flex items-start gap-x-8">
                     <div class="flex min-w-0 flex-1 flex-col">
                         <Button class="group block w-full min-w-0 cursor-pointer text-left" shape="minimal" @click="$emit('clear')">
                             <!-- Overline -->
                             <div class="flex min-w-0 items-center gap-x-0.5 leading-tight group-hover:text-blue-500">
-                                <ArrowLeftIcon class="size-5 flex-none" />
+                                <ArrowLeftIcon class="size-5 flex-none md:hidden" />
                                 <span class="min-w-0 truncate">Connectors</span>
-                                <span class="size-5 flex-none" />
+                                <span class="size-5 flex-none md:hidden" />
                             </div>
 
                             <!-- Title -->
@@ -93,21 +93,13 @@ async function handleSubmit(): Promise<void> {
                     </div>
 
                     <!-- Logo -->
-                    <div class="flex max-w-1/4 flex-none flex-col items-end gap-y-2">
-                        <Button shape="minimal">
-                            <div class="flex items-center gap-x-1 text-subtle">
-                                <InfoIcon class="size-5" />
-                                About
-                            </div>
-                        </Button>
-                        <div v-if="connectorLocalisedConfig.icon != null">
-                            <div aria-hidden="true" class="flex h-12 items-center dark:hidden [&>svg]:h-full [&>svg]:w-auto" v-html="connectorLocalisedConfig.icon" />
-                            <div
-                                aria-hidden="true"
-                                class="hidden h-12 items-center dark:flex [&>svg]:h-full [&>svg]:w-auto"
-                                v-html="connectorLocalisedConfig.iconDark ?? connectorLocalisedConfig.icon ?? ''"
-                            />
-                        </div>
+                    <div v-if="connectorLocalisedConfig.icon != null" class="flex max-w-1/4 flex-none flex-col items-end gap-y-2">
+                        <div aria-hidden="true" class="flex h-12 items-center dark:hidden [&>svg]:h-full [&>svg]:w-auto" v-html="connectorLocalisedConfig.icon" />
+                        <div
+                            aria-hidden="true"
+                            class="hidden h-12 items-center dark:flex [&>svg]:h-full [&>svg]:w-auto"
+                            v-html="connectorLocalisedConfig.iconDark ?? connectorLocalisedConfig.icon ?? ''"
+                        />
                     </div>
                 </div>
 

@@ -32,9 +32,16 @@ const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<Connector
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(connectorConfigs, (newConnectorConfigs) => (connectorLocalisedConfigs.value = localiseConfigs<ConnectorConfig>(newConnectorConfigs, localeId.value, true)), {
-    immediate: true
-});
+watch(
+    connectorConfigs,
+    (newConnectorConfigs) => {
+        connectorLocalisedConfigs.value = localiseConfigs<ConnectorConfig>(newConnectorConfigs, localeId.value, true);
+        activeConnectorConfig.value = connectorLocalisedConfigs.value[0];
+    },
+    {
+        immediate: true
+    }
+);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -46,7 +53,7 @@ function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<Connect
 <template>
     <GridDetailPanel :active-item="activeConnectorConfig" class="min-h-0 flex-1" :data-source="connectorConfigsDataSource" max-detail-width="650px" @select="handleSelectConnector">
         <template #grid-item="{ item }">
-            <ConfigCard v-if="item" :config="item" />
+            <ConfigCard v-if="item" :config="item" :selected="activeConnectorConfig?.id === item.id" />
         </template>
 
         <template #detail="{ item, clear }">
