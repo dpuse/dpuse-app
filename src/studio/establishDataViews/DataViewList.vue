@@ -29,6 +29,7 @@ import DetailActionBar from '@/components/framework/gridDetailPanel/DetailAction
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
+import StudioListPanel from '../StudioListPanel.vue';
 
 // ── Local Components - Dynamic
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));
@@ -108,7 +109,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
 </script>
 
 <template>
-    <div class="flex min-h-0 flex-1 flex-col">
+    <StudioListPanel>
         <Separator class="mx-4 flex-none" />
 
         <GridDetailPanel
@@ -130,7 +131,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
 
             <template #detail="{ item, clear }">
                 <div class="relative flex min-h-0 flex-1 flex-col">
-                    <DataViewSummaryPanel class="min-h-0 flex-1 pl-4" :data-view-localised-config="item" />
+                    <DataViewSummaryPanel class="min-h-0 flex-1 pl-4" :data-view-localised-config="item" @clear="clear" />
                     <DetailActionBar
                         v-model="detailActionId"
                         class="absolute right-4 bottom-(--safe-bottom-offset)"
@@ -147,5 +148,5 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
                 <SelectPlaceholder :message="'Select a data view from the list.'" />
             </template>
         </GridDetailPanel>
-    </div>
+    </StudioListPanel>
 </template>

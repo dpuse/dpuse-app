@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed } from 'vue';
-import { ArrowLeftIcon, ExternalLinkIcon, GlobeIcon, InfoIcon, UserRoundIcon } from '@lucide/vue';
-// import { useRoute, useRouter } from 'vue-router';
+import { ExternalLinkIcon, GlobeIcon, InfoIcon, UserRoundIcon } from '@lucide/vue';
 
 // ── DPUse Framework
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
@@ -15,16 +14,16 @@ import T from './ConnectorForm.json';
 import { t } from '@/state/locale';
 
 // ── Local Components - Static
-import Button from '@/components/ui/button/Button.vue';
-import CloseButton from '@/components/ui/button/CloseButton.vue';
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import ScrollArea from '@/components/ui/ScrollArea2.vue';
+import StudioDocumentPanel from '../../StudioDocumentPanel.vue';
+import StudioDetailPanel from '../../StudioDetailPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 const { connectorLocalisedConfig } = defineProps<{ connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> }>();
-const emit = defineEmits<{ clear: []; submit: [] }>();
+defineEmits<{ clear: [] }>();
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -41,11 +40,6 @@ const CONNECTOR_USAGE_DESCRIPTIONS: Record<string, string> = {
     unknown: 'The usage for this connector has not yet been determined.'
 };
 
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// const route = useRoute();
-// const router = useRouter();
-
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const authMethods = computed(() => [
@@ -56,35 +50,12 @@ const authMethods = computed(() => [
     )
 ]);
 const connectorStatus = computed(() => (connectorLocalisedConfig.statusId ? getComponentStatus(connectorLocalisedConfig.statusId) : undefined));
-
-// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-// async function handleSubmit(): Promise<void> {
-//     emit('submit');
-//     await router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } });
-// }
 </script>
 
 <template>
-    <div class="flex min-h-0 flex-1 flex-col pl-4" data-region="ConnectorPanel">
+    <StudioDetailPanel data-region="ConnectorPanel">
         <ScrollArea scroll-area-padding="screen">
-            <div class="dpuse-prose relative pt-4">
-                <!-- Header -->
-                <Button class="group block w-full min-w-0 cursor-pointer text-left md:pointer-events-none" shape="minimal" @click="$emit('clear')">
-                    <!-- Overline -->
-                    <div class="mr-9 flex min-w-0 items-center gap-x-0.5 text-sm leading-tight text-muted group-hover:text-blue-500">
-                        <ArrowLeftIcon class="size-4 flex-none md:hidden" />
-                        <span class="min-w-0 truncate">Connectors </span>
-                    </div>
-
-                    <!-- Title -->
-                    <h1 class="mr-9! min-w-0 text-left wrap-break-word whitespace-normal">
-                        {{ connectorLocalisedConfig.label }}
-                    </h1>
-                </Button>
-
-                <CloseButton class="absolute top-2 right-0 hidden md:block" @click="$emit('clear')" />
-
+            <StudioDocumentPanel :overline="'Connectors'" :title="connectorLocalisedConfig.label" @clear="$emit('clear')">
                 <!-- Tags -->
                 <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
                     <Tag :text="connectorLocalisedConfig.categoryId" />
@@ -148,9 +119,9 @@ const connectorStatus = computed(() => (connectorLocalisedConfig.statusId ? getC
                         </a>
                     </li>
                 </ul>
-            </div>
+            </StudioDocumentPanel>
         </ScrollArea>
-    </div>
+    </StudioDetailPanel>
 </template>
 
 <style scoped>

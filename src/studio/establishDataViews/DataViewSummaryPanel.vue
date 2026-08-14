@@ -14,11 +14,13 @@ import { t } from '@/state/locale';
 // ── Local Components - Static
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 import ScrollArea from '@/components/ui/ScrollArea2.vue';
+import StudioDocumentPanel from '../StudioDocumentPanel.vue';
+import StudioDetailPanel from '../StudioDetailPanel.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 const { dataViewLocalisedConfig } = defineProps<{ dataViewLocalisedConfig: LocalisedConfig<DataViewConfig> }>();
-const emit = defineEmits<{ clear: []; submit: [] }>();
+defineEmits<{ clear: []; submit: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -32,27 +34,9 @@ const progressSteps = computed(() => [
 </script>
 
 <template>
-    <div class="flex min-h-0 flex-1 flex-col pl-4" data-region="DataViewSummaryPanel">
+    <StudioDetailPanel data-region="DataViewSummaryPanel">
         <ScrollArea class="flex-1" scroll-area-padding="screen">
-            <div class="dpuse-prose relative pt-4">
-                <!-- Header -->
-                <div class="flex items-center gap-x-4">
-                    <div class="flex-1">
-                        <h1>{{ dataViewLocalisedConfig.label }}</h1>
-                    </div>
-
-                    <!-- <div v-if="dataViewLocalisedConfig.icon != null" class="mr-2 flex-none">
-                    <div aria-hidden="true" class="flex h-12 items-center dark:hidden [&>svg]:h-full [&>svg]:w-auto" v-html="dataViewLocalisedConfig.icon" />
-                    <div
-                        aria-hidden="true"
-                        class="hidden h-12 items-center dark:flex [&>svg]:h-full [&>svg]:w-auto"
-                        v-html="dataViewLocalisedConfig.iconDark ?? dataViewLocalisedConfig.icon ?? ''"
-                    />
-                </div> -->
-                </div>
-
-                <CloseButton class="absolute top-2 right-0 hidden md:block" @click="$emit('clear')" />
-
+            <StudioDocumentPanel :overline="'Establish Data Views'" :title="dataViewLocalisedConfig.label" @clear="$emit('clear')">
                 <!-- Description -->
                 <!-- <p v-if="dataViewLocalisedConfig.description">{{ dataViewLocalisedConfig.description }}</p> -->
                 <p v-if="dataViewLocalisedConfig.description">Retrieves data from the XXX object via the YYYY connection 'ZZZ Connection'.</p>
@@ -66,9 +50,9 @@ const progressSteps = computed(() => [
                         {{ step.label }}
                     </li>
                 </ul>
-            </div>
+            </StudioDocumentPanel>
         </ScrollArea>
-    </div>
+    </StudioDetailPanel>
 </template>
 
 <style scoped>
