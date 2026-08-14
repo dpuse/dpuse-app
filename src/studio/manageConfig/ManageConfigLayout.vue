@@ -24,27 +24,26 @@ const activeConfigOptionConfig = ref(configOptionConfigs.value[0]);
 
 <template>
     <StudioLayout>
+        <!-- Header -->
         <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Manage_Configs')" to="studio" />
 
-        <div class="flex min-h-0 flex-1 flex-col">
-            <!-- Task Bar -->
-            <div class="mx-4 flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
-                <template v-for="configOptionConfig in configOptionConfigs" :key="configOptionConfig.id">
-                    <Button
-                        class="border-y-2 border-t-transparent py-1.25"
-                        :class="configOptionConfig.id === activeConfigOptionConfig.id ? 'border-b-blue-400' : 'border-b-transparent'"
-                        shape="minimal"
-                        :to="{ name: configOptionConfig.to, query: { ...$route.query, sView: configOptionConfig.to } }"
-                        @click="activeConfigOptionConfig = configOptionConfig"
-                    >
-                        <HomeIcon v-if="configOptionConfig.id === 'home'" class="[&>path]:stroke-1.25 size-5!" />
-                        <div v-else>{{ configOptionConfig.label }}</div>
-                    </Button>
-                </template>
-            </div>
-
-            <!-- Body -->
-            <RouterView />
+        <!-- Task Bar -->
+        <div class="mx-4 flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
+            <template v-for="configOptionConfig in configOptionConfigs" :key="configOptionConfig.id">
+                <Button
+                    class="border-y-2 border-t-transparent py-1.25"
+                    :class="configOptionConfig.id === activeConfigOptionConfig.id ? 'border-b-blue-400' : 'border-b-transparent'"
+                    shape="minimal"
+                    :to="{ name: configOptionConfig.to, query: { ...$route.query, sView: configOptionConfig.to } }"
+                    @click="activeConfigOptionConfig = configOptionConfig"
+                >
+                    <HomeIcon v-if="configOptionConfig.id === 'home'" class="[&>path]:stroke-1.25 size-5!" />
+                    <div v-else>{{ configOptionConfig.label }}</div>
+                </Button>
+            </template>
         </div>
+
+        <!-- Body -->
+        <RouterView />
     </StudioLayout>
 </template>
