@@ -84,7 +84,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
         </div>
 
         <!-- Status -->
-        <div v-if="!isCompact && statusMessage" class="absolute bottom-2 left-2 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs text-amber-700">
+        <div v-if="!isCompact && statusMessage" class="absolute bottom-2 left-2 rounded-full border border-amber-100 bg-amber-50 px-2 py-0.5 text-xs text-amber-700">
             {{ statusMessage }}
         </div>
     </div>

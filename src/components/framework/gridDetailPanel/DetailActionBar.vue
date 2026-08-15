@@ -16,7 +16,7 @@ defineEmits<{ clear: []; commit: [] }>();
 <template>
     <div class="isolate inline-flex h-10 rounded-full shadow-md" data-region="DetailActionBar">
         <!-- Clear Action -->
-        <!-- <Button
+        <Button
             class="inline-flex items-center gap-x-1"
             :class="[
                 'border-zinc-200 bg-amber-50 text-amber-600 hover:bg-amber-100 focus-visible:ring-amber-300 dark:border-zinc-500 dark:bg-amber-950 dark:text-amber-400 dark:hover:bg-amber-900 dark:focus-visible:ring-amber-500',
@@ -27,7 +27,7 @@ defineEmits<{ clear: []; commit: [] }>();
         >
             <ArrowBigLeftIcon class="size-5" :stroke-width="1.25" />
             <span class="text-sm">Clear</span>
-        </Button> -->
+        </Button>
 
         <!-- Item Actions -->
         <Button

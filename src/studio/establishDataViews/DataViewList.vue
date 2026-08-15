@@ -125,7 +125,13 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
                 <ConfigCard
                     :actions="[
                         { typeId: 'delete', onClick: () => {} },
-                        { typeId: 'open', onClick: () => {} }
+                        {
+                            typeId: 'open',
+                            onClick: () => {
+                                activeDataViewLocalisedConfig = item;
+                                detailActionId = 'continue';
+                            }
+                        }
                     ]"
                     :config="item"
                     status-message="4 steps left"
@@ -142,10 +148,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
                     <DetailActionBar
                         v-model="detailActionId"
                         class="absolute right-4 bottom-(--safe-bottom-offset)"
-                        :item-actions="[
-                            { id: 'continue', label: t(T, 'Continue') },
-                            { id: 'delete', label: t(T, 'Delete') }
-                        ]"
+                        :item-actions="[{ id: 'continue', label: t(T, 'Continue') }]"
                         @clear="clear"
                     />
                 </div>
