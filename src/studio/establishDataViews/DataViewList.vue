@@ -131,6 +131,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
                         { typeId: 'open', onClick: () => {} }
                     ]"
                     :config="item"
+                    status-message="4 steps left"
                 />
             </template>
 

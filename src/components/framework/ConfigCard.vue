@@ -11,8 +11,8 @@ import { ArrowRightIcon, InfoIcon, PenSquareIcon, TrashIcon } from '@lucide/vue'
 type Badge = { id: string; color?: string; label: string };
 type ActionTypeId = 'edit' | 'delete' | 'info' | 'open';
 type Action<T> = { typeId: ActionTypeId; onClick: (item: LocalisedConfig<T>) => void };
-type Properties<T> = { actions?: Action<T>[]; badges?: Badge[]; config: LocalisedConfig<T>; isCompact?: boolean; overline?: string; selected?: boolean };
-const { actions = [], badges = [], config, isCompact = false, overline, selected = false } = defineProps<Properties<T>>();
+type Properties<T> = { actions?: Action<T>[]; badges?: Badge[]; config: LocalisedConfig<T>; isCompact?: boolean; overline?: string; selected?: boolean; statusMessage?: string };
+const { actions = [], badges = [], config, isCompact = false, overline, selected = false, statusMessage } = defineProps<Properties<T>>();
 </script>
 
 <template>
@@ -84,13 +84,9 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
             </template>
         </div>
 
-        <!-- Progress -->
-        <div v-if="!isCompact" class="absolute bottom-1.5 left-1.5 flex gap-x-0.5">
-            <!-- <div class="flex size-4 items-center justify-center rounded-full border border-transparent bg-green-300 text-xs leading-none text-green-800">✓</div>
-            <div class="flex size-4 items-center justify-center rounded-full border border-transparent bg-green-300 text-xs leading-none text-green-800">✓</div>
-            <div class="flex size-4 items-center justify-center rounded-full border border-transparent bg-blue-200 text-xs leading-none">3</div>
-            <div class="flex size-4 items-center justify-center rounded-full border border-transparent bg-zinc-200 text-xs leading-none">4</div> -->
-            <div class="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs text-amber-700">2 steps left</div>
+        <!-- Status -->
+        <div v-if="!isCompact && statusMessage" class="absolute bottom-2 left-2 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs text-amber-700">
+            {{ statusMessage }}
         </div>
     </div>
 </template>
