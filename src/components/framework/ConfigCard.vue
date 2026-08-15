@@ -90,7 +90,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
             <div class="flex size-4 items-center justify-center rounded-full border border-transparent bg-green-300 text-xs leading-none text-green-800">✓</div>
             <div class="flex size-4 items-center justify-center rounded-full border border-transparent bg-blue-200 text-xs leading-none">3</div>
             <div class="flex size-4 items-center justify-center rounded-full border border-transparent bg-zinc-200 text-xs leading-none">4</div> -->
-            <div class="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs text-amber-800">2 steps left</div>
+            <div class="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs text-amber-700">2 steps left</div>
         </div>
     </div>
 </template>
