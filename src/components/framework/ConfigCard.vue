@@ -4,12 +4,29 @@
 import type { BaseConfig } from '@dpuse/dpuse-shared';
 import Button from '@/components/ui/button/Button.vue';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import { InfoIcon, PencilIcon, TrashIcon } from '@lucide/vue';
+import {
+    ArrowBigRightDashIcon,
+    ArrowBigRightIcon,
+    ArrowRightIcon,
+    CheckCircleIcon,
+    CheckIcon,
+    CheckSquareIcon,
+    ChevronRightIcon,
+    ChevronRightSquareIcon,
+    ChevronsRightIcon,
+    FileTextIcon,
+    FolderOpenDotIcon,
+    FolderOpenIcon,
+    InfoIcon,
+    PencilIcon,
+    PenSquareIcon,
+    TrashIcon
+} from '@lucide/vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 type Badge = { id: string; color?: string; label: string };
-type ActionTypeId = 'edit' | 'delete' | 'info';
+type ActionTypeId = 'edit' | 'delete' | 'info' | 'open';
 type Action<T> = { typeId: ActionTypeId; onClick: (item: LocalisedConfig<T>) => void };
 type Properties<T> = { actions?: Action<T>[]; badges?: Badge[]; config: LocalisedConfig<T>; isCompact?: boolean; overline?: string; selected?: boolean };
 const { actions = [], badges = [], config, isCompact = false, overline, selected = false } = defineProps<Properties<T>>();
@@ -17,7 +34,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
 
 <template>
     <div
-        class="relative flex size-full cursor-pointer flex-col gap-y-4 outline -outline-offset-1 transition-colors"
+        class="relative flex size-full cursor-pointer flex-col gap-y-2 outline -outline-offset-1 transition-colors"
         :class="[
             isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4',
             selected
@@ -28,7 +45,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
         role="presentation"
     >
         <!-- Badges -->
-        <div v-if="!isCompact" class="absolute top-0 right-0 flex gap-x-1 pt-1.5 pr-1.5">
+        <div v-if="!isCompact" class="absolute top-1.5 right-1.5 flex gap-x-1">
             <template v-for="badge in badges" :key="badge.id">
                 <span
                     class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium inset-ring"
@@ -61,23 +78,36 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
         </div>
 
         <!-- Description -->
-        <div v-if="!isCompact && config.description" class="line-clamp-2 text-sm text-muted">
-            {{ config.description }}
+        <div v-if="!isCompact && config.description" class="line-clamp-2 flex-none text-left text-sm text-muted">
+            <!-- {{ config.description }} -->
+            This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.
         </div>
 
         <!-- Actions -->
-        <div v-if="actions.length > 0 && config" class="absolute right-0 bottom-0 flex gap-x-1 pr-1.5 pb-1.5">
+        <div v-if="actions.length > 0 && config" class="flex gap-x-1 place-self-end">
             <template v-for="action in actions" :key="action.typeId">
-                <Button v-if="action.typeId === 'info'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick(config)">
-                    <InfoIcon aria-hidden="true" :stroke-width="1.25" />
+                <Button v-if="action.typeId === 'open'" aria-label="Open" class="p-1.5" shape="minimal" @click.stop="action.onClick(config)">
+                    <ArrowRightIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
                 </Button>
-                <Button v-if="action.typeId === 'edit'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick(config)">
-                    <PencilIcon aria-hidden="true" :stroke-width="1.25" />
+                <Button v-if="action.typeId === 'edit'" aria-label="Edit" class="p-1.5" shape="minimal" @click.stop="action.onClick(config)">
+                    <PenSquareIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
                 </Button>
-                <Button v-if="action.typeId === 'delete'" aria-label="Info" shape="icon" size="sm" @click.stop="action.onClick(config)">
-                    <TrashIcon aria-hidden="true" :stroke-width="1.25" />
+                <Button v-if="action.typeId === 'delete'" aria-label="Delete" class="p-1.5" shape="minimal" @click.stop="action.onClick(config)">
+                    <TrashIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
+                </Button>
+                <Button v-if="action.typeId === 'info'" aria-label="Information" class="p-1.5" shape="minimal" @click.stop="action.onClick(config)">
+                    <InfoIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
                 </Button>
             </template>
+        </div>
+
+        <!-- Progress -->
+        <div v-if="!isCompact" class="absolute bottom-1.5 left-1.5 flex gap-x-0.5">
+            <!-- <div class="flex size-4 items-center justify-center rounded-full border border-transparent bg-green-300 text-xs leading-none text-green-800">✓</div>
+            <div class="flex size-4 items-center justify-center rounded-full border border-transparent bg-green-300 text-xs leading-none text-green-800">✓</div>
+            <div class="flex size-4 items-center justify-center rounded-full border border-transparent bg-blue-200 text-xs leading-none">3</div>
+            <div class="flex size-4 items-center justify-center rounded-full border border-transparent bg-zinc-200 text-xs leading-none">4</div> -->
+            <div class="rounded-full border border-yellow-200 bg-yellow-50 px-2 py-0.5 text-xs text-yellow-800">2 steps left</div>
         </div>
     </div>
 </template>

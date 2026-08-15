@@ -19,9 +19,10 @@ type Properties = {
     isCompact?: boolean;
     maxListWidth?: string;
     maxDetailWidth?: string;
+    rowHeight?: number;
     scrollAreaPadding?: ScrollAreaPadding;
 };
-const { activeItem, addLabel, dataSource, isCompact = false, maxListWidth, maxDetailWidth, scrollAreaPadding } = defineProps<Properties>();
+const { activeItem, addLabel, dataSource, isCompact = false, maxListWidth, maxDetailWidth, rowHeight = 80, scrollAreaPadding } = defineProps<Properties>();
 
 defineSlots<{
     header(): unknown;
@@ -80,7 +81,7 @@ async function handleSelectItem(row: T): Promise<void> {
                     class="flex-1"
                     :data-source="dataSource"
                     :is-compact="isCompact"
-                    :row-height="80"
+                    :row-height="rowHeight"
                     :scroll-area-padding="scrollAreaPadding"
                     :target-column-width="250"
                     @add="$emit('add')"

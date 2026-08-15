@@ -118,11 +118,20 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
             class="min-h-0 flex-1"
             :data-source="dataViewConfigsDataSource"
             max-detail-width="650px"
+            :row-height="162"
             @add="handleAddDataView"
             @select="handleSelectDataView"
         >
             <template #grid-item="{ item }">
-                <ConfigCard :config="item" />
+                <ConfigCard
+                    :actions="[
+                        // { typeId: 'edit', onClick: () => {} },
+                        { typeId: 'delete', onClick: () => {} },
+                        // { typeId: 'info', onClick: () => {} }
+                        { typeId: 'open', onClick: () => {} }
+                    ]"
+                    :config="item"
+                />
             </template>
 
             <template #empty>

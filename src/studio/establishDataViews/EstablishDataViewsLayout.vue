@@ -28,7 +28,7 @@ const TASK_CONFIGS: TaskConfig[] = [
 
 const route = useRoute();
 const taskLocalisedConfigs = shallowRef<LocalisedConfig<TaskConfig>[]>([]);
-const tasksEnabledToNumber = ref(0);
+const tasksEnabledUpToNumber = ref(0);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -38,16 +38,16 @@ const navigateBackRouteName = computed(() => (route.query.sView === 'establishDa
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
-    route,
-    (newRoute) => {
-        const pendingEnableStepsUpTo = TASK_CONFIGS.find((config) => config.id === newRoute.query.sView)?.enableUpTo ?? 0;
-        if (pendingEnableStepsUpTo > tasksEnabledToNumber.value) tasksEnabledToNumber.value = pendingEnableStepsUpTo;
+    () => route.query.sView,
+    (newSView) => {
+        const pendingEnableStepsUpTo = TASK_CONFIGS.find((config) => config.id === newSView)?.enableUpTo ?? 0;
+        if (pendingEnableStepsUpTo > tasksEnabledUpToNumber.value) tasksEnabledUpToNumber.value = pendingEnableStepsUpTo;
     },
     { immediate: true }
 );
 
 watch(
-    [tasksEnabledToNumber, localeId],
+    [tasksEnabledUpToNumber, localeId],
     ([newTasksEnabledToNumber, newLocaleId]) => {
         taskLocalisedConfigs.value = localiseConfigs<TaskConfig>(TASK_CONFIGS, newLocaleId).map((taskLocalisedConfig) => ({
             ...taskLocalisedConfig,
@@ -60,7 +60,7 @@ watch(
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): void {
-    tasksEnabledToNumber.value = taskLocalisedConfig.enableUpTo;
+    tasksEnabledUpToNumber.value = taskLocalisedConfig.enableUpTo;
 }
 </script>
 
