@@ -44,7 +44,14 @@ function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<Connect
 </script>
 
 <template>
-    <GridDetailPanel :active-item="activeConnectorConfig" class="min-h-0 flex-1" :data-source="connectorConfigsDataSource" max-detail-width="650px" @select="handleSelectConnector">
+    <GridDetailPanel
+        :active-item="activeConnectorConfig"
+        class="min-h-0 flex-1"
+        :data-source="connectorConfigsDataSource"
+        max-detail-width="650px"
+        :row-height="122"
+        @select="handleSelectConnector"
+    >
         <template #grid-item="{ item }">
             <ConfigCard v-if="item" :config="item" :selected="activeConnectorConfig?.id === item.id" />
         </template>

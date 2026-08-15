@@ -44,7 +44,14 @@ function handleSelectTool(toolLocalisedConfig: LocalisedConfig<ToolConfig> | und
 </script>
 
 <template>
-    <GridDetailPanel :active-item="activeToolConfig" class="min-h-0 flex-1" :data-source="toolConfigsDataSource" max-detail-width="650px" @select="handleSelectTool">
+    <GridDetailPanel
+        :active-item="activeToolConfig"
+        class="min-h-0 flex-1"
+        :data-source="toolConfigsDataSource"
+        max-detail-width="650px"
+        :row-height="122"
+        @select="handleSelectTool"
+    >
         <template #grid-item="{ item }">
             <ConfigCard v-if="item" :config="item" />
         </template>

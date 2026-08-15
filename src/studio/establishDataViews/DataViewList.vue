@@ -36,11 +36,10 @@ const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/plac
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const route = useRoute();
-const router = useRouter();
-
 const activeDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig> | undefined>();
 const detailActionId = ref<string>();
+const route = useRoute();
+const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -125,9 +124,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
             <template #grid-item="{ item }">
                 <ConfigCard
                     :actions="[
-                        // { typeId: 'edit', onClick: () => {} },
                         { typeId: 'delete', onClick: () => {} },
-                        // { typeId: 'info', onClick: () => {} }
                         { typeId: 'open', onClick: () => {} }
                     ]"
                     :config="item"
@@ -141,7 +138,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
 
             <template #detail="{ item, clear }">
                 <div class="relative flex min-h-0 flex-1 flex-col">
-                    <DataViewSummaryPanel class="min-h-0 flex-1 pl-4" :data-view-localised-config="item" @clear="clear" />
+                    <DataViewSummaryPanel class="min-h-0 flex-1 pl-4" :data-view-localised-config="item" @close="clear" />
                     <DetailActionBar
                         v-model="detailActionId"
                         class="absolute right-4 bottom-(--safe-bottom-offset)"

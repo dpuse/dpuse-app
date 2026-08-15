@@ -22,7 +22,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
             isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4',
             selected
                 ? 'bg-sky-50 outline-sky-200 hover:bg-sky-100 hover:outline-sky-200'
-                : 'bg-card outline-boundary hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover'
+                : 'bg-[#fdfdfd] outline-separator hover:bg-zinc-50 hover:outline-zinc-300 active:bg-card-hover'
         ]"
         data-region="ConfigCard"
         role="presentation"
@@ -62,8 +62,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
 
         <!-- Description -->
         <div v-if="!isCompact && config.description" class="line-clamp-2 flex-none text-left text-sm text-muted">
-            <!-- {{ config.description }} -->
-            This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.
+            {{ config.description }}
         </div>
 
         <!-- Actions -->
