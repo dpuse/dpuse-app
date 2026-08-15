@@ -8,7 +8,7 @@ import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import T from './DataViewSummaryPanel.json';
+import T from './EstablishDataViews.json';
 import { t } from '@/state/locale';
 
 // ── Local Components - Static

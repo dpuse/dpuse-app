@@ -11,7 +11,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { t } from '@/state/locale';
-import T from './DataViewList.json';
+import T from './EstablishDataViews.json';
 import {
     dataViewConfigs,
     dataViewConfigsAreRetrieved,
