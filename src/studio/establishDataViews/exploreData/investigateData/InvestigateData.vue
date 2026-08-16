@@ -6,7 +6,7 @@ import type { ColumnDef } from '@tanstack/vue-table';
 import type { DataSource } from '@/composables/useDataWindow';
 
 // ── Local Components - Static
-import Table from '@/components/ui/table/Table2.vue';
+import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

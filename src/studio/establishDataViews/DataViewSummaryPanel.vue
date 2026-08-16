@@ -11,7 +11,7 @@ import T from './EstablishDataViews.json';
 import { t } from '@/state/locale';
 
 // ── Local Components - Static
-import ScrollArea from '@/components/ui/ScrollArea2.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
 import StudioDetailPanel from '../StudioDetailPanel.vue';
 import StudioDocumentPanel from '../StudioDocumentPanel.vue';
 

@@ -9,7 +9,7 @@ import type { D3Tool as D3ToolType, ErdDiagramData } from '@dpuse/dpuse-tool-d3-
 import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
-import ScrollArea from '@/components/ui/ScrollArea2.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

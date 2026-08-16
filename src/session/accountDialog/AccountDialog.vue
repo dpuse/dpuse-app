@@ -16,7 +16,7 @@ import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
-import ScrollArea from '@/components/ui/ScrollArea2.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

@@ -6,7 +6,7 @@ import { SearchIcon, XIcon } from '@lucide/vue';
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Input from '@/components/ui/Input.vue';
-import ScrollArea from '@/components/ui/ScrollArea2.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -64,12 +64,36 @@ const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
 
 // TODO: Sample data only. Replace with documents from a knowledge base index/search endpoint once one exists.
 const SAMPLE_DOCUMENTS: KnowledgeBaseDocument[] = [
-    { id: 'r1', type: 'connector', title: 'Salesforce', snippet: 'Connector configuration for syncing accounts, contacts and opportunities.', source: 'Manage Config › Connectors' },
-    { id: 'r2', type: 'connector', title: 'Google Drive', snippet: 'File-store connector used to establish data views over shared documents.', source: 'Manage Config › Connectors' },
-    { id: 'r3', type: 'dataView', title: 'Quarterly Revenue', snippet: 'Established data view combining Salesforce opportunities with finance exports.', source: 'Establish Data Views' },
+    {
+        id: 'r1',
+        type: 'connector',
+        title: 'Salesforce',
+        snippet: 'Connector configuration for syncing accounts, contacts and opportunities.',
+        source: 'Manage Config › Connectors'
+    },
+    {
+        id: 'r2',
+        type: 'connector',
+        title: 'Google Drive',
+        snippet: 'File-store connector used to establish data views over shared documents.',
+        source: 'Manage Config › Connectors'
+    },
+    {
+        id: 'r3',
+        type: 'dataView',
+        title: 'Quarterly Revenue',
+        snippet: 'Established data view combining Salesforce opportunities with finance exports.',
+        source: 'Establish Data Views'
+    },
     { id: 'r4', type: 'dataView', title: 'Support Tickets', snippet: 'Data view over the Zendesk connector, audited and explored on 3 Aug.', source: 'Establish Data Views' },
     { id: 'r5', type: 'context', title: 'Customer', snippet: 'Context model entity describing customer dimensions and descriptors.', source: 'Manage Config › Context' },
-    { id: 'r6', type: 'context', title: 'Renewable Energy Targets', snippet: 'Dimension tree covering regional renewable-energy policy targets.', source: 'Manage Config › Context' },
+    {
+        id: 'r6',
+        type: 'context',
+        title: 'Renewable Energy Targets',
+        snippet: 'Dimension tree covering regional renewable-energy policy targets.',
+        source: 'Manage Config › Context'
+    },
     { id: 'r7', type: 'document', title: 'Onboarding Guide', snippet: 'Step-by-step guide for connecting a first data source and exploring it.', source: 'Library' },
     { id: 'r8', type: 'document', title: 'Renewable Energy Briefing', snippet: 'Summary of the latest developments in renewable energy for Q3.', source: 'Library' }
 ];

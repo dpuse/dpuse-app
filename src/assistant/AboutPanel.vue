@@ -4,7 +4,7 @@ import { useStudioOptions } from '@/studio/useStudioOptions';
 
 // Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import ScrollArea from '@/components/ui/ScrollArea2.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 

@@ -5,7 +5,7 @@ import { useConfigOptionConfigs } from '../useConfigOptionConfigs';
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import ConfigCard from '@/components/framework/ConfigCard.vue';
-import ScrollArea from '@/components/ui/ScrollArea2.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

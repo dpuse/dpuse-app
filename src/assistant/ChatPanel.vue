@@ -15,7 +15,7 @@ import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } f
 // ── Local Components - Static
 import AssistantVendorMenu from './AssistantVendorMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
-import ScrollArea from '@/components/ui/ScrollArea2.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Local Components - Dynamic
 const ChatSessionTanstack = defineAsyncComponent(() => import('./ChatSessionTanstack.vue'));

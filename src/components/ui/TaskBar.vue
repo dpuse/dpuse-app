@@ -8,7 +8,6 @@ import type { LocaleDescription, LocaleLabel, LocalisedConfig } from '@dpuse/dpu
 
 // Local Components - Static
 import Button from './button/Button.vue';
-import Separator from './Separator.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 export interface TaskConfig {
@@ -43,7 +42,10 @@ onMounted(() => {
 
 onBeforeUnmount(() => resizeObserver.value?.disconnect());
 
-watch(() => items, () => nextTick(updateScrollState));
+watch(
+    () => items,
+    () => nextTick(updateScrollState)
+);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -78,18 +80,14 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
                 v-for="item in items"
                 :key="item.id"
                 :aria-selected="activeTaskId === item.id"
-                class="border-y-2 border-b-transparent py-2"
-                :class="{
-                    'border-t-blue-400': activeTaskId === item.id || !item.disabled, // TODO: Tailwind hex colors are not the same as oklch colors? Need to update logos/icons with oklch colors if we are going to standardise.
-                    'border-t-zinc-300 dark:border-t-zinc-500': item.disabled
-                }"
+                class="pb-2"
                 role="tab"
                 shape="minimal"
                 :to="!item.disabled && item.id != null ? { name: item.id, query: { ...$route.query, sView: item.id } } : undefined"
                 @click="$emit('select', item)"
             >
                 <div
-                    class="flex items-center gap-x-2 text-sm"
+                    class="flex items-center gap-x-1.5 text-sm"
                     :class="{
                         'text-accent': activeTaskId === item.id || !item.disabled,
                         'text-subtle': item.disabled
