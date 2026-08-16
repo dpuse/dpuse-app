@@ -27,15 +27,13 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
         >
             <!-- Overline -->
             <div v-if="overline" class="flex min-w-0 items-center gap-x-0.5 text-sm leading-tight group-hover:text-blue-500" :class="{ 'justify-center': !viewportIsWide }">
-                <ArrowLeftIcon class="-ml-1 size-4 flex-none" :stroke-width="2" />
+                <ArrowLeftIcon class="size-4 flex-none" :stroke-width="2" />
                 <span class="min-w-0 truncate">{{ overline }}</span>
-                <span class="size-5 flex-none" />
+                <span class="size-4 flex-none" />
             </div>
 
             <!-- Title -->
-            <div class="truncate leading-snug font-light">
-                {{ title }}
-            </div>
+            <div class="truncate leading-snug font-light">{{ title }}</div>
         </component>
     </header>
 </template>
