@@ -4,10 +4,11 @@ import { useRoute } from 'vue-router';
 import { computed, ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
-import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import { localiseConfig, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import T from './EstablishDataViews.json';
+import { activeDataViewConfig } from '@/state/dataViews';
 import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
@@ -26,6 +27,8 @@ const TASK_CONFIGS: TaskConfig[] = [
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const headerOverline = ref('');
+const headerTitle = ref('');
 const route = useRoute();
 const taskLocalisedConfigs = shallowRef<LocalisedConfig<TaskConfig>[]>([]);
 const tasksEnabledUpToNumber = ref(0);
@@ -42,6 +45,20 @@ watch(
     (newSView) => {
         const pendingEnableStepsUpTo = TASK_CONFIGS.find((config) => config.id === newSView)?.enableUpTo ?? 0;
         if (pendingEnableStepsUpTo > tasksEnabledUpToNumber.value) tasksEnabledUpToNumber.value = pendingEnableStepsUpTo;
+    },
+    { immediate: true }
+);
+
+watch(
+    [activeTaskLocalisedConfig, activeDataViewConfig, localeId],
+    ([newActiveTaskLocalisedConfig, newActiveDataViewConfig, newLocaleId]) => {
+        if (newActiveTaskLocalisedConfig) {
+            headerOverline.value = `${t(T, 'Studio')} / ${t(T, 'Establish_Data_Views')}`;
+            headerTitle.value = newActiveDataViewConfig ? localiseConfig(newActiveDataViewConfig, newLocaleId).label : t(T, 'Establish_Data_Views');
+        } else {
+            headerOverline.value = t(T, 'Studio');
+            headerTitle.value = t(T, 'Establish_Data_Views');
+        }
     },
     { immediate: true }
 );
@@ -67,7 +84,7 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
 <template>
     <StudioLayout>
         <!-- Header -->
-        <StudioHeader class="flex-none px-4" :overline="t(T, 'Studio')" :title="t(T, 'Establish_Data_Views')" :to="navigateBackRouteName" />
+        <StudioHeader class="flex-none px-4" :overline="headerOverline" :title="headerTitle" :to="navigateBackRouteName" />
 
         <!-- Task Bar -->
         <TaskBar v-if="activeTaskLocalisedConfig" :active-task-id="activeTaskLocalisedConfig.id" class="mx-4 flex flex-none" :items="taskLocalisedConfigs" />
