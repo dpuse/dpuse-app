@@ -53,7 +53,7 @@ watch(
     [activeTaskLocalisedConfig, activeDataViewConfig, localeId],
     ([newActiveTaskLocalisedConfig, newActiveDataViewConfig, newLocaleId]) => {
         if (newActiveTaskLocalisedConfig) {
-            headerOverline.value = `${t(T, 'Studio')} / ${t(T, 'Establish_Data_Views')}`;
+            headerOverline.value = t(T, 'Establish_Data_Views');
             headerTitle.value = newActiveDataViewConfig ? localiseConfig(newActiveDataViewConfig, newLocaleId).label : t(T, 'Establish_Data_Views');
         } else {
             headerOverline.value = t(T, 'Studio');
