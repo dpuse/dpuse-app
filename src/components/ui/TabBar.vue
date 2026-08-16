@@ -1,29 +1,18 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends { id: string; label: string; to?: string }">
 // External Dependencies & Registrations
 import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
 import { nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
-
-// Local Framework
-import type { LocaleDescription, LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // Local Components - Static
 import Button from './button/Button.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
-export interface TaskConfig {
-    id: string;
-    label: LocaleLabel;
-    description: LocaleDescription;
-    disabled: boolean;
-    enableUpTo: number;
-    number: number;
-    verb?: LocaleLabel;
-}
-const { activeTaskId, items = [] } = defineProps<{ activeTaskId?: string; items?: LocalisedConfig<TaskConfig>[] }>();
 
-defineSlots<{ default(properties: { item: LocalisedConfig<TaskConfig> }): unknown }>();
+const { activeId, items = [] } = defineProps<{ activeId?: string; items?: T[] }>();
 
-defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
+defineSlots<{ default(properties: { item: T }): unknown }>();
+
+defineEmits<{ select: [item: T] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -73,43 +62,23 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
 </script>
 
 <template>
-    <div class="relative" data-region="TaskBar">
-        <div ref="rowElement" class="flex min-w-0 flex-1 gap-x-1 overflow-x-auto overscroll-x-none border-b border-separator" @scroll="updateScrollState">
-            <component
-                :is="item.disabled ? 'div' : Button"
+    <div class="relative" data-region="TabBar">
+        <div ref="rowElement" class="flex min-w-0 flex-1 items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator" @scroll="updateScrollState">
+            <Button
                 v-for="item in items"
                 :key="item.id"
-                :aria-selected="activeTaskId === item.id"
-                class="border-y-2 border-b-transparent py-1.25"
-                :class="{
-                    'border-t-blue-400': activeTaskId === item.id || !item.disabled, // TODO: Tailwind hex colors are not the same as oklch colors? Need to update logos/icons with oklch colors if we are going to standardise.
-                    'border-t-zinc-400 dark:border-t-zinc-500': item.disabled
-                }"
+                class="border-b-2 border-t-transparent py-1.25"
+                :class="activeId === item.id ? 'border-b-blue-400' : 'border-b-transparent'"
                 role="tab"
+                :aria-selected="activeId === item.id"
                 shape="minimal"
-                :to="!item.disabled && item.id != null ? { name: item.id, query: { ...$route.query, sView: item.id } } : undefined"
+                :to="item.to != null ? { name: item.to, query: { ...$route.query, sView: item.to } } : undefined"
                 @click="$emit('select', item)"
             >
-                <div
-                    class="flex items-center gap-x-1.5 pr-2 text-sm"
-                    :class="{
-                        'text-accent': activeTaskId === item.id || !item.disabled,
-                        'text-subtle': item.disabled
-                    }"
-                >
-                    <div
-                        class="flex size-6 items-center justify-center rounded-full border-[1.5px]"
-                        :class="{ 'border-blue-400 text-blue-400': activeTaskId === item.id || !item.disabled, 'border-zinc-400 text-zinc-400': item.disabled }"
-                    >
-                        {{ item.number }}
-                    </div>
-
-                    <div class="flex flex-col leading-none sm:flex-row sm:gap-x-1">
-                        <span>{{ item.verb }}</span>
-                        <span>{{ item.label }}</span>
-                    </div>
-                </div>
-            </component>
+                <slot :item="item">
+                    <div class="text-sm">{{ item.label }}</div>
+                </slot>
+            </Button>
         </div>
 
         <button
