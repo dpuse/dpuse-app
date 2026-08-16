@@ -48,7 +48,7 @@ function updateScrollState(): void {
 function handleScrollButtonClicked(direction: 'left' | 'right'): void {
     const row = rowElement.value;
     if (!row) return;
-    const children = [...row.children] as HTMLElement[];
+    const children = [...(row.firstElementChild?.children ?? [])] as HTMLElement[];
 
     if (direction === 'right') {
         const visibleRight = row.scrollLeft + row.clientWidth;
@@ -63,28 +63,30 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
 
 <template>
     <div class="relative" data-region="TabBar">
-        <div ref="rowElement" class="flex min-w-0 flex-1 items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator" @scroll="updateScrollState">
-            <Button
-                v-for="item in items"
-                :key="item.id"
-                class="border-b-2 border-t-transparent py-1.25"
-                :class="activeId === item.id ? 'border-b-blue-400' : 'border-b-transparent'"
-                role="tab"
-                :aria-selected="activeId === item.id"
-                shape="minimal"
-                :to="item.to != null ? { name: item.to, query: { ...$route.query, sView: item.to } } : undefined"
-                @click="$emit('select', item)"
-            >
-                <slot :item="item">
-                    <div class="text-sm">{{ item.label }}</div>
-                </slot>
-            </Button>
+        <div ref="rowElement" class="min-w-0 flex-1 overflow-x-auto overscroll-x-none pb-2" @scroll="updateScrollState">
+            <div class="flex items-center gap-x-3 border-b border-separator">
+                <Button
+                    v-for="item in items"
+                    :key="item.id"
+                    class="border-b-2 border-t-transparent py-1.25"
+                    :class="activeId === item.id ? 'border-b-blue-400' : 'border-b-transparent'"
+                    role="tab"
+                    :aria-selected="activeId === item.id"
+                    shape="minimal"
+                    :to="item.to != null ? { name: item.to, query: { ...$route.query, sView: item.to } } : undefined"
+                    @click="$emit('select', item)"
+                >
+                    <slot :item="item">
+                        <div class="text-sm">{{ item.label }}</div>
+                    </slot>
+                </Button>
+            </div>
         </div>
 
         <button
             v-if="rowCanScrollLeft"
             aria-label="Scroll left"
-            class="absolute inset-y-0 left-0 flex items-center bg-linear-to-r from-surface to-transparent py-2 pr-4 pl-1"
+            class="absolute top-0 bottom-2 left-0 flex items-center bg-linear-to-r from-surface to-transparent pr-4 pl-1"
             type="button"
             @click="handleScrollButtonClicked('left')"
         >
@@ -94,7 +96,7 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
         <button
             v-if="rowCanScrollRight"
             aria-label="Scroll right"
-            class="absolute inset-y-0 right-0 flex items-center bg-linear-to-l from-surface to-transparent py-2 pr-1 pl-4"
+            class="absolute top-0 right-0 bottom-2 flex items-center bg-linear-to-l from-surface to-transparent pr-1 pl-4"
             type="button"
             @click="handleScrollButtonClicked('right')"
         >
