@@ -26,7 +26,11 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
             :to="{ name: to, query: { ...$route.query, sView: to } }"
         >
             <!-- Overline -->
-            <div v-if="overline" class="flex min-w-0 items-center gap-x-0.5 text-sm leading-tight group-hover:text-blue-500" :class="{ 'justify-center': !viewportIsWide }">
+            <div
+                v-if="overline"
+                class="flex min-w-0 items-center gap-x-0.5 text-sm leading-tight text-muted group-hover:text-blue-500"
+                :class="{ 'justify-center': !viewportIsWide }"
+            >
                 <ArrowLeftIcon class="size-4 flex-none" :stroke-width="2" />
                 <span class="min-w-0 truncate">{{ overline }}</span>
                 <span class="size-4 flex-none" />

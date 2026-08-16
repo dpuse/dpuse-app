@@ -10,7 +10,6 @@ export interface TaskConfig {
     id: string;
     label: LocaleLabel;
     description: LocaleDescription;
-
     disabled: boolean;
     enableUpTo: number;
     number: number;
@@ -24,16 +23,16 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
 </script>
 
 <template>
-    <div class="flex gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator" data-region="TaskBar">
+    <div class="relative flex gap-x-0 overflow-x-auto overscroll-x-none border-b border-separator pt-2" data-region="TaskBar">
         <component
             :is="item.disabled ? 'div' : Button"
             v-for="item in items"
             :key="item.id"
             :aria-selected="activeTaskId === item.id"
-            class="border-y-2 border-b-transparent pt-1"
+            class="border-y-2 border-b-transparent pt-1.5"
             :class="{
                 'border-t-blue-400': activeTaskId === item.id || !item.disabled, // TODO: Tailwind hex colors are not the same as oklch colors? Need to update logos/icons with oklch colors if we are going to standardise.
-                'border-t-zinc-400 dark:border-t-zinc-500': item.disabled
+                'border-t-zinc-300 dark:border-t-zinc-500': item.disabled
             }"
             role="tab"
             shape="minimal"
@@ -41,12 +40,17 @@ defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
             @click="$emit('select', item)"
         >
             <div
-                class="mt-0.5 mb-2 text-sm leading-tight"
+                class="relative mb-2 pr-2 pl-1 text-sm leading-tight"
                 :class="{
                     'text-accent': activeTaskId === item.id || !item.disabled,
-                    'text-muted': item.disabled
+                    'text-subtle': item.disabled
                 }"
             >
+                <span
+                    class="absolute -top-4 left-0 flex size-4 items-center justify-center rounded-full text-xs font-semibold"
+                    :class="{ 'bg-blue-400 text-white': activeTaskId === item.id || !item.disabled, 'bg-zinc-400 text-white': item.disabled }"
+                    >{{ item.number }}</span
+                >
                 <span class="block sm:hidden">{{ item.verb }}<br />{{ item.label }}</span>
                 <span class="hidden sm:block">{{ item.verb }} {{ item.label }}</span>
             </div>

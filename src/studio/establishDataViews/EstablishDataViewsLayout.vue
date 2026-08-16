@@ -27,8 +27,6 @@ const TASK_CONFIGS: TaskConfig[] = [
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const headerOverline = ref('');
-const headerTitle = ref('');
 const route = useRoute();
 const taskLocalisedConfigs = shallowRef<LocalisedConfig<TaskConfig>[]>([]);
 const tasksEnabledUpToNumber = ref(0);
@@ -37,6 +35,11 @@ const tasksEnabledUpToNumber = ref(0);
 
 const activeTaskLocalisedConfig = computed(() => taskLocalisedConfigs.value.find((config) => config.id === route.query.sView));
 const navigateBackRouteName = computed(() => (route.query.sView === 'establishDataViews' ? 'studio' : 'establishDataViews'));
+const headerOverline = computed(() => t(T, activeTaskLocalisedConfig.value ? 'Establish_Data_Views' : 'Studio'));
+const headerTitle = computed(() => {
+    if (!activeTaskLocalisedConfig.value) return t(T, 'Establish_Data_Views');
+    return activeDataViewConfig.value ? localiseConfig(activeDataViewConfig.value, localeId.value).label : 'Loading...';
+});
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -45,20 +48,6 @@ watch(
     (newSView) => {
         const pendingEnableStepsUpTo = TASK_CONFIGS.find((config) => config.id === newSView)?.enableUpTo ?? 0;
         if (pendingEnableStepsUpTo > tasksEnabledUpToNumber.value) tasksEnabledUpToNumber.value = pendingEnableStepsUpTo;
-    },
-    { immediate: true }
-);
-
-watch(
-    [activeTaskLocalisedConfig, activeDataViewConfig, localeId],
-    ([newActiveTaskLocalisedConfig, newActiveDataViewConfig, newLocaleId]) => {
-        if (newActiveTaskLocalisedConfig) {
-            headerOverline.value = t(T, 'Establish_Data_Views');
-            headerTitle.value = newActiveDataViewConfig ? localiseConfig(newActiveDataViewConfig, newLocaleId).label : t(T, 'Establish_Data_Views');
-        } else {
-            headerOverline.value = t(T, 'Studio');
-            headerTitle.value = t(T, 'Establish_Data_Views');
-        }
     },
     { immediate: true }
 );

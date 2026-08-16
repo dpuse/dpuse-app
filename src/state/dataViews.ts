@@ -158,7 +158,7 @@ export async function removeDataViewRecord(metaStoreConnectionConfig: Connection
 export function setActiveDataViewConfig(dataViewConfig?: DataViewConfig): DataViewConfig {
     activeDataViewConfig.value = dataViewConfig || {
         id: NEW_DATA_VIEW_ID,
-        label: {},
+        label: { en: 'My New Data View' },
         description: {},
         icon: null,
         iconDark: null,
