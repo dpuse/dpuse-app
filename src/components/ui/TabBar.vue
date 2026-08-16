@@ -86,7 +86,7 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
         <button
             v-if="rowCanScrollLeft"
             aria-label="Scroll left"
-            class="absolute top-0 bottom-2 left-0 flex items-center bg-linear-to-r from-surface to-transparent pr-4 pl-1"
+            class="absolute top-0 bottom-2.25 left-0 flex items-center bg-linear-to-r from-surface to-transparent pr-4 pl-1"
             type="button"
             @click="handleScrollButtonClicked('left')"
         >
@@ -96,7 +96,7 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
         <button
             v-if="rowCanScrollRight"
             aria-label="Scroll right"
-            class="absolute top-0 right-0 bottom-2 flex items-center bg-linear-to-l from-surface to-transparent pr-1 pl-4"
+            class="absolute top-0 right-0 bottom-2.25 flex items-center bg-linear-to-l from-surface to-transparent pr-1 pl-4"
             type="button"
             @click="handleScrollButtonClicked('right')"
         >

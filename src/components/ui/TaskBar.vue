@@ -59,7 +59,7 @@ function updateScrollState(): void {
 function handleScrollButtonClicked(direction: 'left' | 'right'): void {
     const row = rowElement.value;
     if (!row) return;
-    const children = [...row.children] as HTMLElement[];
+    const children = [...(row.firstElementChild?.children ?? [])] as HTMLElement[];
 
     if (direction === 'right') {
         const visibleRight = row.scrollLeft + row.clientWidth;
@@ -74,48 +74,50 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
 
 <template>
     <div class="relative" data-region="TaskBar">
-        <div ref="rowElement" class="flex min-w-0 flex-1 gap-x-1 overflow-x-auto overscroll-x-none border-b border-separator" @scroll="updateScrollState">
-            <component
-                :is="item.disabled ? 'div' : Button"
-                v-for="item in items"
-                :key="item.id"
-                :aria-selected="activeTaskId === item.id"
-                class="border-y-2 border-b-transparent py-1.25"
-                :class="{
-                    'border-t-blue-400': activeTaskId === item.id || !item.disabled, // TODO: Tailwind hex colors are not the same as oklch colors? Need to update logos/icons with oklch colors if we are going to standardise.
-                    'border-t-zinc-400 dark:border-t-zinc-500': item.disabled
-                }"
-                role="tab"
-                shape="minimal"
-                :to="!item.disabled && item.id != null ? { name: item.id, query: { ...$route.query, sView: item.id } } : undefined"
-                @click="$emit('select', item)"
-            >
-                <div
-                    class="flex items-center gap-x-1.5 pr-2 text-sm"
+        <div ref="rowElement" class="min-w-0 flex-1 overflow-x-auto overscroll-x-none pb-2" @scroll="updateScrollState">
+            <div class="flex gap-x-1 border-b border-separator">
+                <component
+                    :is="item.disabled ? 'div' : Button"
+                    v-for="item in items"
+                    :key="item.id"
+                    :aria-selected="activeTaskId === item.id"
+                    class="border-y-2 border-b-transparent py-1.25"
                     :class="{
-                        'text-accent': activeTaskId === item.id || !item.disabled,
-                        'text-subtle': item.disabled
+                        'border-t-blue-400': activeTaskId === item.id || !item.disabled, // TODO: Tailwind hex colors are not the same as oklch colors? Need to update logos/icons with oklch colors if we are going to standardise.
+                        'border-t-zinc-400 dark:border-t-zinc-500': item.disabled
                     }"
+                    role="tab"
+                    shape="minimal"
+                    :to="!item.disabled && item.id != null ? { name: item.id, query: { ...$route.query, sView: item.id } } : undefined"
+                    @click="$emit('select', item)"
                 >
                     <div
-                        class="flex size-6 items-center justify-center rounded-full border-[1.5px]"
-                        :class="{ 'border-blue-400 text-blue-400': activeTaskId === item.id || !item.disabled, 'border-zinc-400 text-zinc-400': item.disabled }"
+                        class="flex items-center gap-x-1.5 pr-2 text-sm"
+                        :class="{
+                            'text-accent': activeTaskId === item.id || !item.disabled,
+                            'text-subtle': item.disabled
+                        }"
                     >
-                        {{ item.number }}
-                    </div>
+                        <div
+                            class="flex size-6 items-center justify-center rounded-full border-[1.5px]"
+                            :class="{ 'border-blue-400 text-blue-400': activeTaskId === item.id || !item.disabled, 'border-zinc-400 text-zinc-400': item.disabled }"
+                        >
+                            {{ item.number }}
+                        </div>
 
-                    <div class="flex flex-col leading-none sm:flex-row sm:gap-x-1">
-                        <span>{{ item.verb }}</span>
-                        <span>{{ item.label }}</span>
+                        <div class="flex flex-col leading-none sm:flex-row sm:gap-x-1">
+                            <span>{{ item.verb }}</span>
+                            <span>{{ item.label }}</span>
+                        </div>
                     </div>
-                </div>
-            </component>
+                </component>
+            </div>
         </div>
 
         <button
             v-if="rowCanScrollLeft"
             aria-label="Scroll left"
-            class="absolute inset-y-0 left-0 flex items-center bg-linear-to-r from-surface to-transparent py-2 pr-4 pl-1"
+            class="absolute top-0 bottom-2.25 left-0 flex items-center bg-linear-to-r from-surface to-transparent pr-4 pl-1"
             type="button"
             @click="handleScrollButtonClicked('left')"
         >
@@ -125,7 +127,7 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
         <button
             v-if="rowCanScrollRight"
             aria-label="Scroll right"
-            class="absolute inset-y-0 right-0 flex items-center bg-linear-to-l from-surface to-transparent py-2 pr-1 pl-4"
+            class="absolute top-0 right-0 bottom-2.25 flex items-center bg-linear-to-l from-surface to-transparent pr-1 pl-4"
             type="button"
             @click="handleScrollButtonClicked('right')"
         >
