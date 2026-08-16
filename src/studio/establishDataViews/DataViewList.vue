@@ -88,6 +88,11 @@ function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewC
     removeDataViewRecord(activeMetaStoreConnectionConfig.value, dataViewLocalisedConfig.id);
 }
 
+function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
+    activeDataViewLocalisedConfig.value = dataViewLocalisedConfig;
+    detailActionId.value = 'continue';
+}
+
 function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig> | undefined): void {
     activeDataViewLocalisedConfig.value = dataViewLocalisedConfig;
 }
@@ -124,14 +129,8 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
             <template #grid-item="{ item }">
                 <ConfigCard
                     :actions="[
-                        { typeId: 'delete', onClick: () => {} },
-                        {
-                            typeId: 'open',
-                            onClick: () => {
-                                activeDataViewLocalisedConfig = item;
-                                detailActionId = 'continue';
-                            }
-                        }
+                        { typeId: 'delete', onClick: handleDeleteDataView },
+                        { typeId: 'open', onClick: handleOpenDataView }
                     ]"
                     :config="item"
                     status-message="4 steps left"
@@ -145,12 +144,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
             <template #detail="{ item, clear }">
                 <div class="relative flex min-h-0 flex-1 flex-col">
                     <DataViewSummaryPanel class="min-h-0 flex-1 pl-4" :data-view-localised-config="item" @close="clear" />
-                    <DetailActionBar
-                        v-model="detailActionId"
-                        class="absolute right-4 bottom-(--safe-bottom-offset)"
-                        :item-actions="[{ id: 'continue', label: t(T, 'Continue') }]"
-                        @clear="clear"
-                    />
+                    <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @click="handleOpenDataView(item)" />
                 </div>
             </template>
 

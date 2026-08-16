@@ -26,8 +26,10 @@ defineEmits<{ close: [] }>();
         <ScrollArea class="flex-1" scroll-area-padding="screen">
             <StudioDocumentPanel :overline="'Establish Data Views'" :title="dataViewLocalisedConfig.label" @close="$emit('close')">
                 <!-- Description -->
-                <!-- <p v-if="dataViewLocalisedConfig.description">{{ dataViewLocalisedConfig.description }}</p> -->
+                <p v-if="dataViewLocalisedConfig.description">{{ dataViewLocalisedConfig.description }}</p>
                 <p v-if="dataViewLocalisedConfig.description">Retrieves data from the 'XXX' [endpoint | file | table] using the 'YYY' connection.</p>
+
+                {{ dataViewLocalisedConfig }}
             </StudioDocumentPanel>
         </ScrollArea>
     </StudioDetailPanel>

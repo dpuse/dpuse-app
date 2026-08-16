@@ -215,7 +215,7 @@ async function terminateAccountMonitor(): Promise<void> {
 function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
     return {
         id: connectorConfig.id,
-        description: {},
+        description: connectorConfig.description,
         authorisation: {},
         connectorConfig,
         firstCreatedAt: null,

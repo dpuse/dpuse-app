@@ -4,12 +4,12 @@
 import type { BaseConfig } from '@dpuse/dpuse-shared';
 import Button from '@/components/ui/button/Button.vue';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import { ArrowRightIcon, InfoIcon, PenSquareIcon, TrashIcon } from '@lucide/vue';
+import { InfoIcon, TrashIcon } from '@lucide/vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 type Badge = { id: string; color?: string; label: string };
-type ActionTypeId = 'edit' | 'delete' | 'info' | 'open';
+type ActionTypeId = 'delete' | 'info' | 'open';
 type Action<T> = { typeId: ActionTypeId; onClick: (item: LocalisedConfig<T>) => void };
 type Properties<T> = { actions?: Action<T>[]; badges?: Badge[]; config: LocalisedConfig<T>; isCompact?: boolean; overline?: string; selected?: boolean; statusMessage?: string };
 const { actions = [], badges = [], config, isCompact = false, overline, selected = false, statusMessage } = defineProps<Properties<T>>();
@@ -66,17 +66,20 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
         </div>
 
         <!-- Actions -->
-        <div v-if="actions.length > 0 && config" class="flex gap-x-1 place-self-end">
+        <div v-if="actions.length > 0 && config" class="flex items-center gap-x-1 place-self-end">
             <template v-for="action in actions" :key="action.typeId">
-                <Button v-if="action.typeId === 'open'" aria-label="Open" class="p-1.5" shape="minimal" @click.stop="action.onClick(config)">
-                    <ArrowRightIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
-                </Button>
-                <Button v-if="action.typeId === 'edit'" aria-label="Edit" class="p-1.5" shape="minimal" @click.stop="action.onClick(config)">
-                    <PenSquareIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
-                </Button>
                 <Button v-if="action.typeId === 'delete'" aria-label="Delete" class="p-1.5" shape="minimal" @click.stop="action.onClick(config)">
                     <TrashIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
                 </Button>
+
+                <Button v-if="action.typeId === 'open'" aria-label="Open" class="p-0.5" shape="minimal" @click.stop="action.onClick(config)">
+                    <svg viewBox="0 0 24 24" class="size-6 fill-blue-50 stroke-blue-600" stroke-linecap="round" stroke-linejoin="round">
+                        <circle class="stroke-blue-200" cx="12" cy="12" r="10" stroke-width="1.25" />
+                        <path d="m12 16 4-4-4-4" />
+                        <path d="M8 12h8" />
+                    </svg>
+                </Button>
+
                 <Button v-if="action.typeId === 'info'" aria-label="Information" class="p-1.5" shape="minimal" @click.stop="action.onClick(config)">
                     <InfoIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
                 </Button>

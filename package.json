@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1575",
+    "version": "0.0.1576",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -27,7 +27,7 @@
         "sharp@0.33.5": true,
         "sharp@0.34.5": true,
         "unrs-resolver@1.12.2": true,
-        "workerd@1.20260801.1": true
+        "workerd@1.20260811.1": true
     },
     "scripts": {
         "audit": "node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
@@ -48,16 +48,16 @@
         "sync": "node -e \"import('@dpuse/dpuse-development').then(m => m.syncProjectWithGitHub())\""
     },
     "dependencies": {
-        "@ai-sdk/vue": "^4.0.58",
+        "@ai-sdk/vue": "^4.0.66",
         "@dpuse/dpuse-shared": "^0.3.770",
         "@dpuse/dpuse-tool-d3-visualiser": "^0.0.46",
         "@dpuse/dpuse-tool-marked-markdown-parser": "^0.1.11",
         "@formkit/drag-and-drop": "^0.6.1",
-        "@regle/core": "^1.29.0",
-        "@regle/rules": "^1.29.0",
+        "@regle/core": "^1.29.1",
+        "@regle/rules": "^1.29.1",
         "@tailwindcss/vite": "^4.3.3",
-        "@tanstack/ai": "^0.43.1",
-        "@tanstack/ai-client": "^0.23.1",
+        "@tanstack/ai": "^0.44.1",
+        "@tanstack/ai-client": "^0.23.2",
         "@tanstack/vue-table": "^9.1.2",
         "@tanstack/vue-virtual": "^3.13.35",
         "@teamhanko/hanko-frontend-sdk": "^3.0.0",
@@ -67,17 +67,17 @@
         "turndown": "^7.2.4",
         "vue": "^3.5.41",
         "vue-router": "^5.2.0",
-        "web-vitals": "^6.1.0",
+        "web-vitals": "^6.1.1",
         "zod": "^4.4.3"
     },
     "devDependencies": {
-        "@cloudflare/vite-plugin": "1.51.1",
-        "@cloudflare/workers-types": "^5.20260810.1",
+        "@cloudflare/vite-plugin": "1.52.1",
+        "@cloudflare/workers-types": "^5.20260816.1",
         "@dpuse/dpuse-development": "^0.3.703",
         "@dpuse/eslint-config-dpuse": "^1.0.113",
         "@lucide/vue": "^1.31.0",
         "@playwright/test": "^1.62.1",
-        "@tsconfig/node24": "^24.0.4",
+        "@tsconfig/node24": "^24.0.5",
         "@types/eslint-plugin-tailwindcss": "^3.17.0",
         "@types/jsdom": "^30.0.0",
         "@types/node": "^26.2.0",
@@ -103,7 +103,7 @@
         "typescript": "^6.0.3",
         "vite": "^8.2.1",
         "vitest": "^4.1.10",
-        "vue-tsc": "^3.3.9",
-        "wrangler": "4.120.0"
+        "vue-tsc": "^3.3.10",
+        "wrangler": "4.123.0"
     }
 }

@@ -8,9 +8,9 @@ import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection'
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { activeMetaStoreConnectionConfig, configsAreRetrieved } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
+import { activeMetaStoreConnectionConfig, configsAreRetrieved } from '@/state/session';
 
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
@@ -97,6 +97,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
         add-label="Connection"
         :data-source="connectionConfigsDataSource"
         max-detail-width="400px"
+        :row-height="122"
         @add="handleAddConnection"
         @select="handleSelectConnection"
     >
