@@ -68,7 +68,7 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
                 v-for="item in items"
                 :key="item.id"
                 class="border-b-2 border-t-transparent py-1.25"
-                :class="activeId === item.id ? 'border-b-blue-400' : 'border-b-transparent'"
+                :class="activeId === item.id ? 'border-b-sky-400 text-sky-600' : 'border-b-transparent'"
                 role="tab"
                 :aria-selected="activeId === item.id"
                 shape="minimal"

@@ -24,15 +24,14 @@ import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfig
 // ── Local Components - Static
 import Breadcrumbs from '@/components/framework/Breadcrumbs.vue';
 import ConfigCard from '@/components/framework/ConfigCard.vue';
-import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
-import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
+import GridDetailPanel from '~/src/components/framework/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+import StepActionButton from '~/src/components/ui/button/StepActionButton.vue';
 import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 import TextViewer from '@/components/ui/TextViewer.vue';
-import StepActionButton from '~/src/components/ui/button/StepActionButton.vue';
 
 const ITEM_ACTIONS = [
     { id: 'table', label: 'Table' },

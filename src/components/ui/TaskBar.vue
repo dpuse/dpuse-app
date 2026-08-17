@@ -80,9 +80,9 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
                 v-for="item in items"
                 :key="item.id"
                 :aria-selected="activeTaskId === item.id"
-                class="border-y-2 border-b-transparent py-1.25"
+                class="border-y-2 border-b-transparent py-2"
                 :class="{
-                    'border-t-blue-500': activeTaskId === item.id || !item.disabled, // TODO: Tailwind hex colors are not the same as oklch colors? Need to update logos/icons with oklch colors if we are going to standardise.
+                    'border-t-sky-400': activeTaskId === item.id || !item.disabled, // TODO: Tailwind hex colors are not the same as oklch colors? Need to update logos/icons with oklch colors if we are going to standardise.
                     'border-t-zinc-300 dark:border-t-zinc-500': item.disabled
                 }"
                 role="tab"
@@ -93,13 +93,13 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
                 <div
                     class="flex items-center gap-x-1.5 pr-2 text-sm"
                     :class="{
-                        'text-accent': activeTaskId === item.id || !item.disabled,
+                        'text-sky-600': activeTaskId === item.id || !item.disabled,
                         'text-subtle': item.disabled
                     }"
                 >
                     <div
                         class="flex size-6 items-center justify-center rounded-full border-2 text-xs"
-                        :class="{ 'border-blue-500': activeTaskId === item.id || !item.disabled, 'border-zinc-300 text-zinc-400': item.disabled }"
+                        :class="{ 'border-sky-400': activeTaskId === item.id || !item.disabled, 'border-zinc-300 text-zinc-400': item.disabled }"
                     >
                         {{ item.number }}
                     </div>

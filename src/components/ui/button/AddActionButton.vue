@@ -9,7 +9,11 @@ const { label } = defineProps<{ label: string }>();
 
 <template>
     <button
-        class="absolute right-3 bottom-(--safe-bottom-offset) inline-flex h-9 items-center gap-x-1 rounded-full border border-blue-200 bg-blue-50 pr-3 pl-2 text-blue-600 shadow-md hover:bg-blue-100 focus-visible:ring-blue-300 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900 dark:focus-visible:ring-blue-500"
+        class="absolute right-3 bottom-(--safe-bottom-offset) inline-flex h-9 items-center gap-x-1 rounded-full border pr-3 pl-2 shadow-md"
+        :class="[
+            'border-sky-200 bg-sky-50 text-sky-600 hover:bg-sky-100 focus-visible:ring-sky-300',
+            'dark:border-sky-800 dark:bg-sky-950 dark:text-sky-300 dark:hover:bg-sky-900 dark:focus-visible:ring-sky-500'
+        ]"
     >
         <PlusIcon class="size-5" :stroke-width="1.25" />
         <span class="text-sm">{{ label }}</span>

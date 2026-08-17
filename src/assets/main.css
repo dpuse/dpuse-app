@@ -77,7 +77,7 @@ html {
 .dpuse-prose ul {
     list-style: disc;
 }
-.dpuse-prose ul ul{
+.dpuse-prose ul ul {
     list-style: circle;
 }
 .dpuse-prose a {
@@ -170,7 +170,9 @@ html {
 
 /* Variables and light mode colors. */
 :root {
-    --safe-bottom-offset: calc(max(env(safe-area-inset-bottom), 21px) + 24px ); /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '21px' for optional status bar; '24px' for horizontal scroll bar. */
+    --safe-bottom-offset: calc(
+        max(env(safe-area-inset-bottom), 21px) + 24px
+    ); /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '21px' for optional status bar; '24px' for horizontal scroll bar. */
     --safe-top-offset: calc(env(safe-area-inset-top) + 7px); /* Floating button screen top offset: 'safe-area-inset-top'; '7px' for gutter. */
     --safe-left-offset: calc(env(safe-area-inset-left) + 12px); /* Floating button screen left offset: 'safe-area-inset-left'; '12px' for gutter. */
     --safe-right-offset: calc(env(safe-area-inset-right) + 12px); /* Floating button screen right offset: 'safe-area-inset-right'; '12px' for gutter. */
@@ -189,7 +191,7 @@ html {
     --boundary-hover: var(--color-zinc-300);
     --separator: var(--color-zinc-200);
     --overlay: color-mix(in srgb, var(--color-zinc-200) 75%, transparent);
-    --content: var(--color-zinc-900); /* NOTE: Also 'index.html'. */
+    --content: var(--color-zinc-700); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-500);
     --subtle: var(--color-zinc-400);
     --emphasis: var(--color-zinc-700);
@@ -206,7 +208,7 @@ html {
     --boundary-hover: var(--color-zinc-500);
     --separator: var(--color-zinc-700);
     --overlay: color-mix(in srgb, var(--color-zinc-700) 75%, transparent);
-    --content: var(--color-zinc-100); /* NOTE: Also 'index.html'. */
+    --content: var(--color-zinc-200); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-400);
     --subtle: var(--color-zinc-500);
     --emphasis: var(--color-zinc-200);

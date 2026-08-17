@@ -14,8 +14,7 @@ import { configsAreRetrieved, connectorConfigs } from '@/state/session';
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
 import ConnectorPanel from './ConnectorPanel.vue';
-// import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
-import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
+import GridDetailPanel from '~/src/components/framework/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -53,7 +52,7 @@ function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<Connect
         @select="handleSelectConnector"
     >
         <template #grid-item="{ item }">
-            <ConfigCard v-if="item" :config="item" :selected="activeConnectorConfig?.id === item.id" />
+            <ConfigCard v-if="item" :config="item" :selected="item.id === activeConnectorConfig?.id" />
         </template>
 
         <template #detail="{ item, clear }">

@@ -13,8 +13,7 @@ import { configsAreRetrieved, presenterConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
-import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
-import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
+import GridDetailPanel from '~/src/components/framework/GridDetailPanel.vue';
 import PresenterForm from './PresenterForm.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import StepActionButton from '~/src/components/ui/button/StepActionButton.vue';

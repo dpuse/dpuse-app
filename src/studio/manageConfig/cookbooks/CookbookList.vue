@@ -7,15 +7,14 @@ import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbo
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { configsAreRetrieved, cookbookConfigs } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId } from '@/state/locale';
+import { configsAreRetrieved, cookbookConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
 import CookbookForm from './CookbookForm.vue';
-import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
-import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
+import GridDetailPanel from '~/src/components/framework/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import StepActionButton from '~/src/components/ui/button/StepActionButton.vue';
 

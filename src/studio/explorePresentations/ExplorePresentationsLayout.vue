@@ -14,7 +14,7 @@ import { presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
-import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
+import GridDetailPanel from '~/src/components/framework/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '../StudioHeader.vue';

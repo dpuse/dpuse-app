@@ -25,7 +25,7 @@ import {
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
 import DataViewSummaryPanel from './DataViewSummaryPanel.vue';
-import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
+import GridDetailPanel from '~/src/components/framework/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';
@@ -133,6 +133,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
                         { typeId: 'open', onClick: handleOpenDataView }
                     ]"
                     :config="item"
+                    :selected="item.id === activeDataViewLocalisedConfig?.id"
                     status-message="4 steps left"
                 />
             </template>
