@@ -98,8 +98,8 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
                     }"
                 >
                     <div
-                        class="flex size-6 items-center justify-center rounded-full border-[1.5px]"
-                        :class="{ 'border-blue-400 text-blue-400': activeTaskId === item.id || !item.disabled, 'border-zinc-400 text-zinc-400': item.disabled }"
+                        class="flex size-6 items-center justify-center rounded-full border-2 text-xs"
+                        :class="{ 'border-blue-400': activeTaskId === item.id || !item.disabled, 'border-zinc-400 text-zinc-400': item.disabled }"
                     >
                         {{ item.number }}
                     </div>

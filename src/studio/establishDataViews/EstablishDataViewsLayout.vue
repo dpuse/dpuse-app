@@ -1,14 +1,14 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { useRoute } from 'vue-router';
-import { computed, ref, shallowRef, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 // ── DPUse Framework
 import { localiseConfig, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import T from './EstablishDataViews.json';
 import { activeDataViewConfig } from '@/state/dataViews';
+import T from './EstablishDataViews.json';
 import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
@@ -28,12 +28,19 @@ const TASK_CONFIGS: TaskConfig[] = [
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
-const taskLocalisedConfigs = shallowRef<LocalisedConfig<TaskConfig>[]>([]);
 const tasksEnabledUpToNumber = ref(0);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeTaskLocalisedConfig = computed(() => taskLocalisedConfigs.value.find((config) => config.id === route.query.sView));
+const taskLocalisedConfigs = computed(() => localiseConfigs<TaskConfig>(TASK_CONFIGS, localeId.value));
+const taskLocalisedConfigsWithDisabled = computed((): LocalisedConfig<TaskConfig>[] =>
+    taskLocalisedConfigs.value.map((taskLocalisedConfig) => ({
+        ...taskLocalisedConfig,
+        disabled: taskLocalisedConfig.number > tasksEnabledUpToNumber.value
+    }))
+);
+
+const activeTaskLocalisedConfig = computed(() => taskLocalisedConfigsWithDisabled.value.find((config) => config.id === route.query.sView));
 const navigateBackRouteName = computed(() => (route.query.sView === 'establishDataViews' ? 'studio' : 'establishDataViews'));
 const headerOverline = computed(() => t(T, activeTaskLocalisedConfig.value ? 'Establish_Data_Views' : 'Studio'));
 const headerTitle = computed(() => {
@@ -52,17 +59,6 @@ watch(
     { immediate: true }
 );
 
-watch(
-    [tasksEnabledUpToNumber, localeId],
-    ([newTasksEnabledToNumber, newLocaleId]) => {
-        taskLocalisedConfigs.value = localiseConfigs<TaskConfig>(TASK_CONFIGS, newLocaleId).map((taskLocalisedConfig) => ({
-            ...taskLocalisedConfig,
-            disabled: taskLocalisedConfig.number > newTasksEnabledToNumber
-        }));
-    },
-    { immediate: true }
-);
-
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): void {
@@ -76,7 +72,7 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
         <StudioHeader class="flex-none px-4" :overline="headerOverline" :title="headerTitle" :to="navigateBackRouteName" />
 
         <!-- Task Bar -->
-        <TaskBar v-if="activeTaskLocalisedConfig" :active-task-id="activeTaskLocalisedConfig.id" class="mx-4 flex flex-none" :items="taskLocalisedConfigs" />
+        <TaskBar v-if="activeTaskLocalisedConfig" :active-task-id="activeTaskLocalisedConfig.id" class="mx-4 flex flex-none" :items="taskLocalisedConfigsWithDisabled" />
 
         <!-- Data View List or Active Task Panel -->
         <RouterView v-slot="{ Component }">

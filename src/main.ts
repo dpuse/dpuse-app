@@ -1,4 +1,5 @@
 // ── External Dependencies & Registrations
+import '@fontsource-variable/inter';
 import { createApp } from 'vue';
 import { z } from 'zod/v4'; // TODO: Required by Vercel AI SDK.
 

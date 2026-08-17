@@ -56,7 +56,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
 
             <div class="flex flex-col overflow-x-hidden">
                 <div v-if="!isCompact && overline" class="min-w-0 truncate text-xs leading-tight font-normal text-muted">{{ overline }}</div>
-                <div class="min-w-0 truncate text-[16px] leading-tight">{{ config.label }}</div>
+                <div class="min-w-0 truncate leading-tight text-zinc-500">{{ config.label }}</div>
             </div>
         </div>
 

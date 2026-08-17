@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1587",
+    "version": "0.0.1588",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -52,6 +52,7 @@
         "@dpuse/dpuse-shared": "^0.3.772",
         "@dpuse/dpuse-tool-d3-visualiser": "^0.0.46",
         "@dpuse/dpuse-tool-marked-markdown-parser": "^0.1.11",
+        "@fontsource-variable/inter": "^5.3.0",
         "@formkit/drag-and-drop": "^0.6.1",
         "@regle/core": "^1.29.1",
         "@regle/rules": "^1.29.1",

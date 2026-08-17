@@ -28,6 +28,7 @@ export default defineConfig({
                 "default-src 'none';" +
                 " base-uri 'self';" +
                 " connect-src 'self' https://localhost:5173 wss://localhost:5173 data: https://api.dpuse.app wss://api.dpuse.app https://engine-eu.dpuse.app https://sample-data-eu.dpuse.app https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io wss://dpuse-partykit.terrell-jm.workers.dev;" +
+                " font-src 'self';" +
                 " form-action 'none';" +
                 " frame-ancestors 'none';" +
                 " frame-src 'none';" +
