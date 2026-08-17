@@ -17,6 +17,7 @@ import DetailActionBar from '@/components/framework/gridDetailPanel/DetailAction
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import PresenterForm from './PresenterForm.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+import StepActionButton from '~/src/components/ui/button/StepActionButton.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -52,7 +53,7 @@ function handleSelectPresenter(presenterLocalisedConfig: LocalisedConfig<Present
         <template #detail="{ item, clear }">
             <div class="relative flex min-h-0 flex-1 flex-col">
                 <PresenterForm :presenter-localised-config="item" />
-                <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @clear="clear" />
+                <StepActionButton label="Select" />
             </div>
         </template>
 

@@ -17,11 +17,11 @@ import { localeId, t } from '@/state/locale';
 // ── Local Components - Static
 import AddConnectionForm from './AddConnectionForm.vue';
 import ConfigCard from '@/components/framework/ConfigCard.vue';
-import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
+import StepActionButton from '~/src/components/ui/button/StepActionButton.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -132,7 +132,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
                     </div>
                     <div class="relative min-h-0 flex-1">
                         <AddConnectionForm :connector-localised-config="item" />
-                        <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" commit-variant="add" @clear="clear" @commit="handleCommitDetail" />
+                        <StepActionButton label="Select" @commit="handleCommitDetail" />
                     </div>
                 </template>
             </GridDetailPanel>

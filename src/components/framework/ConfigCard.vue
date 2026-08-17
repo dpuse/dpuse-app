@@ -20,9 +20,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
         class="relative flex size-full cursor-pointer flex-col gap-y-2 outline -outline-offset-1 transition-colors"
         :class="[
             isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4',
-            selected
-                ? 'bg-sky-50 outline-sky-200 hover:bg-sky-100 hover:outline-sky-200'
-                : 'bg-[#fdfdfd] outline-separator hover:bg-zinc-50 hover:outline-zinc-300 active:bg-card-hover'
+            selected ? 'bg-sky-50 outline-sky-200 hover:bg-sky-100 hover:outline-sky-200' : 'bg-card outline-separator hover:bg-zinc-50 hover:outline-zinc-300 active:bg-card-hover'
         ]"
         data-region="ConfigCard"
         role="presentation"
@@ -45,7 +43,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
 
         <!-- Icon, Overline & Label -->
         <div class="flex items-center gap-x-2">
-            <div v-if="config.icon || config.iconDark" class="flex flex-none items-center justify-center rounded-md" :class="isCompact ? 'size-4.5' : 'size-6.5'">
+            <div v-if="config.icon || config.iconDark" class="flex flex-none items-center justify-center rounded-md" :class="isCompact ? 'size-5' : 'size-7'">
                 <!-- Only split into two v-html copies when the SVGs actually differ; otherwise rendering the same markup twice duplicates element ids (mask/gradient), which can break references when one copy is display:none. -->
                 <template v-if="config.icon && config.iconDark && config.icon !== config.iconDark">
                     <div aria-hidden="true" class="block w-full text-zinc-400 dark:hidden [&>svg]:max-h-8 [&>svg]:max-w-8" v-html="config.icon" />

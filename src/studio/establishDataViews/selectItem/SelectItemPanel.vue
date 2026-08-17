@@ -32,6 +32,7 @@ import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 import TextViewer from '@/components/ui/TextViewer.vue';
+import StepActionButton from '~/src/components/ui/button/StepActionButton.vue';
 
 const ITEM_ACTIONS = [
     { id: 'table', label: 'Table' },
@@ -268,14 +269,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     <div class="absolute inset-y-0 left-0 bg-green-200 dark:bg-green-500/30" :style="{ width: `${previewPercentage}%` }"></div>
                     <div class="relative pl-1">{{ previewMessage }}</div>
                 </div>
-                <DetailActionBar
-                    v-model="activeItemAction"
-                    class="absolute right-4 bottom-(--safe-bottom-offset)"
-                    commit-variant="add"
-                    :item-actions="ITEM_ACTIONS"
-                    @clear="clear"
-                    @commit="handleCommitDetail"
-                />
+                <StepActionButton label="Select" @click="handleCommitDetail" />
             </div>
         </template>
 

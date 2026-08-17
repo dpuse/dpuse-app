@@ -7,6 +7,7 @@ import { computed, onUnmounted, ref, shallowRef } from 'vue';
 import { type DataSource, DEFAULT_CACHE_BLOCK_SIZE, useDataWindow } from '@/composables/useDataWindow';
 
 // ── Local Components - Static
+import AddActionButton from '@/components/ui/button/AddActionButton.vue';
 import BusyBar from '@/components/framework/BusyBar.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea, { type ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
@@ -148,13 +149,14 @@ function getRowHeight(item: T | undefined): number {
         </Transition>
 
         <!-- Floating Add Button (Optional) -->
-        <Button v-if="addLabel" class="absolute right-(--safe-right-offset) bottom-(--safe-bottom-offset)" shape="minimal" @click="$emit('add')">
+        <AddActionButton v-if="addLabel" :label="addLabel" @click="$emit('add')" />
+        <!-- <Button v-if="addLabel" class="absolute right-(--safe-right-offset) bottom-(--safe-bottom-offset)" shape="minimal" @click="$emit('add')">
             <div
                 class="flex h-10 items-center gap-x-1 rounded-full border border-blue-200 bg-blue-50 pr-3.5 pl-2 text-blue-600 shadow-md hover:bg-blue-100 focus-visible:ring-blue-300 dark:border-blue-600 dark:bg-blue-800 dark:text-blue-300 dark:hover:bg-blue-700 dark:focus-visible:ring-blue-500"
             >
                 <PlusIcon class="size-5" :stroke-width="1.25" />
                 <span class="text-sm">{{ addLabel }}</span>
             </div>
-        </Button>
+        </Button> -->
     </div>
 </template>

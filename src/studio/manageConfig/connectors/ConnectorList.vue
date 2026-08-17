@@ -57,10 +57,7 @@ function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<Connect
         </template>
 
         <template #detail="{ item, clear }">
-            <!-- <div class="relative flex min-h-0 flex-1 flex-col"> -->
             <ConnectorPanel :connector-localised-config="item" @clear="clear" />
-            <!-- <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @clear="clear" /> -->
-            <!-- </div> -->
         </template>
 
         <template #no-selection>

@@ -6,7 +6,7 @@ html {
     font-size: 1rem; /* 16px is default */
 }
 
-.dpuse-prose h1,
+/* .dpuse-prose h1,
 .dpuse-prose h2,
 .dpuse-prose h3,
 .dpuse-prose h4,
@@ -19,7 +19,7 @@ html {
     position: relative;
     font-weight: 600;
     outline: none;
-}
+} */
 .dpuse-prose h1,
 .dpuse-prose h2,
 .dpuse-prose h3,
@@ -31,24 +31,24 @@ html {
     overflow-wrap: break-word;
 }
 .dpuse-prose h1 {
-    font-size: 28px;
-    font-weight: 500;
+    font-size: 32px;
+    font-weight: 600;
     letter-spacing: -0.02em;
-    line-height: 32px;
+    line-height: 40px;
 }
 .dpuse-prose h2 {
     border-top: 1px solid var(--separator);
     font-size: 24px;
-    font-weight: 400;
+    font-weight: 600;
     letter-spacing: -0.02em;
-    line-height: 30px;
+    line-height: 32px;
     margin-bottom: 16px;
     margin-top: 24px;
     padding-top: 8px;
 }
 .dpuse-prose h3 {
     font-size: 20px;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: -0.01em;
     line-height: 28px;
 }
@@ -63,33 +63,37 @@ html {
     margin-top: 12px;
     line-height: 28px;
 }
-.dpuse-prose ul,
-.dpuse-prose ol {
+.dpuse-prose ol,
+.dpuse-prose ul {
     margin: 0;
     padding-left: 24px;
-}
-.dpuse-prose ul {
-    list-style: disc;
 }
 .dpuse-prose ol {
     list-style: decimal;
 }
-.dpuse-prose ul ul,
 .dpuse-prose ol ul {
+    list-style: circle;
+}
+.dpuse-prose ul {
+    list-style: disc;
+}
+.dpuse-prose ul ul{
     list-style: circle;
 }
 .dpuse-prose a {
     color: var(--color-blue-500);
 }
 .dpuse-prose blockquote {
-    margin: 0;
-    padding-left: 12px;
-    border-left: 3px solid var(--separator);
     color: var(--muted);
+    border-left: 3px solid var(--separator);
+    padding-left: 12px;
+    margin: 0;
 }
 .dpuse-prose .dpuse-prose-overline {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    line-height: 1.25;
     margin-bottom: 2px;
-    @apply text-sm leading-tight text-muted;
 }
 .dpuse-prose table {
     border-collapse: collapse;
@@ -166,9 +170,7 @@ html {
 
 /* Variables and light mode colors. */
 :root {
-    --safe-bottom-offset: calc(
-        max(env(safe-area-inset-bottom), 21px) + 24px
-    ); /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '21px' for optional status bar; '24px' for horizontal scroll bar. */
+    --safe-bottom-offset: calc(max(env(safe-area-inset-bottom), 21px) + 24px ); /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '21px' for optional status bar; '24px' for horizontal scroll bar. */
     --safe-top-offset: calc(env(safe-area-inset-top) + 7px); /* Floating button screen top offset: 'safe-area-inset-top'; '7px' for gutter. */
     --safe-left-offset: calc(env(safe-area-inset-left) + 12px); /* Floating button screen left offset: 'safe-area-inset-left'; '12px' for gutter. */
     --safe-right-offset: calc(env(safe-area-inset-right) + 12px); /* Floating button screen right offset: 'safe-area-inset-right'; '12px' for gutter. */
@@ -181,7 +183,7 @@ html {
     /* Light mode colors. */
     --backdrop: var(--color-zinc-50);
     --surface: var(--color-white); /* NOTE: Also 'index.html' and 'public/manifest.webmanifest'. */
-    --card: var(--color-zinc-50);
+    --card: #fdfdfd;
     --card-hover: var(--color-zinc-100);
     --boundary: var(--color-zinc-100);
     --boundary-hover: var(--color-zinc-300);
@@ -191,7 +193,7 @@ html {
     --muted: var(--color-zinc-500);
     --subtle: var(--color-zinc-400);
     --emphasis: var(--color-zinc-700);
-    --accent: var(--color-blue-800);
+    --accent: var(--color-blue-700);
 }
 
 .dark {

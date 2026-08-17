@@ -18,6 +18,7 @@ import ConnectionForm from './ConnectionForm.vue';
 import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+import StepActionButton from '~/src/components/ui/button/StepActionButton.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -65,7 +66,7 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
         <template #detail="{ item, clear }">
             <div class="relative flex min-h-0 flex-1 flex-col">
                 <ConnectionForm :connection-localised-config="item" />
-                <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @clear="clear" @commit="handleCommitDetail" />
+                <StepActionButton label="Select" @commit="handleCommitDetail" />
             </div>
         </template>
 

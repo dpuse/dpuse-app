@@ -25,10 +25,10 @@ import {
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
 import DataViewSummaryPanel from './DataViewSummaryPanel.vue';
-import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
 import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
+import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 import StudioListPanel from '../StudioListPanel.vue';
 
 // ── Local Components - Dynamic
@@ -121,7 +121,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
             add-label="Data View"
             class="min-h-0 flex-1"
             :data-source="dataViewConfigsDataSource"
-            max-detail-width="650px"
+            max-detail-width="65ch"
             :row-height="162"
             @add="handleAddDataView"
             @select="handleSelectDataView"
@@ -142,10 +142,8 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
             </template>
 
             <template #detail="{ item, clear }">
-                <div class="relative flex min-h-0 flex-1 flex-col">
-                    <DataViewSummaryPanel class="min-h-0 flex-1 pl-4" :data-view-localised-config="item" @close="clear" />
-                    <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" @click="handleOpenDataView(item)" />
-                </div>
+                <DataViewSummaryPanel class="min-h-0 flex-1 pl-4" :data-view-localised-config="item" @close="clear" />
+                <StepActionButton label="Open" @click="handleOpenDataView(item)" />
             </template>
 
             <template #no-selection>

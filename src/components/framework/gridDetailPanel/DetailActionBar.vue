@@ -8,6 +8,7 @@ import Button from '@/components/ui/button/Button.vue';
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
 export type ItemAction = { id: string; label: string };
+const { label } = defineProps<{ label: string }>();
 // const { itemActions = [], commitVariant } = defineProps<{ commitVariant?: 'add' | 'select'; itemActions?: ItemAction[] }>();
 // const modelValue = defineModel<string>();
 // defineEmits<{ clear: []; commit: []; open: [] }>();
@@ -59,7 +60,7 @@ export type ItemAction = { id: string; label: string };
             class="inline-flex items-center gap-x-1 rounded-full border border-blue-200 bg-blue-50 pr-2 pl-3 text-blue-600 hover:bg-blue-100 focus-visible:ring-blue-300 dark:border-blue-500 dark:bg-blue-950 dark:text-blue-400 dark:hover:bg-blue-900 dark:focus-visible:ring-blue-500"
             shape="minimal"
         >
-            <span class="text-sm">Open</span>
+            <span class="text-sm">{{ label }}</span>
             <ArrowRightIcon class="size-5" :stroke-width="1.25" />
         </Button>
     </div>

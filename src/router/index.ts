@@ -11,7 +11,7 @@ const StudioHomeLayout = load('StudioHomeLayout', () => import('@/studio/home/St
 // ── Local Components - Dynamic - Establish Data Views
 const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/studio/establishDataViews/EstablishDataViewsLayout.vue'));
 const DataViewList = load('DataViewList', () => import('@/studio/establishDataViews/DataViewList.vue'));
-const SelectConnectionPanel = load('SelectConnection', () => import('@/studio/establishDataViews/selectConnection/SelectConnectionPanel.vue'));
+const SelectConnectionList = load('SelectConnection', () => import('@/studio/establishDataViews/selectConnection/SelectConnectionList.vue'));
 const SelectItemPanel = load('SelectItem', () => import('@/studio/establishDataViews/selectItem/SelectItemPanel.vue'));
 const AuditContentPanel = load('AuditContent', () => import('@/studio/establishDataViews/auditContent/AuditContentPanel.vue'));
 const ExploreData = load('ExploreData', () => import('@/studio/establishDataViews/exploreData/ExploreData.vue'));
@@ -54,7 +54,7 @@ export const APP_ROUTES = [
                             {
                                 path: ':dataViewId',
                                 children: [
-                                    { name: 'selectConnection', path: 'selectConnection', component: SelectConnectionPanel },
+                                    { name: 'selectConnection', path: 'selectConnection', component: SelectConnectionList },
                                     { name: 'selectItem', path: 'selectItem', component: SelectItemPanel },
                                     { name: 'auditContent', path: 'auditContent', component: AuditContentPanel },
                                     { name: 'exploreData', path: 'investigate', component: ExploreData }

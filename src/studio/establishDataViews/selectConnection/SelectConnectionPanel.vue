@@ -1,126 +1,132 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, watch } from 'vue';
+import { ArrowBigRightIcon } from '@lucide/vue';
+import { computed, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
+import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/component/module/engine';
+import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import type { DataSource } from '@/composables/useDataWindow';
-import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
-import { activeMetaStoreConnectionConfig, configsAreRetrieved } from '@/state/session';
+import { accountId } from '@/state/session';
+import T from './SelectConnectionPanel.json';
+import { t } from '@/state/locale';
+import { useEngine } from '@/services/useEngine';
 
 // ── Local Components - Static
-import ConfigCard from '@/components/framework/ConfigCard.vue';
-import DetailActionBar from '@/components/framework/gridDetailPanel/DetailActionBar.vue';
-import GridDetailPanel from '@/components/framework/gridDetailPanel/GridDetailPanel.vue';
-import SelectConnectionForm from './SelectConnectionForm.vue';
-import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
-import type { TaskConfig } from '@/components/ui/TaskBar.vue';
+import Button from '@/components/ui/button/Button.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
+import StudioDetailPanel from '../../StudioDetailPanel.vue';
+import StudioDocumentPanel from '../../StudioDocumentPanel.vue';
+import Tag from '@/components/ui/Tag.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
-
-defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> }>();
+defineEmits<{ close: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();
-
-// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
-    rowCount: configsAreRetrieved.value ? connectionLocalisedConfigs.value.length : undefined,
-    getRows: (start, end): Promise<{ rows: LocalisedConfig<ConnectionConfig>[] }> => Promise.resolve({ rows: connectionLocalisedConfigs.value.slice(start, end) })
-}));
-
-// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => getDataViewRecord(newLocalMetaStoreConnectionConfig, route));
+const connectorStatus = computed(() => (connectionLocalisedConfig.statusId ? getComponentStatus(connectionLocalisedConfig.statusId) : undefined));
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleAddConnection(): void {
-    router.replace({ query: { ...route.query, dlg: 'connection' } });
-}
-
-function handleCommitDetail(): void {
-    router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } });
-}
-
-function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
-    activeConnectionConfig.value = connectionLocalisedConfig;
-    activeConnectionNodeConfigs.value = [];
-    resetActiveDataViewConfig(connectionLocalisedConfig);
+async function handleSubmit(): Promise<void> {
+    await router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<ConnectionConfig>): void {
-    activeDataViewConfig.value =
-        activeDataViewConfig.value == null
-            ? {
-                  id: NEW_DATA_VIEW_ID,
-                  label: { en: 'New Data View' },
-                  description: { en: 'A new data view.' },
-                  firstCreatedAt: null,
-                  icon: null,
-                  iconDark: null,
-                  lastUpdatedAt: null,
-                  status: null,
-                  statusId: null,
-                  typeId: 'dataView',
-                  connectionId: connectionLocalisedConfig?.id,
-                  connectionNodeConfig: undefined,
-                  previewConfig: undefined,
-                  contentAuditConfig: undefined,
-                  relationshipsAuditConfig: undefined
-              }
-            : {
-                  ...activeDataViewConfig.value,
-                  connectionId: connectionLocalisedConfig?.id,
-                  connectionNodeConfig: undefined,
-                  previewConfig: undefined,
-                  contentAuditConfig: undefined,
-                  relationshipsAuditConfig: undefined
-              };
+async function testAuth(): Promise<void> {
+    if (connectionLocalisedConfig == null) return;
+    const { processRequest } = await useEngine();
+    (await processRequest('authenticateConnection', connectionLocalisedConfig, {
+        accountId: accountId.value,
+        windowCenterX: screen.width / 2,
+        windowCenterY: screen.height / 2
+    })) as EngineAuthActionOptions;
 }
 </script>
 
 <template>
-    <GridDetailPanel
-        :active-item="activeConnectionConfig"
-        add-label="Connection"
-        :data-source="connectionConfigsDataSource"
-        max-detail-width="400px"
-        :row-height="122"
-        @add="handleAddConnection"
-        @select="handleSelectConnection"
-    >
-        <template #grid-item="{ item }">
-            <ConfigCard v-if="item" :config="item" />
-        </template>
-
-        <template #detail="{ item, clear }">
-            <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
-                <div class="flex size-7 items-center justify-center">
-                    <div v-if="item.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="item.icon || item.iconDark" />
-                    <div v-if="item.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="item.iconDark || item.icon" />
+    <StudioDetailPanel data-region="SelectConnectionPanel">
+        <ScrollArea class="flex-1" scroll-area-padding="screen">
+            <StudioDocumentPanel overline="Connections" :title="connectionLocalisedConfig.label" @close="$emit('close')">
+                <!-- Tags -->
+                <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
+                    <Tag :text="connectionLocalisedConfig.connectorConfig.categoryId" />
+                    <Tag :text="`v${connectionLocalisedConfig.connectorConfig.version}`" />
+                    <Tag v-if="connectorStatus" :text="connectionLocalisedConfig.statusId ?? ''" :color="connectorStatus.color" />
                 </div>
-                <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
-            </div>
-            <div class="relative min-h-0 flex-1">
-                <SelectConnectionForm :connection-localised-config="item" @submit="$emit('task-completed', taskLocalisedConfig)" />
-                <DetailActionBar class="absolute right-4 bottom-(--safe-bottom-offset)" commit-variant="add" @clear="clear" @commit="handleCommitDetail" />
-            </div>
-        </template>
 
-        <template #no-selection>
-            <SelectPlaceholder :message="'Select a connection from the list.'" />
-        </template>
-    </GridDetailPanel>
+                <!-- Description -->
+                <p v-if="connectionLocalisedConfig.description">{{ connectionLocalisedConfig.description }}</p>
+            </StudioDocumentPanel>
+        </ScrollArea>
+    </StudioDetailPanel>
+
+    <!-- <form class="relative flex h-full flex-col pl-4" data-region="SelectConnectionPanel" @submit.prevent="handleSubmit">
+        <ScrollArea class="flex-1" scroll-area-padding="screen">
+            <div class="flex flex-col gap-y-4 pt-2">
+                {{ connectionLocalisedConfig?.connectorConfig.description.en }}
+
+                <div>
+                    <div><strong>Id:</strong> {{ connectionLocalisedConfig?.connectorConfig.id }}</div>
+                    <div><strong>Category Id:</strong> {{ connectionLocalisedConfig?.connectorConfig.categoryId }}</div>
+                    <div><strong>Status Id:</strong> {{ connectionLocalisedConfig?.statusId }}</div>
+                    <div><strong>Status Id:</strong> {{ connectionLocalisedConfig?.connectorConfig.statusId }}</div>
+                    <div><strong>Type Id:</strong> {{ connectionLocalisedConfig?.typeId }}</div>
+                    <div><strong>Type Id:</strong> {{ connectionLocalisedConfig?.connectorConfig.typeId }}</div>
+                    <div><strong>Version:</strong> {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
+                </div>
+
+                <Button @click="testAuth">Auth</Button>
+
+                <div>
+                    <strong>Connection:</strong>
+                    <div>id: {{ connectionLocalisedConfig.id }}</div>
+                    <div>label: {{ connectionLocalisedConfig.label }}</div>
+                    <div>description: {{ connectionLocalisedConfig.description }}</div>
+                    <div>notation: {{ connectionLocalisedConfig.notation }}</div>
+                    <div>authorisation: {{ connectionLocalisedConfig.authorisation }}</div>
+                    <div>firstCreatedAt: {{ connectionLocalisedConfig.firstCreatedAt }}</div>
+                    <div>icon: {{ connectionLocalisedConfig.icon != null }}</div>
+                    <div>iconDark: {{ connectionLocalisedConfig.iconDark != null }}</div>
+                    <div>lastUpdatedAt: {{ connectionLocalisedConfig.lastUpdatedAt }}</div>
+                    <div>lastVerifiedAt: {{ connectionLocalisedConfig.lastVerifiedAt }}</div>
+                    <div>status: {{ connectionLocalisedConfig.status }}</div>
+                    <div>statusId: {{ connectionLocalisedConfig.statusId }}</div>
+                    <div>typeId: {{ connectionLocalisedConfig.typeId }}</div>
+                </div>
+
+                <div>
+                    <strong>Connector:</strong>
+                    <div>id: {{ connectionLocalisedConfig.connectorConfig.id }}</div>
+                    <div>label: {{ connectionLocalisedConfig.connectorConfig.label }}</div>
+                    <div>description: {{ connectionLocalisedConfig?.connectorConfig.description }}</div>
+                    <div>category: {{ connectionLocalisedConfig?.connectorConfig.category }}</div>
+                    <div>categoryId: {{ connectionLocalisedConfig?.connectorConfig.categoryId }}</div>
+                    <div>firstCreatedAt: {{ connectionLocalisedConfig.firstCreatedAt }}</div>
+                    <div>icon: {{ connectionLocalisedConfig.icon != null }}</div>
+                    <div>iconDark: {{ connectionLocalisedConfig.iconDark != null }}</div>
+                    <div>implementations: {{ connectionLocalisedConfig?.connectorConfig.implementations }}</div>
+                    <div>actionNames: {{ connectionLocalisedConfig?.connectorConfig.actionNames }}</div>
+                    <div>lastUpdatedAt: {{ connectionLocalisedConfig.lastUpdatedAt }}</div>
+                    <div>lastVerifiedAt: {{ connectionLocalisedConfig.lastVerifiedAt }}</div>
+                    <div>status: {{ connectionLocalisedConfig?.connectorConfig.status }}</div>
+                    <div>statusId: {{ connectionLocalisedConfig?.connectorConfig.statusId }}</div>
+                    <div>typeId: {{ connectionLocalisedConfig?.connectorConfig.typeId }}</div>
+                    <div>vendorAccountURL: {{ connectionLocalisedConfig?.connectorConfig.vendorAccountURL }}</div>
+                    <div>vendorDocumentationURL: {{ connectionLocalisedConfig?.connectorConfig.vendorDocumentationURL }}</div>
+                    <div>vendorHomeURL: {{ connectionLocalisedConfig?.connectorConfig.vendorHomeURL }}</div>
+                    <div>version: {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
+                </div>
+            </div>
+        </ScrollArea>
+    </form> -->
 </template>
