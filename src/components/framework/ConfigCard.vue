@@ -1,10 +1,13 @@
 <script setup lang="ts" generic="T extends BaseConfig = BaseConfig">
-// ── External Dependencies & Registrations ───────────────────────────────────────────────────────────────────────────
-
-import type { BaseConfig } from '@dpuse/dpuse-shared';
-import Button from '@/components/ui/button/Button.vue';
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+// ── External Dependencies & Registrations
 import { InfoIcon, TrashIcon } from '@lucide/vue';
+
+// ── DPUse Framework
+import type { BaseConfig } from '@dpuse/dpuse-shared';
+import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+
+// ── Local Components - Static
+import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
@@ -21,7 +24,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
         :class="[
             isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4',
             selected
-                ? 'bg-[#f7fcff] outline-sky-200 hover:bg-sky-100 hover:outline-sky-200 dark:bg-sky-950 dark:outline-sky-800 dark:hover:bg-sky-900 dark:hover:outline-sky-800'
+                ? 'bg-[#f9fdff] outline-sky-200 hover:bg-sky-50 hover:outline-sky-200 dark:bg-sky-950 dark:outline-sky-800 dark:hover:bg-sky-900 dark:hover:outline-sky-800'
                 : 'bg-card outline-separator hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover'
         ]"
         data-region="ConfigCard"
@@ -35,7 +38,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
                     :class="{
                         'bg-gray-100 text-gray-800 inset-ring-gray-300/60 dark:bg-gray-400/20 dark:text-gray-300 dark:inset-ring-gray-500/30': badge.color === undefined,
                         'bg-red-100 text-red-800 inset-ring-red-300/60 dark:bg-red-400/20 dark:text-red-300 dark:inset-ring-red-500/30': badge.color === 'danger',
-                        'bg-amber-100 text-amber-800 inset-ring-amber-300/60 dark:bg-amber-400/20 dark:text-amber-300 dark:inset-ring-amber-500/30': badge.color === 'warning'
+                        'bg-amber-50 text-amber-800 inset-ring-amber-200/60 dark:bg-amber-400/10 dark:text-amber-300 dark:inset-ring-amber-500/20': badge.color === 'warning'
                     }"
                 >
                     {{ badge.label }}
@@ -73,8 +76,14 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
                 </Button>
 
                 <Button v-if="action.typeId === 'open'" aria-label="Open" class="p-0.5" shape="minimal" @click.stop="action.onClick(config)">
-                    <svg viewBox="0 0 24 24" class="size-6 fill-sky-50 stroke-sky-600 dark:fill-sky-950 dark:stroke-sky-300" stroke-linecap="round" stroke-linejoin="round">
-                        <circle class="stroke-sky-200 dark:stroke-sky-800" cx="12" cy="12" r="10" stroke-width="1.25" />
+                    <svg
+                        viewBox="0 0 24 24"
+                        class="size-6"
+                        :class="selected ? 'fill-sky-100 stroke-sky-700 dark:fill-sky-800 dark:stroke-sky-200' : 'fill-sky-50 stroke-sky-600 dark:fill-sky-900 dark:stroke-sky-300'"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <circle :class="selected ? 'stroke-sky-300 dark:stroke-sky-700' : 'stroke-sky-200 dark:stroke-sky-800'" cx="12" cy="12" r="10" stroke-width="1" />
                         <path d="m12 16 4-4-4-4" />
                         <path d="M8 12h8" />
                     </svg>
@@ -90,7 +99,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
         <div
             v-if="!isCompact && statusMessage"
             class="absolute bottom-2 left-2 rounded-full px-2 py-0.5 text-xs inset-ring"
-            :class="['bg-amber-100 text-amber-800 inset-ring-amber-300/60 dark:bg-amber-400/20 dark:text-amber-300 dark:inset-ring-amber-500/30']"
+            :class="['bg-amber-50 text-amber-800 inset-ring-amber-200/60 dark:bg-amber-400/10 dark:text-amber-300 dark:inset-ring-amber-500/20']"
         >
             {{ statusMessage }}
         </div>
