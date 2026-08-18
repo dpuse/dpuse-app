@@ -117,6 +117,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
                     }
                 ]"
                 :config="item"
+                :selected="item.id === activeConnectionConfig?.id"
             />
         </template>
 
