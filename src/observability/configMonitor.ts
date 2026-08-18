@@ -54,8 +54,6 @@ export function initialise(): void {
 // ── Helpers - WebSocket ──────────────────────────────────────────────────────────────────────────────────────────────
 
 function connectToWebSocket(): WebSocket | undefined {
-    // Data from a previous connection can't be trusted as current until this connection has proven itself.
-    configsAreRetrieved.value = false;
     try {
         const url = `wss://${DPU_API_HOST}/configs/websocket`;
         let pendingWebSocket: WebSocket | undefined = new WebSocket(url);
