@@ -24,7 +24,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
         :class="[
             isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4',
             selected
-                ? 'bg-[#f9fdff] outline-sky-200 hover:bg-sky-50 hover:outline-sky-200 dark:bg-sky-950 dark:outline-sky-800 dark:hover:bg-sky-900 dark:hover:outline-sky-800'
+                ? 'bg-sky-50/60 outline-sky-200 hover:bg-sky-50 hover:outline-sky-200 dark:bg-sky-950 dark:outline-sky-800 dark:hover:bg-sky-900 dark:hover:outline-sky-800'
                 : 'bg-card outline-separator hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover'
         ]"
         data-region="ConfigCard"
@@ -79,13 +79,13 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
                     <svg
                         viewBox="0 0 24 24"
                         class="size-6"
-                        :class="selected ? 'fill-sky-100 stroke-sky-700 dark:fill-sky-800 dark:stroke-sky-200' : 'fill-sky-50 stroke-sky-600 dark:fill-sky-900 dark:stroke-sky-300'"
+                        :class="selected ? 'fill-sky-100 stroke-sky-700 dark:fill-sky-800 dark:stroke-sky-200' : 'fill-sky-50 stroke-sky-600 dark:fill-sky-900 dark:stroke-sky-400'"
                         stroke-linecap="round"
                         stroke-linejoin="round"
                     >
-                        <circle :class="selected ? 'stroke-sky-300 dark:stroke-sky-700' : 'stroke-sky-200 dark:stroke-sky-800'" cx="12" cy="12" r="10" stroke-width="1" />
-                        <path d="m12 16 4-4-4-4" />
-                        <path d="M8 12h8" />
+                        <circle :class="selected ? 'stroke-sky-400 dark:stroke-sky-700' : 'stroke-sky-200 dark:stroke-sky-800'" cx="12" cy="12" r="10" stroke-width="1" />
+                        <path d="m12 16 4-4-4-4" stroke-width="1.75" />
+                        <path d="M8 12h8" stroke-width="1.75" />
                     </svg>
                 </Button>
 

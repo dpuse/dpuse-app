@@ -195,7 +195,7 @@ html {
     --muted: var(--color-zinc-500);
     --subtle: var(--color-zinc-400);
     --emphasis: var(--color-zinc-700);
-    --accent: var(--color-blue-700);
+    --accent: var(--color-sky-600);
 }
 
 .dark {
@@ -212,7 +212,7 @@ html {
     --muted: var(--color-zinc-400);
     --subtle: var(--color-zinc-500);
     --emphasis: var(--color-zinc-200);
-    --accent: var(--color-blue-300);
+    --accent: var(--color-sky-400);
 }
 
 /* Content column: left margin scales with viewport width (clamped 0–5rem), max-width 56rem, right margin absorbs remaining space. */
