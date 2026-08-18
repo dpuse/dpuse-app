@@ -82,8 +82,12 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
     return {
         rowCount: undefined, // Unknown until the first listNodes response reports totalCount — useDataWindow guarantees that fetch happens.
         getRows: async (start: number, end: number): Promise<{ rows: LocalisedConfig<ConnectionNodeConfig>[]; totalCount: number }> => {
+            // activeConnectionConfig can transiently be undefined while configMonitor/accountMonitor are still
+            // catching up (for example, right after a reconnect) — throwing here lets useDataWindow's existing
+            // retry-with-backoff recover once the underlying config settles, instead of the engine crashing.
+            if (activeConnectionConfig.value == null) throw new Error('No active connection config — cannot list nodes yet.');
             const { processRequest } = await useEngine();
-            const result = (await processRequest('listNodes', activeConnectionConfig.value!, {
+            const result = (await processRequest('listNodes', activeConnectionConfig.value, {
                 folderPath,
                 limit: end - start,
                 offset: start
@@ -224,9 +228,10 @@ function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfig> | u
 const infoString = ref('');
 
 async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
+    if (activeConnectionConfig.value == null) throw new Error('No active connection config — cannot get info yet.');
     const { processRequest } = await useEngine();
     const options: GetInfoOptions = { path: buildObjectPath(connectionNodeConfig) };
-    const { info } = (await processRequest('getInfo', activeConnectionConfig.value!, options)) as GetInfoResult;
+    const { info } = (await processRequest('getInfo', activeConnectionConfig.value, options)) as GetInfoResult;
     const infoWithoutChildren = { ...info };
     delete infoWithoutChildren.children;
     infoString.value = JSON.stringify(infoWithoutChildren);

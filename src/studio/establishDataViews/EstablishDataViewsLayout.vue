@@ -1,13 +1,14 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { computed, ref, watch } from 'vue';
 
 // ── DPUse Framework
 import { localiseConfig, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { activeDataViewConfig } from '@/state/dataViews';
+import { accountConfigsAreRetrieved, configsAreRetrieved } from '@/state/session';
+import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs } from '@/state/dataViews';
 import T from './EstablishDataViews.json';
 import { localeId, t } from '@/state/locale';
 
@@ -28,6 +29,7 @@ const TASK_CONFIGS: TaskConfig[] = [
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
+const router = useRouter();
 const tasksEnabledUpToNumber = ref(0);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -58,6 +60,21 @@ watch(
     },
     { immediate: true }
 );
+
+// Single place (shared by all four tasks) that notices the active connection has genuinely gone away —
+// reconnect races, sign-out, or the connector being removed all look the same from here. Gated on both
+// configMonitor and accountMonitor having delivered data since connecting, so a momentary gap in either
+// feed isn't mistaken for the connection actually disappearing. A no-op on selectConnection since nothing
+// is active there until the user picks something.
+watch(connectionLocalisedConfigs, (newConnectionLocalisedConfigs) => {
+    const active = activeConnectionConfig.value;
+    if (active == null) return;
+    if (!configsAreRetrieved.value || !accountConfigsAreRetrieved.value) return;
+    if (newConnectionLocalisedConfigs.some((config) => config.id === active.id)) return;
+
+    activeConnectionConfig.value = undefined;
+    void router.replace({ name: 'establishDataViews' });
+});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

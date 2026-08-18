@@ -66,6 +66,9 @@ export const toolConfigs = shallowRef<ToolConfig[]>([]);
 // True once configMonitor's initial WebSocket handshake has been processed — distinct from any one config array
 // being non-empty, since a freshly connected session's config arrays start empty (busy) rather than confirmed-empty.
 export const configsAreRetrieved = ref(false);
+// True once accountMonitor has delivered at least one message for the current session. Cleared on sign-out
+// alongside connectionAccountConfigs, since neither is meaningful while signed out.
+export const accountConfigsAreRetrieved = ref(false);
 
 // ── Derived State - Connection Configurations ────────────────────────────────────────────────────────────────────────
 
@@ -263,6 +266,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
         void terminateAccountMonitor();
 
         connectionAccountConfigs.value = [];
+        accountConfigsAreRetrieved.value = false;
         emailAddress.value = undefined;
         emailIsPrimary.value = undefined;
         emailIsVerified.value = undefined;
