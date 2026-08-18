@@ -265,7 +265,7 @@ function typeIcon(name: string): Component {
                 <div class="relative">
                     <input
                         v-model="columnSearch"
-                        class="dpuse-search-input w-full rounded-sm bg-zinc-100 px-2 py-1.5 pr-7 text-xs text-zinc-700 outline-none placeholder:text-subtle dark:bg-zinc-700 dark:text-zinc-200"
+                        class="dpuse-search-input w-full rounded-sm bg-zinc-100 px-2 py-1.5 pr-7 text-xs text-content outline-none placeholder:text-subtle dark:bg-zinc-700 dark:text-zinc-200"
                         placeholder="Search column names…"
                         type="search"
                         aria-label="Search column names"
@@ -356,14 +356,14 @@ function typeIcon(name: string): Component {
                         <select
                             v-model="whereDraft.column"
                             aria-label="Column"
-                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
                         >
                             <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
                         </select>
                         <select
                             v-model="whereDraft.op"
                             aria-label="Operator"
-                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
                         >
                             <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
                         </select>
@@ -371,7 +371,7 @@ function typeIcon(name: string): Component {
                             v-if="!['IS NULL', 'IS NOT NULL'].includes(whereDraft.op)"
                             v-model="whereDraft.value"
                             aria-label="Value"
-                            class="h-9 w-full rounded-md border border-separator bg-white px-3 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            class="h-9 w-full rounded-md border border-separator bg-white px-3 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
                             placeholder="value…"
                             type="text"
                         />
@@ -514,14 +514,14 @@ function typeIcon(name: string): Component {
                         <select
                             v-model="havingDraft.column"
                             aria-label="Column"
-                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
                         >
                             <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
                         </select>
                         <select
                             v-model="havingDraft.op"
                             aria-label="Operator"
-                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
                         >
                             <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
                         </select>
@@ -529,7 +529,7 @@ function typeIcon(name: string): Component {
                             v-if="!['IS NULL', 'IS NOT NULL'].includes(havingDraft.op)"
                             v-model="havingDraft.value"
                             aria-label="Value"
-                            class="h-9 w-full rounded-md border border-separator bg-white px-3 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                            class="h-9 w-full rounded-md border border-separator bg-white px-3 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
                             placeholder="value…"
                             type="text"
                         />

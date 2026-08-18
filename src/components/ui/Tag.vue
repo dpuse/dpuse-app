@@ -18,7 +18,7 @@ const colorClasses = computed(() => {
         case 'red':
             return 'bg-red-100 text-red-900 dark:bg-red-300/20 dark:text-red-300';
         default:
-            return 'bg-zinc-100 text-zinc-900 dark:bg-zinc-300/20 dark:text-content';
+            return 'bg-zinc-100 text-emphasis dark:bg-zinc-300/20 dark:text-content';
     }
 });
 </script>

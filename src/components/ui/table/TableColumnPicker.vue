@@ -54,7 +54,7 @@ function onDocumentClick(event: MouseEvent): void {
                         :checked="col.getIsVisible()"
                         @change="col.toggleVisibility(!col.getIsVisible())"
                     />
-                    <span class="text-xs text-zinc-700 dark:text-zinc-300">{{ String(col.columnDef.header) }}</span>
+                    <span class="text-xs text-content dark:text-zinc-300">{{ String(col.columnDef.header) }}</span>
                 </label>
             </div>
         </div>

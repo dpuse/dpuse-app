@@ -25,7 +25,7 @@ const COMMON_POSITIVE_CLASSES = [
     'dark:bg-green-300/20 dark:hover:bg-green-300/30 dark:active:bg-green-300/40 dark:focus-visible:ring-green-500 dark:text-green-300'
 ];
 const COMMON_NEUTRAL_CLASSES = [
-    'bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 text-zinc-900 focus-visible:ring-zinc-300',
+    'bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 text-emphasis focus-visible:ring-zinc-300',
     'dark:bg-zinc-300/20 dark:hover:bg-zinc-300/35 dark:active:bg-zinc-300/45 dark:focus-visible:ring-zinc-500 dark:text-content'
 ];
 const COMMON_GHOST_CLASSES = [

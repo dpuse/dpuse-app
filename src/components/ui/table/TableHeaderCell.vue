@@ -48,7 +48,7 @@ function onDocumentClick(event: MouseEvent): void {
             <div v-if="menuOpen" class="absolute top-full right-0 z-50 min-w-32 rounded border border-zinc-200 bg-white shadow-md dark:border-zinc-700 dark:bg-zinc-900">
                 <button
                     v-if="header.column.getIsPinned() !== 'start'"
-                    class="flex w-full items-center px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    class="flex w-full items-center px-3 py-1.5 text-left text-xs text-content hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                     @click="
                         header.column.pin('start');
                         menuOpen = false;
@@ -58,7 +58,7 @@ function onDocumentClick(event: MouseEvent): void {
                 </button>
                 <button
                     v-if="header.column.getIsPinned() !== 'end'"
-                    class="flex w-full items-center px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    class="flex w-full items-center px-3 py-1.5 text-left text-xs text-content hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                     @click="
                         header.column.pin('end');
                         menuOpen = false;
@@ -68,7 +68,7 @@ function onDocumentClick(event: MouseEvent): void {
                 </button>
                 <button
                     v-if="header.column.getIsPinned()"
-                    class="flex w-full items-center px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    class="flex w-full items-center px-3 py-1.5 text-left text-xs text-content hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                     @click="
                         header.column.pin(false);
                         menuOpen = false;
@@ -78,7 +78,7 @@ function onDocumentClick(event: MouseEvent): void {
                 </button>
                 <button
                     v-if="header.column.getCanHide()"
-                    class="flex w-full items-center px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    class="flex w-full items-center px-3 py-1.5 text-left text-xs text-content hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                     @click="
                         header.column.toggleVisibility(false);
                         menuOpen = false;
