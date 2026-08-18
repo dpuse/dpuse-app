@@ -13,7 +13,7 @@ import { formatNumberAsDecimalNumber, formatNumberAsStorageSize } from '@dpuse/d
 import type { GetInfoOptions, GetInfoResult, ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // ── Local Framework
-import { activeMetaStoreConnectionConfig } from '@/state/session';
+import { accountConfigsAreRetrieved, activeMetaStoreConnectionConfig, configsAreRetrieved } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import T from './SelectItemPanel.json';
 import { t } from '@/state/locale';
@@ -38,6 +38,37 @@ const ITEM_ACTIONS = [
     { id: 'text', label: 'Text' },
     { id: 'details', label: 'Details' }
 ];
+
+// useDataWindow's retry-with-backoff (~900ms total) is tuned for transient blips, not a cold app boot — on a fresh
+// deploy in particular, downloading new bundles and waking configMonitor/accountMonitor's Durable Objects can
+// easily take longer than that. So instead of a short fixed retry, wait directly on the data this needs: resolve
+// as soon as an active connection appears, or reject once both feeds have confirmed (since connecting) that it
+// genuinely isn't there — never on a clock alone.
+const ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS = 20_000;
+
+function waitForActiveConnectionConfig(): Promise<LocalisedConfig<ConnectionConfig>> {
+    if (activeConnectionConfig.value != null) return Promise.resolve(activeConnectionConfig.value);
+    if (configsAreRetrieved.value && accountConfigsAreRetrieved.value) return Promise.reject(new Error('No active connection config — connection does not exist.'));
+
+    return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+            stopWatching();
+            reject(new Error('Timed out waiting for an active connection config.'));
+        }, ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS);
+
+        const stopWatching = watch([activeConnectionConfig, configsAreRetrieved, accountConfigsAreRetrieved], ([newActiveConnectionConfig, newConfigsAreRetrieved, newAccountConfigsAreRetrieved]) => {
+            if (newActiveConnectionConfig != null) {
+                clearTimeout(timeoutId);
+                stopWatching();
+                resolve(newActiveConnectionConfig);
+            } else if (newConfigsAreRetrieved && newAccountConfigsAreRetrieved) {
+                clearTimeout(timeoutId);
+                stopWatching();
+                reject(new Error('No active connection config — connection does not exist.'));
+            }
+        });
+    });
+}
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
@@ -82,12 +113,9 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
     return {
         rowCount: undefined, // Unknown until the first listNodes response reports totalCount — useDataWindow guarantees that fetch happens.
         getRows: async (start: number, end: number): Promise<{ rows: LocalisedConfig<ConnectionNodeConfig>[]; totalCount: number }> => {
-            // activeConnectionConfig can transiently be undefined while configMonitor/accountMonitor are still
-            // catching up (for example, right after a reconnect) — throwing here lets useDataWindow's existing
-            // retry-with-backoff recover once the underlying config settles, instead of the engine crashing.
-            if (activeConnectionConfig.value == null) throw new Error('No active connection config — cannot list nodes yet.');
+            const activeConnection = await waitForActiveConnectionConfig();
             const { processRequest } = await useEngine();
-            const result = (await processRequest('listNodes', activeConnectionConfig.value, {
+            const result = (await processRequest('listNodes', activeConnection, {
                 folderPath,
                 limit: end - start,
                 offset: start
@@ -228,10 +256,10 @@ function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfig> | u
 const infoString = ref('');
 
 async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
-    if (activeConnectionConfig.value == null) throw new Error('No active connection config — cannot get info yet.');
+    const activeConnection = await waitForActiveConnectionConfig();
     const { processRequest } = await useEngine();
     const options: GetInfoOptions = { path: buildObjectPath(connectionNodeConfig) };
-    const { info } = (await processRequest('getInfo', activeConnectionConfig.value, options)) as GetInfoResult;
+    const { info } = (await processRequest('getInfo', activeConnection, options)) as GetInfoResult;
     const infoWithoutChildren = { ...info };
     delete infoWithoutChildren.children;
     infoString.value = JSON.stringify(infoWithoutChildren);
