@@ -26,46 +26,46 @@ import { reportAppError } from '@/observability/errorTracking';
 import { useEngine } from '@/services/useEngine';
 import { useStudioOptions } from '@/studio/useStudioOptions';
 
-const options: UpsertRecordsOptions = {
-    path: '/dpuMetaStore/dataViews',
-    records: [
-        {
-            id: '1',
-            label: { en: 'Data View 1' },
-            description: {
-                en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
-            }
-        },
-        {
-            id: '2',
-            label: { en: 'Data View 2' },
-            description: {
-                en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
-            }
-        },
-        {
-            id: '3',
-            label: { en: 'Data View 3' },
-            description: {
-                en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
-            }
-        },
-        {
-            id: '4',
-            label: { en: 'Data View 4' },
-            description: {
-                en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
-            }
-        },
-        {
-            id: '5',
-            label: { en: 'Data View 5' },
-            description: {
-                en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
-            }
-        }
-    ]
-};
+// const options: UpsertRecordsOptions = {
+//     path: '/dpuMetaStore/dataViews',
+//     records: [
+//         {
+//             id: '1',
+//             label: { en: 'Data View 1' },
+//             description: {
+//                 en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
+//             }
+//         },
+//         {
+//             id: '2',
+//             label: { en: 'Data View 2' },
+//             description: {
+//                 en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
+//             }
+//         },
+//         {
+//             id: '3',
+//             label: { en: 'Data View 3' },
+//             description: {
+//                 en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
+//             }
+//         },
+//         {
+//             id: '4',
+//             label: { en: 'Data View 4' },
+//             description: {
+//                 en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
+//             }
+//         },
+//         {
+//             id: '5',
+//             label: { en: 'Data View 5' },
+//             description: {
+//                 en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
+//             }
+//         }
+//     ]
+// };
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -100,9 +100,9 @@ export async function retrieveDataViewConfigs(metaStoreConnectionConfig: Connect
 
         const { processRequest } = await useEngine();
 
-        await processRequest('upsertRecords', metaStoreConnectionConfig, options, (data: EngineCallbackData) => {
-            console.log('UPSERT RECORDS', data);
-        });
+        // await processRequest('upsertRecords', metaStoreConnectionConfig, options, (data: EngineCallbackData) => {
+        //     console.log('UPSERT RECORDS', data);
+        // });
 
         const pendingDataViewConfigs: DataViewConfig[] = [];
         const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dataViews', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.

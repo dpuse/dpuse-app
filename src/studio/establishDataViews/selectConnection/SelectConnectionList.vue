@@ -108,7 +108,13 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
                 v-if="item"
                 :actions="[
                     { typeId: 'delete', onClick: handleDeleteDataView },
-                    { typeId: 'open', onClick: handleCommitDetail }
+                    {
+                        typeId: 'open',
+                        onClick: () => {
+                            handleSelectConnection(item);
+                            handleCommitDetail();
+                        }
+                    }
                 ]"
                 :config="item"
             />

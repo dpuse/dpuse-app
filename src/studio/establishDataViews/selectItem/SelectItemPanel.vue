@@ -13,7 +13,7 @@ import { formatNumberAsDecimalNumber, formatNumberAsStorageSize } from '@dpuse/d
 import type { GetInfoOptions, GetInfoResult, ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // ── Local Framework
-import { accountConfigsAreRetrieved, activeMetaStoreConnectionConfig, configsAreRetrieved } from '@/state/session';
+import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import T from './SelectItemPanel.json';
 import { t } from '@/state/locale';
@@ -40,15 +40,16 @@ const ITEM_ACTIONS = [
 ];
 
 // useDataWindow's retry-with-backoff (~900ms total) is tuned for transient blips, not a cold app boot — on a fresh
-// deploy in particular, downloading new bundles and waking configMonitor/accountMonitor's Durable Objects can
-// easily take longer than that. So instead of a short fixed retry, wait directly on the data this needs: resolve
-// as soon as an active connection appears, or reject once both feeds have confirmed (since connecting) that it
-// genuinely isn't there — never on a clock alone.
+// deploy in particular, downloading new bundles, waking configMonitor/accountMonitor's Durable Objects, and then
+// resolving the active connection via getDataViewRecord's own engine round-trip (SelectItemPanel watcher above)
+// can easily take longer than that. So instead of a short fixed retry, wait directly on the value itself.
+// Deciding whether the connection has genuinely disappeared (vs. just not resolved yet) is EstablishDataViewsLayout's
+// job, not this function's — it redirects away (unmounting this component) once that's confirmed, so this only
+// needs a generous timeout as a last-resort bail-out for the case where neither ever happens.
 const ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS = 20_000;
 
 function waitForActiveConnectionConfig(): Promise<LocalisedConfig<ConnectionConfig>> {
     if (activeConnectionConfig.value != null) return Promise.resolve(activeConnectionConfig.value);
-    if (configsAreRetrieved.value && accountConfigsAreRetrieved.value) return Promise.reject(new Error('No active connection config — connection does not exist.'));
 
     return new Promise((resolve, reject) => {
         const timeoutId = setTimeout(() => {
@@ -56,16 +57,11 @@ function waitForActiveConnectionConfig(): Promise<LocalisedConfig<ConnectionConf
             reject(new Error('Timed out waiting for an active connection config.'));
         }, ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS);
 
-        const stopWatching = watch([activeConnectionConfig, configsAreRetrieved, accountConfigsAreRetrieved], ([newActiveConnectionConfig, newConfigsAreRetrieved, newAccountConfigsAreRetrieved]) => {
-            if (newActiveConnectionConfig != null) {
-                clearTimeout(timeoutId);
-                stopWatching();
-                resolve(newActiveConnectionConfig);
-            } else if (newConfigsAreRetrieved && newAccountConfigsAreRetrieved) {
-                clearTimeout(timeoutId);
-                stopWatching();
-                reject(new Error('No active connection config — connection does not exist.'));
-            }
+        const stopWatching = watch(activeConnectionConfig, (newActiveConnectionConfig) => {
+            if (newActiveConnectionConfig == null) return;
+            clearTimeout(timeoutId);
+            stopWatching();
+            resolve(newActiveConnectionConfig);
         });
     });
 }
@@ -128,16 +124,25 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Re-establish the data view when local metastore connection config changes (for example, after a reload or if the metastore connector is reloaded).
-watch(activeMetaStoreConnectionConfig, async (newLocalMetaStoreConnectionConfig) => {
-    if (newLocalMetaStoreConnectionConfig == null) return;
+// Immediate so a direct deep-link/refresh into this panel (where activeConnectionConfig was never set this
+// session) still resolves it — but skipped when a connection is already set in memory: for a brand new,
+// unsaved data view, getDataViewRecord's NEW_DATA_VIEW_ID branch calls setActiveDataViewConfig() with no
+// argument, which resets activeDataViewConfig (including connectionId) to a blank default — re-running that
+// on every mount would wipe out the connection SelectConnectionList just set in memory before navigating here.
+watch(
+    activeMetaStoreConnectionConfig,
+    async (newLocalMetaStoreConnectionConfig) => {
+        if (newLocalMetaStoreConnectionConfig == null || activeConnectionConfig.value != null) return;
 
-    const dataViewConfig = await getDataViewRecord(newLocalMetaStoreConnectionConfig, route);
-    if (dataViewConfig.connectionId == null) {
-        router.replace({ name: 'selectConnection', query: { ...route.query, sView: 'selectConnection' } });
-    } else {
-        activeConnectionConfig.value = connectionLocalisedConfigs.value.find((localisedConnectionConfig) => localisedConnectionConfig.id == dataViewConfig.connectionId);
-    }
-});
+        const dataViewConfig = await getDataViewRecord(newLocalMetaStoreConnectionConfig, route);
+        if (dataViewConfig.connectionId == null) {
+            router.replace({ name: 'selectConnection', query: { ...route.query, sView: 'selectConnection' } });
+        } else {
+            activeConnectionConfig.value = connectionLocalisedConfigs.value.find((localisedConnectionConfig) => localisedConnectionConfig.id == dataViewConfig.connectionId);
+        }
+    },
+    { immediate: true }
+);
 
 watch(activeConnectionConfig, (newActiveConnectionConfig) => loadFolderNodes(newActiveConnectionConfig, ''), { immediate: true });
 
