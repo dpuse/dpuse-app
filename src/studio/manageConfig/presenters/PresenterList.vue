@@ -14,13 +14,12 @@ import { configsAreRetrieved, presenterConfigs } from '@/state/session';
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
 import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
-import PresenterForm from './PresenterForm.vue';
+import PresenterPanel from './PresenterPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
-import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activePresenterConfig = shallowRef<LocalisedConfig<PresenterConfig> | undefined>();
+const activePresenterLocalisedConfig = shallowRef<LocalisedConfig<PresenterConfig> | undefined>();
 const presenterLocalisedConfigs = shallowRef<LocalisedConfig<PresenterConfig>[]>([]);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -39,21 +38,25 @@ watch(presenterConfigs, (newPresenterConfigs) => (presenterLocalisedConfigs.valu
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleSelectPresenter(presenterLocalisedConfig: LocalisedConfig<PresenterConfig> | undefined): void {
-    activePresenterConfig.value = presenterLocalisedConfig;
+    activePresenterLocalisedConfig.value = presenterLocalisedConfig;
 }
 </script>
 
 <template>
-    <GridDetailPanel :active-item="activePresenterConfig" class="min-h-0 flex-1" :data-source="presenterConfigsDataSource" max-detail-width="650px" @select="handleSelectPresenter">
+    <GridDetailPanel
+        :active-item="activePresenterLocalisedConfig"
+        class="min-h-0 flex-1"
+        :data-source="presenterConfigsDataSource"
+        max-detail-width="65ch"
+        :row-height="122"
+        @select="handleSelectPresenter"
+    >
         <template #grid-item="{ item }">
-            <ConfigCard v-if="item" :config="item" />
+            <ConfigCard v-if="item" :config="item" :selected="item.id === activePresenterLocalisedConfig?.id" />
         </template>
 
         <template #detail="{ item, clear }">
-            <div class="relative flex min-h-0 flex-1 flex-col">
-                <PresenterForm :presenter-localised-config="item" />
-                <StepActionButton label="Select" />
-            </div>
+            <PresenterPanel :presenter-localised-config="item" @close="clear" />
         </template>
 
         <template #no-selection>
