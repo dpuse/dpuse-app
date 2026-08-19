@@ -11,7 +11,7 @@ const { label } = defineProps<{ label: string }>();
     <button
         class="absolute right-3 bottom-(--safe-bottom-offset) inline-flex h-9 items-center gap-x-1 rounded-full border pr-2 pl-3 shadow-md"
         :class="[
-            'border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 focus-visible:ring-sky-300 dark:border-sky-800 dark:bg-sky-950 dark:text-sky-400 dark:hover:bg-sky-900 dark:focus-visible:ring-sky-500'
+            'border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 focus-visible:ring-sky-300 dark:border-sky-800 dark:bg-sky-950 dark:text-sky-300 dark:hover:bg-sky-900 dark:focus-visible:ring-sky-500'
         ]"
         data-region="StepActionButton"
     >

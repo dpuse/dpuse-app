@@ -25,7 +25,7 @@ import {
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
 import DataViewSummaryPanel from './DataViewSummaryPanel.vue';
-import GridDetailPanel from '~/src/components/framework/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';

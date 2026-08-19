@@ -1,12 +1,9 @@
 <script setup lang="ts">
 // Sourced from Hanko social connections settings panel.
-
-// Options, Properties, Slots & Emits
-const { isDark } = defineProps<{ isDark?: boolean }>();
 </script>
 
 <template>
-    <svg viewBox="0 0 17 17" :class="{ 'fill-white': isDark }" data-region="GitHubLogo">
+    <svg viewBox="0 0 17 17" class="fill-content" data-region="GitHubLogo">
         <g clip-path="url(#clip0_2000_52709)">
             <path
                 fill-rule="evenodd"

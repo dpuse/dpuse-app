@@ -75,7 +75,7 @@ const TYPE_TEXT: Record<string, string> = {
     number: 'text-blue-700 dark:text-blue-400',
     text: 'text-emerald-700 dark:text-emerald-400',
     date: 'text-amber-700 dark:text-amber-400',
-    time: 'text-sky-700 dark:text-sky-400',
+    time: 'text-sky-700 dark:text-sky-300',
     boolean: 'text-rose-700 dark:text-rose-400',
     dateTime: 'text-orange-700 dark:text-orange-400'
 };
@@ -84,7 +84,7 @@ const TYPE_OUTLINE: Record<string, string> = {
     number: 'text-blue-700 dark:text-blue-400 inset-ring inset-ring-blue-300/60 dark:inset-ring-blue-500/30 hover:bg-blue-50 dark:hover:bg-blue-400/10',
     text: 'text-emerald-700 dark:text-emerald-400 inset-ring inset-ring-emerald-300/60 dark:inset-ring-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-400/10',
     date: 'text-amber-700 dark:text-amber-400 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30 hover:bg-amber-50 dark:hover:bg-amber-400/10',
-    time: 'text-sky-700 dark:text-sky-400 inset-ring inset-ring-sky-300/60 dark:inset-ring-sky-500/30 hover:bg-sky-50 dark:hover:bg-sky-400/10',
+    time: 'text-sky-700 dark:text-sky-300 inset-ring inset-ring-sky-300/60 dark:inset-ring-sky-500/30 hover:bg-sky-50 dark:hover:bg-sky-400/10',
     boolean: 'text-rose-700 dark:text-rose-400 inset-ring inset-ring-rose-300/60 dark:inset-ring-rose-500/30 hover:bg-rose-50 dark:hover:bg-rose-400/10',
     dateTime: 'text-orange-700 dark:text-orange-400 inset-ring inset-ring-orange-300/60 dark:inset-ring-orange-500/30 hover:bg-orange-50 dark:hover:bg-orange-400/10'
 };

@@ -14,12 +14,12 @@ import { configsAreRetrieved, connectorConfigs } from '@/state/session';
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
 import ConnectorPanel from './ConnectorPanel.vue';
-import GridDetailPanel from '~/src/components/framework/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeConnectorConfig = shallowRef<LocalisedConfig<ConnectorConfig> | undefined>();
+const activeConnectorLocalisedConfig = shallowRef<LocalisedConfig<ConnectorConfig> | undefined>();
 const connectorLocalisedConfigs = shallowRef<LocalisedConfig<ConnectorConfig>[]>([]);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -38,25 +38,25 @@ watch(connectorConfigs, (newConnectorConfigs) => (connectorLocalisedConfigs.valu
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> | undefined): void {
-    activeConnectorConfig.value = connectorLocalisedConfig;
+    activeConnectorLocalisedConfig.value = connectorLocalisedConfig;
 }
 </script>
 
 <template>
     <GridDetailPanel
-        :active-item="activeConnectorConfig"
+        :active-item="activeConnectorLocalisedConfig"
         class="min-h-0 flex-1"
         :data-source="connectorConfigsDataSource"
-        max-detail-width="650px"
+        max-detail-width="65ch"
         :row-height="122"
         @select="handleSelectConnector"
     >
         <template #grid-item="{ item }">
-            <ConfigCard v-if="item" :config="item" :selected="item.id === activeConnectorConfig?.id" />
+            <ConfigCard v-if="item" :config="item" :selected="item.id === activeConnectorLocalisedConfig?.id" />
         </template>
 
         <template #detail="{ item, clear }">
-            <ConnectorPanel :connector-localised-config="item" @clear="clear" />
+            <ConnectorPanel :connector-localised-config="item" @close="clear" />
         </template>
 
         <template #no-selection>

@@ -49,7 +49,7 @@ function handleSelectView(viewId: AssistantViewId): void {
     <nav class="mx-4 flex flex-none items-center gap-x-4 overflow-x-auto" aria-label="Assistant view" data-region="AssistantPanelHeaderTabs">
         <Button
             class="flex flex-none items-center gap-x-1.5 border-y-2 border-t-transparent py-1.25"
-            :class="activeViewId === ASSISTANT_TABS[1].id ? 'border-b-accent text-sky-700 dark:text-sky-400' : 'border-b-transparent text-muted'"
+            :class="activeViewId === ASSISTANT_TABS[1].id ? 'border-b-accent text-sky-700 dark:text-sky-300' : 'border-b-transparent text-muted'"
             shape="minimal"
             @click="handleSelectView(ASSISTANT_TABS[1].id)"
         >
@@ -58,7 +58,7 @@ function handleSelectView(viewId: AssistantViewId): void {
         </Button>
         <Button
             class="flex flex-none items-center gap-x-1.5 border-y-2 border-t-transparent py-1.25"
-            :class="activeViewId === ASSISTANT_TABS[2].id ? 'border-b-accent text-sky-700 dark:text-sky-400' : 'border-b-transparent text-muted'"
+            :class="activeViewId === ASSISTANT_TABS[2].id ? 'border-b-accent text-sky-700 dark:text-sky-300' : 'border-b-transparent text-muted'"
             shape="minimal"
             @click="handleSelectView(ASSISTANT_TABS[2].id)"
         >
@@ -67,7 +67,7 @@ function handleSelectView(viewId: AssistantViewId): void {
         </Button>
         <Button
             class="ml-auto flex flex-none items-center gap-x-1.5 border-y-2 border-t-transparent py-1.25 text-subtle"
-            :class="activeViewId === ASSISTANT_TABS[0].id ? 'border-b-accent text-sky-700 dark:text-sky-400' : 'border-b-transparent text-muted'"
+            :class="activeViewId === ASSISTANT_TABS[0].id ? 'border-b-accent text-sky-700 dark:text-sky-300' : 'border-b-transparent text-muted'"
             shape="minimal"
             @click="handleSelectView(ASSISTANT_TABS[0].id)"
         >

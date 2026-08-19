@@ -81,7 +81,11 @@ html {
     list-style: circle;
 }
 .dpuse-prose a {
-    color: var(--color-blue-500);
+    color: var(--color-accent);
+    &:hover {
+        color: var(--color-blue-300);
+        text-decoration-line: underline;
+    }
 }
 .dpuse-prose blockquote {
     color: var(--muted);
@@ -203,16 +207,16 @@ html {
     --backdrop: var(--color-zinc-900);
     --surface: var(--color-zinc-950); /* NOTE: Also 'index.html'. */
     --card: var(--color-zinc-900);
-    --card-hover: var(--color-zinc-800);
+    --card-hover: var(--color-zinc-700);
     --boundary: var(--color-zinc-800);
-    --boundary-hover: var(--color-zinc-500);
+    --boundary-hover: var(--color-zinc-600);
     --separator: var(--color-zinc-700);
     --overlay: color-mix(in srgb, var(--color-zinc-700) 75%, transparent);
     --content: var(--color-zinc-300); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-400);
     --subtle: var(--color-zinc-500);
     --emphasis: var(--color-zinc-200);
-    --accent: var(--color-sky-400);
+    --accent: var(--color-sky-300);
 }
 
 /* Content column: left margin scales with viewport width (clamped 0–5rem), max-width 56rem, right margin absorbs remaining space. */

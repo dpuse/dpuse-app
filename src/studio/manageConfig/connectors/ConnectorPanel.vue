@@ -5,12 +5,10 @@ import { ExternalLinkIcon, GlobeIcon, InfoIcon, UserRoundIcon } from '@lucide/vu
 
 // ── DPUse Framework
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
-import { constructConnectorCategoryConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import T from './ConnectorPanel.json';
 import { t } from '@/state/locale';
 
 // ── Local Components - Static
@@ -19,11 +17,6 @@ import ScrollArea from '@/components/ui/ScrollArea.vue';
 import StudioDetailPanel from '../../StudioDetailPanel.vue';
 import StudioDocumentPanel from '../../StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
-
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
-
-const { connectorLocalisedConfig } = defineProps<{ connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> }>();
-defineEmits<{ clear: [] }>();
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -40,6 +33,17 @@ const CONNECTOR_USAGE_DESCRIPTIONS: Record<string, string> = {
     unknown: 'The usage for this connector has not yet been determined.'
 };
 
+const T = {
+    Authentication: { en: 'Authentication', es: 'Autenticación' },
+    Links: { en: 'Links', es: 'Enlaces' },
+    GitHub_repository: { en: 'GitHub Repository', es: 'Repositorio de GitHub' }
+};
+
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+
+const { connectorLocalisedConfig } = defineProps<{ connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> }>();
+defineEmits<{ close: [] }>();
+
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const authMethods = computed(() => [
@@ -55,7 +59,7 @@ const connectorStatus = computed(() => (connectorLocalisedConfig.statusId ? getC
 <template>
     <StudioDetailPanel data-region="ConnectorPanel">
         <ScrollArea scroll-area-padding="screen">
-            <StudioDocumentPanel :overline="'Connectors'" :title="connectorLocalisedConfig.label" @close="$emit('clear')">
+            <StudioDocumentPanel :overline="'Connectors'" :title="connectorLocalisedConfig.label" @close="$emit('close')">
                 <!-- Tags -->
                 <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
                     <Tag :text="connectorLocalisedConfig.categoryId" />
@@ -80,39 +84,32 @@ const connectorStatus = computed(() => (connectorLocalisedConfig.statusId ? getC
                 <!-- Links -->
                 <h2>{{ t(T, 'Links') }}</h2>
                 <ul>
-                    <li v-if="connectorLocalisedConfig.vendorHomeURL">
-                        <a :href="connectorLocalisedConfig.vendorHomeURL" class="inline-flex items-center gap-x-1 hover:underline" target="_blank" rel="noopener noreferrer">
-                            <GlobeIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Website
+                    <li v-if="connectorLocalisedConfig.vendorHomeURL" class="flex items-center gap-x-2">
+                        <GlobeIcon class="size-4" />
+                        <a :href="connectorLocalisedConfig.vendorHomeURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
+                            {{ connectorLocalisedConfig.label }} Website
                             <ExternalLinkIcon class="size-4" />
                         </a>
                     </li>
 
-                    <li v-if="connectorLocalisedConfig.vendorDocumentationURL">
-                        <a
-                            :href="connectorLocalisedConfig.vendorDocumentationURL"
-                            class="inline-flex items-center gap-x-1 hover:underline"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <InfoIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Documentation
+                    <li v-if="connectorLocalisedConfig.vendorDocumentationURL" class="flex items-center gap-x-2">
+                        <InfoIcon class="size-4" />
+                        <a :href="connectorLocalisedConfig.vendorDocumentationURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
+                            {{ connectorLocalisedConfig.label }} Documentation
                             <ExternalLinkIcon class="size-4" />
                         </a>
                     </li>
 
-                    <li v-if="connectorLocalisedConfig.vendorAccountURL">
-                        <a :href="connectorLocalisedConfig.vendorAccountURL" class="inline-flex items-center gap-x-1 hover:underline" target="_blank" rel="noopener noreferrer">
-                            <UserRoundIcon class="size-4" /> {{ connectorLocalisedConfig.label }} Sign in
+                    <li v-if="connectorLocalisedConfig.vendorAccountURL" class="flex items-center gap-x-2">
+                        <UserRoundIcon class="size-4" />
+                        <a :href="connectorLocalisedConfig.vendorAccountURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
+                            {{ connectorLocalisedConfig.label }} Sign in
                             <ExternalLinkIcon class="size-4" />
                         </a>
                     </li>
 
-                    <li>
-                        <a
-                            :href="`https://github.com/dpuse/${connectorLocalisedConfig.id}`"
-                            class="inline-flex items-center gap-x-1 hover:underline"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
+                    <li class="flex items-center gap-x-2">
+                        <a :href="`https://github.com/dpuse/${connectorLocalisedConfig.id}`" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
                             <GitHubLogo class="size-4" />
                             {{ t(T, 'GitHub_repository') }}
                             <ExternalLinkIcon class="size-4" />

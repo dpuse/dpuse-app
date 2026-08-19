@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── Local Framework
-import { useConfigOptionConfigs } from '../useConfigOptionConfigs';
+import { useConfigOptionLocalisedConfigs } from '../useConfigOptionLocalisedConfigs';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -9,7 +9,7 @@ import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const configOptionConfigs = useConfigOptionConfigs().value.splice(1);
+const configOptionLocalisedConfigs = useConfigOptionLocalisedConfigs().value.splice(1);
 </script>
 
 <template>
@@ -17,7 +17,7 @@ const configOptionConfigs = useConfigOptionConfigs().value.splice(1);
         <div class="max-w-4xl">
             <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
                 <Button
-                    v-for="config in configOptionConfigs"
+                    v-for="config in configOptionLocalisedConfigs"
                     :key="config.id"
                     class="mt-4 ml-4"
                     shape="minimal"

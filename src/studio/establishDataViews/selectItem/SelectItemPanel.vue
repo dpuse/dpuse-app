@@ -24,10 +24,10 @@ import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfig
 // ── Local Components - Static
 import Breadcrumbs from '@/components/framework/Breadcrumbs.vue';
 import ConfigCard from '@/components/framework/ConfigCard.vue';
-import GridDetailPanel from '~/src/components/framework/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
-import StepActionButton from '~/src/components/ui/button/StepActionButton.vue';
+import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
@@ -291,7 +291,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         </template>
 
         <template #detail="{ item, clear }">
-            <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
+            <!-- TODO: @close="clear" -->
+            <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator" @close="clear">
                 <div class="flex size-7 items-center justify-center">
                     <div v-if="item.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="item.icon" />
                     <div v-if="item.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="item.icon" />

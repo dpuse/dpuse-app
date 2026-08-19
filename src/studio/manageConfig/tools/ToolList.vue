@@ -13,14 +13,13 @@ import { configsAreRetrieved, toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
-import GridDetailPanel from '~/src/components/framework/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
-import StepActionButton from '~/src/components/ui/button/StepActionButton.vue';
-import ToolForm from './ToolForm.vue';
+import ToolPanel from './ToolPanel.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeToolConfig = shallowRef<LocalisedConfig<ToolConfig> | undefined>();
+const activeToolLocalisedConfig = shallowRef<LocalisedConfig<ToolConfig> | undefined>();
 const toolLocalisedConfigs = shallowRef<LocalisedConfig<ToolConfig>[]>([]);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -39,28 +38,25 @@ watch(toolConfigs, (newToolConfigs) => (toolLocalisedConfigs.value = localiseCon
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleSelectTool(toolLocalisedConfig: LocalisedConfig<ToolConfig> | undefined): void {
-    activeToolConfig.value = toolLocalisedConfig;
+    activeToolLocalisedConfig.value = toolLocalisedConfig;
 }
 </script>
 
 <template>
     <GridDetailPanel
-        :active-item="activeToolConfig"
+        :active-item="activeToolLocalisedConfig"
         class="min-h-0 flex-1"
         :data-source="toolConfigsDataSource"
-        max-detail-width="650px"
+        max-detail-width="65ch"
         :row-height="122"
         @select="handleSelectTool"
     >
         <template #grid-item="{ item }">
-            <ConfigCard v-if="item" :config="item" />
+            <ConfigCard v-if="item" :config="item" :selected="item.id === activeToolLocalisedConfig?.id" />
         </template>
 
         <template #detail="{ item, clear }">
-            <div class="relative flex min-h-0 flex-1 flex-col">
-                <ToolForm :tool-localised-config="item" />
-                <StepActionButton label="Select" />
-            </div>
+            <ToolPanel :tool-localised-config="item" @close="clear" />
         </template>
 
         <template #no-selection>

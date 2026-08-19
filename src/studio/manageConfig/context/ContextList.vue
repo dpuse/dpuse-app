@@ -14,7 +14,7 @@ import { localeId } from '@/state/locale';
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
 import ContextModelPanel from './ContextModelPanel.vue';
-import GridDetailPanel from '~/src/components/framework/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 
 // ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
