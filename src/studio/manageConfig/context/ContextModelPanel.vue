@@ -10,6 +10,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
+import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
 import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
@@ -51,7 +52,10 @@ const ENTITY_TABS = [
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-const { modelReference } = defineProps<{ modelReference: GridListItem<LocalisedConfig<ComponentBaseConfig>> }>();
+const { modelReference } = defineProps<{
+    activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
+    modelReference: GridListItem<LocalisedConfig<ComponentBaseConfig>>;
+}>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

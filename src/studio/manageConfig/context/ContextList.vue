@@ -8,8 +8,9 @@ import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
 import { localiseConfig, type LocalisedConfig, localiseReference } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
 import type { DataSource } from '@/composables/useDataWindow';
-import { localeId } from '@/state/locale';
+import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
@@ -24,6 +25,16 @@ import contextConfigData from './data/contextConfig.json';
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export type GridListItem<T> = T & { isHeader?: boolean };
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    Select_focus: { en: 'Select a focus from the list.', es: 'Selecciona un foco de la lista.' }
+};
+
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+
+defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -96,11 +107,11 @@ function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBaseConfi
         </template>
 
         <template #detail="{ item }">
-            <ContextModelPanel :model-reference="item" />
+            <ContextModelPanel :active-config-option-config="activeConfigOptionConfig" :model-reference="item" />
         </template>
 
         <template #no-selection>
-            <SelectPlaceholder :message="'Select a focus from the list.'" />
+            <SelectPlaceholder :message="t(T, 'Select_focus')" />
         </template>
     </GridDetailPanel>
 </template>

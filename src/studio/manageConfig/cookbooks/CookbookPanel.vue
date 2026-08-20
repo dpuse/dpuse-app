@@ -7,6 +7,9 @@ import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbo
 import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
+// ── Local Framework
+import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
+
 // ── Local Components - Static
 import ModuleLinksPanel from '../ModuleLinksPanel.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
@@ -16,7 +19,10 @@ import Tag from '@/components/ui/Tag.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-const { cookbookLocalisedConfig } = defineProps<{ cookbookLocalisedConfig: LocalisedConfig<CookbookConfig> }>();
+const { cookbookLocalisedConfig } = defineProps<{
+    activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
+    cookbookLocalisedConfig: LocalisedConfig<CookbookConfig>;
+}>();
 defineEmits<{ close: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────

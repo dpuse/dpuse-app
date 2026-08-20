@@ -7,15 +7,26 @@ import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/conne
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
 import type { DataSource } from '@/composables/useDataWindow';
-import { localeId } from '@/state/locale';
 import { configsAreRetrieved, connectorConfigs } from '@/state/session';
+import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
 import ConnectorPanel from './ConnectorPanel.vue';
 import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    Select_connector: { en: 'Select a connector from the list.', es: 'Selecciona un conector de la lista.' }
+};
+
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+
+defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -56,11 +67,11 @@ function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<Connect
         </template>
 
         <template #detail="{ item, clear }">
-            <ConnectorPanel :connector-localised-config="item" @close="clear" />
+            <ConnectorPanel :active-config-option-config="activeConfigOptionConfig" :connector-localised-config="item" @close="clear" />
         </template>
 
         <template #no-selection>
-            <SelectPlaceholder :message="'Select a connector from the list.'" />
+            <SelectPlaceholder :message="t(T, 'Select_connector')" />
         </template>
     </GridDetailPanel>
 </template>

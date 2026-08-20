@@ -7,15 +7,26 @@ import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
 import type { DataSource } from '@/composables/useDataWindow';
-import { localeId } from '@/state/locale';
 import { configsAreRetrieved, toolConfigs } from '@/state/session';
+import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
 import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import ToolPanel from './ToolPanel.vue';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    Select_tool: { en: 'Select a tool from the list.', es: 'Selecciona una herramienta de la lista.' }
+};
+
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+
+defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -56,11 +67,11 @@ function handleSelectTool(toolLocalisedConfig: LocalisedConfig<ToolConfig> | und
         </template>
 
         <template #detail="{ item, clear }">
-            <ToolPanel :tool-localised-config="item" @close="clear" />
+            <ToolPanel :active-config-option-config="activeConfigOptionConfig" :tool-localised-config="item" @close="clear" />
         </template>
 
         <template #no-selection>
-            <SelectPlaceholder :message="'Select a tool from the list.'" />
+            <SelectPlaceholder :message="t(T, 'Select_tool')" />
         </template>
     </GridDetailPanel>
 </template>

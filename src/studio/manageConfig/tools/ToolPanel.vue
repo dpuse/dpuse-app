@@ -7,6 +7,9 @@ import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
+// ── Local Framework
+import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
+
 // ── Local Components - Static
 import ModuleLinksPanel from '../ModuleLinksPanel.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
@@ -16,7 +19,10 @@ import Tag from '@/components/ui/Tag.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-const { toolLocalisedConfig } = defineProps<{ toolLocalisedConfig: LocalisedConfig<ToolConfig> }>();
+const { toolLocalisedConfig } = defineProps<{
+    activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
+    toolLocalisedConfig: LocalisedConfig<ToolConfig>;
+}>();
 defineEmits<{ close: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────

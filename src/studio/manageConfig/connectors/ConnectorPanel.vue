@@ -8,6 +8,7 @@ import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
 import { t } from '@/state/locale';
 
 // ── Local Components - Static
@@ -34,13 +35,13 @@ const CONNECTOR_USAGE_DESCRIPTIONS: Record<string, string> = {
 
 const T = {
     Authentication: { en: 'Authentication', es: 'Autenticación' },
-    Links: { en: 'Links', es: 'Enlaces' },
-    GitHub_repository: { en: 'GitHub Repository', es: 'Repositorio de GitHub' }
+    Connections: { en: 'Connections', es: 'Conexiones' }
 };
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-const { connectorLocalisedConfig } = defineProps<{ connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> }>();
+type Properties = { activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>; connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> };
+const { activeConfigOptionConfig, connectorLocalisedConfig } = defineProps<Properties>();
 defineEmits<{ close: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -58,7 +59,7 @@ const connectorStatus = computed(() => (connectorLocalisedConfig.statusId ? getC
 <template>
     <StudioDetailPanel data-region="ConnectorPanel">
         <ScrollArea scroll-area-padding="screen">
-            <StudioDocumentPanel :overline="'Connectors'" :title="connectorLocalisedConfig.label" @close="$emit('close')">
+            <StudioDocumentPanel :overline="activeConfigOptionConfig.label" :title="connectorLocalisedConfig.label" @close="$emit('close')">
                 <!-- Tags -->
                 <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
                     <Tag :text="connectorLocalisedConfig.categoryId" />
@@ -78,7 +79,7 @@ const connectorStatus = computed(() => (connectorLocalisedConfig.statusId ? getC
                 </p>
 
                 <!-- Connections -->
-                <h2>Connections</h2>
+                <h2>{{ t(T, 'Connections') }}</h2>
 
                 <!-- Links -->
                 <ModuleLinksPanel :localised-config="connectorLocalisedConfig" />

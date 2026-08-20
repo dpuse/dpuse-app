@@ -7,15 +7,26 @@ import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/prese
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
 import type { DataSource } from '@/composables/useDataWindow';
-import { localeId } from '@/state/locale';
 import { configsAreRetrieved, presenterConfigs } from '@/state/session';
+import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
 import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
 import PresenterPanel from './PresenterPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    Select_presenter: { en: 'Select a presenter from the list.', es: 'Selecciona un presentador de la lista.' }
+};
+
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+
+defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -56,11 +67,11 @@ function handleSelectPresenter(presenterLocalisedConfig: LocalisedConfig<Present
         </template>
 
         <template #detail="{ item, clear }">
-            <PresenterPanel :presenter-localised-config="item" @close="clear" />
+            <PresenterPanel :active-config-option-config="activeConfigOptionConfig" :presenter-localised-config="item" @close="clear" />
         </template>
 
         <template #no-selection>
-            <SelectPlaceholder :message="'Select a presenter from the list.'" />
+            <SelectPlaceholder :message="t(T, 'Select_presenter')" />
         </template>
     </GridDetailPanel>
 </template>

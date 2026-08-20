@@ -7,15 +7,26 @@ import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbo
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
 import type { DataSource } from '@/composables/useDataWindow';
-import { localeId } from '@/state/locale';
 import { configsAreRetrieved, cookbookConfigs } from '@/state/session';
+import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
 import ConfigCard from '@/components/framework/ConfigCard.vue';
 import CookbookPanel from './CookbookPanel.vue';
 import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    Select_cookbook: { en: 'Select a Cookbook from the list.', es: 'Selecciona un recetario de la lista.' }
+};
+
+// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+
+defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -57,12 +68,12 @@ function handleSelectCookbook(cookbookLocalisedConfig: LocalisedConfig<CookbookC
 
         <template #detail="{ item, clear }">
             <div class="relative flex min-h-0 flex-1 flex-col">
-                <CookbookPanel :cookbook-localised-config="item" @close="clear" />
+                <CookbookPanel :active-config-option-config="activeConfigOptionConfig" :cookbook-localised-config="item" @close="clear" />
             </div>
         </template>
 
         <template #no-selection>
-            <SelectPlaceholder :message="'Select a Cookbook from the list.'" />
+            <SelectPlaceholder :message="t(T, 'Select_cookbook')" />
         </template>
     </GridDetailPanel>
 </template>
