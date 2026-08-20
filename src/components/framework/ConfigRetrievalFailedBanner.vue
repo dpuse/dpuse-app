@@ -12,7 +12,7 @@ function handleRefresh(): void {
 </script>
 
 <template>
-    <div class="flex items-center justify-center gap-3 bg-red-100 px-3 py-1.5 text-[15px] text-red-900 dark:bg-red-300/20 dark:text-red-300" data-region="ConfigRetrievalFailedBanner">
+    <div class="flex items-center justify-center gap-3 bg-danger px-3 py-1.5 text-[15px] text-danger-text" data-region="ConfigRetrievalFailedBanner">
         <span>{{ t(T, 'message') }}</span>
         <Button size="sm" variant="neutral" @click="handleRefresh">{{ t(T, 'refresh.label') }}</Button>
     </div>

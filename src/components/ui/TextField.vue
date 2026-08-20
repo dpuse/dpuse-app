@@ -27,14 +27,14 @@ const valueHasErrors = computed(() => errors.length > 0);
             v-model="modelValue"
             v-bind="{ ...attributes, class: undefined, style: undefined }"
             class="w-full rounded border bg-surface px-2.5 py-1.5 text-sm text-content transition-colors outline-none placeholder:text-subtle focus:ring-1 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
-            :class="valueHasErrors ? 'border-red-500' : 'border-boundary focus:border-accent'"
+            :class="valueHasErrors ? 'border-danger-ring' : 'border-boundary focus:border-accent'"
             :type="type"
             @blur="$emit('blur')"
         />
 
         <!-- Errors -->
         <ul v-if="valueHasErrors" class="mt-1 space-y-0.5">
-            <li v-for="(error, i) in errors" :key="i" class="text-xs text-red-500">{{ error }}</li>
+            <li v-for="(error, i) in errors" :key="i" class="text-xs text-danger-text">{{ error }}</li>
         </ul>
     </div>
 </template>

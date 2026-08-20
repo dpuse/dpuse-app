@@ -11,11 +11,21 @@ import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-type Badge = { id: string; color?: string; label: string };
+type StatusColor = 'danger' | 'info' | 'success' | 'warning';
+type Badge = { id: string; color?: StatusColor; label: string };
 type ActionTypeId = 'delete' | 'info' | 'open';
 type Action<T> = { typeId: ActionTypeId; onClick: (item: LocalisedConfig<T>) => void };
-type Properties<T> = { actions?: Action<T>[]; badges?: Badge[]; config: LocalisedConfig<T>; isCompact?: boolean; overline?: string; selected?: boolean; statusMessage?: string };
-const { actions = [], badges = [], config, isCompact = false, overline, selected = false, statusMessage } = defineProps<Properties<T>>();
+type Properties<T> = {
+    actions?: Action<T>[];
+    badges?: Badge[];
+    config: LocalisedConfig<T>;
+    isCompact?: boolean;
+    overline?: string;
+    selected?: boolean;
+    statusColor?: StatusColor;
+    statusMessage?: string;
+};
+const { actions = [], badges = [], config, isCompact = false, overline, selected = false, statusColor = 'warning', statusMessage } = defineProps<Properties<T>>();
 </script>
 
 <template>
@@ -36,9 +46,11 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
                 <span
                     class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium inset-ring"
                     :class="{
-                        'bg-gray-100 text-gray-800 inset-ring-gray-300/60 dark:bg-gray-400/20 dark:text-gray-300 dark:inset-ring-gray-500/30': badge.color === undefined,
-                        'bg-red-100 text-red-800 inset-ring-red-300/60 dark:bg-red-400/20 dark:text-red-300 dark:inset-ring-red-500/30': badge.color === 'danger',
-                        'bg-amber-50 text-amber-800 inset-ring-amber-200/60 dark:bg-amber-400/10 dark:text-amber-300 dark:inset-ring-amber-500/20': badge.color === 'warning'
+                        'bg-zinc-100 text-emphasis inset-ring-zinc-300/60 dark:bg-zinc-300/20 dark:text-content dark:inset-ring-zinc-500/30': badge.color === undefined,
+                        'bg-danger text-danger-text inset-ring-danger-ring/20': badge.color === 'danger',
+                        'bg-warning text-warning-text inset-ring-warning-ring/20': badge.color === 'warning',
+                        'bg-success text-success-text inset-ring-success-ring/20': badge.color === 'success',
+                        'bg-info text-info-text inset-ring-info-ring/20': badge.color === 'info'
                     }"
                 >
                     {{ badge.label }}
@@ -99,7 +111,12 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
         <div
             v-if="!isCompact && statusMessage"
             class="absolute bottom-2 left-2 rounded-full px-2 py-0.5 text-xs inset-ring"
-            :class="['bg-amber-50 text-amber-800 inset-ring-amber-200/60 dark:bg-amber-400/10 dark:text-amber-300 dark:inset-ring-amber-500/20']"
+            :class="{
+                'bg-danger text-danger-text inset-ring-danger-ring/20': statusColor === 'danger',
+                'bg-warning text-warning-text inset-ring-warning-ring/20': statusColor === 'warning',
+                'bg-success text-success-text inset-ring-success-ring/20': statusColor === 'success',
+                'bg-info text-info-text inset-ring-info-ring/20': statusColor === 'info'
+            }"
         >
             {{ statusMessage }}
         </div>

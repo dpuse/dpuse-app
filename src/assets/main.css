@@ -170,6 +170,31 @@ html {
     --color-subtle: var(--subtle); /* Text/icons (tertiary — decorative, structural) */
     --color-emphasis: var(--emphasis); /* Text/icons (strong — headings, prominent labels) */
     --color-accent: var(--accent); /* Text/icons (interactive — links, active states) */
+
+    /* Status colors (success/warning/danger/info) — used for tags, badges, status pills, buttons, and alerts. */
+    --color-success: var(--success);
+    --color-success-hover: var(--success-hover);
+    --color-success-active: var(--success-active);
+    --color-success-text: var(--success-text);
+    --color-success-ring: var(--success-ring);
+
+    --color-warning: var(--warning);
+    --color-warning-hover: var(--warning-hover);
+    --color-warning-active: var(--warning-active);
+    --color-warning-text: var(--warning-text);
+    --color-warning-ring: var(--warning-ring);
+
+    --color-danger: var(--danger);
+    --color-danger-hover: var(--danger-hover);
+    --color-danger-active: var(--danger-active);
+    --color-danger-text: var(--danger-text);
+    --color-danger-ring: var(--danger-ring);
+
+    --color-info: var(--info);
+    --color-info-hover: var(--info-hover);
+    --color-info-active: var(--info-active);
+    --color-info-text: var(--info-text);
+    --color-info-ring: var(--info-ring);
 }
 
 /* Variables and light mode colors. */
@@ -200,6 +225,31 @@ html {
     --subtle: var(--color-zinc-400);
     --emphasis: var(--color-zinc-700);
     --accent: var(--color-sky-600);
+
+    /* Light mode status colors — Tailwind UI's documented badge/alert palette (bg-50/text-700/ring-600, amber bumped to text-800 for contrast). */
+    --success: var(--color-green-50);
+    --success-hover: var(--color-green-100);
+    --success-active: var(--color-green-200);
+    --success-text: var(--color-green-700);
+    --success-ring: var(--color-green-600);
+
+    --warning: var(--color-amber-50);
+    --warning-hover: var(--color-amber-100);
+    --warning-active: var(--color-amber-200);
+    --warning-text: var(--color-amber-800);
+    --warning-ring: var(--color-amber-600);
+
+    --danger: var(--color-red-50);
+    --danger-hover: var(--color-red-100);
+    --danger-active: var(--color-red-200);
+    --danger-text: var(--color-red-700);
+    --danger-ring: var(--color-red-600);
+
+    --info: var(--color-blue-50);
+    --info-hover: var(--color-blue-100);
+    --info-active: var(--color-blue-200);
+    --info-text: var(--color-blue-700);
+    --info-ring: var(--color-blue-700);
 }
 
 .dark {
@@ -217,6 +267,31 @@ html {
     --subtle: var(--color-zinc-500);
     --emphasis: var(--color-zinc-200);
     --accent: var(--color-sky-300);
+
+    /* Dark mode status colors — Tailwind UI's documented dark badge/alert palette (bg-400/10, text-400, ring-400/20; green uses 500 for bg/text). */
+    --success: color-mix(in srgb, var(--color-green-500) 10%, transparent);
+    --success-hover: color-mix(in srgb, var(--color-green-500) 20%, transparent);
+    --success-active: color-mix(in srgb, var(--color-green-500) 30%, transparent);
+    --success-text: var(--color-green-400);
+    --success-ring: color-mix(in srgb, var(--color-green-500) 20%, transparent);
+
+    --warning: color-mix(in srgb, var(--color-amber-400) 10%, transparent);
+    --warning-hover: color-mix(in srgb, var(--color-amber-400) 20%, transparent);
+    --warning-active: color-mix(in srgb, var(--color-amber-400) 30%, transparent);
+    --warning-text: var(--color-amber-500);
+    --warning-ring: color-mix(in srgb, var(--color-amber-400) 20%, transparent);
+
+    --danger: color-mix(in srgb, var(--color-red-400) 10%, transparent);
+    --danger-hover: color-mix(in srgb, var(--color-red-400) 20%, transparent);
+    --danger-active: color-mix(in srgb, var(--color-red-400) 30%, transparent);
+    --danger-text: var(--color-red-400);
+    --danger-ring: color-mix(in srgb, var(--color-red-400) 20%, transparent);
+
+    --info: color-mix(in srgb, var(--color-blue-400) 10%, transparent);
+    --info-hover: color-mix(in srgb, var(--color-blue-400) 20%, transparent);
+    --info-active: color-mix(in srgb, var(--color-blue-400) 30%, transparent);
+    --info-text: var(--color-blue-400);
+    --info-ring: color-mix(in srgb, var(--color-blue-400) 30%, transparent);
 }
 
 /* Content column: left margin scales with viewport width (clamped 0–5rem), max-width 56rem, right margin absorbs remaining space. */

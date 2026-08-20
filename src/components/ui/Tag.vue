@@ -4,27 +4,27 @@ import { computed } from 'vue';
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
-type TagColor = 'amber' | 'green' | 'other' | 'red';
+type TagColor = 'danger' | 'other' | 'success' | 'warning';
 const { text, color = 'other' } = defineProps<{ text: string; color?: TagColor }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const colorClasses = computed(() => {
     switch (color) {
-        case 'amber':
-            return 'bg-amber-100 text-amber-900 dark:bg-amber-300/20 dark:text-amber-300';
-        case 'green':
-            return 'bg-green-100 text-green-900 dark:bg-green-300/20 dark:text-green-300';
-        case 'red':
-            return 'bg-red-100 text-red-900 dark:bg-red-300/20 dark:text-red-300';
+        case 'warning':
+            return 'bg-warning text-warning-text inset-ring-warning-ring/20';
+        case 'success':
+            return 'bg-success text-success-text inset-ring-success-ring/20';
+        case 'danger':
+            return 'bg-danger text-danger-text inset-ring-danger-ring/20';
         default:
-            return 'bg-zinc-100 text-emphasis dark:bg-zinc-300/20 dark:text-content';
+            return 'bg-zinc-100 text-emphasis inset-ring-zinc-300/60 dark:bg-zinc-300/20 dark:text-content dark:inset-ring-zinc-500/30';
     }
 });
 </script>
 
 <template>
-    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" :class="colorClasses">
+    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium inset-ring" :class="colorClasses">
         {{ text }}
     </span>
 </template>

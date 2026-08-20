@@ -96,15 +96,11 @@ function getCategoryConnectorLabel(categoryId: string): string {
                 <!-- Tags -->
                 <div class="flex flex-wrap gap-1.5">
                     <Tag :text="`v${connectionLocalisedConfig.connectorConfig.version}`" />
-                    <Tag
-                        v-if="connectionLocalisedConfig.status"
-                        :text="connectionLocalisedConfig.status.label"
-                        :color="connectionLocalisedConfig.status.color === 'red' ? undefined : connectionLocalisedConfig.status.color"
-                    />
+                    <Tag v-if="connectionLocalisedConfig.status" :text="connectionLocalisedConfig.status.label" :color="connectionLocalisedConfig.status.color" />
                     <Tag
                         v-else-if="connectionLocalisedConfig.statusId"
                         :text="connectionLocalisedConfig.statusId"
-                        :color="getComponentStatus(connectionLocalisedConfig.statusId).color === 'red' ? undefined : getComponentStatus(connectionLocalisedConfig.statusId).color"
+                        :color="getComponentStatus(connectionLocalisedConfig.statusId).color"
                     />
                 </div>
 
