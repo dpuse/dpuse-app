@@ -66,6 +66,10 @@ export const toolConfigs = shallowRef<ToolConfig[]>([]);
 // True once configMonitor's initial WebSocket handshake has been processed — distinct from any one config array
 // being non-empty, since a freshly connected session's config arrays start empty (busy) rather than confirmed-empty.
 export const configsAreRetrieved = ref(false);
+// True once configMonitor has exhausted its reconnect attempts without ever completing the handshake above — lets
+// the UI show a real "couldn't connect" message instead of leaving every config list stuck in its busy state
+// forever. Reset to false as soon as a connection attempt succeeds.
+export const configRetrievalFailed = ref(false);
 // True once accountMonitor has delivered at least one message for the current session. Cleared on sign-out
 // alongside connectionAccountConfigs, since neither is meaningful while signed out.
 export const accountConfigsAreRetrieved = ref(false);

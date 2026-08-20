@@ -8,7 +8,7 @@ import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/prese
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
 // ── Local Framework
-import { configsAreRetrieved, connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
+import { configRetrievalFailed, configsAreRetrieved, connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -17,6 +17,9 @@ const TIMEOUT_DELAY = 5000;
 // Cloudflare closes an idle WebSocket after ~100s with no traffic; ping well inside that margin to prevent it.
 const PING_INTERVAL_MS = 30000;
 const PONG_TIMEOUT_MS = 10000;
+// Reconnect attempts before giving up and surfacing configRetrievalFailed — a persistently unreachable API
+// shouldn't retry silently forever with no way for the user to know why every config list is stuck loading.
+const MAX_RECONNECT_ATTEMPTS = 5;
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -25,11 +28,13 @@ const state: {
     isWebSocketShutdown: boolean;
     pingIntervalId: ReturnType<typeof setInterval> | undefined;
     pongTimeoutId: ReturnType<typeof setTimeout> | undefined;
+    reconnectAttempts: number;
 } = {
     webSocket: undefined,
     isWebSocketShutdown: false,
     pingIntervalId: undefined,
-    pongTimeoutId: undefined
+    pongTimeoutId: undefined,
+    reconnectAttempts: 0
 };
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -47,6 +52,8 @@ export function initialise(): void {
         }
 
         state.isWebSocketShutdown = false;
+        state.reconnectAttempts = 0;
+        configRetrievalFailed.value = false;
         state.webSocket = connectToWebSocket();
     });
 }
@@ -60,6 +67,8 @@ function connectToWebSocket(): WebSocket | undefined {
 
         pendingWebSocket.addEventListener('open', () => {
             if (import.meta.env.DEV) console.info('[dpuse:app] ✅  Configuration WebSocket connection opened.');
+            state.reconnectAttempts = 0;
+            configRetrievalFailed.value = false;
             startKeepalive(pendingWebSocket!);
         });
 
@@ -88,20 +97,36 @@ function connectToWebSocket(): WebSocket | undefined {
             if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️  Configuration WebSocket close event '${event.code}' received.`);
             stopKeepalive();
             pendingWebSocket = undefined;
-            if (!state.isWebSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
+            scheduleReconnect();
         });
 
         pendingWebSocket.addEventListener('error', (error) => {
-            // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.
+            // The 'close' event always follows 'error' for a WebSocket, so reconnect scheduling lives there.
             if (import.meta.env.DEV) console.info(`[dpuse:app] ❌  Configuration WebSocket operational error: ${String(error)}`, error);
         });
 
         return pendingWebSocket;
     } catch (error) {
-        // TODO: Try and recreate a limited number of times. If no success then display message requesting refresh.
         if (import.meta.env.DEV) console.info(`[dpuse:app] ❌  Configuration WebSocket creation error: ${String(error)}`, error);
+        scheduleReconnect();
         return undefined;
     }
+}
+
+// Retries a limited number of times (with the reconnected socket's 'open' event resetting the counter), then gives
+// up and surfaces configRetrievalFailed rather than retrying silently forever with no way for the user to know
+// every config list is stuck loading.
+function scheduleReconnect(): void {
+    if (state.isWebSocketShutdown) return;
+    state.reconnectAttempts++;
+    if (state.reconnectAttempts > MAX_RECONNECT_ATTEMPTS) {
+        if (import.meta.env.DEV) console.info('[dpuse:app] ❌  Configuration WebSocket reconnect attempts exhausted — giving up.');
+        configRetrievalFailed.value = true;
+        return;
+    }
+    setTimeout(() => {
+        state.webSocket = connectToWebSocket();
+    }, TIMEOUT_DELAY);
 }
 
 // Sends a small 'ping' frame on an interval to reset Cloudflare's ~100s idle-connection timeout, and force-closes

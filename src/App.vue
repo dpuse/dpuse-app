@@ -4,7 +4,7 @@ import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
-import { initialiseServices } from '@/state/session';
+import { configRetrievalFailed, initialiseServices } from '@/state/session';
 import { load } from '@/state/component';
 import T from './App.json';
 import { t } from '@/state/locale';
@@ -15,6 +15,7 @@ import { navigationIsActive, navigationIsDelayed } from '@/state/navigation';
 import AssistantLogo from '@/components/branding/AssistantLogo.vue'; // Always visible.
 import BusyBar from '@/components/framework/BusyBar.vue'; // Can be no delay when rendering.
 import Button from '@/components/ui/button/Button.vue'; // Required by studio and assistant toggle buttons which are always visible.
+import ConfigRetrievalFailedBanner from '@/components/framework/ConfigRetrievalFailedBanner.vue'; // Can be no delay when rendering.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import LoadingMask from '@/components/framework/LoadingMask.vue'; // Can be no delay when rendering.
 import SessionButton from '@/session/SessionButton.vue'; // Always visible.
@@ -210,10 +211,16 @@ function establishPaneSplitterPercent(): number {
           z-51: SessionMenu
           z-60: DialogLayout/AuthDialog, DialogLayout/AccountDialog & DialogLayout/ConnectionDialogDialog
           z-70: BusyBar (navigation)
+          z-80: ConfigRetrievalFailedBanner (connectivity failure)
           -->
 
         <!-- Mask - Semi-transparent mask over the top safe area, so scrolling content fades out beneath it. -->
         <div class="fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-surface/80 via-25% to-surface/95" data-region="topFadeOut" />
+
+        <!-- Configuration WebSocket permanently failed to connect. Overrides everything else until the page is refreshed. -->
+        <Transition name="action-fade">
+            <ConfigRetrievalFailedBanner v-if="configRetrievalFailed" class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-80" />
+        </Transition>
 
         <!-- Navigation progress bar. Always visible. -->
         <Transition name="action-fade">

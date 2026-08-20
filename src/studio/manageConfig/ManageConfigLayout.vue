@@ -4,7 +4,8 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 // ── DPUse Framework
-import { type LocaleDescription, type LocaleLabel, localiseConfigs } from '@dpuse/dpuse-shared/locale';
+import type { BaseConfig } from '@dpuse/dpuse-shared';
+import { localiseConfigs } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { localeId, t } from '@/state/locale';
@@ -17,12 +18,7 @@ import TabBar from '@/components/ui/TabBar.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export interface ConfigOptionConfig {
-    id: string;
-    label: LocaleLabel;
-    description: LocaleDescription;
-    icon: string | null;
-    iconDark: string | null;
+export interface ConfigOptionConfig extends BaseConfig {
     to: string;
 }
 
@@ -35,14 +31,6 @@ const T = {
 
 const CONFIG_OPTION_CONFIGS: ConfigOptionConfig[] = [
     { id: 'home', label: {}, description: {}, icon: null, iconDark: null, to: 'manageConfig' },
-    // {
-    //     id: 'connections',
-    //     label: { en: 'Connections' },
-    //     description: { en: 'Commodo nec sagittis tortor mauris sed. Turpis tortor quis scelerisque diam id accumsan nullam tempus. Pulvinar etiam lacus volutpat eu.' },
-    //     icon: '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link-icon lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
-    //     iconDark: null,
-    //     to: 'manageConnections'
-    // },
     {
         id: 'context',
         label: { en: 'Context', es: 'Contexto' },
@@ -111,11 +99,7 @@ const activeConfigOptionConfig = computed(() => configOptionLocalisedConfigs.val
 
         <!-- Body -->
         <RouterView v-slot="{ Component }">
-            <component
-                :is="Component"
-                :active-config-option-config="activeConfigOptionConfig"
-                v-bind="route.name === 'manageConfig' ? { configOptionLocalisedConfigs } : {}"
-            />
+            <component :is="Component" :active-config-option-config="activeConfigOptionConfig" v-bind="route.name === 'manageConfig' ? { configOptionLocalisedConfigs } : {}" />
         </RouterView>
     </StudioLayout>
 </template>
