@@ -1,30 +1,18 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed } from 'vue';
-import { ExternalLinkIcon, GlobeIcon, InfoIcon, UserRoundIcon } from '@lucide/vue';
 
 // ── DPUse Framework
 import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
-// ── Local Framework
-import { t } from '@/state/locale';
-
 // ── Local Components - Static
-import GitHubLogo from '@/components/branding/GitHubLogo.vue';
+import ModuleLinksPanel from '../ModuleLinksPanel.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import StudioDetailPanel from '../../StudioDetailPanel.vue';
 import StudioDocumentPanel from '../../StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
-
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const T = {
-    Authentication: { en: 'Authentication', es: 'Autenticación' },
-    Links: { en: 'Links', es: 'Enlaces' },
-    GitHub_repository: { en: 'GitHub Repository', es: 'Repositorio de GitHub' }
-};
 
 // ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
 
@@ -50,16 +38,7 @@ const toolStatus = computed(() => (toolLocalisedConfig.statusId ? getComponentSt
                 <p>{{ toolLocalisedConfig.description }}</p>
 
                 <!-- Links -->
-                <h2>{{ t(T, 'Links') }}</h2>
-                <ul>
-                    <li class="flex items-center gap-x-2">
-                        <a :href="`https://github.com/dpuse/${toolLocalisedConfig.id}`" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            <GitHubLogo class="size-4" />
-                            {{ t(T, 'GitHub_repository') }}
-                            <ExternalLinkIcon class="size-4" />
-                        </a>
-                    </li>
-                </ul>
+                <ModuleLinksPanel :localised-config="toolLocalisedConfig" />
             </StudioDocumentPanel>
         </ScrollArea>
     </StudioDetailPanel>

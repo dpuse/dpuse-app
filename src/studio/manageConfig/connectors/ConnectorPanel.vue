@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed } from 'vue';
-import { ExternalLinkIcon, GlobeIcon, InfoIcon, UserRoundIcon } from '@lucide/vue';
 
 // ── DPUse Framework
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
@@ -12,7 +11,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import { t } from '@/state/locale';
 
 // ── Local Components - Static
-import GitHubLogo from '@/components/branding/GitHubLogo.vue';
+import ModuleLinksPanel from '../ModuleLinksPanel.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import StudioDetailPanel from '../../StudioDetailPanel.vue';
 import StudioDocumentPanel from '../../StudioDocumentPanel.vue';
@@ -82,40 +81,7 @@ const connectorStatus = computed(() => (connectorLocalisedConfig.statusId ? getC
                 <h2>Connections</h2>
 
                 <!-- Links -->
-                <h2>{{ t(T, 'Links') }}</h2>
-                <ul>
-                    <li v-if="connectorLocalisedConfig.vendorHomeURL" class="flex items-center gap-x-2">
-                        <GlobeIcon class="size-4" />
-                        <a :href="connectorLocalisedConfig.vendorHomeURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            {{ connectorLocalisedConfig.label }} Website
-                            <ExternalLinkIcon class="size-4" />
-                        </a>
-                    </li>
-
-                    <li v-if="connectorLocalisedConfig.vendorDocumentationURL" class="flex items-center gap-x-2">
-                        <InfoIcon class="size-4" />
-                        <a :href="connectorLocalisedConfig.vendorDocumentationURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            {{ connectorLocalisedConfig.label }} Documentation
-                            <ExternalLinkIcon class="size-4" />
-                        </a>
-                    </li>
-
-                    <li v-if="connectorLocalisedConfig.vendorAccountURL" class="flex items-center gap-x-2">
-                        <UserRoundIcon class="size-4" />
-                        <a :href="connectorLocalisedConfig.vendorAccountURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            {{ connectorLocalisedConfig.label }} Sign in
-                            <ExternalLinkIcon class="size-4" />
-                        </a>
-                    </li>
-
-                    <li class="flex items-center gap-x-2">
-                        <a :href="`https://github.com/dpuse/${connectorLocalisedConfig.id}`" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            <GitHubLogo class="size-4" />
-                            {{ t(T, 'GitHub_repository') }}
-                            <ExternalLinkIcon class="size-4" />
-                        </a>
-                    </li>
-                </ul>
+                <ModuleLinksPanel :localised-config="connectorLocalisedConfig" />
             </StudioDocumentPanel>
         </ScrollArea>
     </StudioDetailPanel>
