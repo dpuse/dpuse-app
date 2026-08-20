@@ -119,17 +119,17 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
             <template v-for="message in messages" :key="message.id">
                 <template v-if="message.role === 'user'">
                     <div v-for="part in message.parts.filter((part) => part.type === 'text')" :key="part.content" class="mt-3 flex pr-4">
-                        <div class="w-full rounded-md bg-blue-50 px-3 py-2 text-sm">{{ part.content }}</div>
+                        <div class="w-full rounded-md bg-info px-3 py-2 text-sm">{{ part.content }}</div>
                     </div>
 
                     <div v-for="(errorText, errorIndex) in message.errors" :key="`${message.id}-error-${errorIndex}`" class="mt-3 pr-4">
                         <div class="flex gap-3">
                             <div class="flex w-4 shrink-0 flex-col items-center">
-                                <div class="mt-1.25 size-2 shrink-0 rounded-full bg-rose-600"></div>
+                                <div class="mt-1.25 size-2 shrink-0 rounded-full bg-danger-text"></div>
                             </div>
                             <div class="min-w-0 flex-1 pb-4">
-                                <div class="mb-1 text-xs font-medium tracking-wide text-rose-700">Error</div>
-                                <div class="text-sm whitespace-pre-line text-rose-700">{{ errorText }}</div>
+                                <div class="mb-1 text-xs font-medium tracking-wide text-danger-text">Error</div>
+                                <div class="text-sm whitespace-pre-line text-danger-text">{{ errorText }}</div>
                             </div>
                         </div>
                     </div>

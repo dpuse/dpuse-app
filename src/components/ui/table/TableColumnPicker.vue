@@ -32,21 +32,21 @@ function onDocumentClick(event: MouseEvent): void {
 </script>
 
 <template>
-    <div class="flex items-center border-b border-zinc-200 px-3 py-1.5 dark:border-zinc-700" data-region="TableColumnPicker">
+    <div class="flex items-center border-b border-separator px-3 py-1.5" data-region="TableColumnPicker">
         <div ref="picker" class="relative">
             <button
-                class="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                class="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-muted hover:bg-card-hover"
                 @click.stop="open = !open"
             >
                 <Settings2 class="size-3.5" />
                 Columns
             </button>
 
-            <div v-if="open" class="absolute top-full left-0 z-50 min-w-48 rounded border border-zinc-200 bg-white shadow-md dark:border-zinc-700 dark:bg-zinc-900">
+            <div v-if="open" class="absolute top-full left-0 z-50 min-w-48 rounded border border-separator bg-card shadow-md">
                 <label
                     v-for="col in table.getAllColumns().filter((c) => c.getCanHide())"
                     :key="col.id"
-                    class="flex cursor-pointer items-center gap-2 px-3 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    class="flex cursor-pointer items-center gap-2 px-3 py-1.5 hover:bg-card-hover"
                 >
                     <input
                         type="checkbox"
@@ -54,7 +54,7 @@ function onDocumentClick(event: MouseEvent): void {
                         :checked="col.getIsVisible()"
                         @change="col.toggleVisibility(!col.getIsVisible())"
                     />
-                    <span class="text-xs text-content dark:text-zinc-300">{{ String(col.columnDef.header) }}</span>
+                    <span class="text-xs text-content">{{ String(col.columnDef.header) }}</span>
                 </label>
             </div>
         </div>

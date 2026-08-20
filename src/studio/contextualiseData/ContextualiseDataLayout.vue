@@ -91,7 +91,7 @@ async function loadD3Tool(): Promise<D3ToolType> {
 
         <Separator class="mx-4" />
         <div class="px-4 py-2">
-            <button class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50" type="button" @click="onAutoLayout">
+            <button class="rounded-md border border-boundary bg-card px-3 py-1.5 text-sm font-medium text-emphasis hover:bg-card-hover" type="button" @click="onAutoLayout">
                 Auto-layout
             </button>
         </div>

@@ -21,7 +21,7 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
             class="min-w-0"
             :class="{
                 'text-center': !viewportIsWide,
-                'cursor-pointer text-sky-700 hover:underline hover:decoration-sky-800/40 hover:underline-offset-2 dark:text-sky-300 dark:hover:decoration-sky-300/40':
+                'cursor-pointer text-accent hover:text-accent-hover hover:underline hover:decoration-accent-hover/40 hover:underline-offset-2':
                     to && to !== $route.query.sView
             }"
             :to="{ name: to, query: { ...$route.query, sView: to } }"

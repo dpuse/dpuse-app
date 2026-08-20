@@ -6,20 +6,6 @@ html {
     font-size: 1rem; /* 16px is default */
 }
 
-/* .dpuse-prose h1,
-.dpuse-prose h2,
-.dpuse-prose h3,
-.dpuse-prose h4,
-.dpuse-prose h5,
-.dpuse-prose h6 {
-    margin: 0;
-    line-height: 24px;
-    font-size: 16px;
-    font-weight: 400;
-    position: relative;
-    font-weight: 600;
-    outline: none;
-} */
 .dpuse-prose h1,
 .dpuse-prose h2,
 .dpuse-prose h3,
@@ -170,6 +156,8 @@ html {
     --color-subtle: var(--subtle); /* Text/icons (tertiary — decorative, structural) */
     --color-emphasis: var(--emphasis); /* Text/icons (strong — headings, prominent labels) */
     --color-accent: var(--accent); /* Text/icons (interactive — links, active states) */
+    --color-accent-hover: var(--accent-hover); /* Text/icons (interactive — hover) */
+    --color-accent-ring: var(--accent-ring); /* Focus ring (interactive) */
 
     /* Status colors (success/warning/danger/info) — used for tags, badges, status pills, buttons, and alerts. */
     --color-success: var(--success);
@@ -195,6 +183,13 @@ html {
     --color-info-active: var(--info-active);
     --color-info-text: var(--info-text);
     --color-info-ring: var(--info-ring);
+
+    /* Selected state — used for the selected ConfigCard and its action buttons (a third palette, distinct from accent and status). */
+    --color-selected: var(--selected);
+    --color-selected-hover: var(--selected-hover);
+    --color-selected-text: var(--selected-text);
+    --color-selected-border: var(--selected-border);
+    --color-selected-ring: var(--selected-ring);
 }
 
 /* Variables and light mode colors. */
@@ -225,6 +220,8 @@ html {
     --subtle: var(--color-zinc-400);
     --emphasis: var(--color-zinc-700);
     --accent: var(--color-sky-600);
+    --accent-hover: var(--color-sky-700);
+    --accent-ring: var(--color-sky-300);
 
     /* Light mode status colors — Tailwind UI's documented badge/alert palette (bg-50/text-700/ring-600, amber bumped to text-800 for contrast). */
     --success: var(--color-green-50);
@@ -250,6 +247,13 @@ html {
     --info-active: var(--color-blue-200);
     --info-text: var(--color-blue-700);
     --info-ring: var(--color-blue-700);
+
+    /* Light mode selected state. */
+    --selected: var(--color-sky-50);
+    --selected-hover: var(--color-sky-100);
+    --selected-text: var(--color-sky-700);
+    --selected-border: var(--color-sky-200);
+    --selected-ring: var(--color-sky-300);
 }
 
 .dark {
@@ -267,6 +271,8 @@ html {
     --subtle: var(--color-zinc-500);
     --emphasis: var(--color-zinc-200);
     --accent: var(--color-sky-300);
+    --accent-hover: var(--color-sky-200);
+    --accent-ring: var(--color-sky-500);
 
     /* Dark mode status colors — Tailwind UI's documented dark badge/alert palette (bg-400/10, text-400, ring-400/20; green uses 500 for bg/text). */
     --success: color-mix(in srgb, var(--color-green-500) 10%, transparent);
@@ -292,6 +298,13 @@ html {
     --info-active: color-mix(in srgb, var(--color-blue-400) 30%, transparent);
     --info-text: var(--color-blue-400);
     --info-ring: color-mix(in srgb, var(--color-blue-400) 30%, transparent);
+
+    /* Dark mode selected state. */
+    --selected: var(--color-sky-950);
+    --selected-hover: var(--color-sky-900);
+    --selected-text: var(--color-sky-300);
+    --selected-border: var(--color-sky-800);
+    --selected-ring: var(--color-sky-500);
 }
 
 /* Content column: left margin scales with viewport width (clamped 0–5rem), max-width 56rem, right margin absorbs remaining space. */

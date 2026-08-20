@@ -93,7 +93,7 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
                 <div
                     class="flex items-center gap-x-1.5 pr-2 text-sm"
                     :class="{
-                        'text-sky-700 dark:text-sky-300': activeTaskId === item.id || !item.disabled,
+                        'text-accent': activeTaskId === item.id || !item.disabled,
                         'text-subtle': item.disabled
                     }"
                 >

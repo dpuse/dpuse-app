@@ -19,7 +19,7 @@ const inputId = id ?? useId();
         <input
             v-bind="{ id: inputId, name: inputId, ...attributes }"
             v-model="modelValue"
-            class="block w-full rounded-md px-3 py-1.5 outline-1 -outline-offset-1 outline-separator placeholder:text-muted focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:focus:outline-indigo-500"
+            class="block w-full rounded-md px-3 py-1.5 outline-1 -outline-offset-1 outline-separator placeholder:text-muted focus:outline-2 focus:-outline-offset-2 focus:outline-accent"
             data-region="Input"
         />
     </div>

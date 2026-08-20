@@ -178,12 +178,12 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
              ancestor, and inside the body below that would be the horizontal-only inner scroller, which never scrolls
              vertically, so a sticky header nested in there would just scroll away with the rows instead of pinning. -->
         <div ref="headerViewport" class="overflow-hidden" @wheel.passive="handleHeaderWheel">
-            <div class="flex h-10 border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900" :style="{ width: totalWidth + 'px' }">
+            <div class="flex h-10 border-b border-boundary bg-card" :style="{ width: totalWidth + 'px' }">
                 <!-- Left pinned headers -->
                 <div
                     v-for="leftLeafHeader in leftLeafHeaders"
                     :key="leftLeafHeader.id"
-                    class="sticky shrink-0 border-r border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900"
+                    class="sticky shrink-0 border-r border-boundary bg-card"
                     :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                 >
                     <TableHeaderCell :header="leftLeafHeader" />
@@ -216,7 +216,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                 <div
                     v-for="rightLeafHeader in rightLeafHeaders"
                     :key="rightLeafHeader.id"
-                    class="sticky shrink-0 border-l border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900"
+                    class="sticky shrink-0 border-l border-boundary bg-card"
                     :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                 >
                     <TableHeaderCell :header="rightLeafHeader" />
@@ -236,7 +236,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                             <div
                                 v-for="(vRow, i) in virtualRows"
                                 :key="vRow.index"
-                                class="group absolute top-0 flex border-b border-zinc-100 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+                                class="group absolute top-0 flex border-b border-boundary bg-surface"
                                 :style="{ transform: `translateY(${vRow.start}px)`, height: vRow.size + 'px', width: totalWidth + 'px' }"
                             >
                                 <!-- Left pinned cells -->
@@ -245,7 +245,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                     :key="leftLeafHeader.id"
                                     :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
                                     :loading="visibleRowData[i] === undefined"
-                                    class="sticky shrink-0 border-r border-zinc-100 bg-white group-hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:group-hover:bg-zinc-900"
+                                    class="sticky shrink-0 border-r border-boundary bg-surface group-hover:bg-card"
                                     :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 1 }"
                                 />
 
@@ -261,7 +261,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                     />
                                 </template>
 
-                                <div v-else class="relative shrink-0 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900" :style="{ width: totalCenterWidth + 'px' }">
+                                <div v-else class="relative shrink-0 group-hover:bg-card" :style="{ width: totalCenterWidth + 'px' }">
                                     <TableCell
                                         v-for="virtualColumn in virtualColumns"
                                         :key="virtualColumn.index"
@@ -278,7 +278,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                     :key="rightLeafHeader.id"
                                     :value="visibleRowData[i]?.[rightLeafHeader.column.id]"
                                     :loading="visibleRowData[i] === undefined"
-                                    class="sticky shrink-0 border-l border-zinc-100 bg-white group-hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:group-hover:bg-zinc-900"
+                                    class="sticky shrink-0 border-l border-boundary bg-surface group-hover:bg-card"
                                     :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 1 }"
                                 />
                             </div>

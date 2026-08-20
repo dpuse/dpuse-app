@@ -59,10 +59,10 @@ function handleSubmit(): void {
 
         <div class="flex justify-between">
             <div class="text-sm/6">
-                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300" @click="handleBack">{{ t(T, 'Back') }}</a>
+                <a href="#" class="font-semibold text-accent hover:text-accent-hover" @click="handleBack">{{ t(T, 'Back') }}</a>
             </div>
             <div class="text-sm/6">
-                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">{{ t(T, 'Forgot_password') }}</a>
+                <a href="#" class="font-semibold text-accent hover:text-accent-hover">{{ t(T, 'Forgot_password') }}</a>
             </div>
         </div>
     </div>

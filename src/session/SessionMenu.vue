@@ -111,7 +111,7 @@ async function toggleFullscreen(): Promise<void> {
         class="flex max-w-sm min-w-xs flex-col overflow-hidden border-separator bg-surface shadow-md"
         :class="
             viewportIsWide
-                ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] rounded-md border border-red-500'
+                ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] rounded-md border border-boundary'
                 : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] rounded-t-2xl border-x border-t'
         "
     >

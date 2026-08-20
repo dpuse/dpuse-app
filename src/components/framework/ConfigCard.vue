@@ -34,7 +34,7 @@ const { actions = [], badges = [], config, isCompact = false, overline, selected
         :class="[
             isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4',
             selected
-                ? 'bg-sky-50 outline-sky-200 hover:bg-sky-100 hover:outline-sky-200 dark:bg-sky-950 dark:outline-sky-900 dark:hover:bg-sky-900 dark:hover:outline-sky-700'
+                ? 'bg-selected outline-selected-border hover:bg-selected-hover hover:outline-selected-border'
                 : 'bg-card outline-separator hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover'
         ]"
         data-region="ConfigCard"

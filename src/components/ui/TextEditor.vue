@@ -176,7 +176,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
         </div>
 
         <div
-            class="flex flex-1 flex-col overflow-hidden rounded-md bg-surface outline-1 -outline-offset-1 outline-separator focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600 dark:focus-within:outline-indigo-500"
+            class="flex flex-1 flex-col overflow-hidden rounded-md bg-surface outline-1 -outline-offset-1 outline-separator focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-accent"
         >
             <!-- Toolbar -->
             <div class="flex flex-none gap-0.5 border-b border-boundary bg-backdrop">

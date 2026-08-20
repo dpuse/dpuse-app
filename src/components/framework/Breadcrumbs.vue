@@ -41,7 +41,7 @@ const enrichedItems = computed(() =>
                     item.icon ? 'flex-none' : 'max-w-full min-w-0 overflow-hidden',
                     isDisabled
                         ? 'cursor-default text-muted'
-                        : 'cursor-pointer text-sky-700 transition-colors hover:text-sky-600 focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:outline-none dark:text-sky-300 dark:hover:text-sky-300 dark:focus-visible:ring-sky-500'
+                        : 'cursor-pointer text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-accent-ring focus-visible:outline-none'
                 ]"
                 @click="!isDisabled ? $emit('select', index, item) : undefined"
             >

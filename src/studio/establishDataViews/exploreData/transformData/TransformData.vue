@@ -265,14 +265,14 @@ function typeIcon(name: string): Component {
                 <div class="relative">
                     <input
                         v-model="columnSearch"
-                        class="dpuse-search-input w-full rounded-sm bg-zinc-100 px-2 py-1.5 pr-7 text-xs text-content outline-none placeholder:text-subtle dark:bg-zinc-700 dark:text-zinc-200"
+                        class="dpuse-search-input w-full rounded-sm bg-card-hover px-2 py-1.5 pr-7 text-xs text-content outline-none placeholder:text-subtle"
                         placeholder="Search column names…"
                         type="search"
                         aria-label="Search column names"
                     />
                     <button
                         v-if="columnSearch.length > 0"
-                        class="absolute top-1/2 right-2 flex -translate-y-1/2 items-center justify-center p-0 text-subtle hover:text-zinc-600 dark:text-zinc-300 dark:hover:text-zinc-100"
+                        class="absolute top-1/2 right-2 flex -translate-y-1/2 items-center justify-center p-0 text-subtle hover:text-content"
                         type="button"
                         aria-label="Clear column search"
                         @click="columnSearch = ''"
@@ -325,7 +325,7 @@ function typeIcon(name: string): Component {
                 </div>
                 <div class="flex items-center gap-1">
                     <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add condition" @click="openPicker('where')">
-                        <PlusIcon class="size-4 text-zinc-500" />
+                        <PlusIcon class="size-4 text-muted" />
                     </button>
                     <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.where = !clauseOpen.where">
                         <ChevronDownIcon v-if="clauseOpen.where" class="size-4 text-subtle" />
@@ -339,10 +339,10 @@ function typeIcon(name: string): Component {
                 <div v-if="query.where.length > 0" class="mb-3 flex flex-col gap-2">
                     <div v-for="(cond, index) in query.where" :key="cond.id" class="flex items-center gap-2 text-xs">
                         <span v-if="index > 0" class="w-7 flex-none text-right text-[10px] font-semibold text-subtle">AND</span>
-                        <div class="flex flex-1 items-center gap-1.5 rounded-full bg-zinc-100 py-1.5 pr-1 pl-2.5 dark:bg-zinc-700">
+                        <div class="flex flex-1 items-center gap-1.5 rounded-full bg-card-hover py-1.5 pr-1 pl-2.5">
                             <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
                             <span class="text-subtle">{{ cond.op }}</span>
-                            <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
+                            <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-content">'{{ cond.value }}'</span>
                             <button class="ml-auto rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="removeCondition('where', cond.id)">
                                 <XIcon class="size-3 text-subtle" />
                             </button>
@@ -351,7 +351,7 @@ function typeIcon(name: string): Component {
                 </div>
 
                 <!-- Condition builder -->
-                <div v-if="pickerOpen.where" class="rounded-lg border border-separator bg-white p-3 dark:bg-zinc-900">
+                <div v-if="pickerOpen.where" class="rounded-lg border border-separator bg-card p-3">
                     <div class="flex flex-col gap-2">
                         <select
                             v-model="whereDraft.column"
@@ -377,11 +377,11 @@ function typeIcon(name: string): Component {
                         />
                     </div>
                     <div class="mt-3 flex justify-end gap-2">
-                        <button class="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700" type="button" @click="pickerOpen.where = false">
+                        <button class="rounded-md px-3 py-1.5 text-sm text-muted hover:bg-zinc-100 dark:hover:bg-zinc-700" type="button" @click="pickerOpen.where = false">
                             Cancel
                         </button>
                         <button
-                            class="rounded-md bg-blue-100 px-3 py-1.5 text-sm text-blue-800 hover:bg-blue-200 dark:bg-blue-400/20 dark:text-blue-300 dark:hover:bg-blue-400/30"
+                            class="rounded-md bg-info px-3 py-1.5 text-sm text-info-text hover:bg-info-hover"
                             type="button"
                             @click="addCondition('where')"
                         >
@@ -399,7 +399,7 @@ function typeIcon(name: string): Component {
                     <span v-if="index > 0" class="text-[10px] font-semibold text-subtle">AND</span>
                     <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
                     <span class="text-subtle">{{ cond.op }}</span>
-                    <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
+                    <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-content">'{{ cond.value }}'</span>
                 </div>
             </div>
         </section>
@@ -413,7 +413,7 @@ function typeIcon(name: string): Component {
                 </div>
                 <div class="flex items-center gap-1">
                     <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add grouping" @click="openPicker('groupBy')">
-                        <PlusIcon class="size-4 text-zinc-500" />
+                        <PlusIcon class="size-4 text-muted" />
                     </button>
                     <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.groupBy = !clauseOpen.groupBy">
                         <ChevronDownIcon v-if="clauseOpen.groupBy" class="size-4 text-subtle" />
@@ -436,7 +436,7 @@ function typeIcon(name: string): Component {
                 </div>
 
                 <!-- Column picker -->
-                <div v-if="pickerOpen.groupBy" class="mt-3 rounded-lg border border-separator bg-white p-3 dark:bg-zinc-900">
+                <div v-if="pickerOpen.groupBy" class="mt-3 rounded-lg border border-separator bg-card p-3">
                     <div class="grid grid-cols-2 gap-0.5">
                         <label
                             v-for="col in COLUMNS"
@@ -483,7 +483,7 @@ function typeIcon(name: string): Component {
                 </div>
                 <div class="flex items-center gap-1">
                     <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add having condition" @click="openPicker('having')">
-                        <PlusIcon class="size-4 text-zinc-500" />
+                        <PlusIcon class="size-4 text-muted" />
                     </button>
                     <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.having = !clauseOpen.having">
                         <ChevronDownIcon v-if="clauseOpen.having" class="size-4 text-subtle" />
@@ -497,10 +497,10 @@ function typeIcon(name: string): Component {
                 <div v-if="query.having.length > 0" class="mb-3 flex flex-col gap-2">
                     <div v-for="(cond, index) in query.having" :key="cond.id" class="flex items-center gap-2 text-xs">
                         <span v-if="index > 0" class="w-7 flex-none text-right text-[10px] font-semibold text-subtle">AND</span>
-                        <div class="flex flex-1 items-center gap-1.5 rounded-full bg-zinc-100 py-1.5 pr-1 pl-2.5 dark:bg-zinc-700">
+                        <div class="flex flex-1 items-center gap-1.5 rounded-full bg-card-hover py-1.5 pr-1 pl-2.5">
                             <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
                             <span class="text-subtle">{{ cond.op }}</span>
-                            <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
+                            <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-content">'{{ cond.value }}'</span>
                             <button class="ml-auto rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="removeCondition('having', cond.id)">
                                 <XIcon class="size-3 text-subtle" />
                             </button>
@@ -509,7 +509,7 @@ function typeIcon(name: string): Component {
                 </div>
 
                 <!-- Condition builder -->
-                <div v-if="pickerOpen.having" class="rounded-lg border border-separator bg-white p-3 dark:bg-zinc-900">
+                <div v-if="pickerOpen.having" class="rounded-lg border border-separator bg-card p-3">
                     <div class="flex flex-col gap-2">
                         <select
                             v-model="havingDraft.column"
@@ -535,11 +535,11 @@ function typeIcon(name: string): Component {
                         />
                     </div>
                     <div class="mt-3 flex justify-end gap-2">
-                        <button class="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700" type="button" @click="pickerOpen.having = false">
+                        <button class="rounded-md px-3 py-1.5 text-sm text-muted hover:bg-zinc-100 dark:hover:bg-zinc-700" type="button" @click="pickerOpen.having = false">
                             Cancel
                         </button>
                         <button
-                            class="rounded-md bg-blue-100 px-3 py-1.5 text-sm text-blue-800 hover:bg-blue-200 dark:bg-blue-400/20 dark:text-blue-300 dark:hover:bg-blue-400/30"
+                            class="rounded-md bg-info px-3 py-1.5 text-sm text-info-text hover:bg-info-hover"
                             type="button"
                             @click="addCondition('having')"
                         >
@@ -557,7 +557,7 @@ function typeIcon(name: string): Component {
                     <span v-if="index > 0" class="text-[10px] font-semibold text-subtle">AND</span>
                     <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
                     <span class="text-subtle">{{ cond.op }}</span>
-                    <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-zinc-600 dark:text-zinc-300">'{{ cond.value }}'</span>
+                    <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-content">'{{ cond.value }}'</span>
                 </div>
             </div>
         </section>
@@ -571,7 +571,7 @@ function typeIcon(name: string): Component {
                 </div>
                 <div class="flex items-center gap-1">
                     <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add sort column" @click="openPicker('orderBy')">
-                        <PlusIcon class="size-4 text-zinc-500" />
+                        <PlusIcon class="size-4 text-muted" />
                     </button>
                     <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.orderBy = !clauseOpen.orderBy">
                         <ChevronDownIcon v-if="clauseOpen.orderBy" class="size-4 text-subtle" />
@@ -603,7 +603,7 @@ function typeIcon(name: string): Component {
                 </div>
 
                 <!-- Column picker -->
-                <div v-if="pickerOpen.orderBy" class="rounded-lg border border-separator bg-white p-3 dark:bg-zinc-900">
+                <div v-if="pickerOpen.orderBy" class="rounded-lg border border-separator bg-card p-3">
                     <div class="flex flex-col gap-0.5">
                         <button
                             v-for="col in COLUMNS"
@@ -654,7 +654,7 @@ function typeIcon(name: string): Component {
                 <ChevronRightIcon v-else class="size-4 flex-none text-subtle" />
                 <span class="text-muted text-[11px] font-semibold tracking-wider uppercase">SQL Preview</span>
             </button>
-            <pre v-if="sqlOpen" class="overflow-x-auto px-4 py-3 text-xs text-zinc-600 dark:text-subtle">{{ sql }}</pre>
+            <pre v-if="sqlOpen" class="overflow-x-auto px-4 py-3 text-xs text-subtle">{{ sql }}</pre>
         </div> -->
     <!-- </div> -->
 </template>
