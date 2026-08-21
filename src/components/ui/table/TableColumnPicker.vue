@@ -34,10 +34,7 @@ function onDocumentClick(event: MouseEvent): void {
 <template>
     <div class="flex items-center border-b border-separator px-3 py-1.5" data-region="TableColumnPicker">
         <div ref="picker" class="relative">
-            <button
-                class="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-muted hover:bg-card-hover"
-                @click.stop="open = !open"
-            >
+            <button class="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-muted hover:bg-card-hover" @click.stop="open = !open">
                 <Settings2 class="size-3.5" />
                 Columns
             </button>

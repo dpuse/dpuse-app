@@ -40,9 +40,7 @@ const normalizedMessages = computed<AssistantChatMessage[]>(() =>
     rawMessages.value.map((message) => ({
         id: message.id,
         role: message.role === 'user' ? 'user' : 'assistant',
-        parts: message.parts
-            .filter((part) => part.type === 'thinking' || part.type === 'text')
-            .map((part) => ({ type: part.type as 'text' | 'thinking', content: part.content })),
+        parts: message.parts.filter((part) => part.type === 'thinking' || part.type === 'text').map((part) => ({ type: part.type as 'text' | 'thinking', content: part.content })),
         errors: message.role === 'user' ? (chatErrorsByUserMessageId.value[message.id] ?? []) : []
     }))
 );

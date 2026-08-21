@@ -1,14 +1,19 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { onMounted, useTemplateRef } from 'vue';
+import { onMounted, ref, useTemplateRef } from 'vue';
+import { RefreshCwIcon, TriangleAlertIcon } from '@lucide/vue';
 
 // ── DPUse Framework
-import type { D3Tool as D3ToolType, ErdDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
+import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
+import { AppError, type SerialisedError, serialiseError } from '@dpuse/dpuse-shared/errors';
+import type { Tool as D3Tool, ErdDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
+import { reportAppError } from '@/observability/errorTracking';
 import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
+import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -56,29 +61,52 @@ const ORDER_CONSTRAINTS = [
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const container = useTemplateRef<HTMLDivElement>('container');
+const renderErrorChain = ref<SerialisedError[] | undefined>(undefined);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(async () => {
-    const d3Tool = await loadD3Tool();
-    if (container.value) await d3Tool.renderErdDiagram(ERD_DATA, container.value, { orderConstraints: ORDER_CONSTRAINTS });
+onMounted(() => {
+    void renderDiagram();
 });
+
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+function handleRetry(): void {
+    void renderDiagram();
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function loadD3Tool(): Promise<D3ToolType> {
-    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-d3-visualiser');
-    if (!toolModuleConfig) throw new Error('No D3 tool module configuration.');
-
-    const url = `https://engine-eu.dpuse.app/tools/d3-visualiser_v${toolModuleConfig.version}/dpuse-tool-d3-visualiser.es.js`;
-    const module = (await import(/* @vite-ignore */ url)) as { D3Tool: new () => D3ToolType };
-    const D3Tool = module.D3Tool;
-    return new D3Tool();
+async function renderDiagram(): Promise<void> {
+    renderErrorChain.value = undefined;
+    try {
+        const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiser');
+        if (container.value) {
+            container.value.replaceChildren();
+            await d3Tool.renderErdDiagram(ERD_DATA, container.value, { orderConstraints: ORDER_CONSTRAINTS });
+        }
+    } catch (error) {
+        const appError = new AppError('Failed to render context ERD diagram.', 'dpuse.contextErdDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error });
+        renderErrorChain.value = serialiseError(appError);
+        reportAppError(appError);
+    }
 }
 </script>
 
 <template>
     <ScrollArea class="min-h-0 flex-1">
-        <div ref="container" class="p-6" />
+        <div v-if="renderErrorChain" class="mx-auto mt-8 w-[calc(100%-2rem)] max-w-sm rounded-lg border border-warning-ring/20 bg-warning px-4 py-5 text-center">
+            <TriangleAlertIcon class="mx-auto size-8 text-warning-text" stroke-width="1" />
+            <p class="mt-2 text-sm font-semibold text-warning-text">{{ renderErrorChain[0]?.message }}</p>
+            <p v-for="(causeError, index) in renderErrorChain.slice(1)" :key="index" class="mt-1 text-xs text-warning-text/70">
+                {{ causeError.message }}
+            </p>
+            <Button class="mx-auto mt-3 flex items-center" variant="guarded" @click="handleRetry">
+                <RefreshCwIcon class="mr-1.5 size-4" />
+                Retry
+            </Button>
+        </div>
+
+        <div v-show="!renderErrorChain" ref="container" class="p-6" />
     </ScrollArea>
 </template>

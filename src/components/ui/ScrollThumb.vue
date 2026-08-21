@@ -269,7 +269,9 @@ function clamp(value: number, min: number, max: number): number {
     >
         <div
             class="dpuse-scrollbar-thumb"
-            :style="isVertical ? { height: thumbLength + 'px', transform: `translateY(${thumbOffset}px)` } : { width: thumbLength + 'px', transform: `translateX(${thumbOffset}px)` }"
+            :style="
+                isVertical ? { height: thumbLength + 'px', transform: `translateY(${thumbOffset}px)` } : { width: thumbLength + 'px', transform: `translateX(${thumbOffset}px)` }
+            "
         />
     </div>
 </template>

@@ -31,15 +31,49 @@ const ContextDimensionTreeDiagramPanel = defineAsyncPanel(() => import('./Contex
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-type Dimension = { id: string; label: Record<string, string>; description: Record<string, string> };
-type Entity = { id: string; label: Record<string, string>; description: Record<string, string> };
-type SecondaryMeasure = { id: string; label: Record<string, string>; description: Record<string, string>; formula: string };
-type Model = { entities: Entity[]; dimensions: Dimension[]; secondaryMeasures: SecondaryMeasure[] };
+interface Dimension {
+    id: string;
+    label: Record<string, string>;
+    description: Record<string, string>;
+}
+interface Entity {
+    id: string;
+    label: Record<string, string>;
+    description: Record<string, string>;
+}
+interface SecondaryMeasure {
+    id: string;
+    label: Record<string, string>;
+    description: Record<string, string>;
+    formula: string;
+}
+interface Model {
+    entities: Entity[];
+    dimensions: Dimension[];
+    secondaryMeasures: SecondaryMeasure[];
+}
 
-type LocalisedDimensions = { id: string; label: string; description: string };
-type LocalisedEntity = { id: string; label: string; description: string };
-type LocalisedSecondaryMeasure = { id: string; label: string; description: string; formula: string };
-type LocalisedModel = { entities: LocalisedEntity[]; dimensions: LocalisedDimensions[]; secondaryMeasures: LocalisedSecondaryMeasure[] };
+interface LocalisedDimensions {
+    id: string;
+    label: string;
+    description: string;
+}
+interface LocalisedEntity {
+    id: string;
+    label: string;
+    description: string;
+}
+interface LocalisedSecondaryMeasure {
+    id: string;
+    label: string;
+    description: string;
+    formula: string;
+}
+interface LocalisedModel {
+    entities: LocalisedEntity[];
+    dimensions: LocalisedDimensions[];
+    secondaryMeasures: LocalisedSecondaryMeasure[];
+}
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -94,6 +128,7 @@ onMounted(async () => {
 });
 
 // ── Async Loaders
+// eslint-disable-next-line @typescript-eslint/require-await
 async function loadModel(modelId: string): Promise<Model> {
     // Future: return (await fetch(`/api/model-configs/${modelId}`)).json() as Promise<Model>;
     return (modelConfigsData as Record<string, Model>)[modelId];
@@ -197,7 +232,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
                 v-for="entity in activeModel?.entities ?? []"
                 :key="entity.id"
                 class="mt-2 max-w-prose border"
-                :class="expandedEntityId === entity.id ? 'rounded-md  border-separator' : 'rounded-md border-backdrop'"
+                :class="expandedEntityId === entity.id ? 'rounded-md border-separator' : 'rounded-md border-backdrop'"
             >
                 <div
                     role="button"
@@ -275,7 +310,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
                 v-for="dimension in activeModel?.dimensions ?? []"
                 :key="dimension.id"
                 class="mt-2 max-w-prose border"
-                :class="expandedDimensionId === dimension.id ? 'rounded-md  border-separator' : 'rounded-md border-backdrop'"
+                :class="expandedDimensionId === dimension.id ? 'rounded-md border-separator' : 'rounded-md border-backdrop'"
             >
                 <div
                     role="button"
@@ -352,7 +387,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
                 v-for="measure in activeModel?.secondaryMeasures ?? []"
                 :key="measure.id"
                 class="mt-2 max-w-prose border"
-                :class="expandedSecondaryMeasureId === measure.id ? 'rounded-md  border-separator' : 'rounded-md border-backdrop'"
+                :class="expandedSecondaryMeasureId === measure.id ? 'rounded-md border-separator' : 'rounded-md border-backdrop'"
             >
                 <div
                     role="button"

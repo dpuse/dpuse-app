@@ -19,7 +19,12 @@ const emit = defineEmits<{ messagesChange: [messages: AssistantChatMessage[]]; s
 
 const chatErrorsByUserMessageId = ref<Record<string, string[]>>({});
 
-const { messages, status, sendMessage: sendChatMessage, addToolOutput } = useChat({
+const {
+    messages,
+    status,
+    sendMessage: sendChatMessage,
+    addToolOutput
+} = useChat({
     transport: new DefaultChatTransport({
         api: 'https://api.dpuse.app/ai/chat',
         body: {

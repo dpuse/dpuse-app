@@ -10,12 +10,17 @@ import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescri
 
 // ── ESLint Configuration ─────────────────────────────────────────────────────────────────────────────────────────────
 
-/** @type {import('eslint').Linter.Config[]} */
+/**
+@type {import('eslint').Linter.Config[]}
+*/
 const config = defineConfigWithVueTs(
     // Linting scope and module resolver. TypeScript parser is handled by defineConfigWithVueTs.
     {
         name: 'app/files-to-lint',
         files: ['**/*.{vue,ts,mts,tsx}'],
+        languageOptions: {
+            parserOptions: { projectService: true, tsconfigRootDir: process.cwd() }
+        },
         settings: {
             'import-x/core-modules': ['@dpuse/dpuse-shared/errors', 'eslint/config'],
             'import-x/resolver': { typescript: { project: ['./tsconfig.json'] } }
@@ -25,7 +30,8 @@ const config = defineConfigWithVueTs(
     // Vue-specific plugin configurations.
     ...pluginVue.configs['flat/recommended'],
     ...pluginVueA11y.configs['flat/recommended'],
-    vueTsConfigs.recommended,
+    vueTsConfigs.strictTypeChecked,
+    vueTsConfigs.stylisticTypeChecked,
     { ...pluginTailwindCSS.configs['recommended'], files: ['**/*.{vue,ts,mts,tsx,js,jsx}'] },
     { ...pluginPlaywright.configs['flat/recommended'], files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'] },
     { ...pluginVitest.configs.recommended, files: ['src/**/__tests__/*'] },

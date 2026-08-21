@@ -228,7 +228,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
              column virtualizer. Wrapped in its own position:relative container so the ScrollThumb tracks below
              are scoped to this region, not the toolbar/header above it. -->
         <div class="relative flex min-h-0 flex-1 flex-col">
-            <div :id="scrollElementId" ref="scroller" class="dpuse-table-scroll-v flex-1 overflow-y-auto overflow-x-hidden overscroll-none">
+            <div :id="scrollElementId" ref="scroller" class="dpuse-table-scroll-v flex-1 overflow-x-hidden overflow-y-auto overscroll-none">
                 <div :id="innerScrollElementId" ref="innerScroller" class="dpuse-table-scroll-h overflow-x-auto overflow-y-hidden overscroll-none" @scroll="syncHeaderScroll">
                     <div :style="{ minWidth: totalWidth + 'px' }">
                         <!-- Virtual rows spacer -->

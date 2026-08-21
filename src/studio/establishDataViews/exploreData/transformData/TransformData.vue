@@ -380,11 +380,7 @@ function typeIcon(name: string): Component {
                         <button class="rounded-md px-3 py-1.5 text-sm text-muted hover:bg-zinc-100 dark:hover:bg-zinc-700" type="button" @click="pickerOpen.where = false">
                             Cancel
                         </button>
-                        <button
-                            class="rounded-md bg-info px-3 py-1.5 text-sm text-info-text hover:bg-info-hover"
-                            type="button"
-                            @click="addCondition('where')"
-                        >
+                        <button class="rounded-md bg-info px-3 py-1.5 text-sm text-info-text hover:bg-info-hover" type="button" @click="addCondition('where')">
                             Add condition
                         </button>
                     </div>
@@ -538,11 +534,7 @@ function typeIcon(name: string): Component {
                         <button class="rounded-md px-3 py-1.5 text-sm text-muted hover:bg-zinc-100 dark:hover:bg-zinc-700" type="button" @click="pickerOpen.having = false">
                             Cancel
                         </button>
-                        <button
-                            class="rounded-md bg-info px-3 py-1.5 text-sm text-info-text hover:bg-info-hover"
-                            type="button"
-                            @click="addCondition('having')"
-                        >
+                        <button class="rounded-md bg-info px-3 py-1.5 text-sm text-info-text hover:bg-info-hover" type="button" @click="addCondition('having')">
                             Add condition
                         </button>
                     </div>

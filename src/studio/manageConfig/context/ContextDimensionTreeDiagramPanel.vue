@@ -3,7 +3,7 @@
 import { onMounted, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
-import type { D3Tool as D3ToolType, TreeDiagramNode } from '@dpuse/dpuse-tool-d3-visualiser';
+import type { Tool as D3ToolType, TreeDiagramNode } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
 import { toolConfigs } from '@/state/session';

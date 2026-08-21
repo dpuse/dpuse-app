@@ -42,12 +42,15 @@ function handleSave(): void {
 <template>
     <dialog
         ref="dialogReference"
-        class="m-0 hidden size-full max-h-full max-w-none flex-col overflow-y-hidden bg-surface pt-[calc(env(safe-area-inset-top)+24px)] pr-[calc(env(safe-area-inset-right))] pb-5 pl-[calc(env(safe-area-inset-left))] open:flex md:m-auto md:max-h-[85vh] md:w-fit md:rounded-lg md:border-boundary"
+        :class="[
+            'm-0 hidden size-full max-h-full max-w-full flex-col overflow-y-hidden bg-surface pt-[calc(env(safe-area-inset-top)+24px)] pr-[calc(env(safe-area-inset-right))] pb-5 pl-[calc(env(safe-area-inset-left))] open:flex',
+            'md:m-auto md:size-fit md:max-h-[90vh] md:min-h-[90vh] md:max-w-[90vw] md:min-w-[90vw] md:rounded-lg md:border-boundary'
+        ]"
         @close="handleClose"
         @cancel="handleClose"
     >
         <!-- Header -->
-        <div class="mx-6 flex flex-none items-center border-b border-separator pb-3">
+        <div class="flex flex-none items-center border-b border-separator px-6 pb-3">
             <div class="flex-1 text-xl">{{ title }}</div>
             <CloseButton class="flex-none" @click="handleClose" />
         </div>
@@ -56,7 +59,7 @@ function handleSave(): void {
         <slot />
 
         <!-- Footer -->
-        <div class="mx-6 flex flex-none justify-end gap-x-2 border-t border-separator pt-3">
+        <div class="flex flex-none justify-end gap-x-2 border-t border-separator px-6 pt-3">
             <Button variant="outline" @click="handleClose">Cancel</Button>
             <Button variant="primary" @click="handleSave">Save</Button>
         </div>

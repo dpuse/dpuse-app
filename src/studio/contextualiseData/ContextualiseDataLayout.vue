@@ -3,7 +3,7 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 // ── DPUse Framework
-import type { D3NetworkView, D3Tool as D3ToolType, NetworkDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
+import type { D3NetworkView, Tool as D3ToolType, NetworkDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
 import { t } from '@/state/locale';

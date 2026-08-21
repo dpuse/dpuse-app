@@ -59,7 +59,13 @@ function handleContentWheel(wheelEvent: WheelEvent): void {
             </div>
         </div>
 
-        <ScrollThumb ref="verticalThumb" orientation="vertical" :scroll-element="scrollElement" :cross-scroll-element="innerScrollElement" :always-visible="scrollbarAlwaysVisible" />
+        <ScrollThumb
+            ref="verticalThumb"
+            orientation="vertical"
+            :scroll-element="scrollElement"
+            :cross-scroll-element="innerScrollElement"
+            :always-visible="scrollbarAlwaysVisible"
+        />
         <ScrollThumb
             orientation="horizontal"
             :scroll-element="innerScrollElement"
