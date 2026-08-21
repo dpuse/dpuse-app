@@ -80,7 +80,7 @@ function handleRetry(): void {
 async function renderDiagram(): Promise<void> {
     renderErrorChain.value = undefined;
     try {
-        const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiser');
+        const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiserr');
         if (container.value) {
             container.value.replaceChildren();
             await d3Tool.renderErdDiagram(ERD_DATA, container.value, { orderConstraints: ORDER_CONSTRAINTS });
