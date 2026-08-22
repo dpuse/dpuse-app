@@ -12,7 +12,7 @@ defineEmits<{ blur: [] }>();
 
 const id = useId();
 const attributes = useAttrs();
-const modelValue = defineModel<string>({ default: '' });
+const textValue = defineModel<string>({ default: '' });
 const valueHasErrors = computed(() => errors.length > 0);
 </script>
 
@@ -24,7 +24,7 @@ const valueHasErrors = computed(() => errors.length > 0);
         <!-- Input -->
         <input
             :id="id"
-            v-model="modelValue"
+            v-model="textValue"
             v-bind="{ ...attributes, class: undefined, style: undefined }"
             class="w-full rounded border bg-surface px-2.5 py-1.5 text-sm text-content transition-colors outline-none placeholder:text-subtle focus:ring-1 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
             :class="valueHasErrors ? 'border-danger-ring' : 'border-boundary focus:border-accent'"

@@ -10,7 +10,7 @@ const { id, label, labelHidden } = defineProps<{ id?: string; label: string; lab
 
 const attributes = useAttrs();
 const inputId = id ?? useId();
-const modelValue = defineModel<string>();
+const inputValue = defineModel<string>();
 </script>
 
 <template>
@@ -18,7 +18,7 @@ const modelValue = defineModel<string>();
         <label :for="inputId" :class="labelHidden ? 'sr-only' : 'mb-1 block text-sm font-medium text-muted'">{{ label }}</label>
         <input
             v-bind="{ id: inputId, name: inputId, ...attributes }"
-            v-model="modelValue"
+            v-model="inputValue"
             class="block w-full rounded-md px-3 py-1.5 outline-1 -outline-offset-1 outline-separator placeholder:text-muted focus:outline-2 focus:-outline-offset-2 focus:outline-accent"
             data-region="Input"
         />

@@ -14,16 +14,16 @@ const emit = defineEmits<{ save: [] }>();
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dialog = useTemplateRef<HTMLDialogElement>('dialogReference');
-const modelValue = defineModel<boolean>();
+const visibleValue = defineModel<boolean>();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(modelValue, (newModelValue) => {
+watch(visibleValue, (newVisibleValue) => {
     if (!dialog.value) return;
 
-    if (newModelValue === true && !dialog.value.open) {
+    if (newVisibleValue === true && !dialog.value.open) {
         dialog.value.showModal();
-    } else if (newModelValue !== true && dialog.value.open) {
+    } else if (newVisibleValue !== true && dialog.value.open) {
         dialog.value.close();
     }
 });
@@ -31,7 +31,7 @@ watch(modelValue, (newModelValue) => {
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleClose(): void {
-    modelValue.value = false;
+    visibleValue.value = false;
 }
 
 function handleSave(): void {

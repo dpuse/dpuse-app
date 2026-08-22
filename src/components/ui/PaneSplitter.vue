@@ -4,13 +4,13 @@ import { ref } from 'vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const modelValue = defineModel<number>();
+const percentValue = defineModel<number>();
 const splitterIsDragging = ref(false);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleDoubleClick(): void {
-    modelValue.value = 50;
+    percentValue.value = 50;
 }
 
 function handlePointerDown(event: PointerEvent): void {
@@ -22,7 +22,7 @@ function handlePointerDown(event: PointerEvent): void {
 function handlePointerMove(event: PointerEvent): void {
     if (!splitterIsDragging.value) return;
     const percent = (event.clientX / window.innerWidth) * 100;
-    modelValue.value = Math.min(Math.max(percent, 20), 80);
+    percentValue.value = Math.min(Math.max(percent, 20), 80);
 }
 
 function handlePointerUp(): void {

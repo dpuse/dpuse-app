@@ -79,7 +79,7 @@ function handleRetry(): void {
 async function renderDiagram(): Promise<void> {
     renderError.value = undefined;
     try {
-        const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiserr');
+        const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiser');
         if (container.value) {
             await d3Tool.renderErdDiagram(ERD_DATA, container.value, { orderConstraints: ORDER_CONSTRAINTS });
         }
