@@ -23,7 +23,7 @@ import StudioDetailPanel from '../../StudioDetailPanel.vue';
 import StudioDocumentPanel from '../../StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> }>();
 defineEmits<{ close: [] }>();

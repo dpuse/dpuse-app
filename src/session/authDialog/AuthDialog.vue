@@ -20,7 +20,7 @@ import PasswordForm from '@/session/authDialog/PasswordForm.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

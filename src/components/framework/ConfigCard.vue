@@ -9,7 +9,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 type StatusColor = 'danger' | 'info' | 'success' | 'warning';
 type Badge = { id: string; color?: StatusColor; label: string };

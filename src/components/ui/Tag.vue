@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { computed } from 'vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 type TagColor = 'danger' | 'other' | 'success' | 'warning';
 const { text, color = 'other' } = defineProps<{ text: string; color?: TagColor }>();

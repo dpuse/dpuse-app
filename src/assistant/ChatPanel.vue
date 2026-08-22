@@ -25,7 +25,7 @@ const ChatSessionVercel = defineAsyncComponent(() => import('./ChatSessionVercel
 
 const PROMPT = 'What should I search for to find the latest developments in renewable energy?';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { modelConfig, vendorConfigs, vendorId } = defineProps<{
     modelConfig: AssistantModelConfig;

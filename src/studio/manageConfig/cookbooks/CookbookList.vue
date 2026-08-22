@@ -24,7 +24,7 @@ const T = {
     Select_cookbook: { en: 'Select a Cookbook from the list.', es: 'Selecciona un recetario de la lista.' }
 };
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
 

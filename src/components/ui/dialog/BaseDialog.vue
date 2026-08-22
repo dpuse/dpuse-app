@@ -6,15 +6,15 @@ import { useTemplateRef, watch } from 'vue';
 import Button from '@/components/ui/button/Button.vue';
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { title } = defineProps<{ title: string }>();
-const modelValue = defineModel<boolean>();
 const emit = defineEmits<{ save: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dialog = useTemplateRef<HTMLDialogElement>('dialogReference');
+const modelValue = defineModel<boolean>();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 

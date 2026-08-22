@@ -16,7 +16,7 @@ import { toolConfigs } from '@/state/session';
 // ── Local Components - Static
 import Button from './button/Button.vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { id, label, labelHidden = false, modelValue } = defineProps<{ id?: string; label: string; labelHidden?: boolean; modelValue: string }>();
 const emit = defineEmits<{ 'update:modelValue': [string] }>();

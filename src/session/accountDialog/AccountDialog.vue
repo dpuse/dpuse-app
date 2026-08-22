@@ -49,7 +49,7 @@ const OPTION_COMPONENT_MAP: Record<string, Component> = {
     deleteAccount: defineAsyncPanel(() => import('./DeleteAccountPanel.vue'), 'AccountPanel')
 };
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

@@ -1,14 +1,18 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { onMounted, useTemplateRef } from 'vue';
+import { onMounted, shallowRef, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
-import type { Tool as D3ToolType, TreeDiagramNode } from '@dpuse/dpuse-tool-d3-visualiser';
+import { AppError } from '@dpuse/dpuse-shared/errors';
+import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
+import type { Tool as D3Tool, TreeDiagramNode } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
+import { reportAppError } from '@/observability/errorTracking';
 import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
+import ErrorPanel from '@/components/ui/error/ErrorPanel.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -40,29 +44,40 @@ const DIMENSION_TREE: TreeDiagramNode = {
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const container = useTemplateRef<HTMLDivElement>('container');
+const renderError = shallowRef<AppError | undefined>();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(async () => {
-    const d3Tool = await loadD3Tool();
-    if (container.value) await d3Tool.renderTreeDiagram(DIMENSION_TREE, container.value);
+onMounted(() => {
+    void renderDiagram();
 });
+
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+function handleRetry(): void {
+    void renderDiagram();
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function loadD3Tool(): Promise<D3ToolType> {
-    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-d3-visualiser');
-    if (!toolModuleConfig) throw new Error('No D3 tool module configuration.');
-
-    const url = `https://engine-eu.dpuse.app/tools/d3-visualiser_v${toolModuleConfig.version}/dpuse-tool-d3-visualiser.es.js`;
-    const module = (await import(/* @vite-ignore */ url)) as { D3Tool: new () => D3ToolType };
-    const D3Tool = module.D3Tool;
-    return new D3Tool();
+async function renderDiagram(): Promise<void> {
+    renderError.value = undefined;
+    try {
+        const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiserr');
+        if (container.value) {
+            await d3Tool.renderTreeDiagram(DIMENSION_TREE, container.value);
+        }
+    } catch (error) {
+        renderError.value = new AppError('Failed to render diagram', 'dpuse.contextErdDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error });
+        reportAppError(renderError.value);
+    }
 }
 </script>
 
 <template>
     <ScrollArea class="min-h-0 flex-1">
-        <div ref="container" class="p-6" />
+        <ErrorPanel v-if="renderError" :error="renderError" @retry="handleRetry" />
+
+        <div v-show="!renderError" ref="container" class="p-6" />
     </ScrollArea>
 </template>

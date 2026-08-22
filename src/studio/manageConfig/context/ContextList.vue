@@ -32,7 +32,7 @@ const T = {
     Select_focus: { en: 'Select a focus from the list.', es: 'Selecciona un foco de la lista.' }
 };
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
 

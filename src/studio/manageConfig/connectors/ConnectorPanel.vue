@@ -38,7 +38,7 @@ const T = {
     Connections: { en: 'Connections', es: 'Conexiones' }
 };
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 type Properties = { activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>; connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> };
 const { activeConfigOptionConfig, connectorLocalisedConfig } = defineProps<Properties>();

@@ -23,7 +23,7 @@ const T = {
     Website: { en: 'Website', es: 'Sitio web' }
 };
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { localisedConfig } = defineProps<{ localisedConfig: LocalisedConfig<ModuleConfig> }>();
 </script>

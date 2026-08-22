@@ -10,7 +10,7 @@ import Button from '@/components/ui/button/Button.vue';
 import Grid from '@/components/framework/Grid.vue';
 import type { ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     activeItem?: T;

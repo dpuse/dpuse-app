@@ -26,7 +26,7 @@ const ASSISTANT_PANELS: Record<AssistantViewId, Component> = {
     knowledgeBase: KnowledgeBaseView
 };
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { studioPaneIsHidden } = defineProps<{ studioPaneIsHidden: boolean }>();
 

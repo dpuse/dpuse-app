@@ -10,7 +10,7 @@ import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } f
 import Button from '@/components/ui/button/Button.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { modelConfig, vendorConfigs, vendorId } = defineProps<{ modelConfig: AssistantModelConfig; vendorConfigs: AssistantVendorConfig[]; vendorId: AssistantVendorId }>();
 

@@ -24,7 +24,7 @@ const T = {
     Select_presenter: { en: 'Select a presenter from the list.', es: 'Selecciona un presentador de la lista.' }
 };
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
 

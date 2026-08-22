@@ -9,7 +9,7 @@ import type { AssistantChatMessage } from './assistantChat';
 import type { AssistantModelConfig } from './modelConfigs';
 import { toolExecutors } from './tools';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { modelConfig } = defineProps<{ modelConfig: AssistantModelConfig }>();
 

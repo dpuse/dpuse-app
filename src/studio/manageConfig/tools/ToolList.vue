@@ -24,7 +24,7 @@ const T = {
     Select_tool: { en: 'Select a tool from the list.', es: 'Selecciona una herramienta de la lista.' }
 };
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
 

@@ -7,7 +7,7 @@ import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 // ── Local Components - Static
 import type { TableFeatureSet } from './tableFeatures';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { header } = defineProps<{ header: Header<TableFeatureSet, T, unknown> }>();
 

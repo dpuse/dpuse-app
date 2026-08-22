@@ -13,7 +13,7 @@ import Button from '@/components/ui/button/Button.vue';
 import Input from '@/components/ui/Input.vue';
 import TextField from '@/components/ui/TextField.vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const emit = defineEmits<{ back: []; submit: [password: string] }>();
 

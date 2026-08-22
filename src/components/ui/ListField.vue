@@ -5,7 +5,7 @@ import { useId } from 'vue';
 // ── Local Components - Static
 import ListItemButton from './button/ListItemButton.vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { items, label } = defineProps<{ items?: T[]; label?: string }>();
 

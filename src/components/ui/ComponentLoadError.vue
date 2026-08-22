@@ -5,7 +5,7 @@ import { RefreshCwIcon, TriangleAlertIcon } from '@lucide/vue';
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { name, error } = defineProps<{ name?: string; error: unknown }>();
 

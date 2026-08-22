@@ -25,7 +25,7 @@ import Separator from '@/components/ui/Separator.vue';
 
 const APPEARANCE_KEY = 'dpuse-appearance';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const emit = defineEmits<{ continue: [] }>();
 

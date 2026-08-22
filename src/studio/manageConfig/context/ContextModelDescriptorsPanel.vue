@@ -3,7 +3,7 @@
 import Input from '@/components/ui/Input.vue';
 import TextEditor from '@/components/ui/TextEditor.vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const label = defineModel<string>('label');
 const description = defineModel<string>('description', { default: '' });

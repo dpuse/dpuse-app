@@ -2,17 +2,17 @@
 // ── External Dependencies & Registrations
 import { computed, useAttrs, useId } from 'vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 defineOptions({ inheritAttrs: false });
 const { errors = [], label, type = 'text' } = defineProps<{ errors?: string[]; label?: string; type?: string }>();
-const modelValue = defineModel<string>({ default: '' });
 defineEmits<{ blur: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const id = useId();
 const attributes = useAttrs();
+const modelValue = defineModel<string>({ default: '' });
 const valueHasErrors = computed(() => errors.length > 0);
 </script>
 

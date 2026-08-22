@@ -24,7 +24,7 @@ const T = {
     Select_connector: { en: 'Select a connector from the list.', es: 'Selecciona un conector de la lista.' }
 };
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
 

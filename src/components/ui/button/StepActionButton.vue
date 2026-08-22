@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { ArrowRightIcon } from '@lucide/vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { label } = defineProps<{ label: string }>();
 </script>

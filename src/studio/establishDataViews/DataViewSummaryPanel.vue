@@ -15,7 +15,7 @@ import ScrollArea from '@/components/ui/ScrollArea.vue';
 import StudioDetailPanel from '../StudioDetailPanel.vue';
 import StudioDocumentPanel from '../StudioDocumentPanel.vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { dataViewLocalisedConfig } = defineProps<{ dataViewLocalisedConfig: LocalisedConfig<DataViewConfig> }>();
 defineEmits<{ close: [] }>();

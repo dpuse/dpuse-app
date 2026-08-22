@@ -12,7 +12,7 @@ import BusyBar from '@/components/framework/BusyBar.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea, { type ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.

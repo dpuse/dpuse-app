@@ -22,7 +22,7 @@ const ASSISTANT_TABS: { id: AssistantViewId; icon: Component; label: string }[] 
     { id: 'knowledgeBase', icon: BookSearchIcon, label: 'Library' }
 ];
 
-// ── Options, Properties, Model Value, Slots & Emits ──────────────────────────────────────────────────────────────────
+// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 const { title } = defineProps<{ title: string }>();
 
