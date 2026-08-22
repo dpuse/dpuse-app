@@ -16,11 +16,11 @@ import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
 import AddConnectionForm from './AddConnectionForm.vue';
-import ConfigCard from '~/src/components/ui/ConfigCard.vue';
+import ConfigCard from '@/components/ui/ConfigCard.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
-import GridDetailPanel from '~/src/components/ui/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

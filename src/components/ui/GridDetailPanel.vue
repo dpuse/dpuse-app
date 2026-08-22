@@ -7,7 +7,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import Grid from '~/src/components/ui/Grid.vue';
+import Grid from '@/components/ui/Grid.vue';
 import type { ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────

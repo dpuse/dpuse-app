@@ -13,11 +13,11 @@ import { navigationIsActive, navigationIsDelayed } from '@/state/navigation';
 
 // ── Local Components - Static
 import AssistantLogo from '@/components/branding/AssistantLogo.vue'; // Always visible.
-import BusyBar from '~/src/components/ui/BusyBar.vue'; // Can be no delay when rendering.
+import BusyBar from '@/components/ui/BusyBar.vue'; // Can be no delay when rendering.
 import Button from '@/components/ui/button/Button.vue'; // Required by studio and assistant toggle buttons which are always visible.
-import ConfigRetrievalFailedBanner from '~/src/components/ui/ConfigRetrievalFailedBanner.vue'; // Can be no delay when rendering.
+import ConfigRetrievalFailedBanner from '@/components/ui/ConfigRetrievalFailedBanner.vue'; // Can be no delay when rendering.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
-import LoadingMask from '~/src/components/ui/LoadingMask.vue'; // Can be no delay when rendering.
+import LoadingMask from '@/components/ui/LoadingMask.vue'; // Can be no delay when rendering.
 import SessionButton from '@/session/SessionButton.vue'; // Always visible.
 
 // ── Local Components - Dynamic

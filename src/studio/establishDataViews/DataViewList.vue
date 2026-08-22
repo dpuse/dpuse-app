@@ -23,9 +23,9 @@ import {
 } from '@/state/dataViews';
 
 // ── Local Components - Static
-import ConfigCard from '~/src/components/ui/ConfigCard.vue';
+import ConfigCard from '@/components/ui/ConfigCard.vue';
 import DataViewSummaryPanel from './DataViewSummaryPanel.vue';
-import GridDetailPanel from '~/src/components/ui/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';

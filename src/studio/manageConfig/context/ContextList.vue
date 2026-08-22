@@ -13,9 +13,9 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
-import ConfigCard from '~/src/components/ui/ConfigCard.vue';
+import ConfigCard from '@/components/ui/ConfigCard.vue';
 import ContextModelPanel from './ContextModelPanel.vue';
-import GridDetailPanel from '~/src/components/ui/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 
 // ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────

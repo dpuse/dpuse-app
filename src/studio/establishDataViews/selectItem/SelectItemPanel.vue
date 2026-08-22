@@ -22,9 +22,9 @@ import { viewportIsWide } from '@/state/appLayout';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, setConnectionNodeConfig } from '@/state/dataViews';
 
 // ── Local Components - Static
-import Breadcrumbs from '~/src/components/ui/Breadcrumbs.vue';
-import ConfigCard from '~/src/components/ui/ConfigCard.vue';
-import GridDetailPanel from '~/src/components/ui/GridDetailPanel.vue';
+import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
+import ConfigCard from '@/components/ui/ConfigCard.vue';
+import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';

@@ -5,33 +5,35 @@ import DOMPurify from 'dompurify';
 import Squire from 'squire-rte';
 import TurndownService from 'turndown';
 import { BoldIcon, ItalicIcon, LinkIcon, UnderlineIcon } from '@lucide/vue';
-import { nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, useAttrs, useId, watch } from 'vue';
+import { nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, useAttrs, useId, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
-import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
+import type { Tool as MarkerTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
+import { assertDefined } from '@/utilities/index.ts';
 import { toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
 import Button from './button/Button.vue';
+import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
-const { id, label, labelHidden = false, modelValue } = defineProps<{ id?: string; label: string; labelHidden?: boolean; modelValue: string }>();
+const { id, label, labelHidden, modelValue } = defineProps<{ id?: string; label: string; labelHidden?: boolean; modelValue: string }>();
 const emit = defineEmits<{ 'update:modelValue': [string] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeFormats = reactive({ bold: false, italic: false, underline: false, link: false });
 const attributes = useAttrs();
-const rootElement = ref<HTMLElement>();
-const editorElement = ref<HTMLElement>();
+const rootElement = useTemplateRef<HTMLElement>('root');
+const editorElement = useTemplateRef<HTMLElement>('editor');
 const editor = shallowRef<Squire>();
 const editorId = id ?? useId();
 const labelId = useId();
 const internalUpdatePending = ref(false);
-const markedTool = shallowRef<MarkedToolType>();
+const markedTool = shallowRef<MarkerTool>();
 const parentCanScroll = ref(true);
 const scrollableAncestorObserver = shallowRef<ResizeObserver>();
 const turndown = new TurndownService();
@@ -77,8 +79,9 @@ function toggleLink(): void {
     editor.value.makeLink(url);
 }
 
-function findScrollableAncestor(element: HTMLElement): HTMLElement | null {
-    let node = element.parentElement;
+function findScrollableAncestor(element: HTMLElement | null): HTMLElement | null {
+    const assertedElement = assertDefined(element);
+    let node = assertedElement.parentElement;
     while (node) {
         const overflowY = getComputedStyle(node).overflowY;
         if (overflowY === 'auto' || overflowY === 'scroll') return node;
@@ -105,28 +108,31 @@ const toolReady = new Promise<void>((resolve) => {
 });
 
 onMounted(async () => {
-    editor.value = new Squire(editorElement.value!, {
+    const editorInstance = new Squire(assertDefined(editorElement.value), {
         blockTag: 'P',
         sanitizeToDOMFragment: (html: string): DocumentFragment => DOMPurify.sanitize(html, { RETURN_DOM_FRAGMENT: true })
     });
+    editor.value = editorInstance;
     editor.value.addEventListener('blur', () => {
         console.log('blur...');
         internalUpdatePending.value = true;
-        emit('update:modelValue', turndown.turndown(editor.value!.getRoot()));
+        emit('update:modelValue', turndown.turndown(editorInstance.getRoot()));
     });
     editor.value.addEventListener('pathChange', updateActiveFormats);
     editor.value.addEventListener('select', updateActiveFormats);
     editor.value.addEventListener('cursor', updateActiveFormats);
 
-    const ancestor = findScrollableAncestor(rootElement.value!);
+    const ancestor = findScrollableAncestor(editorElement.value);
     if (ancestor) {
         updateParentCanScroll(ancestor);
-        scrollableAncestorObserver.value = new ResizeObserver(() => updateParentCanScroll(ancestor));
+        scrollableAncestorObserver.value = new ResizeObserver(() => {
+            updateParentCanScroll(ancestor);
+        });
         scrollableAncestorObserver.value.observe(ancestor);
     }
 
     await toolReady;
-    markedTool.value = await loadMarkedTool();
+    markedTool.value = await loadTool<MarkerTool>(toolConfigs.value, 'marked-markdown-parser');
     editor.value.setHTML(DOMPurify.sanitize(markedTool.value.render(modelValue)));
 });
 
@@ -137,15 +143,14 @@ watch(
             internalUpdatePending.value = false;
             return;
         }
-        markedTool.value ??= await loadMarkedTool();
+        markedTool.value ??= await loadTool<MarkerTool>(toolConfigs.value, 'marked-markdown-parser');
         const html = DOMPurify.sanitize(markedTool.value.render(newValue));
         if (editor.value && editor.value.getHTML() !== html) {
             editor.value.setHTML(html);
         }
-        nextTick(() => {
-            const ancestor = findScrollableAncestor(rootElement.value!);
-            if (ancestor) updateParentCanScroll(ancestor);
-        });
+        await nextTick();
+        const ancestor = findScrollableAncestor(editorElement.value);
+        if (ancestor) updateParentCanScroll(ancestor);
     }
 );
 
@@ -153,22 +158,10 @@ onBeforeUnmount(() => {
     editor.value?.destroy();
     scrollableAncestorObserver.value?.disconnect();
 });
-
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-async function loadMarkedTool(): Promise<MarkedToolType> {
-    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-marked-markdown-parser');
-    if (!toolModuleConfig) throw new Error('No Marked tool module configuration.');
-
-    const url = `https://engine-eu.dpuse.app/tools/marked-markdown-parser_v${toolModuleConfig.version}/dpuse-tool-marked-markdown-parser.es.js`;
-    const module = (await import(/* @vite-ignore */ url)) as { MarkedTool: new () => MarkedToolType };
-    const MarkedTool = module.MarkedTool;
-    return new MarkedTool();
-}
 </script>
 
 <template>
-    <div ref="rootElement" data-region="TextEditor" class="flex flex-col">
+    <div ref="root" class="flex flex-col" data-region="TextEditor">
         <!-- A contenteditable div can never be a labeled form field, so a real <label for> would be flagged by browsers as unassociated. Its accessible name is wired via aria-labelledby on the editor below instead, and click-to-focus is wired manually here to mirror native <label for> behaviour (pointer-only, same as native; keyboard users already reach the editor directly via Tab). -->
         <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div :id="labelId" :class="labelHidden ? 'sr-only' : 'mb-1 block flex-none text-sm font-medium text-muted'" @click="focusEditor">
@@ -196,7 +189,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
 
             <!-- Content -->
             <div
-                ref="editorElement"
+                ref="editor"
                 v-bind="{ id: editorId, name: editorId, ...attributes }"
                 role="textbox"
                 aria-multiline="true"
