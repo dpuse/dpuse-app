@@ -8,7 +8,7 @@ import { type DataSource, DEFAULT_CACHE_BLOCK_SIZE, useDataWindow } from '@/comp
 
 // ── Local Components - Static
 import AddActionButton from '@/components/ui/button/AddActionButton.vue';
-import BusyBar from '@/components/framework/BusyBar.vue';
+import BusyBar from '~/src/components/ui/BusyBar.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea, { type ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
 

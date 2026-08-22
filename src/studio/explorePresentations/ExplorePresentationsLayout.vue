@@ -13,8 +13,8 @@ import { type LocalisedReference, localiseReference } from '@dpuse/dpuse-shared/
 import { presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Local Components - Static
-import ConfigCard from '@/components/framework/ConfigCard.vue';
-import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
+import ConfigCard from '~/src/components/ui/ConfigCard.vue';
+import GridDetailPanel from '~/src/components/ui/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '../StudioHeader.vue';

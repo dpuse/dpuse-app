@@ -1,6 +1,9 @@
 // ── DPUse Framework
 import { type AppError, type SerialisedError, serialiseError } from '@dpuse/dpuse-shared/errors';
 
+// ── Local Framework
+import { trackEventImmediately } from '@/observability/eventTracking';
+
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function logError(error: unknown): void {
@@ -29,9 +32,11 @@ export function reportFatalError(error: unknown): void {
     logErrorToConsole(serialiseError(error));
 }
 
-export function reportAppError(error: AppError): void {
+// eslint-disable-next-line unicorn/consistent-boolean-name -- 'reportAppError' logs and delivers; the boolean is a secondary delivery-confirmation result, not this function's core purpose.
+export async function reportAppError(error: AppError): Promise<boolean> {
     const serialisedErrors = serialiseError(error);
     logErrorToConsole(serialisedErrors);
+    return trackEventImmediately('error', { errors: serialisedErrors });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

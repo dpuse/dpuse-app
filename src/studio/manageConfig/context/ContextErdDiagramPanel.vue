@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { onMounted, shallowRef, useTemplateRef } from 'vue';
+import { onMounted, ref, shallowRef, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -61,6 +61,7 @@ const ORDER_CONSTRAINTS = [
 
 const container = useTemplateRef<HTMLDivElement>('container');
 const renderError = shallowRef<AppError | undefined>();
+const errorWasReported = ref(false);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -85,14 +86,14 @@ async function renderDiagram(): Promise<void> {
         }
     } catch (error) {
         renderError.value = new AppError('Failed to render diagram', 'dpuse.contextErdDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error });
-        reportAppError(renderError.value);
+        errorWasReported.value = await reportAppError(renderError.value);
     }
 }
 </script>
 
 <template>
     <ScrollArea class="min-h-0 flex-1">
-        <ErrorPanel v-if="renderError" :error="renderError" @retry="handleRetry" />
+        <ErrorPanel v-if="renderError" :error="renderError" :error-was-reported="errorWasReported" @retry="handleRetry" />
 
         <div v-show="!renderError" ref="container" class="p-6" />
     </ScrollArea>

@@ -4,4 +4,6 @@
 // Options, Properties, Slots & Emits
 </script>
 
-<template>div/></template>
+<template>
+    <div />
+</template>

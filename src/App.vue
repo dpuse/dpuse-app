@@ -4,20 +4,20 @@ import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
-import { configRetrievalFailed, initialiseServices } from '@/state/session';
 import { load } from '@/state/component';
 import T from './App.json';
 import { t } from '@/state/locale';
 import { assistantPaneIsVisible, contentScrollPosition, sessionMenuIsOpen, studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
+import { configRetrievalFailed, initialiseServices } from '@/state/session';
 import { navigationIsActive, navigationIsDelayed } from '@/state/navigation';
 
 // ── Local Components - Static
 import AssistantLogo from '@/components/branding/AssistantLogo.vue'; // Always visible.
-import BusyBar from '@/components/framework/BusyBar.vue'; // Can be no delay when rendering.
+import BusyBar from '~/src/components/ui/BusyBar.vue'; // Can be no delay when rendering.
 import Button from '@/components/ui/button/Button.vue'; // Required by studio and assistant toggle buttons which are always visible.
-import ConfigRetrievalFailedBanner from '@/components/framework/ConfigRetrievalFailedBanner.vue'; // Can be no delay when rendering.
+import ConfigRetrievalFailedBanner from '~/src/components/ui/ConfigRetrievalFailedBanner.vue'; // Can be no delay when rendering.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
-import LoadingMask from '@/components/framework/LoadingMask.vue'; // Can be no delay when rendering.
+import LoadingMask from '~/src/components/ui/LoadingMask.vue'; // Can be no delay when rendering.
 import SessionButton from '@/session/SessionButton.vue'; // Always visible.
 
 // ── Local Components - Dynamic
@@ -68,7 +68,7 @@ const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assist
 
 const studioPaneStyle = computed(() => {
     if (!studioPaneIsVisible.value) return { width: '0' };
-    if (assistantPaneIsVisible.value) return { minWidth: '0', width: paneSplitterPercent.value + '%' };
+    if (assistantPaneIsVisible.value) return { minWidth: '0', width: String(paneSplitterPercent.value) + '%' };
     return { minWidth: '0', flex: '1' };
 });
 

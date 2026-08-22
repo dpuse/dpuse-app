@@ -21,9 +21,9 @@ import { activeMetaStoreConnectionConfig, eventQueryConfigs } from '@/state/sess
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import ConfigCard from '@/components/framework/ConfigCard.vue';
+import ConfigCard from '~/src/components/ui/ConfigCard.vue';
 import type { DataSource } from '@/composables/useDataWindow';
-import Grid from '@/components/framework/Grid.vue';
+import Grid from '~/src/components/ui/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Local Components - Dynamic
@@ -73,7 +73,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
             }
         });
     } catch (error) {
-        reportAppError(new AppError('Failed to retrieve event queries.', 'dpuse-app.EventQueryList.retrieveEventQueries', { typeId: 'handled' }, { cause: error }));
+        void reportAppError(new AppError('Failed to retrieve event queries.', 'dpuse-app.EventQueryList.retrieveEventQueries', { typeId: 'handled' }, { cause: error }));
     } finally {
         // Pending...
     }

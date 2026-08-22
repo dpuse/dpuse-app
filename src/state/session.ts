@@ -194,7 +194,7 @@ async function initialiseHanko(): Promise<void> {
         establishSession('validated', result.is_valid ? result.claims : undefined);
         void initialisePerformanceTracking();
     } catch (error) {
-        reportAppError(new AppError('Session validation failed.', 'dpuse.sessionStore.useSessionStore.initialiseServices', { typeId: 'handled' }, { cause: error }));
+        void reportAppError(new AppError('Session validation failed.', 'dpuse.sessionStore.useSessionStore.initialiseServices', { typeId: 'handled' }, { cause: error }));
         establishSession('validationFailure');
     }
 }

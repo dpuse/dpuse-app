@@ -40,7 +40,7 @@ onMounted(async () => {
         await constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state));
         flowConstructed.value = true;
     } catch (error) {
-        reportAppError(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthDialog.onMounted.constructFlow', { typeId: 'handled' }, { cause: error }));
+        void reportAppError(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthDialog.onMounted.constructFlow', { typeId: 'handled' }, { cause: error }));
     }
 });
 onUnmounted(() => destroyFlow());

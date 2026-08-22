@@ -13,9 +13,9 @@ import { connectionLocalisedConfigs } from '@/state/dataViews';
 import type { DataSource } from '@/composables/useDataWindow';
 
 // ── Local Components - Static
-import ConfigCard from '@/components/framework/ConfigCard.vue';
+import ConfigCard from '~/src/components/ui/ConfigCard.vue';
 import ConnectionForm from './ConnectionForm.vue';
-import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
+import GridDetailPanel from '~/src/components/ui/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 

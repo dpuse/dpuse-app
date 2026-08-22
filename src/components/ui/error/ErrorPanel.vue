@@ -13,7 +13,7 @@ import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
-const { error } = defineProps<{ error: AppError }>();
+const { error, errorWasReported } = defineProps<{ error: AppError; errorWasReported: boolean }>();
 defineEmits<{ retry: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -50,8 +50,10 @@ const originalSerialisedError = computed(() => (errorTrace.value.length > 1 ? er
             Retry
         </Button>
 
-        <p class="mb-0! border-t border-warning-ring/30 pt-2 text-xs leading-snug! text-warning-text/60">
-            See the browser console for more details. This error has been logged with DPUse Support for investigation.
+        <p class="mt-6! mb-0! border-t border-warning-ring/30 pt-2 text-xs leading-snug! text-warning-text">
+            See the browser console for more details.
+            <span v-if="errorWasReported">This error has been logged with DPUse Support for investigation.</span>
+            <span v-else class="font-semibold">Unable to confirm this error was logged with DPUse Support.</span>
         </p>
     </div>
 </template>

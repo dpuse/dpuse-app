@@ -13,8 +13,8 @@ import { configsAreRetrieved, presenterConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
-import ConfigCard from '@/components/framework/ConfigCard.vue';
-import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
+import ConfigCard from '~/src/components/ui/ConfigCard.vue';
+import GridDetailPanel from '~/src/components/ui/GridDetailPanel.vue';
 import PresenterPanel from './PresenterPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 

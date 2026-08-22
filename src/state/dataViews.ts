@@ -117,7 +117,7 @@ export async function retrieveDataViewConfigs(metaStoreConnectionConfig: Connect
     } catch (error) {
         dataViewConfigs.value = undefined;
         dataViewConfigsAreRetrieved.value = true;
-        reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error }));
+        void reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error }));
     }
 }
 

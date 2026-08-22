@@ -13,9 +13,9 @@ import { configsAreRetrieved, connectorConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
-import ConfigCard from '@/components/framework/ConfigCard.vue';
+import ConfigCard from '~/src/components/ui/ConfigCard.vue';
 import ConnectorPanel from './ConnectorPanel.vue';
-import GridDetailPanel from '@/components/framework/GridDetailPanel.vue';
+import GridDetailPanel from '~/src/components/ui/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

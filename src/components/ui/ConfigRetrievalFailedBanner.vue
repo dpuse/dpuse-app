@@ -1,8 +1,14 @@
 <script setup lang="ts">
 // ── Local Framework
 import Button from '@/components/ui/button/Button.vue';
-import T from './ConfigRetrievalFailedBanner.json';
 import { t } from '@/state/locale';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    message: { en: 'Unable to connect to DPUse. Please refresh the page.', es: 'No se puede conectar con DPUse. Actualice la página.' },
+    'refresh.label': { en: 'Refresh', es: 'Actualizar' }
+};
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

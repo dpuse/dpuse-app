@@ -1,6 +1,10 @@
 // ── Local Framework
 import { version } from '~/package.json';
 
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+export type EventTypeId = 'error' | 'interaction' | 'page' | 'performance';
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DPUSE_API_HOST = 'api.dpuse.app';
@@ -42,8 +46,32 @@ export function identifyUser(userId: string, sessionId: string, emailAddress?: s
     state.activeSessionId = sessionId;
 }
 
-export function trackEvent(typeId: 'error' | 'interaction' | 'page' | 'performance', data: Record<string, unknown>): void {
-    pendingEvents.push({
+// Queues the event for the next periodic/visibilitychange flush. Use for anything that doesn't need delivery confirmed.
+export function trackEvent(typeId: EventTypeId, data: Record<string, unknown>): void {
+    pendingEvents.push(buildEvent(typeId, data));
+}
+
+// Sends immediately, bypassing the batch queue, and reports whether delivery succeeded. Use when the caller needs to
+// confirm the event actually reached the server (e.g. to inform the user).
+// eslint-disable-next-line unicorn/consistent-boolean-name -- primarily performs the send; the boolean is a secondary delivery-confirmation result.
+export async function trackEventImmediately(typeId: EventTypeId, data: Record<string, unknown>): Promise<boolean> {
+    try {
+        const response = await fetch(`https://${DPUSE_API_HOST}/events`, {
+            method: 'POST',
+            keepalive: true,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ events: [buildEvent(typeId, data)], userAgentString: navigator.userAgent })
+        });
+        return response.ok;
+    } catch {
+        return false;
+    }
+}
+
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function buildEvent(typeId: EventTypeId, data: Record<string, unknown>): Record<string, unknown> {
+    return {
         typeId,
         asAt: Date.now(),
         appVersion: version,
@@ -53,12 +81,10 @@ export function trackEvent(typeId: 'error' | 'interaction' | 'page' | 'performan
         referrer: document.referrer,
         url: location.href,
         ...data
-    });
+    };
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-async function flushEvents(): Promise<void> {
+function flushEvents(): void {
     if (pendingEvents.length === 0) return;
     const events = [...pendingEvents];
     pendingEvents.length = 0;

@@ -23,18 +23,18 @@ try {
     addEventListener('error', (event): void => {
         if (event.error instanceof Error) {
             const data = { colno: event.colno, filename: event.filename, lineno: event.lineno, originalMessage: event.message, typeId: 'unhandledRuntime' };
-            reportAppError(new AppError('Unhandled error.', 'dpuse.main', data, { cause: event.error }));
+            void reportAppError(new AppError('Unhandled error.', 'dpuse.main', data, { cause: event.error }));
         } else {
-            reportAppError(new AppError('Unhandled error.', 'dpuse.main', { typeId: 'unhandledRuntime' }, { cause: new Error(event.message || 'Unknown error.') }));
+            void reportAppError(new AppError('Unhandled error.', 'dpuse.main', { typeId: 'unhandledRuntime' }, { cause: new Error(event.message || 'Unknown error.') }));
         }
     });
     addEventListener('unhandledrejection', (event): void => {
         const data = { typeId: 'unhandledPromiseRejection' };
         if (event.reason instanceof Error) {
-            reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause: event.reason }));
+            void reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause: event.reason }));
         } else {
             const cause = new Error(String(event.reason ?? 'Unknown promise rejection error.'));
-            reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause }));
+            void reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause }));
         }
         event.preventDefault();
     });
@@ -64,9 +64,8 @@ try {
     // Create and mount application.
     const app = createApp(App);
     app.config.errorHandler = (error, instance, info): void => {
-        // TODO: Changed from 'instance?.$options?.__name' to 'instance?.$.type?.name'. Ensure this works.
-        const data = { componentName: instance?.$.type?.name ?? undefined, info, typeId: 'unhandledVueRuntime' };
-        reportAppError(new AppError('Unhandled Vue error.', 'dpuse.main', data, { cause: error ?? 'Unknown Vue runtime error.' }));
+        const data = { componentName: instance?.$.type.name ?? undefined, info, typeId: 'unhandledVueRuntime' };
+        void reportAppError(new AppError('Unhandled Vue error.', 'dpuse.main', data, { cause: error ?? 'Unknown Vue runtime error.' }));
     };
     app.use(createAppRouter());
     app.mount('#app');
