@@ -55,7 +55,7 @@ async function testAuth(): Promise<void> {
 
 <template>
     <StudioDetailPanel data-region="SelectConnectionPanel">
-        <ScrollArea class="flex-1" scroll-area-padding="screen">
+        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <StudioDocumentPanel overline="Connections" :title="connectionLocalisedConfig.label" @close="$emit('close')">
                 <!-- Tags -->
                 <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
@@ -71,7 +71,7 @@ async function testAuth(): Promise<void> {
     </StudioDetailPanel>
 
     <!-- <form class="relative flex h-full flex-col pl-4" data-region="SelectConnectionPanel" @submit.prevent="handleSubmit">
-        <ScrollArea class="flex-1" scroll-area-padding="screen">
+        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <div class="flex flex-col gap-y-4 pt-2">
                 {{ connectionLocalisedConfig?.connectorConfig.description.en }}
 

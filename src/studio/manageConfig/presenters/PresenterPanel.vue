@@ -32,7 +32,7 @@ const presenterStatus = computed(() => (presenterLocalisedConfig.statusId ? getC
 
 <template>
     <StudioDetailPanel data-region="ConnectorPanel">
-        <ScrollArea scroll-area-padding="screen">
+        <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <StudioDocumentPanel :overline="'Presenters'" :title="presenterLocalisedConfig.label" @close="$emit('close')">
                 <!-- Tags -->
                 <div class="mt-3 mb-6 flex flex-wrap gap-1.5">

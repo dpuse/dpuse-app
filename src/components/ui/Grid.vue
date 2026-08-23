@@ -10,7 +10,7 @@ import { type DataSource, DEFAULT_CACHE_BLOCK_SIZE, useDataWindow } from '@/comp
 import AddActionButton from '@/components/ui/button/AddActionButton.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
 import Button from '@/components/ui/button/Button.vue';
-import ScrollArea, { type ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
@@ -22,7 +22,7 @@ type Properties = {
     isCompact?: boolean;
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
     rowHeight?: number; // Row height in px. Default: 48.
-    scrollAreaPadding?: ScrollAreaPadding;
+    scrollAreaPaddingBottom?: number | string;
     targetColumnWidth?: number; // When set, multiple items are shown per row based on available width.
 };
 const {
@@ -33,7 +33,7 @@ const {
     isCompact = false,
     maxBlocksInCache,
     rowHeight = 48,
-    scrollAreaPadding = 'screen',
+    scrollAreaPaddingBottom = 'var(--vertical-scroll-bottom-screen-inset)',
     targetColumnWidth
 } = defineProps<Properties>();
 
@@ -115,11 +115,18 @@ function getRowHeight(item: T | undefined): number {
         <Transition mode="out-in" name="action-fade">
             <BusyBar v-if="state === 'busy'" class="mx-4" />
 
-            <ScrollArea v-else-if="state === 'empty'" class="flex-1" :scroll-area-padding="scrollAreaPadding">
+            <ScrollArea v-else-if="state === 'empty'" class="flex-1" :scroll-area-padding-bottom="scrollAreaPaddingBottom">
                 <slot name="empty" />
             </ScrollArea>
 
-            <ScrollArea v-else class="flex-1" role="list" :row-count="rowCount" :scroll-area-padding="scrollAreaPadding" @initialised="handleScrollAreaInitialised">
+            <ScrollArea
+                v-else
+                class="flex-1"
+                role="list"
+                :row-count="rowCount"
+                :scroll-area-padding-bottom="scrollAreaPaddingBottom"
+                @initialised="handleScrollAreaInitialised"
+            >
                 <div :class="{ 'mt-2': isCompact }" :style="{ height: totalSize + 'px', position: 'relative' }">
                     <div
                         v-for="virtualRow in virtualRows"

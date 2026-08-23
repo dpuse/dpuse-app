@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
 import { ArrowUpIcon, TriangleAlertIcon } from '@lucide/vue';
-import { defineAsyncComponent, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -46,12 +46,17 @@ const status = ref('idle');
 const markedTool = shallowRef<MarkedToolType>();
 const markedToolError = shallowRef<AppError | undefined>();
 const markedToolErrorWasReported = ref(false);
+const inputContainerHeight = ref(0);
 
 const sessionReference = useTemplateRef<{ sendMessage: (text: string) => Promise<void> }>('sessionReference');
+const inputContainer = useTemplateRef<HTMLElement>('inputContainer');
 
-const state: { scrollObserver: MutationObserver | null } = { scrollObserver: null };
+const state: { inputContainerResizeObserver: ResizeObserver | null; scrollObserver: MutationObserver | null } = { inputContainerResizeObserver: null, scrollObserver: null };
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// mb-4 (16px) on the input container isn't part of its own height, so it's added on top to keep messages clear of it.
+const scrollPaddingBottom = computed(() => `${String(inputContainerHeight.value + 16)}px`);
 
 function renderText(text: string): string {
     // Formatter unavailable: fall back to sanitized plain text rather than blanking the message.
@@ -77,7 +82,19 @@ onMounted(async () => {
     void initialiseMarkedTool();
 });
 
-onUnmounted(() => state.scrollObserver?.disconnect());
+onMounted(() => {
+    if (!inputContainer.value) return;
+    inputContainerHeight.value = inputContainer.value.offsetHeight;
+    state.inputContainerResizeObserver = new ResizeObserver(() => {
+        inputContainerHeight.value = inputContainer.value?.offsetHeight ?? 0;
+    });
+    state.inputContainerResizeObserver.observe(inputContainer.value);
+});
+
+onUnmounted(() => {
+    state.scrollObserver?.disconnect();
+    state.inputContainerResizeObserver?.disconnect();
+});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -131,7 +148,7 @@ async function initialiseMarkedTool(): Promise<void> {
             </div>
         </div>
 
-        <ScrollArea class="flex flex-1 flex-col px-4" scroll-area-padding="embedded" @initialised="handleScrollAreaInitialised">
+        <ScrollArea class="flex flex-1 flex-col px-4" :scroll-area-padding-bottom="scrollPaddingBottom" @initialised="handleScrollAreaInitialised">
             <template v-for="message in messages" :key="message.id">
                 <template v-if="message.role === 'user'">
                     <div v-for="part in message.parts.filter((part) => part.type === 'text')" :key="part.content" class="mx-auto mt-3 flex max-w-prose">
@@ -176,17 +193,18 @@ async function initialiseMarkedTool(): Promise<void> {
 
         <!-- Input - in-flow, always rounded, with an action bar (vendor/model, status, send) attached below the text box. -->
         <div
-            class="absolute right-4 bottom-0 left-16 mb-4 flex w-[min(65ch,calc(100%-80px))] flex-none flex-col rounded-2xl border border-separator bg-[#fcfcfc] md:inset-x-0 md:mx-auto"
+            ref="inputContainer"
+            class="absolute right-4 bottom-0 left-16 mb-4 flex w-[min(65ch,calc(100%-80px))] flex-none flex-col rounded-2xl border border-separator bg-[#fcfcfc] shadow-md md:inset-x-0 md:mx-auto"
         >
             <textarea
                 id="comment"
                 v-model="input"
                 name="comment"
-                class="field-sizing-content max-h-40 min-h-11 w-full resize-none px-3.5 pt-3 text-sm text-muted outline-none"
+                class="field-sizing-content max-h-40 min-h-11 w-full resize-none px-3.5 pt-3 pb-2 text-sm text-muted outline-none"
                 @keydown.enter.exact.prevent="handleSendMessage"
             />
 
-            <div class="mx-2 flex items-center justify-between gap-x-2 border-t border-separator py-2">
+            <div class="flex items-center justify-between gap-x-2 border-t border-separator p-2">
                 <AssistantVendorMenu :model-config="modelConfig" :vendor-configs="vendorConfigs" :vendor-id="vendorId" @select="handleSelectVendor" />
 
                 <div class="flex items-center gap-x-2">

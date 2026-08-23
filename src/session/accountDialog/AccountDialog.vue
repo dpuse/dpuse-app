@@ -104,7 +104,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 
             <div class="flex min-h-0 flex-1">
                 <div v-if="viewportIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 pl-4">
-                    <ScrollArea scroll-area-padding="none">
+                    <ScrollArea>
                         <div class="flex flex-1 flex-col gap-y-1 pb-6">
                             <template v-for="optionConfig in OPTION_CONFIGS" :key="optionConfig.id">
                                 <div v-if="optionConfig.type === 'label'" class="mt-3 text-xs font-medium text-muted">{{ optionConfig.label }}</div>
@@ -136,7 +136,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                         {{ activeOptionConfig!.title }}
                     </div>
 
-                    <ScrollArea scroll-area-padding="none">
+                    <ScrollArea>
                         <component :is="OPTION_COMPONENT_MAP[activeOptionConfig?.id ?? '']" class="flex-1" />
                     </ScrollArea>
                 </div>

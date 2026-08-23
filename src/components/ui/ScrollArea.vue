@@ -1,15 +1,14 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { onMounted, onUnmounted, useId, useTemplateRef } from 'vue';
+import { computed, onMounted, onUnmounted, useId, useTemplateRef } from 'vue';
 
 // ── Local Components - Static
 import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from './ScrollThumb.vue';
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
-export type ScrollAreaPadding = 'embedded' | 'none' | 'screen';
-type Properties = { scrollAreaPadding?: ScrollAreaPadding; scrollbarAlwaysVisible?: boolean };
-const { scrollAreaPadding, scrollbarAlwaysVisible = false } = defineProps<Properties>();
+type Properties = { scrollAreaPaddingBottom?: number | string; scrollbarAlwaysVisible?: boolean };
+const { scrollAreaPaddingBottom, scrollbarAlwaysVisible = false } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [scrollElement: HTMLElement] }>();
 
@@ -25,6 +24,10 @@ const innerScrollElement = useTemplateRef<HTMLElement>('innerScrollElement');
 const innerScrollElementId = useId();
 
 const verticalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('verticalThumb');
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const paddingBottom = computed(() => (typeof scrollAreaPaddingBottom === 'number' ? `${scrollAreaPaddingBottom}px` : scrollAreaPaddingBottom));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -53,7 +56,7 @@ function handleContentWheel(wheelEvent: WheelEvent): void {
 
 <template>
     <div class="dpuse-scroll-area-wrapper" data-region="ScrollArea">
-        <div :id="scrollElementId" ref="scrollElement" :class="['dpuse-scroll-area-v', scrollAreaPadding]">
+        <div :id="scrollElementId" ref="scrollElement" class="dpuse-scroll-area-v" :style="{ paddingBottom }">
             <div :id="innerScrollElementId" ref="innerScrollElement" class="dpuse-scroll-area-h">
                 <slot />
             </div>
@@ -94,6 +97,7 @@ function handleContentWheel(wheelEvent: WheelEvent): void {
     overflow-y: scroll;
     overscroll-behavior: none;
     scrollbar-width: none;
+    padding-right: 16px;
 }
 
 .dpuse-scroll-area-v::-webkit-scrollbar {
@@ -110,19 +114,5 @@ function handleContentWheel(wheelEvent: WheelEvent): void {
 
 .dpuse-scroll-area-h::-webkit-scrollbar {
     display: none;
-}
-
-.embedded {
-    padding-bottom: var(--vertical-scroll-bottom-embedded-inset);
-    padding-right: 16px;
-}
-
-.none {
-    padding-right: 16px;
-}
-
-.screen {
-    padding-bottom: var(--vertical-scroll-bottom-screen-inset);
-    padding-right: 16px;
 }
 </style>

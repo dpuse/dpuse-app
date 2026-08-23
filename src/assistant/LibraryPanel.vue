@@ -153,7 +153,7 @@ function handleClearQuery(): void {
         </div>
 
         <!-- Index - browse documents grouped by type -->
-        <ScrollArea v-if="activeModeId === 'index'" class="mt-3 flex flex-1 flex-col" scroll-area-padding="none">
+        <ScrollArea v-if="activeModeId === 'index'" class="mt-3 flex flex-1 flex-col">
             <div v-for="group in documentGroups" :key="group.type" class="mb-4">
                 <div class="mb-1 text-xs font-medium tracking-wide text-subtle uppercase">{{ group.label }}</div>
                 <Button
@@ -195,7 +195,7 @@ function handleClearQuery(): void {
                 </Button>
             </div>
 
-            <ScrollArea class="mt-3 flex flex-1 flex-col" scroll-area-padding="none">
+            <ScrollArea class="mt-3 flex flex-1 flex-col">
                 <template v-if="searchResults.length > 0">
                     <div v-for="document in searchResults" :key="document.id" class="border-b border-separator py-3 pr-4 first:pt-0">
                         <div class="flex items-center gap-x-2">

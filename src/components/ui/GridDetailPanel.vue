@@ -8,7 +8,6 @@ import type { DataSource } from '@/composables/useDataWindow';
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Grid from '@/components/ui/Grid.vue';
-import type { ScrollAreaPadding } from '@/components/ui/ScrollArea.vue';
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
@@ -20,9 +19,9 @@ type Properties = {
     maxListWidth?: string;
     maxDetailWidth?: string;
     rowHeight?: number;
-    scrollAreaPadding?: ScrollAreaPadding;
+    scrollAreaPaddingBottom?: number | string;
 };
-const { activeItem, addLabel, dataSource, isCompact = false, maxListWidth, maxDetailWidth, rowHeight = 80, scrollAreaPadding } = defineProps<Properties>();
+const { activeItem, addLabel, dataSource, isCompact = false, maxListWidth, maxDetailWidth, rowHeight = 80, scrollAreaPaddingBottom } = defineProps<Properties>();
 
 defineSlots<{
     header(): unknown;
@@ -82,7 +81,7 @@ async function handleSelectItem(row: T): Promise<void> {
                     :data-source="dataSource"
                     :is-compact="isCompact"
                     :row-height="rowHeight"
-                    :scroll-area-padding="scrollAreaPadding"
+                    :scroll-area-padding-bottom="scrollAreaPaddingBottom"
                     :target-column-width="250"
                     @add="$emit('add')"
                 >

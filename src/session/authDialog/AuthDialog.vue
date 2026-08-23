@@ -155,7 +155,7 @@ function onAfterEnter(): void {
 <template>
     <DialogLayout data-region="AuthDialog">
         <DialogModal variant="compact">
-            <ScrollArea scroll-area-padding="none">
+            <ScrollArea>
                 <div class="flex flex-col gap-y-3 py-8 pr-4 pl-8">
                     <DPUseLogo class="size-12" />
 

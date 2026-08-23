@@ -23,7 +23,7 @@ defineEmits<{ close: [] }>();
 
 <template>
     <StudioDetailPanel data-region="DataViewSummaryPanel">
-        <ScrollArea class="flex-1" scroll-area-padding="screen">
+        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <StudioDocumentPanel :overline="'Establish Data Views'" :title="dataViewLocalisedConfig.label" @close="$emit('close')">
                 <!-- Description -->
                 <p v-if="dataViewLocalisedConfig.description">{{ dataViewLocalisedConfig.description }}</p>

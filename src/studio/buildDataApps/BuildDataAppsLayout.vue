@@ -16,7 +16,7 @@ import StudioLayout from '../StudioLayout.vue';
 
         <Separator class="mx-4" />
 
-        <ScrollArea class="flex-1" scroll-area-padding="screen">
+        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <div class="relative flex min-h-0 flex-1 flex-col">
                 <RouterView />
             </div>

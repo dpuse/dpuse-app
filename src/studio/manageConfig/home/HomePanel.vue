@@ -26,7 +26,7 @@ const buttonConfigOptionConfigs = computed(() => configOptionLocalisedConfigs.sl
 </script>
 
 <template>
-    <ScrollArea class="flex-1" scroll-area-padding="screen">
+    <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
         <div class="max-w-4xl">
             <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
                 <Button

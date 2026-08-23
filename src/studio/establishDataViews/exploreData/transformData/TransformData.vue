@@ -238,7 +238,7 @@ function typeIcon(name: string): Component {
 
 <template>
     <!-- eslint-disable vue/no-bare-strings-in-template -->
-    <ScrollArea class="mx-4" scroll-area-padding="screen">
+    <ScrollArea class="mx-4" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
         <!-- Columns (Select) -->
         <section class="mt-4 rounded-md border border-separator">
             <div class="flex items-center justify-between rounded-t-md border-b border-separator bg-zinc-50 px-3 py-1.5 dark:bg-zinc-800/60">

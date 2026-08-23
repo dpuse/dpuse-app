@@ -25,7 +25,7 @@ const studioOptionConfigs = useStudioOptions();
         <Separator class="mx-4" />
 
         <!-- Workflow Steps -->
-        <ScrollArea class="flex-1" scroll-area-padding="screen">
+        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <div class="max-w-4xl">
                 <h2 class="mt-4 ml-4">Workflow</h2>
 
