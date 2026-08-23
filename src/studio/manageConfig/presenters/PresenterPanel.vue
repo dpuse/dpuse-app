@@ -8,7 +8,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
 
 // ── Local Framework
-import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
+import type { ConfigOptionConfig } from '@/utilities/index.ts';
 
 // ── Local Components - Static
 import ModuleLinksPanel from '../ModuleLinksPanel.vue';

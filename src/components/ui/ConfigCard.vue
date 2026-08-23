@@ -12,10 +12,17 @@ import Button from '@/components/ui/button/Button.vue';
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
 type StatusColor = 'danger' | 'info' | 'success' | 'warning';
-type Badge = { id: string; color?: StatusColor; label: string };
+interface Badge {
+    id: string;
+    color?: StatusColor;
+    label: string;
+}
 type ActionTypeId = 'delete' | 'info' | 'open';
-type Action<T> = { typeId: ActionTypeId; onClick: (item: LocalisedConfig<T>) => void };
-type Properties<T> = {
+interface Action<T> {
+    typeId: ActionTypeId;
+    onClick: (item: LocalisedConfig<T>) => void;
+}
+interface Properties<T> {
     actions?: Action<T>[];
     badges?: Badge[];
     config: LocalisedConfig<T>;
@@ -24,8 +31,8 @@ type Properties<T> = {
     selected?: boolean;
     statusColor?: StatusColor;
     statusMessage?: string;
-};
-const { actions = [], badges = [], config, isCompact = false, overline, selected = false, statusColor = 'warning', statusMessage } = defineProps<Properties<T>>();
+}
+const { actions = [], badges = [], config, isCompact, overline, selected, statusColor = 'warning', statusMessage } = defineProps<Properties<T>>();
 </script>
 
 <template>

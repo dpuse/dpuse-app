@@ -25,6 +25,7 @@ export function getMessageSteps(message: AssistantChatMessage): AssistantChatSte
     const textParts = message.parts.filter((part) => part.type === 'text');
     if (thinkingParts.length > 0) steps.push({ type: 'thinking', parts: thinkingParts, isLast: false });
     if (textParts.length > 0) steps.push({ type: 'text', parts: textParts, isLast: false });
-    if (steps.length > 0) steps.at(-1)!.isLast = true;
+    const lastStep = steps.at(-1);
+    if (lastStep) lastStep.isLast = true;
     return steps;
 }

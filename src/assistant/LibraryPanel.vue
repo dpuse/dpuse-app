@@ -11,10 +11,10 @@ import Tag from '@/components/ui/Tag.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-type KnowledgeBaseModeId = 'index' | 'search';
+type LibraryModeId = 'index' | 'search';
 type DocumentType = 'connector' | 'context' | 'dataView' | 'document';
 
-interface KnowledgeBaseDocument {
+interface LibraryDocument {
     id: string;
     type: DocumentType;
     title: string;
@@ -30,12 +30,12 @@ interface DocumentFilterConfig {
 interface DocumentGroup {
     type: DocumentType;
     label: string;
-    documents: KnowledgeBaseDocument[];
+    documents: LibraryDocument[];
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const KNOWLEDGE_BASE_MODES: { id: KnowledgeBaseModeId; label: string }[] = [
+const KNOWLEDGE_BASE_MODES: { id: LibraryModeId; label: string }[] = [
     { id: 'index', label: 'Index' },
     { id: 'search', label: 'Search' }
 ];
@@ -63,7 +63,7 @@ const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
 };
 
 // TODO: Sample data only. Replace with documents from a knowledge base index/search endpoint once one exists.
-const SAMPLE_DOCUMENTS: KnowledgeBaseDocument[] = [
+const SAMPLE_DOCUMENTS: LibraryDocument[] = [
     {
         id: 'r1',
         type: 'connector',
@@ -100,7 +100,7 @@ const SAMPLE_DOCUMENTS: KnowledgeBaseDocument[] = [
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeModeId = ref<KnowledgeBaseModeId>('index');
+const activeModeId = ref<LibraryModeId>('index');
 const activeFilterId = ref<DocumentFilterConfig['id']>('all');
 const query = ref('');
 
@@ -114,7 +114,7 @@ const documentGroups = computed<DocumentGroup[]>(() =>
     }))
 );
 
-const searchResults = computed<KnowledgeBaseDocument[]>(() => {
+const searchResults = computed<LibraryDocument[]>(() => {
     const trimmedQuery = query.value.trim().toLowerCase();
 
     return SAMPLE_DOCUMENTS.filter((document) => {
@@ -126,7 +126,7 @@ const searchResults = computed<KnowledgeBaseDocument[]>(() => {
 
 const searchHasRun = computed(() => query.value.trim().length > 0 || activeFilterId.value !== 'all');
 
-const resultCountLabel = computed(() => `${searchResults.value.length} result${searchResults.value.length === 1 ? '' : 's'}`);
+const resultCountLabel = computed(() => `${String(searchResults.value.length)} result${searchResults.value.length === 1 ? '' : 's'}`);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

@@ -8,7 +8,7 @@ import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
+import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 
 // ── Local Components - Static
@@ -40,8 +40,12 @@ const T = {
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
-type Properties = { activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>; connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> };
+interface Properties {
+    activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
+    connectorLocalisedConfig: LocalisedConfig<ConnectorConfig>;
+}
 const { activeConfigOptionConfig, connectorLocalisedConfig } = defineProps<Properties>();
+
 defineEmits<{ close: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────

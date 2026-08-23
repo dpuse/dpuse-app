@@ -5,22 +5,31 @@ import { useRoute } from 'vue-router';
 import { type Component, shallowRef, watch } from 'vue';
 
 // ── Local Framework
+import { defineAsyncPanel } from '@/utilities';
 import { t } from '@/state/locale';
 import T from './AccountDialog.json';
 import { viewportIsWide } from '@/state/appLayout';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import { defineAsyncPanel } from '@/components/ui/asyncPanel';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+interface OptionLocalisedConfig {
+    id: string;
+    type?: 'label';
+    icon?: string;
+    label: string;
+    title?: string;
+    isDestructive?: boolean;
+}
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string; isDestructive?: boolean };
 const OPTION_CONFIGS: OptionLocalisedConfig[] = [
     { id: 'profile', type: 'label', label: 'Profile' },
     { id: 'managePersonalDetails', icon: '', label: 'Personal details', title: 'Manage Personal Details' },

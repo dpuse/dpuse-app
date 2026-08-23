@@ -8,7 +8,7 @@ import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
 import { localiseConfig, type LocalisedConfig, localiseReference } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
+import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId, t } from '@/state/locale';
 
@@ -18,7 +18,7 @@ import ContextModelPanel from './ContextModelPanel.vue';
 import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
 
-// ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Data
 
 import contextConfigData from './data/contextConfig.json';
 

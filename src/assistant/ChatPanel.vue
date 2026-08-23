@@ -1,13 +1,16 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowUpIcon } from '@lucide/vue';
 import DOMPurify from 'dompurify';
+import { ArrowUpIcon, TriangleAlertIcon } from '@lucide/vue';
 import { defineAsyncComponent, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
+import { AppError } from '@dpuse/dpuse-shared/errors';
+import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
 import type { Tool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
+import { reportAppError } from '@/observability/errorTracking';
 import { toolConfigs } from '@/state/session';
 import { type AssistantChatMessage, getMessageSteps } from './assistantChat';
 import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } from './modelConfigs';
@@ -27,11 +30,7 @@ const PROMPT = 'What should I search for to find the latest developments in rene
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
 
-const { modelConfig, vendorConfigs, vendorId } = defineProps<{
-    modelConfig: AssistantModelConfig;
-    vendorConfigs: AssistantVendorConfig[];
-    vendorId: AssistantVendorId;
-}>();
+const { modelConfig, vendorConfigs, vendorId } = defineProps<{ modelConfig: AssistantModelConfig; vendorConfigs: AssistantVendorConfig[]; vendorId: AssistantVendorId }>();
 
 const emit = defineEmits<{ vendorChange: [vendorId: AssistantVendorId, modelConfig: AssistantModelConfig] }>();
 
@@ -45,6 +44,8 @@ const scrollElement = ref<HTMLElement | null>(null);
 const messages = ref<AssistantChatMessage[]>([]);
 const status = ref('idle');
 const markedTool = shallowRef<MarkedToolType>();
+const markedToolError = shallowRef<AppError | undefined>();
+const markedToolErrorWasReported = ref(false);
 
 const sessionReference = useTemplateRef<{ sendMessage: (text: string) => Promise<void> }>('sessionReference');
 
@@ -53,7 +54,8 @@ const state: { scrollObserver: MutationObserver | null } = { scrollObserver: nul
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function renderText(text: string): string {
-    if (!markedTool.value) return '';
+    // Formatter unavailable: fall back to sanitized plain text rather than blanking the message.
+    if (!markedTool.value) return DOMPurify.sanitize(text);
     return DOMPurify.sanitize(markedTool.value.render(text));
 }
 
@@ -72,7 +74,7 @@ const toolReady = new Promise<void>((resolve) => {
 
 onMounted(async () => {
     await toolReady;
-    markedTool.value = await loadMarkedTool();
+    void initialiseMarkedTool();
 });
 
 onUnmounted(() => state.scrollObserver?.disconnect());
@@ -98,31 +100,45 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
     state.scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
 }
 
+function handleRetryMarkedTool(): void {
+    void initialiseMarkedTool();
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function loadMarkedTool(): Promise<MarkedToolType> {
-    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-marked-markdown-parser');
-    if (!toolModuleConfig) throw new Error('No Marked tool module configuration.');
-
-    const url = `https://engine-eu.dpuse.app/tools/marked-markdown-parser_v${toolModuleConfig.version}/dpuse-tool-marked-markdown-parser.es.js`;
-    const module = (await import(/* @vite-ignore */ url)) as { Tool: new () => MarkedToolType };
-    const MarkedTool = module.Tool;
-    return new MarkedTool();
+async function initialiseMarkedTool(): Promise<void> {
+    markedToolError.value = undefined;
+    try {
+        markedTool.value = await loadTool<MarkedToolType>(toolConfigs.value, 'marked-markdown-parser');
+    } catch (error) {
+        markedToolError.value = new AppError('Failed to load chat markdown formatter.', 'dpuse.chatPanel.initialiseMarkedTool', { typeId: 'handled' }, { cause: error });
+        markedToolErrorWasReported.value = await reportAppError(markedToolError.value);
+    }
 }
 </script>
 
 <template>
-    <div class="relative flex min-h-0 flex-1 flex-col pl-4">
+    <div class="relative flex min-h-0 flex-1 flex-col">
         <component :is="SessionComponent" ref="sessionReference" :model-config="modelConfig" @messages-change="messages = $event" @status-change="status = $event" />
 
-        <ScrollArea class="flex flex-1 flex-col" scroll-area-padding="embedded" @initialised="handleScrollAreaInitialised">
+        <div v-if="markedToolError" class="mx-4 border-b border-separator">
+            <div class="my-2 flex items-center justify-between gap-2 rounded-md border border-warning-ring/20 bg-warning px-3 py-1.5 text-xs text-warning-text">
+                <span class="flex items-center gap-1.5">
+                    <TriangleAlertIcon class="size-3.5 shrink-0" />
+                    Formatting unavailable — showing plain text. See the browser console for more details.
+                </span>
+                <Button class="shrink-0" shape="minimal" variant="guarded" size="sm" @click="handleRetryMarkedTool">Retry</Button>
+            </div>
+        </div>
+
+        <ScrollArea class="flex flex-1 flex-col px-4" scroll-area-padding="embedded" @initialised="handleScrollAreaInitialised">
             <template v-for="message in messages" :key="message.id">
                 <template v-if="message.role === 'user'">
-                    <div v-for="part in message.parts.filter((part) => part.type === 'text')" :key="part.content" class="mt-3 flex pr-4">
+                    <div v-for="part in message.parts.filter((part) => part.type === 'text')" :key="part.content" class="mx-auto mt-3 flex max-w-prose">
                         <div class="w-full rounded-md bg-info px-3 py-2 text-sm">{{ part.content }}</div>
                     </div>
 
-                    <div v-for="(errorText, errorIndex) in message.errors" :key="`${message.id}-error-${errorIndex}`" class="mt-3 pr-4">
+                    <div v-for="(errorText, errorIndex) in message.errors" :key="`${message.id}-error-${errorIndex}`" class="mx-auto mt-3 max-w-prose">
                         <div class="flex gap-3">
                             <div class="flex w-4 shrink-0 flex-col items-center">
                                 <div class="mt-1.25 size-2 shrink-0 rounded-full bg-danger-text"></div>
@@ -136,7 +152,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
                 </template>
 
                 <template v-else-if="message.role === 'assistant'">
-                    <div class="mt-3 pr-4">
+                    <div class="mx-auto mt-3 max-w-prose">
                         <div v-for="step in getMessageSteps(message)" :key="step.type" class="flex gap-3">
                             <div class="flex w-4 shrink-0 flex-col items-center">
                                 <div class="mt-1.25 size-2 shrink-0 rounded-full" :class="step.type === 'thinking' ? 'bg-subtle' : 'bg-content'"></div>
@@ -159,7 +175,7 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
         </ScrollArea>
 
         <!-- Input - in-flow, always rounded, with an action bar (vendor/model, status, send) attached below the text box. -->
-        <div class="my-3 mr-4 ml-12 flex flex-none flex-col rounded-2xl border border-separator bg-[#fcfcfc] md:ml-0">
+        <div class="absolute inset-x-0 bottom-0 mx-auto mb-4 flex w-[min(65ch,calc(100%-32px))] flex-none flex-col rounded-2xl border border-separator bg-[#fcfcfc]">
             <textarea
                 id="comment"
                 v-model="input"

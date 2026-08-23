@@ -116,8 +116,12 @@ export const createAppRouter = (): Router => {
         start();
     });
 
-    router.afterEach(() => complete());
-    router.onError(() => fail());
+    router.afterEach(() => {
+        complete();
+    });
+    router.onError(() => {
+        fail();
+    });
 
     return router;
 };

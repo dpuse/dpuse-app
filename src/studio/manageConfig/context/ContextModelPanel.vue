@@ -6,15 +6,14 @@ import { onMounted, ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
 import type { ComponentBaseConfig } from '@dpuse/dpuse-shared/component';
+import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { Tool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
-import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
+import type { ConfigOptionConfig } from '@/utilities/index.ts';
+import { defineAsyncPanel } from '@/utilities';
 import { toolConfigs } from '@/state/session';
-
-// ── Local Components - Static
-import type { GridListItem } from './ContextList.vue';
 
 // ── Data
 import modelConfigsData from './data/modelConfigs.json'; // TODO: remove once loadModel fetches remotely
@@ -22,7 +21,7 @@ import modelConfigsData from './data/modelConfigs.json'; // TODO: remove once lo
 // ── Local Components - Static
 import BaseDialog from '@/components/ui/dialog/BaseDialog.vue';
 import Button from '@/components/ui/button/Button.vue';
-import { defineAsyncPanel } from '@/components/ui/asyncPanel';
+import type { GridListItem } from './ContextList.vue';
 
 // ── Local Components - Dynamic
 const ContextModelDescriptorsPanel = defineAsyncPanel(() => import('./ContextModelDescriptorsPanel.vue'), 'ContextModelDescriptorsPanel');
@@ -124,7 +123,7 @@ const toolReady = new Promise<void>((resolve) => {
 onMounted(async () => {
     await toolReady;
 
-    markedTool.value = await loadMarkedTool();
+    markedTool.value = await loadTool<MarkedToolType>(toolConfigs.value, 'marked-markdown-parser');
 });
 
 // ── Async Loaders
@@ -143,7 +142,7 @@ watch(
         activeModel.value = undefined; // clear while the newly-selected model loads
         activeModel.value = localiseModel(await loadModel(newModelReference.id));
 
-        markedTool.value ??= await loadMarkedTool();
+        markedTool.value ??= await loadTool<MarkedToolType>(toolConfigs.value, 'marked-markdown-parser');
         purifiedDescription.value = DOMPurify.sanitize(markedTool.value.render(newModelReference.description));
     },
     { immediate: true }
@@ -184,16 +183,6 @@ function purifyText(text: string): string {
     if (!markedTool.value) return '';
     return DOMPurify.sanitize(markedTool.value.render(text));
 }
-
-async function loadMarkedTool(): Promise<MarkedToolType> {
-    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-marked-markdown-parser');
-    if (!toolModuleConfig) throw new Error('No Marked tool module configuration.');
-
-    const url = `https://engine-eu.dpuse.app/tools/marked-markdown-parser_v${toolModuleConfig.version}/dpuse-tool-marked-markdown-parser.es.js`;
-    const module = (await import(/* @vite-ignore */ url)) as { Tool: new () => MarkedToolType };
-    const MarkedTool = module.Tool;
-    return new MarkedTool();
-}
 </script>
 
 <template>
@@ -210,10 +199,6 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
             <!-- Description -->
             <div v-html="purifiedDescription" />
 
-            <BaseDialog v-model="open" :title="`${modelReference.label} Descriptors`" @save="open = false">
-                <ContextModelDescriptorsPanel v-if="open" v-model:label="modelReferenceLabel" v-model:description="modelDescription" />
-            </BaseDialog>
-
             <!-- Entities -->
             <h2 class="flex flex-none items-center justify-between gap-x-3">
                 Entities
@@ -221,10 +206,6 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
                     <NetworkIcon class="size-5" stroke-width="1.5" />
                 </Button>
             </h2>
-
-            <BaseDialog v-model="erdDialogOpen" title="Sample ERD Diagram" @save="erdDialogOpen = false">
-                <ContextErdDiagramPanel v-if="erdDialogOpen" />
-            </BaseDialog>
 
             <p>The entities that make up this model.</p>
 
@@ -299,10 +280,6 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
 
             <!-- Dimensions -->
             <h2 class="flex flex-none items-center justify-between gap-x-3">Dimensions</h2>
-
-            <BaseDialog v-model="dimensionTreeDialogOpen" title="Sample Dimension Tree Diagram" @save="dimensionTreeDialogOpen = false">
-                <ContextDimensionTreeDiagramPanel v-if="dimensionTreeDialogOpen" />
-            </BaseDialog>
 
             <p>The dimensions ... this model.</p>
 
@@ -452,5 +429,17 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
                 </div>
             </div>
         </div>
+
+        <BaseDialog v-model="open" :title="`${modelReference.label} Descriptors`" @save="open = false">
+            <ContextModelDescriptorsPanel v-if="open" v-model:label="modelReferenceLabel" v-model:description="modelDescription" />
+        </BaseDialog>
+
+        <BaseDialog v-model="erdDialogOpen" title="Sample ERD Diagram" @save="erdDialogOpen = false">
+            <ContextErdDiagramPanel v-if="erdDialogOpen" />
+        </BaseDialog>
+
+        <BaseDialog v-model="dimensionTreeDialogOpen" title="Sample Dimension Tree Diagram" @save="dimensionTreeDialogOpen = false">
+            <ContextDimensionTreeDiagramPanel v-if="dimensionTreeDialogOpen" />
+        </BaseDialog>
     </div>
 </template>

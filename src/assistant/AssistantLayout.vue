@@ -4,8 +4,8 @@ import { useRoute } from 'vue-router';
 import { type Component, computed, defineAsyncComponent, ref, watch } from 'vue';
 
 // ── Local Framework
+import { assertDefined } from '@/utilities/index.ts';
 import { ASSISTANT_VENDOR_CONFIGS, type AssistantModelConfig, type AssistantVendorId } from './modelConfigs';
-import { ASSISTANT_VIEW_IDS, type AssistantViewId } from './assistantViews';
 
 // ── Local Components - Static
 import AssistantPanelHeader from './AssistantPanelHeader.vue';
@@ -13,17 +13,19 @@ import AssistantPanelHeader from './AssistantPanelHeader.vue';
 // ── Local Components - Dynamic
 const AboutView = defineAsyncComponent(() => import('./AboutPanel.vue'));
 const ChatView = defineAsyncComponent(() => import('./ChatPanel.vue'));
-const KnowledgeBaseView = defineAsyncComponent(() => import('./KnowledgeBasePanel.vue'));
+const LibraryView = defineAsyncComponent(() => import('./LibraryPanel.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const ASSISTANT_VIEW_IDS = new Set<string>(['about', 'chat', 'library']);
 
 const VENDOR_ID_KEY = 'dpuse-assistantVendorId';
 const VENDOR_MODEL_ID_KEY_PREFIX = 'dpuse-assistantVendorModelId-';
 
-const ASSISTANT_PANELS: Record<AssistantViewId, Component> = {
+const ASSISTANT_PANELS: Record<string, Component> = {
     about: AboutView,
     chat: ChatView,
-    knowledgeBase: KnowledgeBaseView
+    library: LibraryView
 };
 
 // ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
@@ -44,8 +46,8 @@ const route = useRoute();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeViewId = computed<AssistantViewId>(() => {
-    const parameter = route.query.aView as AssistantViewId | undefined;
+const activeViewId = computed<string>(() => {
+    const parameter = route.query.aView as string | undefined;
     return parameter != null && ASSISTANT_VIEW_IDS.has(parameter) ? parameter : 'about';
 });
 
@@ -65,7 +67,9 @@ const activePanelKey = computed(() => `${activeViewId.value}:${vendorId.value}:$
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(vendorId, (newVendorId) => localStorage.setItem(VENDOR_ID_KEY, newVendorId));
+watch(vendorId, (newVendorId) => {
+    localStorage.setItem(VENDOR_ID_KEY, newVendorId);
+});
 
 watch(
     modelIdByVendorId,
@@ -95,7 +99,11 @@ function establishVendorId(): AssistantVendorId {
 }
 
 function establishVendorModelId(id: AssistantVendorId): string {
-    const modelConfigs = ASSISTANT_VENDOR_CONFIGS.find((vendorConfig) => vendorConfig.id === id)!.modelConfigs;
+    const vendorConfig = assertDefined(
+        ASSISTANT_VENDOR_CONFIGS.find((config) => config.id === id),
+        `No vendor config found for id '${id}'.`
+    );
+    const modelConfigs = vendorConfig.modelConfigs;
     try {
         const storedId = localStorage.getItem(VENDOR_MODEL_ID_KEY_PREFIX + id);
         if (storedId != null && modelConfigs.some((config) => config.id === storedId)) return storedId;

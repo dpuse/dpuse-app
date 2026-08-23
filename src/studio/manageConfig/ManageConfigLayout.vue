@@ -4,10 +4,10 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 // ── DPUse Framework
-import type { BaseConfig } from '@dpuse/dpuse-shared';
 import { localiseConfigs } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import { localeId, t } from '@/state/locale';
 
 // ── Local Components - Static
@@ -15,12 +15,6 @@ import HomeIcon from '@/components/icons/HomeIcon.vue';
 import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
 import TabBar from '@/components/ui/TabBar.vue';
-
-// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-export interface ConfigOptionConfig extends BaseConfig {
-    to: string;
-}
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

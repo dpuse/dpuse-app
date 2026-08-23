@@ -7,7 +7,7 @@ import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/prese
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
+import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import type { DataSource } from '@/composables/useDataWindow';
 import { configsAreRetrieved, presenterConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';

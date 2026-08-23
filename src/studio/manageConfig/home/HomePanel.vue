@@ -6,7 +6,7 @@ import { computed } from 'vue';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import type { ConfigOptionConfig } from '../ManageConfigLayout.vue';
+import type { ConfigOptionConfig } from '@/utilities/index.ts';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';

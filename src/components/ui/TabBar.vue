@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends { id: string; label: string; to?: string }">
+<script setup lang="ts" generic="T extends { id: string; label: string; to?: string; rightAligned?: boolean }">
 // External Dependencies & Registrations
 import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
 import { nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
@@ -8,7 +8,11 @@ import Button from './button/Button.vue';
 
 // Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
 
-const { activeId, items = [] } = defineProps<{ activeId?: string; items?: T[] }>();
+interface Properties {
+    activeId?: string;
+    items?: T[];
+}
+const { activeId, items = [] } = defineProps<Properties>();
 
 defineSlots<{ default(properties: { item: T }): unknown }>();
 
@@ -63,12 +67,12 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
 
 <template>
     <div class="relative" data-region="TabBar">
-        <div ref="rowElement" class="flex min-w-0 flex-1 items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator" @scroll="updateScrollState">
+        <div ref="rowElement" class="flex min-w-0 flex-1 items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator px-4" @scroll="updateScrollState">
             <Button
                 v-for="item in items"
                 :key="item.id"
                 class="border-b-2 border-t-transparent py-1.25"
-                :class="activeId === item.id ? 'border-b-accent text-accent' : 'border-b-transparent'"
+                :class="[activeId === item.id ? 'border-b-accent text-accent' : 'border-b-transparent', item.rightAligned ? 'ml-auto' : '']"
                 role="tab"
                 :aria-selected="activeId === item.id"
                 shape="minimal"
@@ -76,7 +80,7 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
                 @click="$emit('select', item)"
             >
                 <slot :item="item">
-                    <div class="text-sm">{{ item.label }}</div>
+                    <div v-if="item.label" class="text-sm">{{ item.label }}</div>
                 </slot>
             </Button>
         </div>
