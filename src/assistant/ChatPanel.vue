@@ -184,7 +184,7 @@ async function initialiseMarkedTool(): Promise<void> {
                 @keydown.enter.exact.prevent="handleSendMessage"
             />
 
-            <div class="flex items-center justify-between gap-x-2 px-2 pb-2">
+            <div class="mx-2 flex items-center justify-between gap-x-2 border-t border-separator py-2">
                 <AssistantVendorMenu :model-config="modelConfig" :vendor-configs="vendorConfigs" :vendor-id="vendorId" @select="handleSelectVendor" />
 
                 <div class="flex items-center gap-x-2">
