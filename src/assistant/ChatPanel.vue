@@ -5,7 +5,7 @@ import DOMPurify from 'dompurify';
 import { defineAsyncComponent, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
-import type { MarkedTool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
+import type { Tool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
 import { toolConfigs } from '@/state/session';
@@ -105,8 +105,8 @@ async function loadMarkedTool(): Promise<MarkedToolType> {
     if (!toolModuleConfig) throw new Error('No Marked tool module configuration.');
 
     const url = `https://engine-eu.dpuse.app/tools/marked-markdown-parser_v${toolModuleConfig.version}/dpuse-tool-marked-markdown-parser.es.js`;
-    const module = (await import(/* @vite-ignore */ url)) as { MarkedTool: new () => MarkedToolType };
-    const MarkedTool = module.MarkedTool;
+    const module = (await import(/* @vite-ignore */ url)) as { Tool: new () => MarkedToolType };
+    const MarkedTool = module.Tool;
     return new MarkedTool();
 }
 </script>
