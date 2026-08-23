@@ -175,7 +175,9 @@ async function initialiseMarkedTool(): Promise<void> {
         </ScrollArea>
 
         <!-- Input - in-flow, always rounded, with an action bar (vendor/model, status, send) attached below the text box. -->
-        <div class="absolute inset-x-0 bottom-0 mx-auto mb-4 flex w-[min(65ch,calc(100%-32px))] flex-none flex-col rounded-2xl border border-separator bg-[#fcfcfc]">
+        <div
+            class="absolute right-4 bottom-0 left-16 mb-4 flex w-[min(65ch,calc(100%-80px))] flex-none flex-col rounded-2xl border border-separator bg-[#fcfcfc] md:inset-x-0 md:mx-auto"
+        >
             <textarea
                 id="comment"
                 v-model="input"
