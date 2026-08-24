@@ -38,9 +38,9 @@ const router = useRouter();
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dataSource = computed((): DataSource<LocalisedConfig<EventQueryConfig>> => ({
-    rowCount: eventQueryConfigs.value?.length ?? 0,
+    rowCount: eventQueryConfigs.value.length,
     getRows: (start: number, end: number): Promise<{ rows: LocalisedConfig<EventQueryConfig>[] }> =>
-        Promise.resolve({ rows: ((eventQueryConfigs.value as unknown as LocalisedConfig<EventQueryConfig>[]) ?? []).slice(start, end) })
+        Promise.resolve({ rows: (eventQueryConfigs.value as unknown as LocalisedConfig<EventQueryConfig>[]).slice(start, end) })
 }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
