@@ -79,7 +79,8 @@ export const connectionConfigs = computed<ConnectionConfig[]>(() => {
     const configs: ConnectionConfig[] = [];
 
     for (const connectorConfig of connectorConfigs.value) {
-        if (connectorConfig.implementations.default.authMethodId === 'none') configs.push(constructConnectionConfig(connectorConfig));
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unnecessary-condition, @typescript-eslint/prefer-optional-chain -- TODO: These appear to be wrong, need to check actual input. The types are not guaranteed to match the actual data.
+        if (connectorConfig.implementations.default && connectorConfig.implementations.default.authMethodId === 'none') configs.push(constructConnectionConfig(connectorConfig));
     }
 
     for (const accountConfigs of connectionAccountConfigs.value) {

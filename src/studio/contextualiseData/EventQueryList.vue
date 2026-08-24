@@ -15,7 +15,6 @@ import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, Retrieve
 // ── Local Framework
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
-import T from './EventQueryList.json';
 import { useEngine } from '@/services/useEngine';
 import { activeMetaStoreConnectionConfig, eventQueryConfigs } from '@/state/session';
 
@@ -28,6 +27,12 @@ import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Dynamic Components
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'));
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    event_query: { en: 'event query', es: 'consulta de eventos' }
+};
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

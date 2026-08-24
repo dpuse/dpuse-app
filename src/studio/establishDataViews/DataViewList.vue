@@ -13,7 +13,6 @@ import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
-import T from './EstablishDataViews.json';
 import {
     dataViewConfigs,
     dataViewConfigsAreRetrieved,
@@ -35,6 +34,12 @@ import StudioListPanel from '../StudioListPanel.vue';
 
 // ── Dynamic Components
 const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/ui/placeholder/EmptyPlaceholder.vue'));
+
+const T = {
+    data_view: { en: 'data view', es: 'vista de datos' },
+    data_views: { en: 'data views', es: 'vistas de datos' },
+    Data_View: { en: 'Data View', es: 'Vista de Datos' }
+};
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

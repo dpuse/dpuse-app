@@ -7,13 +7,21 @@ import type { D3NetworkView, Tool as D3ToolType, NetworkDiagramData } from '@dpu
 
 // ── Local Framework
 import { t } from '@/state/locale';
-import T from './ContextualiseDataLayout.json';
 import { toolConfigs } from '@/state/session';
 
 // ── Static Components
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    Contextualise_Data: { en: 'Contextualise Data', es: 'Contextualizar Datos' },
+    event_queries: { en: 'event queries', es: 'consultas de eventos' },
+    Event_Query: { en: 'Event Query', es: 'Consulta de Eventos' },
+    'wb.label': { en: 'Workflow', es: 'Flujo de Trabajo' }
+};
 
 // ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -74,8 +82,8 @@ async function loadD3Tool(): Promise<D3ToolType> {
     if (!toolModuleConfig) throw new Error('No D3 tool module configuration.');
 
     const url = `https://engine-eu.dpuse.app/tools/d3-visualiser_v${toolModuleConfig.version}/dpuse-tool-d3-visualiser.es.js`;
-    const module = (await import(/* @vite-ignore */ url)) as { D3Tool: new () => D3ToolType };
-    const D3Tool = module.D3Tool;
+    const module = (await import(/* @vite-ignore */ url)) as { Tool: new () => D3ToolType };
+    const D3Tool = module.Tool;
     return new D3Tool();
 }
 </script>
@@ -84,12 +92,7 @@ async function loadD3Tool(): Promise<D3ToolType> {
     <StudioLayout>
         <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Contextualise_Data')" to="studio" />
 
-        <!-- <div class="relative flex min-h-0 flex-1 flex-col">
-            <Separator class="mx-4" />
-            <RouterView />
-        </div> -->
-
-        <Separator class="mx-4" />
+        <Separator />
         <div class="px-4 py-2">
             <button class="rounded-md border border-boundary bg-card px-3 py-1.5 text-sm font-medium text-emphasis hover:bg-card-hover" type="button" @click="onAutoLayout">
                 Auto-layout

@@ -7,7 +7,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { localiseConfig, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import T from './EstablishDataViews.json';
 import { accountConfigsAreRetrieved, configsAreRetrieved } from '@/state/session';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs } from '@/state/dataViews';
 import { localeId, t } from '@/state/locale';
@@ -18,6 +17,11 @@ import StudioLayout from '../StudioLayout.vue';
 import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    Establish_Data_Views: { en: 'Establish Data Views', es: 'Establecer Vistas de Datos' },
+    Studio: { en: 'Studio', es: 'Estudio' }
+};
 
 const TASK_CONFIGS: TaskConfig[] = [
     { id: 'selectConnection', number: 1, label: { en: 'Connection' }, description: {}, disabled: true, enableUpTo: 1, verb: { en: 'Select' } },

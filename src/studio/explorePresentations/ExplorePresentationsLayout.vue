@@ -8,7 +8,6 @@ import type { ComponentReferenceConfig } from '@dpuse/dpuse-shared/component';
 import type { DataSource } from '@/composables/useDataWindow';
 import type { PresenterInterface } from '@dpuse/dpuse-shared/component/module/presenter';
 import { t } from '@/state/locale';
-import T from './ExplorePresentationsLayout.json';
 import { type LocalisedReference, localiseReference } from '@dpuse/dpuse-shared/locale';
 import { presenterConfigs, toolConfigs } from '@/state/session';
 
@@ -19,6 +18,13 @@ import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    Explore_Presentations: { en: 'Explore Presentations', es: 'Explorar Presentaciones' },
+    'wb.label': { en: 'Workflow', es: 'Flujo de Trabajo' }
+};
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -96,7 +102,7 @@ async function handleSelectPresentation(presentationReference: LocalisedReferenc
     <StudioLayout>
         <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Explore_Presentations')" to="studio" />
 
-        <Separator class="mx-4" />
+        <Separator />
 
         <GridDetailPanel
             :active-item="activePresentationReference"

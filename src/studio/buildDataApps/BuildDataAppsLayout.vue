@@ -20,7 +20,7 @@ const T = {
     <StudioLayout>
         <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Build_Data_Apps')" to="studio" />
 
-        <Separator class="mx-4" />
+        <Separator />
 
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <div class="relative flex min-h-0 flex-1 flex-col">
