@@ -11,7 +11,7 @@ import T from './LoginForm.json';
 import { t } from '@/state/locale';
 import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
-// ── Local Components - Static
+// ── Static Components
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';

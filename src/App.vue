@@ -11,7 +11,7 @@ import { assistantPaneIsVisible, contentScrollPosition, sessionMenuIsOpen, studi
 import { configRetrievalFailed, initialiseServices } from '@/state/session';
 import { navigationIsActive, navigationIsDelayed } from '@/state/navigation';
 
-// ── Local Components - Static
+// ── Static Components
 import AssistantLogo from '@/components/branding/AssistantLogo.vue'; // Always visible.
 import BusyBar from '@/components/ui/BusyBar.vue'; // Can be no delay when rendering.
 import Button from '@/components/ui/button/Button.vue'; // Required by studio and assistant toggle buttons which are always visible.
@@ -20,7 +20,7 @@ import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import LoadingMask from '@/components/ui/LoadingMask.vue'; // Can be no delay when rendering.
 import SessionButton from '@/session/SessionButton.vue'; // Always visible.
 
-// ── Local Components - Dynamic
+// ── Dynamic Components
 const AccountDialog = defineAsyncComponent(load('AccountDialog', () => import('@/session/accountDialog/AccountDialog.vue')));
 const AuthDialog = defineAsyncComponent(load('AuthDialog', () => import('@/session/authDialog/AuthDialog.vue')));
 const ConnectionDialog = defineAsyncComponent(load('ConnectionDialog', () => import('@/studio/connectionDialog/ConnectionDialog.vue')));

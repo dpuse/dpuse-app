@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ── Local Components - Static
+// ── Static Components
 import TextEditor from '@/components/ui/TextEditor.vue';
 import TextInput from '@/components/ui/TextInput.vue';
 

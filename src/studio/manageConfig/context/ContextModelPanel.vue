@@ -18,12 +18,12 @@ import { toolConfigs } from '@/state/session';
 // ── Data
 import modelConfigsData from './data/modelConfigs.json'; // TODO: remove once loadModel fetches remotely
 
-// ── Local Components - Static
+// ── Static Components
 import BaseDialog from '@/components/ui/dialog/BaseDialog.vue';
 import Button from '@/components/ui/button/Button.vue';
 import type { GridListItem } from './ContextList.vue';
 
-// ── Local Components - Dynamic
+// ── Dynamic Components
 const ContextModelDescriptorsPanel = defineAsyncPanel(() => import('./ContextModelDescriptorsPanel.vue'), 'ContextModelDescriptorsPanel');
 const ContextErdDiagramPanel = defineAsyncPanel(() => import('./ContextErdDiagramPanel.vue'), 'ContextErdDiagramPanel');
 const ContextDimensionTreeDiagramPanel = defineAsyncPanel(() => import('./ContextDimensionTreeDiagramPanel.vue'), 'ContextDimensionTreeDiagramPanel');

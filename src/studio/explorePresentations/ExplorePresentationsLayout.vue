@@ -12,7 +12,7 @@ import T from './ExplorePresentationsLayout.json';
 import { type LocalisedReference, localiseReference } from '@dpuse/dpuse-shared/locale';
 import { presenterConfigs, toolConfigs } from '@/state/session';
 
-// ── Local Components - Static
+// ── Static Components
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';

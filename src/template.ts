@@ -8,9 +8,9 @@
 
 // ── Local Framework
 
-// ── Local Components - Static
+// ── Static Components
 
-// ── Local Components - Dynamic
+// ── Dynamic Components
 
 // ── Schemas ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

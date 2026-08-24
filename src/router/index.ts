@@ -5,10 +5,10 @@ import { createRouter, createWebHistory, type Router, type RouterScrollBehavior,
 import { load } from '@/state/component';
 import { complete, fail, start } from '@/state/navigation';
 
-// ── Local Components - Dynamic
+// ── Dynamic Components
 const StudioHomeLayout = load('StudioHomeLayout', () => import('@/studio/home/StudioHomeLayout.vue'));
 
-// ── Local Components - Dynamic - Establish Data Views
+// ── Dynamic Components - Establish Data Views
 const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/studio/establishDataViews/EstablishDataViewsLayout.vue'));
 const DataViewList = load('DataViewList', () => import('@/studio/establishDataViews/DataViewList.vue'));
 const SelectConnectionList = load('SelectConnection', () => import('@/studio/establishDataViews/selectConnection/SelectConnectionList.vue'));
@@ -16,17 +16,17 @@ const SelectItemPanel = load('SelectItem', () => import('@/studio/establishDataV
 const AuditContentPanel = load('AuditContent', () => import('@/studio/establishDataViews/auditContent/AuditContentPanel.vue'));
 const ExploreData = load('ExploreData', () => import('@/studio/establishDataViews/exploreData/ExploreData.vue'));
 
-// ── Local Components - Dynamic - Contextualise Data
+// ── Dynamic Components - Contextualise Data
 const ContextualiseDataLayout = load('ContextualiseData', () => import('@/studio/contextualiseData/ContextualiseDataLayout.vue'));
 const EventQueryList = load('EventQueryList', () => import('@/studio/contextualiseData/EventQueryList.vue'));
 
-// ── Local Components - Dynamic - Explore Presentations
+// ── Dynamic Components - Explore Presentations
 const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/studio/explorePresentations/ExplorePresentationsLayout.vue'));
 
-// ── Local Components - Dynamic - Build Data Apps
+// ── Dynamic Components - Build Data Apps
 const BuildDataAppsLayout = load('BuildDataApps', () => import('@/studio/buildDataApps/BuildDataAppsLayout.vue'));
 
-// ── Local Components - Dynamic - Manage Configs
+// ── Dynamic Components - Manage Configs
 const ManageConfigsLayout = load('ManageConfig', () => import('@/studio/manageConfig/ManageConfigLayout.vue'));
 const ManageHomePanel = load('ManageHomePanel', () => import('@/studio/manageConfig/home/HomePanel.vue'));
 const ManageConnectorList = load('ManageConnectorList', () => import('@/studio/manageConfig/connectors/ConnectorList.vue'));

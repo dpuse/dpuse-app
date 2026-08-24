@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { computed, onMounted, onUnmounted, useId, useTemplateRef } from 'vue';
 
-// ── Local Components - Static
+// ── Static Components
 import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from './ScrollThumb.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

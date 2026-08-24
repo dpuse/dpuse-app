@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { useId } from 'vue';
 
-// ── Local Components - Static
+// ── Static Components
 import ListItemButton from './button/ListItemButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

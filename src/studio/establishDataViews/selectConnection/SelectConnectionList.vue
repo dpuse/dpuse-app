@@ -12,7 +12,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
 import { activeMetaStoreConnectionConfig, configsAreRetrieved } from '@/state/session';
 
-// ── Local Components - Static
+// ── Static Components
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';
 import SelectConnectionPanel from './SelectConnectionPanel.vue';

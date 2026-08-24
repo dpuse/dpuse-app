@@ -8,7 +8,7 @@ import { type AppError, serialiseError } from '@dpuse/dpuse-shared/errors';
 
 // ── Local Framework
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

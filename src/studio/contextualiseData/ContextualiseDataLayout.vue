@@ -10,7 +10,7 @@ import { t } from '@/state/locale';
 import T from './ContextualiseDataLayout.json';
 import { toolConfigs } from '@/state/session';
 
-// ── Local Components - Static
+// ── Static Components
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';

@@ -6,7 +6,7 @@ import { InfoIcon, TrashIcon } from '@lucide/vue';
 import type { BaseConfig } from '@dpuse/dpuse-shared';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

@@ -3,7 +3,7 @@
 import { t } from '@/state/locale';
 import T from './BuildDataAppsLayout.json';
 
-// ── Local Components - Static
+// ── Static Components
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '../StudioHeader.vue';

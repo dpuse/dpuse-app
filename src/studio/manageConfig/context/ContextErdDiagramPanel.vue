@@ -11,7 +11,7 @@ import type { Tool as D3Tool, ErdDiagramData } from '@dpuse/dpuse-tool-d3-visual
 import { reportAppError } from '@/observability/errorTracking';
 import { toolConfigs } from '@/state/session';
 
-// ── Local Components - Static
+// ── Static Components
 import ErrorPanel from '@/components/ui/error/ErrorPanel.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 

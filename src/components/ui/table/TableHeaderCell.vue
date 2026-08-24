@@ -4,7 +4,7 @@ import { ChevronDown } from '@lucide/vue';
 import type { Header, RowData } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 
-// ── Local Components - Static
+// ── Static Components
 import type { TableFeatureSet } from './tableFeatures';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

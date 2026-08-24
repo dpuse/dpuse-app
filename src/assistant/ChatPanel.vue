@@ -15,13 +15,13 @@ import { toolConfigs } from '@/state/session';
 import { type AssistantChatMessage, getMessageSteps } from './assistantChat';
 import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } from './modelConfigs';
 
-// ── Local Components - Static
+// ── Static Components
 import AssistantVendorMenu from './AssistantVendorMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import TextArea from '@/components/ui/TextArea.vue';
 
-// ── Local Components - Dynamic
+// ── Dynamic Components
 const ChatSessionTanstack = defineAsyncComponent(() => import('./ChatSessionTanstack.vue'));
 const ChatSessionVercel = defineAsyncComponent(() => import('./ChatSessionVercel.vue'));
 

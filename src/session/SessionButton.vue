@@ -8,10 +8,10 @@ import { load } from '@/state/component';
 import { expiresIn, lifetime, sessionIsAuthenticated } from '@/state/session';
 import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
 
-// ── Local Components - Static
+// ── Static Components
 import AvatarButton from '@/components/ui/button/AvatarButton.vue';
 
-// ── Local Components - Dynamic
+// ── Dynamic Components
 const SessionMenu = defineAsyncComponent(load('SessionMenu', () => import('@/session/SessionMenu.vue')));
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

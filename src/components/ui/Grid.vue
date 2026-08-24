@@ -6,7 +6,7 @@ import { computed, onUnmounted, ref, shallowRef } from 'vue';
 // ── Local Framework
 import { type DataSource, DEFAULT_CACHE_BLOCK_SIZE, useDataWindow } from '@/composables/useDataWindow';
 
-// ── Local Components - Static
+// ── Static Components
 import AddActionButton from '@/components/ui/button/AddActionButton.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
 import Button from '@/components/ui/button/Button.vue';

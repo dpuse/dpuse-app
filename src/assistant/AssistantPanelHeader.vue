@@ -11,7 +11,7 @@ import { localiseConfigs } from '@dpuse/dpuse-shared/locale';
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import { localeId } from '@/state/locale.ts';
 
-// ── Local Components - Static
+// ── Static Components
 import AssistantHeader from './AssistantHeader.vue';
 import TabBar from '@/components/ui/TabBar.vue';
 

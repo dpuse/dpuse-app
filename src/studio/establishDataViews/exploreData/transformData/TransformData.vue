@@ -20,7 +20,7 @@ import { type Component, computed, ref } from 'vue';
 // ── Local Framework
 import { useSelectColumnSort } from './useSelectColumnSort.ts';
 
-// ── Local Components - Static
+// ── Static Components
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import SortableColumnTile from './ColumnPill.vue';
 

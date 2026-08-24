@@ -15,7 +15,7 @@ import { assertDefined } from '@/utilities/index.ts';
 import { reportAppError } from '@/observability/errorTracking';
 import { toolConfigs } from '@/state/session';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ErrorPanel from '@/components/ui/error/ErrorPanel.vue';
 

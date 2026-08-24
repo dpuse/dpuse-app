@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ── Local Components - Static
+// ── Static Components
 import Button from './Button.vue';
 </script>
 

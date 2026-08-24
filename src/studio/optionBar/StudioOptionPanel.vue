@@ -11,7 +11,7 @@ import T from './StudioOptionPanel.json';
 import { t } from '@/state/locale';
 import { type StudioOptionConfig, useStudioOptions } from '@/studio/useStudioOptions';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';

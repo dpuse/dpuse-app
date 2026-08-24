@@ -10,7 +10,7 @@ import { t } from '@/state/locale';
 import T from './AccountDialog.json';
 import { viewportIsWide } from '@/state/appLayout';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';

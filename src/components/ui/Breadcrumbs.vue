@@ -5,7 +5,7 @@ import { computed } from 'vue';
 // ── Local Framework
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

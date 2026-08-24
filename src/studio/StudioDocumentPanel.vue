@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { ArrowLeftIcon } from '@lucide/vue';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 

@@ -9,7 +9,7 @@ import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 // ── Local Framework
 import { t } from '@/state/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

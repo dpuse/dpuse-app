@@ -2,7 +2,7 @@
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

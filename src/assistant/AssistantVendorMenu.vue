@@ -6,7 +6,7 @@ import { onUnmounted, ref, useTemplateRef } from 'vue';
 // ── Local Framework
 import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } from './modelConfigs';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 

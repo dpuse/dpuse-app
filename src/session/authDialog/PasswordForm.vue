@@ -8,7 +8,7 @@ import { useRegle } from '@regle/core';
 import T from './PasswordForm.json';
 import { t } from '@/state/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import TextInput from '@/components/ui/TextInput.vue';
 

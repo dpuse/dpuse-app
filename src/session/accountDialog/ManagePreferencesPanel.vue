@@ -2,7 +2,7 @@
 // ── Local Framework
 import { localeId } from '@/state/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 </script>
 

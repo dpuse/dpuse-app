@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { useRoute, useRouter } from 'vue-router';
 
-// ── Local Components - Static
+// ── Static Components
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

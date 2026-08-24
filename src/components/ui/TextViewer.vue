@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ── Local Components - Static
+// ── Static Components
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

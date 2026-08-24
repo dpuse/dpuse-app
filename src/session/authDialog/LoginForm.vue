@@ -9,7 +9,7 @@ import { email, required } from '@regle/rules';
 import T from './LoginForm.json';
 import { t } from '@/state/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import AppleLogo from '@/components/branding/AppleLogo.vue';
 import Button from '@/components/ui/button/Button.vue';
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';

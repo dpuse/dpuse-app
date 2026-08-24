@@ -15,7 +15,7 @@ import T from './ConnectionForm.json';
 import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Tag from '@/components/ui/Tag.vue';

@@ -16,7 +16,7 @@ import T from './SelectConnectionPanel.json';
 import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import StudioDetailPanel from '../../StudioDetailPanel.vue';

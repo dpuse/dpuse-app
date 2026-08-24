@@ -10,7 +10,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // ── Local Framework
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
 
-// ── Local Components - Static
+// ── Static Components
 import ModuleLinksPanel from '../ModuleLinksPanel.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import StudioDetailPanel from '../../StudioDetailPanel.vue';

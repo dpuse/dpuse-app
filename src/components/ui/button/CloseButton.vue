@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { XIcon } from '@lucide/vue';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from './Button.vue';
 </script>
 

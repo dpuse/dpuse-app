@@ -12,7 +12,7 @@ import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfig
 import T from './EstablishDataViews.json';
 import { localeId, t } from '@/state/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
 import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';

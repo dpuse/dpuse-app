@@ -12,7 +12,7 @@ import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import type { DataSource } from '@/composables/useDataWindow';
 import { localeId, t } from '@/state/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import ContextModelPanel from './ContextModelPanel.vue';
 import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ── Local Components - Static
+// ── Static Components
 import MousePointerClickRotatedIcon from '@/components/icons/MousePointerClickRotatedIcon.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

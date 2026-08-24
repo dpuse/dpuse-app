@@ -19,14 +19,14 @@ import T from './EventQueryList.json';
 import { useEngine } from '@/services/useEngine';
 import { activeMetaStoreConnectionConfig, eventQueryConfigs } from '@/state/session';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import Grid from '@/components/ui/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
-// ── Local Components - Dynamic
+// ── Dynamic Components
 const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────

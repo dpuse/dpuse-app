@@ -7,7 +7,7 @@ import { computed, onBeforeUnmount, onMounted, shallowRef, useId, useTemplateRef
 // ── Local Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
-// ── Local Components - Static
+// ── Static Components
 import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from '../ScrollThumb.vue';
 import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';

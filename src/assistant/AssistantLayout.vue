@@ -7,10 +7,10 @@ import { type Component, computed, defineAsyncComponent, ref, watch } from 'vue'
 import { assertDefined } from '@/utilities/index.ts';
 import { ASSISTANT_VENDOR_CONFIGS, type AssistantModelConfig, type AssistantVendorId } from './modelConfigs';
 
-// ── Local Components - Static
+// ── Static Components
 import AssistantPanelHeader from './AssistantPanelHeader.vue';
 
-// ── Local Components - Dynamic
+// ── Dynamic Components
 const AboutView = defineAsyncComponent(() => import('./AboutPanel.vue'));
 const ChatView = defineAsyncComponent(() => import('./ChatPanel.vue'));
 const LibraryView = defineAsyncComponent(() => import('./LibraryPanel.vue'));

@@ -11,7 +11,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import ModuleLinksPanel from '../ModuleLinksPanel.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import StudioDetailPanel from '../../StudioDetailPanel.vue';

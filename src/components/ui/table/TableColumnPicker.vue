@@ -4,7 +4,7 @@ import { Settings2 } from '@lucide/vue';
 import type { RowData, Table } from '@tanstack/vue-table';
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
 
-// ── Local Components - Static
+// ── Static Components
 import type { TableFeatureSet } from './tableFeatures';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

@@ -5,7 +5,7 @@ import { ref } from 'vue';
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import InvestigateData from './investigateData/InvestigateData.vue';
 import TransformData from './transformData/TransformData.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';

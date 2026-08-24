@@ -12,7 +12,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { configsAreRetrieved, cookbookConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import CookbookPanel from './CookbookPanel.vue';
 import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';

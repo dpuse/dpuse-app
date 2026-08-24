@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { RefreshCwIcon, TriangleAlertIcon } from '@lucide/vue';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

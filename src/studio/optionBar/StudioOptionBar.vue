@@ -2,7 +2,7 @@
 // ── Local Framework
 import { viewportIsWide } from '@/state/appLayout';
 
-// ── Local Components - Static
+// ── Static Components
 import StudioOptionPanel from './StudioOptionPanel.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

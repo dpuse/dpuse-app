@@ -4,7 +4,7 @@ import { type AsyncComponentLoader, type Component, defineAsyncComponent, define
 // ── DPUse Tools
 import type { BaseConfig } from '@dpuse/dpuse-shared';
 
-// ── Local Components - Static
+// ── Static Components
 import ComponentLoadError from '@/components/ui/ComponentLoadError.vue';
 import ComponentLoadingSpinner from '@/components/ui/placeholders/ComponentLoadingSpinner.vue';
 

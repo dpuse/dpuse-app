@@ -5,7 +5,7 @@ import { nextTick, ref, watch } from 'vue';
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import Grid from '@/components/ui/Grid.vue';
 

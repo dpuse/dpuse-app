@@ -11,7 +11,7 @@ import '@/assets/main.css';
 import { createAppRouter } from '@/router';
 import { reportAppError, reportFatalError } from '@/observability/errorTracking';
 
-// ── Local Components - Static
+// ── Static Components
 import App from '@/App.vue';
 
 // ── App Bootstrap ────────────────────────────────────────────────────────────────────────────────────────────────────

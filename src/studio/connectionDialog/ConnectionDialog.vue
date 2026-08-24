@@ -14,7 +14,7 @@ import { viewportIsWide } from '@/state/appLayout';
 import { configsAreRetrieved, connectorConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import AddConnectionForm from './AddConnectionForm.vue';
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';

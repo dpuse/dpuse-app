@@ -4,7 +4,7 @@ import T from './StudioHomeLayout.json';
 import { t } from '@/state/locale';
 import { useStudioOptions } from '@/studio/useStudioOptions.ts';
 
-// ── Local Components - Static
+// ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';

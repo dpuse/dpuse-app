@@ -10,7 +10,7 @@ import { localiseConfigs } from '@dpuse/dpuse-shared/locale';
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import { localeId, t } from '@/state/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';

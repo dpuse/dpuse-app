@@ -21,7 +21,7 @@ import { useEngine } from '@/services/useEngine';
 import { viewportIsWide } from '@/state/appLayout';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, setConnectionNodeConfig } from '@/state/dataViews';
 
-// ── Local Components - Static
+// ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';

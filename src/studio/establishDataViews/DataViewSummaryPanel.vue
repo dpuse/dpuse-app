@@ -10,7 +10,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import T from './EstablishDataViews.json';
 import { t } from '@/state/locale';
 
-// ── Local Components - Static
+// ── Static Components
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import StudioDetailPanel from '../StudioDetailPanel.vue';
 import StudioDocumentPanel from '../StudioDocumentPanel.vue';
