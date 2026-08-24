@@ -2,10 +2,10 @@
 // ── External Dependencies & Registrations
 import { ArrowLeftIcon } from '@lucide/vue';
 
-// Local Framework
+// ── Local Framework
 import { assistantPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 
-// Options, Properties, Slots & Emits
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 const { overline, title, to } = defineProps<{ overline?: string; title: string; to?: string }>();
 </script>
 

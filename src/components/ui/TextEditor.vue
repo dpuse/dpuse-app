@@ -21,7 +21,12 @@ import ErrorPanel from '@/components/ui/error/ErrorPanel.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { id, label, labelHidden } = defineProps<{ id?: string; label: string; labelHidden?: boolean }>();
+interface Properties {
+    id?: string;
+    label: string;
+    labelHidden?: boolean;
+}
+const { id, label, labelHidden } = defineProps<Properties>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

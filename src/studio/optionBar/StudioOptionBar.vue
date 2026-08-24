@@ -1,11 +1,11 @@
 <script setup lang="ts">
-// Local Framework
+// ── Local Framework
 import { viewportIsWide } from '@/state/appLayout';
 
-// Local Components - Static
+// ── Local Components - Static
 import StudioOptionPanel from './StudioOptionPanel.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 defineProps<{ isVisible?: boolean }>();
 

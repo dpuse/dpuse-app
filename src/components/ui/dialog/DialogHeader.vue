@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Options, Properties, Slots & Emits
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 const { title } = defineProps<{ title: string }>();
 </script>
 <template>

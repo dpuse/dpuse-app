@@ -4,12 +4,18 @@ import { XIcon } from '@lucide/vue';
 import { useAttrs, useId, useTemplateRef } from 'vue';
 
 // ── Local Components - Static
-import Button from './button/Button.vue';
+import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 defineOptions({ inheritAttrs: false });
-const { id, label, labelHidden } = defineProps<{ id?: string; label?: string; labelHidden?: boolean }>();
+
+interface Properties {
+    id?: string;
+    label?: string;
+    labelHidden?: boolean;
+}
+const { id, label, labelHidden } = defineProps<Properties>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

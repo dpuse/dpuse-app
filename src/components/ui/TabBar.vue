@@ -1,12 +1,12 @@
 <script setup lang="ts" generic="T extends { id: string; label: string; to?: string; rightAligned?: boolean }">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
 import { nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from './button/Button.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
     activeId?: string;

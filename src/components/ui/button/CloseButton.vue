@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { XIcon } from '@lucide/vue';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from './Button.vue';
 </script>
 

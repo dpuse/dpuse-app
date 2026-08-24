@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// Local Components - Static
+// ── Local Components - Static
 
-// Options, Properties, Slots & Emits
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 </script>
 
 <template>

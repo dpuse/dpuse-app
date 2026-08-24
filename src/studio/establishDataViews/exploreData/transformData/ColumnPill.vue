@@ -1,11 +1,17 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import type { Component } from 'vue';
 import { CheckIcon, GripVerticalIcon } from '@lucide/vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { name: string; sortable: boolean; selected: boolean; tileClass: string; icon: Component };
+interface Properties {
+    name: string;
+    sortable: boolean;
+    selected: boolean;
+    tileClass: string;
+    icon: Component;
+}
 const { name, sortable, tileClass, icon, selected } = defineProps<Properties>();
 
 const emit = defineEmits<{ toggle: [name: string] }>();

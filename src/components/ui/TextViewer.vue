@@ -1,10 +1,13 @@
 <script setup lang="ts">
-// Local Components - Static
+// ── Local Components - Static
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { text } = defineProps<{ text?: string }>();
+interface Properties {
+    text?: string;
+}
+const { text } = defineProps<Properties>();
 </script>
 
 <template>

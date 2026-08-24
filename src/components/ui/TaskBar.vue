@@ -1,15 +1,19 @@
 <script setup lang="ts">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
 import { nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 
-// Local Framework
+// ── Local Framework
 import type { LocaleDescription, LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
-// Local Components - Static
-import Button from './button/Button.vue';
+// ── Local Components - Static
+import Button from '@/components/ui/button/Button.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
+interface Properties {
+    activeTaskId?: string;
+    items?: LocalisedConfig<TaskConfig>[];
+}
 export interface TaskConfig {
     id: string;
     label: LocaleLabel;
@@ -19,7 +23,7 @@ export interface TaskConfig {
     number: number;
     verb?: LocaleLabel;
 }
-const { activeTaskId, items = [] } = defineProps<{ activeTaskId?: string; items?: LocalisedConfig<TaskConfig>[] }>();
+const { activeTaskId, items = [] } = defineProps<Properties>();
 
 defineSlots<{ default(properties: { item: LocalisedConfig<TaskConfig> }): unknown }>();
 
@@ -35,8 +39,8 @@ const rowCanScrollRight = ref(false);
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
-    updateScrollState();
-    resizeObserver.value = new ResizeObserver(updateScrollState);
+    handleUpdateScrollState();
+    resizeObserver.value = new ResizeObserver(handleUpdateScrollState);
     if (rowElement.value) resizeObserver.value.observe(rowElement.value);
 });
 
@@ -44,17 +48,10 @@ onBeforeUnmount(() => resizeObserver.value?.disconnect());
 
 watch(
     () => items,
-    () => nextTick(updateScrollState)
+    () => nextTick(handleUpdateScrollState)
 );
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-function updateScrollState(): void {
-    const row = rowElement.value;
-    if (!row) return;
-    rowCanScrollLeft.value = row.scrollLeft > 0;
-    rowCanScrollRight.value = row.scrollLeft + row.clientWidth < row.scrollWidth - 1;
-}
 
 function handleScrollButtonClicked(direction: 'left' | 'right'): void {
     const row = rowElement.value;
@@ -70,11 +67,18 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
         row.scrollTo({ left: nextItem ? nextItem.offsetLeft : 0, behavior: 'smooth' });
     }
 }
+
+function handleUpdateScrollState(): void {
+    const row = rowElement.value;
+    if (!row) return;
+    rowCanScrollLeft.value = row.scrollLeft > 0;
+    rowCanScrollRight.value = row.scrollLeft + row.clientWidth < row.scrollWidth - 1;
+}
 </script>
 
 <template>
     <div class="relative" data-region="TaskBar">
-        <div ref="rowElement" class="flex min-w-0 flex-1 gap-x-1 overflow-x-auto overscroll-x-none border-b border-separator" @scroll="updateScrollState">
+        <div ref="rowElement" class="flex min-w-0 flex-1 gap-x-1 overflow-x-auto overscroll-x-none border-b border-separator" @scroll="handleUpdateScrollState">
             <component
                 :is="item.disabled ? 'div' : Button"
                 v-for="item in items"

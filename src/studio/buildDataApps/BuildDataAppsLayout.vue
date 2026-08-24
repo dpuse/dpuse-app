@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// Local Framework
+// ── Local Framework
 import { t } from '@/state/locale';
 import T from './BuildDataAppsLayout.json';
 
-// Local Components - Static
+// ── Local Components - Static
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '../StudioHeader.vue';

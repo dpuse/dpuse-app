@@ -1,9 +1,13 @@
 <script setup lang="ts">
-// Internal Dependencies & Registrations
+// ── Local Components - Static
 import MousePointerClickRotatedIcon from '@/components/icons/MousePointerClickRotatedIcon.vue';
 
-// Options, Properties, Slots & Emits
-const { message } = defineProps<{ message: string }>();
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
+
+interface Properties {
+    message: string;
+}
+const { message } = defineProps<Properties>();
 </script>
 
 <template>

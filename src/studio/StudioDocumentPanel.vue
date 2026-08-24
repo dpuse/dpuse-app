@@ -6,7 +6,7 @@ import { ArrowLeftIcon } from '@lucide/vue';
 import Button from '@/components/ui/button/Button.vue';
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 
-// Options, Properties, Slots & Emits
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 const { overline, title } = defineProps<{ overline?: string; title: string }>();
 defineEmits<{ close: [] }>();
 </script>

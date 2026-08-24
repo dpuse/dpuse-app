@@ -1,19 +1,23 @@
 <script setup lang="ts" generic="T extends BreadcrumbConfig">
-// External Dependencies & Registrations
+// ── External Dependencies & Registrations
 import { computed } from 'vue';
 
-// Local Framework
+// ── Local Framework
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 
-// Local Components - Static
+// ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 
-// Options, Properties, Slots & Emits ──────────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { items = [], disableLast = true } = defineProps<{ items?: T[]; disableLast?: boolean }>();
+interface Properties {
+    items?: T[];
+    disableLast?: boolean;
+}
+const { items = [], disableLast } = defineProps<Properties>();
 defineEmits<{ select: [index: number, item: T] }>();
 
-// Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const enrichedItems = computed(() =>
     items.map((item, index) => ({
