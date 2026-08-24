@@ -33,11 +33,18 @@ function handleClear(): void {
 
     // Focus synchronously within the click's user-gesture window so iOS opens the keyboard reliably.
     element.focus();
-    element.setSelectionRange(0, 0);
 
-    // On iOS, opening the keyboard animates the viewport, shifting this bottom-anchored input under a
-    // caret WebKit already placed — nudge the selection again once that settles to force a redraw.
-    window.visualViewport?.addEventListener('resize', () => { element.setSelectionRange(0, 0); }, { once: true });
+    // On iOS, the keyboard-open animation can leave WebKit's caret geometry desynced from the real
+    // viewport (visualViewport.offsetTop doesn't always settle immediately) — a 1px scroll nudge is
+    // the standard forced-repaint workaround to make it resync. See https://bugs.webkit.org/show_bug.cgi?id=176896.
+    window.visualViewport?.addEventListener(
+        'resize',
+        () => {
+            window.scrollBy(0, 1);
+            window.scrollBy(0, -1);
+        },
+        { once: true }
+    );
 }
 </script>
 
