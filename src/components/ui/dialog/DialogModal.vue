@@ -19,7 +19,7 @@ const router = useRouter();
 async function handleClose(): Promise<void> {
     const routeQueryParameters = { ...route.query };
     delete routeQueryParameters.dlg;
-    router.push({ query: { ...routeQueryParameters } });
+    await router.push({ query: { ...routeQueryParameters } });
 }
 </script>
 

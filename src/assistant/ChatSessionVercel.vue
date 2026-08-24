@@ -47,7 +47,6 @@ const {
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     onToolCall: async ({ toolCall }: { toolCall: { toolName: string; toolCallId: string } }): Promise<void> => {
         const executor = toolExecutors[toolCall.toolName];
-        if (!executor) return;
         try {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any -- TODO
             const arguments_ = (toolCall as any).args ?? (toolCall as any).input;
@@ -85,8 +84,20 @@ const normalizedMessages = computed<AssistantChatMessage[]>(() =>
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(normalizedMessages, (newMessages) => emit('messagesChange', newMessages), { immediate: true });
-watch(status, (newStatus) => emit('statusChange', newStatus), { immediate: true });
+watch(
+    normalizedMessages,
+    (newMessages) => {
+        emit('messagesChange', newMessages);
+    },
+    { immediate: true }
+);
+watch(
+    status,
+    (newStatus) => {
+        emit('statusChange', newStatus);
+    },
+    { immediate: true }
+);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -109,3 +120,5 @@ async function sendMessage(text: string): Promise<void> {
 
 defineExpose({ sendMessage });
 </script>
+
+<template><div /></template>

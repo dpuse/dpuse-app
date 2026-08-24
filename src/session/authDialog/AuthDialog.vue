@@ -37,28 +37,44 @@ const uiStateId = ref<'enterId' | 'selectSignInMethod' | 'enterPasscode' | 'ente
 
 onMounted(async () => {
     try {
-        await constructFlow('login', ({ state }: { state: AnyState }) => handleLoginFlowStateChange(state));
+        await constructFlow('login', ({ state }: { state: AnyState }) => {
+            void safeHandleLoginFlowStateChange(state);
+        });
         flowConstructed.value = true;
     } catch (error) {
         void reportAppError(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthDialog.onMounted.constructFlow', { typeId: 'handled' }, { cause: error }));
     }
 });
-onUnmounted(() => destroyFlow());
+
+onUnmounted(() => {
+    destroyFlow();
+});
 
 // ── Login flow helpers ───────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleLoginFlowStateChange(state: AnyState): Promise<void> {
+async function safeHandleLoginFlowStateChange(state: AnyState): Promise<void> {
+    try {
+        await handleLoginFlowStateChange(state);
+    } catch (error) {
+        void reportAppError(new AppError('Failed to handle sign in flow state change.', 'dpuse.AuthDialog.handleLoginFlowStateChange', { typeId: 'handled' }, { cause: error }));
+    }
+}
+
+async function handleLoginFlowStateChange(state: AnyState): Promise<void> {
     switch (state.name) {
         case 'preflight':
-            return Promise.resolve();
+            return;
         case 'login_init':
-            return handleLoginFlowInitState(state);
+            handleLoginFlowInitState(state);
+            return;
         case 'login_method_chooser':
             return handleLoginFlowMethodChooserState(state);
         case 'passcode_confirmation':
-            return handleLoginFlowPasscodeState(state);
+            handleLoginFlowPasscodeState(state);
+            return;
         case 'login_password':
-            return handleLoginFlowPasswordState(state);
+            handleLoginFlowPasswordState(state);
+            return;
         case 'onboarding_create_passkey':
             return handleLoginFlowOnboardingCreatePasskeyState(state);
         case 'success':
@@ -69,20 +85,21 @@ function handleLoginFlowStateChange(state: AnyState): Promise<void> {
             destroyFlow();
             const query = { ...route.query };
             delete query.dlg;
-            router.push({ query });
-            return Promise.resolve();
+            await router.push({ query });
+            return;
         case 'error':
             console.log('STATE', 'error', state.error, state);
-            return Promise.resolve();
+            return;
         default:
             console.log('UNEXPECTED STATE', state.name, state);
-            return Promise.resolve();
+            return;
     }
 }
 
-async function handleLoginFlowInitState(state: State<'login_init'>): Promise<void> {
+function handleLoginFlowInitState(state: State<'login_init'>): void {
     const action = state.actions.continue_with_login_identifier as Action<ContinueWithLoginIdentifierInputs>;
-    const input = (action.inputs.email || action.inputs.identifier) as Input<string>;
+    const input = action.inputs.email ?? action.inputs.identifier;
+    if (!input) throw new Error('No sign in identifier or email.');
     uiStateId.value = 'enterId';
     handleIdEntered.value = async (identifier: string): Promise<void> => {
         const result = await action.run({ [input.name]: identifier });
@@ -92,19 +109,21 @@ async function handleLoginFlowInitState(state: State<'login_init'>): Promise<voi
 }
 
 async function handleLoginFlowMethodChooserState(state: State<'login_method_chooser'>): Promise<void> {
-    const action = uiStateId.value === undefined ? state.actions.back : state.actions.continue_to_password_login!;
+    const action = uiStateId.value === undefined ? state.actions.back : state.actions.continue_to_password_login;
+    if (!action) throw new Error('No password sign in action.');
     const result = await action.run();
     if (result.error) console.log(result.error, result);
 }
 
-async function handleLoginFlowPasscodeState(state: State<'passcode_confirmation'>): Promise<void> {
+function handleLoginFlowPasscodeState(state: State<'passcode_confirmation'>): void {
     uiStateId.value = 'enterPasscode';
+    // eslint-disable-next-line @typescript-eslint/require-await -- Code pending...
     handlePasswordEntered.value = async (parameter: unknown): Promise<void> => {
         console.log('PASSCODE', parameter);
     };
 }
 
-async function handleLoginFlowPasswordState(state: State<'login_password'>): Promise<void> {
+function handleLoginFlowPasswordState(state: State<'login_password'>): void {
     uiStateId.value = 'enterPassword';
     handlePasswordEntered.value = async (password: string): Promise<void> => {
         const action = state.actions.password_login;
@@ -120,7 +139,8 @@ async function handleLoginFlowPasswordState(state: State<'login_password'>): Pro
 }
 
 async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboarding_create_passkey'>): Promise<void> {
-    const action = state.actions.skip!;
+    const action = state.actions.skip;
+    if (!action) throw new Error('No create passkey skip action.');
     const result = await action.run();
     if (result.error) console.log(result.error, result);
 }
@@ -130,7 +150,7 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
 function onBeforeLeave(): void {
     const container = containerElement.value;
     if (!container) return;
-    container.style.height = `${container.offsetHeight}px`;
+    container.style.height = `${String(container.offsetHeight)}px`;
     container.style.overflow = 'hidden';
 }
 
@@ -140,7 +160,7 @@ function onEnter(element: Element): void {
     const newHeight = (element as HTMLElement).offsetHeight;
     container.style.transition = 'height 0.25s ease-in-out';
     void container.offsetHeight;
-    container.style.height = `${newHeight}px`;
+    container.style.height = `${String(newHeight)}px`;
 }
 
 function onAfterEnter(): void {

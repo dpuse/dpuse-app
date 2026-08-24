@@ -7,8 +7,11 @@ import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from './ScrollThumb.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-type Properties = { scrollAreaPaddingBottom?: number | string; scrollbarAlwaysVisible?: boolean };
-const { scrollAreaPaddingBottom, scrollbarAlwaysVisible = false } = defineProps<Properties>();
+interface Properties {
+    scrollAreaPaddingBottom?: number | string;
+    scrollbarAlwaysVisible?: boolean;
+}
+const { scrollAreaPaddingBottom, scrollbarAlwaysVisible } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [scrollElement: HTMLElement] }>();
 
@@ -27,7 +30,7 @@ const verticalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('vertical
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const paddingBottom = computed(() => (typeof scrollAreaPaddingBottom === 'number' ? `${scrollAreaPaddingBottom}px` : scrollAreaPaddingBottom));
+const paddingBottom = computed(() => (typeof scrollAreaPaddingBottom === 'number' ? `${String(scrollAreaPaddingBottom)}px` : scrollAreaPaddingBottom));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 

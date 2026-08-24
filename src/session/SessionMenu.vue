@@ -50,7 +50,9 @@ setSessionExpiryTimer(true);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(() => document.addEventListener('fullscreenchange', handleFullscreenChange));
+onMounted(() => {
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+});
 
 onUnmounted(() => {
     setSessionExpiryTimer();
@@ -63,8 +65,8 @@ function handleFullscreenChange(): void {
     screenIsFullscreen.value = !!document.fullscreenElement;
 }
 
-function handleManageAccount(): void {
-    router.replace({ query: { ...route.query, dlg: 'account' } });
+async function handleManageAccount(): Promise<void> {
+    await router.replace({ query: { ...route.query, dlg: 'account' } });
     emit('continue');
 }
 
@@ -87,8 +89,8 @@ function handleSetLanguage(id: LocaleId): void {
     emit('continue');
 }
 
-function handleSignInRegister(): void {
-    router.replace({ query: { ...route.query, dlg: 'auth' } });
+async function handleSignInRegister(): Promise<void> {
+    await router.replace({ query: { ...route.query, dlg: 'auth' } });
     emit('continue');
 }
 
@@ -97,8 +99,8 @@ async function handleSignOut(): Promise<void> {
     emit('continue');
 }
 
-function handleToggleWindowExpansion(): void {
-    toggleFullscreen();
+async function handleToggleWindowExpansion(): Promise<void> {
+    await toggleFullscreen();
     emit('continue');
 }
 

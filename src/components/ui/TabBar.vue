@@ -38,7 +38,9 @@ watch(
     () => nextTick(updateScrollState)
 );
 
-onBeforeUnmount(() => resizeObserver.value?.disconnect());
+onBeforeUnmount(() => {
+    resizeObserver.value?.disconnect();
+});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

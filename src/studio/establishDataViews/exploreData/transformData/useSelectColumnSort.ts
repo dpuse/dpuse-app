@@ -30,7 +30,7 @@ export function useSelectColumnSort({ isOpen, values }: UseSelectColumnSortOptio
     let activeSelectGridElement: HTMLElement | undefined;
 
     function bindGridElement(instance: Element | ComponentPublicInstance | null): void {
-        if (isOpen.value || !instance) {
+        if (!instance || isOpen.value) {
             selectGridElement.value = undefined;
             return;
         }

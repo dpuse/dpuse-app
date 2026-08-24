@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T">
+<script setup lang="ts" generic="T extends object">
 // ── External Dependencies & Registrations
 import { computed, onUnmounted, ref, shallowRef } from 'vue';
 

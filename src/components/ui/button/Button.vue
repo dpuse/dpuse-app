@@ -31,12 +31,20 @@ const COMMON_OUTLINE_CLASSES = [
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
+interface Properties {
+    shape?: ButtonShape;
+    variant?: ButtonVariant;
+    size?: ButtonSize;
+    isActive?: boolean;
+    type?: ButtonType;
+    to?: RouteLocationRaw;
+}
 export type ButtonShape = 'icon' | 'minimal' | 'rectangle';
 export type ButtonVariant = 'destructive' | 'ghost' | 'guarded' | 'neutral' | 'outline' | 'positive' | 'primary'; // TODO: Check actual usage of 'ghost', 'positive' and 'destructive'.
 export type ButtonSize = 'lg' | 'sm';
 type ButtonType = 'button' | 'reset' | 'submit'; // TODO: 'reset' and 'submit' are not used.
-type Properties = { shape?: ButtonShape; variant?: ButtonVariant; size?: ButtonSize; isActive?: boolean; type?: ButtonType; to?: RouteLocationRaw };
-const { shape = 'rectangle', variant = 'neutral', size = 'lg', isActive = false, type = 'button', to } = defineProps<Properties>();
+
+const { shape = 'rectangle', variant = 'neutral', size = 'lg', isActive, type = 'button', to } = defineProps<Properties>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

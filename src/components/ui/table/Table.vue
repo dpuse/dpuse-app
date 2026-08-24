@@ -8,10 +8,10 @@ import { computed, onBeforeUnmount, onMounted, shallowRef, useId, useTemplateRef
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // ── Static Components
-import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from '../ScrollThumb.vue';
 import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';
 import TableHeaderCell from './TableHeaderCell.vue';
+import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from '../ScrollThumb.vue';
 import { type TableFeatureSet, tableFeatureSet } from './tableFeatures.ts';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -20,12 +20,12 @@ const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000; // Empirically chosen — below
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-type Properties = {
+interface Properties {
     columnDefinitions: ColumnDef<TableFeatureSet, T>[];
     dataSource: DataSource<T>;
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
-};
+}
 const { columnDefinitions, dataSource, cacheBlockSize = 100, maxBlocksInCache = 10 } = defineProps<Properties>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────

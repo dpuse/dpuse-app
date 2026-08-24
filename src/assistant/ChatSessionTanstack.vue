@@ -70,7 +70,13 @@ function appendErrorForLatestUserMessage(errorText: string): void {
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(normalizedMessages, (newMessages) => emit('messagesChange', newMessages), { immediate: true });
+watch(
+    normalizedMessages,
+    (newMessages) => {
+        emit('messagesChange', newMessages);
+    },
+    { immediate: true }
+);
 
 onMounted(() => {
     state.client = new ChatClient({
@@ -133,3 +139,5 @@ async function sendMessage(text: string): Promise<void> {
 
 defineExpose({ sendMessage });
 </script>
+
+<template><div /></template>

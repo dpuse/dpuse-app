@@ -9,7 +9,10 @@ import type { TableFeatureSet } from './tableFeatures';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { header } = defineProps<{ header: Header<TableFeatureSet, T, unknown> }>();
+interface Properties {
+    header: Header<TableFeatureSet, T>;
+}
+const { header } = defineProps<Properties>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -19,9 +22,13 @@ const menuOpen = ref(false);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(() => document.addEventListener('click', onDocumentClick));
+onMounted(() => {
+    document.addEventListener('click', onDocumentClick);
+});
 
-onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick));
+onBeforeUnmount(() => {
+    document.removeEventListener('click', onDocumentClick);
+});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

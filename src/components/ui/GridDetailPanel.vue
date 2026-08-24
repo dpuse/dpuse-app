@@ -11,7 +11,7 @@ import Grid from '@/components/ui/Grid.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-type Properties = {
+interface Properties {
     activeItem?: T;
     addLabel?: string;
     dataSource: DataSource<T>;
@@ -20,8 +20,8 @@ type Properties = {
     maxDetailWidth?: string;
     rowHeight?: number;
     scrollAreaPaddingBottom?: number | string;
-};
-const { activeItem, addLabel, dataSource, isCompact = false, maxListWidth, maxDetailWidth, rowHeight = 80, scrollAreaPaddingBottom } = defineProps<Properties>();
+}
+const { activeItem, addLabel, dataSource, isCompact, maxListWidth, maxDetailWidth, rowHeight = 80, scrollAreaPaddingBottom } = defineProps<Properties>();
 
 defineSlots<{
     header(): unknown;

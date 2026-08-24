@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { type ComponentPublicInstance, onUnmounted, ref, useTemplateRef } from 'vue';
+import { type ComponentPublicInstance, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
@@ -29,6 +29,16 @@ const workflowOptionConfigs = useStudioOptions();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
+onMounted(() => {
+    document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
+});
+
+onUnmounted(() => {
+    document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
+});
+
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
 const handleDocumentPointerDown = (event: PointerEvent): void => {
     if (!homeMenuIsOpen.value) return;
     const target = event.target as Element;
@@ -36,10 +46,6 @@ const handleDocumentPointerDown = (event: PointerEvent): void => {
     if (target.closest('.dpuse-outside-click-ignore')) return;
     homeMenuIsOpen.value = false;
 };
-document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
-onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true }));
-
-// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
     // if (config != null) setActiveStudioOption(config);

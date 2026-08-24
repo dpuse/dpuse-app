@@ -4,7 +4,10 @@ import { PlusIcon } from '@lucide/vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { label } = defineProps<{ label: string }>();
+interface Properties {
+    label: string;
+}
+const { label } = defineProps<Properties>();
 </script>
 
 <template>

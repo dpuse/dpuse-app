@@ -22,14 +22,14 @@ const HIDE_DELAY_MS = 1500;
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 type Orientation = 'vertical' | 'horizontal';
-type Properties = {
+interface Properties {
     orientation: Orientation;
     scrollElement: HTMLElement | null; // The element this thumb measures and scrolls.
     crossScrollElement?: HTMLElement | null; // The perpendicular axis's element — wheeling this track also forwards the orthogonal delta, so a plain vertical mouse wheel still does something sensible over the horizontal track.
     crossInsetEnd?: number; // px to shrink this track by at its trailing edge — see SCROLL_THUMB_CROSS_INSET.
     alwaysVisible?: boolean;
-};
-const { orientation, scrollElement, crossScrollElement = null, crossInsetEnd = 0, alwaysVisible = false } = defineProps<Properties>();
+}
+const { orientation, scrollElement, crossScrollElement = null, crossInsetEnd = 0, alwaysVisible } = defineProps<Properties>();
 
 const isVertical = orientation === 'vertical';
 
@@ -99,7 +99,7 @@ function handlePointerDown(pointerEvent: PointerEvent): void {
 function handleTouchStart(touchEvent: TouchEvent): void {
     const trackElement = track.value;
     if (!trackElement) return;
-    const pointerOffset = getPointerCoord(touchEvent.touches[0]!) - getTrackStart(trackElement);
+    const pointerOffset = getPointerCoord(touchEvent.touches[0]) - getTrackStart(trackElement);
     if (pointerOffset >= thumbOffset.value && pointerOffset <= thumbOffset.value + thumbLength.value) {
         startDrag(touchEvent);
     }
@@ -126,7 +126,7 @@ function startDrag(dragStartEvent: PointerEvent | TouchEvent): void {
     if (!element) return;
 
     const isTouch = dragStartEvent instanceof TouchEvent;
-    const startCoord = getPointerCoord(isTouch ? dragStartEvent.touches[0]! : dragStartEvent);
+    const startCoord = getPointerCoord(isTouch ? dragStartEvent.touches[0] : dragStartEvent);
     const startScrollOffset = getScrollOffset(element);
 
     const trackElement = track.value;
@@ -137,8 +137,9 @@ function startDrag(dragStartEvent: PointerEvent | TouchEvent): void {
     const scale = scrollRange / travel;
 
     function handleDragMove(dragMoveEvent: PointerEvent | TouchEvent): void {
-        const coord = getPointerCoord(dragMoveEvent instanceof TouchEvent ? dragMoveEvent.touches[0]! : dragMoveEvent);
-        setScrollOffset(element!, startScrollOffset + (coord - startCoord) * scale);
+        if (!element) return;
+        const coord = getPointerCoord(dragMoveEvent instanceof TouchEvent ? dragMoveEvent.touches[0] : dragMoveEvent);
+        setScrollOffset(element, startScrollOffset + (coord - startCoord) * scale);
     }
 
     function handleDragEnd(): void {

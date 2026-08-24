@@ -35,7 +35,9 @@ const elapsed = computed(() => {
 const initials = computed(() => {
     const local = emailAddress.split('@', 1)[0] ?? '';
     const parts = local.split(/[._-]/);
-    return (parts[1] == null ? '?' : (parts[0]!.charAt(0) + parts[1].charAt(0)).toUpperCase()) ?? local.slice(0, 2).toUpperCase();
+    // return (parts[1] == null ? '?' : (parts[0]!.charAt(0) + parts[1].charAt(0)).toUpperCase()) ?? local.slice(0, 2).toUpperCase();
+    const second = parts.at(1);
+    return second == null ? '?' : (parts[0].charAt(0) + second.charAt(0)).toUpperCase();
 });
 
 async function gravatarUrl(email: string, size: number): Promise<string> {
@@ -47,8 +49,14 @@ async function gravatarUrl(email: string, size: number): Promise<string> {
     const hashArray = [...new Uint8Array(hashBuffer)];
     const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 
-    return `https://gravatar.com/avatar/${hashHex}?s=${size}&d=404`;
+    return `https://gravatar.com/avatar/${hashHex}?s=${String(size)}&d=404`;
 }
+
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+onUnmounted(() => {
+    document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
+});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -61,13 +69,14 @@ const handleDocumentPointerDown = (event: PointerEvent): void => {
     handleClose();
 };
 document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
-onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true }));
 
 function handleClose(): void {
     sessionMenuIsOpen.value = false;
 }
 
-function onMenuAfterLeave(): void {}
+function onMenuAfterLeave(): void {
+    // TODO:
+}
 </script>
 
 <template>
