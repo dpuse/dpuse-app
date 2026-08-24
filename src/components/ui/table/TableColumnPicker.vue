@@ -1,8 +1,8 @@
 <script setup lang="ts" generic="T extends RowData">
 // ── External Dependencies & Registrations
-import { Settings2 } from '@lucide/vue';
-import type { RowData, Table } from '@tanstack/vue-table';
+import { Settings2Icon } from '@lucide/vue';
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
+import type { RowData, Table } from '@tanstack/vue-table';
 
 // ── Static Components
 import type { TableFeatureSet } from './tableFeatures';
@@ -39,7 +39,7 @@ function onDocumentClick(event: MouseEvent): void {
     <div class="flex items-center border-b border-separator px-3 py-1.5" data-region="TableColumnPicker">
         <div ref="picker" class="relative">
             <button class="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-muted hover:bg-card-hover" @click.stop="open = !open">
-                <Settings2 class="size-3.5" />
+                <Settings2Icon class="size-3.5" />
                 Columns
             </button>
 

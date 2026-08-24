@@ -5,7 +5,6 @@ import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 import { load } from '@/state/component';
-import T from './App.json';
 import { t } from '@/state/locale';
 import { assistantPaneIsVisible, contentScrollPosition, sessionMenuIsOpen, studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 import { configRetrievalFailed, initialiseServices } from '@/state/session';
@@ -32,6 +31,10 @@ const StudioOptionBar = defineAsyncComponent(load('StudioOptionBar', () => impor
 
 const PANE_SPLITTER_DEFAULT_PERCENT = 50;
 const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
+const T = {
+    'wb.toggle.label.aria': { en: 'Toggle studio panel', es: 'Alternar panel de estudio' },
+    'k.toggle.label.aria': { en: 'Toggle assistant panel', es: 'Alternar el panel asistente' }
+};
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

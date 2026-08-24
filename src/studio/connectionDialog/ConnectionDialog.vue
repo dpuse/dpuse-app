@@ -25,7 +25,14 @@ import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-type OptionLocalisedConfig = { id: string; type?: 'label'; icon?: string; label: string; title?: string; isDestructive?: boolean };
+interface OptionLocalisedConfig {
+    id: string;
+    type?: 'label';
+    icon?: string;
+    label: string;
+    title?: string;
+    isDestructive?: boolean;
+}
 const OPTION_CONFIGS: OptionLocalisedConfig[] = [
     { id: 'profile', type: 'label', label: 'Profile' },
     { id: 'managePersonalDetails', icon: '', label: 'Personal details', title: 'Manage Personal Details' },
@@ -85,7 +92,7 @@ watch(viewportIsWide, (isWide) => {
 function handleCommitDetail(): void {
     const query = { ...route.query };
     delete query.dlg;
-    router.push({ query });
+    void router.push({ query });
 }
 
 function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> | undefined): void {
@@ -122,7 +129,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
                     <ConfigCard v-if="item" :config="item" />
                 </template>
 
-                <template #detail="{ item, clear }">
+                <template #detail="{ item }">
                     <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
                         <div class="flex size-7 items-center justify-center">
                             <div v-if="item.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="item.icon || item.iconDark" />

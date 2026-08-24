@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowBigRightIcon } from '@lucide/vue';
 import type { ColumnDef } from '@tanstack/vue-table';
 import { computed, markRaw, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -15,8 +14,6 @@ import type { GetInfoOptions, GetInfoResult, ListNodesOptions, ListNodesResult, 
 // ── Local Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
-import T from './SelectItemPanel.json';
-import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 import { viewportIsWide } from '@/state/appLayout';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, setConnectionNodeConfig } from '@/state/dataViews';
@@ -136,7 +133,7 @@ watch(
 
         const dataViewConfig = await getDataViewRecord(newLocalMetaStoreConnectionConfig, route);
         if (dataViewConfig.connectionId == null) {
-            router.replace({ name: 'selectConnection', query: { ...route.query, sView: 'selectConnection' } });
+            void router.replace({ name: 'selectConnection', query: { ...route.query, sView: 'selectConnection' } });
         } else {
             activeConnectionConfig.value = connectionLocalisedConfigs.value.find((localisedConnectionConfig) => localisedConnectionConfig.id == dataViewConfig.connectionId);
         }
@@ -144,20 +141,24 @@ watch(
     { immediate: true }
 );
 
-watch(activeConnectionConfig, (newActiveConnectionConfig) => loadFolderNodes(newActiveConnectionConfig, ''), { immediate: true });
+watch(
+    activeConnectionConfig,
+    (newActiveConnectionConfig) => {
+        loadFolderNodes(newActiveConnectionConfig, '');
+    },
+    { immediate: true }
+);
 
 watch(activeConnectionObjectConfig, async (newActiveItem) => {
     const currentRequestId = ++previewRequestId.value;
-
-    // setConnectionNodeConfig(newActiveItem);
     resetPreviewState();
-
     if (newActiveItem == null) return;
 
     const { processRequest } = await useEngine();
-    const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: buildObjectPath(newActiveItem) };
-    const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value!, options)) as PreviewConfig;
+    if (!activeConnectionConfig.value) return;
 
+    const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: buildObjectPath(newActiveItem) };
+    const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewConfig;
     if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
 
     applyPreviewConfig(newActiveItem, previewConfig);
@@ -167,9 +168,6 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
 
 function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): void {
     activeConnectionObjectConfig.value = undefined;
-
-    // if (index === breadcrumbs.value.length - 1) return;
-
     if (index <= 0) {
         currentFolderNodes.value = [];
         loadFolderNodes(activeConnectionConfig.value, '');

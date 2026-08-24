@@ -11,7 +11,7 @@ import Button from '@/components/ui/button/Button.vue';
 export type ListItemVariant = 'destructive' | 'neutral';
 const {
     variant = 'neutral',
-    isActive = false,
+    isActive,
     to
 } = defineProps<{
     variant?: ListItemVariant;

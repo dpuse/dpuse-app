@@ -29,7 +29,7 @@ const DATA_SOURCE: DataSource<{ id: number; name: string; category: string; valu
                 resolve({
                     rows: Array.from({ length: endRow - startRow }, (_, index) => ({
                         id: startRow + index + 1,
-                        name: `Record ${startRow + index + 1}`,
+                        name: `Record ${String(startRow + index + 1)}`,
                         category: CATEGORIES[(startRow + index) % CATEGORIES.length],
                         value: ((startRow + index + 1) * 1.618).toFixed(2)
                     }))

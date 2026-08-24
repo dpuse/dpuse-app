@@ -43,7 +43,7 @@ interface Query {
     where: Condition[];
     groupBy: string[];
     having: Condition[];
-    orderBy: Array<{ column: string; dir: 'ASC' | 'DESC' }>;
+    orderBy: { column: string; dir: 'ASC' | 'DESC' }[];
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -157,11 +157,11 @@ function toggleSelectSearch(): void {
 function onColItemLeave(element: Element): void {
     const htmlElement = element as HTMLElement;
     const { top, left, width, height } = htmlElement.getBoundingClientRect();
-    const gridRect = htmlElement.parentElement!.getBoundingClientRect();
-    htmlElement.style.top = `${top - gridRect.top}px`;
-    htmlElement.style.left = `${left - gridRect.left}px`;
-    htmlElement.style.width = `${width}px`;
-    htmlElement.style.height = `${height}px`;
+    const gridRect = htmlElement.parentElement?.getBoundingClientRect();
+    htmlElement.style.top = `${String(top - (gridRect?.top ?? 0))}px`;
+    htmlElement.style.left = `${String(left - (gridRect?.left ?? 0))}px`;
+    htmlElement.style.width = `${String(width)}px`;
+    htmlElement.style.height = `${String(height)}px`;
 }
 
 function toggleSelect(name: string): void {

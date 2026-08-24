@@ -15,7 +15,9 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
     testDir: './e2e',
-    /* Maximum time one test can run for. */
+    /*
+    Maximum time one test can run for.
+    */
     timeout: 30 * 1000,
     expect: {
         /**
@@ -24,29 +26,49 @@ export default defineConfig({
          */
         timeout: 5000
     },
-    /* Fail the build on CI if you accidentally left test.only in the source code. */
+    /*
+    Fail the build on CI if you accidentally left test.only in the source code.
+    */
     forbidOnly: process.env.CI != null,
-    /* Retry on CI only */
+    /*
+    Retry on CI only
+    */
     retries: process.env.CI == null ? 0 : 2,
-    /* Opt out of parallel tests on CI. */
+    /*
+    Opt out of parallel tests on CI.
+    */
     workers: process.env.CI == null ? undefined : 1,
-    /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+    /*
+    Reporter to use. See https://playwright.dev/docs/test-reporters
+    */
     reporter: 'html',
-    /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+    /*
+    Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions.
+    */
     use: {
-        /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
+        /*
+        Maximum time each action such as `click()` can take. Defaults to 0 (no limit).
+        */
         actionTimeout: 0,
-        /* Base URL to use in actions like `await page.goto('/')`. */
+        /*
+        Base URL to use in actions like `await page.goto('/')`.
+        */
         baseURL: process.env.CI == null ? 'http://localhost:5173' : 'http://localhost:4173',
 
-        /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+        /*
+        Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer
+        */
         trace: 'on-first-retry',
 
-        /* Only on CI systems run the tests headless */
+        /*
+        Only on CI systems run the tests headless
+        */
         headless: true // !!process.env.CI,
     },
 
-    /* Configure projects for major browsers */
+    /*
+    Configure projects for major browsers
+    */
     projects: [
         {
             name: 'chromium',
@@ -67,7 +89,9 @@ export default defineConfig({
             }
         }
 
-        /* Test against mobile viewports. */
+        /*
+        Test against mobile viewports.
+        */
         // {
         //   name: 'Mobile Chrome',
         //   use: {
@@ -81,7 +105,9 @@ export default defineConfig({
         //   },
         // },
 
-        /* Test against branded browsers. */
+        /*
+        Test against branded browsers.
+        */
         // {
         //   name: 'Microsoft Edge',
         //   use: {
@@ -96,10 +122,14 @@ export default defineConfig({
         // },
     ],
 
-    /* Folder for test artifacts such as screenshots, videos, traces, etc. */
+    /*
+    Folder for test artifacts such as screenshots, videos, traces, etc.
+    */
     // outputDir: 'test-results/',
 
-    /* Run your local dev server before starting the tests */
+    /*
+    Run your local dev server before starting the tests
+    */
     webServer: {
         /**
          * Use the dev server by default for faster feedback loop.

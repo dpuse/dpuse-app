@@ -127,7 +127,7 @@ onMounted(async () => {
 });
 
 // ── Async Loaders
-// eslint-disable-next-line @typescript-eslint/require-await
+// eslint-disable-next-line @typescript-eslint/require-await -- Code pending...
 async function loadModel(modelId: string): Promise<Model> {
     // Future: return (await fetch(`/api/model-configs/${modelId}`)).json() as Promise<Model>;
     return (modelConfigsData as Record<string, Model>)[modelId];

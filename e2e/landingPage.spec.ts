@@ -19,7 +19,9 @@ test.use({ actionTimeout: 10_000 });
 // @ts-ignore
 const url = process.env.PLAYWRIGHT_BASE_URL ?? '/';
 
-/** Tests */
+/**
+Tests
+*/
 test.describe('Landing page', () => {
     test('renders header', async ({ page }) => {
         await page.goto(url);

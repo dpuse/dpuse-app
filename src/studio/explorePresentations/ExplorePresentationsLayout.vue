@@ -64,19 +64,17 @@ watch(appearanceIsDark, (isDark) => {
 
 onMounted(async () => {
     await Promise.all([toolReady, presenterReady]);
-
     for (const presenterConfig of presenterConfigs.value) {
         const presenterId = presenterConfig.id.split('-').pop();
+        if (presenterId == null) return;
 
         const url = `https://engine-eu.dpuse.app/presenters/${presenterId}_v${presenterConfig.version}/${presenterConfig.id}.es.js`;
         const module = await import(/* @vite-ignore */ url);
         const presenterModule = module.default;
         const presenter = new presenterModule(toolConfigs.value, appearanceIsDark.value ? 'dark' : 'light') as PresenterInterface;
         presenters.push(presenter);
-
         const newPresentationReferences = presenter.list().map((presentationReference) => localiseReference(presentationReference, 'en')); // TODO: Could also use 'presenterConfig.presentations', though it is a map, not an array.
         for (const presentationReference of newPresentationReferences) presenterByPresentationReference.set(presentationReference, presenter);
-
         presentationReferences.value = [...(presentationReferences.value ?? []), ...newPresentationReferences];
     }
 });
@@ -87,9 +85,10 @@ async function handleSelectPresentation(presentationReference: LocalisedReferenc
     activePresentationReference.value = presentationReference;
     if (!activePresentationReference.value) return;
     const presenter = presenterByPresentationReference.get(activePresentationReference.value);
-    if (!presenter) return;
+    if (!presenter || !container.value) return;
+
     await nextTick();
-    presenter.render(activePresentationReference.value, container.value!);
+    void presenter.render(activePresentationReference.value, container.value);
 }
 </script>
 

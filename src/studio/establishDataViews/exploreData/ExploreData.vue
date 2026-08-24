@@ -7,8 +7,8 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Static Components
 import InvestigateData from './investigateData/InvestigateData.vue';
-import TransformData from './transformData/TransformData.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
+import TransformData from './transformData/TransformData.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 // Declared (even though this is the last wizard step and never actually emits) so Vue treats these as real

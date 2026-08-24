@@ -1,15 +1,15 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { useRoute, useRouter } from 'vue-router';
 import { computed, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import { localiseConfig, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import T from './EstablishDataViews.json';
 import { accountConfigsAreRetrieved, configsAreRetrieved } from '@/state/session';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs } from '@/state/dataViews';
-import T from './EstablishDataViews.json';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components

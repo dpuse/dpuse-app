@@ -45,14 +45,16 @@ watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => ge
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleAddConnection(): void {
-    router.replace({ query: { ...route.query, dlg: 'connection' } });
+    void router.replace({ query: { ...route.query, dlg: 'connection' } });
 }
 
 function handleCommitDetail(): void {
-    router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } });
+    void router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } });
 }
 
-function handleDeleteDataView(connectionConfig: LocalisedConfig<ConnectionConfig>): void {}
+function handleDeleteDataView(connectionConfig: LocalisedConfig<ConnectionConfig>): void {
+    // TODO
+}
 
 function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
     activeConnectionConfig.value = connectionLocalisedConfig;

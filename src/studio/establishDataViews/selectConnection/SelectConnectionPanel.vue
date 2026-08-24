@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowBigRightIcon } from '@lucide/vue';
-import { computed, shallowRef, watch } from 'vue';
+import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -12,12 +11,9 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { accountId } from '@/state/session';
-import T from './SelectConnectionPanel.json';
-import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import StudioDetailPanel from '../../StudioDetailPanel.vue';
 import StudioDocumentPanel from '../../StudioDocumentPanel.vue';
@@ -43,7 +39,6 @@ function handleSubmit(): void {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function testAuth(): Promise<void> {
-    if (connectionLocalisedConfig == null) return;
     const { processRequest } = await useEngine();
     (await processRequest('authenticateConnection', connectionLocalisedConfig, {
         accountId: accountId.value,

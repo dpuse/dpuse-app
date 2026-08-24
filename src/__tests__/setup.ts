@@ -5,15 +5,25 @@ Object.defineProperties(globalThis, {
             matches: false,
             media: query,
             onchange: null,
-            addEventListener: (): void => {},
-            removeEventListener: (): void => {},
-            addListener: (): void => {},
-            removeListener: (): void => {},
+            addEventListener: (): void => {
+                // TODO
+            },
+            removeEventListener: (): void => {
+                // TODO
+            },
+            addListener: (): void => {
+                // TODO
+            },
+            removeListener: (): void => {
+                // TODO
+            },
             dispatchEvent: (): boolean => false
         })
     },
     scrollTo: {
         writable: true,
-        value: () => {}
+        value: () => {
+            // TODO
+        }
     }
 });

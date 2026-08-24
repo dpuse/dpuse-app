@@ -4,12 +4,14 @@ import { computed, defineAsyncComponent, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
+import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
+import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import T from './EstablishDataViews.json';
 import {
@@ -26,13 +28,13 @@ import {
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import DataViewSummaryPanel from './DataViewSummaryPanel.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
-import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
+import SelectPlaceholder from '~/src/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 import StudioListPanel from '../StudioListPanel.vue';
 
 // ── Dynamic Components
-const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'));
+const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/ui/placeholder/EmptyPlaceholder.vue'));
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -58,7 +60,7 @@ watch(
     activeMetaStoreConnectionConfig,
     (newActiveMetaStoreConnectionConfig) => {
         if (newActiveMetaStoreConnectionConfig) {
-            if (!dataViewConfigsAreRetrieved.value) retrieveDataViewConfigs(newActiveMetaStoreConnectionConfig);
+            if (!dataViewConfigsAreRetrieved.value) void retrieveDataViewConfigs(newActiveMetaStoreConnectionConfig);
         } else {
             dataViewConfigs.value = undefined;
             dataViewConfigsAreRetrieved.value = false;
@@ -73,19 +75,23 @@ watch(detailActionId, (newDetailActionId) => {
     const dataViewLocalisedConfig = activeDataViewLocalisedConfig.value;
     detailActionId.value = undefined;
     if (newDetailActionId === 'continue') handleContinueDataView(dataViewLocalisedConfig);
-    else if (newDetailActionId === 'delete') handleDeleteDataView(dataViewLocalisedConfig);
+    else if (newDetailActionId === 'delete') void handleDeleteDataView(dataViewLocalisedConfig);
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleAddDataView(): void {
     setActiveDataViewConfig();
-    router.push({ name: 'selectConnection', params: { dataViewId: NEW_DATA_VIEW_ID }, query: { ...route.query, sView: 'selectConnection' } });
+    void router.push({ name: 'selectConnection', params: { dataViewId: NEW_DATA_VIEW_ID }, query: { ...route.query, sView: 'selectConnection' } });
 }
 
-function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
+async function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): Promise<void> {
     if (activeDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id) activeDataViewLocalisedConfig.value = undefined;
-    removeDataViewRecord(activeMetaStoreConnectionConfig.value, dataViewLocalisedConfig.id);
+    try {
+        await removeDataViewRecord(activeMetaStoreConnectionConfig.value, dataViewLocalisedConfig.id);
+    } catch (error) {
+        void reportAppError(new AppError('Failed to remove data view.', 'dpuse-app.DataViewList.handleDeleteDataView', { typeId: 'handled' }, { cause: error }));
+    }
 }
 
 function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
@@ -98,16 +104,18 @@ function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewC
 }
 
 function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
-    const dataViewConfig = dataViewConfigs.value!.find((config) => config.id === dataViewLocalisedConfig.id)!;
+    const dataViewConfig = dataViewConfigs.value?.find((config) => config.id === dataViewLocalisedConfig.id);
+    if (!dataViewConfig) return;
+
     setActiveDataViewConfig(dataViewConfig);
     if (dataViewConfig.connectionId == null) {
-        router.push({ name: 'selectConnection', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'selectConnection' } });
+        void router.push({ name: 'selectConnection', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'selectConnection' } });
     } else if (dataViewConfig.connectionNodeConfig == null) {
-        router.push({ name: 'selectItem', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'selectItem' } });
+        void router.push({ name: 'selectItem', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'selectItem' } });
     } else if (dataViewConfig.contentAuditConfig == null) {
-        router.push({ name: 'auditContent', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'auditContent' } });
+        void router.push({ name: 'auditContent', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'auditContent' } });
     } else {
-        router.push({ name: 'exploreData', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'exploreData' } });
+        void router.push({ name: 'exploreData', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'exploreData' } });
     }
 }
 </script>

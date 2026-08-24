@@ -94,7 +94,7 @@ const config = defineConfigWithVueTs(
                 }
             ],
 
-            'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['DPUseLogo.vue' /*'src/components/icon(?:/.*)?'*/] }],
+            'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['__tests__', 'DPUseLogo.vue' /*'src/components/icon(?:/.*)?'*/] }],
             'unicorn/no-non-function-verb-prefix': 'off',
             'unicorn/prefer-top-level-await': 'warn',
 

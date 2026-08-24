@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 describe('App', () => {
     it('renders pane toggle buttons', async () => {
         const router = createAppRouter();
-        router.push('/');
+        await router.push('/');
         await router.isReady();
         const wrapper = mount(App, { global: { plugins: [router] } });
 
