@@ -80,7 +80,7 @@ function handleUpdateScrollState(): void {
 
 <template>
     <div class="relative" data-region="TaskBar">
-        <div ref="rowElement" class="flex min-w-0 flex-1 gap-x-1 overflow-x-auto overscroll-x-none border-b border-separator" @scroll="handleUpdateScrollState">
+        <div ref="rowElement" class="flex min-w-0 flex-1 gap-x-1 overflow-x-auto overscroll-x-none border-b border-separator px-4" @scroll="handleUpdateScrollState">
             <component
                 :is="item.disabled ? 'div' : Button"
                 v-for="item in items"

@@ -93,7 +93,7 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
         <StudioHeader class="flex-none px-4" :overline="headerOverline" :title="headerTitle" :to="navigateBackRouteName" />
 
         <!-- Task Bar -->
-        <TaskBar v-if="activeTaskLocalisedConfig" :active-task-id="activeTaskLocalisedConfig.id" class="mx-4 flex flex-none" :items="taskLocalisedConfigsWithDisabled" />
+        <TaskBar v-if="activeTaskLocalisedConfig" :active-task-id="activeTaskLocalisedConfig.id" class="flex flex-none" :items="taskLocalisedConfigsWithDisabled" />
 
         <!-- Data View List or Active Task Panel -->
         <RouterView v-slot="{ Component }">

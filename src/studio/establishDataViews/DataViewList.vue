@@ -127,7 +127,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
 
 <template>
     <StudioListPanel>
-        <Separator class="mx-4 flex-none" />
+        <Separator class="flex-none" />
 
         <GridDetailPanel
             :active-item="activeDataViewLocalisedConfig"
