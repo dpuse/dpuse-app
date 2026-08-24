@@ -8,17 +8,19 @@ defineOptions({ inheritAttrs: false });
 
 interface Properties {
     errors?: string[];
+    id?: string;
     label?: string;
+    labelHidden?: boolean;
     type?: string;
 }
-const { errors = [], label, type = 'text' } = defineProps<Properties>();
+const { errors = [], id, label, labelHidden, type = 'text' } = defineProps<Properties>();
 
 defineEmits<{ blur: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const attributes = useAttrs();
-const id = useId();
+const textInputId = id ?? useId();
 const textValue = defineModel<string>({ default: '' });
 const valueHasErrors = computed(() => errors.length > 0);
 </script>
@@ -26,11 +28,11 @@ const valueHasErrors = computed(() => errors.length > 0);
 <template>
     <div :class="attributes.class" data-region="TextInput" :style="attributes.style as string">
         <!-- Label -->
-        <label v-if="label" :for="id" class="mb-1 block text-xs font-medium text-muted">{{ label }}</label>
+        <label v-if="label" :for="textInputId" :class="labelHidden ? 'sr-only' : 'mb-1 block text-xs font-medium text-muted'">{{ label }}</label>
 
         <!-- Input -->
         <input
-            :id="id"
+            :id="textInputId"
             v-model="textValue"
             v-bind="{ ...attributes, class: undefined, style: undefined }"
             class="w-full rounded border bg-surface px-2.5 py-1.5 text-sm text-content transition-colors outline-none placeholder:text-subtle focus:ring-1 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-50"

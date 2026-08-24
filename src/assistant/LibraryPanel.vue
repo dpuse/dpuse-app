@@ -5,9 +5,9 @@ import { SearchIcon, XIcon } from '@lucide/vue';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import Input from '@/components/ui/Input.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Tag from '@/components/ui/Tag.vue';
+import TextInput from '@/components/ui/TextInput.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -173,7 +173,7 @@ function handleClearQuery(): void {
         <template v-else>
             <div class="mt-3 flex items-center gap-x-2 pr-4">
                 <SearchIcon aria-hidden="true" class="size-4.5 flex-none text-muted" :stroke-width="1.5" />
-                <Input v-model="query" class="flex-1" label="Search" label-hidden placeholder="Search connectors, data views, context and documents…" />
+                <TextInput v-model="query" class="flex-1" label="Search" label-hidden placeholder="Search connectors, data views, context and documents…" />
                 <Button v-if="query.length > 0" aria-label="Clear search" shape="icon" size="sm" @click="handleClearQuery">
                     <XIcon :stroke-width="1.5" />
                 </Button>

@@ -44,7 +44,7 @@ function handleClear(): void {
                 ref="textAreaElement"
                 v-model="textValue"
                 v-bind="attributes"
-                class="field-sizing-content w-full resize-none px-3 py-2 pr-8 text-sm text-muted outline-none"
+                class="block field-sizing-content w-full resize-none py-2 pr-8 pl-3 text-sm text-muted outline-none"
             />
 
             <!-- Clear Action -->

@@ -10,7 +10,6 @@ import { t } from '@/state/locale';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
-import Input from '@/components/ui/Input.vue';
 import TextInput from '@/components/ui/TextInput.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -42,7 +41,7 @@ function handleSubmit(): void {
 
         <form class="mt-2 flex flex-col gap-y-3">
             <!-- Following required to help browsers and assistive tech recognize the form as a login or password form -->
-            <Input id="userName" type="text" autocomplete="username" label="Username" placeholder="Username" style="display: none" tabindex="-1" aria-hidden="true" />
+            <TextInput id="userName" type="text" autocomplete="username" label="Username" placeholder="Username" style="display: none" tabindex="-1" aria-hidden="true" />
 
             <TextInput
                 v-model="form.password"
