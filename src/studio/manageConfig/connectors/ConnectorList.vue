@@ -15,8 +15,8 @@ import { localeId, t } from '@/state/locale';
 // ── Static Components
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import ConnectorPanel from './ConnectorPanel.vue';
-import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';
-import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
+import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

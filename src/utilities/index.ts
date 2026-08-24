@@ -6,7 +6,7 @@ import type { BaseConfig } from '@dpuse/dpuse-shared';
 
 // ── Static Components
 import ComponentLoadError from '@/components/ui/ComponentLoadError.vue';
-import ComponentLoadingSpinner from '@/components/ui/placeholders/ComponentLoadingSpinner.vue';
+import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

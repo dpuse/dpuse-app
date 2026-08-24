@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 
 // ── Static Components
-import Button from './Button.vue';
+import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

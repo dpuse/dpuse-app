@@ -14,9 +14,9 @@ import { activeMetaStoreConnectionConfig, configsAreRetrieved } from '@/state/se
 
 // ── Static Components
 import ConfigCard from '@/components/ui/ConfigCard.vue';
-import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectConnectionPanel from './SelectConnectionPanel.vue';
-import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 

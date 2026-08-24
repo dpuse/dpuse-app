@@ -15,8 +15,8 @@ import type { DataSource } from '@/composables/useDataWindow';
 // ── Static Components
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import ConnectionForm from './ConnectionForm.vue';
-import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';
-import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
+import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────

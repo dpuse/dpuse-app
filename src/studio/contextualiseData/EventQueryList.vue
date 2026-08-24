@@ -23,11 +23,11 @@ import { activeMetaStoreConnectionConfig, eventQueryConfigs } from '@/state/sess
 import Button from '@/components/ui/button/Button.vue';
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import type { DataSource } from '@/composables/useDataWindow';
-import Grid from '@/components/ui/Grid.vue';
+import Grid from '@/components/ui/grid/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Dynamic Components
-const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholders/EmptyPlaceholder.vue'));
+const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'));
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

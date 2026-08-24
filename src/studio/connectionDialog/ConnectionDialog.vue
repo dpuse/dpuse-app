@@ -20,7 +20,7 @@ import ConfigCard from '@/components/ui/ConfigCard.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
-import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

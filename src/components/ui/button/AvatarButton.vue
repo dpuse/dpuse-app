@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── Static Components
-import Button from './Button.vue';
+import Button from '@/components/ui/button/Button.vue';
 </script>
 
 <template>

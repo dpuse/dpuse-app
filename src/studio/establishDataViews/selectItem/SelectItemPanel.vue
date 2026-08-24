@@ -24,9 +24,9 @@ import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfig
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import ConfigCard from '@/components/ui/ConfigCard.vue';
-import GridDetailPanel from '@/components/ui/GridDetailPanel.vue';
+import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
-import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vue';
+import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';

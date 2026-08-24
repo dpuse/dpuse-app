@@ -7,7 +7,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
-import Grid from '@/components/ui/Grid.vue';
+import Grid from '@/components/ui/grid/Grid.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

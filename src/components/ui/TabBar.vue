@@ -4,7 +4,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
 import { nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 
 // ── Static Components
-import Button from './button/Button.vue';
+import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
