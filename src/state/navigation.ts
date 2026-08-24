@@ -36,7 +36,7 @@ export function complete(): void {
         navigationIsActive.value = false;
         return;
     }
-    const remaining = Math.max(0, MIN_VISIBLE_MS - (Date.now() - state.showedAt!));
+    const remaining = Math.max(0, MIN_VISIBLE_MS - (Date.now() - (state.showedAt ?? 0)));
     state.hideTimer = setTimeout(() => {
         state.hideTimer = null;
         reset();

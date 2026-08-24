@@ -27,8 +27,8 @@ function handleBack(): void {
     emit('back');
 }
 
-function handleSubmit(): void {
-    r$.$validate();
+async function handleSubmit(): Promise<void> {
+    await r$.$validate();
     if (!r$.$invalid) emit('submit', form.password);
 }
 </script>

@@ -15,8 +15,8 @@ import { configRetrievalFailed, configsAreRetrieved, connectorConfigs, cookbookC
 const DPU_API_HOST = 'api.dpuse.app';
 const TIMEOUT_DELAY = 5000;
 // Cloudflare closes an idle WebSocket after ~100s with no traffic; ping well inside that margin to prevent it.
-const PING_INTERVAL_MS = 30000;
-const PONG_TIMEOUT_MS = 10000;
+const PING_INTERVAL_MS = 30_000;
+const PONG_TIMEOUT_MS = 10_000;
 // Reconnect attempts before giving up and surfacing configRetrievalFailed — a persistently unreachable API
 // shouldn't retry silently forever with no way for the user to know why every config list is stuck loading.
 const MAX_RECONNECT_ATTEMPTS = 5;
@@ -45,7 +45,9 @@ export function initialise(): void {
     }
 
     state.webSocket = connectToWebSocket();
-    window.addEventListener('pagehide', () => shutdown());
+    window.addEventListener('pagehide', () => {
+        shutdown();
+    });
     window.addEventListener('pageshow', (event) => {
         if (!event.persisted) {
             return;
@@ -63,13 +65,14 @@ export function initialise(): void {
 function connectToWebSocket(): WebSocket | undefined {
     try {
         const url = `wss://${DPU_API_HOST}/configs/websocket`;
-        let pendingWebSocket: WebSocket | undefined = new WebSocket(url);
+        const webSocket = new WebSocket(url);
+        let pendingWebSocket: WebSocket | undefined = webSocket;
 
         pendingWebSocket.addEventListener('open', () => {
             if (import.meta.env.DEV) console.info('[dpuse:app] ✅  Configuration WebSocket connection opened.');
             state.reconnectAttempts = 0;
             configRetrievalFailed.value = false;
-            startKeepalive(pendingWebSocket!);
+            startKeepalive(webSocket);
         });
 
         pendingWebSocket.addEventListener('message', (event) => {
@@ -84,9 +87,11 @@ function connectToWebSocket(): WebSocket | undefined {
                         configsAreRetrieved.value = true;
                         return;
                     case 'deploy':
-                        return registerConfigurations([eventData.module]);
+                        registerConfigurations([eventData.module]);
+                        return;
                     case 'delete':
-                        return unregisterConfigurations([eventData.module]);
+                        unregisterConfigurations([eventData.module]);
+                        return;
                 }
             } catch (error) {
                 if (import.meta.env.DEV) console.info(`[dpuse:app] ❌  Configuration registration error: ${String(error)}`, error);
@@ -94,7 +99,7 @@ function connectToWebSocket(): WebSocket | undefined {
         });
 
         pendingWebSocket.addEventListener('close', (event) => {
-            if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️  Configuration WebSocket close event '${event.code}' received.`);
+            if (import.meta.env.DEV) console.info(`[dpuse:app] ⚠️  Configuration WebSocket close event '${String(event.code)}' received.`);
             stopKeepalive();
             pendingWebSocket = undefined;
             scheduleReconnect();
@@ -102,7 +107,7 @@ function connectToWebSocket(): WebSocket | undefined {
 
         pendingWebSocket.addEventListener('error', (error) => {
             // The 'close' event always follows 'error' for a WebSocket, so reconnect scheduling lives there.
-            if (import.meta.env.DEV) console.info(`[dpuse:app] ❌  Configuration WebSocket operational error: ${String(error)}`, error);
+            if (import.meta.env.DEV) console.info('[dpuse:app] ❌  Configuration WebSocket operational error.', error);
         });
 
         return pendingWebSocket;
@@ -152,10 +157,10 @@ function stopKeepalive(): void {
 }
 
 function clearPongTimeout(): void {
-    if (state.pongTimeoutId !== undefined) {
-        clearTimeout(state.pongTimeoutId);
-        state.pongTimeoutId = undefined;
-    }
+    if (state.pongTimeoutId === undefined) return;
+
+    clearTimeout(state.pongTimeoutId);
+    state.pongTimeoutId = undefined;
 }
 
 function shutdown(): void {
@@ -175,10 +180,10 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
         isCookbookRegistered: false,
         isToolRegistered: false
     };
-    const pendingConnectorConfigs = [...(connectorConfigs.value ?? [])];
-    const pendingCookbookConfigs = [...(cookbookConfigs.value ?? [])];
-    const pendingPresenterConfigs = [...(presenterConfigs.value ?? [])];
-    const pendingToolConfigs = [...(toolConfigs.value ?? [])];
+    const pendingConnectorConfigs = [...connectorConfigs.value];
+    const pendingCookbookConfigs = [...cookbookConfigs.value];
+    const pendingPresenterConfigs = [...presenterConfigs.value];
+    const pendingToolConfigs = [...toolConfigs.value];
 
     for (const moduleConfig of moduleConfigs) {
         doRegister(moduleConfig, pendingConnectorConfigs, pendingCookbookConfigs, pendingPresenterConfigs, pendingToolConfigs, registrationState);

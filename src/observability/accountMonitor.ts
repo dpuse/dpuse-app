@@ -6,8 +6,8 @@ import { accountConfigsAreRetrieved, accountId, type ConnectionAccountConfig, co
 const DPU_API_HOST = 'api.dpuse.app';
 const TIMEOUT_DELAY = 5000;
 // Cloudflare closes an idle WebSocket after ~100s with no traffic; ping well inside that margin to prevent it.
-const PING_INTERVAL_MS = 30000;
-const PONG_TIMEOUT_MS = 10000;
+const PING_INTERVAL_MS = 30_000;
+const PONG_TIMEOUT_MS = 10_000;
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -32,7 +32,9 @@ export function initialise(): void {
 
     state.isWebSocketShutdown = false;
     state.webSocket = connectToWebSocket();
-    window.addEventListener('pagehide', () => shutdown());
+    window.addEventListener('pagehide', () => {
+        shutdown();
+    });
     window.addEventListener('pageshow', (event) => {
         if (!event.persisted) {
             return;
@@ -53,12 +55,13 @@ function connectToWebSocket(): WebSocket | undefined {
     // Data from a previous connection can't be trusted as current until this connection has proven itself.
     accountConfigsAreRetrieved.value = false;
     try {
-        const url = `wss://${DPU_API_HOST}/accounts/${accountId.value}/websocket`;
-        let pendingWebSocket: WebSocket | undefined = new WebSocket(url);
+        const url = `wss://${DPU_API_HOST}/accounts/${String(accountId.value)}/websocket`;
+        const webSocket = new WebSocket(url);
+        let pendingWebSocket: WebSocket | undefined = webSocket;
 
         pendingWebSocket.addEventListener('open', () => {
             if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ✅  Account WebSocket connection opened.`);
-            startKeepalive(pendingWebSocket!);
+            startKeepalive(webSocket);
         });
 
         pendingWebSocket.addEventListener('message', (event) => {
@@ -80,7 +83,7 @@ function connectToWebSocket(): WebSocket | undefined {
         });
 
         pendingWebSocket.addEventListener('close', (event) => {
-            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ⚠️  Account WebSocket close event '${event.code}' received.`);
+            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ⚠️  Account WebSocket close event '${String(event.code)}' received.`);
             stopKeepalive();
             pendingWebSocket = undefined;
             if (!state.isWebSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
@@ -88,7 +91,7 @@ function connectToWebSocket(): WebSocket | undefined {
 
         pendingWebSocket.addEventListener('error', (error) => {
             // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.
-            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ❌  Account WebSocket operational error: ${String(error)}`, error);
+            if (import.meta.env.DEV || import.meta.env.PROD) console.info('[dpuse:app] ❌  Account WebSocket operational error.', error);
         });
 
         return pendingWebSocket;
@@ -122,10 +125,10 @@ function stopKeepalive(): void {
 }
 
 function clearPongTimeout(): void {
-    if (state.pongTimeoutId !== undefined) {
-        clearTimeout(state.pongTimeoutId);
-        state.pongTimeoutId = undefined;
-    }
+    if (state.pongTimeoutId === undefined) return;
+
+    clearTimeout(state.pongTimeoutId);
+    state.pongTimeoutId = undefined;
 }
 
 function shutdown(): void {

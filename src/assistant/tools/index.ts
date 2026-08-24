@@ -9,7 +9,7 @@ import { executePreviewConnectorItem } from './previewConnectorItem';
 
 // ── Tools ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const toolExecutors: Record<string, (arguments_: unknown) => unknown | Promise<unknown>> = {
+export const toolExecutors: Record<string, (arguments_: unknown) => unknown> = {
     getConnection: (arguments_) => executeGetConnection((arguments_ as { id: string }).id),
     getConnector: (arguments_) => executeGetConnector((arguments_ as { id: string }).id),
     getLocalTime: () => executeGetLocalTime(),

@@ -79,8 +79,8 @@ export const accountConfigsAreRetrieved = ref(false);
 export const connectionConfigs = computed<ConnectionConfig[]>(() => {
     const configs: ConnectionConfig[] = [];
 
-    for (const connectorConfig of connectorConfigs.value!) {
-        if (connectorConfig.implementations.default && connectorConfig.implementations.default.authMethodId === 'none') configs.push(constructConnectionConfig(connectorConfig));
+    for (const connectorConfig of connectorConfigs.value) {
+        if (connectorConfig.implementations.default.authMethodId === 'none') configs.push(constructConnectionConfig(connectorConfig));
     }
 
     for (const accountConfigs of connectionAccountConfigs.value) {
@@ -144,7 +144,7 @@ export function getLocalisedConnection(id: string | undefined, localeId: LocaleI
     return localiseConfig<ConnectionConfig>(connectionConfig, localeId);
 }
 
-export function setSessionExpiryTimer(isRunQuickly: boolean = false): void {
+export function setSessionExpiryTimer(isRunQuickly = false): void {
     clearSessionExpiryTimer();
     if (isRunQuickly && expiresAt.value != null) {
         expiresIn.value = Math.max(0, expiresAt.value - Date.now());
@@ -166,6 +166,7 @@ export async function signOut(): Promise<void> {
 
 function handleBeforeUnload(event: BeforeUnloadEvent): void {
     event.preventDefault();
+    // eslint-disable-next-line sonarjs/deprecation, @typescript-eslint/no-deprecated -- This is still required
     event.returnValue = '';
 }
 
@@ -185,10 +186,18 @@ function clearSessionExpiryTimer(): void {
 async function initialiseHanko(): Promise<void> {
     const { Hanko } = await import('@teamhanko/hanko-frontend-sdk');
     state.hankoInstance = new Hanko(HANKO_API_URL);
-    state.hankoInstance.onSessionCreated((sessionDetails) => establishSession('created', sessionDetails.claims));
-    state.hankoInstance.onSessionExpired(() => establishSession('expired'));
-    state.hankoInstance.onUserDeleted(() => establishSession('deleted'));
-    state.hankoInstance.onUserLoggedOut(() => establishSession('terminated'));
+    state.hankoInstance.onSessionCreated((sessionDetails) => {
+        establishSession('created', sessionDetails.claims);
+    });
+    state.hankoInstance.onSessionExpired(() => {
+        establishSession('expired');
+    });
+    state.hankoInstance.onUserDeleted(() => {
+        establishSession('deleted');
+    });
+    state.hankoInstance.onUserLoggedOut(() => {
+        establishSession('terminated');
+    });
     try {
         const result = await state.hankoInstance.validateSession();
         establishSession('validated', result.is_valid ? result.claims : undefined);
@@ -250,7 +259,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
             emailIsVerified.value = undefined;
         }
         accountId.value = claims.subject;
-        const establishedAt = claims.issued_at == null ? 0 : Date.parse(claims?.issued_at);
+        const establishedAt = claims.issued_at == null ? 0 : Date.parse(claims.issued_at);
         expiresAt.value = claims.expiration ? Date.parse(claims.expiration) : 0;
         expiresIn.value = Math.max(0, (expiresAt.value || 0) - Date.now());
         sessionIsAuthenticated.value = true;

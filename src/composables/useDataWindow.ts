@@ -101,7 +101,7 @@ export type DataSource<T = unknown> = {
     | { rows: T[] }
 );
 
-type Options<T> = {
+interface Options<T> {
     scrollElement: Readonly<ShallowRef<HTMLElement | null>>;
     dataSource: () => DataSource<T>;
     count?: () => number; // Virtual row count override — e.g. Grid divides by column count for its N-per-row layout.
@@ -117,9 +117,9 @@ type Options<T> = {
     // has been stable for this long, using whatever is visible at that point. Does not delay the initial/navigation
     // bootstrap fetch, which stays immediate.
     fetchDebounceMs?: () => number;
-};
+}
 
-type DataWindow<T> = {
+interface DataWindow<T> {
     virtualRows: ComputedRef<VirtualItem[]>;
     totalSize: ComputedRef<number>;
     visibleRowData: ComputedRef<(T | undefined)[]>;
@@ -130,7 +130,7 @@ type DataWindow<T> = {
     // undefined forever by design (e.g. a source that only learns its count from getRows' totalCount) — this is
     // the only reliable "is it still unknown" signal for busy/empty UI state; prefer it over dataSource().rowCount.
     knownRowCount: ComputedRef<number | undefined>;
-};
+}
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -170,7 +170,7 @@ export function useDataWindow<T>({
     // Without this, an unknown count coerces to 0 virtual rows, so fetchVisibleBlocks never has anything to trigger
     // from, and the real count would never be learned. Safe/idempotent for sources that already know their count:
     // fetchBlock dedupes via blockPendingSet/blockCacheMap, so this never causes a duplicate network fetch.
-    fetchBlock(0);
+    void fetchBlock(0);
 
     // When the data source is swapped, stale blocks must be purged immediately. In-flight fetches from the
     // prior source are identified by their generation snapshot and silently dropped when they resolve.
@@ -183,7 +183,7 @@ export function useDataWindow<T>({
             blockPendingSet.clear();
             blockCacheVersion.value++;
             setKnownRowCount(dataSource().rowCount); // New source means a fresh guess (or undefined), not the previous folder's corrected count.
-            fetchBlock(0); // Same bootstrap guarantee as above, for the new source.
+            void fetchBlock(0); // Same bootstrap guarantee as above, for the new source.
             fetchVisibleBlocks(virtualizer.value.getVirtualItems());
         },
         { flush: 'sync' }
@@ -199,7 +199,7 @@ export function useDataWindow<T>({
             return count ? count() : (knownRowCount.value ?? cacheBlockSize());
         },
         getScrollElement: () => scrollElement.value,
-        estimateSize: (index) => estimateSize(getRow((getDataIndexes ? getDataIndexes(index) : [index])[0]!)),
+        estimateSize: (index) => estimateSize(getRow((getDataIndexes ? getDataIndexes(index) : [index])[0])),
         overscan: 5
     });
 
@@ -243,7 +243,7 @@ export function useDataWindow<T>({
             }
         }
         for (const blockIndex of requiredBlockIndexes) {
-            fetchBlock(blockIndex);
+            void fetchBlock(blockIndex);
         }
     }
 
@@ -277,7 +277,7 @@ export function useDataWindow<T>({
             recordBlockAccessed(blockIndex);
             blockCacheVersion.value++;
         } catch (error) {
-            console.error(`[dpuse-app] useDataWindow failed to fetch block ${blockIndex}:`, error);
+            console.error(`[dpuse-app] useDataWindow failed to fetch block ${String(blockIndex)}:`, error);
         } finally {
             blockPendingSet.delete(blockIndex);
         }
@@ -295,7 +295,7 @@ export function useDataWindow<T>({
                 logRetrievalSuccess(start, end, result.rows.length, result.totalCount);
                 return result;
             } catch (error) {
-                if (attempt >= FETCH_MAX_RETRIES || generation !== fetchGeneration) throw error;
+                if (generation !== fetchGeneration || attempt >= FETCH_MAX_RETRIES) throw error;
                 const delayMs = FETCH_RETRY_BASE_DELAY_MS * 2 ** attempt;
                 logRetrievalRetry(start, end, delayMs, error);
                 await sleep(delayMs);

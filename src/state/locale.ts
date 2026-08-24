@@ -16,7 +16,7 @@ export function n(value: number, options?: Intl.NumberFormatOptions): string {
 
 type Translations = Record<string, LocaleLabel>;
 export function t(translations: Translations, id: keyof Translations, parameters?: Record<string, number | string>): string {
-    const text = translations[id]?.[localeId.value] ?? translations[id]?.[DEFAULT_LOCALE_ID] ?? id;
+    const text = translations[id][localeId.value] ?? translations[id][DEFAULT_LOCALE_ID] ?? id;
     if (parameters) return interpolateParameters(text, parameters);
     return text;
 }
@@ -24,12 +24,12 @@ export function t(translations: Translations, id: keyof Translations, parameters
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function establishLocaleId(): LocaleId {
-    const languageIds = navigator?.languages ?? [];
+    const languageIds = navigator.languages;
     for (const languageId of languageIds) {
         const lower = languageId.toLowerCase();
         if (SUPPORTED_LANGUAGES.some((lang) => lang.id === lower)) return lower as LocaleId;
         const prefix = lower.split('-', 1)[0] as LocaleId;
-        if (prefix && SUPPORTED_LANGUAGES.some((lang) => lang.id === prefix)) return prefix;
+        if (SUPPORTED_LANGUAGES.some((lang) => lang.id === prefix)) return prefix;
     }
     return DEFAULT_LOCALE_ID;
 }

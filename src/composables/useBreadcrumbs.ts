@@ -10,12 +10,12 @@ export interface BreadcrumbConfig {
     to?: string;
 }
 
-type Breadcrumbs<T extends BreadcrumbConfig> = {
+interface Breadcrumbs<T extends BreadcrumbConfig> {
     breadcrumbs: Ref<T[]>;
     add: (item: T) => void;
     clearAfterIndex: (index: number) => void;
     removeLast: () => void;
-};
+}
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 

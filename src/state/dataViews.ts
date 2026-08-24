@@ -133,7 +133,7 @@ export async function getDataViewRecord(metaStoreConnectionConfig: ConnectionCon
             return setActiveDataViewConfig();
         }
         const { processRequest } = await useEngine();
-        const getRecordOptions: GetRecordOptions = { path: '/dpuMetaStore/dataViews', id: dataViewId as string }; // TODO: Implement paging.
+        const getRecordOptions: GetRecordOptions = { path: '/dpuMetaStore/dataViews', id: dataViewId }; // TODO: Implement paging.
         const getRecordResult = (await processRequest('getRecord', metaStoreConnectionConfig, getRecordOptions)) as GetRecordResult;
         return setActiveDataViewConfig(getRecordResult.record as unknown as DataViewConfig);
     } catch (error) {
@@ -156,7 +156,7 @@ export async function removeDataViewRecord(metaStoreConnectionConfig: Connection
 }
 
 export function setActiveDataViewConfig(dataViewConfig?: DataViewConfig): DataViewConfig {
-    activeDataViewConfig.value = dataViewConfig || {
+    activeDataViewConfig.value = dataViewConfig ?? {
         id: NEW_DATA_VIEW_ID,
         label: { en: 'My New Data View' },
         description: {},

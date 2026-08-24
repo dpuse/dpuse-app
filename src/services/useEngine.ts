@@ -19,21 +19,21 @@ const state: { activeEngineVersion: string | undefined; engineWorker: EngineWork
 
 export async function useEngine(): Promise<EngineWorker> {
     // "useEngine" is not invoked until all modules have been registered in session. So "engineConfig" will be populated.
-    const engineVersion = engineConfig.value!.version as string;
+    const engineVersion = engineConfig.value?.version;
 
     // Return current value if previously imported and a new version has not been published.
     if (state.engineWorker != null && state.activeEngineVersion === engineVersion) return state.engineWorker;
 
     // Import engine and initialise interface.
-    const module = await import(/* @vite-ignore */ `${ENGINE_STORAGE_URL_PREFIX}/engine_v${engineVersion}/dpuse-engine.es.js`);
+    const module = await import(/* @vite-ignore */ `${ENGINE_STORAGE_URL_PREFIX}/engine_v${String(engineVersion)}/dpuse-engine.es.js`);
     const engineRuntime = module.engineRuntime as EngineRuntime;
     const pendingEngineWorker = engineRuntime.invokeWorker((errorEvent: ErrorEvent) => {
         console.error(errorEvent, 'engineWorker@useEngine.1');
     });
     await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: toolConfigs.value });
-    if (import.meta.env.DEV) console.info(`[dpuse:app] ✅  Engine 'dpuse-engine' v${engineVersion} loaded.`);
+    if (import.meta.env.DEV) console.info(`[dpuse:app] ✅  Engine 'dpuse-engine' v${String(engineVersion)} loaded.`);
 
-    /*****/
+    /**/
     async function streamCsvToConsole(): Promise<void> {
         /** */
         // const FILE_PATH = '/ENGAGEMENT_START_EVENTS_202405121858.csv'; //  '/ENGAGEMENT_START_EVENTS_202405121858.csv' or '/WDI_Data.csv'
@@ -121,8 +121,10 @@ export async function useEngine(): Promise<EngineWorker> {
         //     console.log('AUDIT OBJECT CONTENT RUST - ELAPSED', elapsedTime4, `${(elapsedTime4 / 1000).toFixed(2)}s.`);
     }
 
-    void streamCsvToConsole().catch((error) => console.error('Failed to start stream:', error));
-    /*****/
+    void streamCsvToConsole().catch((error: unknown) => {
+        console.error('Failed to start stream:', error);
+    });
+    /**/
 
     state.engineWorker = pendingEngineWorker;
     state.activeEngineVersion = engineVersion;

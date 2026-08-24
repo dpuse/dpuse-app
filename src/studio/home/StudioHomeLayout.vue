@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // ── Local Framework
-import T from './StudioHomeLayout.json';
 import { t } from '@/state/locale';
 import { useStudioOptions } from '@/studio/useStudioOptions.ts';
 
@@ -12,6 +11,14 @@ import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
 
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    'wb.label': { en: 'Studio', es: 'Estudio' },
+    'wb.wf.label': { en: 'Studio', es: 'Estudio' },
+    'wb.wf.step': { en: 'Step {number}', es: 'Paso {number}' }
+};
+
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const studioOptionConfigs = useStudioOptions();
@@ -22,7 +29,7 @@ const studioOptionConfigs = useStudioOptions();
         <!-- Header -->
         <StudioHeader :title="t(T, 'wb.wf.label')" />
 
-        <Separator class="mx-4" />
+        <Separator />
 
         <!-- Workflow Steps -->
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
