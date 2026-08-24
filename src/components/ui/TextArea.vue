@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { XIcon } from '@lucide/vue';
-import { useAttrs, useId, useTemplateRef } from 'vue';
+import { nextTick, useAttrs, useId, useTemplateRef } from 'vue';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -26,8 +26,9 @@ const textAreaElement = useTemplateRef<HTMLTextAreaElement>('textAreaElement');
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleClear(): void {
+async function handleClear(): Promise<void> {
     textValue.value = '';
+    await nextTick();
     textAreaElement.value?.focus();
 }
 </script>
