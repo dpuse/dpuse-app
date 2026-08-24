@@ -48,11 +48,11 @@ const DOCUMENT_FILTERS: DocumentFilterConfig[] = [
     { id: 'document', label: 'Documents' }
 ];
 
-const DOCUMENT_TYPE_COLORS: Record<DocumentType, 'danger' | 'other' | 'success' | 'warning'> = {
-    connector: 'other',
+const DOCUMENT_TYPE_COLORS: Record<DocumentType, 'danger' | 'success' | 'warning' | undefined> = {
+    connector: undefined,
     dataView: 'success',
     context: 'warning',
-    document: 'other'
+    document: undefined
 };
 
 const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {

@@ -44,12 +44,14 @@ onMounted(() => {
     if (rowElement.value) resizeObserver.value.observe(rowElement.value);
 });
 
-onBeforeUnmount(() => resizeObserver.value?.disconnect());
-
 watch(
     () => items,
     () => nextTick(handleUpdateScrollState)
 );
+
+onBeforeUnmount(() => {
+    resizeObserver.value?.disconnect();
+});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

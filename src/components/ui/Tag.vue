@@ -4,8 +4,11 @@ import { computed } from 'vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-type TagColor = 'danger' | 'other' | 'success' | 'warning';
-const { text, color = 'other' } = defineProps<{ text: string; color?: TagColor }>();
+interface Properties {
+    text: string;
+    color?: 'danger' | 'success' | 'warning';
+}
+const { text, color } = defineProps<Properties>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 

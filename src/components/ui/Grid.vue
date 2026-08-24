@@ -1,6 +1,5 @@
 <script setup lang="ts" generic="T">
 // ── External Dependencies & Registrations
-import { PlusIcon } from '@lucide/vue';
 import { computed, onUnmounted, ref, shallowRef } from 'vue';
 
 // ── Local Framework
@@ -9,12 +8,11 @@ import { type DataSource, DEFAULT_CACHE_BLOCK_SIZE, useDataWindow } from '@/comp
 // ── Static Components
 import AddActionButton from '@/components/ui/button/AddActionButton.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
-import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-type Properties = {
+interface Properties {
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     dataSource: DataSource<T>;
     addLabel?: string;
@@ -24,13 +22,13 @@ type Properties = {
     rowHeight?: number; // Row height in px. Default: 48.
     scrollAreaPaddingBottom?: number | string;
     targetColumnWidth?: number; // When set, multiple items are shown per row based on available width.
-};
+}
 const {
     cacheBlockSize,
     dataSource,
     addLabel,
     headerRowHeight = 24,
-    isCompact = false,
+    isCompact,
     maxBlocksInCache,
     rowHeight = 48,
     scrollAreaPaddingBottom = 'var(--vertical-scroll-bottom-screen-inset)',
@@ -46,7 +44,7 @@ defineEmits<{ add: []; select: [item: T | undefined] }>();
 const columnCount = ref(1);
 const columnWidth = ref(0);
 const resizeObserver = new ResizeObserver((entries) => {
-    const width = entries[0]!.contentRect.width;
+    const width = entries[0].contentRect.width;
     if (isCompact || targetColumnWidth == null) {
         columnCount.value = 1;
         columnWidth.value = width;
@@ -91,7 +89,9 @@ const state = computed<'busy' | 'empty' | 'rows'>(() => {
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onUnmounted(() => resizeObserver.disconnect());
+onUnmounted(() => {
+    resizeObserver.disconnect();
+});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

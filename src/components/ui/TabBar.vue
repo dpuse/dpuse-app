@@ -20,10 +20,10 @@ defineEmits<{ select: [item: T] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const rowElement = ref<HTMLElement | null>(null);
 const resizeObserver = shallowRef<ResizeObserver>();
 const rowCanScrollLeft = ref(false);
 const rowCanScrollRight = ref(false);
+const rowElement = ref<HTMLElement | null>(null);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -33,12 +33,12 @@ onMounted(() => {
     if (rowElement.value) resizeObserver.value.observe(rowElement.value);
 });
 
-onBeforeUnmount(() => resizeObserver.value?.disconnect());
-
 watch(
     () => items,
     () => nextTick(updateScrollState)
 );
+
+onBeforeUnmount(() => resizeObserver.value?.disconnect());
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
