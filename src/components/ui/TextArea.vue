@@ -27,14 +27,10 @@ const textAreaElement = useTemplateRef<HTMLTextAreaElement>('textAreaElement');
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleClear(): void {
-    const element = textAreaElement.value;
     textValue.value = '';
-    if (!element) return;
+    textAreaElement.value?.focus();
 
-    // Focus synchronously within the click's user-gesture window so iOS opens the keyboard reliably.
-    element.focus();
-
-    // On iOS, the keyboard-open animation can leave WebKit's caret geometry desynced from the real
+    // NOTE: On iOS, the keyboard-open animation can leave WebKit's caret geometry desynced from the real
     // viewport (visualViewport.offsetTop doesn't always settle immediately) — a 1px scroll nudge is
     // the standard forced-repaint workaround to make it resync. See https://bugs.webkit.org/show_bug.cgi?id=176896.
     window.visualViewport?.addEventListener(
