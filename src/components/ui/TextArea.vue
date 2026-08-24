@@ -29,7 +29,10 @@ const textAreaElement = useTemplateRef<HTMLTextAreaElement>('textAreaElement');
 async function handleClear(): Promise<void> {
     textValue.value = '';
     await nextTick();
-    textAreaElement.value?.focus();
+    const element = textAreaElement.value;
+    if (!element) return;
+    element.focus();
+    element.setSelectionRange(0, 0);
 }
 </script>
 
