@@ -132,9 +132,9 @@ onMounted(() => {
 
 // ── Exposed API ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function sendMessage(text: string): Promise<void> {
+function sendMessage(text: string): void {
     if (state.client == null) return;
-    await state.client.sendMessage(text);
+    void state.client.sendMessage(text);
 }
 
 defineExpose({ sendMessage });

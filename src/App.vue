@@ -106,10 +106,10 @@ watch(paneSplitterPercent, (newPaneSplitterPercent) => {
 
 // ── Event Handlers - Assistant Pane/Panels ───────────────────────────────────────────────────────────────────────────
 
-async function handleToggleAssistantPane(): Promise<void> {
+function handleToggleAssistantPane(): void {
     if (viewportIsWide.value) {
         if (assistantPaneIsVisible.value && !studioPaneIsVisible.value) return; // Don't close the assistant pane if it's the only one visible.
-        await toggleAssistantPane();
+        toggleAssistantPane();
         activeAppPaneId.value = assistantPaneIsVisible.value ? 'assistant' : 'studio';
         return;
     }
@@ -121,19 +121,19 @@ async function handleToggleAssistantPane(): Promise<void> {
     activeAppPaneId.value = 'assistant';
     studioOptionBarIsVisible.value = false;
     studioPaneIsVisible.value = false;
-    await toggleAssistantPane();
+    toggleAssistantPane();
 }
 
-async function toggleAssistantPane(): Promise<void> {
+function toggleAssistantPane(): void {
     if ('aView' in route.query) {
         // Then - toggle assistant pane, ensure assistant pane is activated (may be first time), and update route properties.
         assistantPaneIsActive.value = assistantPaneIsVisible.value = !assistantPaneIsVisible.value;
         if (assistantPaneIsActive.value) assistantPaneActivated.value = true;
-        await router.replace({ query: { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined } });
+        void router.replace({ query: { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined } });
     } else {
         // Else - assistant pane has never been activated, active and navigate to last 'about' route.
         assistantPaneActivated.value = assistantPaneIsActive.value = assistantPaneIsVisible.value = true;
-        await router.replace({ query: { ...route.query, aView: 'about', sState: studioPaneIsVisible.value ? 1 : undefined, aState: 1 } });
+        void router.replace({ query: { ...route.query, aView: 'about', sState: studioPaneIsVisible.value ? 1 : undefined, aState: 1 } });
     }
 }
 
@@ -146,10 +146,10 @@ function handleStudioOptionBarHide(): void {
 
 // ── Event Handlers - Studio Pane ──────────────────────────────────────────────────────────────────────────────────
 
-async function handleToggleStudioPane(): Promise<void> {
+function handleToggleStudioPane(): void {
     if (viewportIsWide.value) {
         if (studioPaneIsVisible.value && !assistantPaneIsVisible.value) return; // Don't close the studio pane if it's the only one visible.
-        await toggleStudioPane();
+        toggleStudioPane();
         activeAppPaneId.value = studioPaneIsVisible.value ? 'studio' : 'assistant';
         return;
     }
@@ -163,21 +163,21 @@ async function handleToggleStudioPane(): Promise<void> {
     // Display is narrow, switching to this pane — close the assistant pane first if open.
     activeAppPaneId.value = 'studio';
     assistantPaneIsVisible.value = false;
-    await toggleStudioPane();
+    toggleStudioPane();
 }
 
-async function toggleStudioPane(): Promise<void> {
+function toggleStudioPane(): void {
     if (route.path === '/') {
         // Then - studio pane has never been activated, active and navigate to last known route.
         studioPaneActivated.value = studioPaneIsActive.value = studioPaneIsVisible.value = true;
-        await router.replace({
+        void router.replace({
             name: (Array.isArray(route.query.sView) ? route.query.sView[0] : route.query.sView) ?? 'studio',
             query: { ...route.query, sState: 1, aState: assistantPaneIsVisible.value ? 1 : undefined }
         });
     } else {
         // Else - toggle studio pane and update route properties.
         studioPaneIsActive.value = studioPaneIsVisible.value = !studioPaneIsVisible.value;
-        await router.replace({ query: { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined } });
+        void router.replace({ query: { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined } });
     }
 }
 

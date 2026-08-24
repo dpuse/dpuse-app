@@ -49,7 +49,7 @@ const markedToolError = shallowRef<AppError | undefined>();
 const markedToolErrorWasReported = ref(false);
 const inputContainerHeight = ref(0);
 
-const sessionReference = useTemplateRef<{ sendMessage: (text: string) => Promise<void> }>('sessionReference');
+const sessionReference = useTemplateRef<{ sendMessage: (text: string) => void }>('sessionReference');
 const inputContainer = useTemplateRef<HTMLElement>('inputContainer');
 
 const state: { inputContainerResizeObserver: ResizeObserver | null; scrollObserver: MutationObserver | null } = { inputContainerResizeObserver: null, scrollObserver: null };
@@ -103,11 +103,11 @@ function handleSelectVendor(newVendorId: AssistantVendorId, newModelConfig: Assi
     emit('vendorChange', newVendorId, newModelConfig);
 }
 
-async function handleSendMessage(): Promise<void> {
+function handleSendMessage(): void {
     const text = input.value.trim();
     if (!text || sessionReference.value == null) return;
     input.value = '';
-    await sessionReference.value.sendMessage(text);
+    sessionReference.value.sendMessage(text);
 }
 
 function handleScrollAreaInitialised(element: HTMLElement): void {

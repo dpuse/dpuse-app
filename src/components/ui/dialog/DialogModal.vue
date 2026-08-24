@@ -16,10 +16,10 @@ const router = useRouter();
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleClose(): Promise<void> {
+function handleClose(): void {
     const routeQueryParameters = { ...route.query };
     delete routeQueryParameters.dlg;
-    await router.push({ query: { ...routeQueryParameters } });
+    void router.push({ query: { ...routeQueryParameters } });
 }
 </script>
 

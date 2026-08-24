@@ -83,7 +83,7 @@ const activeConfigOptionConfig = computed(() => configOptionLocalisedConfigs.val
         <StudioHeader class="flex-none px-4" :overline="t(T, 'Studio')" :title="t(T, 'Manage_Config')" to="studio" />
 
         <!-- Tab Bar -->
-        <TabBar class="mx-4 flex-none" :active-id="activeConfigOptionConfig.id" :items="configOptionLocalisedConfigs">
+        <TabBar class="flex-none" :active-id="activeConfigOptionConfig.id" :items="configOptionLocalisedConfigs">
             <template #default="{ item }">
                 <!-- eslint-disable-next-line tailwindcss/no-unnecessary-arbitrary-value  -- stroke-1.5 is not a valid preset value.  -->
                 <HomeIcon v-if="item.id === 'home'" class="size-5! [&>path]:stroke-[1.5]" />

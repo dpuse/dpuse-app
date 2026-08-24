@@ -114,8 +114,8 @@ function appendErrorForLatestUserMessage(errorText: string): void {
 
 // ── Exposed API ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function sendMessage(text: string): Promise<void> {
-    await sendChatMessage({ text });
+function sendMessage(text: string): void {
+    void sendChatMessage({ text });
 }
 
 defineExpose({ sendMessage });

@@ -197,9 +197,9 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
     activeConnectionObjectConfig.value = connectionNodeConfig;
 }
 
-async function handleCommitDetail(): Promise<void> {
+function handleCommitDetail(): void {
     emit('task-completed', taskLocalisedConfig);
-    await router.push({ name: 'auditContent', query: { ...route.query, sView: 'auditContent' } });
+    void router.push({ name: 'auditContent', query: { ...route.query, sView: 'auditContent' } });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

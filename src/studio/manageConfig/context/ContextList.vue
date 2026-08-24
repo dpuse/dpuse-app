@@ -51,13 +51,14 @@ const modelReferencesDataSource = computed<DataSource<GridListItem<LocalisedConf
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// eslint-disable-next-line @typescript-eslint/require-await -- Code pending...
 async function loadContextConfig(): Promise<ContextConfig> {
     // TODO: return (await fetch('/api/context-config')).json() as Promise<ContextConfig>;
     return contextConfigData as ContextConfig;
 }
 
-// eslint-disable-next-line unicorn/prefer-top-level-await -- Prefer this approach to using Suspense.
-(async (): Promise<void> => {
+// NOTE: Prefer this approach to using Suspense.
+void (async (): Promise<void> => {
     contextConfig.value = await loadContextConfig();
     contextConfigIsLoading.value = false;
 })();
@@ -69,7 +70,7 @@ watch(contextConfig, (newContextConfig) => {
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleSelectModel(modelReference: GridListItem<LocalisedConfig<ComponentBaseConfig>> | undefined): Promise<void> {
+function handleSelectModel(modelReference: GridListItem<LocalisedConfig<ComponentBaseConfig>> | undefined): void {
     activeModelReference.value = modelReference;
 }
 
@@ -77,7 +78,8 @@ async function handleSelectModel(modelReference: GridListItem<LocalisedConfig<Co
 
 function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBaseConfig>>> {
     const localisedModels: GridListItem<LocalisedConfig<ComponentBaseConfig>>[] = [];
-    for (const area of contextConfig.value!.areas) {
+    const areas = contextConfig.value?.areas ?? [];
+    for (const area of areas) {
         const la = localiseReference(area, localeId.value);
         localisedModels.push({ ...la, isHeader: true });
         for (const model of area.models) {

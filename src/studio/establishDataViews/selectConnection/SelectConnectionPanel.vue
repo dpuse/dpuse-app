@@ -36,8 +36,8 @@ const connectorStatus = computed(() => (connectionLocalisedConfig.statusId ? get
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleSubmit(): Promise<void> {
-    await router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } });
+function handleSubmit(): void {
+    void router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

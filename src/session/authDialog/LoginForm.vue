@@ -31,7 +31,7 @@ const { r$ } = useRegle(form, { identifier: { required, email } });
 
 async function handleSubmit(): Promise<void> {
     await r$.$validate();
-    if (!r$.$invalid) await onTrigger(form.identifier);
+    if (!r$.$invalid) void onTrigger(form.identifier);
 }
 </script>
 

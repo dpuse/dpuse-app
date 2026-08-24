@@ -41,9 +41,9 @@ const configOptionLocalisedConfigs = computed(() => localiseConfigs<ConfigOption
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleSelectView(viewId: string): Promise<void> {
+function handleSelectView(viewId: string): void {
     if (activeViewId.value === viewId) return;
-    await router.replace({ query: { ...route.query, aView: viewId } });
+    void router.replace({ query: { ...route.query, aView: viewId } });
 }
 </script>
 
