@@ -11,7 +11,7 @@ import { t } from '@/state/locale';
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 import Input from '@/components/ui/Input.vue';
-import TextField from '@/components/ui/TextField.vue';
+import TextInput from '@/components/ui/TextInput.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -44,7 +44,7 @@ function handleSubmit(): void {
             <!-- Following required to help browsers and assistive tech recognize the form as a login or password form -->
             <Input id="userName" type="text" autocomplete="username" label="Username" placeholder="Username" style="display: none" tabindex="-1" aria-hidden="true" />
 
-            <TextField
+            <TextInput
                 v-model="form.password"
                 autocomplete="current-password"
                 type="password"

@@ -16,7 +16,7 @@ import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import GoogleLogo from '@/components/branding/GoogleLogo.vue';
 import MicrosoftLogo from '@/components/branding/MicrosoftLogo.vue';
 import Separator from '@/components/ui/Separator.vue';
-import TextField from '@/components/ui/TextField.vue';
+import TextInput from '@/components/ui/TextInput.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -40,7 +40,7 @@ async function handleSubmit(): Promise<void> {
         <h2 class="text-2xl font-normal">{{ t(T, 'Sign_in') }}</h2>
 
         <form class="mt-2 flex flex-col gap-y-3">
-            <TextField
+            <TextInput
                 v-model="form.identifier"
                 autocomplete="email"
                 type="email"

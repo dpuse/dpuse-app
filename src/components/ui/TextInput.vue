@@ -17,14 +17,14 @@ defineEmits<{ blur: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const id = useId();
 const attributes = useAttrs();
+const id = useId();
 const textValue = defineModel<string>({ default: '' });
 const valueHasErrors = computed(() => errors.length > 0);
 </script>
 
 <template>
-    <div :class="attributes.class" data-region="TextField" :style="attributes.style as string">
+    <div :class="attributes.class" data-region="TextInput" :style="attributes.style as string">
         <!-- Label -->
         <label v-if="label" :for="id" class="mb-1 block text-xs font-medium text-muted">{{ label }}</label>
 
