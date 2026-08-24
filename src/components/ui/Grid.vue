@@ -12,7 +12,7 @@ import BusyBar from '@/components/ui/BusyBar.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
@@ -119,14 +119,7 @@ function getRowHeight(item: T | undefined): number {
                 <slot name="empty" />
             </ScrollArea>
 
-            <ScrollArea
-                v-else
-                class="flex-1"
-                role="list"
-                :row-count="rowCount"
-                :scroll-area-padding-bottom="scrollAreaPaddingBottom"
-                @initialised="handleScrollAreaInitialised"
-            >
+            <ScrollArea v-else class="flex-1" role="list" :row-count="rowCount" :scroll-area-padding-bottom="scrollAreaPaddingBottom" @initialised="handleScrollAreaInitialised">
                 <div :class="{ 'mt-2': isCompact }" :style="{ height: totalSize + 'px', position: 'relative' }">
                     <div
                         v-for="virtualRow in virtualRows"

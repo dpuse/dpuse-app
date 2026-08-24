@@ -83,7 +83,7 @@ const ENTITY_TABS = [
     { id: 'primaryMeasures', label: 'Measures' }
 ];
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { modelReference } = defineProps<{
     activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;

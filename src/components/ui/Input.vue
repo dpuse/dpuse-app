@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { useAttrs, useId } from 'vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { id, label, labelHidden } = defineProps<{ id?: string; label: string; labelHidden?: boolean }>();
 

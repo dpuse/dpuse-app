@@ -19,6 +19,7 @@ import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } f
 import AssistantVendorMenu from './AssistantVendorMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
+import TextArea from '@/components/ui/TextArea.vue';
 
 // ── Local Components - Dynamic
 const ChatSessionTanstack = defineAsyncComponent(() => import('./ChatSessionTanstack.vue'));
@@ -28,7 +29,7 @@ const ChatSessionVercel = defineAsyncComponent(() => import('./ChatSessionVercel
 
 const PROMPT = 'What should I search for to find the latest developments in renewable energy?';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { modelConfig, vendorConfigs, vendorId } = defineProps<{ modelConfig: AssistantModelConfig; vendorConfigs: AssistantVendorConfig[]; vendorId: AssistantVendorId }>();
 
@@ -194,18 +195,16 @@ async function initialiseMarkedTool(): Promise<void> {
         <!-- Input - in-flow, always rounded, with an action bar (vendor/model, status, send) attached below the text box. -->
         <div
             ref="inputContainer"
-            class="absolute right-4 bottom-0 left-16 mb-4 flex w-[min(65ch,calc(100%-80px))] flex-none flex-col rounded-2xl border border-separator bg-surface shadow-md md:inset-x-0 md:mx-auto"
+            :class="[
+                'absolute right-4 bottom-0 left-16 mb-4 flex w-[min(65ch,calc(100%-80px))] flex-none flex-col bg-surface shadow-md',
+                'rounded-2xl border border-separator',
+                'focus-within:ring-1 focus-within:ring-selected-ring',
+                'md:inset-x-0 md:mx-auto'
+            ]"
         >
-            <textarea
-                id="comment"
-                v-model="input"
-                name="comment"
-                class="field-sizing-content max-h-40 min-h-11 w-full resize-none px-3.5 pt-3 pb-2 text-sm text-muted outline-none"
-                placeholder="Ask a question"
-                @keydown.enter.exact.prevent="handleSendMessage"
-            />
+            <TextArea v-model="input" class="max-h-40 rounded-t-2xl" placeholder="Ask a question" @keydown.enter.exact.prevent="handleSendMessage" />
 
-            <div class="flex items-center justify-between gap-x-2 rounded-b-2xl border-t border-separator bg-zinc-50 p-2">
+            <div class="flex items-center justify-between gap-x-2 rounded-b-2xl border-t border-separator bg-backdrop p-2">
                 <AssistantVendorMenu :model-config="modelConfig" :vendor-configs="vendorConfigs" :vendor-id="vendorId" @select="handleSelectVendor" />
 
                 <div class="flex items-center gap-x-2">
@@ -216,32 +215,6 @@ async function initialiseMarkedTool(): Promise<void> {
                 </div>
             </div>
         </div>
-        <!--
-        <div
-            ref="inputContainer"
-            class="absolute right-4 bottom-0 left-16 mb-4 flex w-[min(65ch,calc(100%-80px))] flex-none flex-col rounded-2xl border border-selected-border bg-surface shadow-md focus-within:ring-2 focus-within:ring-selected-ring md:inset-x-0 md:mx-auto"
-        >
-            <textarea
-                id="comment"
-                v-model="input"
-                name="comment"
-                class="field-sizing-content max-h-40 min-h-11 w-full resize-none px-3.5 pt-3 pb-2 text-sm text-muted outline-none"
-                placeholder="Ask a question"
-                @keydown.enter.exact.prevent="handleSendMessage"
-            />
-
-            <div class="flex items-center justify-between gap-x-2 border-t border-separator bg-selected p-2">
-                <AssistantVendorMenu :model-config="modelConfig" :vendor-configs="vendorConfigs" :vendor-id="vendorId" @select="handleSelectVendor" />
-
-                <div class="flex items-center gap-x-2">
-                    <span class="text-xs text-muted">{{ status }}</span>
-                    <Button class="rounded-full bg-blue-400 p-1 text-white disabled:opacity-40" shape="minimal" :disabled="input.trim().length === 0" @click="handleSendMessage">
-                        <ArrowUpIcon class="size-5.5" stroke-width="2.5" />
-                    </Button>
-                </div>
-            </div>
-        </div>
-        -->
     </div>
 </template>
 

@@ -6,7 +6,7 @@ import { useTemplateRef, watch } from 'vue';
 import Button from '@/components/ui/button/Button.vue';
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { title } = defineProps<{ title: string }>();
 const emit = defineEmits<{ save: [] }>();

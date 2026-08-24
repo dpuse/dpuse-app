@@ -14,7 +14,7 @@ import AvatarButton from '@/components/ui/button/AvatarButton.vue';
 // ── Local Components - Dynamic
 const SessionMenu = defineAsyncComponent(load('SessionMenu', () => import('@/session/SessionMenu.vue')));
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { studioOptionBarIsVisible } = defineProps<{ studioOptionBarIsVisible: boolean }>();
 

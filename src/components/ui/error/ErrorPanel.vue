@@ -11,7 +11,7 @@ import { type AppError, serialiseError } from '@dpuse/dpuse-shared/errors';
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { error, errorWasReported } = defineProps<{ error: AppError; errorWasReported: boolean }>();
 defineEmits<{ retry: [] }>();

@@ -5,7 +5,7 @@ import { computed, onMounted, onUnmounted, useId, useTemplateRef } from 'vue';
 // ── Local Components - Static
 import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from './ScrollThumb.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 type Properties = { scrollAreaPaddingBottom?: number | string; scrollbarAlwaysVisible?: boolean };
 const { scrollAreaPaddingBottom, scrollbarAlwaysVisible = false } = defineProps<Properties>();

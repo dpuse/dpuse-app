@@ -9,7 +9,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import Button from '@/components/ui/button/Button.vue';
 import Grid from '@/components/ui/Grid.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 type Properties = {
     activeItem?: T;

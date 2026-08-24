@@ -28,7 +28,7 @@ const ASSISTANT_PANELS: Record<string, Component> = {
     library: LibraryView
 };
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { studioPaneIsHidden } = defineProps<{ studioPaneIsHidden: boolean }>();
 

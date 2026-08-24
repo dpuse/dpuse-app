@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { PlusIcon } from '@lucide/vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { label } = defineProps<{ label: string }>();
 </script>

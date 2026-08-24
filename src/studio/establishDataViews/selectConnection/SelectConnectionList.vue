@@ -20,7 +20,7 @@ import SelectPlaceholder from '@/components/ui/placeholders/SelectPlaceholder.vu
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 

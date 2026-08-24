@@ -19,7 +19,7 @@ import { onUnmounted, ref, useTemplateRef, watch } from 'vue';
 const MIN_THUMB_LENGTH = 32;
 const HIDE_DELAY_MS = 1500;
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 type Orientation = 'vertical' | 'horizontal';
 type Properties = {

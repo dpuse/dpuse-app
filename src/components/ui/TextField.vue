@@ -2,10 +2,17 @@
 // ── External Dependencies & Registrations
 import { computed, useAttrs, useId } from 'vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 defineOptions({ inheritAttrs: false });
-const { errors = [], label, type = 'text' } = defineProps<{ errors?: string[]; label?: string; type?: string }>();
+
+interface Properties {
+    errors?: string[];
+    label?: string;
+    type?: string;
+}
+const { errors = [], label, type = 'text' } = defineProps<Properties>();
+
 defineEmits<{ blur: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────

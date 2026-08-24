@@ -38,7 +38,7 @@ const T = {
     Connections: { en: 'Connections', es: 'Conexiones' }
 };
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
     activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;

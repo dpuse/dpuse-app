@@ -10,7 +10,7 @@ import InvestigateData from './investigateData/InvestigateData.vue';
 import TransformData from './transformData/TransformData.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 // Declared (even though this is the last wizard step and never actually emits) so Vue treats these as real
 // props/an real emit instead of fallthrough attrs/listeners — see the template's root-element note below for why
 // that distinction matters here specifically.

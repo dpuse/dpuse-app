@@ -13,7 +13,7 @@ import Button from '@/components/ui/button/Button.vue';
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { configOptionLocalisedConfigs } = defineProps<{
     activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;

@@ -17,7 +17,7 @@ import StudioDetailPanel from '../../StudioDetailPanel.vue';
 import StudioDocumentPanel from '../../StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { presenterLocalisedConfig } = defineProps<{
     activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;

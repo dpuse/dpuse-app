@@ -10,7 +10,7 @@ import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } f
 import Button from '@/components/ui/button/Button.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { modelConfig, vendorConfigs, vendorId } = defineProps<{ modelConfig: AssistantModelConfig; vendorConfigs: AssistantVendorConfig[]; vendorId: AssistantVendorId }>();
 
@@ -24,7 +24,10 @@ const menuReference = useTemplateRef<HTMLElement>('menuReference');
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
-onUnmounted(() => document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true }));
+
+onUnmounted(() => {
+    document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
+});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -47,7 +50,7 @@ function handleSelect(newVendorId: AssistantVendorId, newModelConfig: AssistantM
             aria-haspopup="true"
             :aria-expanded="menuIsOpen"
             aria-label="Select vendor and model"
-            class="flex items-center gap-x-1 rounded-full bg-zinc-200 px-2.5 py-1 text-xs"
+            class="flex items-center gap-x-1 rounded-full bg-zinc-200 px-2.5 py-1 text-xs dark:bg-zinc-700"
             shape="minimal"
             @click="menuIsOpen = !menuIsOpen"
         >

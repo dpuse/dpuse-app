@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router';
 // ── Local Components - Static
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { variant = 'large' } = defineProps<{ variant?: 'compact' | 'large' }>();
 

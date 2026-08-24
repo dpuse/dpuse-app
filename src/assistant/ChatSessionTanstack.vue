@@ -8,7 +8,7 @@ import type { AssistantChatMessage } from './assistantChat';
 import type { AssistantModelConfig } from './modelConfigs';
 import { tanstackClientTools } from './tools/tanstackClientTools';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { modelConfig } = defineProps<{ modelConfig: AssistantModelConfig }>();
 

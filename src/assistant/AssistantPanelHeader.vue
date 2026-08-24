@@ -25,7 +25,7 @@ const ASSISTANT_TABS: ConfigOptionConfig<Component>[] = [
     { id: 'about', label: { en: '' }, description: {}, icon: InfoIcon, iconDark: null, rightAligned: true }
 ];
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { title } = defineProps<{ title: string }>();
 

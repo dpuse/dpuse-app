@@ -19,7 +19,7 @@ import { toolConfigs } from '@/state/session';
 import Button from './button/Button.vue';
 import ErrorPanel from '@/components/ui/error/ErrorPanel.vue';
 
-// ── Options, Properties, Slots & Emits ───────────────────────────────────────────────────────────────────────────────
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { id, label, labelHidden } = defineProps<{ id?: string; label: string; labelHidden?: boolean }>();
 
