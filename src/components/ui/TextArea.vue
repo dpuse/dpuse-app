@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { XIcon } from '@lucide/vue';
-import { nextTick, useAttrs, useId, useTemplateRef } from 'vue';
+import { useAttrs, useId, useTemplateRef } from 'vue';
 
 // ── Local Components - Static
 import Button from '@/components/ui/button/Button.vue';
@@ -26,13 +26,18 @@ const textAreaElement = useTemplateRef<HTMLTextAreaElement>('textAreaElement');
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function handleClear(): Promise<void> {
-    textValue.value = '';
-    await nextTick();
+function handleClear(): void {
     const element = textAreaElement.value;
+    textValue.value = '';
     if (!element) return;
+
+    // Focus synchronously within the click's user-gesture window so iOS opens the keyboard reliably.
     element.focus();
     element.setSelectionRange(0, 0);
+
+    // On iOS, opening the keyboard animates the viewport, shifting this bottom-anchored input under a
+    // caret WebKit already placed — nudge the selection again once that settles to force a redraw.
+    window.visualViewport?.addEventListener('resize', () => { element.setSelectionRange(0, 0); }, { once: true });
 }
 </script>
 
