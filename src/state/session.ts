@@ -70,6 +70,11 @@ export const configRetrievalSucceeded = ref(false);
 // the UI show a real "couldn't connect" message instead of leaving every config list stuck in its busy state
 // forever. Reset to false as soon as a connection attempt succeeds.
 export const configRetrievalFailed = ref(false);
+// True once a service module has failed to load — the Hanko SDK, the account monitor, or the engine. Every one of
+// those is a stale-deployment or offline-network failure that only a page reload can clear, so a single flag drives
+// a single banner rather than one flag and one message per service. Configuration retrieval keeps its own flag
+// because that one also has to release the awaits gated on it.
+export const serviceLoadFailed = ref(false);
 // True once accountMonitor has delivered at least one message for the current session. Cleared on sign-out
 // alongside connectionAccountConfigs, since neither is meaningful while signed out.
 export const accountConfigsAreRetrieved = ref(false);
@@ -185,8 +190,19 @@ function clearSessionExpiryTimer(): void {
 }
 
 async function initialiseHanko(): Promise<void> {
-    const { Hanko } = await import('@teamhanko/hanko-frontend-sdk');
-    state.hankoInstance = new Hanko(HANKO_API_URL);
+    let hankoModule;
+    try {
+        hankoModule = await import('@teamhanko/hanko-frontend-sdk');
+    } catch (error) {
+        // Without this the session stays 'undefined' — pending — forever, so every session-dependent view waits on a
+        // validation that can never run. 'validationFailure' settles it as signed out, exactly as a rejected validate would.
+        serviceLoadFailed.value = true;
+        establishSession('validationFailure');
+        void reportAppError(new AppError('Failed to load the authentication service.', 'dpuse-app.session.initialiseHanko', { typeId: 'handled' }, { cause: error }));
+        return;
+    }
+
+    state.hankoInstance = new hankoModule.Hanko(HANKO_API_URL);
     state.hankoInstance.onSessionCreated((sessionDetails) => {
         establishSession('created', sessionDetails.claims);
     });
@@ -210,23 +226,49 @@ async function initialiseHanko(): Promise<void> {
 }
 
 async function initialiseConfigMonitor(): Promise<void> {
-    const configMonitorModule = await import('@/observability/configMonitor');
-    configMonitorModule.initialise();
+    try {
+        const configMonitorModule = await import('@/observability/configMonitor');
+        configMonitorModule.initialise();
+    } catch (error) {
+        // Marked as failed rather than as a generic service load failure: without it neither retrieval flag is ever
+        // set, so every 'useConfigsReady' await hangs and each configuration list stays busy with no explanation.
+        // The flag also drives the banner, so this failure is surfaced by the same route as a failed handshake.
+        configRetrievalFailed.value = true;
+        void reportAppError(new AppError('Failed to load the configuration service.', 'dpuse-app.session.initialiseConfigMonitor', { typeId: 'handled' }, { cause: error }));
+    }
 }
 
+// Reported to the console and Axiom but deliberately not surfaced: performance tracking is invisible telemetry, so
+// its absence changes nothing the user can see or act on and a banner would be noise.
 async function initialisePerformanceTracking(): Promise<void> {
-    const performanceTrackingModule = await import('@/observability/performanceTracking');
-    performanceTrackingModule.initialise();
+    try {
+        const performanceTrackingModule = await import('@/observability/performanceTracking');
+        performanceTrackingModule.initialise();
+    } catch (error) {
+        void reportAppError(new AppError('Failed to load performance tracking.', 'dpuse-app.session.initialisePerformanceTracking', { typeId: 'handled' }, { cause: error }));
+    }
 }
 
 async function initialiseAccountMonitor(): Promise<void> {
-    const accountMonitorModule = await import('@/observability/accountMonitor');
-    accountMonitorModule.initialise();
+    try {
+        const accountMonitorModule = await import('@/observability/accountMonitor');
+        accountMonitorModule.initialise();
+    } catch (error) {
+        // 'accountConfigsAreRetrieved' stays false, so connection lists would otherwise sit busy indefinitely.
+        serviceLoadFailed.value = true;
+        void reportAppError(new AppError('Failed to load the account service.', 'dpuse-app.session.initialiseAccountMonitor', { typeId: 'handled' }, { cause: error }));
+    }
 }
 
+// Not surfaced: the module is already resident by the time sign-out runs, and a skipped teardown in a tab that is
+// discarding its session state is not something the user can act on.
 async function terminateAccountMonitor(): Promise<void> {
-    const accountMonitorModule = await import('@/observability/accountMonitor');
-    accountMonitorModule.terminate();
+    try {
+        const accountMonitorModule = await import('@/observability/accountMonitor');
+        accountMonitorModule.terminate();
+    } catch (error) {
+        void reportAppError(new AppError('Failed to terminate the account service.', 'dpuse-app.session.terminateAccountMonitor', { typeId: 'handled' }, { cause: error }));
+    }
 }
 
 function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {

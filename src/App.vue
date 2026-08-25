@@ -7,16 +7,16 @@ import { useRoute, useRouter } from 'vue-router';
 import { load } from '@/state/component';
 import { t } from '@/state/locale';
 import { assistantPaneIsVisible, contentScrollPosition, sessionMenuIsOpen, studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
-import { configRetrievalFailed, initialiseServices } from '@/state/session';
+import { configRetrievalFailed, initialiseServices, serviceLoadFailed } from '@/state/session';
 import { navigationIsActive, navigationIsDelayed } from '@/state/navigation';
 
 // ── Static Components
 import AssistantLogo from '@/components/branding/AssistantLogo.vue'; // Always visible.
 import BusyBar from '@/components/ui/BusyBar.vue'; // Can be no delay when rendering.
 import Button from '@/components/ui/button/Button.vue'; // Required by studio and assistant toggle buttons which are always visible.
-import ConfigRetrievalFailedBanner from '@/components/ui/ConfigRetrievalFailedBanner.vue'; // Can be no delay when rendering.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import LoadingMask from '@/components/ui/LoadingMask.vue'; // Can be no delay when rendering.
+import ServiceFailureBanner from '@/components/ui/error/ServiceFailureBanner.vue'; // Can be no delay when rendering.
 import SessionButton from '@/session/SessionButton.vue'; // Always visible.
 
 // ── Dynamic Components
@@ -34,7 +34,12 @@ const PANE_SPLITTER_WIDTH = 6; // The value must match the 'w-1.5' class on the 
 const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
 const T = {
     'wb.toggle.label.aria': { en: 'Toggle studio panel', es: 'Alternar panel de estudio' },
-    'k.toggle.label.aria': { en: 'Toggle assistant panel', es: 'Alternar el panel asistente' }
+    'k.toggle.label.aria': { en: 'Toggle assistant panel', es: 'Alternar el panel asistente' },
+    'configRetrievalFailed.message': { en: 'Unable to connect to DPUse. Please refresh the page.', es: 'No se puede conectar con DPUse. Actualice la página.' },
+    'serviceLoadFailed.message': {
+        en: 'Part of DPUse failed to load. You may be running an outdated version of the app. Please refresh the page.',
+        es: 'No se pudo cargar una parte de DPUse. Es posible que esté utilizando una versión desactualizada de la aplicación. Actualice la página.'
+    }
 };
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -52,6 +57,16 @@ const router = useRouter();
 const studioOptionBarIsVisible = ref(false);
 const studioPaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
 const studioPaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
+
+// ── Derived State - Service Failures ─────────────────────────────────────────────────────────────────────────────────
+
+// Empty when nothing has failed, which is also what hides the banner. Only one message is ever shown: both failures
+// end in the same refresh, so stacking them would just repeat the instruction. Connectivity comes first because a
+// service module cannot load while the app is offline either, making it the more likely root cause of the pair.
+const serviceFailureMessage = computed(() => {
+    if (configRetrievalFailed.value) return t(T, 'configRetrievalFailed.message');
+    return serviceLoadFailed.value ? t(T, 'serviceLoadFailed.message') : '';
+});
 
 // ── Derived State - Dialogs ──────────────────────────────────────────────────────────────────────────────────────────
 
@@ -219,15 +234,15 @@ function establishPaneSplitterPercent(): number {
           z-51: SessionMenu
           z-60: DialogLayout/AuthDialog, DialogLayout/AccountDialog & DialogLayout/ConnectionDialogDialog
           z-70: BusyBar (navigation)
-          z-80: ConfigRetrievalFailedBanner (connectivity failure)
+          z-80: ServiceFailureBanner (connectivity or service module load failure)
           -->
 
         <!-- Mask - Semi-transparent mask over the top safe area, so scrolling content fades out beneath it. -->
         <div class="fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-surface/80 via-25% to-surface/95" data-region="topFadeOut" />
 
-        <!-- Configuration WebSocket permanently failed to connect. Overrides everything else until the page is refreshed. -->
+        <!-- Configuration WebSocket permanently failed to connect, or a service module failed to load. Overrides everything else until the page is refreshed. -->
         <Transition name="action-fade">
-            <ConfigRetrievalFailedBanner v-if="configRetrievalFailed" class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-80" />
+            <ServiceFailureBanner v-if="serviceFailureMessage" class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-80" :message="serviceFailureMessage" />
         </Transition>
 
         <!-- Navigation progress bar. Always visible. -->

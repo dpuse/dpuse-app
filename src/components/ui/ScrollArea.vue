@@ -9,9 +9,10 @@ import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from './ScrollThumb.vue';
 
 interface Properties {
     scrollAreaPaddingBottom?: number | string;
+    scrollAreaPaddingRight?: number | string; // Overrides the default gutter — pass 0 where the content is narrower than the reserved 16px.
     scrollbarAlwaysVisible?: boolean;
 }
-const { scrollAreaPaddingBottom, scrollbarAlwaysVisible } = defineProps<Properties>();
+const { scrollAreaPaddingBottom, scrollAreaPaddingRight, scrollbarAlwaysVisible } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [scrollElement: HTMLElement] }>();
 
@@ -30,7 +31,8 @@ const verticalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('vertical
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const paddingBottom = computed(() => (typeof scrollAreaPaddingBottom === 'number' ? `${String(scrollAreaPaddingBottom)}px` : scrollAreaPaddingBottom));
+const paddingBottom = computed(() => toLength(scrollAreaPaddingBottom));
+const paddingRight = computed(() => toLength(scrollAreaPaddingRight));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -55,11 +57,17 @@ function handleContentWheel(wheelEvent: WheelEvent): void {
     if (wheelEvent.deltaY === 0) return;
     scrollElement.value?.scrollBy({ top: wheelEvent.deltaY });
 }
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function toLength(value: number | string | undefined): string | undefined {
+    return typeof value === 'number' ? `${String(value)}px` : value;
+}
 </script>
 
 <template>
     <div class="dpuse-scroll-area-wrapper" data-region="ScrollArea">
-        <div :id="scrollElementId" ref="scrollElement" class="dpuse-scroll-area-v" :style="{ paddingBottom }">
+        <div :id="scrollElementId" ref="scrollElement" class="dpuse-scroll-area-v" :style="{ paddingBottom, paddingRight }">
             <div :id="innerScrollElementId" ref="innerScrollElement" class="dpuse-scroll-area-h">
                 <slot />
             </div>

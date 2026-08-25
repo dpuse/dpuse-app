@@ -2,10 +2,12 @@
 // import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 // import type { ConnectionConfig, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 // import type { AuditObjectContentOptions, ConnectionConfig, PreviewObjectOptions, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
+import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { EngineCallbackData, EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared/component/module/engine';
 
 // ── Local Framework
-import { engineConfig, toolConfigs } from '@/state/session';
+import { reportAppError } from '@/observability/errorTracking';
+import { engineConfig, serviceLoadFailed, toolConfigs } from '@/state/session';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -24,13 +26,29 @@ export async function useEngine(): Promise<EngineWorker> {
     // Return current value if previously imported and a new version has not been published.
     if (state.engineWorker != null && state.activeEngineVersion === engineVersion) return state.engineWorker;
 
-    // Import engine and initialise interface.
-    const module = await import(/* @vite-ignore */ `${ENGINE_STORAGE_URL_PREFIX}/engine_v${String(engineVersion)}/dpuse-engine.es.js`);
-    const engineRuntime = module.engineRuntime as EngineRuntime;
-    const pendingEngineWorker = engineRuntime.invokeWorker((errorEvent: ErrorEvent) => {
-        console.error(errorEvent, 'engineWorker@useEngine.1');
-    });
-    await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: toolConfigs.value });
+    // Import engine and initialise interface. Reported here rather than left to the caller: every data operation in
+    // the app funnels through this one load, most call sites have no failure path of their own, and the failure is
+    // the same one whoever triggered it — so this is the single place that can guarantee it reaches the console,
+    // Axiom and the UI. Callers that do catch may report again with their own context; the cause chain still carries
+    // this error, so the two reports agree.
+    const engineURL = `${ENGINE_STORAGE_URL_PREFIX}/engine_v${String(engineVersion)}/dpuse-engine.es.js`;
+    let pendingEngineWorker: EngineWorker;
+    try {
+        const module = await import(/* @vite-ignore */ engineURL);
+        const engineRuntime = module.engineRuntime as EngineRuntime;
+        pendingEngineWorker = engineRuntime.invokeWorker((errorEvent: ErrorEvent) => {
+            console.error(errorEvent, 'engineWorker@useEngine.1');
+        });
+        await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: toolConfigs.value });
+    } catch (error) {
+        // Nothing in the app works without the engine, and re-importing cannot fix a stale or unreachable build, so
+        // this drives the application-wide banner rather than a per-view notice.
+        serviceLoadFailed.value = true;
+        const data = { engineURL, engineVersion, typeId: 'handled' };
+        const appError = new AppError(`Failed to load engine v${String(engineVersion)}.`, 'dpuse-app.useEngine.useEngine', data, { cause: error });
+        void reportAppError(appError);
+        throw appError;
+    }
     if (import.meta.env.DEV) console.info(`[dpuse:app] ✅  Engine 'dpuse-engine' v${String(engineVersion)} loaded.`);
 
     /**/

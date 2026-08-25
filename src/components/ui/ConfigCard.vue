@@ -77,13 +77,13 @@ const { actions = [], badges = [], config, isCompact, overline, selected, status
             </div>
 
             <div class="flex flex-col overflow-x-hidden">
-                <div v-if="!isCompact && overline" class="min-w-0 truncate text-xs leading-tight font-normal text-muted">{{ overline }}</div>
-                <div class="min-w-0 truncate leading-tight text-content">{{ config.label }}</div>
+                <div v-if="!isCompact && overline" class="min-w-0 truncate text-xs leading-tight text-muted">{{ overline }}</div>
+                <div class="min-w-0 truncate leading-tight text-muted">{{ config.label }}</div>
             </div>
         </div>
 
         <!-- Description -->
-        <div v-if="!isCompact && config.description" class="line-clamp-2 flex-none text-left text-sm text-muted">
+        <div v-if="!isCompact && config.description" class="line-clamp-2 flex-none text-left text-sm text-subtle">
             {{ config.description }}
         </div>
 

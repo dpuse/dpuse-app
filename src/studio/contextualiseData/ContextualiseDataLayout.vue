@@ -1,16 +1,21 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
+import { AppError } from '@dpuse/dpuse-shared/errors';
+import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
 import type { D3NetworkView, Tool as D3ToolType, NetworkDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
+import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import { toolConfigs } from '@/state/session';
 import { useConfigsReady } from '@/services/useConfigsReady';
 
 // ── Static Components
+import Button from '@/components/ui/button/Button.vue';
+import ErrorPanel from '@/components/ui/error/ErrorPanel.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
@@ -43,21 +48,16 @@ const data: NetworkDiagramData = {
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const container = ref<HTMLDivElement | null>(null);
+const container = useTemplateRef<HTMLDivElement>('container');
+const renderError = shallowRef<AppError | undefined>();
+// Undefined until the error report completes, so ErrorPanel can distinguish reporting-pending from failed.
+const errorWasReported = ref<boolean | undefined>();
 const state: { view: D3NetworkView | null } = { view: null };
-
-const onAutoLayout = (): void => {
-    state.view?.triggerAutoLayout();
-};
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(async () => {
-    await useConfigsReady();
-    if (!container.value) return;
-
-    const d3Tool = await loadD3Tool();
-    state.view = await d3Tool.renderNetworkDiagram(data, container.value);
+onMounted(() => {
+    void renderDiagram();
 });
 
 onBeforeUnmount(() => {
@@ -65,16 +65,32 @@ onBeforeUnmount(() => {
     state.view = null;
 });
 
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+function handleAutoLayout(): void {
+    state.view?.triggerAutoLayout();
+}
+
+function handleRetry(): void {
+    void renderDiagram();
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function loadD3Tool(): Promise<D3ToolType> {
-    const toolModuleConfig = toolConfigs.value.find((config) => config.id === 'dpuse-tool-d3-visualiser');
-    if (!toolModuleConfig) throw new Error('No D3 tool module configuration.');
+async function renderDiagram(): Promise<void> {
+    renderError.value = undefined;
+    errorWasReported.value = undefined;
+    try {
+        await useConfigsReady();
+        const d3Tool = await loadTool<D3ToolType>(toolConfigs.value, 'd3-visualiserd');
 
-    const url = `https://engine-eu.dpuse.app/tools/d3-visualiser_v${toolModuleConfig.version}/dpuse-tool-d3-visualiser.es.js`;
-    const module = (await import(/* @vite-ignore */ url)) as { Tool: new () => D3ToolType };
-    const D3Tool = module.Tool;
-    return new D3Tool();
+        state.view?.destroy(); // Discard any earlier view so a retry replaces it rather than rendering a second one.
+        state.view = null;
+        if (container.value) state.view = await d3Tool.renderNetworkDiagram(data, container.value);
+    } catch (error) {
+        renderError.value = new AppError('Failed to render network diagram.', 'dpuse.contextualiseDataLayout.renderDiagram', { typeId: 'handled' }, { cause: error });
+        errorWasReported.value = await reportAppError(renderError.value);
+    }
 }
 </script>
 
@@ -83,11 +99,12 @@ async function loadD3Tool(): Promise<D3ToolType> {
         <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Contextualise_Data')" to="studio" />
 
         <Separator />
-        <div class="px-4 py-2">
-            <button class="rounded-md border border-boundary bg-card px-3 py-1.5 text-sm font-medium text-emphasis hover:bg-card-hover" type="button" @click="onAutoLayout">
-                Auto-layout
-            </button>
+
+        <ErrorPanel v-if="renderError" :error="renderError" :error-was-reported="errorWasReported" @retry="handleRetry" />
+
+        <div v-show="!renderError" class="px-4 py-2">
+            <Button variant="outline" @click="handleAutoLayout">Auto-layout</Button>
         </div>
-        <div ref="container" class="w-full flex-1" />
+        <div v-show="!renderError" ref="container" class="w-full flex-1" />
     </StudioLayout>
 </template>

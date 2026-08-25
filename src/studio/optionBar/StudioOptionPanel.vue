@@ -68,8 +68,8 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
         <Separator />
 
         <!-- Studio options scroller -->
-        <ScrollArea class="flex-1">
-            <div class="flex flex-col items-center gap-y-2 py-2 pl-4">
+        <ScrollArea class="flex-1" :scroll-area-padding-right="0">
+            <div class="flex flex-col items-center gap-y-2 py-2">
                 <Button
                     :aria-label="t(T, 'home.aria')"
                     shape="icon"
