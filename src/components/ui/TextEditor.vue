@@ -3,17 +3,15 @@
 import DOMPurify from 'dompurify';
 import Squire from 'squire-rte';
 import { BoldIcon, ItalicIcon, LinkIcon, UnderlineIcon } from '@lucide/vue';
-import { nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, useAttrs, useId, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, useAttrs, useId, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
-import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
-import type { Tool as MarkerTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
 import { reportAppError } from '@/observability/errorTracking';
-import { toolConfigs } from '@/state/session';
+import { useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
@@ -37,25 +35,21 @@ const editor = shallowRef<Squire>();
 const editorId = id ?? useId();
 const labelId = useId();
 const internalUpdatePending = ref(false);
-const markedTool = shallowRef<MarkerTool>();
+const { markedTool, error: markedToolError, errorWasReported: markedToolErrorWasReported, initialise: initialiseMarkedTool } = useMarkedTool();
 const parentCanScroll = ref(true);
-const renderError = shallowRef<AppError | undefined>();
-const errorWasReported = ref(false);
+const editorError = shallowRef<AppError | undefined>();
+// Undefined until the error report completes, so ErrorPanel can distinguish reporting-pending from failed.
+const editorErrorWasReported = ref<boolean | undefined>();
 const scrollableAncestorObserver = shallowRef<ResizeObserver>();
 const textValue = defineModel<string>({ required: true });
 
-// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const toolReady = new Promise<void>((resolve) => {
-    watch(
-        toolConfigs,
-        (newToolConfigs) => {
-            if (newToolConfigs.length === 0) return;
-            resolve();
-        },
-        { immediate: true }
-    );
-});
+// Either failure leaves the editor unusable, so ErrorPanel presents whichever one occurred.
+const renderError = computed(() => editorError.value ?? markedToolError.value);
+const errorWasReported = computed(() => (editorError.value ? editorErrorWasReported.value : markedToolErrorWasReported.value));
+
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
     void initialiseEditor();
@@ -66,15 +60,10 @@ watch(textValue, async (newValue) => {
         internalUpdatePending.value = false;
         return;
     }
-    if (!markedTool.value) {
-        try {
-            markedTool.value = await loadTool<MarkerTool>(toolConfigs.value, 'marked-markdown-parser');
-        } catch (error) {
-            void reportAppError(new AppError('Failed to reload text editor markdown tool.', 'dpuse.textEditor.watchTextValue', { typeId: 'handled' }, { cause: error }));
-            return;
-        }
-    }
-    const html = DOMPurify.sanitize(markedTool.value.render(newValue));
+    const tool = markedTool.value ?? (await initialiseMarkedTool());
+    if (!tool) return; // Formatter unavailable; the failure is already reported and shown by ErrorPanel.
+
+    const html = DOMPurify.sanitize(tool.render(newValue));
     if (editor.value && editor.value.getHTML() !== html) {
         editor.value.setHTML(html);
     }
@@ -146,7 +135,8 @@ function findScrollableAncestor(element: HTMLElement | null): HTMLElement | null
 }
 
 async function initialiseEditor(): Promise<void> {
-    renderError.value = undefined;
+    editorError.value = undefined;
+    editorErrorWasReported.value = undefined;
     try {
         let editorInstance = editor.value;
         if (!editorInstance) {
@@ -155,8 +145,8 @@ async function initialiseEditor(): Promise<void> {
                 sanitizeToDOMFragment: (html: string): DocumentFragment => DOMPurify.sanitize(html, { RETURN_DOM_FRAGMENT: true })
             });
             newEditorInstance.addEventListener('blur', () => {
-                console.log('blur...');
                 if (!markedTool.value) return; // Tool not loaded yet; nothing to convert against.
+
                 internalUpdatePending.value = true;
                 textValue.value = markedTool.value.toMarkdown(newEditorInstance.getRoot());
             });
@@ -177,12 +167,11 @@ async function initialiseEditor(): Promise<void> {
             }
         }
 
-        await toolReady;
-        markedTool.value = await loadTool<MarkerTool>(toolConfigs.value, 'marked-markdown-parser');
-        editorInstance.setHTML(DOMPurify.sanitize(markedTool.value.render(textValue.value)));
+        const tool = await initialiseMarkedTool();
+        if (tool) editorInstance.setHTML(DOMPurify.sanitize(tool.render(textValue.value)));
     } catch (error) {
-        renderError.value = new AppError('Failed to initialise text editor.', 'dpuse.textEditor.initialiseEditor', { typeId: 'handled' }, { cause: error });
-        errorWasReported.value = await reportAppError(renderError.value);
+        editorError.value = new AppError('Failed to initialise text editor.', 'dpuse.textEditor.initialiseEditor', { typeId: 'handled' }, { cause: error });
+        editorErrorWasReported.value = await reportAppError(editorError.value);
     }
 }
 

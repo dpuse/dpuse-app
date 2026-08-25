@@ -11,7 +11,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 import type { DataSource } from '@/composables/useDataWindow';
 import T from './ConnectionDialog.json';
 import { viewportIsWide } from '@/state/appLayout';
-import { configsAreRetrieved, connectorConfigs } from '@/state/session';
+import { configRetrievalSucceeded, connectorConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -68,7 +68,7 @@ const subPanelError = ref<unknown>(null);
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectorConfig>>>(() => ({
-    rowCount: configsAreRetrieved.value ? connectorLocalisedConfigs.value.length : undefined,
+    rowCount: configRetrievalSucceeded.value ? connectorLocalisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<ConnectorConfig>[] }> => Promise.resolve({ rows: connectorLocalisedConfigs.value.slice(start, end) })
 }));
 

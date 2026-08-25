@@ -9,7 +9,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // ── Local Framework
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import type { DataSource } from '@/composables/useDataWindow';
-import { configsAreRetrieved, presenterConfigs } from '@/state/session';
+import { configRetrievalSucceeded, presenterConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -36,7 +36,7 @@ const presenterLocalisedConfigs = shallowRef<LocalisedConfig<PresenterConfig>[]>
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const presenterConfigsDataSource = computed<DataSource<LocalisedConfig<PresenterConfig>>>(() => ({
-    rowCount: configsAreRetrieved.value ? presenterLocalisedConfigs.value.length : undefined,
+    rowCount: configRetrievalSucceeded.value ? presenterLocalisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<PresenterConfig>[] }> => Promise.resolve({ rows: presenterLocalisedConfigs.value.slice(start, end) })
 }));
 

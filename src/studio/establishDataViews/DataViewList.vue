@@ -15,11 +15,11 @@ import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import {
     dataViewConfigs,
-    dataViewConfigsAreRetrieved,
     dataViewLocalisedConfigs,
+    dataViewRetrievalFailed,
+    dataViewRetrievalSucceeded,
     NEW_DATA_VIEW_ID,
     removeDataViewRecord,
-    retrieveDataViewConfigs,
     setActiveDataViewConfig
 } from '@/state/dataViews';
 
@@ -50,29 +50,15 @@ const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Constructs a computed data source wrapper for the data view configurations which are set by the watcher below.
-// rowCount stays undefined (busy) until retrieval completes, distinct from 0 (confirmed empty) — see DataSource.rowCount.
+// Constructs a computed data source wrapper for the data view configurations, which are retrieved by the meta store
+// connection watcher in '@/state/dataViews'.
+// rowCount stays undefined (busy) until retrieval settles, distinct from 0 (confirmed empty) — see DataSource.rowCount.
 const dataViewConfigsDataSource = computed((): DataSource<LocalisedConfig<DataViewConfig>> => ({
-    rowCount: dataViewConfigsAreRetrieved.value ? dataViewLocalisedConfigs.value.length : undefined,
+    rowCount: dataViewRetrievalSucceeded.value || dataViewRetrievalFailed.value ? dataViewLocalisedConfigs.value.length : undefined,
     getRows: (start: number, end: number): Promise<{ rows: LocalisedConfig<DataViewConfig>[] }> => Promise.resolve({ rows: dataViewLocalisedConfigs.value.slice(start, end) })
 }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// On a page refresh, this component may load before the meta store connection configuration is available;
-// otherwise it is likely already available. Uses this connection to set data view configurations which are referenced by the computed data source above.
-watch(
-    activeMetaStoreConnectionConfig,
-    (newActiveMetaStoreConnectionConfig) => {
-        if (newActiveMetaStoreConnectionConfig) {
-            if (!dataViewConfigsAreRetrieved.value) void retrieveDataViewConfigs(newActiveMetaStoreConnectionConfig);
-        } else {
-            dataViewConfigs.value = undefined;
-            dataViewConfigsAreRetrieved.value = false;
-        }
-    },
-    { immediate: true }
-);
 
 // Detail action bar reports clicks via v-model rather than dedicated events, so route them to the matching handler here.
 watch(detailActionId, (newDetailActionId) => {
@@ -109,7 +95,7 @@ function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewC
 }
 
 function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
-    const dataViewConfig = dataViewConfigs.value?.find((config) => config.id === dataViewLocalisedConfig.id);
+    const dataViewConfig = dataViewConfigs.value.find((config) => config.id === dataViewLocalisedConfig.id);
     if (!dataViewConfig) return;
 
     setActiveDataViewConfig(dataViewConfig);

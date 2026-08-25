@@ -10,7 +10,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
-import { activeMetaStoreConnectionConfig, configsAreRetrieved } from '@/state/session';
+import { activeMetaStoreConnectionConfig, configRetrievalSucceeded } from '@/state/session';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/ConfigCard.vue';
@@ -34,7 +34,7 @@ const router = useRouter();
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
-    rowCount: configsAreRetrieved.value ? connectionLocalisedConfigs.value.length : undefined,
+    rowCount: configRetrievalSucceeded.value ? connectionLocalisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<ConnectionConfig>[] }> => Promise.resolve({ rows: connectionLocalisedConfigs.value.slice(start, end) })
 }));
 

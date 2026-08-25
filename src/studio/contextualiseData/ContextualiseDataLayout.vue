@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 // ── DPUse Framework
 import type { D3NetworkView, Tool as D3ToolType, NetworkDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
@@ -8,6 +8,7 @@ import type { D3NetworkView, Tool as D3ToolType, NetworkDiagramData } from '@dpu
 // ── Local Framework
 import { t } from '@/state/locale';
 import { toolConfigs } from '@/state/session';
+import { useConfigsReady } from '@/services/useConfigsReady';
 
 // ── Static Components
 import Separator from '@/components/ui/Separator.vue';
@@ -51,19 +52,8 @@ const onAutoLayout = (): void => {
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const toolReady = new Promise<void>((resolve) => {
-    watch(
-        toolConfigs,
-        (newToolConfigs) => {
-            if (newToolConfigs.length === 0) return;
-            resolve();
-        },
-        { immediate: true }
-    );
-});
-
 onMounted(async () => {
-    await toolReady;
+    await useConfigsReady();
     if (!container.value) return;
 
     const d3Tool = await loadD3Tool();

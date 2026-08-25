@@ -5,7 +5,7 @@ import { onMounted, ref, shallowRef, useTemplateRef } from 'vue';
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
-import type { Tool as D3Tool, TreeDiagramNode } from '@dpuse/dpuse-tool-d3-visualiser';
+import type { Tool as D3Tool, ErdDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
 import { reportAppError } from '@/observability/errorTracking';
@@ -17,35 +17,52 @@ import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Evaluation example: strict tree (single parent per node), laid out and drawn by dpuse-tool-d3-visualiser's renderTreeDiagram (d3-hierarchy + d3-selection).
-const DIMENSION_TREE: TreeDiagramNode = {
-    id: 'geography',
-    label: 'Geography',
-    children: [
-        {
-            id: 'europe',
-            label: 'Europe',
-            children: [
-                { id: 'unitedKingdom', label: 'United Kingdom' },
-                { id: 'germany', label: 'Germany' }
-            ]
-        },
-        {
-            id: 'northAmerica',
-            label: 'North America',
-            children: [
-                { id: 'unitedStates', label: 'United States' },
-                { id: 'canada', label: 'Canada' }
-            ]
-        }
+// Evaluation example: hard-coded ERD, laid out and drawn by dpuse-tool-d3-visualiser's renderErdDiagram (dagre + d3-selection).
+const ERD_DATA: ErdDiagramData = {
+    nodes: [
+        { id: 'organisation', label: 'Organisation', typeId: 'external' },
+        { id: 'organisationalUnit', label: 'Organisational Unit', typeId: 'external' },
+        { id: 'job', label: 'Job', typeId: 'optional' },
+        { id: 'position', label: 'Position', typeId: 'local' },
+        { id: 'person', label: 'Person', typeId: 'external' },
+        { id: 'engagement', label: 'Engagement', typeId: 'local' },
+        { id: 'contract', label: 'Contract', typeId: 'optional' },
+        { id: 'occupancy', label: 'Occupancy', typeId: 'local' },
+        { id: 'language', label: 'Language', typeId: 'external' },
+        { id: 'nationality', label: 'Nationality', typeId: 'external' }
+    ],
+    edges: [
+        { source: 'organisation', target: 'organisationalUnit' },
+        { source: 'organisation', target: 'job' },
+        { source: 'organisation', target: 'engagement' },
+        { source: 'organisationalUnit', target: 'organisationalUnit' },
+        { source: 'person', target: 'engagement' },
+        { source: 'person', target: 'language' },
+        { source: 'person', target: 'nationality' },
+        { source: 'job', target: 'position' },
+        { source: 'engagement', target: 'contract' },
+        { source: 'contract', target: 'occupancy' },
+        { source: 'position', target: 'occupancy' }
     ]
 };
+
+// Order constraints lay the rank out as: [organisation's own children] [engagement, shared] [person's own children],
+// so neither parent's edge into 'engagement' has to cross back through the other parent's cluster.
+const ORDER_CONSTRAINTS = [
+    { left: 'organisation', right: 'person' },
+    { left: 'organisationalUnit', right: 'job' },
+    { left: 'job', right: 'engagement' },
+    { left: 'engagement', right: 'language' },
+    { left: 'language', right: 'nationality' },
+    { left: 'position', right: 'occupancy' }
+];
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const container = useTemplateRef<HTMLDivElement>('container');
 const renderError = shallowRef<AppError | undefined>();
-const errorWasReported = ref(false);
+// Undefined until the error report completes, so ErrorPanel can distinguish reporting-pending from failed.
+const errorWasReported = ref<boolean | undefined>();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -63,13 +80,14 @@ function handleRetry(): void {
 
 async function renderDiagram(): Promise<void> {
     renderError.value = undefined;
+    errorWasReported.value = undefined;
     try {
         const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiser');
         if (container.value) {
-            await d3Tool.renderTreeDiagram(DIMENSION_TREE, container.value);
+            await d3Tool.renderErdDiagram(ERD_DATA, container.value, { orderConstraints: ORDER_CONSTRAINTS });
         }
     } catch (error) {
-        renderError.value = new AppError('Failed to render diagram', 'dpuse.contextDimensionTreeDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error });
+        renderError.value = new AppError('Failed to render diagram', 'dpuse.contextErdDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error });
         errorWasReported.value = await reportAppError(renderError.value);
     }
 }

@@ -109,7 +109,7 @@ function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBaseConfi
         </template>
 
         <template #detail="{ item }">
-            <ContextModelPanel :active-config-option-config="activeConfigOptionConfig" :model-reference="item" />
+            <ContextModelPanel :model-reference="item" />
         </template>
 
         <template #no-selection>

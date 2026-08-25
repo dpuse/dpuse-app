@@ -9,7 +9,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // ── Local Framework
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import type { DataSource } from '@/composables/useDataWindow';
-import { configsAreRetrieved, toolConfigs } from '@/state/session';
+import { configRetrievalSucceeded, toolConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -36,7 +36,7 @@ const toolLocalisedConfigs = shallowRef<LocalisedConfig<ToolConfig>[]>([]);
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const toolConfigsDataSource = computed<DataSource<LocalisedConfig<ToolConfig>>>(() => ({
-    rowCount: configsAreRetrieved.value ? toolLocalisedConfigs.value.length : undefined,
+    rowCount: configRetrievalSucceeded.value ? toolLocalisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<ToolConfig>[] }> => Promise.resolve({ rows: toolLocalisedConfigs.value.slice(start, end) })
 }));
 

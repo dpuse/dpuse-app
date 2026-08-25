@@ -1,23 +1,18 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import { ArrowUpIcon } from '@lucide/vue';
 import DOMPurify from 'dompurify';
-import { ArrowUpIcon, TriangleAlertIcon } from '@lucide/vue';
-import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
-
-// ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
-import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
-import type { Tool as MarkedToolType } from '@dpuse/dpuse-tool-marked-markdown-parser';
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
-import { reportAppError } from '@/observability/errorTracking';
-import { toolConfigs } from '@/state/session';
+import { useMarkedTool } from '@/services/useMarkedTool';
 import { type AssistantChatMessage, getMessageSteps } from './assistantChat';
 import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } from './modelConfigs';
 
 // ── Static Components
 import AssistantVendorMenu from './AssistantVendorMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import TextArea from '@/components/ui/TextArea.vue';
 
@@ -44,9 +39,7 @@ const input = ref(PROMPT);
 const scrollElement = ref<HTMLElement | null>(null);
 const messages = ref<AssistantChatMessage[]>([]);
 const status = ref('idle');
-const markedTool = shallowRef<MarkedToolType>();
-const markedToolError = shallowRef<AppError | undefined>();
-const markedToolErrorWasReported = ref(false);
+const { markedTool, error: markedToolError, errorWasReported: markedToolErrorWasReported, initialise: initialiseMarkedTool } = useMarkedTool();
 const inputContainerHeight = ref(0);
 
 const sessionReference = useTemplateRef<{ sendMessage: (text: string) => void }>('sessionReference');
@@ -67,19 +60,7 @@ function renderText(text: string): string {
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const toolReady = new Promise<void>((resolve) => {
-    watch(
-        toolConfigs,
-        (newToolConfigs) => {
-            if (newToolConfigs.length === 0) return;
-            resolve();
-        },
-        { immediate: true }
-    );
-});
-
-onMounted(async () => {
-    await toolReady;
+onMounted(() => {
     void initialiseMarkedTool();
 });
 
@@ -121,18 +102,6 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
 function handleRetryMarkedTool(): void {
     void initialiseMarkedTool();
 }
-
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-async function initialiseMarkedTool(): Promise<void> {
-    markedToolError.value = undefined;
-    try {
-        markedTool.value = await loadTool<MarkedToolType>(toolConfigs.value, 'marked-markdown-parser');
-    } catch (error) {
-        markedToolError.value = new AppError('Failed to load chat markdown formatter.', 'dpuse.chatPanel.initialiseMarkedTool', { typeId: 'handled' }, { cause: error });
-        markedToolErrorWasReported.value = await reportAppError(markedToolError.value);
-    }
-}
 </script>
 
 <template>
@@ -140,13 +109,7 @@ async function initialiseMarkedTool(): Promise<void> {
         <component :is="SessionComponent" ref="sessionReference" :model-config="modelConfig" @messages-change="messages = $event" @status-change="status = $event" />
 
         <div v-if="markedToolError" class="mx-4 border-b border-separator">
-            <div class="my-2 flex items-center justify-between gap-2 rounded-md border border-warning-ring/20 bg-warning px-3 py-1.5 text-xs text-warning-text">
-                <span class="flex items-center gap-1.5">
-                    <TriangleAlertIcon class="size-3.5 shrink-0" />
-                    Formatting unavailable — showing plain text. See the browser console for more details.
-                </span>
-                <Button class="shrink-0" shape="minimal" variant="guarded" size="sm" @click="handleRetryMarkedTool">Retry</Button>
-            </div>
+            <ErrorNotice class="my-2" :error="markedToolError" :error-was-reported="markedToolErrorWasReported" @retry="handleRetryMarkedTool" />
         </div>
 
         <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-bottom="scrollPaddingBottom" @initialised="handleScrollAreaInitialised">

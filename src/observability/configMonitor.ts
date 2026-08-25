@@ -8,7 +8,7 @@ import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/prese
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
 // ── Local Framework
-import { configRetrievalFailed, configsAreRetrieved, connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
+import { configRetrievalFailed, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -84,7 +84,7 @@ function connectToWebSocket(): WebSocket | undefined {
                         return;
                     case 'init':
                         registerConfigurations(eventData.modules);
-                        configsAreRetrieved.value = true;
+                        configRetrievalSucceeded.value = true;
                         return;
                     case 'deploy':
                         registerConfigurations([eventData.module]);

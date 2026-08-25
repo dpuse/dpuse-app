@@ -13,7 +13,9 @@ import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { error, errorWasReported } = defineProps<{ error: AppError; errorWasReported: boolean }>();
+// 'errorWasReported' is undefined while the report is still in flight, so the panel says the reporting is pending
+// rather than claiming it could not be confirmed — see the reporting note in the template.
+const { error, errorWasReported } = defineProps<{ error: AppError; errorWasReported: boolean | undefined }>();
 defineEmits<{ retry: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -52,7 +54,8 @@ const originalSerialisedError = computed(() => (errorTrace.value.length > 1 ? er
 
         <p class="mt-6! mb-0! border-t border-warning-ring/30 pt-2 text-xs leading-snug! text-warning-text">
             See the browser console for more details.
-            <span v-if="errorWasReported">This error has been logged with DPUse Support for investigation.</span>
+            <span v-if="errorWasReported == null">Logging this error with DPUse Support&hellip;</span>
+            <span v-else-if="errorWasReported">This error has been logged with DPUse Support for investigation.</span>
             <span v-else class="font-semibold">Unable to confirm this error was logged with DPUse Support.</span>
         </p>
     </div>

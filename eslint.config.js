@@ -107,6 +107,16 @@ const config = defineConfigWithVueTs(
         }
     }),
 
+    // `PaneSplitter` is an ARIA window splitter: a focusable `separator` carrying pointer and keyboard handlers, which
+    // the rule does not recognise as interactive. Declared here rather than as a template comment above the root
+    // element, which would make the component multi-root and silently break attribute fallthrough.
+    {
+        files: ['src/components/ui/PaneSplitter.vue'],
+        rules: {
+            'vuejs-accessibility/no-static-element-interactions': 'off'
+        }
+    },
+
     // `eslint-plugin-tailwindcss`'s own recommended config ships an empty `settings.tailwindcss`, which would
     // otherwise clobber the `cssConfigPath` set above since ESLint merges `settings` shallowly per matching config.
     {

@@ -9,7 +9,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // ── Local Framework
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import type { DataSource } from '@/composables/useDataWindow';
-import { configsAreRetrieved, connectorConfigs } from '@/state/session';
+import { configRetrievalSucceeded, connectorConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -36,7 +36,7 @@ const connectorLocalisedConfigs = shallowRef<LocalisedConfig<ConnectorConfig>[]>
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectorConfig>>>(() => ({
-    rowCount: configsAreRetrieved.value ? connectorLocalisedConfigs.value.length : undefined,
+    rowCount: configRetrievalSucceeded.value ? connectorLocalisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<ConnectorConfig>[] }> => Promise.resolve({ rows: connectorLocalisedConfigs.value.slice(start, end) })
 }));
 

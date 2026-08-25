@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { localiseConfig, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { accountConfigsAreRetrieved, configsAreRetrieved } from '@/state/session';
+import { accountConfigsAreRetrieved, configRetrievalSucceeded } from '@/state/session';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs } from '@/state/dataViews';
 import { localeId, t } from '@/state/locale';
 
@@ -73,7 +73,7 @@ watch(
 watch(connectionLocalisedConfigs, (newConnectionLocalisedConfigs) => {
     const active = activeConnectionConfig.value;
     if (active == null) return;
-    if (!configsAreRetrieved.value || !accountConfigsAreRetrieved.value) return;
+    if (!configRetrievalSucceeded.value || !accountConfigsAreRetrieved.value) return;
     if (newConnectionLocalisedConfigs.some((config) => config.id === active.id)) return;
 
     activeConnectionConfig.value = undefined;

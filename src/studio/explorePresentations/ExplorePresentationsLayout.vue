@@ -8,6 +8,7 @@ import type { ComponentReferenceConfig } from '@dpuse/dpuse-shared/component';
 import type { DataSource } from '@/composables/useDataWindow';
 import type { PresenterInterface } from '@dpuse/dpuse-shared/component/module/presenter';
 import { t } from '@/state/locale';
+import { useConfigsReady } from '@/services/useConfigsReady';
 import { type LocalisedReference, localiseReference } from '@dpuse/dpuse-shared/locale';
 import { presenterConfigs, toolConfigs } from '@/state/session';
 
@@ -44,32 +45,12 @@ const presentationReferencesDataSource = computed((): DataSource<LocalisedRefere
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const toolReady = new Promise<void>((resolve) => {
-    watch(
-        toolConfigs,
-        (newToolConfigs) => {
-            if (newToolConfigs.length === 0) return;
-            resolve();
-        },
-        { immediate: true }
-    );
-});
-const presenterReady = new Promise<void>((resolve) => {
-    watch(
-        presenterConfigs,
-        (newPresenterConfigs) => {
-            if (newPresenterConfigs.length === 0) return;
-            resolve();
-        },
-        { immediate: true }
-    );
-});
 watch(appearanceIsDark, (isDark) => {
     for (const presenter of presenters) presenter.setColorMode(isDark ? 'dark' : 'light');
 });
 
 onMounted(async () => {
-    await Promise.all([toolReady, presenterReady]);
+    await useConfigsReady();
     for (const presenterConfig of presenterConfigs.value) {
         const presenterId = presenterConfig.id.split('-').pop();
         if (presenterId == null) return;

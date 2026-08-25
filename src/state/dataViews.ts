@@ -1,6 +1,6 @@
 // ── External Dependencies & Registrations
 import type { RouteLocationNormalizedLoadedGeneric } from 'vue-router';
-import { computed, ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -20,11 +20,11 @@ import type {
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { connectionConfigs } from '@/state/session';
 import { localeId } from '@/state/locale';
 import { reportAppError } from '@/observability/errorTracking';
 import { useEngine } from '@/services/useEngine';
 import { useStudioOptions } from '@/studio/useStudioOptions';
+import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
 
 // const options: UpsertRecordsOptions = {
 //     path: '/dpuMetaStore/dataViews',
@@ -78,23 +78,52 @@ export const activeConnectionNodeConfigs = shallowRef<ConnectionNodeConfig[]>([]
 
 export const activeDataViewConfig = shallowRef<DataViewConfig | undefined>();
 
-export const dataViewConfigs = shallowRef<DataViewConfig[] | undefined>();
-export const dataViewConfigsAreRetrieved = ref(false);
+export const dataViewConfigs = shallowRef<DataViewConfig[]>([]);
+// True once a retrieval has completed — distinct from 'dataViewConfigs' being empty, since the configurations start
+// empty (busy) rather than confirmed-empty. Await 'useDataViewsReady' rather than watching this directly.
+export const dataViewRetrievalSucceeded = ref(false);
+// True once a retrieval has failed, letting the UI show a real failure rather than leaving the list stuck in its busy
+// state forever. Both flags are reset when the meta store connection is cleared.
+export const dataViewRetrievalFailed = ref(false);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const connectionLocalisedConfigs = computed((): LocalisedConfig<ConnectionConfig>[] => localiseConfigs<ConnectionConfig>(connectionConfigs.value, localeId.value, true));
 
-export const dataViewLocalisedConfigs = computed((): LocalisedConfig<DataViewConfig>[] => localiseConfigs<DataViewConfig>(dataViewConfigs.value ?? [], localeId.value));
+export const dataViewLocalisedConfigs = computed((): LocalisedConfig<DataViewConfig>[] => localiseConfigs<DataViewConfig>(dataViewConfigs.value, localeId.value));
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const workflowOptionConfigs = useStudioOptions();
 const dataViewIcon = workflowOptionConfigs.value[0].icon;
 
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Retrieval is driven from this module rather than from a component so that every consumer — 'useDataViewsReady'
+// included — shares one retrieval regardless of which of them mounts first, mirroring how configMonitor drives the
+// session configurations. Registered once at import and app-lifetime, as with the watchers in '@/state/session'.
+//
+// On a page refresh the meta store connection configuration is not available until the configurations arrive, so this
+// waits for it rather than retrieving immediately.
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
+watch(
+    activeMetaStoreConnectionConfig,
+    (newActiveMetaStoreConnectionConfig) => {
+        if (newActiveMetaStoreConnectionConfig) {
+            if (!dataViewRetrievalSucceeded.value) void retrieveDataViewConfigs(newActiveMetaStoreConnectionConfig);
+        } else {
+            dataViewConfigs.value = [];
+            dataViewRetrievalSucceeded.value = false;
+            dataViewRetrievalFailed.value = false;
+        }
+    },
+    { immediate: true }
+);
+
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function retrieveDataViewConfigs(metaStoreConnectionConfig: ConnectionConfig): Promise<void> {
+    dataViewRetrievalFailed.value = false;
     try {
         await establishDataViewObject(metaStoreConnectionConfig);
 
@@ -111,12 +140,12 @@ export async function retrieveDataViewConfigs(metaStoreConnectionConfig: Connect
                 pendingDataViewConfigs.push(...(data.properties.records as DataViewConfig[]).map((config) => ({ ...config, icon: dataViewIcon })));
             } else {
                 dataViewConfigs.value = pendingDataViewConfigs;
-                dataViewConfigsAreRetrieved.value = true;
+                dataViewRetrievalSucceeded.value = true;
             }
         });
     } catch (error) {
-        dataViewConfigs.value = undefined;
-        dataViewConfigsAreRetrieved.value = true;
+        dataViewConfigs.value = [];
+        dataViewRetrievalFailed.value = true;
         void reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error }));
     }
 }

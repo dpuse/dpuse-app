@@ -30,6 +30,7 @@ const StudioOptionBar = defineAsyncComponent(load('StudioOptionBar', () => impor
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const PANE_SPLITTER_DEFAULT_PERCENT = 50;
+const PANE_SPLITTER_WIDTH = 6; // The value must match the 'w-1.5' class on the root element in 'PaneSplitter.vue'.
 const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
 const T = {
     'wb.toggle.label.aria': { en: 'Toggle studio panel', es: 'Alternar panel de estudio' },
@@ -71,7 +72,7 @@ const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assist
 
 const studioPaneStyle = computed(() => {
     if (!studioPaneIsVisible.value) return { width: '0' };
-    if (assistantPaneIsVisible.value) return { minWidth: '0', width: String(paneSplitterPercent.value) + '%' };
+    if (assistantPaneIsVisible.value) return { minWidth: '0', width: `calc(${String(paneSplitterPercent.value)}% - ${String(PANE_SPLITTER_WIDTH / 2)}px)` };
     return { minWidth: '0', flex: '1' };
 });
 
