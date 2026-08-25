@@ -86,7 +86,7 @@ function handleUpdateScrollState(): void {
                 v-for="item in items"
                 :key="item.id"
                 :aria-selected="activeTaskId === item.id"
-                class="border-y-2 border-b-transparent py-2"
+                class="border-y-2 border-b-transparent py-1"
                 :class="{
                     'border-t-accent': activeTaskId === item.id || !item.disabled,
                     'border-t-zinc-300 dark:border-t-zinc-500': item.disabled
@@ -104,7 +104,7 @@ function handleUpdateScrollState(): void {
                     }"
                 >
                     <div
-                        class="flex size-6 items-center justify-center rounded-full border-[1.5px] text-xs font-bold"
+                        class="flex size-5 items-center justify-center rounded-full border-2 text-xs font-bold"
                         :class="{ 'border-accent': activeTaskId === item.id || !item.disabled, 'border-zinc-300 text-subtle dark:border-zinc-500': item.disabled }"
                     >
                         {{ item.number }}

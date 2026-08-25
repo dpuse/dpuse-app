@@ -8,13 +8,12 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
 
 <template>
     <header
-        class="mt-[env(safe-area-inset-top)] flex h-13.75 flex-none flex-col justify-center text-lg font-light"
-        :class="viewportIsWide ? (studioPaneIsVisible ? 'pr-40 pl-0' : 'pr-40 pl-10') : 'px-14'"
+        class="mt-[env(safe-area-inset-top)] flex h-13.75 flex-none flex-col justify-center"
+        :class="viewportIsWide ? (studioPaneIsVisible ? 'pr-11 pl-0' : 'pr-12 pl-11') : 'px-14'"
         data-region="AssistantHeader"
     >
         <!-- Content indented from left and right to allow for logos when display is narrow.
-             Content indented from right to allow for assistant bar when display is wide.
-             NOTE: If width of logos or assistant bar changes, the following settings need to be adjusted accordingly. -->
+             NOTE: If width of logos changes, the following settings need to be adjusted accordingly. -->
 
         <component
             :is="to && to !== $route.query.sView ? 'RouterLink' : 'div'"
@@ -25,9 +24,12 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
             }"
             :to="{ name: to, query: { ...$route.query, sView: to } }"
         >
+            <!-- Overline -->
             <div v-if="overline" class="truncate text-sm leading-tight">
                 {{ overline }}
             </div>
+
+            <!-- Title -->
             <div class="truncate leading-snug">
                 {{ title }}
             </div>

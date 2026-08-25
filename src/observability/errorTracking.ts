@@ -14,6 +14,7 @@ const FATAL_BANNER_COLORS = {
     light: { buttonBackground: '#f4f4f5', buttonText: '#3f3f46', danger: '#fef2f2', dangerRing: '#dc2626', dangerText: '#b91c1c', surface: '#ffffff' }
 };
 const FATAL_BANNER_FONT_FAMILY = "'Inter Variable', system-ui, -apple-system, sans-serif";
+
 // Lucide's 'triangle-alert', inlined so the banner needs no icon component.
 const FATAL_BANNER_ICON_ATTRIBUTES = { fill: 'none', stroke: 'currentColor', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '1.5', viewBox: '0 0 24 24' };
 const FATAL_BANNER_ICON_PATHS = ['m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3', 'M12 9v4', 'M12 17h.01'];
@@ -141,7 +142,7 @@ function buildFatalErrorBannerRefreshButton(colors: (typeof FATAL_BANNER_COLORS)
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function logErrorToConsole(serialisedErrors: SerialisedError[]): void {
-    console.warn('[dpuse:app] ❌', formatTrace(serialisedErrors));
+    console.error('[dpuse:app] ❌', formatTrace(serialisedErrors));
 }
 
 function formatTrace(serialisedErrors: SerialisedError[]): string {

@@ -270,9 +270,9 @@ html {
     --muted: var(--color-zinc-400);
     --subtle: var(--color-zinc-500);
     --emphasis: var(--color-zinc-200);
-    --accent: var(--color-sky-300);
-    --accent-hover: var(--color-sky-200);
-    --accent-ring: var(--color-sky-500);
+    --accent: var(--color-blue-300);
+    --accent-hover: var(--color-blue-200);
+    --accent-ring: var(--color-blue-500);
 
     /* Dark mode status colors — Tailwind UI's documented dark badge/alert palette (bg-400/10, text-400, ring-400/20; green uses 500 for bg/text). */
     --success: color-mix(in srgb, var(--color-green-500) 10%, transparent);

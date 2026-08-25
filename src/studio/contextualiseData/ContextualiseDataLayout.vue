@@ -5,7 +5,7 @@ import { onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
-import type { D3NetworkView, Tool as D3ToolType, NetworkDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
+import type { D3NetworkView, Tool as D3Tool, NetworkDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
 import { reportAppError } from '@/observability/errorTracking';
@@ -82,7 +82,7 @@ async function renderDiagram(): Promise<void> {
     errorWasReported.value = undefined;
     try {
         await useConfigsReady();
-        const d3Tool = await loadTool<D3ToolType>(toolConfigs.value, 'd3-visualiser');
+        const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiser');
 
         state.view?.destroy(); // Discard any earlier view so a retry replaces it rather than rendering a second one.
         state.view = null;
@@ -105,6 +105,7 @@ async function renderDiagram(): Promise<void> {
         <div v-show="!renderError" class="px-4 py-2">
             <Button variant="outline" @click="handleAutoLayout">Auto-layout</Button>
         </div>
+
         <div v-show="!renderError" ref="container" class="w-full flex-1" />
     </StudioLayout>
 </template>
