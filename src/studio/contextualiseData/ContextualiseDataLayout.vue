@@ -82,7 +82,7 @@ async function renderDiagram(): Promise<void> {
     errorWasReported.value = undefined;
     try {
         await useConfigsReady();
-        const d3Tool = await loadTool<D3ToolType>(toolConfigs.value, 'd3-visualiserd');
+        const d3Tool = await loadTool<D3ToolType>(toolConfigs.value, 'd3-visualiser');
 
         state.view?.destroy(); // Discard any earlier view so a retry replaces it rather than rendering a second one.
         state.view = null;
