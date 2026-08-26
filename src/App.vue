@@ -21,8 +21,8 @@ import ServiceFailureBanner from '@/components/ui/error/ServiceFailureBanner.vue
 import SessionButton from '@/session/SessionButton.vue'; // Always visible.
 
 // ── Dynamic Components
-const AccountDialog = defineAsyncPanel(() => import('@/session/accountDialog/AccountDialog.vue'), 'AccountDialog', { simulation: { delayMs: 3000 } });
-const AuthDialog = defineAsyncPanel(() => import('@/session/authDialog/AuthDialog.vue'), 'AuthDialog', { hasPlaceholder: false, simulation: { delayMs: 3000 } });
+const AccountDialog = defineAsyncPanel(() => import('@/session/accountDialog/AccountDialog.vue'), 'AccountDialog');
+const AuthDialog = defineAsyncPanel(() => import('@/session/authDialog/AuthDialog.vue'), 'AuthDialog');
 const ConnectionDialog = defineAsyncPanel(() => import('@/studio/connectionDialog/ConnectionDialog.vue'), 'ConnectionDialog', { simulation: { delayMs: 3000 } });
 const AssistantLayout = defineAsyncPanel(() => import('@/assistant/AssistantLayout.vue'), 'AssistantLayout');
 const PaneSplitter = defineAsyncPanel(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
