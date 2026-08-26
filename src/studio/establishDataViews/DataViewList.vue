@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, defineAsyncComponent, ref, shallowRef, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -11,6 +11,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // ── Local Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
+import { defineAsyncPanel } from '@/utilities/index.ts';
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import {
@@ -33,7 +34,7 @@ import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 import StudioListPanel from '../StudioListPanel.vue';
 
 // ── Dynamic Components
-const EmptyPlaceholder = defineAsyncComponent(() => import('~/src/components/ui/placeholder/EmptyPlaceholder.vue'));
+const EmptyPlaceholder = defineAsyncPanel(() => import('~/src/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');
 
 const T = {
     data_view: { en: 'data view', es: 'vista de datos' },

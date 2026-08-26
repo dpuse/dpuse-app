@@ -27,3 +27,15 @@ Object.defineProperties(globalThis, {
         }
     }
 });
+
+// jsdom implements '<dialog>' but not 'showModal'/'close', which is what the app uses to promote a dialog to the top
+// layer. Modelled just closely enough for the open state to be observable.
+ 
+HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement): void {
+    this.setAttribute('open', '');
+};
+HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement): void {
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+};
+ 

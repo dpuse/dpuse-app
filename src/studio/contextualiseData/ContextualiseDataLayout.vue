@@ -15,7 +15,7 @@ import { useConfigsReady } from '@/services/useConfigsReady';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
-import ErrorPanel from '@/components/ui/error/ErrorPanel.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
@@ -50,7 +50,7 @@ const data: NetworkDiagramData = {
 
 const container = useTemplateRef<HTMLDivElement>('container');
 const renderError = shallowRef<AppError | undefined>();
-// Undefined until the error report completes, so ErrorPanel can distinguish reporting-pending from failed.
+// Undefined until the error report completes, so ErrorDisplay can distinguish reporting-pending from failed.
 const errorWasReported = ref<boolean | undefined>();
 const state: { view: D3NetworkView | null } = { view: null };
 
@@ -100,7 +100,7 @@ async function renderDiagram(): Promise<void> {
 
         <Separator />
 
-        <ErrorPanel v-if="renderError" :error="renderError" :error-was-reported="errorWasReported" @retry="handleRetry" />
+        <ErrorDisplay v-if="renderError" :error="renderError" :error-was-reported="errorWasReported" @retry="handleRetry" />
 
         <div v-show="!renderError" class="px-4 py-2">
             <Button variant="outline" @click="handleAutoLayout">Auto-layout</Button>

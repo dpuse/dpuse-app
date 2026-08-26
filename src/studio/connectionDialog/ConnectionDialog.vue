@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { type Component, computed, defineAsyncComponent, onErrorCaptured, ref, shallowRef, watch } from 'vue';
+import { computed, shallowRef, watch } from 'vue';
 import { type RouteRecordNameGeneric, useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -18,8 +18,7 @@ import { localeId, t } from '@/state/locale';
 import AddConnectionForm from './AddConnectionForm.vue';
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
-import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
-import DialogModal from '@/components/ui/dialog/DialogModal.vue';
+import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';
 
@@ -49,9 +48,6 @@ const OPTION_CONFIGS: OptionLocalisedConfig[] = [
     { id: 'criticalActions', type: 'label', label: 'Critical Actions' },
     { id: 'deleteAccount', icon: '', label: 'Delete account', isDestructive: true }
 ];
-const OPTION_COMPONENT_MAP: Record<string, Component> = {
-    managePersonalDetails: defineAsyncComponent(() => import('./ManageConnectionPanel.vue'))
-};
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -63,7 +59,6 @@ const router = useRouter();
 const activeConnectorConfig = shallowRef<LocalisedConfig<ConnectorConfig> | undefined>();
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig(route.name)); // TODO: Use route to set this!
 const connectorLocalisedConfigs = shallowRef<LocalisedConfig<ConnectorConfig>[]>([]);
-const subPanelError = ref<unknown>(null);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -73,11 +68,6 @@ const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<Connector
 }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-onErrorCaptured((error) => {
-    subPanelError.value = error;
-    return false;
-});
 
 watch(connectorConfigs, (newConnectorConfigs) => (connectorLocalisedConfigs.value = localiseConfigs<ConnectorConfig>(newConnectorConfigs, localeId.value, true)), {
     immediate: true
@@ -120,29 +110,27 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 </script>
 
 <template>
-    <DialogLayout data-region="ConnectionDialog">
-        <DialogModal variant="large">
-            <DialogHeader class="flex-none" :title="t(T, 'Manage_Connection')" />
+    <DialogHeader class="flex-none" :title="t(T, 'Manage_Connection')" />
 
-            <GridDetailPanel :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" @select="handleSelectConnector">
-                <template #grid-item="{ item }">
-                    <ConfigCard v-if="item" :config="item" />
-                </template>
+    <GridDetailPanel :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" @select="handleSelectConnector">
+        <template #grid-item="{ item }">
+            <ConfigCard v-if="item" :config="item" />
+        </template>
 
-                <template #detail="{ item }">
-                    <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
-                        <div class="flex size-7 items-center justify-center">
-                            <div v-if="item.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="item.icon || item.iconDark" />
-                            <div v-if="item.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="item.iconDark || item.icon" />
-                        </div>
-                        <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
-                    </div>
-                    <div class="relative min-h-0 flex-1">
-                        <AddConnectionForm :connector-localised-config="item" />
-                        <StepActionButton label="Select" @commit="handleCommitDetail" />
-                    </div>
-                </template>
-            </GridDetailPanel>
-        </DialogModal>
-    </DialogLayout>
+        <template #detail="{ item }">
+            <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
+                <div class="flex size-7 items-center justify-center">
+                    <div v-if="item.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="item.icon || item.iconDark" />
+                    <div v-if="item.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="item.iconDark || item.icon" />
+                </div>
+                <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
+            </div>
+            <div class="relative min-h-0 flex-1">
+                <ErrorBoundary name="ConnectionDetail">
+                    <AddConnectionForm :connector-localised-config="item" />
+                    <StepActionButton label="Select" @commit="handleCommitDetail" />
+                </ErrorBoundary>
+            </div>
+        </template>
+    </GridDetailPanel>
 </template>

@@ -5,12 +5,24 @@ import { required } from '@regle/rules';
 import { useRegle } from '@regle/core';
 
 // ── Local Framework
-import T from './PasswordForm.json';
 import { t } from '@/state/locale';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
+import Separator from '@/components/ui/Separator.vue';
 import TextInput from '@/components/ui/TextInput.vue';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    Back: { en: 'Back', es: 'Atrás' },
+    Continue: { en: 'Continue', es: 'Continuar' },
+    "Don't_have_an_account?": { en: "Don't have an account?", es: 'No tengo una cuenta' },
+    Password: { en: 'Password', es: 'Contraseña' },
+    Enter_password: { en: 'Enter password', es: 'Introducir contraseña' },
+    Forgot_password: { en: 'Forgot password?', es: '¿Olvidaste tu contraseña?' },
+    Sign_up: { en: 'Sign up', es: 'Inscribirse' }
+};
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -64,5 +76,8 @@ async function handleSubmit(): Promise<void> {
                 <a href="#" class="font-semibold text-accent hover:text-accent-hover">{{ t(T, 'Forgot_password') }}</a>
             </div>
         </div>
+
+        <Separator class="mt-3 mb-2" />
+        <div class="text-center text-muted">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
     </div>
 </template>

@@ -7,20 +7,23 @@ import { useRoute, useRouter } from 'vue-router';
 // ── Local Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
-import T from './LoginForm.json';
 import { t } from '@/state/locale';
 import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
 // ── Static Components
-import DialogLayout from '@/components/ui/dialog/DialogLayout.vue';
-import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';
 import LoginForm from '@/session/authDialog/LoginForm.vue';
 import PasswordForm from '@/session/authDialog/PasswordForm.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
-import Separator from '@/components/ui/Separator.vue';
 
-// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    Service_unavailable: {
+        en: 'The Hanko authentication service is currently unavailable. An error has been logged and we will follow up with the service provider.',
+        es: 'El servicio de autenticación de Hanko no está disponible actualmente. Se ha registrado un error y haremos seguimiento con el proveedor del servicio.'
+    }
+};
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -147,7 +150,11 @@ async function handleLoginFlowOnboardingCreatePasskeyState(state: State<'onboard
 
 // ── Transition helpers ───────────────────────────────────────────────────────────────────────────────────────────────
 
-function onBeforeLeave(): void {
+// Pins the container at the height it currently occupies. 'onEnter' animates from that to the incoming form's height,
+// and a transition needs a real value to start from — left at 'auto' it does not interpolate and the form snaps in.
+// Used before entering as well as before leaving, because the first form has nothing leaving ahead of it: the flow it
+// belongs to is constructed asynchronously, so it arrives seconds after the dialog opened, into an empty container.
+function pinContainerHeight(): void {
     const container = containerElement.value;
     if (!container) return;
     container.style.height = `${String(container.offsetHeight)}px`;
@@ -173,33 +180,26 @@ function onAfterEnter(): void {
 </script>
 
 <template>
-    <DialogLayout data-region="AuthDialog">
-        <DialogModal variant="compact">
-            <ScrollArea>
-                <div class="flex flex-col gap-y-3 py-8 pr-4 pl-8">
-                    <DPUseLogo class="size-12" />
+    <ScrollArea>
+        <div class="flex flex-col gap-y-3 py-8 pr-4 pl-8">
+            <DPUseLogo class="size-12" />
 
-                    <div ref="container">
-                        <Transition name="fade" mode="out-in" @before-leave="onBeforeLeave" @enter="onEnter" @after-enter="onAfterEnter">
-                            <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" :on-trigger="handleIdEntered" />
+            <div ref="container">
+                <Transition name="fade" mode="out-in" @before-enter="pinContainerHeight" @before-leave="pinContainerHeight" @enter="onEnter" @after-enter="onAfterEnter">
+                    <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" :on-trigger="handleIdEntered" />
 
-                            <PasswordForm
-                                v-else-if="uiStateId === 'enterPassword' && handlePasswordEntered && handlePasswordBack"
-                                :email-address="emailAddress"
-                                @back="handlePasswordBack"
-                                @submit="handlePasswordEntered"
-                            />
+                    <PasswordForm
+                        v-else-if="uiStateId === 'enterPassword' && handlePasswordEntered && handlePasswordBack"
+                        :email-address="emailAddress"
+                        @back="handlePasswordBack"
+                        @submit="handlePasswordEntered"
+                    />
 
-                            <div v-else-if="flowConstructed">{{ t(T, 'Service_unavailable') }}</div>
-                        </Transition>
-                    </div>
-
-                    <Separator class="mt-3 mb-2" />
-                    <div class="text-center text-muted">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
-                </div>
-            </ScrollArea>
-        </DialogModal>
-    </DialogLayout>
+                    <div v-else-if="flowConstructed">{{ t(T, 'Service_unavailable') }}</div>
+                </Transition>
+            </div>
+        </div>
+    </ScrollArea>
 </template>
 
 <style scoped>

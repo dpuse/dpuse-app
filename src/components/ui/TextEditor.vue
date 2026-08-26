@@ -15,7 +15,7 @@ import { useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
-import ErrorPanel from '@/components/ui/error/ErrorPanel.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -38,14 +38,14 @@ const internalUpdatePending = ref(false);
 const { markedTool, error: markedToolError, errorWasReported: markedToolErrorWasReported, initialise: initialiseMarkedTool } = useMarkedTool();
 const parentCanScroll = ref(true);
 const editorError = shallowRef<AppError | undefined>();
-// Undefined until the error report completes, so ErrorPanel can distinguish reporting-pending from failed.
+// Undefined until the error report completes, so ErrorDisplay can distinguish reporting-pending from failed.
 const editorErrorWasReported = ref<boolean | undefined>();
 const scrollableAncestorObserver = shallowRef<ResizeObserver>();
 const textValue = defineModel<string>({ required: true });
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Either failure leaves the editor unusable, so ErrorPanel presents whichever one occurred.
+// Either failure leaves the editor unusable, so ErrorDisplay presents whichever one occurred.
 const renderError = computed(() => editorError.value ?? markedToolError.value);
 const errorWasReported = computed(() => (editorError.value ? editorErrorWasReported.value : markedToolErrorWasReported.value));
 
@@ -61,8 +61,11 @@ watch(textValue, async (newValue) => {
         return;
     }
     const tool = markedTool.value ?? (await initialiseMarkedTool());
-    if (!tool) return; // Formatter unavailable; the failure is already reported and shown by ErrorPanel.
+    if (!tool) return; // Formatter unavailable; the failure is already reported and shown by ErrorDisplay.
 
+    // Sanitised for the comparison below, not for safety — 'setHTML' sanitises through 'sanitizeToDOMFragment'
+    // anyway. 'getHTML' returns Squire's own sanitised markup, so comparing raw rendered output against it would
+    // mismatch and fire a needless 'setHTML' that resets the cursor.
     const html = DOMPurify.sanitize(tool.render(newValue));
     if (editor.value && editor.value.getHTML() !== html) {
         editor.value.setHTML(html);
@@ -140,6 +143,18 @@ async function initialiseEditor(): Promise<void> {
     try {
         let editorInstance = editor.value;
         if (!editorInstance) {
+            // Markup can only enter Squire through this hook — 'setHTML', paste and drop all call it — so DOMPurify
+            // sees everything. The hook hands back a DocumentFragment rather than a string, so none of those routes
+            // assigns to 'innerHTML', and none reaches a Trusted Types sink.
+            //
+            // Squire assigns 'innerHTML' directly in one private method, '_setRawHTML'. Only undo and redo call it,
+            // and what they replay is markup Squire captured from its own DOM, which this hook had already sanitised.
+            // Nothing unsanitised can reach it, so it needs no protection of its own.
+            //
+            // That one assignment is all that falls back on the default Trusted Types policy in 'main.ts'. It cannot
+            // use a named policy instead: 'SquireConfig' offers no Trusted Types hook, and only the code performing
+            // the assignment can apply a policy — here, Squire itself. Sanitising before calling Squire does not
+            // help, because that decides what Squire receives, not which policy its own code uses.
             const newEditorInstance = new Squire(assertDefined(editorElement.value), {
                 blockTag: 'P',
                 sanitizeToDOMFragment: (html: string): DocumentFragment => DOMPurify.sanitize(html, { RETURN_DOM_FRAGMENT: true })
@@ -168,7 +183,7 @@ async function initialiseEditor(): Promise<void> {
         }
 
         const tool = await initialiseMarkedTool();
-        if (tool) editorInstance.setHTML(DOMPurify.sanitize(tool.render(textValue.value)));
+        if (tool) editorInstance.setHTML(tool.render(textValue.value));
     } catch (error) {
         editorError.value = new AppError('Failed to initialise text editor.', 'dpuse.textEditor.initialiseEditor', { typeId: 'handled' }, { cause: error });
         editorErrorWasReported.value = await reportAppError(editorError.value);
@@ -188,7 +203,7 @@ function updateParentCanScroll(ancestor: HTMLElement): void {
             {{ label }}
         </div>
 
-        <ErrorPanel v-if="renderError" :error="renderError" :error-was-reported="errorWasReported" @retry="handleRetry" />
+        <ErrorDisplay v-if="renderError" :error="renderError" :error-was-reported="errorWasReported" @retry="handleRetry" />
 
         <div
             v-show="!renderError"

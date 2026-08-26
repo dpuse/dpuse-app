@@ -1,10 +1,10 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { LoaderCircleIcon } from '@lucide/vue';
-import { type ComponentPublicInstance, computed, defineAsyncComponent, onUnmounted, ref, useTemplateRef } from 'vue';
+import { type ComponentPublicInstance, computed, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
-import { load } from '@/state/component';
+import { defineAsyncPanel } from '@/utilities/index.ts';
 import { expiresIn, lifetime, sessionIsAuthenticated } from '@/state/session';
 import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
 
@@ -12,7 +12,7 @@ import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
 import AvatarButton from '@/components/ui/button/AvatarButton.vue';
 
 // ── Dynamic Components
-const SessionMenu = defineAsyncComponent(load('SessionMenu', () => import('@/session/SessionMenu.vue')));
+const SessionMenu = defineAsyncPanel(() => import('@/session/SessionMenu.vue'), 'SessionMenu', { hasPlaceholder: false });
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

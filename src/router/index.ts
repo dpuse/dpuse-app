@@ -1,39 +1,42 @@
 // ── External Dependencies & Registrations
 import { createRouter, createWebHistory, type Router, type RouterScrollBehavior, START_LOCATION } from 'vue-router';
 
+// ── DPUse Framework
+import { AppError } from '@dpuse/dpuse-shared/errors';
+
 // ── Local Framework
-import { load } from '@/state/component';
-import { complete, fail, start } from '@/state/navigation';
+import { defineAsyncPanel } from '@/utilities/index.ts';
+import { raiseAppLevelError } from '@/state/errors';
 
 // ── Dynamic Components
-const StudioHomeLayout = load('StudioHomeLayout', () => import('@/studio/home/StudioHomeLayout.vue'));
+const StudioHomeLayout = defineAsyncPanel(() => import('@/studio/home/StudioHomeLayout.vue'), 'StudioHomeLayout');
 
 // ── Dynamic Components - Establish Data Views
-const EstablishDataViewsLayout = load('EstablishDataViews', () => import('@/studio/establishDataViews/EstablishDataViewsLayout.vue'));
-const DataViewList = load('DataViewList', () => import('@/studio/establishDataViews/DataViewList.vue'));
-const SelectConnectionList = load('SelectConnection', () => import('@/studio/establishDataViews/selectConnection/SelectConnectionList.vue'));
-const SelectItemPanel = load('SelectItem', () => import('@/studio/establishDataViews/selectItem/SelectItemPanel.vue'));
-const AuditContentPanel = load('AuditContent', () => import('@/studio/establishDataViews/auditContent/AuditContentPanel.vue'));
-const ExploreData = load('ExploreData', () => import('@/studio/establishDataViews/exploreData/ExploreData.vue'));
+const EstablishDataViewsLayout = defineAsyncPanel(() => import('@/studio/establishDataViews/EstablishDataViewsLayout.vue'), 'EstablishDataViews');
+const DataViewList = defineAsyncPanel(() => import('@/studio/establishDataViews/DataViewList.vue'), 'DataViewList');
+const SelectConnectionList = defineAsyncPanel(() => import('@/studio/establishDataViews/selectConnection/SelectConnectionList.vue'), 'SelectConnection');
+const SelectItemPanel = defineAsyncPanel(() => import('@/studio/establishDataViews/selectItem/SelectItemPanel.vue'), 'SelectItem');
+const AuditContentPanel = defineAsyncPanel(() => import('@/studio/establishDataViews/auditContent/AuditContentPanel.vue'), 'AuditContent');
+const ExploreData = defineAsyncPanel(() => import('@/studio/establishDataViews/exploreData/ExploreData.vue'), 'ExploreData');
 
 // ── Dynamic Components - Contextualise Data
-const ContextualiseDataLayout = load('ContextualiseData', () => import('@/studio/contextualiseData/ContextualiseDataLayout.vue'));
-const EventQueryList = load('EventQueryList', () => import('@/studio/contextualiseData/EventQueryList.vue'));
+const ContextualiseDataLayout = defineAsyncPanel(() => import('@/studio/contextualiseData/ContextualiseDataLayout.vue'), 'ContextualiseData');
+const EventQueryList = defineAsyncPanel(() => import('@/studio/contextualiseData/EventQueryList.vue'), 'EventQueryList');
 
 // ── Dynamic Components - Explore Presentations
-const ExplorePresentationsLayout = load('ExplorePresentations', () => import('@/studio/explorePresentations/ExplorePresentationsLayout.vue'));
+const ExplorePresentationsLayout = defineAsyncPanel(() => import('@/studio/explorePresentations/ExplorePresentationsLayout.vue'), 'ExplorePresentations');
 
 // ── Dynamic Components - Build Data Apps
-const BuildDataAppsLayout = load('BuildDataApps', () => import('@/studio/buildDataApps/BuildDataAppsLayout.vue'));
+const BuildDataAppsLayout = defineAsyncPanel(() => import('@/studio/buildDataApps/BuildDataAppsLayout.vue'), 'BuildDataApps', { simulation: { delayMs: 3000 } });
 
 // ── Dynamic Components - Manage Configs
-const ManageConfigsLayout = load('ManageConfig', () => import('@/studio/manageConfig/ManageConfigLayout.vue'));
-const ManageHomePanel = load('ManageHomePanel', () => import('@/studio/manageConfig/home/HomePanel.vue'));
-const ManageConnectorList = load('ManageConnectorList', () => import('@/studio/manageConfig/connectors/ConnectorList.vue'));
-const ManageContextList = load('ManageContextList', () => import('@/studio/manageConfig/context/ContextList.vue'));
-const ManagePresenterList = load('ManagePresenterList', () => import('@/studio/manageConfig/presenters/PresenterList.vue'));
-const ManageCookbooksList = load('ManageCookbooksList', () => import('@/studio/manageConfig/cookbooks/CookbookList.vue'));
-const ManageToolsList = load('ManageToolsList', () => import('@/studio/manageConfig/tools/ToolList.vue'));
+const ManageConfigsLayout = defineAsyncPanel(() => import('@/studio/manageConfig/ManageConfigLayout.vue'), 'ManageConfig');
+const ManageHomePanel = defineAsyncPanel(() => import('@/studio/manageConfig/home/HomePanel.vue'), 'ManageHomePanel');
+const ManageConnectorList = defineAsyncPanel(() => import('@/studio/manageConfig/connectors/ConnectorList.vue'), 'ManageConnectorList');
+const ManageContextList = defineAsyncPanel(() => import('@/studio/manageConfig/context/ContextList.vue'), 'ManageContextList');
+const ManagePresenterList = defineAsyncPanel(() => import('@/studio/manageConfig/presenters/PresenterList.vue'), 'ManagePresenterList');
+const ManageCookbooksList = defineAsyncPanel(() => import('@/studio/manageConfig/cookbooks/CookbookList.vue'), 'ManageCookbooksList');
+const ManageToolsList = defineAsyncPanel(() => import('@/studio/manageConfig/tools/ToolList.vue'), 'ManageToolsList');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -99,28 +102,28 @@ export const createAppRouter = (): Router => {
 
     // Default to /studio when no studio route or assistant argument is present.
     router.beforeEach((to, from) => {
-        if (from === START_LOCATION) {
-            // Then the page is loading.
-            if (to.query.sState !== '1' && to.path !== '/') {
-                // Then we can clear the studio part of the url if it was not visible. This defers loading the view until required.
-                return { path: '/', query: { ...to.query, d: undefined, sState: undefined, sView: to.query.sView ?? 'studio', aState: 1, aView: to.query.aView ?? 'about' } };
-            }
-            if (to.path === '/' && (!('aView' in to.query) || !('aState' in to.query))) {
-                return { path: '/studio', query: { ...to.query, d: undefined, sState: 1, sView: 'studio', aState: undefined, aView: undefined } };
-            }
-            if ('d' in to.query) {
-                return { path: to.path, query: { ...to.query, d: undefined } };
-            }
+        if (from !== START_LOCATION) {
+        	return;
         }
 
-        start();
+        // Then the page is loading.
+        if (to.query.sState !== '1' && to.path !== '/') {
+            // Then we can clear the studio part of the url if it was not visible. This defers loading the view until required.
+            return { path: '/', query: { ...to.query, d: undefined, sState: undefined, sView: to.query.sView ?? 'studio', aState: 1, aView: to.query.aView ?? 'about' } };
+        }
+        if (to.path === '/' && (!('aView' in to.query) || !('aState' in to.query))) {
+            return { path: '/studio', query: { ...to.query, d: undefined, sState: 1, sView: 'studio', aState: undefined, aView: undefined } };
+        }
+        if ('d' in to.query) {
+            return { path: to.path, query: { ...to.query, d: undefined } };
+        }
     });
 
-    router.afterEach(() => {
-        complete();
-    });
-    router.onError(() => {
-        fail();
+    // A navigation that errors leaves no view to render into, so the error cannot be shown in place: a lazily loaded
+    // route component that will not fetch is a stale deployment, and anything else is fatal.
+    router.onError((error) => {
+        const data = { typeId: 'navigation' };
+        raiseAppLevelError(new AppError('Navigation failed.', 'dpuse.router', data, { cause: error }));
     });
 
     return router;

@@ -2,9 +2,10 @@
 // ── External Dependencies & Registrations
 import { ArrowUpIcon } from '@lucide/vue';
 import DOMPurify from 'dompurify';
-import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
+import { defineAsyncPanel } from '@/utilities/index.ts';
 import { useMarkedTool } from '@/services/useMarkedTool';
 import { type AssistantChatMessage, getMessageSteps } from './assistantChat';
 import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } from './modelConfigs';
@@ -12,13 +13,13 @@ import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } f
 // ── Static Components
 import AssistantVendorMenu from './AssistantVendorMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
-import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import TextArea from '@/components/ui/TextArea.vue';
 
 // ── Dynamic Components
-const ChatSessionTanstack = defineAsyncComponent(() => import('./ChatSessionTanstack.vue'));
-const ChatSessionVercel = defineAsyncComponent(() => import('./ChatSessionVercel.vue'));
+const ChatSessionTanstack = defineAsyncPanel(() => import('./ChatSessionTanstack.vue'), 'ChatSessionTanstack');
+const ChatSessionVercel = defineAsyncPanel(() => import('./ChatSessionVercel.vue'), 'ChatSessionVercel');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -109,7 +110,7 @@ function handleRetryMarkedTool(): void {
         <component :is="SessionComponent" ref="sessionReference" :model-config="modelConfig" @messages-change="messages = $event" @status-change="status = $event" />
 
         <div v-if="markedToolError" class="mx-4 border-b border-separator">
-            <ErrorNotice class="my-2" :error="markedToolError" :error-was-reported="markedToolErrorWasReported" @retry="handleRetryMarkedTool" />
+            <ErrorDisplay class="my-2" :error="markedToolError" :error-was-reported="markedToolErrorWasReported" @retry="handleRetryMarkedTool" />
         </div>
 
         <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-bottom="scrollPaddingBottom" @initialised="handleScrollAreaInitialised">

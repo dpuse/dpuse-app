@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { PlusIcon } from '@lucide/vue';
-import { computed, defineAsyncComponent, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -13,6 +13,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared/component/module/connector';
 
 // ── Local Framework
+import { defineAsyncPanel } from '@/utilities/index.ts';
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
@@ -26,7 +27,7 @@ import Grid from '@/components/ui/grid/Grid.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Dynamic Components
-const EmptyPlaceholder = defineAsyncComponent(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'));
+const EmptyPlaceholder = defineAsyncPanel(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

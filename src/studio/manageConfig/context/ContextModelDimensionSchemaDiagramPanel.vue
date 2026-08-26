@@ -12,7 +12,7 @@ import { reportAppError } from '@/observability/errorTracking';
 import { toolConfigs } from '@/state/session';
 
 // ── Static Components
-import ErrorPanel from '@/components/ui/error/ErrorPanel.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -45,7 +45,7 @@ const DIMENSION_TREE: TreeDiagramNode = {
 
 const container = useTemplateRef<HTMLDivElement>('container');
 const renderError = shallowRef<AppError | undefined>();
-// Undefined until the error report completes, so ErrorPanel can distinguish reporting-pending from failed.
+// Undefined until the error report completes, so ErrorDisplay can distinguish reporting-pending from failed.
 const errorWasReported = ref<boolean | undefined>();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -79,7 +79,7 @@ async function renderDiagram(): Promise<void> {
 
 <template>
     <ScrollArea class="min-h-0 flex-1">
-        <ErrorPanel v-if="renderError" :error="renderError" :error-was-reported="errorWasReported" @retry="handleRetry" />
+        <ErrorDisplay v-if="renderError" :error="renderError" :error-was-reported="errorWasReported" @retry="handleRetry" />
 
         <div v-show="!renderError" ref="container" class="p-6" />
     </ScrollArea>

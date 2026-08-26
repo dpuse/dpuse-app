@@ -10,15 +10,13 @@ import { viewportIsWide } from '@/state/appLayout';
 interface Properties {
     isDialogActive?: boolean;
     isModalActive?: boolean;
-    navigationIsActive: boolean;
-    navigationIsDelayed: boolean;
 }
-const { isDialogActive, isModalActive, navigationIsActive, navigationIsDelayed } = defineProps<Properties>();
+const { isDialogActive, isModalActive } = defineProps<Properties>();
 
 // ── Derived State ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const maskIsActive = computed(() => isModalActive || navigationIsActive);
-const maskIsDimmed = computed(() => isDialogActive || navigationIsDelayed || (isModalActive && !viewportIsWide.value));
+const maskIsActive = computed(() => isModalActive);
+const maskIsDimmed = computed(() => isDialogActive || (isModalActive && !viewportIsWide.value));
 </script>
 
 <template>
@@ -29,11 +27,7 @@ const maskIsDimmed = computed(() => isDialogActive || navigationIsDelayed || (is
             aria-hidden="true"
             :class="['fixed', 'inset-0', 'transition-colors', 'duration-200', 'ease-in-out', 'motion-reduce:transition-none', maskIsDimmed ? 'bg-overlay' : 'bg-transparent']"
             data-region="LoadingMask"
-        >
-            <div v-if="navigationIsDelayed" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface/80">
-                <p class="text-sm text-muted">Loading…</p>
-            </div>
-        </div>
+        />
     </Transition>
 </template>
 

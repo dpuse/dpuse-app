@@ -1,33 +1,50 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, type Component as VueComponent, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
-import { load } from '@/state/component';
+import { defineAsyncPanel } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 import { assistantPaneIsVisible, contentScrollPosition, sessionMenuIsOpen, studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 import { configRetrievalFailed, initialiseServices, serviceLoadFailed } from '@/state/session';
-import { navigationIsActive, navigationIsDelayed } from '@/state/navigation';
+import { fatalError, fatalErrorWasReported } from '@/state/errors';
 
 // ── Static Components
 import AssistantLogo from '@/components/branding/AssistantLogo.vue'; // Always visible.
-import BusyBar from '@/components/ui/BusyBar.vue'; // Can be no delay when rendering.
 import Button from '@/components/ui/button/Button.vue'; // Required by studio and assistant toggle buttons which are always visible.
+import DialogModal from '@/components/ui/dialog/DialogModal.vue'; // Renders before the dialog it frames.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
+import ErrorDetail from '@/components/ui/error/ErrorDetail.vue'; // Can be no delay when rendering.
 import LoadingMask from '@/components/ui/LoadingMask.vue'; // Can be no delay when rendering.
 import ServiceFailureBanner from '@/components/ui/error/ServiceFailureBanner.vue'; // Can be no delay when rendering.
 import SessionButton from '@/session/SessionButton.vue'; // Always visible.
 
 // ── Dynamic Components
-const AccountDialog = defineAsyncComponent(load('AccountDialog', () => import('@/session/accountDialog/AccountDialog.vue')));
-const AuthDialog = defineAsyncComponent(load('AuthDialog', () => import('@/session/authDialog/AuthDialog.vue')));
-const ConnectionDialog = defineAsyncComponent(load('ConnectionDialog', () => import('@/studio/connectionDialog/ConnectionDialog.vue')));
-const AssistantLayout = defineAsyncComponent(load('AssistantLayout', () => import('@/assistant/AssistantLayout.vue')));
-const PaneSplitter = defineAsyncComponent(load('PaneSplitter', () => import('@/components/ui/PaneSplitter.vue')));
-const StudioOptionBar = defineAsyncComponent(load('StudioOptionBar', () => import('@/studio/optionBar/StudioOptionBar.vue')));
+const AccountDialog = defineAsyncPanel(() => import('@/session/accountDialog/AccountDialog.vue'), 'AccountDialog', { simulation: { delayMs: 3000 } });
+const AuthDialog = defineAsyncPanel(() => import('@/session/authDialog/AuthDialog.vue'), 'AuthDialog', { hasPlaceholder: false, simulation: { delayMs: 3000 } });
+const ConnectionDialog = defineAsyncPanel(() => import('@/studio/connectionDialog/ConnectionDialog.vue'), 'ConnectionDialog', { simulation: { delayMs: 3000 } });
+const AssistantLayout = defineAsyncPanel(() => import('@/assistant/AssistantLayout.vue'), 'AssistantLayout');
+const PaneSplitter = defineAsyncPanel(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
+const StudioOptionBar = defineAsyncPanel(() => import('@/studio/optionBar/StudioOptionBar.vue'), 'StudioOptionBar', { hasPlaceholder: false });
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The frame is rendered from the URL alone, before the dialog's own chunk exists, so its shape has to be known here.
+// Only the outer chrome is listed: each dialog still owns its own header, keeping its title with its translations.
+interface DialogConfig {
+    component: VueComponent;
+    maxWidth?: string;
+    minHeight?: string;
+    sizing: 'full' | 'reserved';
+}
+const DIALOG_CONFIGS: Record<'account' | 'auth' | 'connection', DialogConfig> = {
+    account: { component: AccountDialog, sizing: 'full' },
+    // Reserved rather than fixed: the sign-in body moves between steps of differing height, and the minimum is the
+    // tallest of the short ones, so the frame neither collapses around the loading spinner nor towers over the first step.
+    auth: { component: AuthDialog, maxWidth: '24rem', minHeight: '250px', sizing: 'reserved' },
+    connection: { component: ConnectionDialog, sizing: 'full' }
+};
 
 const PANE_SPLITTER_DEFAULT_PERCENT = 50;
 const PANE_SPLITTER_WIDTH = 6; // The value must match the 'w-1.5' class on the root element in 'PaneSplitter.vue'.
@@ -70,11 +87,19 @@ const serviceFailureMessage = computed(() => {
 
 // ── Derived State - Dialogs ──────────────────────────────────────────────────────────────────────────────────────────
 
-const accountDialogIsVisible = computed(() => route.query.dlg === 'account');
-const authDialogIsVisible = computed(() => route.query.dlg === 'auth');
-const connectionDialogIsVisible = computed(() => route.query.dlg === 'connection');
-const dialogIsActive = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value);
-const modalIsActive = computed(() => accountDialogIsVisible.value || authDialogIsVisible.value || connectionDialogIsVisible.value || sessionMenuIsOpen.value);
+const activeDialogId = computed(() => {
+    const dialogId = String(route.query.dlg ?? '');
+    return Object.hasOwn(DIALOG_CONFIGS, dialogId) ? (dialogId as keyof typeof DIALOG_CONFIGS) : undefined;
+});
+// Suppressed at a dead end. A dialog is in the browser's top layer, above every z-index, so an open one would cover
+// the very banner telling the user the app can only be recovered by refreshing.
+const activeDialogConfig = computed(() => {
+    if (appIsUnrecoverable.value || !activeDialogId.value) return;
+    return DIALOG_CONFIGS[activeDialogId.value];
+});
+const appIsUnrecoverable = computed(() => configRetrievalFailed.value || serviceLoadFailed.value || fatalError.value != null);
+const dialogIsActive = computed(() => activeDialogConfig.value != null);
+const modalIsActive = computed(() => dialogIsActive.value || sessionMenuIsOpen.value);
 
 // ── Derived State - Panes ────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -156,6 +181,13 @@ function toggleAssistantPane(): void {
     }
 }
 
+// ── Event Handlers - Fatal Errors ─────────────────────────────────────────────────────────────────────────────────
+
+// A fatal error means nothing was left that could contain it, so the only retry available is the whole app.
+function handleReloadApp(): void {
+    location.reload();
+}
+
 // ── Event Handlers - Studio Option Bar ────────────────────────────────────────────────────────────────────────────
 
 function handleStudioOptionBarHide(): void {
@@ -232,8 +264,8 @@ function establishPaneSplitterPercent(): number {
           z-49: SessionButton
           z-50: LoadingMask (global — navigation and async component loads)
           z-51: SessionMenu
-          z-60: DialogLayout/AuthDialog, DialogLayout/AccountDialog & DialogLayout/ConnectionDialogDialog
-          z-70: BusyBar (navigation)
+          Dialogs are not listed: 'showModal()' puts them in the browser's top layer, above every z-index here.
+          z-75: Fatal error (unhandled error with no region left to contain it)
           z-80: ServiceFailureBanner (connectivity or service module load failure)
           -->
 
@@ -245,19 +277,16 @@ function establishPaneSplitterPercent(): number {
             <ServiceFailureBanner v-if="serviceFailureMessage" class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-80" :message="serviceFailureMessage" />
         </Transition>
 
-        <!-- Navigation progress bar. Always visible. -->
+        <!-- An error no 'ErrorBoundary' contained, so there is no region left that could show it in place. Sits below
+             the service failure banner, which is the one dead end that outranks it. -->
         <Transition name="action-fade">
-            <BusyBar v-if="navigationIsDelayed" class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-70" />
+            <div v-if="fatalError" class="fixed inset-0 z-75 flex items-center justify-center bg-overlay p-4" data-region="FatalError">
+                <ErrorDetail class="max-h-full w-full max-w-sm overflow-y-auto" :error="fatalError" :error-was-reported="fatalErrorWasReported" @retry="handleReloadApp" />
+            </div>
         </Transition>
 
-        <!-- Global loading mask - active during route changes and async loads; sustained as scrim when a dialog is open. -->
-        <LoadingMask
-            class="z-50"
-            :is-dialog-active="dialogIsActive"
-            :is-modal-active="modalIsActive"
-            :navigation-is-active="navigationIsActive"
-            :navigation-is-delayed="navigationIsDelayed"
-        />
+        <!-- Modal scrim. Loading is shown by each region's own spinner, so this no longer tracks navigation. -->
+        <LoadingMask class="z-50" :is-dialog-active="dialogIsActive" :is-modal-active="modalIsActive" />
 
         <!-- Studio toggle fixed in top left corner. Always visible. -->
         <Button
@@ -286,20 +315,19 @@ function establishPaneSplitterPercent(): number {
         <!-- Session Button - Always visible. -->
         <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-49" :studio-option-bar-is-visible="studioOptionBarIsVisible" />
 
-        <!-- Authentication Dialog - Activated using URL parameter 'dlg=auth'. -->
-        <Transition name="action-fade">
-            <AuthDialog v-if="authDialogIsVisible" class="z-60" />
-        </Transition>
-
-        <!-- Account Dialog - Activated using URL parameter 'dlg=account'. -->
-        <Transition name="action-fade">
-            <AccountDialog v-if="accountDialogIsVisible" class="z-60" />
-        </Transition>
-
-        <!-- Connection Dialog - Activated using URL parameter 'dlg=connection'. -->
-        <Transition name="action-fade">
-            <ConnectionDialog v-if="connectionDialogIsVisible" class="z-60" />
-        </Transition>
+        <!-- Dialogs - Activated using URL parameter 'dlg'. The frame is owned here rather than by each dialog so it can
+             appear on the click that opens it, while the dialog's own chunk is still loading. Its body then fills in
+             behind the spinner without the frame remounting, so there is no second fade and nothing shifts. -->
+        <DialogModal
+            v-if="activeDialogConfig"
+            :key="activeDialogId"
+            :is-open="true"
+            :max-width="activeDialogConfig.maxWidth"
+            :min-height="activeDialogConfig.minHeight"
+            :sizing="activeDialogConfig.sizing"
+        >
+            <component :is="activeDialogConfig.component" />
+        </DialogModal>
 
         <!-- Studio Option Bar - Only rendered when viewport is narrow. -->
         <StudioOptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" />

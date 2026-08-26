@@ -18,8 +18,7 @@ import { presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/ConfigCard.vue';
-import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
-import ErrorPanel from '@/components/ui/error/ErrorPanel.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
@@ -154,7 +153,7 @@ async function loadPresenters(): Promise<void> {
 
         <Separator />
 
-        <ErrorNotice v-if="loadError" class="mx-4 mt-2" :error="loadError" :error-was-reported="loadErrorWasReported" @retry="handleRetryLoad" />
+        <ErrorDisplay v-if="loadError" class="mx-4 mt-2" :error="loadError" :error-was-reported="loadErrorWasReported" @retry="handleRetryLoad" />
 
         <GridDetailPanel
             :active-item="activePresentationReference"
@@ -169,7 +168,7 @@ async function loadPresenters(): Promise<void> {
             </template>
 
             <template #detail>
-                <ErrorPanel v-if="renderError" :error="renderError" :error-was-reported="renderErrorWasReported" @retry="handleRetryRender" />
+                <ErrorDisplay v-if="renderError" :error="renderError" :error-was-reported="renderErrorWasReported" @retry="handleRetryRender" />
                 <div v-show="!renderError" ref="container" class="dpuse-prose overflow-y-scroll overscroll-y-none px-4 pt-4" />
             </template>
 

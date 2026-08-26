@@ -1,19 +1,19 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { useRoute } from 'vue-router';
-import { type Component, computed, defineAsyncComponent, ref, watch } from 'vue';
+import { type Component, computed, ref, watch } from 'vue';
 
 // ── Local Framework
-import { assertDefined } from '@/utilities/index.ts';
+import { assertDefined, defineAsyncPanel } from '@/utilities/index.ts';
 import { ASSISTANT_VENDOR_CONFIGS, type AssistantModelConfig, type AssistantVendorId } from './modelConfigs';
 
 // ── Static Components
 import AssistantPanelHeader from './AssistantPanelHeader.vue';
 
 // ── Dynamic Components
-const AboutView = defineAsyncComponent(() => import('./AboutPanel.vue'));
-const ChatView = defineAsyncComponent(() => import('./ChatPanel.vue'));
-const LibraryView = defineAsyncComponent(() => import('./LibraryPanel.vue'));
+const AboutView = defineAsyncPanel(() => import('./AboutPanel.vue'), 'AboutPanel');
+const ChatView = defineAsyncPanel(() => import('./ChatPanel.vue'), 'ChatPanel');
+const LibraryView = defineAsyncPanel(() => import('./LibraryPanel.vue'), 'LibraryPanel');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

@@ -16,12 +16,12 @@ import { purifyMarkdown, useMarkedTool } from '@/services/useMarkedTool';
 import modelConfigsData from './data/modelConfigs.json'; // TODO: remove once loadModel fetches remotely
 
 // ── Static Components
-import BaseDialog from '@/components/ui/dialog/BaseDialog.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ContextModelDimensionsPanel from './ContextModelDimensionsPanel.vue';
 import ContextModelEntitiesPanel from './ContextModelEntitiesPanel.vue';
 import ContextModelSecondaryMeasuresPanel from './ContextModelSecondaryMeasuresPanel.vue';
-import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
+import DialogModal from '@/components/ui/dialog/DialogModal.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import type { GridListItem } from './ContextList.vue';
 
 // ── Dynamic Components
@@ -119,7 +119,7 @@ function localiseModel(model: Model): LocalisedModel {
 <template>
     <div class="dpuse-prose flex-1 overflow-y-auto overscroll-y-none px-4 pb-(--vertical-scroll-bottom-screen-inset)">
         <div class="max-w-prose">
-            <ErrorNotice v-if="markedToolError" class="mt-4" :error="markedToolError" :error-was-reported="markedToolErrorWasReported" @retry="handleRetryMarkedTool" />
+            <ErrorDisplay v-if="markedToolError" class="mt-4" :error="markedToolError" :error-was-reported="markedToolErrorWasReported" @retry="handleRetryMarkedTool" />
 
             <!-- Header -->
             <h1 class="flex flex-none items-center justify-between gap-x-3 pt-6">
@@ -149,16 +149,16 @@ function localiseModel(model: Model): LocalisedModel {
             <ContextModelSecondaryMeasuresPanel :secondary-measures="activeModel?.secondaryMeasures ?? []" :marked-tool="markedTool" @edit="modelDescriptorsDialogIsOpen = true" />
         </div>
 
-        <BaseDialog v-model="modelDescriptorsDialogIsOpen" :title="`${modelReference.label} Descriptors`" @save="modelDescriptorsDialogIsOpen = false">
+        <DialogModal :is-open="modelDescriptorsDialogIsOpen" max-width="90vw" min-height="90vh" sizing="full" :title="`${modelReference.label} Descriptors`" @close="modelDescriptorsDialogIsOpen = false">
             <ContextModelDescriptorsPanel v-if="modelDescriptorsDialogIsOpen" v-model:label="modelReferenceLabel" v-model:description="modelReferenceDescription" />
-        </BaseDialog>
+        </DialogModal>
 
-        <BaseDialog v-model="entityRelationshipDiagramIsOpen" title="Sample ERD Diagram" @save="entityRelationshipDiagramIsOpen = false">
+        <DialogModal :is-open="entityRelationshipDiagramIsOpen" max-width="90vw" min-height="90vh" sizing="full" title="Sample ERD Diagram" @close="entityRelationshipDiagramIsOpen = false">
             <ContextModelEntityRelationshipDiagramPanel v-if="entityRelationshipDiagramIsOpen" />
-        </BaseDialog>
+        </DialogModal>
 
-        <BaseDialog v-model="dimensionSchemaDiagramIsOpen" title="Sample Dimension Tree Diagram" @save="dimensionSchemaDiagramIsOpen = false">
+        <DialogModal :is-open="dimensionSchemaDiagramIsOpen" max-width="90vw" min-height="90vh" sizing="full" title="Sample Dimension Tree Diagram" @close="dimensionSchemaDiagramIsOpen = false">
             <ContextModelDimensionSchemaDiagramPanel v-if="dimensionSchemaDiagramIsOpen" />
-        </BaseDialog>
+        </DialogModal>
     </div>
 </template>
