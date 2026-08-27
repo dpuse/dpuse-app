@@ -66,7 +66,13 @@ function handleFullscreenChange(): void {
 }
 
 async function handleManageAccount(): Promise<void> {
-    await router.replace({ query: { ...route.query, dlg: 'account' } });
+    // Awaited so the menu closes only once the URL carries the dialog, and caught so it still closes when the
+    // navigation failed — 'router.onError' has already reported that.
+    try {
+        await router.replace({ query: { ...route.query, dlg: 'account' } });
+    } catch {
+        // Already reported by 'router.onError'.
+    }
     emit('continue');
 }
 
@@ -90,7 +96,13 @@ function handleSetLanguage(id: LocaleId): void {
 }
 
 async function handleSignInRegister(): Promise<void> {
-    await router.replace({ query: { ...route.query, dlg: 'auth' } });
+    // Awaited so the menu closes only once the URL carries the dialog, and caught so it still closes when the
+    // navigation failed — 'router.onError' has already reported that.
+    try {
+        await router.replace({ query: { ...route.query, dlg: 'auth' } });
+    } catch {
+        // Already reported by 'router.onError'.
+    }
     emit('continue');
 }
 

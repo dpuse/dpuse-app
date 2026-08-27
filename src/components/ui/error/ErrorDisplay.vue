@@ -26,7 +26,10 @@ const emit = defineEmits<{ retry: [] }>();
 const T = {
     'close.label': { en: 'Close', es: 'Cerrar' },
     'detail.label.aria': { en: 'Show error details', es: 'Mostrar detalles del error' },
-    'reporting.failed': { en: 'Unable to confirm this error was logged with DPUse Support.', es: 'No se puede confirmar que este error se haya registrado con el soporte de DPUse.' },
+    'reporting.failed': {
+        en: 'Unable to confirm this error was logged with DPUse Support.',
+        es: 'No se puede confirmar que este error se haya registrado con el soporte de DPUse.'
+    },
     'reporting.pending': { en: 'Logging this error with DPUse Support…', es: 'Registrando este error con el soporte de DPUse…' },
     'reporting.succeeded': {
         en: 'This error has been logged with DPUse Support for investigation.',

@@ -22,6 +22,10 @@ export type ErrorSeverity = 'fatal' | 'recoverable' | 'staleDeploy';
 // Set as 'data.severity' on an 'AppError' to override the classification fallback, the way Nuxt's 'createError' takes
 // a 'fatal' flag.
 const SEVERITY_DATA_KEY = 'severity';
+
+// Set as 'data.componentName' by every catch site that knows which component it was loading — 'lazyRoute' here and
+// 'ComponentLoadFailure' for everything the router does not load — so the banner can name what went missing.
+const COMPONENT_NAME_DATA_KEY = 'componentName';
 const SEVERITIES = new Set(['fatal', 'recoverable', 'staleDeploy']);
 
 // A stale-deploy failure surfaces as an ordinary module-load rejection, and the only thing distinguishing it is the
@@ -47,6 +51,12 @@ export const fatalErrorWasReported = ref<boolean | undefined>();
 // reset, because the banner it raises is a dead end that only a reload clears.
 const state = { staleDeployWasReported: false };
 
+// What the banner needs beyond the flag itself. The name is recovered from the failure; the path is supplied by the
+// router, the only place that knows which navigation was abandoned. Both stay undefined for a failure that has
+// neither — a 'vite:preloadError' from a chunk no route asked for.
+export const serviceFailureComponentName = shallowRef<string | undefined>();
+export const serviceFailureRetryPath = shallowRef<string | undefined>();
+
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // 'fallback' is what the caller knows about its own context and cannot be inferred from the error: a boundary that
@@ -71,10 +81,10 @@ export function isStaleDeployError(error: unknown): boolean {
 
 // For errors caught where nothing local can display them — the global handler and the router. The caller passes the
 // error it will report, with whatever it caught as the cause; the classification reads through to that cause.
-export function raiseAppLevelError(error: AppError): void {
+export function raiseAppLevelError(error: AppError, retryPath?: string): void {
     switch (classifyError(error, 'fatal')) {
         case 'staleDeploy':
-            raiseStaleDeployFailure(error);
+            raiseStaleDeployFailure(error, retryPath);
             return;
         // Declared recoverable, so the region that owns it will show it; from here there is only the report to make.
         case 'recoverable':
@@ -99,14 +109,29 @@ export async function raiseFatalError(error: AppError): Promise<void> {
 // Only the first failure is reported. One stale deployment reaches here by several routes at once — Vite's
 // 'vite:preloadError' and the rejected import behind 'defineAsyncPanel' are the same chunk failing — and a bad deploy
 // produces that for every chunk the session goes on to need, so reporting each one buries the first in duplicates.
-export function raiseStaleDeployFailure(error: AppError): void {
+export function raiseStaleDeployFailure(error: AppError, retryPath?: string): void {
     serviceLoadFailed.value = true; // Raised for every failure: the banner must show even when the report is skipped.
+
+    // Only the first failure's details are kept, for the same reason only the first is reported: a stale deployment
+    // goes on to fail every chunk the session asks for, and the last of those names nothing the user was waiting for.
+    serviceFailureComponentName.value ??= findComponentName(error);
+    serviceFailureRetryPath.value ??= retryPath;
+
     if (state.staleDeployWasReported) return;
     state.staleDeployWasReported = true;
     void reportAppError(error);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Read from the chain rather than passed in, so it works wherever the name was recorded: the outermost error is built
+// by a catch site that knows only that a navigation failed, while the name sits on the cause it wrapped.
+function findComponentName(error: unknown): string | undefined {
+    const name = serialiseError(error)
+        .map((serialisedError) => serialisedError.data?.[COMPONENT_NAME_DATA_KEY])
+        .find((value) => typeof value === 'string' && value.length > 0);
+    return typeof name === 'string' ? name : undefined;
+}
 
 function hasStaleDeployMessage(serialisedError: SerialisedError): boolean {
     const message = serialisedError.message.toLowerCase();

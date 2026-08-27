@@ -3,6 +3,8 @@
 import { onMounted, useTemplateRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+// ── Local Framework
+
 // ── Static Components
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
@@ -63,7 +65,9 @@ function handleClose(): void {
 
     const routeQueryParameters = { ...route.query };
     delete routeQueryParameters.dlg;
-    void router.push({ query: { ...routeQueryParameters } });
+    void router.push({ query: { ...routeQueryParameters } }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 }
 
 function handleRequestClose(): void {

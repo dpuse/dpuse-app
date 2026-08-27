@@ -8,11 +8,13 @@ import { defineAsyncPanel } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 import { assistantPaneIsVisible, contentScrollPosition, sessionMenuIsOpen, studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 import { configRetrievalFailed, initialiseServices, serviceLoadFailed } from '@/state/session';
-import { fatalError, fatalErrorWasReported } from '@/state/errors';
+import { fatalError, fatalErrorWasReported, serviceFailureComponentName, serviceFailureRetryPath } from '@/state/errors';
+import { navigationPendingDepth } from '@/router';
 
 // ── Static Components
 import AssistantLogo from '@/components/branding/AssistantLogo.vue'; // Always visible.
 import Button from '@/components/ui/button/Button.vue'; // Required by studio and assistant toggle buttons which are always visible.
+import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue'; // Stands in for a studio layout mid-navigation.
 import DialogModal from '@/components/ui/dialog/DialogModal.vue'; // Renders before the dialog it frames.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import ErrorDetail from '@/components/ui/error/ErrorDetail.vue'; // Can be no delay when rendering.
@@ -56,6 +58,12 @@ const T = {
     'serviceLoadFailed.message': {
         en: 'Part of DPUse failed to load. You may be running an outdated version of the app. Please refresh the page.',
         es: 'No se pudo cargar una parte de DPUse. Es posible que esté utilizando una versión desactualizada de la aplicación. Actualice la página.'
+    },
+    // Used whenever the failure recorded which component it was loading, which is every route and every lazy panel.
+    // The bare message stands in for the rest — a chunk no screen asked for, such as one Vite was preloading.
+    'serviceLoadFailed.named.message': {
+        en: '{name} failed to load. You may be running an outdated version of the app. Please refresh the page.',
+        es: 'No se pudo cargar {name}. Es posible que esté utilizando una versión desactualizada de la aplicación. Actualice la página.'
     }
 };
 
@@ -82,7 +90,9 @@ const studioPaneIsActive = ref(false); // On narrow displays a pane can be activ
 // service module cannot load while the app is offline either, making it the more likely root cause of the pair.
 const serviceFailureMessage = computed(() => {
     if (configRetrievalFailed.value) return t(T, 'configRetrievalFailed.message');
-    return serviceLoadFailed.value ? t(T, 'serviceLoadFailed.message') : '';
+    if (!serviceLoadFailed.value) return '';
+    const name = serviceFailureComponentName.value;
+    return name == null ? t(T, 'serviceLoadFailed.message') : t(T, 'serviceLoadFailed.named.message', { name });
 });
 
 // ── Derived State - Dialogs ──────────────────────────────────────────────────────────────────────────────────────────
@@ -110,6 +120,11 @@ const assistantPaneStyle = computed(() => {
 
 const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assistantPaneIsVisible.value);
 
+// This 'RouterView' is the outermost, so it hosts level 0 and stands in only for a navigation replacing the studio
+// layout itself. One that changes a panel within the layout already on screen reports a deeper level and is stood in
+// for there, leaving the header and tab bar in place.
+const studioLayoutIsLoading = computed(() => navigationPendingDepth.value === 0);
+
 const studioPaneStyle = computed(() => {
     if (!studioPaneIsVisible.value) return { width: '0' };
     if (assistantPaneIsVisible.value) return { minWidth: '0', width: `calc(${String(paneSplitterPercent.value)}% - ${String(PANE_SPLITTER_WIDTH / 2)}px)` };
@@ -123,8 +138,11 @@ router
     // eslint-disable-next-line unicorn/prefer-await -- top-level await in <script setup> suspends the component; .then() keeps mount non-blocking.
     .then(() => {
         // The initial navigation has fully completed. This block intentionally runs once to bootstrap pane state from the initial URL.
-        studioPaneActivated.value = studioPaneIsActive.value = route.path !== '/';
-        assistantPaneActivated.value = assistantPaneIsActive.value = route.query.aState === '1' && 'aView' in route.query;
+        // studioPaneActivated.value = studioPaneIsActive.value = route.path !== '/';
+        // studioPaneActivated.value = studioPaneIsActive.value = route.query.sState === '1' && 'sView' in route.query;
+        // assistantPaneActivated.value = assistantPaneIsActive.value = route.query.aState === '1' && 'aView' in route.query;
+        studioPaneActivated.value = studioPaneIsActive.value = route.query.sState === '1' || route.query.aState !== '1';
+        assistantPaneActivated.value = assistantPaneIsActive.value = route.query.aState === '1';
         activeAppPaneId.value = studioPaneActivated.value ? 'studio' : 'assistant';
         establishActivePaneId(viewportIsWide.value);
     })
@@ -147,6 +165,20 @@ watch(viewportIsWide, (newViewportIsWide) => {
 watch(paneSplitterPercent, (newPaneSplitterPercent) => {
     localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent));
 });
+
+// ── Event Handlers - Fatal Errors ─────────────────────────────────────────────────────────────────────────────────
+
+// A fatal error means nothing was left that could contain it, so the only retry available is the whole app.
+function handleReloadApp(): void {
+    location.reload();
+}
+
+// ── Event Handlers - Studio Option Bar ────────────────────────────────────────────────────────────────────────────
+
+function handleStudioOptionBarHide(): void {
+    if (viewportIsWide.value) return;
+    studioOptionBarIsVisible.value = false;
+}
 
 // ── Event Handlers - Assistant Pane/Panels ───────────────────────────────────────────────────────────────────────────
 
@@ -173,26 +205,16 @@ function toggleAssistantPane(): void {
         // Then - toggle assistant pane, ensure assistant pane is activated (may be first time), and update route properties.
         assistantPaneIsActive.value = assistantPaneIsVisible.value = !assistantPaneIsVisible.value;
         if (assistantPaneIsActive.value) assistantPaneActivated.value = true;
-        void router.replace({ query: { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined } });
+        void router.replace({ query: { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined } }).catch(() => {
+            // Already reported by 'router.onError'.
+        });
     } else {
         // Else - assistant pane has never been activated, active and navigate to last 'about' route.
         assistantPaneActivated.value = assistantPaneIsActive.value = assistantPaneIsVisible.value = true;
-        void router.replace({ query: { ...route.query, aView: 'about', sState: studioPaneIsVisible.value ? 1 : undefined, aState: 1 } });
+        void router.replace({ query: { ...route.query, aView: 'about', sState: studioPaneIsVisible.value ? 1 : undefined, aState: 1 } }).catch(() => {
+            // Already reported by 'router.onError'.
+        });
     }
-}
-
-// ── Event Handlers - Fatal Errors ─────────────────────────────────────────────────────────────────────────────────
-
-// A fatal error means nothing was left that could contain it, so the only retry available is the whole app.
-function handleReloadApp(): void {
-    location.reload();
-}
-
-// ── Event Handlers - Studio Option Bar ────────────────────────────────────────────────────────────────────────────
-
-function handleStudioOptionBarHide(): void {
-    if (viewportIsWide.value) return;
-    studioOptionBarIsVisible.value = false;
 }
 
 // ── Event Handlers - Studio Pane ──────────────────────────────────────────────────────────────────────────────────
@@ -221,14 +243,20 @@ function toggleStudioPane(): void {
     if (route.path === '/') {
         // Then - studio pane has never been activated, active and navigate to last known route.
         studioPaneActivated.value = studioPaneIsActive.value = studioPaneIsVisible.value = true;
-        void router.replace({
-            name: (Array.isArray(route.query.sView) ? route.query.sView[0] : route.query.sView) ?? 'studio',
-            query: { ...route.query, sState: 1, aState: assistantPaneIsVisible.value ? 1 : undefined }
-        });
+        void router
+            .replace({
+                name: (Array.isArray(route.query.sView) ? route.query.sView[0] : route.query.sView) ?? 'studio',
+                query: { ...route.query, sState: 1, aState: assistantPaneIsVisible.value ? 1 : undefined }
+            })
+            .catch(() => {
+                // Already reported by 'router.onError'.
+            });
     } else {
         // Else - toggle studio pane and update route properties.
         studioPaneIsActive.value = studioPaneIsVisible.value = !studioPaneIsVisible.value;
-        void router.replace({ query: { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined } });
+        void router.replace({ query: { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined } }).catch(() => {
+            // Already reported by 'router.onError'.
+        });
     }
 }
 
@@ -274,7 +302,12 @@ function establishPaneSplitterPercent(): number {
 
         <!-- Configuration WebSocket permanently failed to connect, or a service module failed to load. Overrides everything else until the page is refreshed. -->
         <Transition name="action-fade">
-            <ServiceFailureBanner v-if="serviceFailureMessage" class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-80" :message="serviceFailureMessage" />
+            <ServiceFailureBanner
+                v-if="serviceFailureMessage"
+                class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-80"
+                :message="serviceFailureMessage"
+                :retry-path="serviceFailureRetryPath"
+            />
         </Transition>
 
         <!-- An error no 'ErrorBoundary' contained, so there is no region left that could show it in place. Sits below
@@ -348,8 +381,13 @@ function establishPaneSplitterPercent(): number {
 
             <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
             <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="studio-content">
+                <!-- The spinner sits outside the transition, not as a branch within it. As a sibling of the route
+                     component under 'mode="out-in"', the incoming route component renders as an empty placeholder and
+                     never appears: the deferred update that follows the spinner's leave does not pick up the resolved
+                     component. Reproducible with '?simulateLoad=buildDataApps:2000'; unrelated to the ':key'. -->
                 <RouterView v-slot="{ Component }">
-                    <Transition name="action-fade" mode="out-in">
+                    <ComponentLoadingSpinner v-if="studioLayoutIsLoading" />
+                    <Transition v-else name="action-fade" mode="out-in">
                         <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
                     </Transition>
                 </RouterView>

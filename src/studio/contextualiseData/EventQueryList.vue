@@ -90,7 +90,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
     <div class="mx-4 flex flex-none border-b border-separator py-1">
         <div class="flex-1"></div>
 
-        <Button @click="router.push({ name: '???', query: route.query })">
+        <Button @click="router.push({ name: '???', query: route.query }).catch(() => undefined)">
             <PlusIcon stroke-width="1.25" />
         </Button>
     </div>

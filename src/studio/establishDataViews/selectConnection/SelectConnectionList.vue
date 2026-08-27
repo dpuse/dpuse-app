@@ -45,11 +45,15 @@ watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => ge
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleAddConnection(): void {
-    void router.replace({ query: { ...route.query, dlg: 'connection' } });
+    void router.replace({ query: { ...route.query, dlg: 'connection' } }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 }
 
 function handleCommitDetail(): void {
-    void router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } });
+    void router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 }
 
 function handleDeleteDataView(connectionConfig: LocalisedConfig<ConnectionConfig>): void {

@@ -11,8 +11,7 @@ import StudioLayout from '../StudioLayout.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Build_Data_Apps: { en: 'Build Data Apps', es: 'Crear Aplicaciones de Datos' },
-    'wb.label': { en: 'Workflow', es: 'Flujo de Trabajo' }
+    Build_Data_Apps: { en: 'Build Data Apps', es: 'Crear Aplicaciones de Datos' }
 };
 </script>
 

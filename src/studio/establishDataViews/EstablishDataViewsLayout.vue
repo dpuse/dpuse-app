@@ -10,8 +10,10 @@ import { localiseConfig, localiseConfigs, type LocalisedConfig } from '@dpuse/dp
 import { accountConfigsAreRetrieved, configRetrievalSucceeded } from '@/state/session';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs } from '@/state/dataViews';
 import { localeId, t } from '@/state/locale';
+import { navigationPendingDepth } from '@/router';
 
 // ── Static Components
+import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
 import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
 import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
@@ -46,6 +48,10 @@ const taskLocalisedConfigsWithDisabled = computed((): LocalisedConfig<TaskConfig
     }))
 );
 
+// This layout hosts the 'RouterView' one level in, so it stands in for its own panel while 'App.vue' stands in for the
+// layout — which is what keeps the header and task bar in place through a panel swap.
+const panelIsLoading = computed(() => navigationPendingDepth.value === 1);
+
 const activeTaskLocalisedConfig = computed(() => taskLocalisedConfigsWithDisabled.value.find((config) => config.id === route.query.sView));
 const navigateBackRouteName = computed(() => (route.query.sView === 'establishDataViews' ? 'studio' : 'establishDataViews'));
 const headerOverline = computed(() => t(T, activeTaskLocalisedConfig.value ? 'Establish_Data_Views' : 'Studio'));
@@ -77,7 +83,9 @@ watch(connectionLocalisedConfigs, (newConnectionLocalisedConfigs) => {
     if (newConnectionLocalisedConfigs.some((config) => config.id === active.id)) return;
 
     activeConnectionConfig.value = undefined;
-    void router.replace({ name: 'establishDataViews' });
+    void router.replace({ name: 'establishDataViews' }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -97,7 +105,8 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
 
         <!-- Data View List or Active Task Panel -->
         <RouterView v-slot="{ Component }">
-            <component :is="Component" v-if="route.name === 'establishDataViews'" class="min-h-0 flex-1" />
+            <ComponentLoadingSpinner v-if="panelIsLoading" class="min-h-0 flex-1" />
+            <component :is="Component" v-else-if="route.name === 'establishDataViews'" class="min-h-0 flex-1" />
             <component :is="Component" v-else class="min-h-0 flex-1" :task-localised-config="activeTaskLocalisedConfig" @task-completed="handleTaskCompleted" />
         </RouterView>
     </StudioLayout>

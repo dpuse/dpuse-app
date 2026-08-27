@@ -74,7 +74,9 @@ watch(detailActionId, (newDetailActionId) => {
 
 function handleAddDataView(): void {
     setActiveDataViewConfig();
-    void router.push({ name: 'selectConnection', params: { dataViewId: NEW_DATA_VIEW_ID }, query: { ...route.query, sView: 'selectConnection' } });
+    void router.push({ name: 'selectConnection', params: { dataViewId: NEW_DATA_VIEW_ID }, query: { ...route.query, sView: 'selectConnection' } }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 }
 
 async function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): Promise<void> {
@@ -101,13 +103,21 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
 
     setActiveDataViewConfig(dataViewConfig);
     if (dataViewConfig.connectionId == null) {
-        void router.push({ name: 'selectConnection', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'selectConnection' } });
+        void router.push({ name: 'selectConnection', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'selectConnection' } }).catch(() => {
+            // Already reported by 'router.onError'.
+        });
     } else if (dataViewConfig.connectionNodeConfig == null) {
-        void router.push({ name: 'selectItem', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'selectItem' } });
+        void router.push({ name: 'selectItem', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'selectItem' } }).catch(() => {
+            // Already reported by 'router.onError'.
+        });
     } else if (dataViewConfig.contentAuditConfig == null) {
-        void router.push({ name: 'auditContent', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'auditContent' } });
+        void router.push({ name: 'auditContent', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'auditContent' } }).catch(() => {
+            // Already reported by 'router.onError'.
+        });
     } else {
-        void router.push({ name: 'exploreData', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'exploreData' } });
+        void router.push({ name: 'exploreData', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'exploreData' } }).catch(() => {
+            // Already reported by 'router.onError'.
+        });
     }
 }
 </script>

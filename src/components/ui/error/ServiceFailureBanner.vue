@@ -10,9 +10,13 @@ import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-// Every failure that reaches this banner is a dead end that only a page reload can clear, so the caller supplies
-// just the message naming the service that failed and the refresh action is fixed here.
-const { message } = defineProps<{ message: string }>();
+// Every failure that reaches this banner is a dead end that only a page reload can clear, so the caller supplies the
+// message naming the service that failed and the refresh action is fixed here.
+//
+// 'retryPath' is the navigation the failure abandoned, where there was one. A route that cannot fetch its chunk leaves
+// the URL untouched, so reloading in place would clear the stale deployment and still strand the user on the screen
+// they were leaving; refreshing to the path they asked for finishes the journey instead.
+const { message, retryPath } = defineProps<{ message: string; retryPath?: string }>();
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -22,8 +26,15 @@ const T = {
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
+// 'assign' rather than 'reload' so the document is fetched afresh either way: that is what picks up the new
+// deployment's chunk names, and it is the only thing that makes the retry more than a second attempt at the same
+// broken files. Falls back to the current URL when the failure named no destination.
 function handleRefresh(): void {
-    location.reload();
+    if (retryPath == null) {
+        location.reload();
+        return;
+    }
+    location.assign(retryPath);
 }
 </script>
 

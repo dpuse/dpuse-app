@@ -82,7 +82,9 @@ watch(viewportIsWide, (isWide) => {
 function handleCommitDetail(): void {
     const query = { ...route.query };
     delete query.dlg;
-    void router.push({ query });
+    void router.push({ query }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 }
 
 function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> | undefined): void {

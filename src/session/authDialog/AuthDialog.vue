@@ -88,7 +88,9 @@ async function handleLoginFlowStateChange(state: AnyState): Promise<void> {
             destroyFlow();
             const query = { ...route.query };
             delete query.dlg;
-            void router.push({ query });
+            void router.push({ query }).catch(() => {
+                // Already reported by 'router.onError'.
+            });
             return;
         case 'error':
             console.log('STATE', 'error', state.error, state);

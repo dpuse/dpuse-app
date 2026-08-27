@@ -43,7 +43,9 @@ const configOptionLocalisedConfigs = computed(() => localiseConfigs<ConfigOption
 
 function handleSelectView(viewId: string): void {
     if (activeViewId.value === viewId) return;
-    void router.replace({ query: { ...route.query, aView: viewId } });
+    void router.replace({ query: { ...route.query, aView: viewId } }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 }
 </script>
 

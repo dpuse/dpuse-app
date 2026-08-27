@@ -133,7 +133,9 @@ watch(
 
         const dataViewConfig = await getDataViewRecord(newLocalMetaStoreConnectionConfig, route);
         if (dataViewConfig.connectionId == null) {
-            void router.replace({ name: 'selectConnection', query: { ...route.query, sView: 'selectConnection' } });
+            void router.replace({ name: 'selectConnection', query: { ...route.query, sView: 'selectConnection' } }).catch(() => {
+                // Already reported by 'router.onError'.
+            });
         } else {
             activeConnectionConfig.value = connectionLocalisedConfigs.value.find((localisedConnectionConfig) => localisedConnectionConfig.id == dataViewConfig.connectionId);
         }
@@ -197,7 +199,9 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
 
 function handleCommitDetail(): void {
     emit('task-completed', taskLocalisedConfig);
-    void router.push({ name: 'auditContent', query: { ...route.query, sView: 'auditContent' } });
+    void router.push({ name: 'auditContent', query: { ...route.query, sView: 'auditContent' } }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

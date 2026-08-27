@@ -11,8 +11,9 @@ import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadin
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // How long a load must run before the spinner appears. Below this the load is over before the eye registers it, and
-// showing anything reads as a flicker rather than as progress.
-const VISIBLE_DELAY_MS = 150;
+// showing anything reads as a flicker rather than as progress. Exported so the router can hold lazy route components to
+// the same threshold, which it reaches by its own route rather than through 'defineAsyncPanel'.
+export const VISIBLE_DELAY_MS = 150;
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -68,7 +69,8 @@ export function defineAsyncPanel(loader: AsyncComponentLoader, name: string, opt
 
 // A slow or failing chunk is the one thing about this that cannot be reproduced on a fast local connection, so the
 // simulation is built in rather than left to be hand-edited into a call site and accidentally committed. Ignored
-// outside development, so a stray flag cannot reach users.
+// outside development, so a stray flag cannot reach users. Route components have their own version of this in the
+// router, driven by the URL, because they are loaded by the router rather than through 'defineAsyncPanel'.
 function buildLoader(loader: AsyncComponentLoader, simulation?: AsyncPanelSimulation): AsyncComponentLoader {
     if (!simulation || !import.meta.env.DEV) return loader;
 

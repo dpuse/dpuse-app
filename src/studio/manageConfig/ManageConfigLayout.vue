@@ -8,9 +8,11 @@ import { localiseConfigs } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
+import { navigationPendingDepth } from '@/router';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
+import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import StudioHeader from '../StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
@@ -75,6 +77,10 @@ const route = useRoute();
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeConfigOptionConfig = computed(() => configOptionLocalisedConfigs.value.find((config) => config.to === route.name) ?? configOptionLocalisedConfigs.value[0]);
+
+// This layout hosts the 'RouterView' one level in, so it stands in for its own panel while 'App.vue' stands in for the
+// layout — which is what keeps the header and tab bar in place through a panel swap.
+const panelIsLoading = computed(() => navigationPendingDepth.value === 1);
 </script>
 
 <template>
@@ -93,7 +99,13 @@ const activeConfigOptionConfig = computed(() => configOptionLocalisedConfigs.val
 
         <!-- Body -->
         <RouterView v-slot="{ Component }">
-            <component :is="Component" :active-config-option-config="activeConfigOptionConfig" v-bind="route.name === 'manageConfig' ? { configOptionLocalisedConfigs } : {}" />
+            <ComponentLoadingSpinner v-if="panelIsLoading" />
+            <component
+                :is="Component"
+                v-else
+                :active-config-option-config="activeConfigOptionConfig"
+                v-bind="route.name === 'manageConfig' ? { configOptionLocalisedConfigs } : {}"
+            />
         </RouterView>
     </StudioLayout>
 </template>

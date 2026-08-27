@@ -26,7 +26,10 @@ defineEmits<{ retry: [] }>();
 const T = {
     'cause.label': { en: 'Cause', es: 'Causa' },
     'console.message': { en: 'See the browser console for more details.', es: 'Consulte la consola del navegador para obtener más detalles.' },
-    'reporting.failed': { en: 'Unable to confirm this error was logged with DPUse Support.', es: 'No se puede confirmar que este error se haya registrado con el soporte de DPUse.' },
+    'reporting.failed': {
+        en: 'Unable to confirm this error was logged with DPUse Support.',
+        es: 'No se puede confirmar que este error se haya registrado con el soporte de DPUse.'
+    },
     'reporting.pending': { en: 'Logging this error with DPUse Support…', es: 'Registrando este error con el soporte de DPUse…' },
     'reporting.succeeded': {
         en: 'This error has been logged with DPUse Support for investigation.',

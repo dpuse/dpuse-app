@@ -149,15 +149,36 @@ function localiseModel(model: Model): LocalisedModel {
             <ContextModelSecondaryMeasuresPanel :secondary-measures="activeModel?.secondaryMeasures ?? []" :marked-tool="markedTool" @edit="modelDescriptorsDialogIsOpen = true" />
         </div>
 
-        <DialogModal :is-open="modelDescriptorsDialogIsOpen" max-width="90vw" min-height="90vh" sizing="full" :title="`${modelReference.label} Descriptors`" @close="modelDescriptorsDialogIsOpen = false">
+        <DialogModal
+            :is-open="modelDescriptorsDialogIsOpen"
+            max-width="90vw"
+            min-height="90vh"
+            sizing="full"
+            :title="`${modelReference.label} Descriptors`"
+            @close="modelDescriptorsDialogIsOpen = false"
+        >
             <ContextModelDescriptorsPanel v-if="modelDescriptorsDialogIsOpen" v-model:label="modelReferenceLabel" v-model:description="modelReferenceDescription" />
         </DialogModal>
 
-        <DialogModal :is-open="entityRelationshipDiagramIsOpen" max-width="90vw" min-height="90vh" sizing="full" title="Sample ERD Diagram" @close="entityRelationshipDiagramIsOpen = false">
+        <DialogModal
+            :is-open="entityRelationshipDiagramIsOpen"
+            max-width="90vw"
+            min-height="90vh"
+            sizing="full"
+            title="Sample ERD Diagram"
+            @close="entityRelationshipDiagramIsOpen = false"
+        >
             <ContextModelEntityRelationshipDiagramPanel v-if="entityRelationshipDiagramIsOpen" />
         </DialogModal>
 
-        <DialogModal :is-open="dimensionSchemaDiagramIsOpen" max-width="90vw" min-height="90vh" sizing="full" title="Sample Dimension Tree Diagram" @close="dimensionSchemaDiagramIsOpen = false">
+        <DialogModal
+            :is-open="dimensionSchemaDiagramIsOpen"
+            max-width="90vw"
+            min-height="90vh"
+            sizing="full"
+            title="Sample Dimension Tree Diagram"
+            @close="dimensionSchemaDiagramIsOpen = false"
+        >
             <ContextModelDimensionSchemaDiagramPanel v-if="dimensionSchemaDiagramIsOpen" />
         </DialogModal>
     </div>
