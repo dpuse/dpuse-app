@@ -15,7 +15,7 @@ defineEmits<{ clear: []; close: [] }>();
 </script>
 
 <template>
-    <StudioDetailPanel data-region="DataViewSummaryPanel">
+    <StudioDetailPanel data-region="DataViewPanel">
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <StudioDocumentPanel :overline="'Establish Data Views'" :title="dataViewLocalisedConfig.label" @clear="$emit('clear')" @close="$emit('close')">
                 <!-- Description -->

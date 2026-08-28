@@ -26,7 +26,7 @@ import {
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import DataViewSummaryPanel from './DataViewSummaryPanel.vue';
+import DataViewPanel from './DataViewPanel.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
@@ -153,7 +153,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
             </template>
 
             <template #detail="{ item, clear, close }">
-                <DataViewSummaryPanel class="min-h-0 flex-1 pl-4" :data-view-localised-config="item" @clear="clear" @close="close" />
+                <DataViewPanel :data-view-localised-config="item" @clear="clear" @close="close" />
                 <StepActionButton label="Open" @click="handleOpenDataView(item)" />
             </template>
 
