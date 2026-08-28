@@ -15,7 +15,6 @@ import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Authentication: { en: 'Authentication', es: 'Autenticación' },
     Documentation: { en: 'Documentation', es: 'Documentación' },
     GitHub_repository: { en: 'GitHub Repository', es: 'Repositorio de GitHub' },
     Links: { en: 'Links', es: 'Enlaces' },

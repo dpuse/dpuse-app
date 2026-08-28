@@ -28,7 +28,7 @@ interface Properties {
     activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
     toolLocalisedConfig: LocalisedConfig<ToolConfig>;
 }
-const { toolLocalisedConfig } = defineProps<Properties>();
+const { activeConfigOptionConfig, toolLocalisedConfig } = defineProps<Properties>();
 
 defineEmits<{ clear: []; close: [] }>();
 

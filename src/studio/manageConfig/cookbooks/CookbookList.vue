@@ -21,12 +21,15 @@ import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Select_cookbook: { en: 'Select a Cookbook from the list.', es: 'Selecciona un recetario de la lista.' }
+    Select_cookbook: { en: 'Select a cookbook from the list.', es: 'Selecciona un recetario de la lista.' }
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
+interface Properties {
+    activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
+}
+const { activeConfigOptionConfig } = defineProps<Properties>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

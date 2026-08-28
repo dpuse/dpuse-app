@@ -26,7 +26,10 @@ const T = {
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
+interface Properties {
+    activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
+}
+const { activeConfigOptionConfig } = defineProps<Properties>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

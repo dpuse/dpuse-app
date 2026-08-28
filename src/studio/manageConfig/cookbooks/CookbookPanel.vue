@@ -28,7 +28,7 @@ interface Properties {
     activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
     cookbookLocalisedConfig: LocalisedConfig<CookbookConfig>;
 }
-const { cookbookLocalisedConfig } = defineProps<Properties>();
+const { activeConfigOptionConfig, cookbookLocalisedConfig } = defineProps<Properties>();
 
 defineEmits<{ clear: []; close: [] }>();
 

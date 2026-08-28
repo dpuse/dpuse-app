@@ -35,7 +35,7 @@ const ExplorePresentationsLayout = defineLazyLoader('ExplorePresentationsLayout'
 const BuildDataAppsLayout = defineLazyLoader('BuildDataAppsLayout', 0, () => import('@/studio/buildDataApps/BuildDataAppsLayout.vue'));
 const ManageConfigLayout = defineLazyLoader('ManageConfigLayout', 0, () => import('@/studio/manageConfig/ManageConfigLayout.vue'));
 const ManageHomePanel = defineLazyLoader('ManageHomePanel', 1, () => import('@/studio/manageConfig/home/HomePanel.vue'));
-const ManageConnectorList = defineLazyLoader('ManageConnectorList', 1, () => import('@/studio/manageConfig/connectors/ConnectorList.vue'), { failsToLoad: false });
+const ManageConnectorList = defineLazyLoader('ManageConnectorList', 1, () => import('@/studio/manageConfig/connectors/ConnectorList.vue'));
 const ManageContextList = defineLazyLoader('ManageContextList', 1, () => import('@/studio/manageConfig/context/ContextList.vue'));
 const ManagePresenterList = defineLazyLoader('ManagePresenterList', 1, () => import('@/studio/manageConfig/presenters/PresenterList.vue'));
 const ManageCookbookList = defineLazyLoader('ManageCookbookList', 1, () => import('@/studio/manageConfig/cookbooks/CookbookList.vue'));

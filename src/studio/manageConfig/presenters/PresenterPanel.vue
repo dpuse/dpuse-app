@@ -28,7 +28,7 @@ interface Properties {
     activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
     presenterLocalisedConfig: LocalisedConfig<PresenterConfig>;
 }
-const { presenterLocalisedConfig } = defineProps<Properties>();
+const { activeConfigOptionConfig, presenterLocalisedConfig } = defineProps<Properties>();
 
 defineEmits<{ clear: []; close: [] }>();
 
