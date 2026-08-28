@@ -33,11 +33,11 @@ defineEmits<{ clear: []; close: [] }>();
             </div>
 
             <!-- Title - the gutter for the clear button sits on the row rather than the heading, so the icon is inside
-                 it too. Aligned to the top rather than centred: the title wraps, and centring would drift the icon down
-                 the block as lines are added. -->
-            <div class="mr-9! flex min-w-0 items-center gap-x-2">
+                 it too. The icon is boxed to the height of the heading's first line (py-1 + leading-8) rather than to
+                 its own size, so it stays centred on that line instead of drifting down the block as the title wraps. -->
+            <div class="mr-9! flex min-w-0 items-start gap-x-2">
                 <!-- Icon -->
-                <ConfigIcon class="size-7" :icon="icon" :icon-dark="iconDark" />
+                <ConfigIcon class="mt-1 h-8 w-7" :icon="icon" :icon-dark="iconDark" />
 
                 <!-- Title -->
                 <h1 class="min-w-0 py-1 text-left leading-8! wrap-break-word whitespace-normal">
