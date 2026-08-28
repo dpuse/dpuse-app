@@ -13,10 +13,10 @@ import { t } from '@/state/locale';
 import type { ConfigOptionConfig, ManagedModuleConfig } from '@/utilities/index.ts';
 
 // ── Static Components
-import DetailPanel from '@/studio/components/DetailPanel.vue';
-import DocumentPanel from '@/studio/components/DocumentPanel.vue';
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
+import StudioDetailPanel from '@/studio/components/StudioDetailPanel.vue';
+import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -53,9 +53,9 @@ const moduleStatus = computed(() => (localisedConfig.statusId ? getComponentStat
 </script>
 
 <template>
-    <DetailPanel :data-region="DATA_REGIONS[localisedConfig.typeId]">
+    <StudioDetailPanel :data-region="DATA_REGIONS[localisedConfig.typeId]">
         <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
-            <DocumentPanel
+            <StudioDocumentPanel
                 :icon="localisedConfig.icon"
                 :icon-dark="localisedConfig.iconDark"
                 :overline="activeConfigOptionConfig.label"
@@ -114,7 +114,7 @@ const moduleStatus = computed(() => (localisedConfig.statusId ? getComponentStat
                         </a>
                     </li>
                 </ul>
-            </DocumentPanel>
+            </StudioDocumentPanel>
         </ScrollArea>
-    </DetailPanel>
+    </StudioDetailPanel>
 </template>

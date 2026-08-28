@@ -16,9 +16,9 @@ import { useConfigsReady } from '@/services/useConfigsReady';
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
-import Header from '@/studio/components/Header.vue';
-import Layout from '@/studio/components/Layout.vue';
 import Separator from '@/components/ui/Separator.vue';
+import StudioHeader from '@/studio/components/StudioHeader.vue';
+import StudioLayout from '@/studio/components/StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -95,8 +95,8 @@ async function renderDiagram(): Promise<void> {
 </script>
 
 <template>
-    <Layout>
-        <Header class="flex-none px-4" overline="Studio" :title="t(T, 'Contextualise_Data')" to="studio" />
+    <StudioLayout>
+        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Contextualise_Data')" to="studio" />
 
         <Separator />
 
@@ -107,5 +107,5 @@ async function renderDiagram(): Promise<void> {
         </div>
 
         <div v-show="!renderError" ref="container" class="w-full flex-1" />
-    </Layout>
+    </StudioLayout>
 </template>

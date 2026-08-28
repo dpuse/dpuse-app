@@ -14,9 +14,9 @@ import { accountId } from '@/state/session';
 import { useEngine } from '@/services/useEngine';
 
 // ── Static Components
-import DetailPanel from '@/studio/components/DetailPanel.vue';
-import DocumentPanel from '@/studio/components/DocumentPanel.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
+import StudioDetailPanel from '@/studio/components/StudioDetailPanel.vue';
+import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -76,9 +76,9 @@ async function testAuth(): Promise<void> {
 </script>
 
 <template>
-    <DetailPanel data-region="SelectConnectionPanel">
+    <StudioDetailPanel data-region="SelectConnectionPanel">
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
-            <DocumentPanel overline="Connections" :title="connectionLocalisedConfig.label" @close="$emit('close')">
+            <StudioDocumentPanel overline="Connections" :title="connectionLocalisedConfig.label" @close="$emit('close')">
                 <!-- Tags -->
                 <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
                     <Tag :text="connectionLocalisedConfig.connectorConfig.categoryId" />
@@ -88,9 +88,9 @@ async function testAuth(): Promise<void> {
 
                 <!-- Description -->
                 <p v-if="connectionLocalisedConfig.description">{{ connectionLocalisedConfig.description }}</p>
-            </DocumentPanel>
+            </StudioDocumentPanel>
         </ScrollArea>
-    </DetailPanel>
+    </StudioDetailPanel>
 
     <!-- <form class="relative flex h-full flex-col pl-4" data-region="SelectConnectionPanel" @submit.prevent="handleSubmit">
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">

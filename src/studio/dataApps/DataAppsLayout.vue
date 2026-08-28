@@ -3,10 +3,10 @@
 import { t } from '@/state/locale';
 
 // ── Static Components
-import Header from '@/studio/components/Header.vue';
-import Layout from '@/studio/components/Layout.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
+import StudioHeader from '@/studio/components/StudioHeader.vue';
+import StudioLayout from '@/studio/components/StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -16,8 +16,8 @@ const T = {
 </script>
 
 <template>
-    <Layout>
-        <Header class="flex-none px-4" overline="Studio" :title="t(T, 'Build_Data_Apps')" to="studio" />
+    <StudioLayout>
+        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Build_Data_Apps')" to="studio" />
 
         <Separator />
 
@@ -26,5 +26,5 @@ const T = {
                 <RouterView />
             </div>
         </ScrollArea>
-    </Layout>
+    </StudioLayout>
 </template>

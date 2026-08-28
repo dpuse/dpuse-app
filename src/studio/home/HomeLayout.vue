@@ -6,10 +6,10 @@ import { useOptions } from '@/studio/options/useOptions.ts';
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import Header from '@/studio/components/Header.vue';
-import Layout from '@/studio/components/Layout.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
+import StudioHeader from '@/studio/components/StudioHeader.vue';
+import StudioLayout from '@/studio/components/StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -24,9 +24,9 @@ const studioOptionConfigs = useOptions();
 </script>
 
 <template>
-    <Layout>
+    <StudioLayout>
         <!-- Header -->
-        <Header :title="t(T, 'Studio')" />
+        <StudioHeader :title="t(T, 'Studio')" />
 
         <Separator />
 
@@ -87,5 +87,5 @@ const studioOptionConfigs = useOptions();
                 </div>
             </div>
         </ScrollArea>
-    </Layout>
+    </StudioLayout>
 </template>

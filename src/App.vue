@@ -26,7 +26,7 @@ import SessionButton from '@/session/SessionButton.vue'; // Always visible.
 const AccountDialog = defineAsyncPanel(() => import('@/session/accountDialog/AccountDialog.vue'), 'AccountDialog');
 const AuthDialog = defineAsyncPanel(() => import('@/session/authDialog/AuthDialog.vue'), 'AuthDialog');
 const ConnectionDialog = defineAsyncPanel(() => import('@/studio/connectionDialog/ConnectionDialog.vue'), 'ConnectionDialog', { simulation: { delayMs: 3000 } });
-const AssistantLayout = defineAsyncPanel(() => import('@/assistant/AssistantLayout.vue'), 'AssistantLayout');
+const AssistantLayout = defineAsyncPanel(() => import('@/assistant/components/AssistantLayout.vue'), 'AssistantLayout');
 const PaneSplitter = defineAsyncPanel(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
 const OptionBar = defineAsyncPanel(() => import('@/studio/options/OptionBar.vue'), 'OptionBar', { hasPlaceholder: false });
 

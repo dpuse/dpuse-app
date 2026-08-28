@@ -5,15 +5,15 @@ import { type Component, computed, ref, watch } from 'vue';
 
 // ── Local Framework
 import { assertDefined, defineAsyncPanel } from '@/utilities/index.ts';
-import { ASSISTANT_VENDOR_CONFIGS, type AssistantModelConfig, type AssistantVendorId } from './modelConfigs';
+import { ASSISTANT_VENDOR_CONFIGS, type AssistantModelConfig, type AssistantVendorId } from '../modelConfigs';
 
 // ── Static Components
-import PanelHeader from './components/PanelHeader.vue';
+import AssistantPanelHeader from './AssistantPanelHeader.vue';
 
 // ── Dynamic Components
-const AboutView = defineAsyncPanel(() => import('./AboutPanel.vue'), 'AboutPanel');
-const ChatView = defineAsyncPanel(() => import('./chat/ChatPanel.vue'), 'ChatPanel');
-const LibraryView = defineAsyncPanel(() => import('./LibraryPanel.vue'), 'LibraryPanel');
+const AboutView = defineAsyncPanel(() => import('../AboutPanel.vue'), 'AboutPanel');
+const ChatView = defineAsyncPanel(() => import('../chat/ChatPanel.vue'), 'ChatPanel');
+const LibraryView = defineAsyncPanel(() => import('../LibraryPanel.vue'), 'LibraryPanel');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -116,7 +116,7 @@ function establishVendorModelId(id: AssistantVendorId): string {
 
 <template>
     <div class="flex h-full min-w-0 flex-col">
-        <PanelHeader :title="'Assistant'" />
+        <AssistantPanelHeader :title="'Assistant'" />
 
         <component
             :is="activeView"

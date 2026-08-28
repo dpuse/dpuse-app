@@ -28,10 +28,10 @@ import {
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import DataViewPanel from './DataViewPanel.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
-import ListPanel from '@/studio/components/ListPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';
+import StudioListPanel from '@/studio/components/StudioListPanel.vue';
 
 // ── Dynamic Components
 const EmptyPlaceholder = defineAsyncPanel(() => import('~/src/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');
@@ -123,7 +123,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
 </script>
 
 <template>
-    <ListPanel>
+    <StudioListPanel>
         <Separator class="flex-none" />
 
         <GridDetailPanel
@@ -161,5 +161,5 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
                 <SelectPlaceholder :message="'Select a data view from the list.'" />
             </template>
         </GridDetailPanel>
-    </ListPanel>
+    </StudioListPanel>
 </template>

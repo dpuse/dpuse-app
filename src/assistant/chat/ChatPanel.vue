@@ -11,11 +11,11 @@ import { type AssistantChatMessage, getMessageSteps } from './assistantChat';
 import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } from '../modelConfigs';
 
 // ── Static Components
+import AssistantVendorMenu from '../components/AssistantVendorMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import TextArea from '@/components/ui/text/TextArea.vue';
-import VendorMenu from '../components/VendorMenu.vue';
 
 // ── Dynamic Components
 const ChatTanstackInterface = defineAsyncPanel(() => import('./ChatTanstackInterface.vue'), 'ChatTanstackInterface');
@@ -169,7 +169,7 @@ function handleRetryMarkedTool(): void {
             <TextArea v-model="input" class="max-h-40 rounded-t-2xl" placeholder="Ask a question" @keydown.enter.exact.prevent="handleSendMessage" />
 
             <div class="flex items-center justify-between gap-x-2 rounded-b-2xl border-t border-separator bg-backdrop p-2">
-                <VendorMenu :model-config="modelConfig" :vendor-configs="vendorConfigs" :vendor-id="vendorId" @select="handleSelectVendor" />
+                <AssistantVendorMenu :model-config="modelConfig" :vendor-configs="vendorConfigs" :vendor-id="vendorId" @select="handleSelectVendor" />
 
                 <div class="flex items-center gap-x-2">
                     <span class="text-xs text-muted">{{ status }}</span>
