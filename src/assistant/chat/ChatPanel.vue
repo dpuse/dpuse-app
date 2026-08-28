@@ -8,18 +8,18 @@ import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { useMarkedTool } from '@/services/useMarkedTool';
 import { type AssistantChatMessage, getMessageSteps } from './assistantChat';
-import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } from './modelConfigs';
+import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } from '../modelConfigs';
 
 // ── Static Components
-import AssistantVendorMenu from './AssistantVendorMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import TextArea from '@/components/ui/text/TextArea.vue';
+import VendorMenu from '../components/VendorMenu.vue';
 
 // ── Dynamic Components
-const ChatSessionTanstack = defineAsyncPanel(() => import('./ChatSessionTanstack.vue'), 'ChatSessionTanstack');
-const ChatSessionVercel = defineAsyncPanel(() => import('./ChatSessionVercel.vue'), 'ChatSessionVercel');
+const ChatTanstackInterface = defineAsyncPanel(() => import('./ChatTanstackInterface.vue'), 'ChatTanstackInterface');
+const ChatVercelInterface = defineAsyncPanel(() => import('./ChatVercelInterface.vue'), 'ChatVercelInterface');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -32,7 +32,7 @@ const { modelConfig, vendorConfigs, vendorId } = defineProps<{ modelConfig: Assi
 const emit = defineEmits<{ vendorChange: [vendorId: AssistantVendorId, modelConfig: AssistantModelConfig] }>();
 
 // A vendor change always remounts this panel (see AssistantLayout's :key), so the choice here is fixed for the panel's lifetime.
-const SessionComponent = vendorId === 'tanstack' ? ChatSessionTanstack : ChatSessionVercel;
+const SessionComponent = vendorId === 'tanstack' ? ChatTanstackInterface : ChatVercelInterface;
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -169,7 +169,7 @@ function handleRetryMarkedTool(): void {
             <TextArea v-model="input" class="max-h-40 rounded-t-2xl" placeholder="Ask a question" @keydown.enter.exact.prevent="handleSendMessage" />
 
             <div class="flex items-center justify-between gap-x-2 rounded-b-2xl border-t border-separator bg-backdrop p-2">
-                <AssistantVendorMenu :model-config="modelConfig" :vendor-configs="vendorConfigs" :vendor-id="vendorId" @select="handleSelectVendor" />
+                <VendorMenu :model-config="modelConfig" :vendor-configs="vendorConfigs" :vendor-id="vendorId" @select="handleSelectVendor" />
 
                 <div class="flex items-center gap-x-2">
                     <span class="text-xs text-muted">{{ status }}</span>

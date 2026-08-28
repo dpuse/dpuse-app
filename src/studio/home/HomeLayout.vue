@@ -1,15 +1,15 @@
 <script setup lang="ts">
 // ── Local Framework
 import { t } from '@/state/locale';
-import { useStudioOptions } from '@/studio/optionBar/useStudioOptions.ts';
+import { useOptions } from '@/studio/options/useOptions.ts';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
+import Header from '@/studio/components/Header.vue';
+import Layout from '@/studio/components/Layout.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
-import StudioHeader from '@/studio/components/StudioHeader.vue';
-import StudioLayout from '@/studio/components/StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -20,13 +20,13 @@ const T = {
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const studioOptionConfigs = useStudioOptions();
+const studioOptionConfigs = useOptions();
 </script>
 
 <template>
-    <StudioLayout>
+    <Layout>
         <!-- Header -->
-        <StudioHeader :title="t(T, 'Studio')" />
+        <Header :title="t(T, 'Studio')" />
 
         <Separator />
 
@@ -87,5 +87,5 @@ const studioOptionConfigs = useStudioOptions();
                 </div>
             </div>
         </ScrollArea>
-    </StudioLayout>
+    </Layout>
 </template>

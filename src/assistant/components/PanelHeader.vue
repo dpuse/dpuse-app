@@ -12,7 +12,7 @@ import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import { localeId } from '@/state/locale.ts';
 
 // ── Static Components
-import AssistantHeader from './AssistantHeader.vue';
+import Header from './Header.vue';
 import TabBar from '@/components/ui/TabBar.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -50,12 +50,12 @@ function handleSelectView(viewId: string): void {
 </script>
 
 <template>
-    <AssistantHeader class="mx-4 flex-none" :title="title" />
+    <Header class="mx-4 flex-none" :title="title" />
 
     <TabBar
         class="flex-none text-sm"
         aria-label="Assistant view"
-        data-region="AssistantPanelHeaderTabs"
+        data-region="PanelHeaderTabs"
         :active-id="activeViewId"
         :items="configOptionLocalisedConfigs"
         @select="(item) => handleSelectView(item.id)"

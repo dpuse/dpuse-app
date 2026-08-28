@@ -20,10 +20,10 @@ import { presenterConfigs, toolConfigs } from '@/state/session';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
+import Header from '@/studio/components/Header.vue';
+import Layout from '@/studio/components/Layout.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
-import StudioHeader from '@/studio/components/StudioHeader.vue';
-import StudioLayout from '@/studio/components/StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -148,8 +148,8 @@ async function loadPresenters(): Promise<void> {
 </script>
 
 <template>
-    <StudioLayout>
-        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Explore_Presentations')" to="studio" />
+    <Layout>
+        <Header class="flex-none px-4" overline="Studio" :title="t(T, 'Explore_Presentations')" to="studio" />
 
         <Separator />
 
@@ -176,7 +176,7 @@ async function loadPresenters(): Promise<void> {
                 <SelectPlaceholder :message="'Select a presentation from the list.'" />
             </template>
         </GridDetailPanel>
-    </StudioLayout>
+    </Layout>
 </template>
 
 <style scoped>

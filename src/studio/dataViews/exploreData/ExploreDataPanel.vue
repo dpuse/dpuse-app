@@ -6,9 +6,9 @@ import { ref } from 'vue';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Static Components
-import InvestigateData from './investigateData/InvestigateData.vue';
+import InvestigateDataPanel from './InvestigateDataPanel.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
-import TransformData from './transformData/TransformData.vue';
+import TransformDataPanel from './TransformDataPanel.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 // Declared (even though this is the last wizard step and never actually emits) so Vue treats these as real
@@ -27,14 +27,14 @@ const activeOptionId = ref<'transform' | 'investigate'>('investigate');
 <template>
     <!-- Single root element required: DataViewsLayout passes class="min-h-0 flex-1" plus the props/emit
          above via fallthrough, and Vue can only auto-apply fallthrough attrs when a component has exactly one
-         root node — a fragment root (this used to have three: TransformData, InvestigateData, the option selector)
+         root node — a fragment root (this used to have three: TransformDataPanel, InvestigateDataPanel, the option selector)
          silently drops them instead, which was also leaving this panel without its flex sizing. -->
     <div class="relative flex flex-col">
         <!-- Transform Panel -->
-        <TransformData v-if="activeOptionId === 'transform'" />
+        <TransformDataPanel v-if="activeOptionId === 'transform'" />
 
         <!-- Investigate Panel -->
-        <InvestigateData v-if="activeOptionId === 'investigate'" />
+        <InvestigateDataPanel v-if="activeOptionId === 'investigate'" />
 
         <!-- Option Selector -->
         <div class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)">

@@ -87,6 +87,6 @@ const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export function useStudioOptions(): ComputedRef<LocalisedConfig<StudioOptionConfig>[]> {
+export function useOptions(): ComputedRef<LocalisedConfig<StudioOptionConfig>[]> {
     return computed(() => localiseConfigs<StudioOptionConfig>(STUDIO_OPTION_CONFIGS, localeId.value));
 }

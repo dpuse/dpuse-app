@@ -39,7 +39,7 @@ const { actions = [], badges = [], config, descriptionIsVisible, isCompact, over
 
 <template>
     <div
-        class="relative flex size-full cursor-pointer flex-col gap-y-2 outline -outline-offset-1 transition-colors"
+        class="relative flex size-full cursor-pointer flex-col outline -outline-offset-1 transition-colors"
         :class="[
             isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4',
             selected

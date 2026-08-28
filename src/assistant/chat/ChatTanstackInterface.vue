@@ -5,8 +5,8 @@ import { computed, onMounted, ref, watch } from 'vue';
 
 // ── Local Framework
 import type { AssistantChatMessage } from './assistantChat';
-import type { AssistantModelConfig } from './modelConfigs';
-import { tanstackClientTools } from './tools/tanstackClientTools';
+import type { AssistantModelConfig } from '../modelConfigs';
+import { tanstackClientTools } from '../tools/tanstackClientTools';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

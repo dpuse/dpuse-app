@@ -18,11 +18,11 @@ import {
 import { type Component, computed, ref } from 'vue';
 
 // ── Local Framework
-import { useSelectColumnSort } from './useSelectColumnSort.ts';
+import { useSelectColumnSort } from './transformData/useSelectColumnSort.ts';
 
 // ── Static Components
+import Pill from '@/components/ui/Pill.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
-import SortableColumnTile from './ColumnPill.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -294,7 +294,7 @@ function typeIcon(name: string): Component {
                     class="relative grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-1"
                     @leave="onColItemLeave"
                 >
-                    <SortableColumnTile
+                    <Pill
                         v-for="name in selectVisibleItems"
                         :key="name"
                         :name="name"

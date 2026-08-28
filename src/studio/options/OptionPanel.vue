@@ -8,7 +8,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // ── Local Framework
 import { activeStudioOptionConfig } from '@/state/activeStudioOption';
 import { t } from '@/state/locale';
-import { type StudioOptionConfig, useStudioOptions } from './useStudioOptions';
+import { type StudioOptionConfig, useOptions } from './useOptions';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
@@ -30,7 +30,7 @@ const emit = defineEmits<{ continue: [] }>();
 
 const homeMenuIsOpen = ref(false);
 const homeMenuReference = useTemplateRef<ComponentPublicInstance>('homeMenuReference');
-const workflowOptionConfigs = useStudioOptions();
+const workflowOptionConfigs = useOptions();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -62,7 +62,7 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
     <nav
         aria-label="Studio options"
         class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-r border-separator bg-backdrop pt-[calc(55px)] pb-[calc(var(--vertical-scroll-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
-        data-region="StudioOptionPanel"
+        data-region="OptionPanel"
     >
         <!-- Separator -->
         <Separator />

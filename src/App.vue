@@ -28,7 +28,7 @@ const AuthDialog = defineAsyncPanel(() => import('@/session/authDialog/AuthDialo
 const ConnectionDialog = defineAsyncPanel(() => import('@/studio/connectionDialog/ConnectionDialog.vue'), 'ConnectionDialog', { simulation: { delayMs: 3000 } });
 const AssistantLayout = defineAsyncPanel(() => import('@/assistant/AssistantLayout.vue'), 'AssistantLayout');
 const PaneSplitter = defineAsyncPanel(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
-const StudioOptionBar = defineAsyncPanel(() => import('@/studio/optionBar/StudioOptionBar.vue'), 'StudioOptionBar', { hasPlaceholder: false });
+const OptionBar = defineAsyncPanel(() => import('@/studio/options/OptionBar.vue'), 'OptionBar', { hasPlaceholder: false });
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -284,9 +284,9 @@ function establishPaneSplitterPercent(): number {
 <template>
     <div class="fixed inset-0 flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
         <!--
-          z-10: Content: StudioPane (includes fixed StudioOptionBar), PaneSplitter & AssistantPane
+          z-10: Content: StudioPane (includes fixed OptionBar), PaneSplitter & AssistantPane
           z-20: topFadeOut, assistantPaneToggle
-          z-30: StudioOptionBar (floating)
+          z-30: OptionBar (floating)
           z-40: studioPaneToggle
           z-49: SessionButton
           z-50: LoadingMask (global — navigation and async component loads)
@@ -362,7 +362,7 @@ function establishPaneSplitterPercent(): number {
         </DialogModal>
 
         <!-- Studio Option Bar - Only rendered when viewport is narrow. -->
-        <StudioOptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" />
+        <OptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" />
 
         <!-- Studio Pane - Contains studio layout (via RouterView). Rendered once studio pane is activated and visible. -->
         <div
@@ -376,7 +376,7 @@ function establishPaneSplitterPercent(): number {
             @scroll.capture="activeAppPaneId = 'studio'"
         >
             <!-- Studio Option Bar - Only rendered when viewport is wide. -->
-            <StudioOptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleStudioOptionBarHide" />
+            <OptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleStudioOptionBarHide" />
 
             <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
             <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="studio-content">

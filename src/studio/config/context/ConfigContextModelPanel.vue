@@ -22,7 +22,7 @@ import ConfigContextModelEntitiesPanel from './ConfigContextModelEntitiesPanel.v
 import ConfigContextModelSecondaryMeasuresPanel from './ConfigContextModelSecondaryMeasuresPanel.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
-import type { GridListItem } from './ConfigContextList.vue';
+import type { GridListItem } from './ConfigContextModelList.vue';
 
 // ── Dynamic Components
 const ConfigContextModelDescriptorsPanel = defineAsyncPanel(() => import('./ConfigContextModelDescriptorsPanel.vue'), 'ConfigContextModelDescriptorsPanel');

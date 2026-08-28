@@ -21,7 +21,7 @@ defineEmits<{ clear: []; close: [] }>();
 </script>
 
 <template>
-    <div class="dpuse-prose relative pt-4" data-region="StudioDocumentPanel">
+    <div class="dpuse-prose relative pt-4" data-region="DocumentPanel">
         <!-- Header -->
         <Button class="group block w-full min-w-0 cursor-pointer text-left md:pointer-events-none" shape="minimal" @click="$emit('close')">
             <div class="mr-9 flex min-w-0 items-center gap-x-0.5 text-sm leading-tight text-muted group-hover:text-blue-500">

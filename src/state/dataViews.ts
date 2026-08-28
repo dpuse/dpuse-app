@@ -23,7 +23,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 import { localeId } from '@/state/locale';
 import { reportAppError } from '@/observability/errorTracking';
 import { useEngine } from '@/services/useEngine';
-import { useStudioOptions } from '@/studio/optionBar/useStudioOptions';
+import { useOptions } from '@/studio/options/useOptions';
 import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
 
 // const options: UpsertRecordsOptions = {
@@ -94,7 +94,7 @@ export const dataViewLocalisedConfigs = computed((): LocalisedConfig<DataViewCon
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const workflowOptionConfigs = useStudioOptions();
+const workflowOptionConfigs = useOptions();
 const dataViewIcon = workflowOptionConfigs.value[0].icon;
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -14,8 +14,8 @@ import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
-import StudioHeader from '@/studio/components/StudioHeader.vue';
-import StudioLayout from '@/studio/components/StudioLayout.vue';
+import Header from '@/studio/components/Header.vue';
+import Layout from '@/studio/components/Layout.vue';
 import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -96,9 +96,9 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
 </script>
 
 <template>
-    <StudioLayout>
+    <Layout>
         <!-- Header -->
-        <StudioHeader class="flex-none px-4" :overline="headerOverline" :title="headerTitle" :to="navigateBackRouteName" />
+        <Header class="flex-none px-4" :overline="headerOverline" :title="headerTitle" :to="navigateBackRouteName" />
 
         <!-- Task Bar -->
         <TaskBar v-if="activeTaskLocalisedConfig" :active-task-id="activeTaskLocalisedConfig.id" class="flex flex-none" :items="taskLocalisedConfigsWithDisabled" />
@@ -109,5 +109,5 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
             <component :is="Component" v-else-if="route.name === 'dataViews'" class="min-h-0 flex-1" />
             <component :is="Component" v-else class="min-h-0 flex-1" :task-localised-config="activeTaskLocalisedConfig" @task-completed="handleTaskCompleted" />
         </RouterView>
-    </StudioLayout>
+    </Layout>
 </template>

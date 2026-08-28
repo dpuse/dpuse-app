@@ -13,7 +13,7 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
     <header
         class="mt-[env(safe-area-inset-top)] flex h-13.75 flex-none flex-col justify-center"
         :class="viewportIsWide ? (assistantPaneIsVisible ? 'pr-0 pl-4' : 'pr-14 pl-4') : 'px-14'"
-        data-region="StudioHeader"
+        data-region="Header"
     >
         <!-- Content indented from left and right to allow for logos when display is narrow.
              NOTE: If width of logos changes, the above settings need to be adjusted accordingly. -->

@@ -4,7 +4,7 @@ import { ChevronDownIcon } from '@lucide/vue';
 import { onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
-import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } from './modelConfigs';
+import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } from '../modelConfigs';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';

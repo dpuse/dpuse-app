@@ -13,9 +13,9 @@ import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
+import Header from '@/studio/components/Header.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
-import StudioHeader from '@/studio/components/StudioHeader.vue';
-import StudioLayout from '@/studio/components/StudioLayout.vue';
+import Layout from '@/studio/components/Layout.vue';
 import TabBar from '@/components/ui/TabBar.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -84,9 +84,9 @@ const panelIsLoading = computed(() => navigationPendingDepth.value === 1);
 </script>
 
 <template>
-    <StudioLayout>
+    <Layout>
         <!-- Header -->
-        <StudioHeader class="flex-none px-4" :overline="t(T, 'Studio')" :title="t(T, 'Manage_Config')" to="studio" />
+        <Header class="flex-none px-4" :overline="t(T, 'Studio')" :title="t(T, 'Manage_Config')" to="studio" />
 
         <!-- Tab Bar -->
         <TabBar class="flex-none" :active-id="activeConfigOptionConfig.id" :items="configOptionLocalisedConfigs">
@@ -111,5 +111,5 @@ const panelIsLoading = computed(() => navigationPendingDepth.value === 1);
                 v-bind="route.name === 'config' ? { configOptionLocalisedConfigs } : {}"
             />
         </RouterView>
-    </StudioLayout>
+    </Layout>
 </template>

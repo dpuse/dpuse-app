@@ -4,9 +4,9 @@ import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Static Components
+import DetailPanel from '../components/DetailPanel.vue';
+import DocumentPanel from '@/studio/components/DocumentPanel.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
-import StudioDetailPanel from '../components/StudioDetailPanel.vue';
-import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -15,15 +15,15 @@ defineEmits<{ clear: []; close: [] }>();
 </script>
 
 <template>
-    <StudioDetailPanel data-region="DataViewPanel">
+    <DetailPanel data-region="DataViewPanel">
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
-            <StudioDocumentPanel :overline="'Establish Data Views'" :title="dataViewLocalisedConfig.label" @clear="$emit('clear')" @close="$emit('close')">
+            <DocumentPanel :overline="'Establish Data Views'" :title="dataViewLocalisedConfig.label" @clear="$emit('clear')" @close="$emit('close')">
                 <!-- Description -->
                 <p v-if="dataViewLocalisedConfig.description">{{ dataViewLocalisedConfig.description }}</p>
                 <p v-if="dataViewLocalisedConfig.description">Retrieves data from the 'XXX' [endpoint | file | table] using the 'YYY' connection.</p>
 
                 {{ dataViewLocalisedConfig }}
-            </StudioDocumentPanel>
+            </DocumentPanel>
         </ScrollArea>
-    </StudioDetailPanel>
+    </DetailPanel>
 </template>

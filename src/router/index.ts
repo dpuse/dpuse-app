@@ -23,7 +23,7 @@ interface RouteComponentLoader {
 // Every loader is wrapped so that a failed chunk can be reported by name, and so that loading one raises the spinner.
 // The number is the nesting level of the 'RouterView' that renders the component: 'App.vue' is 0, the studio layouts
 // below it are 1. 'assertViewDepths' checks these against the route table at startup in Dev environment.
-const StudioHomeLayout = defineLazyLoader('StudioHomeLayout', 0, () => import('@/studio/home/StudioHomeLayout.vue'));
+const HomeLayout = defineLazyLoader('HomeLayout', 0, () => import('@/studio/home/HomeLayout.vue'));
 const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/studio/dataViews/DataViewsLayout.vue'));
 const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/studio/dataViews/DataViewList.vue'));
 const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/studio/dataViews/selectConnection/SelectConnectionList.vue'));
@@ -35,7 +35,7 @@ const PresentationsLayout = defineLazyLoader('PresentationsLayout', 0, () => imp
 const DataAppsLayout = defineLazyLoader('DataAppsLayout', 0, () => import('@/studio/dataApps/DataAppsLayout.vue'));
 const ConfigLayout = defineLazyLoader('ConfigLayout', 0, () => import('@/studio/config/ConfigLayout.vue'));
 const ConfigHomePanel = defineLazyLoader('ConfigHomePanel', 1, () => import('@/studio/config/ConfigHomePanel.vue'));
-const ConfigContextList = defineLazyLoader('ConfigContextList', 1, () => import('@/studio/config/context/ConfigContextList.vue'));
+const ConfigContextModelList = defineLazyLoader('ConfigContextModelList', 1, () => import('@/studio/config/context/ConfigContextModelList.vue'));
 const ConfigModuleList = defineLazyLoader('ConfigModuleList', 1, () => import('@/studio/config/components/ConfigModuleList.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -44,7 +44,7 @@ export const APP_ROUTES = [
     {
         path: '/',
         children: [
-            { name: 'studio', path: '', component: StudioHomeLayout },
+            { name: 'studio', path: '', component: HomeLayout },
             {
                 path: 'dataViews',
                 component: DataViewsLayout,
@@ -70,7 +70,7 @@ export const APP_ROUTES = [
                 children: [
                     { name: 'config', path: '', component: ConfigHomePanel },
                     { name: 'connectors', path: 'connectors', component: ConfigModuleList },
-                    { name: 'context', path: 'context', component: ConfigContextList },
+                    { name: 'context', path: 'context', component: ConfigContextModelList },
                     { name: 'presenters', path: 'presenters', component: ConfigModuleList },
                     { name: 'cookbooks', path: 'cookbooks', component: ConfigModuleList },
                     { name: 'tools', path: 'tools', component: ConfigModuleList }
