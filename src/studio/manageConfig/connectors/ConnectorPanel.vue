@@ -12,7 +12,7 @@ import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 
 // ── Static Components
-import ModuleLinksPanel from '../components/ModuleLinksPanel.vue';
+import ModuleLinksPanel from '@/studio/manageConfig/components/ModuleLinksPanel.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import StudioDetailPanel from '@/studio/components/StudioDetailPanel.vue';
 import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';

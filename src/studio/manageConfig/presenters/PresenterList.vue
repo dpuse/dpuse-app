@@ -59,15 +59,15 @@ function handleSelectPresenter(presenterLocalisedConfig: LocalisedConfig<Present
         class="min-h-0 flex-1"
         :data-source="presenterConfigsDataSource"
         max-detail-width="65ch"
-        :row-height="122"
+        :row-height="16 + 16 + 28 + 16"
         @select="handleSelectPresenter"
     >
         <template #grid-item="{ item }">
             <ConfigCard v-if="item" :config="item" :selected="item.id === activePresenterLocalisedConfig?.id" />
         </template>
 
-        <template #detail="{ item, clear }">
-            <PresenterPanel :active-config-option-config="activeConfigOptionConfig" :presenter-localised-config="item" @close="clear" />
+        <template #detail="{ item, clear, close }">
+            <PresenterPanel :active-config-option-config="activeConfigOptionConfig" :presenter-localised-config="item" @clear="clear" @close="close" />
         </template>
 
         <template #no-selection>

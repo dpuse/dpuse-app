@@ -9,20 +9,27 @@ import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
 // ── Local Framework
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
+import { t } from '@/state/locale';
 
 // ── Static Components
-import ModuleLinksPanel from '../components/ModuleLinksPanel.vue';
+import ModuleLinksPanel from '@/studio/manageConfig/components/ModuleLinksPanel.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import StudioDetailPanel from '@/studio/components/StudioDetailPanel.vue';
 import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {};
+
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { toolLocalisedConfig } = defineProps<{
+interface Properties {
     activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
     toolLocalisedConfig: LocalisedConfig<ToolConfig>;
-}>();
+}
+const { toolLocalisedConfig } = defineProps<Properties>();
+
 defineEmits<{ clear: []; close: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -31,12 +38,12 @@ const toolStatus = computed(() => (toolLocalisedConfig.statusId ? getComponentSt
 </script>
 
 <template>
-    <StudioDetailPanel data-region="ConnectorPanel">
+    <StudioDetailPanel data-region="ToolPanel">
         <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <StudioDocumentPanel
                 :icon="toolLocalisedConfig.icon"
                 :icon-dark="toolLocalisedConfig.iconDark"
-                :overline="'Tools'"
+                :overline="activeConfigOptionConfig.label"
                 :title="toolLocalisedConfig.label"
                 @clear="$emit('clear')"
                 @close="$emit('close')"

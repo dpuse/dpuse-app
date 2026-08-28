@@ -28,10 +28,10 @@ import {
 import ConfigCard from '@/components/ui/ConfigCard.vue';
 import DataViewSummaryPanel from './DataViewSummaryPanel.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
-import SelectPlaceholder from '~/src/components/ui/placeholder/SelectPlaceholder.vue';
+import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';
-import StudioListPanel from '../StudioListPanel.vue';
+import StudioListPanel from '@/studio/components/StudioListPanel.vue';
 
 // ── Dynamic Components
 const EmptyPlaceholder = defineAsyncPanel(() => import('~/src/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');

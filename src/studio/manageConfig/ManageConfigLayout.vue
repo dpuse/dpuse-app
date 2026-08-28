@@ -15,7 +15,7 @@ import { localeId, t } from '@/state/locale';
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import StudioHeader from '@/studio/components/StudioHeader.vue';
-import StudioLayout from '../StudioLayout.vue';
+import StudioLayout from '@/studio/components/StudioLayout.vue';
 import TabBar from '@/components/ui/TabBar.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

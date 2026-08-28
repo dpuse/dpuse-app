@@ -18,7 +18,7 @@ import Button from '@/components/ui/button/Button.vue';
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '@/studio/components/StudioHeader.vue';
-import StudioLayout from '../StudioLayout.vue';
+import StudioLayout from '@/studio/components/StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

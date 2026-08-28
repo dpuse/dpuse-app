@@ -9,21 +9,28 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
+import { t } from '@/state/locale';
 
 // ── Static Components
-import ModuleLinksPanel from '../components/ModuleLinksPanel.vue';
+import ModuleLinksPanel from '@/studio/manageConfig/components/ModuleLinksPanel.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import StudioDetailPanel from '@/studio/components/StudioDetailPanel.vue';
 import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {};
+
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { cookbookLocalisedConfig } = defineProps<{
+interface Properties {
     activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
     cookbookLocalisedConfig: LocalisedConfig<CookbookConfig>;
-}>();
-defineEmits<{ close: [] }>();
+}
+const { cookbookLocalisedConfig } = defineProps<Properties>();
+
+defineEmits<{ clear: []; close: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -31,9 +38,16 @@ const cookbookStatus = computed(() => (cookbookLocalisedConfig.statusId ? getCom
 </script>
 
 <template>
-    <StudioDetailPanel data-region="ConnectorPanel">
+    <StudioDetailPanel data-region="CookbookPanel">
         <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
-            <StudioDocumentPanel :overline="'Cookbooks'" :title="cookbookLocalisedConfig.label" @close="$emit('close')">
+            <StudioDocumentPanel
+                :icon="cookbookLocalisedConfig.icon"
+                :icon-dark="cookbookLocalisedConfig.iconDark"
+                :overline="activeConfigOptionConfig.label"
+                :title="cookbookLocalisedConfig.label"
+                @clear="$emit('clear')"
+                @close="$emit('close')"
+            >
                 <!-- Tags -->
                 <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
                     <Tag :text="`v${cookbookLocalisedConfig.version}`" />

@@ -9,7 +9,7 @@ import ConfigCard from '@/components/ui/ConfigCard.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '@/studio/components/StudioHeader.vue';
-import StudioLayout from '../StudioLayout.vue';
+import StudioLayout from '@/studio/components/StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

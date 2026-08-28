@@ -59,17 +59,15 @@ function handleSelectCookbook(cookbookLocalisedConfig: LocalisedConfig<CookbookC
         class="min-h-0 flex-1"
         :data-source="cookbookConfigsDataSource"
         max-detail-width="65ch"
-        :row-height="122"
+        :row-height="16 + 16 + 28 + 16"
         @select="handleSelectCookbook"
     >
         <template #grid-item="{ item }">
             <ConfigCard v-if="item" :config="item" :selected="item.id === activeCookbookLocalisedConfig?.id" />
         </template>
 
-        <template #detail="{ item, clear }">
-            <div class="relative flex min-h-0 flex-1 flex-col">
-                <CookbookPanel :active-config-option-config="activeConfigOptionConfig" :cookbook-localised-config="item" @close="clear" />
-            </div>
+        <template #detail="{ item, clear, close }">
+            <CookbookPanel :active-config-option-config="activeConfigOptionConfig" :cookbook-localised-config="item" @clear="clear" @close="close" />
         </template>
 
         <template #no-selection>

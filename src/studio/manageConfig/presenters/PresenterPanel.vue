@@ -9,6 +9,7 @@ import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/prese
 
 // ── Local Framework
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
+import { t } from '@/state/locale';
 
 // ── Static Components
 import ModuleLinksPanel from '@/studio/manageConfig/components/ModuleLinksPanel.vue';
@@ -17,13 +18,19 @@ import StudioDetailPanel from '@/studio/components/StudioDetailPanel.vue';
 import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {};
+
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { presenterLocalisedConfig } = defineProps<{
+interface Properties {
     activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
     presenterLocalisedConfig: LocalisedConfig<PresenterConfig>;
-}>();
-defineEmits<{ close: [] }>();
+}
+const { presenterLocalisedConfig } = defineProps<Properties>();
+
+defineEmits<{ clear: []; close: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -31,9 +38,16 @@ const presenterStatus = computed(() => (presenterLocalisedConfig.statusId ? getC
 </script>
 
 <template>
-    <StudioDetailPanel data-region="ConnectorPanel">
+    <StudioDetailPanel data-region="PresenterPanel">
         <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
-            <StudioDocumentPanel :overline="'Presenters'" :title="presenterLocalisedConfig.label" @close="$emit('close')">
+            <StudioDocumentPanel
+                :icon="presenterLocalisedConfig.icon"
+                :icon-dark="presenterLocalisedConfig.iconDark"
+                :overline="activeConfigOptionConfig.label"
+                :title="presenterLocalisedConfig.label"
+                @clear="$emit('clear')"
+                @close="$emit('close')"
+            >
                 <!-- Tags -->
                 <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
                     <Tag :text="`v${presenterLocalisedConfig.version}`" />
