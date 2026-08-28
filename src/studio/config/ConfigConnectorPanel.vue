@@ -4,7 +4,6 @@ import { computed } from 'vue';
 
 // ── DPUse Framework
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
-import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
@@ -12,10 +11,7 @@ import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 
 // ── Static Components
-import ModuleLinksPanel from '@/studio/manageConfig/components/ModuleLinksPanel.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
-import StudioDetailPanel from '@/studio/components/StudioDetailPanel.vue';
-import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
+import ConfigModulePanel from '@/studio/config/components/ConfigModulePanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -42,59 +38,38 @@ const T = {
 
 interface Properties {
     activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
-    connectorLocalisedConfig: LocalisedConfig<ConnectorConfig>;
+    localisedConfig: LocalisedConfig<ConnectorConfig>;
 }
-const { activeConfigOptionConfig, connectorLocalisedConfig } = defineProps<Properties>();
-
-defineEmits<{ clear: []; close: [] }>();
+const { activeConfigOptionConfig, localisedConfig } = defineProps<Properties>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const authMethods = computed(() => [
     ...new Set(
-        Object.values(connectorLocalisedConfig.implementations)
+        Object.values(localisedConfig.implementations)
             .map((impl) => impl.authMethodId)
             .filter((id) => id !== 'disabled')
     )
 ]);
-const connectorStatus = computed(() => (connectorLocalisedConfig.statusId ? getComponentStatus(connectorLocalisedConfig.statusId) : undefined));
 </script>
 
 <template>
-    <StudioDetailPanel data-region="ConnectorPanel">
-        <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
-            <StudioDocumentPanel
-                :icon="connectorLocalisedConfig.icon"
-                :icon-dark="connectorLocalisedConfig.iconDark"
-                :overline="activeConfigOptionConfig.label"
-                :title="connectorLocalisedConfig.label"
-                @clear="$emit('clear')"
-                @close="$emit('close')"
-            >
-                <!-- Tags -->
-                <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
-                    <Tag :text="connectorLocalisedConfig.categoryId" />
-                    <Tag :text="`v${connectorLocalisedConfig.version}`" />
-                    <Tag v-if="connectorStatus" :text="connectorLocalisedConfig.statusId ?? ''" :color="connectorStatus.color" />
-                </div>
+    <!-- 'clear' and 'close' reach 'ConfigModulePanel' by attribute fallthrough, so this must stay single-root. -->
+    <ConfigModulePanel :active-config-option-config="activeConfigOptionConfig" :localised-config="localisedConfig">
+        <template #tags>
+            <Tag :text="localisedConfig.categoryId" />
+        </template>
 
-                <!-- Description -->
-                <p>{{ connectorLocalisedConfig.description }}</p>
+        <!-- Usage -->
+        <p>{{ CONNECTOR_USAGE_DESCRIPTIONS[localisedConfig.usageId ?? 'unknown'] }}</p>
 
-                <p>{{ CONNECTOR_USAGE_DESCRIPTIONS[connectorLocalisedConfig.usageId ?? 'unknown'] }}</p>
+        <!-- Authentication -->
+        <h2>{{ t(T, 'Authentication') }}</h2>
+        <p v-for="method in authMethods" :key="method">
+            {{ AUTH_METHOD_DESCRIPTIONS[method] ?? method }}
+        </p>
 
-                <!-- Authentication -->
-                <h2>{{ t(T, 'Authentication') }}</h2>
-                <p v-for="method in authMethods" :key="method">
-                    {{ AUTH_METHOD_DESCRIPTIONS[method] ?? method }}
-                </p>
-
-                <!-- Connections -->
-                <h2>{{ t(T, 'Connections') }}</h2>
-
-                <!-- Links -->
-                <ModuleLinksPanel :localised-config="connectorLocalisedConfig" />
-            </StudioDocumentPanel>
-        </ScrollArea>
-    </StudioDetailPanel>
+        <!-- Connections -->
+        <h2>{{ t(T, 'Connections') }}</h2>
+    </ConfigModulePanel>
 </template>

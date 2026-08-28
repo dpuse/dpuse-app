@@ -3,6 +3,10 @@ import { type AsyncComponentLoader, type Component, defineAsyncComponent, define
 
 // ── DPUse Tools
 import type { BaseConfig } from '@dpuse/dpuse-shared';
+import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
+import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbook';
+import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
+import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
 // ── Static Components
 import ComponentLoadFailure from '@/components/ui/error/ComponentLoadFailure.vue';
@@ -38,6 +42,10 @@ export interface ConfigOptionConfig<TIcon = string> extends Omit<BaseConfig, 'ic
     to?: string;
     rightAligned?: boolean;
 }
+
+// The module types listed under 'Manage Configuration'. A union rather than 'ModuleConfig' so that each panel can
+// narrow on 'typeId' and reach its own fields.
+export type ManagedModuleConfig = ConnectorConfig | CookbookConfig | PresenterConfig | ToolConfig;
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

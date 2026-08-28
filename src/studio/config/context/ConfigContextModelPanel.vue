@@ -17,17 +17,17 @@ import modelConfigsData from './data/modelConfigs.json'; // TODO: remove once lo
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
-import ContextModelDimensionsPanel from './ContextModelDimensionsPanel.vue';
-import ContextModelEntitiesPanel from './ContextModelEntitiesPanel.vue';
-import ContextModelSecondaryMeasuresPanel from './ContextModelSecondaryMeasuresPanel.vue';
+import ConfigContextModelDimensionsPanel from './ConfigContextModelDimensionsPanel.vue';
+import ConfigContextModelEntitiesPanel from './ConfigContextModelEntitiesPanel.vue';
+import ConfigContextModelSecondaryMeasuresPanel from './ConfigContextModelSecondaryMeasuresPanel.vue';
 import DialogModal from '@/components/ui/dialog/DialogModal.vue';
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
-import type { GridListItem } from './ContextList.vue';
+import type { GridListItem } from './ConfigContextList.vue';
 
 // ── Dynamic Components
-const ContextModelDescriptorsPanel = defineAsyncPanel(() => import('./ContextModelDescriptorsPanel.vue'), 'ContextModelDescriptorsPanel');
-const ContextModelEntityRelationshipDiagramPanel = defineAsyncPanel(() => import('./ContextModelEntityRelationshipDiagramPanel.vue'), 'ContextModelEntityRelationshipDiagramPanel');
-const ContextModelDimensionSchemaDiagramPanel = defineAsyncPanel(() => import('./ContextModelDimensionSchemaDiagramPanel.vue'), 'ContextModelDimensionSchemaDiagramPanel');
+const ConfigContextModelDescriptorsPanel = defineAsyncPanel(() => import('./ConfigContextModelDescriptorsPanel.vue'), 'ConfigContextModelDescriptorsPanel');
+const ConfigContextModelEntityRelationshipDiagramPanel = defineAsyncPanel(() => import('./ConfigContextModelEntityRelationshipDiagramPanel.vue'), 'ConfigContextModelEntityRelationshipDiagramPanel');
+const ConfigContextModelDimensionSchemaDiagramPanel = defineAsyncPanel(() => import('./ConfigContextModelDimensionSchemaDiagramPanel.vue'), 'ConfigContextModelDimensionSchemaDiagramPanel');
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -132,21 +132,21 @@ function localiseModel(model: Model): LocalisedModel {
             <!-- Description -->
             <div v-html="purifyMarkdown(markedTool, modelReferenceDescription)" />
 
-            <ContextModelEntitiesPanel
+            <ConfigContextModelEntitiesPanel
                 :entities="activeModel?.entities ?? []"
                 :marked-tool="markedTool"
                 @edit="modelDescriptorsDialogIsOpen = true"
                 @show-erd-diagram="entityRelationshipDiagramIsOpen = true"
             />
 
-            <ContextModelDimensionsPanel
+            <ConfigContextModelDimensionsPanel
                 :dimensions="activeModel?.dimensions ?? []"
                 :marked-tool="markedTool"
                 @edit="modelDescriptorsDialogIsOpen = true"
                 @show-tree-diagram="dimensionSchemaDiagramIsOpen = true"
             />
 
-            <ContextModelSecondaryMeasuresPanel :secondary-measures="activeModel?.secondaryMeasures ?? []" :marked-tool="markedTool" @edit="modelDescriptorsDialogIsOpen = true" />
+            <ConfigContextModelSecondaryMeasuresPanel :secondary-measures="activeModel?.secondaryMeasures ?? []" :marked-tool="markedTool" @edit="modelDescriptorsDialogIsOpen = true" />
         </div>
 
         <DialogModal
@@ -157,7 +157,7 @@ function localiseModel(model: Model): LocalisedModel {
             :title="`${modelReference.label} Descriptors`"
             @close="modelDescriptorsDialogIsOpen = false"
         >
-            <ContextModelDescriptorsPanel v-if="modelDescriptorsDialogIsOpen" v-model:label="modelReferenceLabel" v-model:description="modelReferenceDescription" />
+            <ConfigContextModelDescriptorsPanel v-if="modelDescriptorsDialogIsOpen" v-model:label="modelReferenceLabel" v-model:description="modelReferenceDescription" />
         </DialogModal>
 
         <DialogModal
@@ -168,7 +168,7 @@ function localiseModel(model: Model): LocalisedModel {
             title="Sample ERD Diagram"
             @close="entityRelationshipDiagramIsOpen = false"
         >
-            <ContextModelEntityRelationshipDiagramPanel v-if="entityRelationshipDiagramIsOpen" />
+            <ConfigContextModelEntityRelationshipDiagramPanel v-if="entityRelationshipDiagramIsOpen" />
         </DialogModal>
 
         <DialogModal
@@ -179,7 +179,7 @@ function localiseModel(model: Model): LocalisedModel {
             title="Sample Dimension Tree Diagram"
             @close="dimensionSchemaDiagramIsOpen = false"
         >
-            <ContextModelDimensionSchemaDiagramPanel v-if="dimensionSchemaDiagramIsOpen" />
+            <ConfigContextModelDimensionSchemaDiagramPanel v-if="dimensionSchemaDiagramIsOpen" />
         </DialogModal>
     </div>
 </template>

@@ -33,13 +33,10 @@ const ExploreData = defineLazyLoader('ExploreData', 1, () => import('@/studio/es
 const ContextualiseDataLayout = defineLazyLoader('ContextualiseDataLayout', 0, () => import('@/studio/contextualiseData/ContextualiseDataLayout.vue'));
 const ExplorePresentationsLayout = defineLazyLoader('ExplorePresentationsLayout', 0, () => import('@/studio/explorePresentations/ExplorePresentationsLayout.vue'));
 const BuildDataAppsLayout = defineLazyLoader('BuildDataAppsLayout', 0, () => import('@/studio/buildDataApps/BuildDataAppsLayout.vue'));
-const ManageConfigLayout = defineLazyLoader('ManageConfigLayout', 0, () => import('@/studio/manageConfig/ManageConfigLayout.vue'));
-const ManageHomePanel = defineLazyLoader('ManageHomePanel', 1, () => import('@/studio/manageConfig/home/HomePanel.vue'));
-const ManageConnectorList = defineLazyLoader('ManageConnectorList', 1, () => import('@/studio/manageConfig/connectors/ConnectorList.vue'));
-const ManageContextList = defineLazyLoader('ManageContextList', 1, () => import('@/studio/manageConfig/context/ContextList.vue'));
-const ManagePresenterList = defineLazyLoader('ManagePresenterList', 1, () => import('@/studio/manageConfig/presenters/PresenterList.vue'));
-const ManageCookbookList = defineLazyLoader('ManageCookbookList', 1, () => import('@/studio/manageConfig/cookbooks/CookbookList.vue'));
-const ManageToolList = defineLazyLoader('ManageToolList', 1, () => import('@/studio/manageConfig/tools/ToolList.vue'));
+const ConfigLayout = defineLazyLoader('ConfigLayout', 0, () => import('@/studio/config/ConfigLayout.vue'));
+const ConfigHomePanel = defineLazyLoader('ConfigHomePanel', 1, () => import('@/studio/config/ConfigHomePanel.vue'));
+const ConfigContextList = defineLazyLoader('ConfigContextList', 1, () => import('@/studio/config/context/ConfigContextList.vue'));
+const ConfigModuleList = defineLazyLoader('ConfigModuleList', 1, () => import('@/studio/config/components/ConfigModuleList.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -68,15 +65,15 @@ export const APP_ROUTES = [
             { name: 'explorePresentations', path: 'explorePresentations', component: ExplorePresentationsLayout },
             { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsLayout },
             {
-                path: 'manageConfig',
-                component: ManageConfigLayout,
+                path: 'config',
+                component: ConfigLayout,
                 children: [
-                    { name: 'manageConfig', path: '', component: ManageHomePanel },
-                    { name: 'manageConnectors', path: 'connectors', component: ManageConnectorList },
-                    { name: 'manageConfigContext', path: 'context', component: ManageContextList },
-                    { name: 'managePresenters', path: 'presenters', component: ManagePresenterList },
-                    { name: 'manageCookbooks', path: 'cookbooks', component: ManageCookbookList },
-                    { name: 'manageTools', path: 'tools', component: ManageToolList }
+                    { name: 'config', path: '', component: ConfigHomePanel },
+                    { name: 'connectors', path: 'connectors', component: ConfigModuleList },
+                    { name: 'context', path: 'context', component: ConfigContextList },
+                    { name: 'presenters', path: 'presenters', component: ConfigModuleList },
+                    { name: 'cookbooks', path: 'cookbooks', component: ConfigModuleList },
+                    { name: 'tools', path: 'tools', component: ConfigModuleList }
                 ]
             }
         ]
