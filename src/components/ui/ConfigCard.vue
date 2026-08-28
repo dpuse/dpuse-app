@@ -8,6 +8,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
+import ConfigIcon from '@/components/ui/ConfigIcon.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -26,13 +27,14 @@ interface Properties<T> {
     actions?: Action<T>[];
     badges?: Badge[];
     config: LocalisedConfig<T>;
+    descriptionIsVisible?: boolean;
     isCompact?: boolean;
     overline?: string;
     selected?: boolean;
     statusColor?: StatusColor;
     statusMessage?: string;
 }
-const { actions = [], badges = [], config, isCompact, overline, selected, statusColor = 'warning', statusMessage } = defineProps<Properties<T>>();
+const { actions = [], badges = [], config, descriptionIsVisible, isCompact, overline, selected, statusColor = 'warning', statusMessage } = defineProps<Properties<T>>();
 </script>
 
 <template>
@@ -65,25 +67,22 @@ const { actions = [], badges = [], config, isCompact, overline, selected, status
             </template>
         </div>
 
-        <!-- Icon, Overline & Label -->
+        <!-- Header -->
         <div class="flex items-center gap-x-2">
-            <div v-if="config.icon || config.iconDark" class="flex flex-none items-center justify-center rounded-md" :class="isCompact ? 'size-5' : 'size-7'">
-                <!-- Only split into two v-html copies when the SVGs actually differ; otherwise rendering the same markup twice duplicates element ids (mask/gradient), which can break references when one copy is display:none. -->
-                <template v-if="config.icon && config.iconDark && config.icon !== config.iconDark">
-                    <div aria-hidden="true" class="block w-full dark:hidden [&>svg]:max-h-8 [&>svg]:max-w-8" v-html="config.icon" />
-                    <div aria-hidden="true" class="hidden w-full dark:block [&>svg]:max-h-8 [&>svg]:max-w-8" v-html="config.iconDark" />
-                </template>
-                <div v-else aria-hidden="true" class="w-full [&>svg]:max-h-8 [&>svg]:max-w-8" v-html="config.icon ?? config.iconDark" />
-            </div>
+            <!-- Icon -->
+            <ConfigIcon :class="isCompact ? 'size-5' : 'size-7'" :icon="config.icon" :icon-dark="config.iconDark" />
 
             <div class="flex flex-col overflow-x-hidden">
+                <!-- Overline -->
                 <div v-if="!isCompact && overline" class="min-w-0 truncate text-xs leading-tight text-muted">{{ overline }}</div>
+
+                <!-- Label -->
                 <div class="min-w-0 truncate leading-tight text-muted">{{ config.label }}</div>
             </div>
         </div>
 
         <!-- Description -->
-        <div v-if="!isCompact && config.description" class="line-clamp-2 flex-none text-left text-sm text-subtle">
+        <div v-if="!isCompact && descriptionIsVisible && config.description" class="line-clamp-2 flex-none text-left text-sm text-subtle">
             {{ config.description }}
         </div>
 

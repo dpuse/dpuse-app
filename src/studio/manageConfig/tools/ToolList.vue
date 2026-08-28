@@ -59,15 +59,15 @@ function handleSelectTool(toolLocalisedConfig: LocalisedConfig<ToolConfig> | und
         class="min-h-0 flex-1"
         :data-source="toolConfigsDataSource"
         max-detail-width="65ch"
-        :row-height="122"
+        :row-height="16 + 16 + 28 + 16"
         @select="handleSelectTool"
     >
         <template #grid-item="{ item }">
             <ConfigCard v-if="item" :config="item" :selected="item.id === activeToolLocalisedConfig?.id" />
         </template>
 
-        <template #detail="{ item, clear }">
-            <ToolPanel :active-config-option-config="activeConfigOptionConfig" :tool-localised-config="item" @close="clear" />
+        <template #detail="{ item, clear, close }">
+            <ToolPanel :active-config-option-config="activeConfigOptionConfig" :tool-localised-config="item" @clear="clear" @close="close" />
         </template>
 
         <template #no-selection>

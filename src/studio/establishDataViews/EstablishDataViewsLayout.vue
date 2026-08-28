@@ -7,14 +7,14 @@ import { useRoute, useRouter } from 'vue-router';
 import { localiseConfig, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import { navigationPendingDepth } from '@/router';
 import { accountConfigsAreRetrieved, configRetrievalSucceeded } from '@/state/session';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs } from '@/state/dataViews';
 import { localeId, t } from '@/state/locale';
-import { navigationPendingDepth } from '@/router';
 
 // ── Static Components
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
-import StudioHeader from '../StudioHeader.vue';
+import StudioHeader from '@/studio/components/StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
 import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
 
@@ -48,8 +48,8 @@ const taskLocalisedConfigsWithDisabled = computed((): LocalisedConfig<TaskConfig
     }))
 );
 
-// This layout hosts the 'RouterView' one level in, so it stands in for its own panel while 'App.vue' stands in for the
-// layout — which is what keeps the header and task bar in place through a panel swap.
+// This layout hosts the 'RouterView' one level in, so it shows the spinner for its own panel. 'App.vue' covers the
+// layout itself, which is what keeps the header and task bar in place through a panel swap.
 const panelIsLoading = computed(() => navigationPendingDepth.value === 1);
 
 const activeTaskLocalisedConfig = computed(() => taskLocalisedConfigsWithDisabled.value.find((config) => config.id === route.query.sView));

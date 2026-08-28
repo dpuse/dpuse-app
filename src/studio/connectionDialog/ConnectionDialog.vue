@@ -17,6 +17,7 @@ import { localeId, t } from '@/state/locale';
 // ── Static Components
 import AddConnectionForm from './AddConnectionForm.vue';
 import ConfigCard from '@/components/ui/ConfigCard.vue';
+import ConfigIcon from '@/components/ui/ConfigIcon.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
@@ -121,12 +122,10 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 
         <template #detail="{ item }">
             <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
-                <div class="flex size-7 items-center justify-center">
-                    <div v-if="item.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="item.icon || item.iconDark" />
-                    <div v-if="item.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="item.iconDark || item.icon" />
-                </div>
+                <ConfigIcon class="mt-1 size-7" :icon="item.icon" :icon-dark="item.iconDark" />
                 <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
             </div>
+
             <div class="relative min-h-0 flex-1">
                 <ErrorBoundary name="ConnectionDetail">
                     <AddConnectionForm :connector-localised-config="item" />

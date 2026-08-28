@@ -22,7 +22,7 @@ import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
-import StudioHeader from '../StudioHeader.vue';
+import StudioHeader from '@/studio/components/StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

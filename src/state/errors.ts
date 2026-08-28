@@ -23,8 +23,8 @@ export type ErrorSeverity = 'fatal' | 'recoverable' | 'staleDeploy';
 // a 'fatal' flag.
 const SEVERITY_DATA_KEY = 'severity';
 
-// Set as 'data.componentName' by every catch site that knows which component it was loading — 'lazyRoute' here and
-// 'ComponentLoadFailure' for everything the router does not load — so the banner can name what went missing.
+// Set as 'data.componentName' wherever a catch site knows what it was loading: the router for route components, and
+// 'ComponentLoadFailure' for everything else. Lets the banner name what went missing.
 const COMPONENT_NAME_DATA_KEY = 'componentName';
 const SEVERITIES = new Set(['fatal', 'recoverable', 'staleDeploy']);
 
@@ -51,9 +51,8 @@ export const fatalErrorWasReported = ref<boolean | undefined>();
 // reset, because the banner it raises is a dead end that only a reload clears.
 const state = { staleDeployWasReported: false };
 
-// What the banner needs beyond the flag itself. The name is recovered from the failure; the path is supplied by the
-// router, the only place that knows which navigation was abandoned. Both stay undefined for a failure that has
-// neither — a 'vite:preloadError' from a chunk no route asked for.
+// What the banner shows besides the flag: which component failed, and where the user was heading so 'Refresh' can go
+// there. Both stay undefined for a failure that has neither, such as a chunk no route asked for.
 export const serviceFailureComponentName = shallowRef<string | undefined>();
 export const serviceFailureRetryPath = shallowRef<string | undefined>();
 
@@ -112,8 +111,8 @@ export async function raiseFatalError(error: AppError): Promise<void> {
 export function raiseStaleDeployFailure(error: AppError, retryPath?: string): void {
     serviceLoadFailed.value = true; // Raised for every failure: the banner must show even when the report is skipped.
 
-    // Only the first failure's details are kept, for the same reason only the first is reported: a stale deployment
-    // goes on to fail every chunk the session asks for, and the last of those names nothing the user was waiting for.
+    // Only the first failure is kept, for the same reason only the first is reported: one stale deployment fails every
+    // chunk the session goes on to need, and the later ones name nothing the user was waiting for.
     serviceFailureComponentName.value ??= findComponentName(error);
     serviceFailureRetryPath.value ??= retryPath;
 

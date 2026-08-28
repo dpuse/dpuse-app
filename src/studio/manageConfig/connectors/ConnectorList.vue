@@ -59,15 +59,15 @@ function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<Connect
         class="min-h-0 flex-1"
         :data-source="connectorConfigsDataSource"
         max-detail-width="65ch"
-        :row-height="122"
+        :row-height="16 + 16 + 28 + 16"
         @select="handleSelectConnector"
     >
         <template #grid-item="{ item }">
             <ConfigCard v-if="item" :config="item" :selected="item.id === activeConnectorLocalisedConfig?.id" />
         </template>
 
-        <template #detail="{ item, clear }">
-            <ConnectorPanel :active-config-option-config="activeConfigOptionConfig" :connector-localised-config="item" @close="clear" />
+        <template #detail="{ item, clear, close }">
+            <ConnectorPanel :active-config-option-config="activeConfigOptionConfig" :connector-localised-config="item" @clear="clear" @close="close" />
         </template>
 
         <template #no-selection>

@@ -5,7 +5,7 @@ import { t } from '@/state/locale';
 // ── Static Components
 import ScrollArea from '@/components/ui/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
-import StudioHeader from '../StudioHeader.vue';
+import StudioHeader from '@/studio/components/StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

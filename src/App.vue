@@ -4,12 +4,12 @@ import { computed, onMounted, ref, type Component as VueComponent, watch } from 
 import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
+import { navigationPendingDepth } from '@/router';
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 import { assistantPaneIsVisible, contentScrollPosition, sessionMenuIsOpen, studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 import { configRetrievalFailed, initialiseServices, serviceLoadFailed } from '@/state/session';
 import { fatalError, fatalErrorWasReported, serviceFailureComponentName, serviceFailureRetryPath } from '@/state/errors';
-import { navigationPendingDepth } from '@/router';
 
 // ── Static Components
 import AssistantLogo from '@/components/branding/AssistantLogo.vue'; // Always visible.
@@ -59,8 +59,8 @@ const T = {
         en: 'Part of DPUse failed to load. You may be running an outdated version of the app. Please refresh the page.',
         es: 'No se pudo cargar una parte de DPUse. Es posible que esté utilizando una versión desactualizada de la aplicación. Actualice la página.'
     },
-    // Used whenever the failure recorded which component it was loading, which is every route and every lazy panel.
-    // The bare message stands in for the rest — a chunk no screen asked for, such as one Vite was preloading.
+    // Used when the failure recorded which component it was loading. The bare message covers the rest, such as a chunk
+    // Vite was preloading that no screen had asked for.
     'serviceLoadFailed.named.message': {
         en: '{name} failed to load. You may be running an outdated version of the app. Please refresh the page.',
         es: 'No se pudo cargar {name}. Es posible que esté utilizando una versión desactualizada de la aplicación. Actualice la página.'
@@ -120,9 +120,8 @@ const assistantPaneStyle = computed(() => {
 
 const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assistantPaneIsVisible.value);
 
-// This 'RouterView' is the outermost, so it hosts level 0 and stands in only for a navigation replacing the studio
-// layout itself. One that changes a panel within the layout already on screen reports a deeper level and is stood in
-// for there, leaving the header and tab bar in place.
+// This is the outermost 'RouterView', so it hosts level 0 and only shows a spinner when the studio layout itself is
+// being replaced. A panel changing inside the layout reports a deeper level and is covered by that layout instead.
 const studioLayoutIsLoading = computed(() => navigationPendingDepth.value === 0);
 
 const studioPaneStyle = computed(() => {
@@ -381,10 +380,9 @@ function establishPaneSplitterPercent(): number {
 
             <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
             <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="studio-content">
-                <!-- The spinner sits outside the transition, not as a branch within it. As a sibling of the route
-                     component under 'mode="out-in"', the incoming route component renders as an empty placeholder and
-                     never appears: the deferred update that follows the spinner's leave does not pick up the resolved
-                     component. Reproducible with '?simulateLoad=buildDataApps:2000'; unrelated to the ':key'. -->
+                <!-- The spinner must stay outside the transition. Put it inside as a 'v-if' branch and the incoming
+                     route component renders as an empty comment and never appears, because the update that follows the
+                     spinner's leave does not pick up the resolved component. -->
                 <RouterView v-slot="{ Component }">
                     <ComponentLoadingSpinner v-if="studioLayoutIsLoading" />
                     <Transition v-else name="action-fade" mode="out-in">

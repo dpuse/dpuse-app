@@ -11,10 +11,10 @@ import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/prese
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
 
 // ── Static Components
-import ModuleLinksPanel from '../ModuleLinksPanel.vue';
+import ModuleLinksPanel from '@/studio/manageConfig/components/ModuleLinksPanel.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
-import StudioDetailPanel from '../../StudioDetailPanel.vue';
-import StudioDocumentPanel from '../../StudioDocumentPanel.vue';
+import StudioDetailPanel from '@/studio/components/StudioDetailPanel.vue';
+import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

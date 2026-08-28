@@ -14,7 +14,7 @@ import { localeId, t } from '@/state/locale';
 // ── Static Components
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
-import StudioHeader from '../StudioHeader.vue';
+import StudioHeader from '@/studio/components/StudioHeader.vue';
 import StudioLayout from '../StudioLayout.vue';
 import TabBar from '@/components/ui/TabBar.vue';
 
@@ -78,8 +78,8 @@ const route = useRoute();
 
 const activeConfigOptionConfig = computed(() => configOptionLocalisedConfigs.value.find((config) => config.to === route.name) ?? configOptionLocalisedConfigs.value[0]);
 
-// This layout hosts the 'RouterView' one level in, so it stands in for its own panel while 'App.vue' stands in for the
-// layout — which is what keeps the header and tab bar in place through a panel swap.
+// This layout hosts the 'RouterView' one level in, so it shows the spinner for its own panel. 'App.vue' covers the
+// layout itself, which is what keeps the header and tab bar in place through a panel swap.
 const panelIsLoading = computed(() => navigationPendingDepth.value === 1);
 </script>
 

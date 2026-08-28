@@ -1,6 +1,6 @@
 // ── External Dependencies & Registrations
 import { type Component, shallowRef } from 'vue';
-import { createRouter, createWebHistory, type Router, type RouteRecordRaw, type RouterScrollBehavior } from 'vue-router';
+import { createRouter, createWebHistory, isNavigationFailure, NavigationFailureType, type Router, type RouteRecordRaw, type RouterScrollBehavior } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -11,8 +11,8 @@ import { type AsyncPanelSimulation, VISIBLE_DELAY_MS } from '@/utilities/index.t
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The depth is carried on the loader itself so 'assertViewDepths' can read back what each route declared. Nothing
-// reaches it through vue-router, which calls a loader with no arguments and no context.
+// A lazy route component is just a loader function, so the label and depth ride on it as properties. They are there
+// for 'assertViewDepths', which reads them straight off the route table.
 interface RouteComponentLoader {
     (): Promise<Component>;
     label: string;
@@ -20,16 +20,9 @@ interface RouteComponentLoader {
 }
 
 // ── Dynamic Components
-//
-// Every loader is wrapped, for two reasons. A chunk that will not fetch is reported against the component it was meant
-// to produce rather than as a bare URL — the label is the only thing at this point that knows what was being loaded,
-// since the router reports 'Navigation failed.' and the platform message names a hashed file. And the loader running
-// at all is what raises the busy state: vue-router calls a loader only for a record the navigation is entering, so
-// there is nothing to work out about which view is being replaced.
-//
-// The number is the nesting level of the 'RouterView' that renders the component — 'App.vue' is 0, the studio layouts
-// below it are 1. Checked against the route table at startup by 'assertViewDepths', which is the only thing keeping it
-// honest if a route is ever re-nested.
+// Every loader is wrapped so that a failed chunk can be reported by name, and so that loading one raises the spinner.
+// The number is the nesting level of the 'RouterView' that renders the component: 'App.vue' is 0, the studio layouts
+// below it are 1. 'assertViewDepths' checks these against the route table at startup in Dev environment.
 const StudioHomeLayout = defineLazyLoader('StudioHomeLayout', 0, () => import('@/studio/home/StudioHomeLayout.vue'));
 const EstablishDataViewsLayout = defineLazyLoader('EstablishDataViewsLayout', 0, () => import('@/studio/establishDataViews/EstablishDataViewsLayout.vue'));
 const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/studio/establishDataViews/DataViewList.vue'));
@@ -93,17 +86,13 @@ export const APP_ROUTES = [
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Navigation — a navigation waits on its route components' chunks, so it is the navigation that is busy, not any one
-// component. 'RouterView' has no busy state of its own: through a navigation it keeps rendering the component it
-// already holds, then swaps in one step, so the stand-in has to be raised by the host whose child is being replaced.
-//
-// The nesting level of that host, or undefined when nothing is pending. Every host asks the same question of it — am I
-// the one being replaced — which is why this is a level rather than a set of flags: a rule that reads the same at every
-// depth needs no exception for the outermost, and a level added later works without touching anything here.
+// Which 'RouterView' level is waiting on a chunk, or undefined when none is. Each host shows a spinner when this
+// matches its own level. It is the only busy signal there is: 'RouterView' gives no feedback during a navigation, it
+// just keeps the old screen up until the new one is ready.
 export const navigationPendingDepth = shallowRef<number | undefined>();
 
-// Held outside the ref because the level is known the moment a loader runs while the spinner must not appear for
-// 'VISIBLE_DELAY_MS'. Not reactive: nothing may render from it before the timer promotes it.
+// Staging for the ref above. The level is known the moment a loader runs, but the spinner must not appear for
+// 'VISIBLE_DELAY_MS' yet, so it is held here — plain and non-reactive — until the timer copies it across.
 const pending = { depth: undefined as number | undefined, timer: undefined as ReturnType<typeof setTimeout> | undefined };
 
 // ── Router Creation Function ─────────────────────────────────────────────────────────────────────────────────────────
@@ -117,19 +106,22 @@ export const createAppRouter = (): Router => {
 
     if (import.meta.env.DEV) assertViewDepths(APP_ROUTES);
 
-    // Runs for completed and aborted navigations alike; 'onError' covers the rest, so no path leaves the spinner up.
-    router.afterEach(() => {
+    // Runs for completed and aborted navigations; ones that error only reach 'onError' below. Between the two, the
+    // spinner is always cleared.
+    router.afterEach((_to, _from, failure) => {
+        // Except for a cancelled navigation, which means a newer one superseded it. That one now owns the pending
+        // state — its chunks may still be fetching — and will clear it itself when it settles.
+        if (isNavigationFailure(failure, NavigationFailureType.cancelled)) return;
         clearNavigationPending();
     });
 
-    // A navigation that errors leaves no view to render into, so the error cannot be shown in place: a lazily loaded
-    // route component that will not fetch is a stale deployment, and anything else is fatal.
+    // A failed navigation has no view to render the error into, so it goes to the app-level handler: a route chunk
+    // that will not fetch means a stale deployment, anything else is fatal.
     router.onError((error, to) => {
         clearNavigationPending();
 
-        // 'to' is passed on so the banner's refresh can resume the navigation this abandoned. The URL never changed —
-        // the navigation was given up rather than completed — so reloading in place would return the user to the
-        // screen they were leaving, having cleared the stale deployment but lost where they were going.
+        // The URL never changed, so the banner's refresh would otherwise reload the page the user was leaving. Passing
+        // the abandoned destination lets it finish the journey instead.
         const data = { typeId: 'navigation' };
         raiseAppLevelError(new AppError('Navigation failed.', 'dpuse.router', data, { cause: error }), to.fullPath);
     });
@@ -149,15 +141,13 @@ function handleScrollBehavior(
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The depth each loader declares is a transcription of where its record sits, and nothing else would notice it going
-// stale — a re-nested route would simply raise the wrong view's spinner. Walks the table the way 'RouterView' walks the
-// matched list, counting only records that render something, and complains rather than throwing: a wrong spinner is not
-// worth refusing to start over, and this never runs for a user.
+// The depths are hand-written, so a re-nested route would silently show the wrong level's spinner and nothing else
+// would catch it. A record with no component of its own (':dataViewId') does not add a level, matching how 'RouterView'
+// treats it. Logs rather than throws: a misplaced spinner is not worth blocking startup for.
 function assertViewDepths(routes: RouteRecordRaw[], depth = 0): void {
     for (const route of routes) {
         const loader = 'component' in route ? (route.component as Partial<RouteComponentLoader> | undefined) : undefined;
         if (loader?.viewDepth != null && loader.viewDepth !== depth) {
-            // Named by its label rather than its path, which is '' for every index route and so identifies nothing.
             console.error(`Route component '${loader.label ?? route.path}' declares view depth ${String(loader.viewDepth)} but sits at ${String(depth)}.`);
         }
         if (route.children) assertViewDepths(route.children, loader == null ? depth : depth + 1);
@@ -172,8 +162,8 @@ function clearNavigationPending(): void {
 
 function defineLazyLoader(label: string, depth: number, loader: () => Promise<Component>, simulation?: AsyncPanelSimulation): RouteComponentLoader {
     const routeLoader = (): Promise<Component> => {
-        // Tells the 'RouterView' at this level to show a spinner while the chunk is fetched. Shallowest level wins,
-        // since its spinner covers the levels below. Delayed, so a fast load does not flash one.
+        // Tells the 'RouterView' at this level to show a spinner while the chunk is fetched. The shallowest level
+        // wins, since its spinner covers the levels below. Delayed, so a fast load does not flash one.
         if (pending.depth == null || depth < pending.depth) {
             pending.depth = depth;
             pending.timer ??= setTimeout(() => (navigationPendingDepth.value = pending.depth), VISIBLE_DELAY_MS);
@@ -181,9 +171,9 @@ function defineLazyLoader(label: string, depth: number, loader: () => Promise<Co
 
         const componentPromise = loadRouteComponent(label, loader, simulation);
         void componentPromise.catch(() => {
-            // Stops a duplicate error report. When a navigation enters more than one level at once, vue-router starts all
-            // of their loaders together but listens to them one at a time, outermost first. A chunk failing before its turn
-            // has nobody listening, so the browser reports it as unhandled. Nothing is lost — 'router.onError' still gets it.
+            // Stops a duplicate report. vue-router starts every level's loader at once but listens to them one at a
+            // time, so a chunk failing before its turn has no listener and the browser reports it as unhandled.
+            // Nothing is lost: 'router.onError' still gets it.
         });
         return componentPromise;
     };
@@ -192,6 +182,9 @@ function defineLazyLoader(label: string, depth: number, loader: () => Promise<Co
     return routeLoader;
 }
 
+// Loads the chunk, wrapping any failure in an error that names the component. The development-only simulation can slow
+// or fail the load; the simulated failure copies Chromium's wording for an unfetchable chunk so it is classified as a
+// stale deployment, exactly as the real thing would be.
 async function loadRouteComponent(label: string, loader: () => Promise<Component>, simulation?: AsyncPanelSimulation): Promise<Component> {
     try {
         if (simulation && import.meta.env.DEV) {

@@ -27,7 +27,7 @@ defineSlots<{
     header(): unknown;
     'grid-item'(properties: { item: T }): unknown;
     empty(): unknown;
-    detail(properties: { item: T; clear: () => void }): unknown;
+    detail(properties: { item: T; clear: () => void; close: () => void }): unknown;
     'no-selection'(): unknown;
 }>();
 
@@ -51,6 +51,10 @@ watch(
 function handleClearSelection(): void {
     detailPaneIsVisible.value = false;
     emit('select');
+}
+
+function handleClose(): void {
+    detailPaneIsVisible.value = false;
 }
 
 async function handleSelectItem(row: T): Promise<void> {
@@ -101,7 +105,7 @@ async function handleSelectItem(row: T): Promise<void> {
             <div class="gdp-detail min-w-0 flex-1 border-separator" style="container-type: inline-size">
                 <!-- Active Item -->
                 <div v-if="activeItem" class="flex h-full min-h-0 flex-col">
-                    <slot name="detail" :item="activeItem" :clear="handleClearSelection" />
+                    <slot name="detail" :item="activeItem" :clear="handleClearSelection" :close="handleClose" />
                 </div>
 
                 <!-- No Selection -->

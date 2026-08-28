@@ -12,10 +12,10 @@ import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 
 // ── Static Components
-import ModuleLinksPanel from '../ModuleLinksPanel.vue';
+import ModuleLinksPanel from '../components/ModuleLinksPanel.vue';
 import ScrollArea from '@/components/ui/ScrollArea.vue';
-import StudioDetailPanel from '../../StudioDetailPanel.vue';
-import StudioDocumentPanel from '../../StudioDocumentPanel.vue';
+import StudioDetailPanel from '@/studio/components/StudioDetailPanel.vue';
+import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -46,7 +46,7 @@ interface Properties {
 }
 const { activeConfigOptionConfig, connectorLocalisedConfig } = defineProps<Properties>();
 
-defineEmits<{ close: [] }>();
+defineEmits<{ clear: []; close: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -63,7 +63,14 @@ const connectorStatus = computed(() => (connectorLocalisedConfig.statusId ? getC
 <template>
     <StudioDetailPanel data-region="ConnectorPanel">
         <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
-            <StudioDocumentPanel :overline="activeConfigOptionConfig.label" :title="connectorLocalisedConfig.label" @close="$emit('close')">
+            <StudioDocumentPanel
+                :icon="connectorLocalisedConfig.icon"
+                :icon-dark="connectorLocalisedConfig.iconDark"
+                :overline="activeConfigOptionConfig.label"
+                :title="connectorLocalisedConfig.label"
+                @clear="$emit('clear')"
+                @close="$emit('close')"
+            >
                 <!-- Tags -->
                 <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
                     <Tag :text="connectorLocalisedConfig.categoryId" />
