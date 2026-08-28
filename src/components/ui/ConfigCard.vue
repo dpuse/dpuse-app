@@ -89,14 +89,14 @@ const { actions = [], badges = [], config, descriptionIsVisible, isCompact, over
         <!-- Actions -->
         <div v-if="actions.length > 0 && config" class="flex items-center gap-x-1 place-self-end">
             <template v-for="action in actions" :key="action.typeId">
-                <Button v-if="action.typeId === 'delete'" aria-label="Delete" class="p-1.5" shape="minimal" @click.stop="action.onClick(config)">
+                <Button v-if="action.typeId === 'delete'" aria-label="Delete" class="rounded-md border border-boundary p-1.5" shape="minimal" @click.stop="action.onClick(config)">
                     <TrashIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
                 </Button>
 
-                <Button v-if="action.typeId === 'open'" aria-label="Open" class="p-0.5" shape="minimal" @click.stop="action.onClick(config)">
+                <Button v-if="action.typeId === 'open'" aria-label="Open" class="rounded-md border border-boundary p-0.5" shape="minimal" @click.stop="action.onClick(config)">
                     <svg
                         viewBox="0 0 24 24"
-                        class="size-6"
+                        class="size-7"
                         :class="selected ? 'fill-sky-100 stroke-sky-700 dark:fill-sky-800 dark:stroke-sky-200' : 'fill-sky-50 stroke-sky-600 dark:fill-sky-900 dark:stroke-sky-400'"
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -107,7 +107,13 @@ const { actions = [], badges = [], config, descriptionIsVisible, isCompact, over
                     </svg>
                 </Button>
 
-                <Button v-if="action.typeId === 'info'" aria-label="Information" class="p-1.5" shape="minimal" @click.stop="action.onClick(config)">
+                <Button
+                    v-if="action.typeId === 'info'"
+                    aria-label="Information"
+                    class="rounded-md border border-boundary p-1.5"
+                    shape="minimal"
+                    @click.stop="action.onClick(config)"
+                >
                     <InfoIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
                 </Button>
             </template>
@@ -116,7 +122,7 @@ const { actions = [], badges = [], config, descriptionIsVisible, isCompact, over
         <!-- Status -->
         <div
             v-if="!isCompact && statusMessage"
-            class="absolute bottom-2 left-2 rounded-full px-2 py-0.5 text-xs inset-ring"
+            class="absolute bottom-1.5 left-1.5 rounded-full px-2 py-0.5 text-xs inset-ring"
             :class="{
                 'bg-danger text-danger-text inset-ring-danger-ring/20': statusColor === 'danger',
                 'bg-warning text-warning-text inset-ring-warning-ring/20': statusColor === 'warning',
