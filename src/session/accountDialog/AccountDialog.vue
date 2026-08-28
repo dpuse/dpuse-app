@@ -14,7 +14,7 @@ import { viewportIsWide } from '@/state/appLayout';
 import Button from '@/components/ui/button/Button.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

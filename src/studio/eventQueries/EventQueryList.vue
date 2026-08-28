@@ -21,10 +21,10 @@ import { activeMetaStoreConnectionConfig, eventQueryConfigs } from '@/state/sess
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
-import ConfigCard from '@/components/ui/ConfigCard.vue';
+import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import Grid from '@/components/ui/grid/Grid.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Dynamic Components
 const EmptyPlaceholder = defineAsyncPanel(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');

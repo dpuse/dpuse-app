@@ -5,9 +5,9 @@ import { SearchIcon, XIcon } from '@lucide/vue';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Tag from '@/components/ui/Tag.vue';
-import TextInput from '@/components/ui/TextInput.vue';
+import TextInput from '@/components/ui/text/TextInput.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

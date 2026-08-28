@@ -14,7 +14,7 @@ import type { ConfigOptionConfig, ManagedModuleConfig } from '@/utilities/index.
 
 // ── Static Components
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import StudioDetailPanel from '@/studio/components/StudioDetailPanel.vue';
 import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';

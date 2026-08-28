@@ -8,7 +8,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
-import ConfigIcon from '@/components/ui/ConfigIcon.vue';
+import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

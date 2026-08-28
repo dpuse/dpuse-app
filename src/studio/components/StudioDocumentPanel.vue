@@ -5,7 +5,7 @@ import { ArrowLeftIcon } from '@lucide/vue';
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ClearSelectionButton from '@/components/ui/button/ClearSelectionButton.vue';
-import ConfigIcon from '@/components/ui/ConfigIcon.vue';
+import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

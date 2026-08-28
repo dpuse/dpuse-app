@@ -3,7 +3,7 @@
 import { t } from '@/state/locale';
 
 // ── Static Components
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '@/studio/components/StudioHeader.vue';
 import StudioLayout from '@/studio/components/StudioLayout.vue';

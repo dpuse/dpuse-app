@@ -14,8 +14,8 @@ import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } f
 import AssistantVendorMenu from './AssistantVendorMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
-import TextArea from '@/components/ui/TextArea.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
+import TextArea from '@/components/ui/text/TextArea.vue';
 
 // ── Dynamic Components
 const ChatSessionTanstack = defineAsyncPanel(() => import('./ChatSessionTanstack.vue'), 'ChatSessionTanstack');

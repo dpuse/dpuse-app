@@ -17,7 +17,7 @@ import { type LocalisedReference, localiseReference } from '@dpuse/dpuse-shared/
 import { presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Static Components
-import ConfigCard from '@/components/ui/ConfigCard.vue';
+import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';

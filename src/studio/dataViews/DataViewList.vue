@@ -25,7 +25,7 @@ import {
 } from '@/state/dataViews';
 
 // ── Static Components
-import ConfigCard from '@/components/ui/ConfigCard.vue';
+import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import DataViewSummaryPanel from './DataViewSummaryPanel.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';

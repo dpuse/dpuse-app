@@ -11,7 +11,7 @@ import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';
 import TableHeaderCell from './TableHeaderCell.vue';
-import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from '../ScrollThumb.vue';
+import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from '../scroll/ScrollThumb.vue';
 import { type TableFeatureSet, tableFeatureSet } from './tableFeatures.ts';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

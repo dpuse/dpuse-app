@@ -12,7 +12,7 @@ import { configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterC
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
-import ConfigCard from '@/components/ui/ConfigCard.vue';
+import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ConfigConnectorPanel from '@/studio/config/ConfigConnectorPanel.vue';
 import ConfigCookbookPanel from '@/studio/config/ConfigCookbookPanel.vue';
 import ConfigPresenterPanel from '@/studio/config/ConfigPresenterPanel.vue';

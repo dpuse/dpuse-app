@@ -12,7 +12,7 @@ import { type StudioOptionConfig, useStudioOptions } from './useStudioOptions';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHomeIcon from '@/components/icons/StudioHomeIcon.vue';
 

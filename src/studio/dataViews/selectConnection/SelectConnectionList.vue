@@ -13,7 +13,7 @@ import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConf
 import { activeMetaStoreConnectionConfig, configRetrievalSucceeded } from '@/state/session';
 
 // ── Static Components
-import ConfigCard from '@/components/ui/ConfigCard.vue';
+import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectConnectionPanel from './SelectConnectionPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── Static Components
-import TextEditor from '@/components/ui/TextEditor.vue';
-import TextInput from '@/components/ui/TextInput.vue';
+import TextEditor from '@/components/ui/text/TextEditor.vue';
+import TextInput from '@/components/ui/text/TextInput.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

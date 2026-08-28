@@ -10,7 +10,7 @@ import { t } from '@/state/locale';
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import Separator from '@/components/ui/Separator.vue';
-import TextInput from '@/components/ui/TextInput.vue';
+import TextInput from '@/components/ui/text/TextInput.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

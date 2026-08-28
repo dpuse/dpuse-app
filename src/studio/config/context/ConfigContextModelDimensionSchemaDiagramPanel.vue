@@ -13,7 +13,7 @@ import { toolConfigs } from '@/state/session';
 
 // ── Static Components
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

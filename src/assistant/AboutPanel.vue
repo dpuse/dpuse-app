@@ -4,7 +4,7 @@ import { useStudioOptions } from '@/studio/optionBar/useStudioOptions';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 

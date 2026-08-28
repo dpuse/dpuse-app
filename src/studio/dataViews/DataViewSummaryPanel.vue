@@ -4,7 +4,7 @@ import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Static Components
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import StudioDetailPanel from '../components/StudioDetailPanel.vue';
 import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
 

@@ -14,7 +14,7 @@ import { accountId } from '@/state/session';
 import { useEngine } from '@/services/useEngine';
 
 // ── Static Components
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import StudioDetailPanel from '@/studio/components/StudioDetailPanel.vue';
 import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';

@@ -14,7 +14,7 @@ import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';
 import LoginForm from '@/session/authDialog/LoginForm.vue';
 import PasswordForm from '@/session/authDialog/PasswordForm.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

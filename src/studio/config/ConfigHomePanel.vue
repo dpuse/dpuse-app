@@ -10,8 +10,8 @@ import type { ConfigOptionConfig } from '@/utilities/index.ts';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
-import ConfigCard from '@/components/ui/ConfigCard.vue';
-import ScrollArea from '@/components/ui/ScrollArea.vue';
+import ConfigCard from '@/components/ui/config/ConfigCard.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

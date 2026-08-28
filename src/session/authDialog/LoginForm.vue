@@ -15,7 +15,7 @@ import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import GoogleLogo from '@/components/branding/GoogleLogo.vue';
 import MicrosoftLogo from '@/components/branding/MicrosoftLogo.vue';
 import Separator from '@/components/ui/Separator.vue';
-import TextInput from '@/components/ui/TextInput.vue';
+import TextInput from '@/components/ui/text/TextInput.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
