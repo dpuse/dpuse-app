@@ -39,7 +39,7 @@ const studioOptionConfigs = useOptions();
                  needs: 33rem for two columns, 50rem for three. An auto-fit track list would size the same but leaves the
                  column count implicit, and a 2-column span inside a collapsed single-column grid would then spill into
                  an implicit track. -->
-            <div class="@container max-w-4xl px-4">
+            <div class="@container max-w-4xl pl-4">
                 <h2 class="my-4 border-b border-separator pb-2">Workflow</h2>
 
                 <div class="grid grid-cols-1 gap-4 @min-[33rem]:grid-cols-2 @min-[50rem]:grid-cols-3">
@@ -70,7 +70,7 @@ const studioOptionConfigs = useOptions();
                         shape="minimal"
                         :to="{ name: config.id, query: { ...$route.query, sView: config.id } }"
                     >
-                        <ConfigCard :config="config" :overline="t(T, 'Step_{number}', { number: config.step })" />
+                        <ConfigCard :config="config" />
                     </Button>
                 </div>
 
@@ -82,7 +82,7 @@ const studioOptionConfigs = useOptions();
                     </p>
 
                     <Button v-for="config in studioOptionConfigs.slice(4)" :key="config.id" shape="minimal" :to="{ name: config.id, query: { ...$route.query, sView: config.id } }">
-                        <ConfigCard :config="config" :overline="t(T, 'Step_{number}', { number: config.step })" />
+                        <ConfigCard :config="config" />
                     </Button>
                 </div>
             </div>
