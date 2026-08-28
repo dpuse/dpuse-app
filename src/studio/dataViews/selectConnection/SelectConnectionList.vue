@@ -51,7 +51,7 @@ function handleAddConnection(): void {
 }
 
 function handleCommitDetail(): void {
-    void router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } }).catch(() => {
+    void router.push({ name: 'items', query: { ...route.query, sView: 'items' } }).catch(() => {
         // Already reported by 'router.onError'.
     });
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── Local Framework
-import { useStudioOptions } from '@/studio/useStudioOptions';
+import { useStudioOptions } from '@/studio/optionBar/useStudioOptions';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';

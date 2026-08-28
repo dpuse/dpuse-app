@@ -24,15 +24,15 @@ interface RouteComponentLoader {
 // The number is the nesting level of the 'RouterView' that renders the component: 'App.vue' is 0, the studio layouts
 // below it are 1. 'assertViewDepths' checks these against the route table at startup in Dev environment.
 const StudioHomeLayout = defineLazyLoader('StudioHomeLayout', 0, () => import('@/studio/home/StudioHomeLayout.vue'));
-const EstablishDataViewsLayout = defineLazyLoader('EstablishDataViewsLayout', 0, () => import('@/studio/establishDataViews/EstablishDataViewsLayout.vue'));
-const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/studio/establishDataViews/DataViewList.vue'));
-const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/studio/establishDataViews/selectConnection/SelectConnectionList.vue'));
-const SelectItemPanel = defineLazyLoader('SelectItemPanel', 1, () => import('@/studio/establishDataViews/selectItem/SelectItemPanel.vue'));
-const AuditContentPanel = defineLazyLoader('AuditContentPanel', 1, () => import('@/studio/establishDataViews/auditContent/AuditContentPanel.vue'));
-const ExploreData = defineLazyLoader('ExploreData', 1, () => import('@/studio/establishDataViews/exploreData/ExploreData.vue'));
-const ContextualiseDataLayout = defineLazyLoader('ContextualiseDataLayout', 0, () => import('@/studio/contextualiseData/ContextualiseDataLayout.vue'));
-const ExplorePresentationsLayout = defineLazyLoader('ExplorePresentationsLayout', 0, () => import('@/studio/explorePresentations/ExplorePresentationsLayout.vue'));
-const BuildDataAppsLayout = defineLazyLoader('BuildDataAppsLayout', 0, () => import('@/studio/buildDataApps/BuildDataAppsLayout.vue'));
+const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/studio/dataViews/DataViewsLayout.vue'));
+const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/studio/dataViews/DataViewList.vue'));
+const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/studio/dataViews/selectConnection/SelectConnectionList.vue'));
+const SelectItemPanel = defineLazyLoader('SelectItemPanel', 1, () => import('@/studio/dataViews/selectItem/SelectItemPanel.vue'));
+const AuditContentPanel = defineLazyLoader('AuditContentPanel', 1, () => import('@/studio/dataViews/auditContent/AuditContentPanel.vue'));
+const ExploreDataPanel = defineLazyLoader('ExploreDataPanel', 1, () => import('@/studio/dataViews/exploreData/ExploreDataPanel.vue'));
+const EventQueriesLayout = defineLazyLoader('EventQueriesLayout', 0, () => import('@/studio/eventQueries/EventQueriesLayout.vue'));
+const PresentationsLayout = defineLazyLoader('PresentationsLayout', 0, () => import('@/studio/presentations/PresentationsLayout.vue'));
+const DataAppsLayout = defineLazyLoader('DataAppsLayout', 0, () => import('@/studio/dataApps/DataAppsLayout.vue'));
 const ConfigLayout = defineLazyLoader('ConfigLayout', 0, () => import('@/studio/config/ConfigLayout.vue'));
 const ConfigHomePanel = defineLazyLoader('ConfigHomePanel', 1, () => import('@/studio/config/ConfigHomePanel.vue'));
 const ConfigContextList = defineLazyLoader('ConfigContextList', 1, () => import('@/studio/config/context/ConfigContextList.vue'));
@@ -46,24 +46,24 @@ export const APP_ROUTES = [
         children: [
             { name: 'studio', path: '', component: StudioHomeLayout },
             {
-                path: 'establishDataViews',
-                component: EstablishDataViewsLayout,
+                path: 'dataViews',
+                component: DataViewsLayout,
                 children: [
-                    { name: 'establishDataViews', path: '', component: DataViewList },
+                    { name: 'dataViews', path: '', component: DataViewList },
                     {
                         path: ':dataViewId',
                         children: [
-                            { name: 'selectConnection', path: 'selectConnection', component: SelectConnectionList },
-                            { name: 'selectItem', path: 'selectItem', component: SelectItemPanel },
-                            { name: 'auditContent', path: 'auditContent', component: AuditContentPanel },
-                            { name: 'exploreData', path: 'investigate', component: ExploreData }
+                            { name: 'connections', path: 'connections', component: SelectConnectionList },
+                            { name: 'items', path: 'items', component: SelectItemPanel },
+                            { name: 'content', path: 'content', component: AuditContentPanel },
+                            { name: 'data', path: 'data', component: ExploreDataPanel }
                         ]
                     }
                 ]
             },
-            { name: 'contextualiseData', path: 'contextualiseData', component: ContextualiseDataLayout },
-            { name: 'explorePresentations', path: 'explorePresentations', component: ExplorePresentationsLayout },
-            { name: 'buildDataApps', path: 'buildDataApps', component: BuildDataAppsLayout },
+            { name: 'eventQueries', path: 'eventQueries', component: EventQueriesLayout },
+            { name: 'presentations', path: 'presentations', component: PresentationsLayout },
+            { name: 'dataApps', path: 'dataApps', component: DataAppsLayout },
             {
                 path: 'config',
                 component: ConfigLayout,

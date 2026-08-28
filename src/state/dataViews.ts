@@ -23,7 +23,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 import { localeId } from '@/state/locale';
 import { reportAppError } from '@/observability/errorTracking';
 import { useEngine } from '@/services/useEngine';
-import { useStudioOptions } from '@/studio/useStudioOptions';
+import { useStudioOptions } from '@/studio/optionBar/useStudioOptions';
 import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
 
 // const options: UpsertRecordsOptions = {

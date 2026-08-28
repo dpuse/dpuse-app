@@ -11,13 +11,13 @@ import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { dataViewLocalisedConfig } = defineProps<{ dataViewLocalisedConfig: LocalisedConfig<DataViewConfig> }>();
-defineEmits<{ close: [] }>();
+defineEmits<{ clear: []; close: [] }>();
 </script>
 
 <template>
     <StudioDetailPanel data-region="DataViewSummaryPanel">
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
-            <StudioDocumentPanel :overline="'Establish Data Views'" :title="dataViewLocalisedConfig.label" @close="$emit('close')">
+            <StudioDocumentPanel :overline="'Establish Data Views'" :title="dataViewLocalisedConfig.label" @clear="$emit('clear')" @close="$emit('close')">
                 <!-- Description -->
                 <p v-if="dataViewLocalisedConfig.description">{{ dataViewLocalisedConfig.description }}</p>
                 <p v-if="dataViewLocalisedConfig.description">Retrieves data from the 'XXX' [endpoint | file | table] using the 'YYY' connection.</p>

@@ -33,7 +33,7 @@ const router = useRouter();
 
 async function handleSubmit(): Promise<void> {
     // emit('submit');
-    // await router.push({ name: 'selectItem', query: { ...route.query, sView: 'selectItem' } });
+    // await router.push({ name: 'items', query: { ...route.query, sView: 'items' } });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -40,7 +40,7 @@ const ITEM_ACTIONS = [
 // deploy in particular, downloading new bundles, waking configMonitor/accountMonitor's Durable Objects, and then
 // resolving the active connection via getDataViewRecord's own engine round-trip (SelectItemPanel watcher above)
 // can easily take longer than that. So instead of a short fixed retry, wait directly on the value itself.
-// Deciding whether the connection has genuinely disappeared (vs. just not resolved yet) is EstablishDataViewsLayout's
+// Deciding whether the connection has genuinely disappeared (vs. just not resolved yet) is DataViewsLayout's
 // job, not this function's — it redirects away (unmounting this component) once that's confirmed, so this only
 // needs a generous timeout as a last-resort bail-out for the case where neither ever happens.
 const ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS = 20_000;
@@ -133,7 +133,7 @@ watch(
 
         const dataViewConfig = await getDataViewRecord(newLocalMetaStoreConnectionConfig, route);
         if (dataViewConfig.connectionId == null) {
-            void router.replace({ name: 'selectConnection', query: { ...route.query, sView: 'selectConnection' } }).catch(() => {
+            void router.replace({ name: 'connections', query: { ...route.query, sView: 'connections' } }).catch(() => {
                 // Already reported by 'router.onError'.
             });
         } else {
@@ -199,7 +199,7 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
 
 function handleCommitDetail(): void {
     emit('task-completed', taskLocalisedConfig);
-    void router.push({ name: 'auditContent', query: { ...route.query, sView: 'auditContent' } }).catch(() => {
+    void router.push({ name: 'content', query: { ...route.query, sView: 'content' } }).catch(() => {
         // Already reported by 'router.onError'.
     });
 }

@@ -94,7 +94,7 @@ async function handleSelectPresentation(presentationReference: LocalisedReferenc
         await presenter.render(activePresentationReference.value, container.value);
     } catch (error) {
         const data = { presentationReferenceId: activePresentationReference.value.id };
-        renderError.value = new AppError('Failed to render presentation.', 'dpuse.explorePresentationsLayout.handleSelectPresentation', data, { cause: error });
+        renderError.value = new AppError('Failed to render presentation.', 'dpuse.presentationsLayout.handleSelectPresentation', data, { cause: error });
         renderErrorWasReported.value = await reportAppError(renderError.value);
     }
 }
@@ -127,7 +127,7 @@ async function loadPresenters(): Promise<void> {
         } catch (error) {
             failedPresenterIds.push(presenterConfig.id);
             const data = { presenterConfigId: presenterConfig.id };
-            void reportAppError(new AppError('Failed to load presenter.', 'dpuse.explorePresentationsLayout.loadPresenters', data, { cause: error }));
+            void reportAppError(new AppError('Failed to load presenter.', 'dpuse.presentationsLayout.loadPresenters', data, { cause: error }));
         }
     }
 
@@ -140,7 +140,7 @@ async function loadPresenters(): Promise<void> {
     const data = { failedPresenterIds };
     loadError.value = new AppError(
         `Failed to load ${String(failedPresenterIds.length)} of ${String(presenterConfigs.value.length)} presenters.`,
-        'dpuse.explorePresentationsLayout.loadPresenters',
+        'dpuse.presentationsLayout.loadPresenters',
         data
     );
     loadErrorWasReported.value = await reportAppError(loadError.value);

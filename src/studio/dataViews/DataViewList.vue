@@ -74,7 +74,7 @@ watch(detailActionId, (newDetailActionId) => {
 
 function handleAddDataView(): void {
     setActiveDataViewConfig();
-    void router.push({ name: 'selectConnection', params: { dataViewId: NEW_DATA_VIEW_ID }, query: { ...route.query, sView: 'selectConnection' } }).catch(() => {
+    void router.push({ name: 'connections', params: { dataViewId: NEW_DATA_VIEW_ID }, query: { ...route.query, sView: 'connections' } }).catch(() => {
         // Already reported by 'router.onError'.
     });
 }
@@ -103,19 +103,19 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
 
     setActiveDataViewConfig(dataViewConfig);
     if (dataViewConfig.connectionId == null) {
-        void router.push({ name: 'selectConnection', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'selectConnection' } }).catch(() => {
+        void router.push({ name: 'connections', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'connections' } }).catch(() => {
             // Already reported by 'router.onError'.
         });
     } else if (dataViewConfig.connectionNodeConfig == null) {
-        void router.push({ name: 'selectItem', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'selectItem' } }).catch(() => {
+        void router.push({ name: 'items', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'items' } }).catch(() => {
             // Already reported by 'router.onError'.
         });
     } else if (dataViewConfig.contentAuditConfig == null) {
-        void router.push({ name: 'auditContent', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'auditContent' } }).catch(() => {
+        void router.push({ name: 'content', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'content' } }).catch(() => {
             // Already reported by 'router.onError'.
         });
     } else {
-        void router.push({ name: 'exploreData', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'exploreData' } }).catch(() => {
+        void router.push({ name: 'data', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'data' } }).catch(() => {
             // Already reported by 'router.onError'.
         });
     }
@@ -132,7 +132,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
             class="min-h-0 flex-1"
             :data-source="dataViewConfigsDataSource"
             max-detail-width="65ch"
-            :row-height="162"
+            :row-height="16 + 16 + 28 + 8 + 32 + 16"
             @add="handleAddDataView"
             @select="handleSelectDataView"
         >
@@ -152,8 +152,8 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
                 <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
             </template>
 
-            <template #detail="{ item, clear }">
-                <DataViewSummaryPanel class="min-h-0 flex-1 pl-4" :data-view-localised-config="item" @close="clear" />
+            <template #detail="{ item, clear, close }">
+                <DataViewSummaryPanel class="min-h-0 flex-1 pl-4" :data-view-localised-config="item" @clear="clear" @close="close" />
                 <StepActionButton label="Open" @click="handleOpenDataView(item)" />
             </template>
 

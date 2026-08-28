@@ -29,7 +29,7 @@ interface StudioOptionTaskConfig {
 
 const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
     {
-        id: 'establishDataViews',
+        id: 'dataViews',
         label: { en: 'Establish Data Views', es: 'Establecer Vistas de Datos' },
         description: {
             en: 'Commodo nec sagittis tortor mauris sed. Turpis tortor quis scelerisque diam id accumsan nullam tempus. Pulvinar etiam lacus volutpat eu.'
@@ -40,7 +40,7 @@ const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
         tasks: []
     },
     {
-        id: 'contextualiseData',
+        id: 'eventQueries',
         label: { en: 'Contextualise Data', es: 'Contextualizar Datos' },
         description: {
             en: 'Pellentesque sit elit congue ante nec amet. Dolor aenean curabitur viverra suspendisse iaculis eget. Nec mollis placerat ultricies euismod.'
@@ -51,7 +51,7 @@ const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
         tasks: []
     },
     {
-        id: 'explorePresentations',
+        id: 'presentations',
         label: { en: 'Explore Presentations', es: 'Explorar Presentaciones' },
         description: {
             en: 'Commodo nec sagittis tortor mauris sed. Turpis tortor quis scelerisque diam id accumsan nullam tempus. Pulvinar etiam lacus volutpat eu.'
@@ -62,7 +62,7 @@ const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
         tasks: []
     },
     {
-        id: 'buildDataApps',
+        id: 'dataApps',
         label: { en: 'Build Data Apps', es: 'Crear Aplicaciones de Datos' },
         description: {
             en: 'Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.'

@@ -8,7 +8,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // ── Local Framework
 import { activeStudioOptionConfig } from '@/state/activeStudioOption';
 import { t } from '@/state/locale';
-import { type StudioOptionConfig, useStudioOptions } from '@/studio/useStudioOptions';
+import { type StudioOptionConfig, useStudioOptions } from './useStudioOptions';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';

@@ -5,7 +5,7 @@ import { shallowRef } from 'vue';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import type { StudioOptionConfig } from '../studio/useStudioOptions';
+import type { StudioOptionConfig } from '../studio/optionBar/useStudioOptions';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

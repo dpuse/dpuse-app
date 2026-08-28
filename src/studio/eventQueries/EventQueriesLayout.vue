@@ -88,7 +88,7 @@ async function renderDiagram(): Promise<void> {
         state.view = null;
         if (container.value) state.view = await d3Tool.renderNetworkDiagram(data, container.value);
     } catch (error) {
-        renderError.value = new AppError('Failed to render network diagram.', 'dpuse.contextualiseDataLayout.renderDiagram', { typeId: 'handled' }, { cause: error });
+        renderError.value = new AppError('Failed to render network diagram.', 'dpuse.eventQueriesLayout.renderDiagram', { typeId: 'handled' }, { cause: error });
         errorWasReported.value = await reportAppError(renderError.value);
     }
 }

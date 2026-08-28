@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 async function clickStudioToggle(entryUrl: string) {
     const router = createAppRouter();
-    await router.push(entryUrl).catch(() => undefined);
+    await router.push(entryUrl).catch(() => {});
     await router.isReady();
 
     const wrapper = mount(App, { attachTo: document.body, global: { plugins: [router] } });
@@ -26,28 +26,28 @@ async function clickStudioToggle(entryUrl: string) {
 
 describe('studio toggle', () => {
     it('the URL the user actually tried', async () => {
-        const result = await clickStudioToggle('/establishDataViews');
+        const result = await clickStudioToggle('/dataViews');
         console.log(
-            'A /establishDataViews ->',
-            JSON.stringify(result, (_k, v) => (v instanceof Error ? v.message.split('\n')[0] : v))
+            'A /dataViews ->',
+            JSON.stringify(result, (_k, v) => (v instanceof Error ? v.message.split('\n', 1)[0] : v))
         );
         expect(result.error).toBeUndefined();
     });
 
     it('a screen that needs an id', async () => {
-        const result = await clickStudioToggle('/establishDataViews/abc123/selectItem?sView=selectItem');
+        const result = await clickStudioToggle('/dataViews/abc123/items?sView=items');
         console.log(
-            'B selectItem ->',
-            JSON.stringify(result, (_k, v) => (v instanceof Error ? v.message.split('\n')[0] : v))
+            'B items ->',
+            JSON.stringify(result, (_k, v) => (v instanceof Error ? v.message.split('\n', 1)[0] : v))
         );
         expect(result.error).toBeDefined();
     });
 
     it('a route name that no longer exists', async () => {
-        const result = await clickStudioToggle('/establishDataViews?sView=rubbish');
+        const result = await clickStudioToggle('/dataViews?sView=rubbish');
         console.log(
             'C rubbish ->',
-            JSON.stringify(result, (_k, v) => (v instanceof Error ? v.message.split('\n')[0] : v))
+            JSON.stringify(result, (_k, v) => (v instanceof Error ? v.message.split('\n', 1)[0] : v))
         );
         expect(result.error).toBeDefined();
     });

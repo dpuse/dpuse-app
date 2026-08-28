@@ -25,7 +25,7 @@ const activeOptionId = ref<'transform' | 'investigate'>('investigate');
 </script>
 
 <template>
-    <!-- Single root element required: EstablishDataViewsLayout passes class="min-h-0 flex-1" plus the props/emit
+    <!-- Single root element required: DataViewsLayout passes class="min-h-0 flex-1" plus the props/emit
          above via fallthrough, and Vue can only auto-apply fallthrough attrs when a component has exactly one
          root node — a fragment root (this used to have three: TransformData, InvestigateData, the option selector)
          silently drops them instead, which was also leaving this panel without its flex sizing. -->
