@@ -1,19 +1,19 @@
 <script setup lang="ts">
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
+import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
 // ── Local Framework
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
 
 // ── Static Components
-import ConfigModulePanel from '@/studio/config/_components/ConfigModulePanel.vue';
+import ConfigModulePanel from '@/features/studio/config/_components/ConfigModulePanel.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
     activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
-    localisedConfig: LocalisedConfig<PresenterConfig>;
+    localisedConfig: LocalisedConfig<ToolConfig>;
 }
 const { activeConfigOptionConfig, localisedConfig } = defineProps<Properties>();
 </script>

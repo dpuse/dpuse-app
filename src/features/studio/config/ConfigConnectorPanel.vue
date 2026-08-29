@@ -11,7 +11,7 @@ import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 
 // ── Static Components
-import ConfigModulePanel from '@/studio/config/_components/ConfigModulePanel.vue';
+import ConfigModulePanel from '@/features/studio/config/_components/ConfigModulePanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

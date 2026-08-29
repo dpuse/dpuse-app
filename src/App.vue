@@ -20,15 +20,15 @@ import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import ErrorDetail from '@/components/ui/error/ErrorDetail.vue'; // Can be no delay when rendering.
 import LoadingMask from '@/components/ui/LoadingMask.vue'; // Can be no delay when rendering.
 import ServiceFailureBanner from '@/components/ui/error/ServiceFailureBanner.vue'; // Can be no delay when rendering.
-import SessionButton from '@/session/SessionButton.vue'; // Always visible.
+import SessionButton from '@/features/session/SessionButton.vue'; // Always visible.
 
 // ── Dynamic Components
-const AccountDialog = defineAsyncPanel(() => import('@/session/accountDialog/AccountDialog.vue'), 'AccountDialog');
-const AuthDialog = defineAsyncPanel(() => import('@/session/authDialog/AuthDialog.vue'), 'AuthDialog');
-const ConnectionDialog = defineAsyncPanel(() => import('@/studio/connectionDialog/ConnectionDialog.vue'), 'ConnectionDialog', { simulation: { delayMs: 3000 } });
-const AssistantLayout = defineAsyncPanel(() => import('@/assistant/_components/AssistantLayout.vue'), 'AssistantLayout');
+const AccountDialog = defineAsyncPanel(() => import('@/features/session/accountDialog/AccountDialog.vue'), 'AccountDialog');
+const AuthDialog = defineAsyncPanel(() => import('@/features/session/authDialog/AuthDialog.vue'), 'AuthDialog');
+const ConnectionDialog = defineAsyncPanel(() => import('@/features/studio/connectionDialog/ConnectionDialog.vue'), 'ConnectionDialog', { simulation: { delayMs: 3000 } });
+const AssistantLayout = defineAsyncPanel(() => import('@/features/assistant/_components/AssistantLayout.vue'), 'AssistantLayout');
 const PaneSplitter = defineAsyncPanel(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
-const OptionBar = defineAsyncPanel(() => import('@/studio/options/OptionBar.vue'), 'OptionBar', { hasPlaceholder: false });
+const OptionBar = defineAsyncPanel(() => import('@/features/studio/options/OptionBar.vue'), 'OptionBar', { hasPlaceholder: false });
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

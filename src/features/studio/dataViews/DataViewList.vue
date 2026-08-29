@@ -31,7 +31,7 @@ import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StepActionButton from '@/components/ui/button/StepActionButton.vue';
-import StudioListPanel from '@/studio/_components/StudioListPanel.vue';
+import StudioListPanel from '@/features/studio/_components/StudioListPanel.vue';
 
 // ── Dynamic Components
 const EmptyPlaceholder = defineAsyncPanel(() => import('~/src/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');

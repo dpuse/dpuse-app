@@ -17,8 +17,8 @@ import { useConfigsReady } from '@/services/useConfigsReady';
 import Button from '@/components/ui/button/Button.vue';
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import Separator from '@/components/ui/Separator.vue';
-import StudioHeader from '@/studio/_components/StudioHeader.vue';
-import StudioLayout from '@/studio/_components/StudioLayout.vue';
+import StudioHeader from '@/features/studio/_components/StudioHeader.vue';
+import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

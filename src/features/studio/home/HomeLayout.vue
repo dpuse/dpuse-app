@@ -1,15 +1,15 @@
 <script setup lang="ts">
 // ── Local Framework
 import { t } from '@/state/locale';
-import { useOptions } from '@/studio/options/useOptions.ts';
+import { useOptions } from '@/features/studio/options/useOptions.ts';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
-import StudioHeader from '@/studio/_components/StudioHeader.vue';
-import StudioLayout from '@/studio/_components/StudioLayout.vue';
+import StudioHeader from '@/features/studio/_components/StudioHeader.vue';
+import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

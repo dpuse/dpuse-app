@@ -23,20 +23,20 @@ interface RouteComponentLoader {
 // Every loader is wrapped so that a failed chunk can be reported by name, and so that loading one raises the spinner.
 // The number is the nesting level of the 'RouterView' that renders the component: 'App.vue' is 0, the studio layouts
 // below it are 1. 'assertViewDepths' checks these against the route table at startup in Dev environment.
-const HomeLayout = defineLazyLoader('HomeLayout', 0, () => import('@/studio/home/HomeLayout.vue'));
-const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/studio/dataViews/DataViewsLayout.vue'));
-const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/studio/dataViews/DataViewList.vue'));
-const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/studio/dataViews/selectConnection/SelectConnectionList.vue'));
-const SelectItemPanel = defineLazyLoader('SelectItemPanel', 1, () => import('@/studio/dataViews/selectItem/SelectItemPanel.vue'));
-const AuditContentPanel = defineLazyLoader('AuditContentPanel', 1, () => import('@/studio/dataViews/auditContent/AuditContentPanel.vue'));
-const ExploreDataPanel = defineLazyLoader('ExploreDataPanel', 1, () => import('@/studio/dataViews/exploreData/ExploreDataPanel.vue'));
-const EventQueriesLayout = defineLazyLoader('EventQueriesLayout', 0, () => import('@/studio/eventQueries/EventQueriesLayout.vue'));
-const PresentationsLayout = defineLazyLoader('PresentationsLayout', 0, () => import('@/studio/presentations/PresentationsLayout.vue'));
-const DataAppsLayout = defineLazyLoader('DataAppsLayout', 0, () => import('@/studio/dataApps/DataAppsLayout.vue'));
-const ConfigLayout = defineLazyLoader('ConfigLayout', 0, () => import('@/studio/config/ConfigLayout.vue'));
-const ConfigHomePanel = defineLazyLoader('ConfigHomePanel', 1, () => import('@/studio/config/ConfigHomePanel.vue'));
-const ConfigContextModelList = defineLazyLoader('ConfigContextModelList', 1, () => import('@/studio/config/context/ConfigContextModelList.vue'));
-const ConfigModuleList = defineLazyLoader('ConfigModuleList', 1, () => import('@/studio/config/_components/ConfigModuleList.vue'));
+const HomeLayout = defineLazyLoader('HomeLayout', 0, () => import('@/features/studio/home/HomeLayout.vue'));
+const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/features/studio/dataViews/DataViewsLayout.vue'));
+const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/features/studio/dataViews/DataViewList.vue'));
+const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/features/studio/dataViews/selectConnection/SelectConnectionList.vue'));
+const SelectItemPanel = defineLazyLoader('SelectItemPanel', 1, () => import('@/features/studio/dataViews/selectItem/SelectItemPanel.vue'));
+const AuditContentPanel = defineLazyLoader('AuditContentPanel', 1, () => import('@/features/studio/dataViews/auditContent/AuditContentPanel.vue'));
+const ExploreDataPanel = defineLazyLoader('ExploreDataPanel', 1, () => import('@/features/studio/dataViews/exploreData/ExploreDataPanel.vue'));
+const EventQueriesLayout = defineLazyLoader('EventQueriesLayout', 0, () => import('@/features/studio/eventQueries/EventQueriesLayout.vue'));
+const PresentationsLayout = defineLazyLoader('PresentationsLayout', 0, () => import('@/features/studio/presentations/PresentationsLayout.vue'));
+const DataAppsLayout = defineLazyLoader('DataAppsLayout', 0, () => import('@/features/studio/dataApps/DataAppsLayout.vue'));
+const ConfigLayout = defineLazyLoader('ConfigLayout', 0, () => import('@/features/studio/config/ConfigLayout.vue'));
+const ConfigHomePanel = defineLazyLoader('ConfigHomePanel', 1, () => import('@/features/studio/config/ConfigHomePanel.vue'));
+const ConfigContextModelList = defineLazyLoader('ConfigContextModelList', 1, () => import('@/features/studio/config/context/ConfigContextModelList.vue'));
+const ConfigModuleList = defineLazyLoader('ConfigModuleList', 1, () => import('@/features/studio/config/_components/ConfigModuleList.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

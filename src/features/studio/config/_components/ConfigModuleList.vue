@@ -13,10 +13,10 @@ import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ConfigConnectorPanel from '@/studio/config/ConfigConnectorPanel.vue';
-import ConfigCookbookPanel from '@/studio/config/ConfigCookbookPanel.vue';
-import ConfigPresenterPanel from '@/studio/config/ConfigPresenterPanel.vue';
-import ConfigToolPanel from '@/studio/config/ConfigToolPanel.vue';
+import ConfigConnectorPanel from '@/features/studio/config/ConfigConnectorPanel.vue';
+import ConfigCookbookPanel from '@/features/studio/config/ConfigCookbookPanel.vue';
+import ConfigPresenterPanel from '@/features/studio/config/ConfigPresenterPanel.vue';
+import ConfigToolPanel from '@/features/studio/config/ConfigToolPanel.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 

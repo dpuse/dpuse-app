@@ -6,7 +6,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // ── Static Components
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import StudioDetailPanel from '../_components/StudioDetailPanel.vue';
-import StudioDocumentPanel from '@/studio/_components/StudioDocumentPanel.vue';
+import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

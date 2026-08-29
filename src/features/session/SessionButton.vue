@@ -12,7 +12,7 @@ import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
 import AvatarButton from '@/components/ui/button/AvatarButton.vue';
 
 // ── Dynamic Components
-const SessionMenu = defineAsyncPanel(() => import('@/session/SessionMenu.vue'), 'SessionMenu', { hasPlaceholder: false });
+const SessionMenu = defineAsyncPanel(() => import('@/features/session/SessionMenu.vue'), 'SessionMenu', { hasPlaceholder: false });
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
