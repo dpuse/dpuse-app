@@ -396,9 +396,10 @@ function establishPaneSplitterPercent(): number {
             <AssistantLayout class="flex-1" :studio-pane-is-hidden="!studioPaneIsVisible" />
         </div>
 
-        <!-- Dialogs - Wrapper for dialogs which are activated using URL 'dlg' parameter. This wrapper is owned here rather than by each dialog so it can
-             appear on the click that opens it, while the dialog's own chunk is still loading. Its body then fills in
-             behind the spinner without the frame remounting, so there is no second fade and nothing shifts. -->
+        <!-- Dialogs - Modal wrapper for dialogs which are activated using URL 'dlg' parameter. This wrapper is owned
+             here rather than by each dialog so it can appear immediately, while the dialog's own chunk is still
+             loading. Its body then fills in behind the spinner without the frame remounting, so there is no second
+            fade and nothing shifts. -->
         <DialogModal
             v-if="activeDialogConfig"
             :key="activeDialogId"

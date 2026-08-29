@@ -36,296 +36,296 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 |Chunk/Module/File|Composition|
 |:------ |:-----------|
-| dist/client/assets/ChatVercelInterface-kukcusY_.js | 148.6 kB · brotli 34.0 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;zod | `█░░░░░░░░░░░░░░░░░░░` 7.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;ai → dist/index.js | `█░░░░░░░░░░░░░░░░░░░` 4.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@ai-sdk/provider-utils → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 2.2% |
+| dist/client/assets/ChatVercelInterface-8aViyKZI.js | 155.5 kB · brotli 36.1 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;zod | `██░░░░░░░░░░░░░░░░░░` 7.8% |
+| &nbsp;&nbsp;&nbsp;&nbsp;ai → dist/index.js | `█░░░░░░░░░░░░░░░░░░░` 4.0% |
+| &nbsp;&nbsp;&nbsp;&nbsp;@ai-sdk/provider-utils → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 2.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;swrv | `░░░░░░░░░░░░░░░░░░░░` 0.8% |
 | &nbsp;&nbsp;&nbsp;&nbsp;eventsource-parser | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@ai-sdk/provider → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@ai-sdk/vue → dist/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/ChatTanstackInterface-Cc4N2NgT.js | 133.5 kB · brotli 29.9 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/ai-client | `██░░░░░░░░░░░░░░░░░░` 7.5% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/ai | `█░░░░░░░░░░░░░░░░░░░` 5.2% |
+| dist/client/assets/ChatTanstackInterface-DurS-7pu.js | 144.1 kB · brotli 32.2 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/ai-client | `██░░░░░░░░░░░░░░░░░░` 7.6% |
+| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/ai | `█░░░░░░░░░░░░░░░░░░░` 5.8% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;partial-json | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@ag-ui/core → dist/events-BaoNrGbE.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/AuthDialog-CwGziqMg.js | 77.2 kB · brotli 20.9 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;@regle/core → dist/regle-core.min.js | `█░░░░░░░░░░░░░░░░░░░` 5.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@regle/rules → dist/regle-rules.min.js | `░░░░░░░░░░░░░░░░░░░░` 1.2% |
+| dist/client/assets/AuthDialog-DGkpGKSe.js | 77.2 kB · brotli 20.9 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;@regle/core → dist/regle-core.min.js | `█░░░░░░░░░░░░░░░░░░░` 5.4% |
+| &nbsp;&nbsp;&nbsp;&nbsp;@regle/rules → dist/regle-rules.min.js | `░░░░░░░░░░░░░░░░░░░░` 1.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 1.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/user-round-key.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/runtime-core.esm-bundler-DP1iE2xl.js | 65.2 kB · brotli 23.0 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;@vue/runtime-core → dist/runtime-core.esm-bundler.js | `█░░░░░░░░░░░░░░░░░░░` 4.7% |
+| dist/client/assets/runtime-core.esm-bundler-Bf1_-EUs.js | 65.5 kB · brotli 23.1 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;@vue/runtime-core → dist/runtime-core.esm-bundler.js | `█░░░░░░░░░░░░░░░░░░░` 4.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@vue/reactivity → dist/reactivity.esm-bundler.js | `░░░░░░░░░░░░░░░░░░░░` 1.7% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@vue/shared → dist/shared.esm-bundler.js | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ConfigContextModelDescriptorsPanel-CV41NZgE.js | 63.7 kB · brotli 17.8 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;squire-rte → dist/squire.mjs | `█░░░░░░░░░░░░░░░░░░░` 6.0% |
+| dist/client/assets/ConfigContextModelDescriptorsPanel-CgjLgncq.js | 63.7 kB · brotli 17.8 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;squire-rte → dist/squire.mjs | `█░░░░░░░░░░░░░░░░░░░` 5.8% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/ExploreDataPanel-BTlAwgNQ.js | 56.5 kB · brotli 13.6 kB |
+| dist/client/assets/index-CWht9Lse.js | 57.7 kB · brotli 18.5 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;src | `█░░░░░░░░░░░░░░░░░░░` 2.7% |
+| &nbsp;&nbsp;&nbsp;&nbsp;@vue/runtime-dom → dist/runtime-dom.esm-bundler.js | `░░░░░░░░░░░░░░░░░░░░` 1.6% |
+| &nbsp;&nbsp;&nbsp;&nbsp;zod | `░░░░░░░░░░░░░░░░░░░░` 1.0% |
+| &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| dist/client/assets/ExploreDataPanel-C33qbKJ-.js | 56.5 kB · brotli 13.6 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;@formkit/drag-and-drop | `█░░░░░░░░░░░░░░░░░░░` 3.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `█░░░░░░░░░░░░░░░░░░░` 2.5% |
+| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 2.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/ConfigContextModelList-bun9OuCf.js | 55.6 kB · brotli 9.4 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue | `█░░░░░░░░░░░░░░░░░░░` 3.5% |
+| dist/client/assets/ConfigContextModelList-DcrChYZS.js | 55.6 kB · brotli 9.4 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue | `█░░░░░░░░░░░░░░░░░░░` 3.4% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 1.3% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.9% |
-| dist/client/assets/Table-D3lUGf-d.js | 52.1 kB · brotli 12.3 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/table-core | `█░░░░░░░░░░░░░░░░░░░` 4.0% |
+| dist/client/assets/Table-DIz_rMLF.js | 52.1 kB · brotli 12.3 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/table-core | `█░░░░░░░░░░░░░░░░░░░` 3.9% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.9% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/vue-table | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/store → dist/shallow.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/settings-2.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/index-DJnPj8Vq.js | 48.1 kB · brotli 15.9 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `█░░░░░░░░░░░░░░░░░░░` 2.7% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@vue/runtime-dom → dist/runtime-dom.esm-bundler.js | `░░░░░░░░░░░░░░░░░░░░` 1.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;zod → v4/core/core.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | dist/client/assets/sdk.modern-Bgk07Fwq.js | 27.6 kB · brotli 7.2 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;@teamhanko/hanko-frontend-sdk → dist/sdk.modern.js | `█░░░░░░░░░░░░░░░░░░░` 2.8% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/useMarkedTool-fpvpJ_xh.js | 26.9 kB · brotli 9.6 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;dompurify → dist/purify.es.mjs | `█░░░░░░░░░░░░░░░░░░░` 2.7% |
+| dist/client/assets/useMarkedTool-DrkX1OX8.js | 26.9 kB · brotli 9.5 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;dompurify → dist/purify.es.mjs | `█░░░░░░░░░░░░░░░░░░░` 2.6% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → useMarkedTool.ts | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/Button-BfQPlBLL.js | 24.7 kB · brotli 8.7 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;vue-router | `░░░░░░░░░░░░░░░░░░░░` 2.3% |
+| dist/client/assets/Button-C84t535U.js | 24.7 kB · brotli 8.8 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;vue-router | `░░░░░░░░░░░░░░░░░░░░` 2.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → Button.vue | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/useDataWindow-CTUHpFPr.js | 23.9 kB · brotli 6.8 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/virtual-core | `░░░░░░░░░░░░░░░░░░░░` 2.2% |
+| dist/client/assets/useDataWindow-CtLbR4VV.js | 23.9 kB · brotli 6.8 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/virtual-core | `░░░░░░░░░░░░░░░░░░░░` 2.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → useDataWindow.ts | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/vue-virtual → dist/esm/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/plus.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/session-nVbRrANA.js | 9.9 kB · brotli 3.6 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.9% |
+| dist/client/assets/session-Bo87oZ9O.js | 9.9 kB · brotli 3.6 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.8% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared-errors.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ChatPanel-BC9N16gD.js | 9.2 kB · brotli 3.3 kB |
+| dist/client/assets/ChatPanel-DjvDmYx9.js | 9.2 kB · brotli 3.3 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.8% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/arrow-up.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/performanceTracking-BXXBWqEn.js | 8.6 kB · brotli 2.9 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;web-vitals → dist/web-vitals.js | `░░░░░░░░░░░░░░░░░░░░` 0.9% |
+| dist/client/assets/performanceTracking-CAMXEnbh.js | 8.6 kB · brotli 2.9 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;web-vitals → dist/web-vitals.js | `░░░░░░░░░░░░░░░░░░░░` 0.8% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → performanceTracking.ts | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ConfigModuleList-DlWD0VMO.js | 7.8 kB · brotli 2.4 kB |
+| dist/client/assets/ConfigModuleList-BQCU3VV0.js | 7.8 kB · brotli 2.4 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.6% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/SelectItemPanel-B54v8EeW.js | 7.0 kB · brotli 2.8 kB |
+| dist/client/assets/SelectItemPanel-CbMLz_Yr.js | 7.0 kB · brotli 2.8 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.6% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/SessionMenu-Dmw9m0ge.js | 6.8 kB · brotli 2.4 kB |
+| dist/client/assets/SessionMenu-CB9xMQcE.js | 6.8 kB · brotli 2.4 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → SessionMenu.vue | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/ConnectionDialog-CWT7HTVC.js | 5.6 kB · brotli 2.0 kB |
+| dist/client/assets/ConnectionDialog-DftEvEqm.js | 5.6 kB · brotli 2.0 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/AssistantLayout-_usctaBR.js | 5.6 kB · brotli 2.2 kB |
+| dist/client/assets/AssistantLayout-B-UT0cUc.js | 5.6 kB · brotli 2.2 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/GridDetailPanel-CtM5SZT0.js | 5.6 kB · brotli 2.1 kB |
+| dist/client/assets/GridDetailPanel-B49EAADI.js | 5.6 kB · brotli 2.2 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ScrollArea-CNeC0k8X.js | 5.5 kB · brotli 1.9 kB |
+| dist/client/assets/ScrollArea-BCZemOyQ.js | 5.5 kB · brotli 1.9 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/LibraryPanel-C-D9W1ny.js | 5.3 kB · brotli 1.8 kB |
+| dist/client/assets/LibraryPanel-WWw5U5P5.js | 5.3 kB · brotli 1.8 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → LibraryPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/ConfigCard-DFcOX_3l.js | 5.2 kB · brotli 1.6 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
+| dist/client/assets/ConfigCard-BKcIUomy.js | 5.2 kB · brotli 1.6 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/trash.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/AccountDialog-CMIOC4Tw.js | 5.2 kB · brotli 1.7 kB |
+| dist/client/assets/AccountDialog-X5ThIqe6.js | 5.2 kB · brotli 1.7 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → AccountDialog.vue | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/arrow-big-left.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/DataViewsLayout-Cuok6Tb6.js | 5.0 kB · brotli 1.9 kB |
+| dist/client/assets/DataViewsLayout-DSci5act.js | 5.0 kB · brotli 1.9 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/ConfigLayout-DZrtrpfc.js | 5.0 kB · brotli 1.5 kB |
+| dist/client/assets/ConfigLayout-BGhGwFBa.js | 5.0 kB · brotli 1.5 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → ConfigLayout.vue | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/DataViewList-CfyIMniK.js | 4.4 kB · brotli 1.7 kB |
+| dist/client/assets/DataViewList-dEdJPfC2.js | 4.4 kB · brotli 1.7 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/useOptions-CG3yVCjf.js | 3.5 kB · brotli 1.1 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → useOptions.ts | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
+| dist/client/assets/useOptions-_zxR2uqs.js | 3.5 kB · brotli 1.1 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → useOptions.ts | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/SelectConnectionList-DvD4TCNY.js | 3.3 kB · brotli 1.3 kB |
+| dist/client/assets/SelectConnectionList-72F6NxTj.js | 3.3 kB · brotli 1.3 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/PresentationsLayout-WF5fXzm9.js | 3.2 kB · brotli 1.4 kB |
+| dist/client/assets/PresentationsLayout-C6ReX93S.js | 3.2 kB · brotli 1.4 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → PresentationsLayout.vue | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/OptionBar-BEh5-565.js | 3.1 kB · brotli 1.4 kB |
+| dist/client/assets/OptionBar-B3SGhgLt.js | 3.1 kB · brotli 1.4 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/HomeLayout-BxaKC_IK.js | 2.7 kB · brotli 871 B |
+| dist/client/assets/HomeLayout-BxVr5-p-.js | 2.7 kB · brotli 861 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → HomeLayout.vue | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/configMonitor-qYQ9AbHj.js | 2.6 kB · brotli 932 B |
+| dist/client/assets/configMonitor-CETZgWML.js | 2.6 kB · brotli 927 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → configMonitor.ts | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/TabBar-BhMoBQiP.js | 2.5 kB · brotli 1.1 kB |
+| dist/client/assets/TabBar-uPZK_zzn.js | 2.5 kB · brotli 1.1 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → TabBar.vue | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/dataViews-De_guDRo.js | 2.3 kB · brotli 869 B |
+| &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
+| dist/client/assets/dataViews-DaqsD52p.js | 2.3 kB · brotli 868 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → dataViews.ts | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ConfigContextModelEntityRelationshipDiagramPanel-tJWW48dV.js | 2.3 kB · brotli 850 B |
+| dist/client/assets/ConfigContextModelEntityRelationshipDiagramPanel-BEDXyKpA.js | 2.3 kB · brotli 846 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → ConfigContextModelEntityRelationshipDiagramPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/EventQueriesLayout-BK5VgeVc.js | 2.2 kB · brotli 982 B |
+| dist/client/assets/EventQueriesLayout-AKEqI2Iw.js | 2.2 kB · brotli 986 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → EventQueriesLayout.vue | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/StudioDocumentPanel-B0aOry2E.js | 2.1 kB · brotli 1015 B |
+| dist/client/assets/StudioDocumentPanel-lETtEqLi.js | 2.1 kB · brotli 1009 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/list-x.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/previewConnectorItem-C1h2qVIl.js | 2.1 kB · brotli 775 B |
+| dist/client/assets/previewConnectorItem-DToe5wQ1.js | 2.1 kB · brotli 775 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/GitHubLogo-B7rppoYF.js | 2.1 kB · brotli 993 B |
+| dist/client/assets/GitHubLogo-BMcu2xUM.js | 2.1 kB · brotli 991 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → GitHubLogo.vue | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/PaneSplitter-CLjLPj7R.js | 2.0 kB · brotli 952 B |
+| dist/client/assets/PaneSplitter-psNK0TAI.js | 2.0 kB · brotli 952 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → PaneSplitter.vue | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/accountMonitor-RCqQEDxv.js | 1.9 kB · brotli 720 B |
+| dist/client/assets/accountMonitor-DwEv39c2.js | 1.9 kB · brotli 719 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → accountMonitor.ts | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/InfoPanel-Bq9J4ZxT.js | 1.7 kB · brotli 872 B |
+| dist/client/assets/InfoPanel-BS-6Rkkw.js | 1.7 kB · brotli 865 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → InfoPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/TextInput-BbgkfzJu.js | 1.4 kB · brotli 765 B |
+| dist/client/assets/TextInput-CCNGF_BH.js | 1.4 kB · brotli 761 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → TextInput.vue | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/StudioLayout-BthmyO2f.js | 1.4 kB · brotli 729 B |
+| dist/client/assets/StudioLayout-DZI3m_yk.js | 1.4 kB · brotli 722 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
+| dist/client/assets/ConfigContextModelDimensionSchemaDiagramPanel-BL0AUpar.js | 1.3 kB · brotli 697 B |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ConfigContextModelDimensionSchemaDiagramPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | dist/client/assets/dpuse-shared-utilities.es-CFX6uv8k.js | 1.3 kB · brotli 607 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared-utilities.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ConfigContextModelDimensionSchemaDiagramPanel-BscpvEq-.js | 1.3 kB · brotli 675 B |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ConfigContextModelDimensionSchemaDiagramPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/createLucideIcon--G2y5ow4.js | 1.3 kB · brotli 693 B |
+| dist/client/assets/createLucideIcon-CY2vRVL-.js | 1.3 kB · brotli 692 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/EmptyPlaceholder-D_h1XbRi.js | 1.3 kB · brotli 641 B |
+| dist/client/assets/EmptyPlaceholder-BFaXnXX8.js | 1.3 kB · brotli 639 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → EmptyPlaceholder.vue | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| dist/client/assets/ManagePersonalDetailsPanel-BuG4PcmE.js | 1.2 kB · brotli 262 B |
+| dist/client/assets/ManagePersonalDetailsPanel-6PpG9ztc.js | 1.2 kB · brotli 254 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → ManagePersonalDetailsPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/errors-D3PvDVcT.js | 1.1 kB · brotli 507 B |
+| dist/client/assets/errors-DMVSNeYb.js | 1.1 kB · brotli 509 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → errors.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ListItemButton-DxQrUiXC.js | 1.1 kB · brotli 516 B |
+| dist/client/assets/ListItemButton-BjeMm32q.js | 1.1 kB · brotli 513 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → ListItemButton.vue | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/locale-A1aPuVtj.js | 1.0 kB · brotli 445 B |
+| dist/client/assets/locale-Dj55trTs.js | 1.0 kB · brotli 445 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared-locale.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → locale.ts | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/SelectPlaceholder-CeIZKltx.js | 1005 B · brotli 536 B |
+| dist/client/assets/SelectPlaceholder-Kmll7cF1.js | 1005 B · brotli 537 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/eventTracking-B7bCB2os.js | 988 B · brotli 441 B |
+| dist/client/assets/eventTracking-B1iWNyuX.js | 988 B · brotli 441 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → eventTracking.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ConfigHomePanel-DC7NBT7Q.js | 899 B · brotli 498 B |
+| dist/client/assets/ConfigHomePanel-42yVnXkT.js | 899 B · brotli 492 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → ConfigHomePanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/useEngine-CSd7HRuC.js | 866 B · brotli 426 B |
+| dist/client/assets/useEngine-CXol4l4L.js | 866 B · brotli 428 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → useEngine.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/DataAppsLayout-DEAaNMDJ.js | 816 B · brotli 436 B |
+| dist/client/assets/DataAppsLayout-Bn7bzREZ.js | 816 B · brotli 432 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → DataAppsLayout.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/StepActionButton-SvZaSSB8.js | 751 B · brotli 430 B |
+| dist/client/assets/StepActionButton-CthRXFSK.js | 751 B · brotli 432 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → StepActionButton.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/arrow-right.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/Tag-Dk6KRA48.js | 708 B · brotli 351 B |
+| dist/client/assets/Tag-D36gei_N.js | 708 B · brotli 349 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → Tag.vue | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/HomeIcon-DkqWwrmY.js | 607 B · brotli 366 B |
+| dist/client/assets/HomeIcon-qGCon0El.js | 607 B · brotli 369 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → HomeIcon.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/Separator-CknSp6x9.js | 557 B · brotli 291 B |
+| dist/client/assets/Separator-C57f5iai.js | 557 B · brotli 291 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → Separator.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/AuditContentPanel-DR2V8me2.js | 548 B · brotli 332 B |
+| dist/client/assets/AuditContentPanel-BN5KJeuU.js | 548 B · brotli 334 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → AuditContentPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ManagePreferencesPanel-DY7xluOG.js | 529 B · brotli 294 B |
+| dist/client/assets/ManagePreferencesPanel-D5B2YyTl.js | 529 B · brotli 293 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → ManagePreferencesPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | dist/client/assets/dpuse-shared-component.es-CLhFBYpO.js | 450 B · brotli 212 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared-component.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/dpuse-shared-componentModuleTool.es-CJEVKYVa.js | 312 B · brotli 220 B |
+| dist/client/assets/dpuse-shared-componentModuleTool.es-bMgkjQ9J.js | 312 B · brotli 218 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared-componentModuleTool.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ManageSubscriptionPanel-D9g8pHbr.js | 303 B · brotli 203 B |
+| dist/client/assets/ManageSubscriptionPanel-CYhgaPCN.js | 303 B · brotli 195 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → ManageSubscriptionPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ManageDataServiceTokensPanel-B92m4MjO.js | 300 B · brotli 201 B |
+| dist/client/assets/ManageDataServiceTokensPanel-CjdQGmvl.js | 300 B · brotli 195 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → ManageDataServiceTokensPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/GenerateTokenPanel-CdUb9Alc.js | 289 B · brotli 196 B |
+| dist/client/assets/GenerateTokenPanel-kH0G75JU.js | 289 B · brotli 190 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → GenerateTokenPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ManageSessionsPanel-CSBuLROe.js | 289 B · brotli 197 B |
+| dist/client/assets/ManageSessionsPanel-DFMDhiEz.js | 289 B · brotli 191 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → ManageSessionsPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ReviewActivityPanel-u_6Zq_vf.js | 289 B · brotli 196 B |
+| dist/client/assets/ReviewActivityPanel-CvOmg1y0.js | 289 B · brotli 189 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → ReviewActivityPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/DeleteAccountPanel-CBedGNAG.js | 288 B · brotli 196 B |
+| dist/client/assets/DeleteAccountPanel-Bsbsd4Ob.js | 288 B · brotli 190 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → DeleteAccountPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/ManageAccessPanel-B8smsl4L.js | 287 B · brotli 195 B |
+| dist/client/assets/ManageAccessPanel-u_QC2PV5.js | 287 B · brotli 190 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → ManageAccessPanel.vue | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/useConfigsReady-DheRv0yp.js | 270 B · brotli 179 B |
+| dist/client/assets/useConfigsReady-BIt0HwNQ.js | 270 B · brotli 182 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/info-Dp6vj3yB.js | 204 B · brotli 176 B |
+| dist/client/assets/info-qRCDDaDI.js | 204 B · brotli 174 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/info.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/search-BlscX6Yx.js | 174 B · brotli 162 B |
+| dist/client/assets/search-C2wjugO-.js | 174 B · brotli 142 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/search.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/arrow-left-BZML7cyn.js | 165 B · brotli 135 B |
+| dist/client/assets/arrow-left-HNHSHugk.js | 165 B · brotli 159 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/arrow-left.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/x-Cfwycnnl.js | 154 B · brotli 145 B |
+| dist/client/assets/x-BuKskxrv.js | 154 B · brotli 156 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/x.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/chevron-left-CxkwGZQR.js | 130 B · brotli 134 B |
+| dist/client/assets/chevron-left-k-iZ4Wfh.js | 130 B · brotli 128 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/chevron-left.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/chevron-right-Jdd_2-Ek.js | 130 B · brotli 114 B |
+| dist/client/assets/chevron-right-DHHYxpUI.js | 130 B · brotli 116 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/chevron-right.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
-| dist/client/assets/chevron-down-BxdXG4YW.js | 128 B · brotli 114 B |
+| dist/client/assets/chevron-down-WWlWTQuN.js | 128 B · brotli 117 B |
 | &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/chevron-down.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 
