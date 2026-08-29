@@ -5,7 +5,7 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 
 // Every failure the app can produce, named so one can be asked for from the URL. Grouped by where it is caught, since
 // that is what decides the surface: a region shows its own, everything else lands on the app-level strip.
-//   Region        'panel' | 'panel-stale'                     'ComponentLoadFailure' → 'ErrorDisplay' in the region.
+//   Region        'panel' | 'panel-stale'                     'PanelLoadFailure' → 'ErrorDisplay' in the region.
 //   App strip     'route' | 'vue' | the four service faults    Nothing owns these, so 'App.vue' shows them.
 //   Neither       'preload'                                    Reported only — proves nothing appears on screen.
 //   Pre-mount     'bootstrap'                                  The raw DOM banner, before Vue exists.

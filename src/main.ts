@@ -83,7 +83,7 @@ try {
     // Create and mount application.
     const app = createApp(App);
     app.config.errorHandler = (error, instance, info): void => {
-        // A lazy panel that failed to load is already displayed and reported by its own 'ComponentLoadFailure'. Vue
+        // A lazy panel that failed to load is already displayed and reported by its own 'PanelLoadFailure'. Vue
         // reports it here as well, so without this every panel failure arrives twice: once precisely, in the panel's
         // own place, and once as 'Unhandled Vue error.' across the top of an app that is otherwise working.
         if (isComponentLoaderErrorInfo(info)) return;

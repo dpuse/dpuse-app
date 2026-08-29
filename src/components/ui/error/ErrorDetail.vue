@@ -26,17 +26,23 @@ import Button from '@/components/ui/button/Button.vue';
 //
 // 'canRetry' is false where nothing local could be retried — a failure with no region of its own, where a fresh
 // document is the only recovery there is.
+//
+// 'canCancel' is true only in the dialog, where cancelling means closing it. Rendered in place there is nothing to
+// cancel: the failure has already happened, and a button that only made the account of it disappear would leave a
+// region that is broken and no longer says so.
 interface Properties {
+    canCancel?: boolean;
     canRetry: boolean;
     failure: AppFailure;
 }
-const { canRetry, failure } = defineProps<Properties>();
+const { canCancel, canRetry, failure } = defineProps<Properties>();
 
-defineEmits<{ reload: []; retry: [] }>();
+defineEmits<{ cancel: []; reload: []; retry: [] }>();
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
+    'cancel.label': { en: 'Cancel', es: 'Cancelar' },
     'cause.label': { en: 'Cause', es: 'Causa' },
     'console.message': { en: 'See the browser console for more details.', es: 'Consulte la consola del navegador para obtener más detalles.' },
     'reporting.failed': {
@@ -58,10 +64,6 @@ const T = {
 };
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// Which recovery leads, expressed as emphasis rather than as which buttons exist. A failure with no region of its own
-// has no retry to lead with, whatever the classification of the error says, so 'canRetry' overrides it.
-const reloadLeads = computed(() => failure.needsReload || !canRetry);
 
 const errorTrace = computed(() => serialiseError(failure.error));
 const mainSerialisedError = computed(() => errorTrace.value[0]);
@@ -99,23 +101,35 @@ const originalSerialisedError = computed(() => (errorTrace.value.length > 1 ? er
             </ul>
         </details>
 
-        <!-- Reload sits apart on the left: it is the heavier of the two, costing the whole page, so it is kept away
-             from the button the user reaches for first. Both are always offered, so a misjudged classification costs a
-             wasted click rather than leaving the user holding the one button that cannot help; which of them leads is
-             all the classification decides, and it says so through emphasis rather than by hiding the other. -->
-        <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
-            <Button class="flex items-center" :variant="reloadLeads ? 'guarded' : 'outline'" @click="$emit('reload')">
+        <!-- Reload stands apart on the left and in the danger colour: it is the heaviest thing offered here, costing
+             the whole page and anything unsaved on it, so it is kept away from the buttons the user reaches for first
+             and coloured to say so. Cancel and Retry group on the right, being the two that cost nothing. -->
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-2">
+            <Button class="flex items-center" variant="destructive" @click="$emit('reload')">
                 <RefreshCwIcon class="mr-1.5 size-4" />
                 {{ t(T, 'reload.label') }}
             </Button>
 
-            <Button v-if="canRetry" class="flex items-center" :variant="reloadLeads ? 'outline' : 'guarded'" @click="$emit('retry')">
-                <RepeatIcon class="mr-1.5 size-4" />
-                {{ t(T, 'retry.label') }}
-            </Button>
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Only in the dialog, where it is the close action in words rather than a second way out: the body
+                     rendered in place has nothing to close, and an error must not be dismissable into thin air. -->
+                <Button v-if="canCancel" variant="outline" @click="$emit('cancel')">{{ t(T, 'cancel.label') }}</Button>
+
+                <!-- Edged, which no 'guarded' button elsewhere needs: this one is filled with the same token as the
+                     body behind it, and in light mode that token is opaque, so the two are the same colour and the
+                     button has no edge at all. Dark mode only appears correct because there the token is 10% alpha and
+                     the button's coat composites over the body's to about 19%.
+                     'inset-ring' rather than 'border', matching how the 'outline' variant on Cancel draws its own: a
+                     ring is a box-shadow and takes no layout space, where a border would add 2px and leave this button
+                     visibly larger than the one beside it. -->
+                <Button v-if="canRetry" class="flex items-center inset-ring inset-ring-warning-ring/40" variant="guarded" @click="$emit('retry')">
+                    <RepeatIcon class="mr-1.5 size-4" />
+                    {{ t(T, 'retry.label') }}
+                </Button>
+            </div>
         </div>
 
-        <p class="mt-6! mb-0! border-t border-warning-ring/30 pt-2 text-xs leading-snug! text-warning-text">
+        <p class="mt-2 mb-0! border-t border-warning-ring/30 pt-2 text-xs leading-snug! text-warning-text">
             {{ t(T, 'console.message') }}
             <span v-if="failure.wasReported.value == null">{{ t(T, 'reporting.pending') }}</span>
             <span v-else-if="failure.wasReported.value">{{ t(T, 'reporting.succeeded') }}</span>

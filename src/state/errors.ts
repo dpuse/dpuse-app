@@ -37,7 +37,7 @@ export interface AppFailureOptions {
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Set as 'data.componentName' wherever a catch site knows what it was loading: the router for route components, and
-// 'ComponentLoadFailure' for everything else. Lets a failure name what went missing without being told twice.
+// 'PanelLoadFailure' for everything else. Lets a failure name what went missing without being told twice.
 const COMPONENT_NAME_DATA_KEY = 'componentName';
 
 // What Vue passes as 'info' for error code 13, 'async component loader'. It is worded in development and reduced to a

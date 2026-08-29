@@ -32,7 +32,7 @@ const slotIsMounted = ref(true); // Cleared for one tick on retry, which is what
 // handled below this point and the global handler must not treat it as an uncaught error as well.
 onErrorCaptured((error, _instance, info) => {
     // A lazy panel that failed to load is already being shown in its own place, by name, by its own
-    // 'ComponentLoadFailure'. Claiming it here would replace this whole region with a vaguer message for a failure
+    // 'PanelLoadFailure'. Claiming it here would replace this whole region with a vaguer message for a failure
     // that costs only the panel.
     if (!isComponentLoaderErrorInfo(info)) {
         const data = { region: name, typeId: 'componentRender' };

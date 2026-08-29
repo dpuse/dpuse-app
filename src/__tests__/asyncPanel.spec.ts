@@ -74,6 +74,7 @@ describe('defineAsyncPanel load failure', () => {
 
         expect(wrapper.text()).toContain('Retry');
         expect(wrapper.text()).toContain('Reload');
+        expect(wrapper.text()).not.toContain('Cancel'); // Only the dialog offers it, where it is the close action.
     });
 
     it('covers the space the panel would have occupied, rather than sitting inside it', async () => {

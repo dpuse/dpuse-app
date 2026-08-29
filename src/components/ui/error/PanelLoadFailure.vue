@@ -13,14 +13,18 @@ import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-// Shown in place of a component that failed to load. The prop names match what 'defineAsyncComponent' passes to its
-// 'errorComponent', so it can be used there directly; 'name' is supplied by the caller through an extending component.
-// 'retry' is optional only because the props mirror that contract — every load now arrives through 'defineAsyncPanel',
-// which always supplies it. The reload fallback stands as a backstop if this is ever rendered by hand.
+// Shown in place of a component that failed to load, and the one place that turns Vue's bare rejection into a failure
+// this app can do something with: it names the component, which is what later lets a display say what was lost, and
+// raises it, which is what reports it.
+//
+// Only 'error' comes from 'defineAsyncComponent', whatever its options documentation suggests — the error component is
+// mounted with that prop alone. 'name' and 'retry' are supplied by 'defineAsyncPanel', which is also why 'retry' can
+// remount the panel for a genuine second attempt where Vue's own hook could not. Both stay optional so this still
+// renders if it is ever used by hand, where the reload is the only recovery left.
 const { error, name, retry } = defineProps<{ error: unknown; name?: string; retry?: () => void }>();
 
-// 'defineAsyncComponent' also passes 'fail' and 'attempts', which are not used here. Without this they would land on
-// the root as attributes, and there is no root element to receive them until a failure has been captured.
+// There is no root element to receive attributes until a failure has been captured, so anything falling through would
+// have nowhere to land.
 defineOptions({ inheritAttrs: false });
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -36,6 +40,9 @@ const loadFailure = shallowRef<AppFailure | undefined>();
 watch(
     () => error,
     (newError) => {
+        // The locator and 'typeId' keep the old wording deliberately, though this component no longer carries it: they
+        // are the identifiers every report already sent to Axiom was filed under, and renaming them would split the
+        // history at the rename for no gain in what they identify.
         const data = { componentName: name ?? 'Unknown', typeId: 'componentLoad' };
         loadFailure.value = raiseFailure(new AppError(`Failed to load the ${name ?? 'unknown'} component.`, 'dpuse.componentLoadFailure', data, { cause: newError }));
     },

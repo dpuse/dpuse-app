@@ -141,7 +141,7 @@ function handleShowDetail(): void {
                  belonging to the page behind it. Placed as 'DialogModal' places its own, so a dialog opened from here
                  is dismissed the same way as every other one. -->
             <div v-if="detailIsVisible" class="relative">
-                <ErrorDetail :can-retry="canRetry" :failure="failure" @reload="handleReload" @retry="handleRetry" />
+                <ErrorDetail can-cancel :can-retry="canRetry" :failure="failure" @cancel="handleRequestCloseDetail" @reload="handleReload" @retry="handleRetry" />
                 <CloseButton class="absolute top-2 right-2" @click="handleRequestCloseDetail" />
             </div>
         </dialog>
