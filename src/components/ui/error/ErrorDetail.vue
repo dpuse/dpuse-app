@@ -1,12 +1,13 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed } from 'vue';
-import { ChevronDownIcon, RefreshCwIcon, TriangleAlertIcon } from '@lucide/vue';
+import { ChevronDownIcon, RefreshCwIcon, RepeatIcon, TriangleAlertIcon } from '@lucide/vue';
 
 // ── DPUse Framework
-import { type AppError, serialiseError } from '@dpuse/dpuse-shared/errors';
+import { serialiseError } from '@dpuse/dpuse-shared/errors';
 
 // ── Local Framework
+import type { AppFailure } from '@/state/errors';
 import { t } from '@/state/locale';
 
 // ── Static Components
@@ -14,12 +15,24 @@ import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-// The full error body, authored once. 'ErrorDisplay' renders it directly where there is room and inside a dialog where
-// there is not, so it carries its own card chrome but no outer spacing — the caller places it.
-// 'errorWasReported' is undefined while the report is still in flight, so the body says the reporting is pending
-// rather than claiming it could not be confirmed — see the reporting note in the template.
-const { error, errorWasReported } = defineProps<{ error: AppError; errorWasReported: boolean | undefined }>();
-defineEmits<{ retry: [] }>();
+// The full failure body, authored once. 'ErrorDisplay' renders it in the card shell and inside the dialog its narrow
+// shells open, which is why this stays a component of its own rather than markup inside that one: it appears twice in
+// the same tree at the same time. It carries its own card chrome but no outer spacing — the caller places it.
+//
+// Both recoveries are offered, rather than the one the classification favours. That classification is a match against
+// browser-specific wording (see 'STALE_DEPLOY_MESSAGE_PATTERNS'), so it can be wrong — and when it is, offering only
+// its choice leaves the user with the single button that cannot help them. Offering both makes it decide emphasis
+// rather than capability: a wrong guess costs a wasted click instead of a dead end.
+//
+// 'canRetry' is false where nothing local could be retried — a failure with no region of its own, where a fresh
+// document is the only recovery there is.
+interface Properties {
+    canRetry: boolean;
+    failure: AppFailure;
+}
+const { canRetry, failure } = defineProps<Properties>();
+
+defineEmits<{ reload: []; retry: [] }>();
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -30,56 +43,82 @@ const T = {
         en: 'Unable to confirm this error was logged with DPUse Support.',
         es: 'No se puede confirmar que este error se haya registrado con el soporte de DPUse.'
     },
+    'reload.label': { en: 'Reload', es: 'Recargar' },
     'reporting.pending': { en: 'Logging this error with DPUse Support…', es: 'Registrando este error con el soporte de DPUse…' },
     'reporting.succeeded': {
         en: 'This error has been logged with DPUse Support for investigation.',
         es: 'Este error se ha registrado con el soporte de DPUse para su investigación.'
     },
     'retry.label': { en: 'Retry', es: 'Reintentar' },
+    'staleDeploy.message': {
+        en: 'You may be running an outdated version of the app. Reloading fetches the current one.',
+        es: 'Es posible que esté utilizando una versión desactualizada de la aplicación. Al recargar se obtiene la versión actual.'
+    },
     'trace.label': { en: 'Trace', es: 'Traza' }
 };
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const errorTrace = computed(() => serialiseError(error));
+// Which recovery leads, expressed as emphasis rather than as which buttons exist. A failure with no region of its own
+// has no retry to lead with, whatever the classification of the error says, so 'canRetry' overrides it.
+const reloadLeads = computed(() => failure.needsReload || !canRetry);
+
+const errorTrace = computed(() => serialiseError(failure.error));
 const mainSerialisedError = computed(() => errorTrace.value[0]);
 const originalSerialisedError = computed(() => (errorTrace.value.length > 1 ? errorTrace.value.at(-1) : undefined));
 </script>
 
 <template>
     <div class="rounded-lg border border-warning-ring/20 bg-warning px-4 py-5" data-region="ErrorDetail">
-        <TriangleAlertIcon class="size-8 text-warning-text" />
+        <TriangleAlertIcon class="size-8 text-warning-text" stroke-width="1.5" />
 
-        <p class="mt-2 text-sm font-semibold text-warning-text">{{ mainSerialisedError.message }}</p>
+        <p class="mt-2 text-sm font-semibold wrap-anywhere text-warning-text">{{ mainSerialisedError.message }}</p>
 
-        <p v-if="originalSerialisedError" class="mt-2 text-sm text-warning-text/80">
+        <p v-if="originalSerialisedError" class="mt-2 text-sm wrap-anywhere text-warning-text/80">
             <span class="text-sm font-semibold">{{ t(T, 'cause.label') }}</span
             >: {{ originalSerialisedError.message }}
         </p>
 
+        <p v-if="failure.needsReload" class="mt-2 text-sm text-warning-text/80">{{ t(T, 'staleDeploy.message') }}</p>
+
+        <!-- 'overflow-wrap: anywhere' because a trace carries chunk URLs, which have no spaces to break at and would
+             otherwise push the body wider than the region holding it. -->
         <details v-if="errorTrace.length > 0" class="group my-3 text-left">
             <summary class="flex w-fit cursor-pointer list-none items-center gap-1 text-sm font-semibold text-warning-text/80 [&::-webkit-details-marker]:hidden">
-                {{ t(T, 'trace.label') }}
+                {{ t(T, 'trace.label') }}:
                 <ChevronDownIcon class="size-4 transition-transform group-open:rotate-180" />
             </summary>
 
-            <ul class="pl-4!">
-                <li v-for="(serialisedError, index) in errorTrace" :key="index" class="text-sm leading-snug! text-warning-text/70">
+            <!-- 'list-disc' restored explicitly: the preflight reset strips markers from every list, so the items were
+                 already 'li' elements but sat unmarked, reading as wrapped prose rather than as a chain of causes. -->
+            <ul class="list-disc pl-4! marker:text-warning-text/50">
+                <li v-for="(serialisedError, index) in errorTrace" :key="index" class="text-sm leading-snug! wrap-anywhere text-warning-text/70">
                     {{ serialisedError.message }}
                     <span class="text-warning-text/50">({{ serialisedError.name }})</span>
                 </li>
             </ul>
         </details>
 
-        <Button class="mt-3 ml-auto flex items-center inset-ring inset-ring-warning-ring/20" variant="guarded" @click="$emit('retry')">
-            <RefreshCwIcon class="mr-1.5 size-4" />
-            {{ t(T, 'retry.label') }}
-        </Button>
+        <!-- Reload sits apart on the left: it is the heavier of the two, costing the whole page, so it is kept away
+             from the button the user reaches for first. Both are always offered, so a misjudged classification costs a
+             wasted click rather than leaving the user holding the one button that cannot help; which of them leads is
+             all the classification decides, and it says so through emphasis rather than by hiding the other. -->
+        <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+            <Button class="flex items-center" :variant="reloadLeads ? 'guarded' : 'outline'" @click="$emit('reload')">
+                <RefreshCwIcon class="mr-1.5 size-4" />
+                {{ t(T, 'reload.label') }}
+            </Button>
+
+            <Button v-if="canRetry" class="flex items-center" :variant="reloadLeads ? 'outline' : 'guarded'" @click="$emit('retry')">
+                <RepeatIcon class="mr-1.5 size-4" />
+                {{ t(T, 'retry.label') }}
+            </Button>
+        </div>
 
         <p class="mt-6! mb-0! border-t border-warning-ring/30 pt-2 text-xs leading-snug! text-warning-text">
             {{ t(T, 'console.message') }}
-            <span v-if="errorWasReported == null">{{ t(T, 'reporting.pending') }}</span>
-            <span v-else-if="errorWasReported">{{ t(T, 'reporting.succeeded') }}</span>
+            <span v-if="failure.wasReported.value == null">{{ t(T, 'reporting.pending') }}</span>
+            <span v-else-if="failure.wasReported.value">{{ t(T, 'reporting.succeeded') }}</span>
             <span v-else class="font-semibold">{{ t(T, 'reporting.failed') }}</span>
         </p>
     </div>

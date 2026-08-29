@@ -6,8 +6,9 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { EngineCallbackData, EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared/component/module/engine';
 
 // ── Local Framework
-import { reportAppError } from '@/observability/errorTracking';
-import { engineConfig, serviceLoadFailed, toolConfigs } from '@/state/session';
+import { raiseAppFailure } from '@/state/errors';
+import { throwOnFault } from '@/observability/faultInjection';
+import { engineConfig, toolConfigs } from '@/state/session';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -34,6 +35,7 @@ export async function useEngine(): Promise<EngineWorker> {
     const engineURL = `${ENGINE_STORAGE_URL_PREFIX}/engine_v${String(engineVersion)}/dpuse-engine.es.js`;
     let pendingEngineWorker: EngineWorker;
     try {
+        if (import.meta.env.DEV) throwOnFault('engine');
         const module = await import(/* @vite-ignore */ engineURL);
         const engineRuntime = module.engineRuntime as EngineRuntime;
         pendingEngineWorker = engineRuntime.invokeWorker((errorEvent: ErrorEvent) => {
@@ -41,12 +43,12 @@ export async function useEngine(): Promise<EngineWorker> {
         });
         await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: toolConfigs.value });
     } catch (error) {
-        // Nothing in the app works without the engine, and re-importing cannot fix a stale or unreachable build, so
-        // this drives the application-wide banner rather than a per-view notice.
-        serviceLoadFailed.value = true;
+        // Every engine-dependent operation funnels through this one load, and none of them can name the failure as
+        // precisely as this does, so it is raised at app level rather than left to whichever caller noticed first.
+        // Still thrown afterwards: the caller's own await has to reject, and its catch may add context of its own.
         const data = { engineURL, engineVersion, typeId: 'handled' };
         const appError = new AppError(`Failed to load engine v${String(engineVersion)}.`, 'dpuse-app.useEngine.useEngine', data, { cause: error });
-        void reportAppError(appError);
+        raiseAppFailure(appError, { capability: 'engine' });
         throw appError;
     }
     if (import.meta.env.DEV) console.info(`[dpuse:app] ✅  Engine 'dpuse-engine' v${String(engineVersion)} loaded.`);

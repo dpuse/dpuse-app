@@ -7,8 +7,7 @@ import { nextTick, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 import { AppError } from '@dpuse/dpuse-shared/errors';
 
 // ── Local Framework
-import { reportAppError } from '@/observability/errorTracking';
-import { classifyError, raiseFatalError, raiseStaleDeployFailure } from '@/state/errors';
+import { type AppFailure, isComponentLoaderErrorInfo, raiseFailure } from '@/state/errors';
 
 // ── Static Components
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
@@ -21,61 +20,51 @@ const { name } = defineProps<{ name: string }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const capturedError = shallowRef<AppError | undefined>();
-const capturedErrorWasReported = ref<boolean | undefined>(); // Undefined while the report is in flight.
+const capturedFailure = shallowRef<AppFailure | undefined>();
 const route = useRoute();
 const slotIsMounted = ref(true); // Cleared for one tick on retry, which is what forces the slot to remount.
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onErrorCaptured((error) => {
-    void captureError(error);
-    return false; // Handled here, so the global handler must not also treat it as an uncaught error.
+// Every failure caught here is displayed here, including a chunk this deployment can no longer fetch: the region is
+// where the loss actually happened, and 'ErrorDisplay' offers a refresh instead of a retry where a retry cannot work.
+// Always returns false: whether this boundary displays the failure or leaves it to the panel that owns it, it is
+// handled below this point and the global handler must not treat it as an uncaught error as well.
+onErrorCaptured((error, _instance, info) => {
+    // A lazy panel that failed to load is already being shown in its own place, by name, by its own
+    // 'ComponentLoadFailure'. Claiming it here would replace this whole region with a vaguer message for a failure
+    // that costs only the panel.
+    if (!isComponentLoaderErrorInfo(info)) {
+        const data = { region: name, typeId: 'componentRender' };
+        capturedFailure.value = raiseFailure(new AppError(`Failed to render ${name}.`, `dpuse.errorBoundary.${name}`, data, { cause: error }));
+    }
+    return false;
 });
 
 // An error belongs to the view that produced it; navigating away should not leave it stranded over the new one.
 watch(
     () => route.fullPath,
     () => {
-        if (capturedError.value) void handleRetry();
+        if (capturedFailure.value) void handleRetry();
     }
 );
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function handleRetry(): Promise<void> {
-    capturedError.value = undefined;
-    capturedErrorWasReported.value = undefined;
+    capturedFailure.value = undefined;
     slotIsMounted.value = false;
     await nextTick();
     slotIsMounted.value = true;
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-async function captureError(error: unknown): Promise<void> {
-    const data = { region: name, typeId: 'componentRender' };
-    const appError = new AppError(`Failed to render ${name}.`, `dpuse.errorBoundary.${name}`, data, { cause: error });
-
-    switch (classifyError(error, 'recoverable')) {
-        case 'staleDeploy':
-            raiseStaleDeployFailure(appError); // The refresh banner owns it — nothing is rendered in place.
-            return;
-        case 'fatal':
-            await raiseFatalError(appError);
-            return;
-        default:
-            capturedError.value = appError;
-            capturedErrorWasReported.value = await reportAppError(appError);
-    }
 }
 </script>
 
 <template>
     <!-- 'display: contents' keeps this a single-root component, so attributes still fall through, without adding a box
-         that would disturb the layout of whatever it wraps. -->
+         that would disturb the layout of whatever it wraps. It suits the covering display too: with no box of its own,
+         that display becomes a child of whatever laid the slot out and takes the space the slot would have had. -->
     <div class="contents" data-region="ErrorBoundary">
-        <ErrorDisplay v-if="capturedError" :error="capturedError" :error-was-reported="capturedErrorWasReported" @retry="handleRetry" />
+        <ErrorDisplay v-if="capturedFailure" covers-region :failure="capturedFailure" @retry="handleRetry" />
         <slot v-else-if="slotIsMounted" />
     </div>
 </template>

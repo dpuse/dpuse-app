@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue';
+import { onBeforeUnmount, onMounted, shallowRef, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -8,10 +8,10 @@ import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
 import type { D3NetworkView, Tool as D3Tool, NetworkDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
-import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import { toolConfigs } from '@/state/session';
 import { useConfigsReady } from '@/services/useConfigsReady';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
@@ -49,9 +49,7 @@ const data: NetworkDiagramData = {
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const container = useTemplateRef<HTMLDivElement>('container');
-const renderError = shallowRef<AppError | undefined>();
-// Undefined until the error report completes, so ErrorDisplay can distinguish reporting-pending from failed.
-const errorWasReported = ref<boolean | undefined>();
+const renderFailure = shallowRef<AppFailure | undefined>();
 const state: { view: D3NetworkView | null } = { view: null };
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -78,8 +76,7 @@ function handleRetry(): void {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function renderDiagram(): Promise<void> {
-    renderError.value = undefined;
-    errorWasReported.value = undefined;
+    renderFailure.value = undefined;
     try {
         await useConfigsReady();
         const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiser');
@@ -88,8 +85,7 @@ async function renderDiagram(): Promise<void> {
         state.view = null;
         if (container.value) state.view = await d3Tool.renderNetworkDiagram(data, container.value);
     } catch (error) {
-        renderError.value = new AppError('Failed to render network diagram.', 'dpuse.eventQueriesLayout.renderDiagram', { typeId: 'handled' }, { cause: error });
-        errorWasReported.value = await reportAppError(renderError.value);
+        renderFailure.value = raiseFailure(new AppError('Failed to render network diagram.', 'dpuse.eventQueriesLayout.renderDiagram', { typeId: 'handled' }, { cause: error }));
     }
 }
 </script>
@@ -100,12 +96,12 @@ async function renderDiagram(): Promise<void> {
 
         <Separator />
 
-        <ErrorDisplay v-if="renderError" :error="renderError" :error-was-reported="errorWasReported" @retry="handleRetry" />
+        <ErrorDisplay v-if="renderFailure" covers-region :failure="renderFailure" @retry="handleRetry" />
 
-        <div v-show="!renderError" class="px-4 py-2">
+        <div v-show="!renderFailure" class="px-4 py-2">
             <Button variant="outline" @click="handleAutoLayout">Auto-layout</Button>
         </div>
 
-        <div v-show="!renderError" ref="container" class="w-full flex-1" />
+        <div v-show="!renderFailure" ref="container" class="w-full flex-1" />
     </StudioLayout>
 </template>

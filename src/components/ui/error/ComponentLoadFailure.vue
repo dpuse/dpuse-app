@@ -1,13 +1,12 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ref, shallowRef, watch } from 'vue';
+import { shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 
 // ── Local Framework
-import { reportAppError } from '@/observability/errorTracking';
-import { classifyError, raiseStaleDeployFailure } from '@/state/errors';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
@@ -21,18 +20,27 @@ import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 const { error, name, retry } = defineProps<{ error: unknown; name?: string; retry?: () => void }>();
 
 // 'defineAsyncComponent' also passes 'fail' and 'attempts', which are not used here. Without this they would land on
-// the root as attributes, and on the stale-deployment path there is no root element to receive them.
+// the root as attributes, and there is no root element to receive them until a failure has been captured.
 defineOptions({ inheritAttrs: false });
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const loadError = shallowRef<AppError | undefined>();
-const loadErrorWasReported = ref<boolean | undefined>(); // Undefined while the report is in flight.
+const loadFailure = shallowRef<AppFailure | undefined>();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Watched rather than run once: a failed retry re-renders this component with a new error rather than remounting it.
-watch(() => error, handleError, { immediate: true });
+// A chunk this deployment can no longer fetch is displayed here like any other failure — this is the space the missing
+// component would have occupied, so it is where its absence is worth explaining, and 'ErrorDisplay' offers the refresh
+// that is the only thing which can actually fix it.
+watch(
+    () => error,
+    (newError) => {
+        const data = { componentName: name ?? 'Unknown', typeId: 'componentLoad' };
+        loadFailure.value = raiseFailure(new AppError(`Failed to load the ${name ?? 'unknown'} component.`, 'dpuse.componentLoadFailure', data, { cause: newError }));
+    },
+    { immediate: true }
+);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -43,25 +51,10 @@ function handleRetry(): void {
     }
     location.reload();
 }
-
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-async function handleError(newError: unknown): Promise<void> {
-    const data = { componentName: name ?? 'Unknown', typeId: 'componentLoad' };
-    const appError = new AppError(`Failed to load the ${name ?? 'unknown'} component.`, 'dpuse.componentLoadFailure', data, { cause: newError });
-
-    // A stale deployment cannot be fixed by anything this component could offer, and the component it replaces may be
-    // in a space too small to explain that, so the app-wide refresh banner takes it and nothing renders here.
-    if (classifyError(newError, 'recoverable') === 'staleDeploy') {
-        raiseStaleDeployFailure(appError);
-        return;
-    }
-
-    loadError.value = appError;
-    loadErrorWasReported.value = await reportAppError(appError);
-}
 </script>
 
 <template>
-    <ErrorDisplay v-if="loadError" :error="loadError" :error-was-reported="loadErrorWasReported" @retry="handleRetry" />
+    <!-- Covers the region: this stands in for a panel that never arrived, so the space it would have occupied is
+         exactly what has failed. -->
+    <ErrorDisplay v-if="loadFailure" covers-region :failure="loadFailure" @retry="handleRetry" />
 </template>

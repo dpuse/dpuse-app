@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, nextTick, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -13,6 +13,7 @@ import type { PresenterInterface } from '@dpuse/dpuse-shared/component/module/pr
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import { useConfigsReady } from '@/services/useConfigsReady';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 import { type LocalisedReference, localiseReference } from '@dpuse/dpuse-shared/locale';
 import { presenterConfigs, toolConfigs } from '@/state/session';
 
@@ -43,13 +44,10 @@ const presenterByPresentationReference = new WeakMap<LocalisedReference<Componen
 
 // A presenter that fails to load only costs its own presentations, so the list still shows whatever else loaded and the
 // failure is surfaced as a notice above it rather than replacing the page.
-const loadError = shallowRef<AppError | undefined>();
-// Undefined until the error report completes, so the notice can distinguish reporting-pending from failed.
-const loadErrorWasReported = ref<boolean | undefined>();
+const loadFailure = shallowRef<AppFailure | undefined>();
 
 // A render failure is confined to the detail pane, so it is held separately and presented there.
-const renderError = shallowRef<AppError | undefined>();
-const renderErrorWasReported = ref<boolean | undefined>();
+const renderFailure = shallowRef<AppFailure | undefined>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -80,8 +78,7 @@ function handleRetryRender(): void {
 }
 
 async function handleSelectPresentation(presentationReference: LocalisedReference<ComponentReferenceConfig> | undefined): Promise<void> {
-    renderError.value = undefined;
-    renderErrorWasReported.value = undefined;
+    renderFailure.value = undefined;
     activePresentationReference.value = presentationReference;
     if (!activePresentationReference.value) return;
     const presenter = presenterByPresentationReference.get(activePresentationReference.value);
@@ -94,8 +91,7 @@ async function handleSelectPresentation(presentationReference: LocalisedReferenc
         await presenter.render(activePresentationReference.value, container.value);
     } catch (error) {
         const data = { presentationReferenceId: activePresentationReference.value.id };
-        renderError.value = new AppError('Failed to render presentation.', 'dpuse.presentationsLayout.handleSelectPresentation', data, { cause: error });
-        renderErrorWasReported.value = await reportAppError(renderError.value);
+        renderFailure.value = raiseFailure(new AppError('Failed to render presentation.', 'dpuse.presentationsLayout.handleSelectPresentation', data, { cause: error }));
     }
 }
 
@@ -103,8 +99,7 @@ async function handleSelectPresentation(presentationReference: LocalisedReferenc
 
 // Each presenter is loaded independently so that one unavailable module costs only its own presentations.
 async function loadPresenters(): Promise<void> {
-    loadError.value = undefined;
-    loadErrorWasReported.value = undefined;
+    loadFailure.value = undefined;
     presenters.length = 0;
     presentationReferences.value = undefined;
 
@@ -138,12 +133,9 @@ async function loadPresenters(): Promise<void> {
 
     // Individual failures are reported above; this one drives the notice, so it names the presenters rather than a cause.
     const data = { failedPresenterIds };
-    loadError.value = new AppError(
-        `Failed to load ${String(failedPresenterIds.length)} of ${String(presenterConfigs.value.length)} presenters.`,
-        'dpuse.presentationsLayout.loadPresenters',
-        data
+    loadFailure.value = raiseFailure(
+        new AppError(`Failed to load ${String(failedPresenterIds.length)} of ${String(presenterConfigs.value.length)} presenters.`, 'dpuse.presentationsLayout.loadPresenters', data)
     );
-    loadErrorWasReported.value = await reportAppError(loadError.value);
 }
 </script>
 
@@ -153,7 +145,7 @@ async function loadPresenters(): Promise<void> {
 
         <Separator />
 
-        <ErrorDisplay v-if="loadError" class="mx-4 mt-2" :error="loadError" :error-was-reported="loadErrorWasReported" @retry="handleRetryLoad" />
+        <ErrorDisplay v-if="loadFailure" class="mx-4 mt-2" :failure="loadFailure" @retry="handleRetryLoad" />
 
         <GridDetailPanel
             :active-item="activePresentationReference"
@@ -168,8 +160,8 @@ async function loadPresenters(): Promise<void> {
             </template>
 
             <template #detail>
-                <ErrorDisplay v-if="renderError" :error="renderError" :error-was-reported="renderErrorWasReported" @retry="handleRetryRender" />
-                <div v-show="!renderError" ref="container" class="dpuse-prose overflow-y-scroll overscroll-y-none px-4 pt-4" />
+                <ErrorDisplay v-if="renderFailure" covers-region :failure="renderFailure" @retry="handleRetryRender" />
+                <div v-show="!renderFailure" ref="container" class="dpuse-prose overflow-y-scroll overscroll-y-none px-4 pt-4" />
             </template>
 
             <template #no-selection>

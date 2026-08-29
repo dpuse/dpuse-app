@@ -1,4 +1,5 @@
 // ── DPUse Framework
+import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbook';
@@ -8,6 +9,8 @@ import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/prese
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
 // ── Local Framework
+import { raiseAppFailure } from '@/state/errors';
+import { hasFault } from '@/observability/faultInjection';
 import { configRetrievalFailed, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -63,6 +66,13 @@ export function initialise(): void {
 // ── Helpers - WebSocket ──────────────────────────────────────────────────────────────────────────────────────────────
 
 function connectToWebSocket(): WebSocket | undefined {
+    // Skips straight to the give-up path rather than making the tester wait out five real reconnect delays.
+    if (import.meta.env.DEV && hasFault('config-socket')) {
+        state.reconnectAttempts = MAX_RECONNECT_ATTEMPTS;
+        scheduleReconnect();
+        return undefined;
+    }
+
     try {
         const url = `wss://${DPU_API_HOST}/configs/websocket`;
         const webSocket = new WebSocket(url);
@@ -119,14 +129,19 @@ function connectToWebSocket(): WebSocket | undefined {
 }
 
 // Retries a limited number of times (with the reconnected socket's 'open' event resetting the counter), then gives
-// up and surfaces configRetrievalFailed rather than retrying silently forever with no way for the user to know
-// every config list is stuck loading.
+// up and surfaces the failure rather than retrying silently forever with no way for the user to know every config
+// list is stuck loading.
 function scheduleReconnect(): void {
     if (state.isWebSocketShutdown) return;
     state.reconnectAttempts++;
     if (state.reconnectAttempts > MAX_RECONNECT_ATTEMPTS) {
         if (import.meta.env.DEV) console.info('[dpuse:app] ❌  Configuration WebSocket reconnect attempts exhausted — giving up.');
+        // The flag releases the awaits gated on retrieval; the failure is what tells the user why the lists they are
+        // looking at came back empty. Raised at app level because the lists are spread across several panels and none
+        // of them owns the connection.
         configRetrievalFailed.value = true;
+        const data = { host: DPU_API_HOST, reconnectAttempts: state.reconnectAttempts - 1, typeId: 'handled' };
+        raiseAppFailure(new AppError('Unable to connect to DPUse.', 'dpuse-app.configMonitor.scheduleReconnect', data), { capability: 'configuration' });
         return;
     }
     setTimeout(() => {

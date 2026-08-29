@@ -9,7 +9,8 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 // ── Local Framework
 import '@/assets/main.css';
 import { createAppRouter } from '@/router';
-import { raiseAppLevelError, raiseStaleDeployFailure } from '@/state/errors';
+import { isComponentLoaderErrorInfo, raiseAppFailure, reportStaleDeployFailure } from '@/state/errors';
+import { hasFault, throwOnFault } from '@/observability/faultInjection';
 import { reportAppError, reportFatalError } from '@/observability/errorTracking';
 
 // ── Static Components
@@ -18,6 +19,7 @@ import App from '@/App.vue';
 // ── App Bootstrap ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 try {
+    if (import.meta.env.DEV) throwOnFault('bootstrap'); // Before anything mounts, so the raw DOM banner is what answers.
     z.config({ jitless: true }); // TODO: Required by Vercel AI SDK. Remove if we standardise on Tanstack AI.
 
     // Add global error handlers.
@@ -41,18 +43,18 @@ try {
     });
 
     // Vite raises this when a dynamic import cannot be fetched, which in production means the running app is out of
-    // date and the chunks it is asking for have been replaced by a newer deployment. Only a refresh clears it, so it
-    // goes straight to the service failure banner and is never rendered inside a panel — a panel may be exactly what
-    // failed to load.
+    // date and the chunks it is asking for have been replaced by a newer deployment. Reported but not displayed: Vite
+    // preloads chunks for screens the user may never open, so on its own this has cost them nothing. Whatever actually
+    // needs the chunk fails in its own right, and shows it in the region that was waiting for it.
     //
     // Deliberately does not call 'preventDefault': Vite rethrows the original error only when the event is left
     // alone. Prevent it and Vite's 'baseModule().catch(handlePreloadError)' returns normally, so the failed import
     // resolves with 'undefined' rather than rejecting, so 'defineAsyncPanel' never renders its error component.
-    // Letting it throw keeps that path working; 'raiseStaleDeployFailure' drops the duplicate report that arrives
+    // Letting it throw keeps that path working; 'reportStaleDeployFailure' drops the duplicate report that arrives
     // once the same failure is caught downstream.
     addEventListener('vite:preloadError', (event): void => {
         const data = { typeId: 'vitePreloadError' };
-        raiseStaleDeployFailure(new AppError('Failed to load part of the app.', 'dpuse.main', data, { cause: event.payload }));
+        reportStaleDeployFailure(new AppError('Failed to load part of the app.', 'dpuse.main', data, { cause: event.payload }));
     });
 
     if (trustedTypes != null) {
@@ -81,14 +83,30 @@ try {
     // Create and mount application.
     const app = createApp(App);
     app.config.errorHandler = (error, instance, info): void => {
+        // A lazy panel that failed to load is already displayed and reported by its own 'ComponentLoadFailure'. Vue
+        // reports it here as well, so without this every panel failure arrives twice: once precisely, in the panel's
+        // own place, and once as 'Unhandled Vue error.' across the top of an app that is otherwise working.
+        if (isComponentLoaderErrorInfo(info)) return;
+
         // Reaching here means no 'ErrorBoundary' contained the error, so there is no region left that could show it in
-        // place — it is treated as fatal unless the error itself says otherwise.
+        // place. It goes to the app-level strip instead, which reports it and shows it whole — not over the app, which
+        // is still standing and still the user's.
         const data = { componentName: instance?.$.type.name ?? undefined, info, typeId: 'unhandledVueRuntime' };
         const cause = error ?? 'Unknown Vue runtime error.';
-        raiseAppLevelError(new AppError('Unhandled Vue error.', 'dpuse.main', data, { cause }));
+        raiseAppFailure(new AppError('Unhandled Vue error.', 'dpuse.main', data, { cause }));
     };
     app.use(createAppRouter());
     app.mount('#app');
+
+    // A preload nobody asked for. Raised here rather than at a call site because Vite is what normally fires it, and
+    // deferred a tick so the app is mounted and the tester can see that nothing appears on screen.
+    if (import.meta.env.DEV && hasFault('preload')) {
+        setTimeout(() => {
+            const event = new Event('vite:preloadError');
+            Object.assign(event, { payload: new TypeError('Failed to fetch dynamically imported module: simulated preload failure.') });
+            dispatchEvent(event);
+        }, 0);
+    }
 } catch (error) {
     reportFatalError(error);
 }

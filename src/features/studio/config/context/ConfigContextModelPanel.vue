@@ -62,7 +62,7 @@ const { modelReference } = defineProps<Properties>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const { markedTool, error: markedToolError, errorWasReported: markedToolErrorWasReported, initialise: initialiseMarkedTool } = useMarkedTool();
+const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
 
 const modelReferenceDescription = ref('');
 const modelReferenceLabel = ref('');
@@ -119,7 +119,7 @@ function localiseModel(model: Model): LocalisedModel {
 <template>
     <div class="dpuse-prose flex-1 overflow-y-auto overscroll-y-none px-4 pb-(--vertical-scroll-bottom-screen-inset)">
         <div class="max-w-prose">
-            <ErrorDisplay v-if="markedToolError" class="mt-4" :error="markedToolError" :error-was-reported="markedToolErrorWasReported" @retry="handleRetryMarkedTool" />
+            <ErrorDisplay v-if="markedToolFailure" class="mt-4" :failure="markedToolFailure" @retry="handleRetryMarkedTool" />
 
             <!-- Header -->
             <h1 class="flex flex-none items-center justify-between gap-x-3 pt-6">

@@ -1,9 +1,8 @@
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
 import { mount } from '@vue/test-utils';
 import { reportAppError } from '@/observability/errorTracking';
-import { serviceLoadFailed } from '@/state/session';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { clearFatalError, fatalError } from '@/state/errors';
+import { appFailures, clearAppFailures } from '@/state/errors';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { defineComponent, nextTick } from 'vue';
 
@@ -45,8 +44,7 @@ async function mountBoundary(component: ReturnType<typeof defineComponent>): Pro
 
 describe('ErrorBoundary', () => {
     beforeEach(() => {
-        clearFatalError();
-        serviceLoadFailed.value = false;
+        clearAppFailures();
         vi.mocked(reportAppError).mockClear();
     });
 
@@ -57,7 +55,7 @@ describe('ErrorBoundary', () => {
         expect(wrapper.find('[data-region="ErrorDisplay"]').exists()).toBe(true);
         expect(wrapper.find('[data-region="TestChild"]').exists()).toBe(false);
         expect(reportAppError).toHaveBeenCalledOnce();
-        expect(fatalError.value).toBeUndefined(); // Contained here, so the app-level surface stays out of it.
+        expect(appFailures.value).toStrictEqual([]); // Contained here, so the app-level strip stays out of it.
     });
 
     it('remounts the slot on retry', async () => {
@@ -86,11 +84,11 @@ describe('ErrorBoundary', () => {
         expect(wrapper.find('[data-region="ErrorDisplay"]').exists()).toBe(false);
     });
 
-    it('hands a stale deployment to the refresh banner instead of rendering in place', async () => {
+    it('shows a stale chunk in place like any other failure, since only this region lost anything', async () => {
         const { component } = buildChild('Failed to fetch dynamically imported module: /assets/Panel-a1b2c3.js');
         const { wrapper } = await mountBoundary(component);
 
-        expect(serviceLoadFailed.value).toBe(true);
-        expect(wrapper.find('[data-region="ErrorDisplay"]').exists()).toBe(false);
+        expect(wrapper.find('[data-region="ErrorDisplay"]').exists()).toBe(true);
+        expect(appFailures.value).toStrictEqual([]); // The rest of the app kept working, so nothing is raised over it.
     });
 });

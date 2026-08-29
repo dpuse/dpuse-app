@@ -6,8 +6,9 @@ import { createRouter, createWebHistory, isNavigationFailure, NavigationFailureT
 import { AppError } from '@dpuse/dpuse-shared/errors';
 
 // ── Local Framework
-import { raiseAppLevelError } from '@/state/errors';
+import { raiseAppFailure } from '@/state/errors';
 import { type AsyncPanelSimulation, VISIBLE_DELAY_MS } from '@/utilities/index.ts';
+import { throwOnFault, throwOnStaleFault } from '@/observability/faultInjection';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -112,15 +113,15 @@ export const createAppRouter = (): Router => {
         clearNavigationPending();
     });
 
-    // A failed navigation has no view to render the error into, so it goes to the app-level handler: a route chunk
-    // that will not fetch means a stale deployment, anything else is fatal.
+    // A failed navigation never reached a view, so there is no region that could render the error and it goes to the
+    // app-level strip.
     router.onError((error, to) => {
         clearNavigationPending();
 
-        // The URL never changed, so the banner's refresh would otherwise reload the page the user was leaving. Passing
-        // the abandoned destination lets it finish the journey instead.
+        // The URL never changed, so a refresh would otherwise reload the page the user was leaving. Passing the
+        // abandoned destination lets it finish the journey instead.
         const data = { typeId: 'navigation' };
-        raiseAppLevelError(new AppError('Navigation failed.', 'dpuse.router', data, { cause: error }), to.fullPath);
+        raiseAppFailure(new AppError('Navigation failed.', 'dpuse.router', data, { cause: error }), { retryPath: to.fullPath });
     });
 
     return router;
@@ -184,6 +185,10 @@ function defineLazyLoader(label: string, depth: number, loader: () => Promise<Co
 // stale deployment, exactly as the real thing would be.
 async function loadRouteComponent(label: string, loader: () => Promise<Component>, simulation?: AsyncPanelSimulation): Promise<Component> {
     try {
+        if (import.meta.env.DEV) {
+            throwOnFault('route', label, `Simulated ${label} route load failure.`);
+            throwOnStaleFault('route-stale', label);
+        }
         if (simulation && import.meta.env.DEV) {
             const { delayMs = 0, failsToLoad = false } = simulation;
             if (delayMs > 0) await new Promise<void>((resolve) => setTimeout(resolve, delayMs));

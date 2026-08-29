@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { onMounted, ref, shallowRef, useTemplateRef } from 'vue';
+import { onMounted, shallowRef, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -8,7 +8,7 @@ import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
 import type { Tool as D3Tool, ErdDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
-import { reportAppError } from '@/observability/errorTracking';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 import { toolConfigs } from '@/state/session';
 
 // ── Static Components
@@ -60,9 +60,7 @@ const ORDER_CONSTRAINTS = [
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const container = useTemplateRef<HTMLDivElement>('container');
-const renderError = shallowRef<AppError | undefined>();
-// Undefined until the error report completes, so ErrorDisplay can distinguish reporting-pending from failed.
-const errorWasReported = ref<boolean | undefined>();
+const renderFailure = shallowRef<AppFailure | undefined>();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -79,24 +77,22 @@ function handleRetry(): void {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function renderDiagram(): Promise<void> {
-    renderError.value = undefined;
-    errorWasReported.value = undefined;
+    renderFailure.value = undefined;
     try {
         const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiser');
         if (container.value) {
             await d3Tool.renderErdDiagram(ERD_DATA, container.value, { orderConstraints: ORDER_CONSTRAINTS });
         }
     } catch (error) {
-        renderError.value = new AppError('Failed to render diagram', 'dpuse.contextErdDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error });
-        errorWasReported.value = await reportAppError(renderError.value);
+        renderFailure.value = raiseFailure(new AppError('Failed to render diagram', 'dpuse.contextErdDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error }));
     }
 }
 </script>
 
 <template>
     <ScrollArea class="min-h-0 flex-1">
-        <ErrorDisplay v-if="renderError" :error="renderError" :error-was-reported="errorWasReported" @retry="handleRetry" />
+        <ErrorDisplay v-if="renderFailure" covers-region :failure="renderFailure" @retry="handleRetry" />
 
-        <div v-show="!renderError" ref="container" class="p-6" />
+        <div v-show="!renderFailure" ref="container" class="p-6" />
     </ScrollArea>
 </template>

@@ -5,11 +5,12 @@ import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities/index.ts';
+import { initialiseServices } from '@/state/session';
 import { navigationPendingDepth } from '@/router';
 import { t } from '@/state/locale';
+import { throwOnFault } from '@/observability/faultInjection';
+import { appFailures, dismissAppFailure } from '@/state/errors';
 import { assistantPaneIsVisible, contentScrollPosition, sessionMenuIsOpen, studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
-import { configRetrievalFailed, initialiseServices, serviceLoadFailed } from '@/state/session';
-import { fatalError, fatalErrorWasReported, serviceFailureComponentName, serviceFailureRetryPath } from '@/state/errors';
 
 // ── Static Components
 import AssistantLogo from '@/components/branding/AssistantLogo.vue'; // Always visible.
@@ -17,9 +18,8 @@ import Button from '@/components/ui/button/Button.vue'; // Required by studio an
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue'; // Stands in for a studio layout mid-navigation.
 import DialogModal from '@/components/ui/dialog/DialogModal.vue'; // Renders before the dialog it frames.
 import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
-import ErrorDetail from '@/components/ui/error/ErrorDetail.vue'; // Can be no delay when rendering.
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue'; // Can be no delay when rendering.
 import LoadingMask from '@/components/ui/LoadingMask.vue'; // Can be no delay when rendering.
-import ServiceFailureBanner from '@/components/ui/error/ServiceFailureBanner.vue'; // Can be no delay when rendering.
 import SessionButton from '@/features/session/SessionButton.vue'; // Always visible.
 
 // ── Dynamic Components
@@ -54,18 +54,7 @@ const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
 
 const T = {
     'wb.toggle.label.aria': { en: 'Toggle studio panel', es: 'Alternar panel de estudio' },
-    'k.toggle.label.aria': { en: 'Toggle assistant panel', es: 'Alternar el panel asistente' },
-    'configRetrievalFailed.message': { en: 'Unable to connect to DPUse. Please refresh the page.', es: 'No se puede conectar con DPUse. Actualice la página.' },
-    'serviceLoadFailed.message': {
-        en: 'Part of DPUse failed to load. You may be running an outdated version of the app. Please refresh the page.',
-        es: 'No se pudo cargar una parte de DPUse. Es posible que esté utilizando una versión desactualizada de la aplicación. Actualice la página.'
-    },
-    // Used when the failure recorded which component it was loading. The bare message covers the rest, such as a chunk
-    // Vite was preloading that no screen had asked for.
-    'serviceLoadFailed.named.message': {
-        en: '{name} failed to load. You may be running an outdated version of the app. Please refresh the page.',
-        es: 'No se pudo cargar {name}. Es posible que esté utilizando una versión desactualizada de la aplicación. Actualice la página.'
-    }
+    'k.toggle.label.aria': { en: 'Toggle assistant panel', es: 'Alternar el panel asistente' }
 };
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -84,31 +73,13 @@ const studioOptionBarIsVisible = ref(false);
 const studioPaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
 const studioPaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
 
-// ── Derived State - Service Failures ─────────────────────────────────────────────────────────────────────────────────
-
-// Empty when nothing has failed, which is also what hides the banner. Only one message is ever shown: both failures
-// end in the same refresh, so stacking them would just repeat the instruction. Connectivity comes first because a
-// service module cannot load while the app is offline either, making it the more likely root cause of the pair.
-const serviceFailureMessage = computed(() => {
-    if (configRetrievalFailed.value) return t(T, 'configRetrievalFailed.message');
-    if (!serviceLoadFailed.value) return '';
-    const name = serviceFailureComponentName.value;
-    return name == null ? t(T, 'serviceLoadFailed.message') : t(T, 'serviceLoadFailed.named.message', { name });
-});
-
 // ── Derived State - Dialogs ──────────────────────────────────────────────────────────────────────────────────────────
 
 const activeDialogId = computed(() => {
     const dialogId = String(route.query.dlg ?? '');
     return Object.hasOwn(DIALOG_CONFIGS, dialogId) ? (dialogId as keyof typeof DIALOG_CONFIGS) : undefined;
 });
-// Suppressed at a dead end. A dialog is in the browser's top layer, above every z-index, so an open one would cover
-// the very banner telling the user the app can only be recovered by refreshing.
-const activeDialogConfig = computed(() => {
-    if (appIsUnrecoverable.value || !activeDialogId.value) return;
-    return DIALOG_CONFIGS[activeDialogId.value];
-});
-const appIsUnrecoverable = computed(() => configRetrievalFailed.value || serviceLoadFailed.value || fatalError.value != null);
+const activeDialogConfig = computed(() => (activeDialogId.value ? DIALOG_CONFIGS[activeDialogId.value] : undefined));
 const dialogIsActive = computed(() => activeDialogConfig.value != null);
 const modalIsActive = computed(() => dialogIsActive.value || sessionMenuIsOpen.value);
 
@@ -155,6 +126,8 @@ router
     });
 
 onMounted(() => {
+    // Thrown from the root component, which no 'ErrorBoundary' wraps, so it reaches 'app.config.errorHandler'.
+    if (import.meta.env.DEV) throwOnFault('vue');
     initialiseServices();
 });
 
@@ -165,13 +138,6 @@ watch(viewportIsWide, (newViewportIsWide) => {
 watch(paneSplitterPercent, (newPaneSplitterPercent) => {
     localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent));
 });
-
-// ── Event Handlers - Fatal Errors ─────────────────────────────────────────────────────────────────────────────────
-
-// A fatal error means nothing was left that could contain it, so the only retry available is the whole app.
-function handleReloadApp(): void {
-    location.reload();
-}
 
 // ── Event Handlers - Studio Option Bar ────────────────────────────────────────────────────────────────────────────
 
@@ -293,31 +259,31 @@ function establishPaneSplitterPercent(): number {
           z-50: LoadingMask (global — navigation and async component loads)
           z-51: SessionMenu
           Dialogs are not listed: 'showModal()' puts them in the browser's top layer, above every z-index here.
-          z-75: Fatal error (unhandled error with no region left to contain it)
-          z-80: ServiceFailureBanner (connectivity or service module load failure)
+          z-80: App-level failures (a failure with no region of its own)
           -->
 
         <!-- Mask - Semi-transparent mask over the top safe area that fades out content scrolling beneath it. -->
         <!-- TODO: Currently has no effect as headers are always visible. It is proposed that long scrolling content like presentations would hide headers and float toggles. -->
         <div class="fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-surface/80 via-25% to-surface/95" data-region="topFadeOut" />
 
-        <!-- Configuration WebSocket permanently failed to connect, or a service module failed to load. Overrides everything else until the page is refreshed. -->
-        <Transition name="action-fade">
-            <ServiceFailureBanner
-                v-if="serviceFailureMessage"
-                class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-80"
-                :message="serviceFailureMessage"
-                :retry-path="serviceFailureRetryPath"
-            />
-        </Transition>
-
-        <!-- An error no 'ErrorBoundary' contained, so there is no region left that could show it in place. Sits below
-             the service failure banner, which is the one dead end that outranks it. -->
-        <Transition name="action-fade">
-            <div v-if="fatalError" class="fixed inset-0 z-75 flex items-center justify-center bg-overlay p-4" data-region="FatalError">
-                <ErrorDetail class="max-h-full w-full max-w-sm overflow-y-auto" :error="fatalError" :error-was-reported="fatalErrorWasReported" @retry="handleReloadApp" />
-            </div>
-        </Transition>
+        <!-- Failures with no region of their own: an uncaught error, a navigation that never reached a view, a service
+             the app loads for itself. Stacked as strips rather than an overlay — the app underneath is still standing
+             and still the user's, so nothing here blocks it. -->
+        <div class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-80 flex flex-col items-center" data-region="AppFailures">
+            <TransitionGroup name="action-fade">
+                <!-- 'can-retry' is false because nothing here owns a retry: the service that failed is loaded once at
+                     startup, and the error that got this far was never contained by a region that could try again. -->
+                <ErrorDisplay
+                    v-for="failure in appFailures"
+                    :key="failure.capability ?? failure.error.message"
+                    :can-retry="false"
+                    is-dismissible
+                    :failure="failure"
+                    variant="strip"
+                    @dismiss="dismissAppFailure(failure)"
+                />
+            </TransitionGroup>
+        </div>
 
         <!-- Modal scrim. Loading is shown by each region's own spinner, so this no longer tracks navigation. -->
         <LoadingMask class="z-50" :is-dialog-active="dialogIsActive" :is-modal-active="modalIsActive" />

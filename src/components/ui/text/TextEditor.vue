@@ -10,7 +10,7 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
-import { reportAppError } from '@/observability/errorTracking';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 import { useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Static Components
@@ -35,19 +35,16 @@ const editor = shallowRef<Squire>();
 const editorId = id ?? useId();
 const labelId = useId();
 const internalUpdatePending = ref(false);
-const { markedTool, error: markedToolError, errorWasReported: markedToolErrorWasReported, initialise: initialiseMarkedTool } = useMarkedTool();
+const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
 const parentCanScroll = ref(true);
-const editorError = shallowRef<AppError | undefined>();
-// Undefined until the error report completes, so ErrorDisplay can distinguish reporting-pending from failed.
-const editorErrorWasReported = ref<boolean | undefined>();
+const editorFailure = shallowRef<AppFailure | undefined>();
 const scrollableAncestorObserver = shallowRef<ResizeObserver>();
 const textValue = defineModel<string>({ required: true });
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Either failure leaves the editor unusable, so ErrorDisplay presents whichever one occurred.
-const renderError = computed(() => editorError.value ?? markedToolError.value);
-const errorWasReported = computed(() => (editorError.value ? editorErrorWasReported.value : markedToolErrorWasReported.value));
+const renderFailure = computed(() => editorFailure.value ?? markedToolFailure.value);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -138,8 +135,7 @@ function findScrollableAncestor(element: HTMLElement | null): HTMLElement | null
 }
 
 async function initialiseEditor(): Promise<void> {
-    editorError.value = undefined;
-    editorErrorWasReported.value = undefined;
+    editorFailure.value = undefined;
     try {
         let editorInstance = editor.value;
         if (!editorInstance) {
@@ -185,8 +181,7 @@ async function initialiseEditor(): Promise<void> {
         const tool = await initialiseMarkedTool();
         if (tool) editorInstance.setHTML(tool.render(textValue.value));
     } catch (error) {
-        editorError.value = new AppError('Failed to initialise text editor.', 'dpuse.textEditor.initialiseEditor', { typeId: 'handled' }, { cause: error });
-        editorErrorWasReported.value = await reportAppError(editorError.value);
+        editorFailure.value = raiseFailure(new AppError('Failed to initialise text editor.', 'dpuse.textEditor.initialiseEditor', { typeId: 'handled' }, { cause: error }));
     }
 }
 
@@ -203,10 +198,10 @@ function updateParentCanScroll(ancestor: HTMLElement): void {
             {{ label }}
         </div>
 
-        <ErrorDisplay v-if="renderError" :error="renderError" :error-was-reported="errorWasReported" @retry="handleRetry" />
+        <ErrorDisplay v-if="renderFailure" covers-region :failure="renderFailure" @retry="handleRetry" />
 
         <div
-            v-show="!renderError"
+            v-show="!renderFailure"
             class="flex flex-1 flex-col overflow-hidden rounded-md bg-surface outline-1 -outline-offset-1 outline-separator focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-accent"
         >
             <!-- Toolbar -->

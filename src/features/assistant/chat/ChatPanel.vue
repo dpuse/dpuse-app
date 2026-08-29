@@ -40,7 +40,7 @@ const input = ref(PROMPT);
 const scrollElement = ref<HTMLElement | null>(null);
 const messages = ref<AssistantChatMessage[]>([]);
 const status = ref('idle');
-const { markedTool, error: markedToolError, errorWasReported: markedToolErrorWasReported, initialise: initialiseMarkedTool } = useMarkedTool();
+const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
 const inputContainerHeight = ref(0);
 
 const sessionReference = useTemplateRef<{ sendMessage: (text: string) => void }>('sessionReference');
@@ -109,8 +109,8 @@ function handleRetryMarkedTool(): void {
     <div class="relative flex min-h-0 flex-1 flex-col">
         <component :is="SessionComponent" ref="sessionReference" :model-config="modelConfig" @messages-change="messages = $event" @status-change="status = $event" />
 
-        <div v-if="markedToolError" class="mx-4 border-b border-separator">
-            <ErrorDisplay class="my-2" :error="markedToolError" :error-was-reported="markedToolErrorWasReported" @retry="handleRetryMarkedTool" />
+        <div v-if="markedToolFailure" class="mx-4 border-b border-separator">
+            <ErrorDisplay class="my-2" :failure="markedToolFailure" @retry="handleRetryMarkedTool" />
         </div>
 
         <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-bottom="scrollPaddingBottom" @initialised="handleScrollAreaInitialised">
@@ -160,10 +160,10 @@ function handleRetryMarkedTool(): void {
         <div
             ref="inputContainer"
             :class="[
-                'absolute right-4 bottom-0 left-16 mb-4 flex w-[min(65ch,calc(100%-80px))] flex-none flex-col bg-surface shadow-md',
+                'absolute right-4 bottom-0 left-16 mb-4 flex flex-none flex-col bg-surface shadow-md',
                 'rounded-2xl border border-separator',
                 'focus-within:ring-1 focus-within:ring-selected-ring',
-                'md:inset-x-0 md:mx-auto'
+                'md:inset-x-0 md:mx-auto md:w-[min(65ch,calc(100%-32px))]'
             ]"
         >
             <TextArea v-model="input" class="max-h-40 rounded-t-2xl" placeholder="Ask a question" @keydown.enter.exact.prevent="handleSendMessage" />

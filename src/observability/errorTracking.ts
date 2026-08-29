@@ -2,6 +2,7 @@
 import { type AppError, type SerialisedError, serialiseError } from '@dpuse/dpuse-shared/errors';
 
 // ── Local Framework
+import { hasFault } from '@/observability/faultInjection';
 import { trackEventImmediately } from '@/observability/eventTracking';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -35,6 +36,8 @@ export function reportFatalError(error: unknown): void {
 export async function reportAppError(error: AppError): Promise<boolean> {
     const serialisedErrors = serialiseError(error);
     logErrorToConsole(serialisedErrors);
+    // Combine with any other fault to see how a display words an undelivered report.
+    if (import.meta.env.DEV && hasFault('report')) return false;
     return trackEventImmediately('error', { errors: serialisedErrors });
 }
 

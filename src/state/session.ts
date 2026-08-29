@@ -17,7 +17,9 @@ import { type LocaleId, localiseConfig, type LocalisedConfig } from '@dpuse/dpus
 
 // ── Local Framework
 import { localeId } from './locale';
+import { raiseAppFailure } from '@/state/errors';
 import { reportAppError } from '@/observability/errorTracking';
+import { throwOnFault } from '@/observability/faultInjection';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -70,11 +72,6 @@ export const configRetrievalSucceeded = ref(false);
 // the UI show a real "couldn't connect" message instead of leaving every config list stuck in its busy state
 // forever. Reset to false as soon as a connection attempt succeeds.
 export const configRetrievalFailed = ref(false);
-// True once a service module has failed to load — the Hanko SDK, the account monitor, or the engine. Every one of
-// those is a stale-deployment or offline-network failure that only a page reload can clear, so a single flag drives
-// a single banner rather than one flag and one message per service. Configuration retrieval keeps its own flag
-// because that one also has to release the awaits gated on it.
-export const serviceLoadFailed = ref(false);
 // True once accountMonitor has delivered at least one message for the current session. Cleared on sign-out
 // alongside connectionAccountConfigs, since neither is meaningful while signed out.
 export const accountConfigsAreRetrieved = ref(false);
@@ -192,13 +189,16 @@ function clearSessionExpiryTimer(): void {
 async function initialiseHanko(): Promise<void> {
     let hankoModule;
     try {
+        if (import.meta.env.DEV) throwOnFault('auth');
         hankoModule = await import('@teamhanko/hanko-frontend-sdk');
     } catch (error) {
         // Without this the session stays 'undefined' — pending — forever, so every session-dependent view waits on a
         // validation that can never run. 'validationFailure' settles it as signed out, exactly as a rejected validate would.
-        serviceLoadFailed.value = true;
+        //
+        // Raised at app level because no region owns signing in: a signed-out user looking at a working app has no
+        // other way to learn why the sign-in button leads nowhere.
         establishSession('validationFailure');
-        void reportAppError(new AppError('Failed to load the authentication service.', 'dpuse-app.session.initialiseHanko', { typeId: 'handled' }, { cause: error }));
+        raiseAppFailure(new AppError('Failed to load the authentication service.', 'dpuse-app.session.initialiseHanko', { typeId: 'handled' }, { cause: error }), { capability: 'authentication' });
         return;
     }
 
@@ -227,14 +227,17 @@ async function initialiseHanko(): Promise<void> {
 
 async function initialiseConfigMonitor(): Promise<void> {
     try {
+        if (import.meta.env.DEV) throwOnFault('config');
         const configMonitorModule = await import('@/observability/configMonitor');
         configMonitorModule.initialise();
     } catch (error) {
-        // Marked as failed rather than as a generic service load failure: without it neither retrieval flag is ever
-        // set, so every 'useConfigsReady' await hangs and each configuration list stays busy with no explanation.
-        // The flag also drives the banner, so this failure is surfaced by the same route as a failed handshake.
+        // The flag is what releases the awaits: without it neither retrieval flag is ever set, so every
+        // 'useConfigsReady' await hangs and each configuration list stays busy with no explanation. The failure itself
+        // is raised separately, so the lists can settle while the user is told why they are empty.
         configRetrievalFailed.value = true;
-        void reportAppError(new AppError('Failed to load the configuration service.', 'dpuse-app.session.initialiseConfigMonitor', { typeId: 'handled' }, { cause: error }));
+        raiseAppFailure(new AppError('Failed to load the configuration service.', 'dpuse-app.session.initialiseConfigMonitor', { typeId: 'handled' }, { cause: error }), {
+            capability: 'configuration'
+        });
     }
 }
 
@@ -251,12 +254,12 @@ async function initialisePerformanceTracking(): Promise<void> {
 
 async function initialiseAccountMonitor(): Promise<void> {
     try {
+        if (import.meta.env.DEV) throwOnFault('account');
         const accountMonitorModule = await import('@/observability/accountMonitor');
         accountMonitorModule.initialise();
     } catch (error) {
         // 'accountConfigsAreRetrieved' stays false, so connection lists would otherwise sit busy indefinitely.
-        serviceLoadFailed.value = true;
-        void reportAppError(new AppError('Failed to load the account service.', 'dpuse-app.session.initialiseAccountMonitor', { typeId: 'handled' }, { cause: error }));
+        raiseAppFailure(new AppError('Failed to load the account service.', 'dpuse-app.session.initialiseAccountMonitor', { typeId: 'handled' }, { cause: error }), { capability: 'account' });
     }
 }
 
