@@ -4,8 +4,8 @@ import { computed, onMounted, ref, type Component as VueComponent, watch } from 
 import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
-import { navigationPendingDepth } from '@/router';
 import { defineAsyncPanel } from '@/utilities/index.ts';
+import { navigationPendingDepth } from '@/router';
 import { t } from '@/state/locale';
 import { assistantPaneIsVisible, contentScrollPosition, sessionMenuIsOpen, studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 import { configRetrievalFailed, initialiseServices, serviceLoadFailed } from '@/state/session';
@@ -26,7 +26,7 @@ import SessionButton from '@/session/SessionButton.vue'; // Always visible.
 const AccountDialog = defineAsyncPanel(() => import('@/session/accountDialog/AccountDialog.vue'), 'AccountDialog');
 const AuthDialog = defineAsyncPanel(() => import('@/session/authDialog/AuthDialog.vue'), 'AuthDialog');
 const ConnectionDialog = defineAsyncPanel(() => import('@/studio/connectionDialog/ConnectionDialog.vue'), 'ConnectionDialog', { simulation: { delayMs: 3000 } });
-const AssistantLayout = defineAsyncPanel(() => import('@/assistant/components/AssistantLayout.vue'), 'AssistantLayout');
+const AssistantLayout = defineAsyncPanel(() => import('@/assistant/_components/AssistantLayout.vue'), 'AssistantLayout');
 const PaneSplitter = defineAsyncPanel(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
 const OptionBar = defineAsyncPanel(() => import('@/studio/options/OptionBar.vue'), 'OptionBar', { hasPlaceholder: false });
 
@@ -51,6 +51,7 @@ const DIALOG_CONFIGS: Record<'account' | 'auth' | 'connection', DialogConfig> = 
 const PANE_SPLITTER_DEFAULT_PERCENT = 50;
 const PANE_SPLITTER_WIDTH = 6; // The value must match the 'w-1.5' class on the root element in 'PaneSplitter.vue'.
 const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
+
 const T = {
     'wb.toggle.label.aria': { en: 'Toggle studio panel', es: 'Alternar panel de estudio' },
     'k.toggle.label.aria': { en: 'Toggle assistant panel', es: 'Alternar el panel asistente' },
@@ -296,7 +297,8 @@ function establishPaneSplitterPercent(): number {
           z-80: ServiceFailureBanner (connectivity or service module load failure)
           -->
 
-        <!-- Mask - Semi-transparent mask over the top safe area, so scrolling content fades out beneath it. -->
+        <!-- Mask - Semi-transparent mask over the top safe area that fades out content scrolling beneath it. -->
+        <!-- TODO: Currently has no effect as headers are always visible. It is proposed that long scrolling content like presentations would hide headers and float toggles. -->
         <div class="fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-surface/80 via-25% to-surface/95" data-region="topFadeOut" />
 
         <!-- Configuration WebSocket permanently failed to connect, or a service module failed to load. Overrides everything else until the page is refreshed. -->
@@ -320,48 +322,34 @@ function establishPaneSplitterPercent(): number {
         <!-- Modal scrim. Loading is shown by each region's own spinner, so this no longer tracks navigation. -->
         <LoadingMask class="z-50" :is-dialog-active="dialogIsActive" :is-modal-active="modalIsActive" />
 
-        <!-- Studio toggle fixed in top left corner. Always visible. -->
+        <!-- Studio Pane Toggle - Fixed in top left corner and always visible. -->
         <Button
             :aria-label="t(T, 'wb.toggle.label.aria')"
             class="fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full!"
             :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
-            data-region="studioPaneToggle"
+            data-region="StudioPaneToggle"
             shape="icon"
             @click="handleToggleStudioPane"
         >
             <DPUseLogo />
         </Button>
 
-        <!-- Assistant toggle fixed in top right corner. Always visible. -->
+        <!-- Assistant Pane Toggle - Fixed in top right corner and always visible. -->
         <Button
             :aria-label="t(T, 'k.toggle.label.aria')"
             class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20 rounded-full! bg-surface"
             :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
-            data-region="assistantPaneToggle"
+            data-region="AssistantPaneToggle"
             shape="icon"
             @click="handleToggleAssistantPane"
         >
             <AssistantLogo />
         </Button>
 
-        <!-- Session Button - Always visible. -->
+        <!-- Session Button - Fixed in bottom left corner and always visible. -->
         <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-49" :studio-option-bar-is-visible="studioOptionBarIsVisible" />
 
-        <!-- Dialogs - Activated using URL parameter 'dlg'. The frame is owned here rather than by each dialog so it can
-             appear on the click that opens it, while the dialog's own chunk is still loading. Its body then fills in
-             behind the spinner without the frame remounting, so there is no second fade and nothing shifts. -->
-        <DialogModal
-            v-if="activeDialogConfig"
-            :key="activeDialogId"
-            :is-open="true"
-            :max-width="activeDialogConfig.maxWidth"
-            :min-height="activeDialogConfig.minHeight"
-            :sizing="activeDialogConfig.sizing"
-        >
-            <component :is="activeDialogConfig.component" />
-        </DialogModal>
-
-        <!-- Studio Option Bar - Only rendered when viewport is narrow. -->
+        <!-- Studio Option Bar - Only rendered here when viewport is narrow. -->
         <OptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" />
 
         <!-- Studio Pane - Contains studio layout (via RouterView). Rendered once studio pane is activated and visible. -->
@@ -370,12 +358,12 @@ function establishPaneSplitterPercent(): number {
             v-show="studioPaneIsVisible"
             class="grid h-full"
             :class="viewportIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
-            data-region="studioPane"
+            data-region="StudioPane"
             :style="[studioPaneStyle, { 'container-type': 'inline-size' }]"
             @pointerdown="activeAppPaneId = 'studio'"
             @scroll.capture="activeAppPaneId = 'studio'"
         >
-            <!-- Studio Option Bar - Only rendered when viewport is wide. -->
+            <!-- Studio Option Bar - Only rendered here when viewport is wide. -->
             <OptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleStudioOptionBarHide" />
 
             <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
@@ -400,12 +388,26 @@ function establishPaneSplitterPercent(): number {
             v-if="assistantPaneActivated"
             v-show="assistantPaneIsVisible"
             class="flex h-full"
-            data-region="assistantPane"
+            data-region="AssistantPane"
             :style="assistantPaneStyle"
             @pointerdown="activeAppPaneId = 'assistant'"
             @scroll.capture="activeAppPaneId = 'assistant'"
         >
             <AssistantLayout class="flex-1" :studio-pane-is-hidden="!studioPaneIsVisible" />
         </div>
+
+        <!-- Dialogs - Wrapper for dialogs which are activated using URL 'dlg' parameter. This wrapper is owned here rather than by each dialog so it can
+             appear on the click that opens it, while the dialog's own chunk is still loading. Its body then fills in
+             behind the spinner without the frame remounting, so there is no second fade and nothing shifts. -->
+        <DialogModal
+            v-if="activeDialogConfig"
+            :key="activeDialogId"
+            :is-open="true"
+            :max-width="activeDialogConfig.maxWidth"
+            :min-height="activeDialogConfig.minHeight"
+            :sizing="activeDialogConfig.sizing"
+        >
+            <component :is="activeDialogConfig.component" />
+        </DialogModal>
     </div>
 </template>

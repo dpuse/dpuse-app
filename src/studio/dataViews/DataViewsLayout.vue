@@ -14,8 +14,8 @@ import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
-import StudioHeader from '@/studio/components/StudioHeader.vue';
-import StudioLayout from '@/studio/components/StudioLayout.vue';
+import StudioHeader from '@/studio/_components/StudioHeader.vue';
+import StudioLayout from '@/studio/_components/StudioLayout.vue';
 import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -6,8 +6,8 @@ import { DefaultChatTransport, isReasoningUIPart, isTextUIPart, lastAssistantMes
 
 // ── Local Framework
 import type { AssistantChatMessage } from './assistantChat';
-import type { AssistantModelConfig } from '../modelConfigs';
-import { toolExecutors } from '../tools';
+import type { AssistantModelConfig } from './modelConfigs';
+import { toolExecutors } from './tools';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

@@ -8,8 +8,8 @@ import Button from '@/components/ui/button/Button.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
-import StudioHeader from '@/studio/components/StudioHeader.vue';
-import StudioLayout from '@/studio/components/StudioLayout.vue';
+import StudioHeader from '@/studio/_components/StudioHeader.vue';
+import StudioLayout from '@/studio/_components/StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

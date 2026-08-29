@@ -8,10 +8,10 @@ import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { useMarkedTool } from '@/services/useMarkedTool';
 import { type AssistantChatMessage, getMessageSteps } from './assistantChat';
-import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } from '../modelConfigs';
+import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } from './modelConfigs';
 
 // ── Static Components
-import AssistantVendorMenu from '../components/AssistantVendorMenu.vue';
+import AssistantVendorMenu from '../_components/AssistantVendorMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';

@@ -36,7 +36,7 @@ const DataAppsLayout = defineLazyLoader('DataAppsLayout', 0, () => import('@/stu
 const ConfigLayout = defineLazyLoader('ConfigLayout', 0, () => import('@/studio/config/ConfigLayout.vue'));
 const ConfigHomePanel = defineLazyLoader('ConfigHomePanel', 1, () => import('@/studio/config/ConfigHomePanel.vue'));
 const ConfigContextModelList = defineLazyLoader('ConfigContextModelList', 1, () => import('@/studio/config/context/ConfigContextModelList.vue'));
-const ConfigModuleList = defineLazyLoader('ConfigModuleList', 1, () => import('@/studio/config/components/ConfigModuleList.vue'));
+const ConfigModuleList = defineLazyLoader('ConfigModuleList', 1, () => import('@/studio/config/_components/ConfigModuleList.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

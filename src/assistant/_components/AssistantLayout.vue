@@ -5,15 +5,15 @@ import { type Component, computed, ref, watch } from 'vue';
 
 // ── Local Framework
 import { assertDefined, defineAsyncPanel } from '@/utilities/index.ts';
-import { ASSISTANT_VENDOR_CONFIGS, type AssistantModelConfig, type AssistantVendorId } from '../modelConfigs';
+import { ASSISTANT_VENDOR_CONFIGS, type AssistantModelConfig, type AssistantVendorId } from '../chat/modelConfigs';
 
 // ── Static Components
 import AssistantPanelHeader from './AssistantPanelHeader.vue';
 
 // ── Dynamic Components
-const AboutView = defineAsyncPanel(() => import('../AboutPanel.vue'), 'AboutPanel');
 const ChatView = defineAsyncPanel(() => import('../chat/ChatPanel.vue'), 'ChatPanel');
-const LibraryView = defineAsyncPanel(() => import('../LibraryPanel.vue'), 'LibraryPanel');
+const InfoView = defineAsyncPanel(() => import('../info/InfoPanel.vue'), 'InfoPanel');
+const LibraryView = defineAsyncPanel(() => import('../library/LibraryPanel.vue'), 'LibraryPanel');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -23,7 +23,7 @@ const VENDOR_ID_KEY = 'dpuse-assistantVendorId';
 const VENDOR_MODEL_ID_KEY_PREFIX = 'dpuse-assistantVendorModelId-';
 
 const ASSISTANT_PANELS: Record<string, Component> = {
-    about: AboutView,
+    about: InfoView,
     chat: ChatView,
     library: LibraryView
 };

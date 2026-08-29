@@ -15,8 +15,8 @@ import { useEngine } from '@/services/useEngine';
 
 // ── Static Components
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
-import StudioDetailPanel from '@/studio/components/StudioDetailPanel.vue';
-import StudioDocumentPanel from '@/studio/components/StudioDocumentPanel.vue';
+import StudioDetailPanel from '@/studio/_components/StudioDetailPanel.vue';
+import StudioDocumentPanel from '@/studio/_components/StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
