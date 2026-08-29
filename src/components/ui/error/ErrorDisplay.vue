@@ -20,17 +20,18 @@ import ErrorDetail from '@/components/ui/error/ErrorDetail.vue';
 // The single surface for a failure, wherever it happened. Within a region the shell is decided by the width this
 // component is given, not by the caller — panes are resized at runtime by 'PaneSplitter.vue', so a caller cannot know.
 //
+// 'canRetry' is false where nothing local could be retried — a failure with no region of its own, where a fresh
+// document is the only recovery there is. Everywhere else both recoveries are offered; see the note in 'ErrorDetail'.
+//
+// 'coversRegion' is for a failure that has taken the whole region with it — a panel that never loaded, a view that
+// could not render. It fills the space that content would have occupied, so the region reads as failed rather than as
+// oddly empty with a card in it. Opt-in, because plenty of failures cost only part of what a region does: a chat whose
+// markdown formatter died still shows its messages, and covering it would claim more than went wrong. It asks nothing
+// of the host — it grows in flow rather than being positioned, so no caller needs to be a containing block.
+//
 // 'variant' is the one thing width cannot answer: a failure with no region of its own is placed at app level by
 // 'App.vue', where it is a strip across the top rather than something occupying a region it does not have. It is a
 // placement and not a takeover — nothing here is worth denying the user the screen they already have.
-// 'canRetry' is false where nothing local could be retried — a failure with no region of its own, where a fresh
-// document is the only recovery there is. Everywhere else both recoveries are offered; see the note in 'ErrorDetail'.
-// 'coversRegion' is for a failure that has taken the whole region with it — a panel that never loaded, a view that
-// could not render. It fills the space that content would have occupied and centres the body over it, so the region
-// reads as failed rather than as oddly empty with a card in it. Opt-in, because plenty of failures cost only part of
-// what a region does: a chat whose markdown formatter died still shows its messages, and covering it would claim more
-// than went wrong. Requires the host to establish a containing block — see the note in the style block.
-//
 interface Properties {
     canRetry?: boolean;
     coversRegion?: boolean;
@@ -65,15 +66,15 @@ const mainSerialisedError = computed(() => serialiseError(failure.error)[0]);
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Both fetch the document again, which is what picks up the new deployment's chunk names. 'assign' is used when the
-// failure recorded where the user was heading, so the refresh finishes that journey rather than reloading in place —
-// a route that cannot fetch its chunk leaves the URL on the screen the user was leaving.
+// failure recorded where the user was heading, so the reload finishes that journey rather than fetching the page in
+// place — a route that cannot fetch its chunk leaves the URL on the screen the user was leaving.
 function handleReload(): void {
     handleRequestCloseDetail();
-    if (failure.retryPath == null) {
+    if (failure.reloadPath == null) {
         location.reload();
         return;
     }
-    location.assign(failure.retryPath);
+    location.assign(failure.reloadPath);
 }
 
 function handleRetry(): void {
@@ -169,7 +170,7 @@ function handleShowDetail(): void {
    stop being the constraint at about 8rem and the text becomes it instead: below roughly 20 characters a line — some
    11rem once the 16px inset either side is taken — an error message stops being readable at all, whatever it says.
    Panes are 'minWidth: 0', so a dragged splitter really does reach this band; below it the badge stands in, with the
-   whole body one click away in the dialog.
+   whole body one click away in its dialog.
 
    The strip is the exception: it is chosen by placement rather than width, because a failure with no region of its own
    has no container to measure. */
@@ -186,9 +187,9 @@ function handleShowDetail(): void {
     display: contents;
 }
 
-/* Covering, the badge is the region rather than a chip inside it: same warning ground, same 16px inset, same hold to
-   the top as the body it stands in for, so the two read as one treatment at two widths. Its chip chrome goes for the
-   same reason the body's does — there is nothing to draw a box around when the whole region is the error.
+/* Covering, the badge is the region rather than a chip inside it: same warning ground, same 16px inset, same centring
+   as the body it stands in for, so the two read as one treatment at two widths. Its chip chrome goes for the same
+   reason the body's does — there is nothing to draw a box around when the whole region is the error.
 
    Kept outside the width query below, since this is the shell that shows beneath it; above the threshold the badge is
    hidden and these have nothing to apply to. */
@@ -209,8 +210,8 @@ function handleShowDetail(): void {
    — a chip's worth of specificity against a shell's — so without these the covering badge is inert to the eye and only
    the cursor gives it away.
 
-   'outline' rather than the utilities' ring: a ring is a box-shadow, and this element is the scroll container, so a
-   shadow drawn outside its edge is the first thing its own overflow clips. */
+   'outline' rather than the utilities' ring: a ring is a box-shadow drawn outside the element's edge, and this one
+   fills its region, so the shadow would be the first thing an ancestor's overflow clips. */
 .is-region.covers-region .shell-badge:hover {
     background: var(--warning-hover);
 }
@@ -264,8 +265,13 @@ function handleShowDetail(): void {
        an absolutely positioned version would centre itself over the nearest positioned ancestor, and these callers
        sit in scroll areas, flex columns and detail slots that make no promise about being one.
 
-       Kept inside this query so it cannot outrank the narrow shells: below this width there is no room to centre a
-       body in, and the badge and notice still stand in for it. */
+       Kept inside this query so it cannot outrank the badge: below this width there is no room to centre a body in,
+       and the badge stands in for it.
+
+       Scrolling belongs to the region, not to the body inside it — a scrollbar hugging the card reads as part of the
+       error text rather than as the region having more to show. Centred with 'safe', which is what lets centring and
+       scrolling coexist: it centres a body that fits and falls back to the start edge for one that does not, where
+       plain centring would push the top out of reach above this container's start edge. */
     .is-region.covers-region .shell-card {
         display: flex;
         flex: 1 1 auto;
@@ -277,12 +283,6 @@ function handleShowDetail(): void {
         background: var(--warning);
     }
 
-    /* Scrolling belongs to the region, not to the body inside it — a scrollbar hugging the card reads as part of the
-       error text rather than as the region having more to show.
-
-       Centred with 'safe', which is what makes centring and scrolling coexist: it centres a body that fits and falls
-       back to the start edge for one that does not, where plain centring would push the top out of reach above the
-       scroll container's start edge. */
     /* Its own width and padding give way to the box above, which is then the only thing setting the inset — the body
        carries its own card padding for when it is a card, and left alone the two would compound to twice the gap. The
        maximum matches Tailwind's 'max-w-prose': past about 65 characters the eye loses the line it is returning to,

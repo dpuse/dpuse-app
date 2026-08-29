@@ -118,10 +118,10 @@ export const createAppRouter = (): Router => {
     router.onError((error, to) => {
         clearNavigationPending();
 
-        // The URL never changed, so a refresh would otherwise reload the page the user was leaving. Passing the
+        // The URL never changed, so a reload would otherwise fetch the page the user was leaving. Passing the
         // abandoned destination lets it finish the journey instead.
         const data = { typeId: 'navigation' };
-        raiseAppFailure(new AppError('Navigation failed.', 'dpuse.router', data, { cause: error }), { retryPath: to.fullPath });
+        raiseAppFailure(new AppError('Navigation failed.', 'dpuse.router', data, { cause: error }), { reloadPath: to.fullPath });
     });
 
     return router;

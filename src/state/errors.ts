@@ -19,19 +19,21 @@ export interface AppFailure {
     capability: string | undefined;
     error: AppError;
     // A chunk the running deployment can no longer fetch. Nothing but a fresh document will produce a working copy of
-    // it, so the display offers 'Refresh' rather than a retry that is certain to fail the same way.
+    // it, which is why the display says so in words and why only the first of these is reported: one stale deployment
+    // fails every chunk the session goes on to need.
     needsReload: boolean;
-    // Where the user was heading when the failure abandoned the navigation. A route that cannot fetch its chunk leaves
-    // the URL untouched, so without it a refresh would return them to the screen they were leaving.
-    retryPath: string | undefined;
+    // Where the user was heading when the failure abandoned the navigation. A route that cannot fetch its chunk
+    // leaves the URL untouched, so without this a reload would return them to the screen they were leaving.
+    reloadPath: string | undefined;
     // A ref rather than a plain field so the display can show delivery pending, then settled, without the holder of
     // this object having to be a deep reactive source.
     wasReported: Ref<boolean | undefined>;
 }
 
-export interface AppFailureOptions {
+// Local: nothing outside this module names the type, and both callers pass an object literal.
+interface AppFailureOptions {
     capability?: string;
-    retryPath?: string;
+    reloadPath?: string;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -47,7 +49,7 @@ const COMPONENT_LOADER_ERROR_INFOS = new Set(['async component loader', 'https:/
 
 // A stale-deploy failure surfaces as an ordinary module-load rejection, and the only thing distinguishing it is the
 // message, which is worded differently by every engine. Matched lowercased against every message in the cause chain.
-// Revisit when browsers change the wording; a miss offers a retry that fails again rather than a refresh that works.
+// Revisit when browsers change the wording; a miss costs the guidance saying to reload, not the reload itself.
 const STALE_DEPLOY_MESSAGE_PATTERNS = [
     'failed to fetch dynamically imported module', // Chromium
     'error loading dynamically imported module', // Firefox
@@ -105,11 +107,17 @@ export function isStaleDeployError(error: unknown): boolean {
 // Adds a failure to the app-level strip. De-duplicated because the same loss reaches here by several routes at once —
 // Vite's 'vite:preloadError' and the rejected import behind it are one chunk failing — and repeating it tells the user
 // nothing they are not already looking at.
+//
+// The check runs before the failure is raised, so a repeat is not reported either. The alternative was reporting a
+// second engine failure that nothing on screen would ever mention, which is a report nobody can act on: whoever reads
+// it cannot tell what the user was shown.
 export function raiseAppFailure(error: AppError, options: AppFailureOptions = {}): AppFailure {
+    const key = options.capability ?? findComponentName(error) ?? error.message;
+    const shownFailure = appFailures.value.find((candidate) => (candidate.capability ?? candidate.error.message) === key);
+    if (shownFailure) return shownFailure; // The one already on screen, so a caller holding the result still has one.
+
     const failure = raiseFailure(error, options);
-    const key = failure.capability ?? failure.error.message;
-    const isAlreadyShown = appFailures.value.some((candidate) => (candidate.capability ?? candidate.error.message) === key);
-    if (!isAlreadyShown) appFailures.value = [...appFailures.value, failure];
+    appFailures.value = [...appFailures.value, failure];
     return failure;
 }
 
@@ -120,7 +128,7 @@ export function raiseFailure(error: AppError, options: AppFailureOptions = {}): 
         capability: options.capability ?? findComponentName(error),
         error,
         needsReload: isStaleDeployError(error),
-        retryPath: options.retryPath,
+        reloadPath: options.reloadPath,
         wasReported: ref<boolean | undefined>()
     };
     void deliverReport(failure);

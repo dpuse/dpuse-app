@@ -19,10 +19,10 @@ import Button from '@/components/ui/button/Button.vue';
 // shells open, which is why this stays a component of its own rather than markup inside that one: it appears twice in
 // the same tree at the same time. It carries its own card chrome but no outer spacing — the caller places it.
 //
-// Both recoveries are offered, rather than the one the classification favours. That classification is a match against
-// browser-specific wording (see 'STALE_DEPLOY_MESSAGE_PATTERNS'), so it can be wrong — and when it is, offering only
-// its choice leaves the user with the single button that cannot help them. Offering both makes it decide emphasis
-// rather than capability: a wrong guess costs a wasted click instead of a dead end.
+// Both recoveries are always offered. Which one is likely to work is decided by matching browser-specific wording
+// (see 'STALE_DEPLOY_MESSAGE_PATTERNS'), so it can be wrong — and offering only its choice would leave the user with
+// the single button that cannot help them. Showing both costs a wasted click when the guess is wrong, instead of a
+// dead end; the guess is left to say so in words, above.
 //
 // 'canRetry' is false where nothing local could be retried — a failure with no region of its own, where a fresh
 // document is the only recovery there is.

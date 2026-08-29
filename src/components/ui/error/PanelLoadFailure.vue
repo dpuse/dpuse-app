@@ -35,7 +35,7 @@ const loadFailure = shallowRef<AppFailure | undefined>();
 
 // Watched rather than run once: a failed retry re-renders this component with a new error rather than remounting it.
 // A chunk this deployment can no longer fetch is displayed here like any other failure — this is the space the missing
-// component would have occupied, so it is where its absence is worth explaining, and 'ErrorDisplay' offers the refresh
+// component would have occupied, so it is where its absence is worth explaining, and the display offers the reload
 // that is the only thing which can actually fix it.
 watch(
     () => error,

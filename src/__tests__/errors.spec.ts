@@ -124,9 +124,9 @@ describe('raiseAppFailure', () => {
         expect(appFailures.value).toHaveLength(2);
     });
 
-    it('carries the abandoned destination, so a refresh finishes the journey rather than reloading the page being left', () => {
-        const failure = raiseAppFailure(new AppError('Navigation failed.', 'test'), { retryPath: '/studio/config' });
-        expect(failure.retryPath).toBe('/studio/config');
+    it('carries the abandoned destination, so a reload finishes the journey rather than fetching the page being left', () => {
+        const failure = raiseAppFailure(new AppError('Navigation failed.', 'test'), { reloadPath: '/studio/config' });
+        expect(failure.reloadPath).toBe('/studio/config');
     });
 
     it('removes a failure the user has acknowledged', () => {
