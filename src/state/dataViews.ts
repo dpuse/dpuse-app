@@ -21,7 +21,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 
 // ── Local Framework
 import { localeId } from '@/state/locale';
-import { reportAppError } from '@/observability/errorTracking';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 import { useEngine } from '@/services/useEngine';
 import { useOptions } from '@/features/studio/options/useOptions';
 import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
@@ -85,6 +85,9 @@ export const dataViewRetrievalSucceeded = ref(false);
 // True once a retrieval has failed, letting the UI show a real failure rather than leaving the list stuck in its busy
 // state forever. Both flags are reset when the meta store connection is cleared.
 export const dataViewRetrievalFailed = ref(false);
+// The failure behind the flag above. The flag settles the grid and releases the awaits gated on retrieval; this is
+// what tells the user why the list they are looking at came back empty. Cleared whenever a retrieval starts.
+export const dataViewRetrievalFailure = shallowRef<AppFailure | undefined>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -115,6 +118,7 @@ watch(
             dataViewConfigs.value = [];
             dataViewRetrievalSucceeded.value = false;
             dataViewRetrievalFailed.value = false;
+    dataViewRetrievalFailure.value = undefined;
         }
     },
     { immediate: true }
@@ -124,6 +128,7 @@ watch(
 
 export async function retrieveDataViewConfigs(metaStoreConnectionConfig: ConnectionConfig): Promise<void> {
     dataViewRetrievalFailed.value = false;
+    dataViewRetrievalFailure.value = undefined;
     try {
         await establishDataViewObject(metaStoreConnectionConfig);
 
@@ -146,7 +151,9 @@ export async function retrieveDataViewConfigs(metaStoreConnectionConfig: Connect
     } catch (error) {
         dataViewConfigs.value = [];
         dataViewRetrievalFailed.value = true;
-        void reportAppError(new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error }));
+        dataViewRetrievalFailure.value = raiseFailure(
+            new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error })
+        );
     }
 }
 

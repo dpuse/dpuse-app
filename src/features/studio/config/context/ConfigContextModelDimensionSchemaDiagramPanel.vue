@@ -75,7 +75,7 @@ async function renderDiagram(): Promise<void> {
 
 <template>
     <ScrollArea class="min-h-0 flex-1">
-        <ErrorDisplay v-if="renderFailure" covers-region :failure="renderFailure" @retry="handleRetry" />
+        <ErrorDisplay v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
 
         <div v-show="!renderFailure" ref="container" class="p-6" />
     </ScrollArea>

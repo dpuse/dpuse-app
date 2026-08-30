@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, ref, useTemplateRef } from 'vue';
-import { TriangleAlertIcon, XIcon } from '@lucide/vue';
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
+import { TriangleAlertIcon } from '@lucide/vue';
 
 // ── DPUse Framework
 import { serialiseError } from '@dpuse/dpuse-shared/errors';
@@ -23,24 +23,28 @@ import ErrorDetail from '@/components/ui/error/ErrorDetail.vue';
 // 'canRetry' is false where nothing local could be retried — a failure with no region of its own, where a fresh
 // document is the only recovery there is. Everywhere else both recoveries are offered; see the note in 'ErrorDetail'.
 //
-// 'coversRegion' is for a failure that has taken the whole region with it — a panel that never loaded, a view that
-// could not render. It fills the space that content would have occupied, so the region reads as failed rather than as
-// oddly empty with a card in it. Opt-in, because plenty of failures cost only part of what a region does: a chat whose
-// markdown formatter died still shows its messages, and covering it would claim more than went wrong. It asks nothing
-// of the host — it grows in flow rather than being positioned, so no caller needs to be a containing block.
+// A failure fills the space it owns. 'coversRegion' says the region is that space — a panel that never loaded, a view
+// that could not render — so it reads as failed rather than as oddly empty with a card in it. Opt-in, because plenty
+// of failures cost only part of what a region does: a chat whose markdown formatter died still shows its messages, and
+// covering it would claim more than went wrong. It asks nothing of the host, growing in flow rather than being
+// positioned, so no caller needs to be a containing block.
 //
-// 'variant' is the one thing width cannot answer: a failure with no region of its own is placed at app level by
-// 'App.vue', where it is a strip across the top rather than something occupying a region it does not have. It is a
-// placement and not a takeover — nothing here is worth denying the user the screen they already have.
+// 'ownsScreen' is the same rule one level up, for a failure no region owns at all: its space is the screen, so it is
+// shown as a modal. That is not the lock this app used to have — that was permanent, suppressed every dialog, and had
+// no way out. This asks to be acknowledged once and closes.
+//
+// Several failures rather than one: losing the network fails every service the app loads independently, and one body
+// listing them reads as the single thing that happened. A region passes a list of one; only 'App.vue', which holds
+// every failure no region owned, passes more.
 interface Properties {
     canRetry?: boolean;
     coversRegion?: boolean;
-    failure: AppFailure;
+    failures: AppFailure[];
     isDismissible?: boolean;
-    variant?: 'region' | 'strip';
+    ownsScreen?: boolean;
 }
 // eslint-disable-next-line @typescript-eslint/no-useless-default-assignment -- The default is not useless: an absent boolean prop is 'false' to Vue, and retrying is what every caller but 'App.vue' wants.
-const { canRetry = true, coversRegion, failure, isDismissible, variant = 'region' } = defineProps<Properties>();
+const { canRetry = true, coversRegion, failures, isDismissible, ownsScreen } = defineProps<Properties>();
 const emit = defineEmits<{ dismiss: []; retry: [] }>();
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -54,14 +58,34 @@ const T = {
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Detail dialog — reachable from the badge and strip shells, neither of which has room to show the body in place. The
-// element itself always exists so its ref is available on the click that opens it; only its contents are conditional.
+// Detail dialog — reachable from the badge, which has no room to show the body in place. The element itself always
+// exists so its ref is available on the click that opens it; only its contents are conditional.
 const detailDialog = useTemplateRef<HTMLDialogElement>('detailDialogReference');
 const detailIsVisible = ref(false);
 
+// Screen-owning modal — the same element, opened by the failure rather than by a click. Watched rather than opened
+// once on mount, so a second failure arriving after the first was dismissed opens it again.
+const screenDialog = useTemplateRef<HTMLDialogElement>('screenDialogReference');
+
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const mainSerialisedError = computed(() => serialiseError(failure.error)[0]);
+const mainSerialisedError = computed(() => serialiseError(failures[0].error)[0]);
+
+// The first destination recorded by any of them. Only a failed navigation sets one, and there is only ever one of
+// those on screen, so 'first' is not a choice between rivals.
+const reloadPath = computed(() => failures.find((failure) => failure.reloadPath != null)?.reloadPath);
+
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+watch(
+    () => failures,
+    async () => {
+        if (!ownsScreen || failures.length === 0) return;
+        await nextTick(); // The element is rendered by the same change that brings the failures, so it exists only after this.
+        if (!screenDialog.value?.open) screenDialog.value?.showModal();
+    },
+    { immediate: true }
+);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -70,11 +94,11 @@ const mainSerialisedError = computed(() => serialiseError(failure.error)[0]);
 // place — a route that cannot fetch its chunk leaves the URL on the screen the user was leaving.
 function handleReload(): void {
     handleRequestCloseDetail();
-    if (failure.reloadPath == null) {
+    if (reloadPath.value == null) {
         location.reload();
         return;
     }
-    location.assign(failure.reloadPath);
+    location.assign(reloadPath.value);
 }
 
 function handleRetry(): void {
@@ -97,53 +121,44 @@ function handleShowDetail(): void {
 </script>
 
 <template>
-    <div class="error-display" :class="[variant === 'strip' ? 'is-strip' : 'is-region', { 'covers-region': coversRegion }]" data-region="ErrorDisplay">
-        <!-- Badge - the container is too narrow for prose, so the body moves to a dialog. -->
-        <button
-            :aria-label="t(T, 'detail.label.aria')"
-            class="shell-badge items-center justify-center rounded-md border border-warning-ring/20 bg-warning p-1.5 text-warning-text hover:bg-warning-hover focus-visible:ring-2 focus-visible:ring-warning-ring focus-visible:outline-none active:bg-warning-active"
-            :title="mainSerialisedError.message"
-            type="button"
-            @click="handleShowDetail"
-        >
-            <span class="shell-badge-body"><TriangleAlertIcon class="size-5" stroke-width="1.3" /></span>
-        </button>
-
-        <!-- Card - room for the whole body. -->
-        <div class="shell-card">
-            <ErrorDetail class="mx-auto my-8 w-[calc(100%-2rem)] max-w-sm" :can-retry="canRetry" :failure="failure" @reload="handleReload" @retry="handleRetry" />
-        </div>
-
-        <!-- Strip - a tab hanging from the top edge, for a failure with no region of its own. The row spans the
-             viewport only to centre the tab, so it lets pointer events through to whatever is beneath it. -->
-        <div class="shell-strip pointer-events-none justify-center px-4">
-            <div
-                class="error-strip-tab pointer-events-auto flex max-w-2xl items-center gap-3 rounded-b-xl border-x border-b border-danger-ring/40 px-4 py-2 text-[15px] text-danger-text shadow-lg"
+    <div class="error-display" :class="[ownsScreen ? 'owns-screen' : 'is-region', { 'covers-region': coversRegion }]" data-region="ErrorDisplay">
+        <!-- The region shells, and the dialog the badge opens. A screen-owning failure has no use for any of them: it
+             has no region to measure, and shows its body in its own modal below. -->
+        <template v-if="!ownsScreen">
+            <!-- Badge - the container is too narrow for prose, so the body moves to a dialog. -->
+            <button
+                :aria-label="t(T, 'detail.label.aria')"
+                class="shell-badge items-center justify-center rounded-md border border-warning-ring/20 bg-warning p-1.5 text-warning-text hover:bg-warning-hover focus-visible:ring-2 focus-visible:ring-warning-ring focus-visible:outline-none active:bg-warning-active"
+                :title="mainSerialisedError.message"
+                type="button"
+                @click="handleShowDetail"
             >
-                <TriangleAlertIcon class="size-8 shrink-0" stroke-width="1.3" />
-                <span class="min-w-0">{{ mainSerialisedError.message }}</span>
-                <Button class="shrink-0" size="sm" variant="neutral" @click="handleShowDetail">{{ t(T, 'detail.label.aria') }}</Button>
-                <Button v-if="canRetry" class="shrink-0" size="sm" variant="neutral" @click="handleRetry">{{ t(T, 'retry.label') }}</Button>
-                <Button class="shrink-0" size="sm" variant="neutral" @click="handleReload">{{ t(T, 'reload.label') }}</Button>
-                <button
-                    v-if="isDismissible"
-                    :aria-label="t(T, 'dismiss.label.aria')"
-                    class="shrink-0 cursor-pointer opacity-70 hover:opacity-100"
-                    type="button"
-                    @click="emit('dismiss')"
-                >
-                    <XIcon class="size-4" />
-                </button>
-            </div>
-        </div>
+                <span class="shell-badge-body"><TriangleAlertIcon class="size-5" stroke-width="1.3" /></span>
+            </button>
 
-        <dialog ref="detailDialogReference" class="detail-dialog" @cancel="handleCloseDetail" @close="handleCloseDetail">
-            <!-- Closed from the corner rather than by a button under the body, which sat outside the panel and read as
-                 belonging to the page behind it. Placed as 'DialogModal' places its own, so a dialog opened from here
-                 is dismissed the same way as every other one. -->
-            <div v-if="detailIsVisible" class="relative">
-                <ErrorDetail can-cancel :can-retry="canRetry" :failure="failure" @cancel="handleRequestCloseDetail" @reload="handleReload" @retry="handleRetry" />
-                <CloseButton class="absolute top-2 right-2" @click="handleRequestCloseDetail" />
+            <!-- Card - room for the whole body. -->
+            <div class="shell-card">
+                <ErrorDetail class="mx-auto my-8 w-[calc(100%-2rem)] max-w-sm" :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
+            </div>
+
+            <dialog ref="detailDialogReference" class="detail-dialog" @cancel="handleCloseDetail" @close="handleCloseDetail">
+                <!-- Closed from the corner rather than by a button under the body, which sat outside the panel and read
+                     as belonging to the page behind it. Placed as 'DialogModal' places its own, so a dialog opened from
+                     here is dismissed the same way as every other one. -->
+                <div v-if="detailIsVisible" class="relative">
+                    <ErrorDetail can-cancel :can-retry="canRetry" :failures="failures" @cancel="handleRequestCloseDetail" @reload="handleReload" @retry="handleRetry" />
+                    <CloseButton class="absolute top-2 right-2" @click="handleRequestCloseDetail" />
+                </div>
+            </dialog>
+        </template>
+
+        <!-- Screen - a failure no region owns, so the space it has lost is the screen. Opened by the failure rather
+             than by a click, and closed by the corner button: an acknowledgement, not the dead end this app used to
+             show, which suppressed every dialog for the rest of the session and had no way out at all. -->
+        <dialog v-else ref="screenDialogReference" class="screen-dialog" @cancel="emit('dismiss')" @close="emit('dismiss')">
+            <div class="relative">
+                <ErrorDetail :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
+                <CloseButton v-if="isDismissible" :aria-label="t(T, 'dismiss.label.aria')" class="absolute top-2 right-2" @click="screenDialog?.close()" />
             </div>
         </dialog>
     </div>
@@ -172,12 +187,7 @@ function handleShowDetail(): void {
    Panes are 'minWidth: 0', so a dragged splitter really does reach this band; below it the badge stands in, with the
    whole body one click away in its dialog.
 
-   The strip is the exception: it is chosen by placement rather than width, because a failure with no region of its own
-   has no container to measure. */
-.shell-strip {
-    display: none;
-}
-
+*/
 .is-region .shell-badge {
     display: flex;
 }
@@ -294,6 +304,10 @@ function handleShowDetail(): void {
         width: 100%;
         max-width: 65ch;
         margin: 0;
+    }
+
+    /* Reached by name rather than as a child, because the placement box now sits between this and the card. */
+    .is-region.covers-region [data-region='ErrorDetail'] {
         padding: 0;
         border: none;
         border-radius: 0;
@@ -301,26 +315,31 @@ function handleShowDetail(): void {
     }
 }
 
-.is-strip .shell-badge,
-.is-strip .shell-card {
-    display: none;
+
+/* Nothing of its own is laid out: the screen-owning placement is entirely the modal below, which the browser renders
+   in the top layer. */
+.error-display.owns-screen {
+    display: contents;
 }
 
-.is-strip .shell-strip {
-    display: flex;
+/* Sized like the detail dialog but allowed the wider prose measure, since this one is the whole account of what the
+   app has lost rather than a narrow rail's overflow. */
+.screen-dialog {
+    max-width: min(65ch, calc(100vw - 2rem));
+    max-height: calc(100dvh - 4rem);
+    margin: auto;
+    background: transparent;
+    padding: 0;
+    border: none;
 }
 
-.error-strip-tab {
-    /* The danger tint is translucent in dark mode — it is meant to sit on a surface, not float over content — so it is
-       painted as an image over an opaque surface base rather than set as the background colour, which would let
-       whatever is scrolling underneath bleed through. */
-    background-color: var(--surface);
-    background-image: linear-gradient(var(--danger), var(--danger));
+.screen-dialog::backdrop {
+    background: var(--overlay);
 }
 
-/* The dialog is opened from the badge and strip, either of which may sit inside a clipped, possibly transformed
-   container. Rendering it in the top layer with 'showModal()' is what keeps it out of that stacking context, so it
-   needs no z-index of its own. */
+/* The dialog is opened from the badge, which may sit inside a clipped, possibly transformed container. Rendering it
+   in the top layer with 'showModal()' is what keeps it out of that stacking context, so it needs no z-index of its
+   own. */
 .detail-dialog {
     max-width: min(24rem, calc(100vw - 2rem));
     margin: auto;

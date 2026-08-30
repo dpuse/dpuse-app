@@ -2,7 +2,7 @@
 import { type Ref, ref, shallowRef } from 'vue';
 
 // ── DPUse Framework
-import { type AppError, type SerialisedError, serialiseError } from '@dpuse/dpuse-shared/errors';
+import { type AppError, serialiseError } from '@dpuse/dpuse-shared/errors';
 
 // ── Local Framework
 import { reportAppError } from '@/observability/errorTracking';
@@ -25,6 +25,10 @@ export interface AppFailure {
     // Where the user was heading when the failure abandoned the navigation. A route that cannot fetch its chunk
     // leaves the URL untouched, so without this a reload would return them to the screen they were leaving.
     reloadPath: string | undefined;
+    // What to run if the user asks to try again, for the failures shown at app level — where the display has no idea
+    // what was being attempted. Undefined where nothing can be retried, which is most of them: a service loaded once
+    // at startup has no second attempt to offer, and a fresh document is the only recovery.
+    retry: (() => void) | undefined;
     // A ref rather than a plain field so the display can show delivery pending, then settled, without the holder of
     // this object having to be a deep reactive source.
     wasReported: Ref<boolean | undefined>;
@@ -34,6 +38,7 @@ export interface AppFailure {
 interface AppFailureOptions {
     capability?: string;
     reloadPath?: string;
+    retry?: () => void;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -47,17 +52,6 @@ const COMPONENT_NAME_DATA_KEY = 'componentName';
 // report rather than a lost one.
 const COMPONENT_LOADER_ERROR_INFOS = new Set(['async component loader', 'https://vuejs.org/error-reference/#runtime-13']);
 
-// A stale-deploy failure surfaces as an ordinary module-load rejection, and the only thing distinguishing it is the
-// message, which is worded differently by every engine. Matched lowercased against every message in the cause chain.
-// Revisit when browsers change the wording; a miss costs the guidance saying to reload, not the reload itself.
-const STALE_DEPLOY_MESSAGE_PATTERNS = [
-    'failed to fetch dynamically imported module', // Chromium
-    'error loading dynamically imported module', // Firefox
-    'importing a module script failed', // Safari
-    'unable to preload css', // Vite's own preload helper
-    'failed to load module script' // Served HTML in place of a deleted chunk, so the MIME type is wrong
-];
-
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Failures with no region of their own: an uncaught Vue error, a navigation that never reached a view, a service the
@@ -68,6 +62,15 @@ export const appFailures = shallowRef<AppFailure[]>([]);
 // One stale deployment fails every chunk the session goes on to need, so the first report stands for all of them and
 // the rest would only bury it. Never reset: a deployment does not become current again within a session.
 const state = { staleDeployWasReported: false };
+
+// Errors Vite itself has told us are a chunk this deployment can no longer fetch. Its 'vite:preloadError' event
+// carries the very error object that then propagates to whoever awaited the import, so marking it here and reading it
+// back through the cause chain recognises the failure without inspecting anything about it.
+//
+// The only signal there is. Reading the browser's wording was tried and dropped: it was a guess against text nobody
+// promises, and in a production build it could only ever reach the imports carrying '@vite-ignore' — the engine and
+// the presenters — which cannot go stale, since their version is read from configuration at run time.
+const staleDeployErrors = new WeakSet<object>();
 
 // Every error already delivered, and every error in its cause chain. A single failure is routinely raised more than
 // once — a service reports its own failure and rethrows, and each caller that catches it wraps it with context of its
@@ -80,13 +83,19 @@ const reportedErrors = new WeakSet<object>();
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export function clearAppFailures(): void {
-    appFailures.value = [];
+// Runs whatever the retryable app-level failures offered, and removes them first: a second attempt that fails again
+// has to be able to raise, and de-duplication would suppress it while the first is still listed. Failures with nothing
+// to retry are left where they are — the modal stays open for them.
+export function retryAppFailures(): void {
+    const retryableFailures = appFailures.value.filter((failure) => failure.retry != null);
+    appFailures.value = appFailures.value.filter((failure) => failure.retry == null);
+    for (const failure of retryableFailures) failure.retry?.();
 }
 
-// Removes a failure the user has acknowledged. The failure stays reported; only the display goes.
-export function dismissAppFailure(failure: AppFailure): void {
-    appFailures.value = appFailures.value.filter((candidate) => candidate !== failure);
+// Dismisses every app-level failure at once, which is what the one card holding them all offers. They stay reported;
+// only the display goes.
+export function clearAppFailures(): void {
+    appFailures.value = [];
 }
 
 // True for a failure that a lazy component's own 'errorComponent' is already showing. Vue notifies every ancestor
@@ -101,7 +110,13 @@ export function isComponentLoaderErrorInfo(info: string): boolean {
 }
 
 export function isStaleDeployError(error: unknown): boolean {
-    return serialiseError(error).some((serialisedError) => hasStaleDeployMessage(serialisedError));
+    return collectCauseChain(error).some((causeError) => staleDeployErrors.has(causeError));
+}
+
+// Records what 'vite:preloadError' handed us. The same object reaches the catch site, so a failure that wraps it as a
+// cause is recognised without reading a single message.
+export function markStaleDeployError(error: unknown): void {
+    if (error instanceof Error) staleDeployErrors.add(error);
 }
 
 // Adds a failure to the app-level strip. De-duplicated because the same loss reaches here by several routes at once —
@@ -129,6 +144,7 @@ export function raiseFailure(error: AppError, options: AppFailureOptions = {}): 
         error,
         needsReload: isStaleDeployError(error),
         reloadPath: options.reloadPath,
+        retry: options.retry,
         wasReported: ref<boolean | undefined>()
     };
     void deliverReport(failure);
@@ -171,7 +187,7 @@ async function deliverReport(failure: AppFailure): Promise<void> {
 
 // Outermost first, stopping on a cycle the way 'serialiseError' does. Walks the real error objects rather than the
 // serialised copies, since identity is the whole point.
-function collectCauseChain(error: AppError): Error[] {
+function collectCauseChain(error: unknown): Error[] {
     const chain: Error[] = [];
     const seen = new Set<unknown>();
     let current: unknown = error;
@@ -192,7 +208,3 @@ function findComponentName(error: unknown): string | undefined {
     return typeof name === 'string' ? name : undefined;
 }
 
-function hasStaleDeployMessage(serialisedError: SerialisedError): boolean {
-    const message = serialisedError.message.toLowerCase();
-    return STALE_DEPLOY_MESSAGE_PATTERNS.some((pattern) => message.includes(pattern));
-}

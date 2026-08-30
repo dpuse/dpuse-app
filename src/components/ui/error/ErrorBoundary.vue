@@ -64,7 +64,7 @@ async function handleRetry(): Promise<void> {
          that would disturb the layout of whatever it wraps. It suits the covering display too: with no box of its own,
          that display becomes a child of whatever laid the slot out and takes the space the slot would have had. -->
     <div class="contents" data-region="ErrorBoundary">
-        <ErrorDisplay v-if="capturedFailure" covers-region :failure="capturedFailure" @retry="handleRetry" />
+        <ErrorDisplay v-if="capturedFailure" covers-region :failures="[capturedFailure]" @retry="handleRetry" />
         <slot v-else-if="slotIsMounted" />
     </div>
 </template>

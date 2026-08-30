@@ -63,5 +63,5 @@ function handleRetry(): void {
 <template>
     <!-- Covers the region: this stands in for a panel that never arrived, so the space it would have occupied is
          exactly what has failed. -->
-    <ErrorDisplay v-if="loadFailure" covers-region :failure="loadFailure" @retry="handleRetry" />
+    <ErrorDisplay v-if="loadFailure" covers-region :failures="[loadFailure]" @retry="handleRetry" />
 </template>

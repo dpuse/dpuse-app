@@ -26,8 +26,14 @@ import type { GridListItem } from './ConfigContextModelList.vue';
 
 // ── Dynamic Components
 const ConfigContextModelDescriptorsPanel = defineAsyncPanel(() => import('./ConfigContextModelDescriptorsPanel.vue'), 'ConfigContextModelDescriptorsPanel');
-const ConfigContextModelEntityRelationshipDiagramPanel = defineAsyncPanel(() => import('./ConfigContextModelEntityRelationshipDiagramPanel.vue'), 'ConfigContextModelEntityRelationshipDiagramPanel');
-const ConfigContextModelDimensionSchemaDiagramPanel = defineAsyncPanel(() => import('./ConfigContextModelDimensionSchemaDiagramPanel.vue'), 'ConfigContextModelDimensionSchemaDiagramPanel');
+const ConfigContextModelEntityRelationshipDiagramPanel = defineAsyncPanel(
+    () => import('./ConfigContextModelEntityRelationshipDiagramPanel.vue'),
+    'ConfigContextModelEntityRelationshipDiagramPanel'
+);
+const ConfigContextModelDimensionSchemaDiagramPanel = defineAsyncPanel(
+    () => import('./ConfigContextModelDimensionSchemaDiagramPanel.vue'),
+    'ConfigContextModelDimensionSchemaDiagramPanel'
+);
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -117,10 +123,13 @@ function localiseModel(model: Model): LocalisedModel {
 </script>
 
 <template>
-    <div class="dpuse-prose flex-1 overflow-y-auto overscroll-y-none px-4 pb-(--vertical-scroll-bottom-screen-inset)">
-        <div class="max-w-prose">
-            <ErrorDisplay v-if="markedToolFailure" class="mt-4" :failure="markedToolFailure" @retry="handleRetryMarkedTool" />
+    <!-- Covers the region, as the same failure does in the chat: the descriptions render blank without the formatter,
+         so what is left is a page of empty headings. Placed outside the prose column it replaces, which is padded and
+         measure-limited for reading and would otherwise inset the failure from the region it is meant to fill. -->
+    <ErrorDisplay v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
+    <div v-else class="dpuse-prose flex-1 overflow-y-auto overscroll-y-none px-4 pb-(--vertical-scroll-bottom-screen-inset)">
+        <div class="max-w-prose">
             <!-- Header -->
             <h1 class="flex flex-none items-center justify-between gap-x-3 pt-6">
                 {{ modelReference.label }} Model
@@ -146,7 +155,11 @@ function localiseModel(model: Model): LocalisedModel {
                 @show-tree-diagram="dimensionSchemaDiagramIsOpen = true"
             />
 
-            <ConfigContextModelSecondaryMeasuresPanel :secondary-measures="activeModel?.secondaryMeasures ?? []" :marked-tool="markedTool" @edit="modelDescriptorsDialogIsOpen = true" />
+            <ConfigContextModelSecondaryMeasuresPanel
+                :secondary-measures="activeModel?.secondaryMeasures ?? []"
+                :marked-tool="markedTool"
+                @edit="modelDescriptorsDialogIsOpen = true"
+            />
         </div>
 
         <DialogModal

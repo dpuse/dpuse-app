@@ -1,6 +1,9 @@
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 
+// ── Local Framework
+import { markStaleDeployError } from '@/state/errors';
+
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Every failure the app can produce, named so one can be asked for from the URL. Grouped by where it is caught, since
@@ -68,8 +71,12 @@ export function throwOnFault(id: FaultId, target?: string, message = `Simulated 
     throw new AppError(message, 'dpuse-app.faultInjection.throwOnFault', { faultId: id, target, typeId: 'simulated' });
 }
 
-// As above, but worded so the failure is taken for a chunk this deployment can no longer fetch.
+// As above, for a chunk the running deployment can no longer fetch. Marked rather than worded: recognising one is
+// Vite's 'vite:preloadError' saying so, and nothing reads the browser's message, so a rehearsal has to arrive by the
+// same route the real thing does. The wording is left recognisable for whoever reads the console.
 export function throwOnStaleFault(id: FaultId, target?: string): void {
     if (!hasFault(id, target)) return;
-    throw new TypeError(STALE_DEPLOY_MESSAGE);
+    const error = new TypeError(STALE_DEPLOY_MESSAGE);
+    markStaleDeployError(error);
+    throw error;
 }

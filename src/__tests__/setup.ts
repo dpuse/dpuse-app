@@ -28,6 +28,30 @@ Object.defineProperties(globalThis, {
     }
 });
 
+// jsdom implements neither observer. Components that measure themselves construct one on mount, so without these the
+// mount throws and the failure surfaces as something unrelated further up — a navigation error, or a component that
+// looks like it failed to render. No callback ever fires: nothing under test depends on a resize or an intersection,
+// only on the constructor existing.
+class ObserverStub {
+    observe(): void {
+        // Nothing under test waits on a callback.
+    }
+    unobserve(): void {
+        // As above.
+    }
+    disconnect(): void {
+        // As above.
+    }
+    takeRecords(): [] {
+        return [];
+    }
+}
+
+Object.defineProperties(globalThis, {
+    ResizeObserver: { writable: true, value: ObserverStub },
+    IntersectionObserver: { writable: true, value: ObserverStub }
+});
+
 // jsdom implements '<dialog>' but not 'showModal'/'close', which is what the app uses to promote a dialog to the top
 // layer. Modelled just closely enough for the open state to be observable.
 

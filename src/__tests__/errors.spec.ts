@@ -1,27 +1,26 @@
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import { reportAppError } from '@/observability/errorTracking';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { appFailures, clearAppFailures, dismissAppFailure, isStaleDeployError, raiseAppFailure, raiseFailure, reportStaleDeployFailure } from '@/state/errors';
+import { appFailures, clearAppFailures, isStaleDeployError, markStaleDeployError, raiseAppFailure, raiseFailure, reportStaleDeployFailure, retryAppFailures } from '@/state/errors';
 
 vi.mock('@/observability/errorTracking', () => ({ reportAppError: vi.fn(() => Promise.resolve(true)) }));
 
-// The wording of a stale-deploy failure is the only thing identifying it, and it differs by engine.
-const STALE_DEPLOY_MESSAGES = [
-    'Failed to fetch dynamically imported module: https://app.dpuse.com/assets/Studio-a1b2c3.js',
-    'error loading dynamically imported module',
-    'Importing a module script failed.',
-    'Unable to preload CSS for /assets/Studio-a1b2c3.css',
-    "Failed to load module script: Expected a JavaScript module script but the server responded with a MIME type of 'text/html'."
-];
-
+// Recognising a stale deployment is Vite's 'vite:preloadError' saying so, and nothing read from the error itself: its
+// wording is not something browsers promise, and the imports that event does not cover cannot go stale at all.
 describe('isStaleDeployError', () => {
-    it.each(STALE_DEPLOY_MESSAGES)('recognises %s', (message) => {
-        expect(isStaleDeployError(new Error(message))).toBe(true);
+    it('recognises only what Vite has marked, whatever the message says', () => {
+        const preloadError = new Error('Whatever this browser calls an unfetchable chunk.');
+        expect(isStaleDeployError(preloadError)).toBe(false);
+
+        markStaleDeployError(preloadError);
+        expect(isStaleDeployError(preloadError)).toBe(true);
     });
 
-    it('recognises a stale-deploy failure wrapped as the cause of an app error', () => {
-        const cause = new Error(STALE_DEPLOY_MESSAGES[0]);
-        expect(isStaleDeployError(new AppError('Failed to load the Studio component.', 'test', undefined, { cause }))).toBe(true);
+    it('recognises it through the wrapper a catch site builds around it', () => {
+        const preloadError = new Error('Another wording entirely.');
+        markStaleDeployError(preloadError);
+
+        expect(isStaleDeployError(new AppError('Failed to load the Studio component.', 'test', undefined, { cause: preloadError }))).toBe(true);
     });
 
     it('does not recognise an ordinary failure', () => {
@@ -71,7 +70,8 @@ describe('raiseFailure', () => {
     });
 
     it('offers a reload for a chunk this deployment can no longer fetch', () => {
-        const cause = new Error(STALE_DEPLOY_MESSAGES[0]);
+        const cause = new Error('An unfetchable chunk.');
+        markStaleDeployError(cause);
         expect(raiseFailure(new AppError('Failed to load a panel.', 'test', undefined, { cause })).needsReload).toBe(true);
     });
 
@@ -129,9 +129,22 @@ describe('raiseAppFailure', () => {
         expect(failure.reloadPath).toBe('/studio/config');
     });
 
-    it('removes a failure the user has acknowledged', () => {
-        const failure = raiseAppFailure(new AppError('Unhandled Vue error.', 'test'));
-        dismissAppFailure(failure);
+    it('runs what a retryable failure offered, and clears only that one so a second attempt can raise again', () => {
+        const retry = vi.fn();
+        raiseAppFailure(new AppError('Failed to load 2 of 5 presenters.', 'test'), { capability: 'presenters', retry });
+        raiseAppFailure(new AppError('Failed to load the engine.', 'test'), { capability: 'engine' });
+
+        retryAppFailures();
+
+        expect(retry).toHaveBeenCalledOnce();
+        // The engine had nothing to run again, so the modal stays open for it.
+        expect(appFailures.value.map((failure) => failure.capability)).toStrictEqual(['engine']);
+    });
+
+    it('removes every failure the user has acknowledged, which is what one card holding them all can offer', () => {
+        raiseAppFailure(new AppError('Unhandled Vue error.', 'test'));
+        raiseAppFailure(new AppError('Failed to load the engine.', 'test'), { capability: 'engine' });
+        clearAppFailures();
 
         expect(appFailures.value).toStrictEqual([]);
     });

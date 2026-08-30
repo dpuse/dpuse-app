@@ -13,7 +13,7 @@ import type { PresenterInterface } from '@dpuse/dpuse-shared/component/module/pr
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import { useConfigsReady } from '@/services/useConfigsReady';
-import { type AppFailure, raiseFailure } from '@/state/errors';
+import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 import { type LocalisedReference, localiseReference } from '@dpuse/dpuse-shared/locale';
 import { presenterConfigs, toolConfigs } from '@/state/session';
 
@@ -42,9 +42,6 @@ const presenters: PresenterInterface[] = [];
 // Keyed by reference object, so entries for references dropped on a retry become unreachable and need no explicit clear.
 const presenterByPresentationReference = new WeakMap<LocalisedReference<ComponentReferenceConfig>, PresenterInterface>();
 
-// A presenter that fails to load only costs its own presentations, so the list still shows whatever else loaded and the
-// failure is surfaced as a notice above it rather than replacing the page.
-const loadFailure = shallowRef<AppFailure | undefined>();
 
 // A render failure is confined to the detail pane, so it is held separately and presented there.
 const renderFailure = shallowRef<AppFailure | undefined>();
@@ -69,9 +66,6 @@ onMounted(() => {
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleRetryLoad(): void {
-    void loadPresenters();
-}
 
 function handleRetryRender(): void {
     void handleSelectPresentation(activePresentationReference.value);
@@ -99,7 +93,6 @@ async function handleSelectPresentation(presentationReference: LocalisedReferenc
 
 // Each presenter is loaded independently so that one unavailable module costs only its own presentations.
 async function loadPresenters(): Promise<void> {
-    loadFailure.value = undefined;
     presenters.length = 0;
     presentationReferences.value = undefined;
 
@@ -133,8 +126,11 @@ async function loadPresenters(): Promise<void> {
 
     // Individual failures are reported above; this one drives the notice, so it names the presenters rather than a cause.
     const data = { failedPresenterIds };
-    loadFailure.value = raiseFailure(
-        new AppError(`Failed to load ${String(failedPresenterIds.length)} of ${String(presenterConfigs.value.length)} presenters.`, 'dpuse.presentationsLayout.loadPresenters', data)
+    // Announced rather than shown above the list: the presenters that did load are in it, so this has taken no space
+    // here. Covering the list to report two failures would hide the three that work.
+    raiseAppFailure(
+        new AppError(`Failed to load ${String(failedPresenterIds.length)} of ${String(presenterConfigs.value.length)} presenters.`, 'dpuse.presentationsLayout.loadPresenters', data),
+        { retry: () => void loadPresenters() }
     );
 }
 </script>
@@ -145,7 +141,6 @@ async function loadPresenters(): Promise<void> {
 
         <Separator />
 
-        <ErrorDisplay v-if="loadFailure" class="mx-4 mt-2" :failure="loadFailure" @retry="handleRetryLoad" />
 
         <GridDetailPanel
             :active-item="activePresentationReference"
@@ -160,7 +155,7 @@ async function loadPresenters(): Promise<void> {
             </template>
 
             <template #detail>
-                <ErrorDisplay v-if="renderFailure" covers-region :failure="renderFailure" @retry="handleRetryRender" />
+                <ErrorDisplay v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetryRender" />
                 <div v-show="!renderFailure" ref="container" class="dpuse-prose overflow-y-scroll overscroll-y-none px-4 pt-4" />
             </template>
 

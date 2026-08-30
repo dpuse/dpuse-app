@@ -9,7 +9,7 @@ import { initialiseServices } from '@/state/session';
 import { navigationPendingDepth } from '@/router';
 import { t } from '@/state/locale';
 import { throwOnFault } from '@/observability/faultInjection';
-import { appFailures, dismissAppFailure } from '@/state/errors';
+import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors';
 import { assistantPaneIsVisible, contentScrollPosition, sessionMenuIsOpen, studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 
 // ── Static Components
@@ -267,23 +267,22 @@ function establishPaneSplitterPercent(): number {
         <div class="fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-surface/80 via-25% to-surface/95" data-region="topFadeOut" />
 
         <!-- Failures with no region of their own: an uncaught error, a navigation that never reached a view, a service
-             the app loads for itself. Stacked as strips rather than an overlay — the app underneath is still standing
-             and still the user's, so nothing here blocks it. -->
-        <div class="fixed inset-x-0 top-[env(safe-area-inset-top)] z-80 flex flex-col items-center" data-region="AppFailures">
-            <TransitionGroup name="action-fade">
-                <!-- 'can-retry' is false because nothing here owns a retry: the service that failed is loaded once at
-                     startup, and the error that got this far was never contained by a region that could try again. -->
-                <ErrorDisplay
-                    v-for="failure in appFailures"
-                    :key="failure.capability ?? failure.error.message"
-                    :can-retry="false"
-                    is-dismissible
-                    :failure="failure"
-                    variant="strip"
-                    @dismiss="dismissAppFailure(failure)"
-                />
-            </TransitionGroup>
-        </div>
+             the app loads for itself. A failure fills the space it owns, and these own no region, so their space is
+             the screen and they are shown as a modal. One body listing all of them rather than one each — losing the
+             network fails every service independently, and four notices would read as four problems instead of the
+             one that happened.
+             Retry is offered only when one of them carried something to run again — most did not, being a service
+             loaded once at startup or an error no region ever contained, and for those a fresh document is the only
+             recovery there is. -->
+        <ErrorDisplay
+            v-if="appFailures.length > 0"
+            :can-retry="appFailures.some((failure) => failure.retry != null)"
+            :failures="appFailures"
+            is-dismissible
+            owns-screen
+            @dismiss="clearAppFailures"
+            @retry="retryAppFailures"
+        />
 
         <!-- Modal scrim. Loading is shown by each region's own spinner, so this no longer tracks navigation. -->
         <LoadingMask class="z-50" :is-dialog-active="dialogIsActive" :is-modal-active="modalIsActive" />

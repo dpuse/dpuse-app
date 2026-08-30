@@ -9,9 +9,9 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 // ── Local Framework
 import '@/assets/main.css';
 import { createAppRouter } from '@/router';
-import { isComponentLoaderErrorInfo, raiseAppFailure, reportStaleDeployFailure } from '@/state/errors';
+import { isComponentLoaderErrorInfo, markStaleDeployError, raiseAppFailure, reportStaleDeployFailure } from '@/state/errors';
 import { hasFault, throwOnFault } from '@/observability/faultInjection';
-import { reportAppError, reportFatalError } from '@/observability/errorTracking';
+import { reportFatalError } from '@/observability/errorTracking';
 
 // ── Static Components
 import App from '@/App.vue';
@@ -22,19 +22,21 @@ try {
     if (import.meta.env.DEV) throwOnFault('bootstrap'); // Before anything mounts, so the raw DOM banner is what answers.
     z.config({ jitless: true }); // TODO: Required by Vercel AI SDK. Remove if we standardise on Tanstack AI.
 
-    // Add global error handlers.
+    // Add global error handlers. Shown, not just reported: an error thrown outside Vue — from a timer, a DOM listener,
+    // a worker message — costs the user exactly what one thrown inside it does, and there is no region that could have
+    // caught either.
     addEventListener('error', (event): void => {
         // 'colno', 'filename' and 'lineno' are captured even when an error object came with the event: a cross-origin
         // script gives no error object and only a bare 'Script error.' message, leaving no stack, so they are then
         // the only thing locating the failure.
         const data = { colno: event.colno, filename: event.filename, lineno: event.lineno, originalMessage: event.message, typeId: 'unhandledRuntime' };
         const cause = event.error instanceof Error ? event.error : new Error(event.message || 'Unknown error.');
-        void reportAppError(new AppError('Unhandled error.', 'dpuse.main', data, { cause }));
+        raiseAppFailure(new AppError('Unhandled error.', 'dpuse.main', data, { cause }));
     });
     addEventListener('unhandledrejection', (event): void => {
         const data = { typeId: 'unhandledPromiseRejection' };
         const cause = event.reason instanceof Error ? event.reason : new Error(String(event.reason ?? 'Unknown promise rejection error.'));
-        void reportAppError(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause }));
+        raiseAppFailure(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause }));
 
         // 'preventDefault' stops the browser logging the rejection itself, duplicating the console output the call
         // above has already produced. Production only: in development that browser reporting is what lets devtools
@@ -53,6 +55,11 @@ try {
     // Letting it throw keeps that path working; 'reportStaleDeployFailure' drops the duplicate report that arrives
     // once the same failure is caught downstream.
     addEventListener('vite:preloadError', (event): void => {
+        // Marked before anything else: this event is Vite telling us, with certainty, that the running deployment can
+        // no longer fetch its own chunks. It carries the very error object it is about to rethrow, so whoever awaited
+        // that import ends up wrapping a cause we have already recognised — no message matching required.
+        markStaleDeployError(event.payload);
+
         const data = { typeId: 'vitePreloadError' };
         reportStaleDeployFailure(new AppError('Failed to load part of the app.', 'dpuse.main', data, { cause: event.payload }));
     });

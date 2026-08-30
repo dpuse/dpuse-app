@@ -11,12 +11,13 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 import type { DataSource } from '@/composables/useDataWindow';
 import T from './ConnectionDialog.json';
 import { viewportIsWide } from '@/state/appLayout';
-import { configRetrievalSucceeded, connectorConfigs } from '@/state/session';
+import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import AddConnectionForm from './AddConnectionForm.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
@@ -64,7 +65,9 @@ const connectorLocalisedConfigs = shallowRef<LocalisedConfig<ConnectorConfig>[]>
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectorConfig>>>(() => ({
-    rowCount: configRetrievalSucceeded.value ? connectorLocalisedConfigs.value.length : undefined,
+    // Settled either way: an undefined count means 'not yet known' and leaves the grid busy, so checking only the
+    // success flag left it spinning for the rest of the session when retrieval failed.
+    rowCount: configRetrievalSucceeded.value || configRetrievalFailed.value ? connectorLocalisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<ConnectorConfig>[] }> => Promise.resolve({ rows: connectorLocalisedConfigs.value.slice(start, end) })
 }));
 
@@ -115,7 +118,11 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 <template>
     <DialogHeader class="flex-none" :title="t(T, 'Manage_Connection')" />
 
-    <GridDetailPanel :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" @select="handleSelectConnector">
+    <!-- No connectors arrived, so there is nothing here to add a connection with. Covers the region rather than
+         leaving an empty picker with no explanation. -->
+    <ErrorDisplay v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
+
+    <GridDetailPanel v-else :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" @select="handleSelectConnector">
         <template #grid-item="{ item }">
             <ConfigCard v-if="item" :config="item" />
         </template>

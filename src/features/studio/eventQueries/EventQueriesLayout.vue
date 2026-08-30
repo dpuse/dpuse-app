@@ -96,7 +96,7 @@ async function renderDiagram(): Promise<void> {
 
         <Separator />
 
-        <ErrorDisplay v-if="renderFailure" covers-region :failure="renderFailure" @retry="handleRetry" />
+        <ErrorDisplay v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
 
         <div v-show="!renderFailure" class="px-4 py-2">
             <Button variant="outline" @click="handleAutoLayout">Auto-layout</Button>

@@ -9,9 +9,9 @@ import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/prese
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
 // ── Local Framework
-import { raiseAppFailure } from '@/state/errors';
+import { raiseFailure } from '@/state/errors';
 import { hasFault } from '@/observability/faultInjection';
-import { configRetrievalFailed, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
+import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -56,14 +56,29 @@ export function initialise(): void {
             return;
         }
 
-        state.isWebSocketShutdown = false;
-        state.reconnectAttempts = 0;
-        configRetrievalFailed.value = false;
-        state.webSocket = connectToWebSocket();
+        restart();
+    });
+
+    // Giving up was final for the session until now, so a user who loaded offline stayed broken after the network came
+    // back. The browser tells us the moment it returns, which is a better signal than any timer.
+    addEventListener('online', () => {
+        if (state.isWebSocketShutdown) return;
+        if (state.webSocket?.readyState === WebSocket.CONNECTING || state.webSocket?.readyState === WebSocket.OPEN) return;
+        restart();
     });
 }
 
 // ── Helpers - WebSocket ──────────────────────────────────────────────────────────────────────────────────────────────
+
+// Clears the give-up state and connects again, for the two cases where the app is worth another try: a page restored
+// from the back/forward cache, and a network that has come back.
+function restart(): void {
+    state.isWebSocketShutdown = false;
+    state.reconnectAttempts = 0;
+    configRetrievalFailed.value = false;
+    configRetrievalFailure.value = undefined;
+    state.webSocket = connectToWebSocket();
+}
 
 function connectToWebSocket(): WebSocket | undefined {
     // Skips straight to the give-up path rather than making the tester wait out five real reconnect delays.
@@ -131,17 +146,29 @@ function connectToWebSocket(): WebSocket | undefined {
 // Retries a limited number of times (with the reconnected socket's 'open' event resetting the counter), then gives
 // up and surfaces the failure rather than retrying silently forever with no way for the user to know every config
 // list is stuck loading.
+//
+// Offline it gives up at once instead. The retry budget is there for a server that might answer on the next attempt,
+// and a browser reporting no network at all will not — so spending it costs 25 seconds and finds out nothing. It is
+// not a short wait either: 'useConfigsReady' is gated on this settling, so every tool, presenter and cookbook in the
+// app waits it out before it can even fail.
 function scheduleReconnect(): void {
     if (state.isWebSocketShutdown) return;
     state.reconnectAttempts++;
-    if (state.reconnectAttempts > MAX_RECONNECT_ATTEMPTS) {
-        if (import.meta.env.DEV) console.info('[dpuse:app] ❌  Configuration WebSocket reconnect attempts exhausted — giving up.');
+    if (state.reconnectAttempts > MAX_RECONNECT_ATTEMPTS || !navigator.onLine) {
+        if (import.meta.env.DEV) {
+            console.info(`[dpuse:app] ❌  Configuration WebSocket giving up — ${navigator.onLine ? 'reconnect attempts exhausted' : 'browser reports no network'}.`);
+        }
         // The flag releases the awaits gated on retrieval; the failure is what tells the user why the lists they are
-        // looking at came back empty. Raised at app level because the lists are spread across several panels and none
-        // of them owns the connection.
+        // looking at came back empty.
+        //
+        // Not raised at app level, though nothing owns the connection: every consequence of it is regional — a list
+        // with no rows, a picker with nothing to pick — and those regions each show this. Announcing it over the top
+        // as well put the same sentence on screen twice at once, which reads as two problems.
         configRetrievalFailed.value = true;
-        const data = { host: DPU_API_HOST, reconnectAttempts: state.reconnectAttempts - 1, typeId: 'handled' };
-        raiseAppFailure(new AppError('Unable to connect to DPUse.', 'dpuse-app.configMonitor.scheduleReconnect', data), { capability: 'configuration' });
+        const data = { host: DPU_API_HOST, isOnline: navigator.onLine, reconnectAttempts: state.reconnectAttempts - 1, typeId: 'handled' };
+        configRetrievalFailure.value = raiseFailure(new AppError('Unable to connect to DPUse.', 'dpuse-app.configMonitor.scheduleReconnect', data), {
+            capability: 'configuration'
+        });
         return;
     }
     setTimeout(() => {

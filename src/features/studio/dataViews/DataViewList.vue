@@ -12,20 +12,23 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { defineAsyncPanel } from '@/utilities/index.ts';
-import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
+import { raiseAppFailure } from '@/state/errors';
 import {
     dataViewConfigs,
     dataViewLocalisedConfigs,
     dataViewRetrievalFailed,
+    dataViewRetrievalFailure,
     dataViewRetrievalSucceeded,
     NEW_DATA_VIEW_ID,
     removeDataViewRecord,
+    retrieveDataViewConfigs,
     setActiveDataViewConfig
 } from '@/state/dataViews';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import DataViewPanel from './DataViewPanel.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
@@ -84,9 +87,16 @@ async function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<Dat
     try {
         await removeDataViewRecord(activeMetaStoreConnectionConfig.value, dataViewLocalisedConfig.id);
     } catch (error) {
-        void reportAppError(new AppError('Failed to remove data view.', 'dpuse-app.DataViewList.handleDeleteDataView', { typeId: 'handled' }, { cause: error }));
+        // Announced rather than shown in the list: the delete did not happen, so the row and everything around it are
+        // still there and still work. There is no space here this failure has taken, which is what makes it a modal.
+        raiseAppFailure(new AppError('Failed to remove data view.', 'dpuse-app.DataViewList.handleDeleteDataView', { typeId: 'handled' }, { cause: error }));
     }
 }
+
+function handleRetryRetrieve(): void {
+    if (activeMetaStoreConnectionConfig.value) void retrieveDataViewConfigs(activeMetaStoreConnectionConfig.value);
+}
+
 
 function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
     activeDataViewLocalisedConfig.value = dataViewLocalisedConfig;
@@ -125,6 +135,10 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
 <template>
     <StudioListPanel>
         <Separator class="flex-none" />
+
+
+        <!-- Covers the region: nothing was retrieved, so an empty list with no explanation is what this replaces. -->
+        <ErrorDisplay v-if="dataViewRetrievalFailure" covers-region :failures="[dataViewRetrievalFailure]" @retry="handleRetryRetrieve" />
 
         <GridDetailPanel
             :active-item="activeDataViewLocalisedConfig"

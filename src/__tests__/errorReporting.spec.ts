@@ -1,5 +1,6 @@
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { flushPromises, mount } from '@vue/test-utils';
@@ -110,5 +111,27 @@ describe('error reporting hierarchy', () => {
         await settle();
 
         expect(reportedMessages()).toStrictEqual(['Navigation failed.']);
+    });
+
+    it('lists every failure in one body, so losing the network reads as one thing rather than four', async () => {
+        const failures = [
+            raiseAppFailure(new AppError('Failed to load the authentication service.', 'test'), { capability: 'authentication' }),
+            raiseAppFailure(new AppError('Failed to load the configuration service.', 'test'), { capability: 'configuration' }),
+            raiseAppFailure(new AppError('Failed to load the engine.', 'test'), { capability: 'engine' })
+        ];
+        const wrapper = mount(ErrorDisplay, { attachTo: document.body, props: { canRetry: false, failures, ownsScreen: true } });
+        await nextTick();
+
+        expect(wrapper.findAll('[data-region="ErrorDetail"]')).toHaveLength(1);
+        for (const failure of failures) expect(wrapper.text()).toContain(failure.error.message);
+    });
+
+    it('takes the screen for a failure no region owns, since that is the space it has lost', async () => {
+        const failures = [raiseAppFailure(new AppError('Unhandled Vue error.', 'test'))];
+        const wrapper = mount(ErrorDisplay, { attachTo: document.body, props: { canRetry: false, failures, ownsScreen: true } });
+        await nextTick();
+
+        // A modal, not a lock: it is opened by the failure and closed by the user, which the 'dismiss' emit reports.
+        expect(wrapper.find('dialog').element.open).toBe(true);
     });
 });

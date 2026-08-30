@@ -17,7 +17,7 @@ import { type LocaleId, localiseConfig, type LocalisedConfig } from '@dpuse/dpus
 
 // ── Local Framework
 import { localeId } from './locale';
-import { raiseAppFailure } from '@/state/errors';
+import { type AppFailure, raiseAppFailure } from '@/state/errors';
 import { reportAppError } from '@/observability/errorTracking';
 import { throwOnFault } from '@/observability/faultInjection';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
@@ -72,6 +72,10 @@ export const configRetrievalSucceeded = ref(false);
 // the UI show a real "couldn't connect" message instead of leaving every config list stuck in its busy state
 // forever. Reset to false as soon as a connection attempt succeeds.
 export const configRetrievalFailed = ref(false);
+// The failure behind the flag above. The flag settles the grids and releases the awaits gated on retrieval; this is
+// what a region shows so an empty list explains itself. It is the only display of this failure — every consequence of
+// it is regional, so announcing it at app level as well would put the same sentence on screen twice at once.
+export const configRetrievalFailure = shallowRef<AppFailure | undefined>();
 // True once accountMonitor has delivered at least one message for the current session. Cleared on sign-out
 // alongside connectionAccountConfigs, since neither is meaningful while signed out.
 export const accountConfigsAreRetrieved = ref(false);
@@ -220,7 +224,11 @@ async function initialiseHanko(): Promise<void> {
         establishSession('validated', result.is_valid ? result.claims : undefined);
         void initialisePerformanceTracking();
     } catch (error) {
-        void reportAppError(new AppError('Session validation failed.', 'dpuse.sessionStore.useSessionStore.initialiseServices', { typeId: 'handled' }, { cause: error }));
+        // The same capability as a failed SDK load, and for the user the same loss: they cannot sign in. Named
+        // alike so a session that is offline for both reasons is one entry rather than two.
+        raiseAppFailure(new AppError('Session validation failed.', 'dpuse.sessionStore.useSessionStore.initialiseServices', { typeId: 'handled' }, { cause: error }), {
+            capability: 'authentication'
+        });
         establishSession('validationFailure');
     }
 }

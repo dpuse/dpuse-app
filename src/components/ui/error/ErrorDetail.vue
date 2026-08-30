@@ -30,12 +30,17 @@ import Button from '@/components/ui/button/Button.vue';
 // 'canCancel' is true only in the dialog, where cancelling means closing it. Rendered in place there is nothing to
 // cancel: the failure has already happened, and a button that only made the account of it disappear would leave a
 // region that is broken and no longer says so.
+//
+// Several failures rather than one, because losing the network fails every service the app loads independently — the
+// authentication SDK and the configuration monitor start together, the engine follows when something needs it — and
+// each is a separate capability that de-duplication cannot merge. One card listing four losses reads as the single
+// thing that happened; four cards read as four problems. A region only ever has one, and passes it as a list of one.
 interface Properties {
     canCancel?: boolean;
     canRetry: boolean;
-    failure: AppFailure;
+    failures: AppFailure[];
 }
-const { canCancel, canRetry, failure } = defineProps<Properties>();
+const { canCancel, canRetry, failures } = defineProps<Properties>();
 
 defineEmits<{ cancel: []; reload: []; retry: [] }>();
 
@@ -65,41 +70,66 @@ const T = {
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const errorTrace = computed(() => serialiseError(failure.error));
-const mainSerialisedError = computed(() => errorTrace.value[0]);
-const originalSerialisedError = computed(() => (errorTrace.value.length > 1 ? errorTrace.value.at(-1) : undefined));
+// Serialised once per failure rather than three times in the template, which would walk each cause chain again for
+// the message, the cause and every trace line.
+const entries = computed(() =>
+    failures.map((failure) => {
+        const trace = serialiseError(failure.error);
+        return { cause: trace.length > 1 ? trace.at(-1) : undefined, failure, main: trace[0], trace };
+    })
+);
+
+// Shown once however many failures share the reason. A stale deployment fails every chunk the session goes on to need,
+// so repeating the same sentence per entry would say nothing new four times.
+const needsReload = computed(() => failures.some((failure) => failure.needsReload));
 </script>
 
 <template>
     <div class="rounded-lg border border-warning-ring/20 bg-warning px-4 py-5" data-region="ErrorDetail">
         <TriangleAlertIcon class="size-8 text-warning-text" stroke-width="1.5" />
 
-        <p class="mt-2 text-sm font-semibold wrap-anywhere text-warning-text">{{ mainSerialisedError.message }}</p>
+        <!-- One block per failure, ruled off from the next so four losses read as a list rather than as run-on prose.
+             The rule is on every block but the first, which is what keeps it between them and not above the lot. -->
+        <div v-for="(entry, entryIndex) in entries" :key="entryIndex" :class="entryIndex > 0 ? 'mt-4 border-t border-warning-ring/20 pt-4' : undefined">
+            <p class="mt-2 text-sm font-semibold wrap-anywhere text-warning-text">{{ entry.main.message }}</p>
 
-        <p v-if="originalSerialisedError" class="mt-2 text-sm wrap-anywhere text-warning-text/80">
-            <span class="text-sm font-semibold">{{ t(T, 'cause.label') }}</span
-            >: {{ originalSerialisedError.message }}
-        </p>
+            <p v-if="entry.cause" class="mt-2 text-sm wrap-anywhere text-warning-text/80">
+                <span class="text-sm font-semibold">{{ t(T, 'cause.label') }}</span
+                >: {{ entry.cause.message }}
+            </p>
 
-        <p v-if="failure.needsReload" class="mt-2 text-sm text-warning-text/80">{{ t(T, 'staleDeploy.message') }}</p>
+            <!-- 'overflow-wrap: anywhere' because a trace carries chunk URLs, which have no spaces to break at and
+                 would otherwise push the body wider than the region holding it. -->
+            <details v-if="entry.trace.length > 0" class="group my-3 text-left">
+                <!-- No focus box of any kind: a summary is focusable, so browsers draw their own, and inside a
+                     warning-coloured panel any box reads as a stray control. The chevron already turns to show the
+                     open state, which is the feedback that matters here. -->
+                <summary
+                    class="flex w-fit cursor-pointer list-none items-center gap-1 text-sm font-semibold text-warning-text/80 outline-none [&::-webkit-details-marker]:hidden"
+                >
+                    {{ t(T, 'trace.label') }}:
+                    <ChevronDownIcon class="size-4 transition-transform group-open:rotate-180" />
+                </summary>
 
-        <!-- 'overflow-wrap: anywhere' because a trace carries chunk URLs, which have no spaces to break at and would
-             otherwise push the body wider than the region holding it. -->
-        <details v-if="errorTrace.length > 0" class="group my-3 text-left">
-            <summary class="flex w-fit cursor-pointer list-none items-center gap-1 text-sm font-semibold text-warning-text/80 [&::-webkit-details-marker]:hidden">
-                {{ t(T, 'trace.label') }}:
-                <ChevronDownIcon class="size-4 transition-transform group-open:rotate-180" />
-            </summary>
+                <!-- 'list-disc' restored explicitly: the preflight reset strips markers from every list, so the items
+                     were already 'li' elements but sat unmarked, reading as wrapped prose rather than as a chain of
+                     causes. -->
+                <ul class="list-disc pl-4! marker:text-warning-text/50">
+                    <li v-for="(serialisedError, index) in entry.trace" :key="index" class="text-sm leading-snug! wrap-anywhere text-warning-text/70">
+                        {{ serialisedError.message }}
+                        <span class="text-warning-text/50">({{ serialisedError.name }})</span>
+                    </li>
+                </ul>
+            </details>
 
-            <!-- 'list-disc' restored explicitly: the preflight reset strips markers from every list, so the items were
-                 already 'li' elements but sat unmarked, reading as wrapped prose rather than as a chain of causes. -->
-            <ul class="list-disc pl-4! marker:text-warning-text/50">
-                <li v-for="(serialisedError, index) in errorTrace" :key="index" class="text-sm leading-snug! wrap-anywhere text-warning-text/70">
-                    {{ serialisedError.message }}
-                    <span class="text-warning-text/50">({{ serialisedError.name }})</span>
-                </li>
-            </ul>
-        </details>
+            <p class="mt-2 mb-0! text-xs leading-snug! text-warning-text/80">
+                <span v-if="entry.failure.wasReported.value == null">{{ t(T, 'reporting.pending') }}</span>
+                <span v-else-if="entry.failure.wasReported.value">{{ t(T, 'reporting.succeeded') }}</span>
+                <span v-else class="font-semibold">{{ t(T, 'reporting.failed') }}</span>
+            </p>
+        </div>
+
+        <p v-if="needsReload" class="mt-4 text-sm text-warning-text/80">{{ t(T, 'staleDeploy.message') }}</p>
 
         <!-- Reload stands apart on the left and in the danger colour: it is the heaviest thing offered here, costing
              the whole page and anything unsaved on it, so it is kept away from the buttons the user reaches for first
@@ -129,11 +159,6 @@ const originalSerialisedError = computed(() => (errorTrace.value.length > 1 ? er
             </div>
         </div>
 
-        <p class="mt-2 mb-0! border-t border-warning-ring/30 pt-2 text-xs leading-snug! text-warning-text">
-            {{ t(T, 'console.message') }}
-            <span v-if="failure.wasReported.value == null">{{ t(T, 'reporting.pending') }}</span>
-            <span v-else-if="failure.wasReported.value">{{ t(T, 'reporting.succeeded') }}</span>
-            <span v-else class="font-semibold">{{ t(T, 'reporting.failed') }}</span>
-        </p>
+        <p class="mt-2 mb-0! border-t border-warning-ring/30 pt-2 text-xs leading-snug! text-warning-text">{{ t(T, 'console.message') }}</p>
     </div>
 </template>

@@ -10,10 +10,11 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
-import { activeMetaStoreConnectionConfig, configRetrievalSucceeded } from '@/state/session';
+import { activeMetaStoreConnectionConfig, configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded } from '@/state/session';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectConnectionPanel from './SelectConnectionPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
@@ -34,7 +35,9 @@ const router = useRouter();
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
-    rowCount: configRetrievalSucceeded.value ? connectionLocalisedConfigs.value.length : undefined,
+    // Settled either way: an undefined count means 'not yet known' and leaves the grid busy, so checking only the
+    // success flag left it spinning for the rest of the session when retrieval failed.
+    rowCount: configRetrievalSucceeded.value || configRetrievalFailed.value ? connectionLocalisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<ConnectionConfig>[] }> => Promise.resolve({ rows: connectionLocalisedConfigs.value.slice(start, end) })
 }));
 
@@ -100,7 +103,12 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
 </script>
 
 <template>
+    <!-- The list is empty because the configurations never arrived, not because there are no connections. Covers the
+         region: there is nothing to pick here, and no way to add one either, until the connection is back. -->
+    <ErrorDisplay v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
+
     <GridDetailPanel
+        v-else
         :active-item="activeConnectionConfig"
         add-label="Connection"
         :data-source="connectionConfigsDataSource"

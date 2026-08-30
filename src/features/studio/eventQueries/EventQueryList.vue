@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { PlusIcon } from '@lucide/vue';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -14,14 +14,15 @@ import type { CreateObjectOptions, FindObjectOptions, FindObjectResult, Retrieve
 
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities/index.ts';
-import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 import { useEngine } from '@/services/useEngine';
 import { activeMetaStoreConnectionConfig, eventQueryConfigs } from '@/state/session';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import Grid from '@/components/ui/grid/Grid.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
@@ -38,6 +39,7 @@ const T = {
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const eventQueryRetrievalIsActive = ref(false);
+const retrieveFailure = shallowRef<AppFailure | undefined>();
 const route = useRoute();
 const router = useRouter();
 
@@ -53,9 +55,16 @@ const dataSource = computed((): DataSource<LocalisedConfig<EventQueryConfig>> =>
 
 watch(activeMetaStoreConnectionConfig, (newConnectionConfig) => retrieveEventQueries(newConnectionConfig), { immediate: true });
 
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+function handleRetryRetrieve(): void {
+    void retrieveEventQueries(activeMetaStoreConnectionConfig.value);
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promise<void> {
+    retrieveFailure.value = undefined;
     try {
         if (!connectionConfig) return;
 
@@ -79,7 +88,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
             }
         });
     } catch (error) {
-        void reportAppError(new AppError('Failed to retrieve event queries.', 'dpuse-app.EventQueryList.retrieveEventQueries', { typeId: 'handled' }, { cause: error }));
+        retrieveFailure.value = raiseFailure(new AppError('Failed to retrieve event queries.', 'dpuse-app.EventQueryList.retrieveEventQueries', { typeId: 'handled' }, { cause: error }));
     } finally {
         // Pending...
     }
@@ -95,8 +104,11 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
         </Button>
     </div>
 
+    <!-- Covers the region: nothing was retrieved, so an empty list with no explanation is what this replaces. -->
+    <ErrorDisplay v-if="retrieveFailure" covers-region :failures="[retrieveFailure]" @retry="handleRetryRetrieve" />
+
     <Grid
-        v-if="eventQueryRetrievalIsActive && eventQueryConfigs && eventQueryConfigs.length > 0"
+        v-else-if="eventQueryRetrievalIsActive && eventQueryConfigs && eventQueryConfigs.length > 0"
         class="flex-1 pb-6"
         :data-source="dataSource"
         :row-height="150"

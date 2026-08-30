@@ -1,17 +1,18 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
-import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { onMounted, onUnmounted, ref, shallowRef, useTemplateRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
-import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
 // ── Static Components
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import LoginForm from '@/features/session/authDialog/LoginForm.vue';
 import PasswordForm from '@/features/session/authDialog/PasswordForm.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
@@ -31,6 +32,7 @@ const route = useRoute();
 const router = useRouter();
 const containerElement = useTemplateRef<HTMLDivElement>('container');
 const flowConstructed = ref(false);
+const signInFailure = shallowRef<AppFailure | undefined>();
 const handleIdEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
 const handlePasswordBack = ref<(() => Promise<void>) | undefined>(undefined);
 const handlePasswordEntered = ref<((identifier: string) => Promise<void>) | undefined>(undefined);
@@ -45,7 +47,7 @@ onMounted(async () => {
         });
         flowConstructed.value = true;
     } catch (error) {
-        void reportAppError(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthDialog.onMounted.constructFlow', { typeId: 'handled' }, { cause: error }));
+        signInFailure.value = raiseFailure(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthDialog.onMounted.constructFlow', { typeId: 'handled' }, { cause: error }));
     }
 });
 
@@ -53,13 +55,29 @@ onUnmounted(() => {
     destroyFlow();
 });
 
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The flow is rebuilt from scratch: whatever state it reached is what failed, so resuming it is not an option.
+function handleRetrySignIn(): void {
+    signInFailure.value = undefined;
+    flowConstructed.value = false;
+    destroyFlow();
+    void constructFlow('login', ({ state }: { state: AnyState }) => {
+        void safeHandleLoginFlowStateChange(state);
+    })
+        .then(() => (flowConstructed.value = true))
+        .catch((error: unknown) => {
+            signInFailure.value = raiseFailure(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthDialog.handleRetrySignIn', { typeId: 'handled' }, { cause: error }));
+        });
+}
+
 // ── Login flow helpers ───────────────────────────────────────────────────────────────────────────────────────────────
 
 async function safeHandleLoginFlowStateChange(state: AnyState): Promise<void> {
     try {
         await handleLoginFlowStateChange(state);
     } catch (error) {
-        void reportAppError(new AppError('Failed to handle sign in flow state change.', 'dpuse.AuthDialog.handleLoginFlowStateChange', { typeId: 'handled' }, { cause: error }));
+        signInFailure.value = raiseFailure(new AppError('Failed to handle sign in flow state change.', 'dpuse.AuthDialog.handleLoginFlowStateChange', { typeId: 'handled' }, { cause: error }));
     }
 }
 
@@ -182,7 +200,15 @@ function onAfterEnter(): void {
 </script>
 
 <template>
-    <ScrollArea>
+    <!-- Covers the region when the sign-in flow never started or stopped part way: the form below leads nowhere, so
+         there is nothing here left to keep. The logo is laid over it rather than above it, so the dialog still reads as
+         the sign-in dialog; the close button belongs to the frame and is already over everything here. -->
+    <div v-if="signInFailure" class="relative flex min-h-0 flex-1">
+        <ErrorDisplay covers-region :failures="[signInFailure]" @retry="handleRetrySignIn" />
+        <DPUseLogo class="absolute top-8 left-8 size-12" />
+    </div>
+
+    <ScrollArea v-else>
         <div class="flex flex-col gap-y-3 py-8 pr-4 pl-8">
             <DPUseLogo class="size-12" />
 

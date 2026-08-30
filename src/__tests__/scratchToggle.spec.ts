@@ -3,9 +3,19 @@ import { createAppRouter } from '@/router';
 import { flushPromises, mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
-async function clickStudioToggle(entryUrl: string) {
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Clicking the studio toggle re-enters the current screen, so it exercises whatever the URL asks for a second time.
+// These cover the URLs that used to be suspected of breaking it: one carrying a record id, and one naming a view that
+// no longer exists. Neither does — the errors that once made this file pass were 'ResizeObserver is not defined',
+// which jsdom lacks and 'setup.ts' now stubs, surfacing as a navigation failure that looked like an app fault.
+async function clickStudioToggle(entryUrl: string): Promise<{ endedAt: string; error: Error | undefined; landedAt: string }> {
     const router = createAppRouter();
-    await router.push(entryUrl).catch(() => {});
+    try {
+        await router.push(entryUrl);
+    } catch {
+        // The landing is asserted below; a rejected push is one of the outcomes under test.
+    }
     await router.isReady();
 
     const wrapper = mount(App, { attachTo: document.body, global: { plugins: [router] } });
@@ -21,34 +31,20 @@ async function clickStudioToggle(entryUrl: string) {
     await wrapper.find('button[aria-label="Toggle studio panel"]').trigger('click');
     await flushPromises();
 
-    return { landedAt, endedAt: router.currentRoute.value.fullPath, error: errors[0] as Error | undefined };
+    return { endedAt: router.currentRoute.value.fullPath, error: errors[0] as Error | undefined, landedAt };
 }
 
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 describe('studio toggle', () => {
-    it('the URL the user actually tried', async () => {
-        const result = await clickStudioToggle('/dataViews');
-        console.log(
-            'A /dataViews ->',
-            JSON.stringify(result, (_k, v) => (v instanceof Error ? v.message.split('\n', 1)[0] : v))
-        );
-        expect(result.error).toBeUndefined();
-    });
+    it.each([
+        ['the URL the user actually tried', '/dataViews'],
+        ['a screen that needs an id', '/dataViews/abc123/items?sView=items'],
+        ['a route name that no longer exists', '/dataViews?sView=rubbish']
+    ])('leaves the URL alone and raises nothing: %s', async (_description, entryUrl) => {
+        const { endedAt, error, landedAt } = await clickStudioToggle(entryUrl);
 
-    it('a screen that needs an id', async () => {
-        const result = await clickStudioToggle('/dataViews/abc123/items?sView=items');
-        console.log(
-            'B items ->',
-            JSON.stringify(result, (_k, v) => (v instanceof Error ? v.message.split('\n', 1)[0] : v))
-        );
-        expect(result.error).toBeDefined();
-    });
-
-    it('a route name that no longer exists', async () => {
-        const result = await clickStudioToggle('/dataViews?sView=rubbish');
-        console.log(
-            'C rubbish ->',
-            JSON.stringify(result, (_k, v) => (v instanceof Error ? v.message.split('\n', 1)[0] : v))
-        );
-        expect(result.error).toBeDefined();
+        expect(error).toBeUndefined();
+        expect(endedAt).toBe(landedAt);
     });
 });

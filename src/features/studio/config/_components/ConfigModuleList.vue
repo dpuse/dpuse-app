@@ -8,11 +8,12 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import type { ConfigOptionConfig, ManagedModuleConfig } from '@/utilities/index.ts';
-import { configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/session';
+import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import ConfigConnectorPanel from '@/features/studio/config/ConfigConnectorPanel.vue';
 import ConfigCookbookPanel from '@/features/studio/config/ConfigCookbookPanel.vue';
 import ConfigPresenterPanel from '@/features/studio/config/ConfigPresenterPanel.vue';
@@ -58,7 +59,9 @@ const localisedConfigs = shallowRef<LocalisedConfig<ManagedModuleConfig>[]>([]);
 const moduleTypeConfig = computed(() => MODULE_TYPE_CONFIGS[activeConfigOptionConfig.id]);
 
 const configsDataSource = computed<DataSource<LocalisedConfig<ManagedModuleConfig>>>(() => ({
-    rowCount: configRetrievalSucceeded.value ? localisedConfigs.value.length : undefined,
+    // Settled either way: an undefined count means 'not yet known' and leaves the grid busy, so checking only the
+    // success flag left it spinning for the rest of the session when retrieval failed.
+    rowCount: configRetrievalSucceeded.value || configRetrievalFailed.value ? localisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<ManagedModuleConfig>[] }> => Promise.resolve({ rows: localisedConfigs.value.slice(start, end) })
 }));
 
@@ -78,7 +81,13 @@ function handleSelect(localisedConfig: LocalisedConfig<ManagedModuleConfig> | un
 </script>
 
 <template>
+    <!-- The list is empty because the configurations never arrived, not because there are none. Covers the region: an
+         empty grid with no explanation is what this replaces, and the app-level announcement of the same failure can
+         be dismissed, after which this is all that is left to say why. -->
+    <ErrorDisplay v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
+
     <GridDetailPanel
+        v-else
         :active-item="activeLocalisedConfig"
         class="min-h-0 flex-1"
         :data-source="configsDataSource"
