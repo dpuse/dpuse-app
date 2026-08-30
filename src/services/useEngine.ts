@@ -6,7 +6,7 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { EngineCallbackData, EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared/component/module/engine';
 
 // ── Local Framework
-import { raiseAppFailure } from '@/state/errors';
+import { raiseFailure } from '@/state/errors';
 import { throwOnFault } from '@/observability/faultInjection';
 import { engineConfig, toolConfigs } from '@/state/session';
 
@@ -43,12 +43,13 @@ export async function useEngine(): Promise<EngineWorker> {
         });
         await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: toolConfigs.value });
     } catch (error) {
-        // Every engine-dependent operation funnels through this one load, and none of them can name the failure as
-        // precisely as this does, so it is raised at app level rather than left to whichever caller noticed first.
-        // Still thrown afterwards: the caller's own await has to reject, and its catch may add context of its own.
+        // Raised to report it, not to display it: this knows the engine failed but not what the user was doing, and
+        // every caller is inside a region that does. Each of them shows this as the cause of its own failure — the
+        // same loss described in the words of whatever it prevented — and the de-duplication in 'deliverReport' keeps
+        // that to one report however many regions were waiting on this load.
         const data = { engineURL, engineVersion, typeId: 'handled' };
         const appError = new AppError(`Failed to load engine v${String(engineVersion)}.`, 'dpuse-app.useEngine.useEngine', data, { cause: error });
-        raiseAppFailure(appError, { capability: 'engine' });
+        raiseFailure(appError, { capability: 'engine' });
         throw appError;
     }
     if (import.meta.env.DEV) console.info(`[dpuse:app] ✅  Engine 'dpuse-engine' v${String(engineVersion)} loaded.`);

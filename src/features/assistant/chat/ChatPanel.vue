@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowUpIcon } from '@lucide/vue';
 import DOMPurify from 'dompurify';
+import { ArrowUpIcon, SquareIcon } from '@lucide/vue';
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
@@ -14,6 +14,7 @@ import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } f
 import AssistantVendorMenu from '../_components/AssistantVendorMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
+import PendingLabel from '../_components/PendingLabel.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import TextArea from '@/components/ui/text/TextArea.vue';
 
@@ -23,7 +24,7 @@ const ChatVercelInterface = defineAsyncPanel(() => import('./ChatVercelInterface
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const PROMPT = 'What should I search for to find the latest developments in renewable energy?';
+const PROMPT = 'List the connectors.';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -40,18 +41,45 @@ const input = ref(PROMPT);
 const scrollElement = ref<HTMLElement | null>(null);
 const messages = ref<AssistantChatMessage[]>([]);
 const status = ref('idle');
+// A failure that belongs to no message — the send never got far enough to add one. Held here so it can be shown at
+// the end of the thread, where the question that failed would have gone.
+const sendFailure = ref<string>();
 const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
 const inputContainerHeight = ref(0);
 
-const sessionReference = useTemplateRef<{ sendMessage: (text: string) => void }>('sessionReference');
+const sessionReference = useTemplateRef<{ sendMessage: (text: string) => void; stop: () => void }>('sessionReference');
 const inputContainer = useTemplateRef<HTMLElement>('inputContainer');
 
 const state: { inputContainerResizeObserver: ResizeObserver | null; scrollObserver: MutationObserver | null } = { inputContainerResizeObserver: null, scrollObserver: null };
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Both vendors report the same run states, so one check covers either session. 'submitted' counts: the run is the
+// user's to cancel from the moment it is accepted, not only once tokens are arriving.
+const responseIsRunning = computed(() => status.value === 'streaming' || status.value === 'submitted');
+
+// The gaps in a run where the thread has nothing to show: between the question and the first token, and again while a
+// tool call is in flight — a tool-only assistant message normalises to no parts, so it renders as nothing at all.
+// Both are silences the placeholder speaks for, and the first content to arrive ends it.
+const responseIsPending = computed(() => {
+    if (!responseIsRunning.value) return false;
+    const lastMessage = messages.value.at(-1);
+    return lastMessage?.role !== 'assistant' || lastMessage.parts.length === 0;
+});
+
 // mb-4 (16px) on the input container isn't part of its own height, so it's added on top to keep messages clear of it.
 const scrollPaddingBottom = computed(() => `${String(inputContainerHeight.value + 16)}px`);
+
+// Only the thread's last message can still be running; everything above it is settled.
+function isResponseStreaming(message: AssistantChatMessage): boolean {
+    return responseIsRunning.value && message.id === messages.value.at(-1)?.id;
+}
+
+// Only reached once the step is complete: 'Done' for the answer to the question, 'Response' for the turns that were
+// steps on the way to it.
+function responseHeading(message: AssistantChatMessage): string {
+    return message.id === messages.value.at(-1)?.id ? 'Done' : 'Response';
+}
 
 function renderText(text: string): string {
     // Formatter unavailable: fall back to sanitized plain text rather than blanking the message.
@@ -85,7 +113,19 @@ function handleSelectVendor(newVendorId: AssistantVendorId, newModelConfig: Assi
     emit('vendorChange', newVendorId, newModelConfig);
 }
 
+// The one composer action: the same button sends while the thread is idle and cancels while a response is running.
+function handleComposerAction(): void {
+    if (responseIsRunning.value) {
+        sessionReference.value?.stop();
+        return;
+    }
+    handleSendMessage();
+}
+
 function handleSendMessage(): void {
+    // Guarded rather than queued: Enter during a run would otherwise reach a session that cannot take a second send.
+    if (responseIsRunning.value) return;
+    sendFailure.value = undefined; // The last failure belongs to the attempt before this one.
     const text = input.value.trim();
     if (!text || sessionReference.value == null) return;
     input.value = '';
@@ -107,7 +147,14 @@ function handleRetryMarkedTool(): void {
 
 <template>
     <div class="relative flex min-h-0 flex-1 flex-col">
-        <component :is="SessionComponent" ref="sessionReference" :model-config="modelConfig" @messages-change="messages = $event" @status-change="status = $event" />
+        <component
+            :is="SessionComponent"
+            ref="sessionReference"
+            :model-config="modelConfig"
+            @messages-change="messages = $event"
+            @send-failure="sendFailure = $event"
+            @status-change="status = $event"
+        />
 
         <!-- Covers the region: 'purifyMarkdown' returns an empty string without the formatter, so every message in the
              thread renders blank. The chat is not degraded by this, it is unreadable, so the thread and the composer
@@ -123,40 +170,41 @@ function handleRetryMarkedTool(): void {
                             <div class="w-full rounded-md bg-info px-3 py-2 text-sm">{{ part.content }}</div>
                         </div>
 
-                        <div v-for="(errorText, errorIndex) in message.errors" :key="`${message.id}-error-${errorIndex}`" class="mx-auto mt-3 max-w-prose">
-                            <div class="flex gap-3">
-                                <div class="flex w-4 shrink-0 flex-col items-center">
-                                    <div class="mt-1.25 size-2 shrink-0 rounded-full bg-danger-text"></div>
-                                </div>
-                                <div class="min-w-0 flex-1 pb-4">
-                                    <div class="mb-1 text-xs font-medium tracking-wide text-danger-text">Error</div>
-                                    <div class="text-sm whitespace-pre-line text-danger-text">{{ errorText }}</div>
-                                </div>
-                            </div>
+                        <div v-for="(errorText, errorIndex) in message.errors" :key="`${message.id}-error-${errorIndex}`" class="mx-auto mt-3 max-w-prose pb-4">
+                            <div class="mb-1 text-xs font-medium tracking-wide text-danger-text">Error</div>
+                            <div class="text-sm whitespace-pre-line text-danger-text">{{ errorText }}</div>
                         </div>
                     </template>
 
                     <template v-else-if="message.role === 'assistant'">
                         <div class="mx-auto mt-3 max-w-prose">
-                            <div v-for="step in getMessageSteps(message)" :key="step.type" class="flex gap-3">
-                                <div class="flex w-4 shrink-0 flex-col items-center">
-                                    <div class="mt-1.25 size-2 shrink-0 rounded-full" :class="step.type === 'thinking' ? 'bg-subtle' : 'bg-content'"></div>
-                                    <div v-if="!step.isLast" class="mt-1 w-px flex-1 bg-separator"></div>
-                                </div>
-                                <div class="min-w-0 flex-1 pb-4">
-                                    <template v-if="step.type === 'thinking'">
-                                        <div class="mb-1 text-xs font-medium tracking-wide text-subtle">Thinking</div>
-                                        <div v-for="part in step.parts" :key="part.content" class="text-sm text-subtle">{{ part.content }}</div>
-                                    </template>
-                                    <template v-else>
-                                        <div class="mb-1 text-xs font-medium tracking-wide text-subtle">Response</div>
-                                        <div v-for="part in step.parts" :key="part.content" class="text-sm" v-html="renderText(part.content)" />
-                                    </template>
-                                </div>
+                            <div v-for="step in getMessageSteps(message)" :key="step.type" class="pb-4">
+                                <template v-if="step.type === 'thinking'">
+                                    <div class="mb-3 text-xs font-medium tracking-wide text-subtle">Thinking</div>
+                                    <div v-for="part in step.parts" :key="part.content" class="text-sm text-subtle">{{ part.content }}</div>
+                                </template>
+                                <template v-else>
+                                    <PendingLabel v-if="isResponseStreaming(message)" class="mb-1 text-xs font-medium tracking-wide text-subtle" />
+                                    <div v-else class="mb-3 text-xs font-medium tracking-wide text-subtle">{{ responseHeading(message) }}</div>
+                                    <div v-for="part in step.parts" :key="part.content" class="text-sm" v-html="renderText(part.content)" />
+                                </template>
                             </div>
                         </div>
                     </template>
                 </template>
+
+                <!-- Both sit after the thread rather than inside it: each stands in for a message that does not exist,
+                     so there is no message to key them to. -->
+                <div v-if="sendFailure" class="mx-auto mt-3 max-w-prose pb-4">
+                    <div class="mb-1 text-xs font-medium tracking-wide text-danger-text">Error</div>
+                    <div class="text-sm whitespace-pre-line text-danger-text">{{ sendFailure }}</div>
+                </div>
+
+                <!-- Carries the step label's own classes, so the first real step lands on the same line at the same
+                     size and the swap does not move anything. -->
+                <div v-if="responseIsPending" class="mx-auto mt-3 max-w-prose pb-4">
+                    <PendingLabel class="mb-1 text-xs font-medium tracking-wide text-subtle" />
+                </div>
             </ScrollArea>
 
             <!-- Input - in-flow, always rounded, with an action bar (vendor/model, status, send) attached below the text box. -->
@@ -171,20 +219,35 @@ function handleRetryMarkedTool(): void {
             >
                 <TextArea v-model="input" class="max-h-40 rounded-t-2xl" placeholder="Ask a question" @keydown.enter.exact.prevent="handleSendMessage" />
 
-                <div class="flex items-center justify-between gap-x-2 rounded-b-2xl border-t border-selected-border bg-selected p-2 text-selected-text">
-                    <AssistantVendorMenu :model-config="modelConfig" :vendor-configs="vendorConfigs" :vendor-id="vendorId" @select="handleSelectVendor" />
+                <!-- Grid rather than flex: the send button sits in a max-content track it never gives up or stretches into, while the menu
+                     and status take content-sized tracks that stay at full width until the bar genuinely runs short, then ellipsise together. -->
+                <div
+                    class="grid grid-cols-[minmax(0,auto)_minmax(0,auto)_max-content] items-center gap-x-2 rounded-b-2xl border-t border-selected-border bg-selected p-2 text-selected-text"
+                >
+                    <AssistantVendorMenu
+                        class="min-w-0 justify-self-start"
+                        :model-config="modelConfig"
+                        :vendor-configs="vendorConfigs"
+                        :vendor-id="vendorId"
+                        @select="handleSelectVendor"
+                    />
 
-                    <div class="flex items-center gap-x-2">
-                        <span class="text-xs text-muted">{{ status }}</span>
-                        <Button
-                            class="rounded-full bg-blue-400 p-1 text-white disabled:opacity-40"
-                            shape="minimal"
-                            :disabled="input.trim().length === 0"
-                            @click="handleSendMessage"
-                        >
-                            <ArrowUpIcon class="size-5.5" stroke-width="2.5" />
-                        </Button>
-                    </div>
+                    <!-- Fills its track and right-aligns instead of justify-self-end: nowrap makes the item's min-content the whole string, so a
+                         fit-content item would never ellipsise and would spill left over the menu. -->
+                    <span class="min-w-0 truncate text-right text-xs text-muted">{{ status }}</span>
+
+                    <Button
+                        :aria-label="responseIsRunning ? 'Stop the response' : 'Send the message'"
+                        class="flex size-7 items-center justify-center rounded-full text-white disabled:opacity-40"
+                        :class="responseIsRunning ? 'bg-red-400' : 'bg-blue-400'"
+                        shape="minimal"
+                        :disabled="!responseIsRunning && input.trim().length === 0"
+                        @click="handleComposerAction"
+                    >
+                        <!-- Filled: an outlined square at this size reads as an empty box rather than a stop. -->
+                        <SquareIcon v-if="responseIsRunning" class="size-3" fill="currentColor" stroke-width="2.5" />
+                        <ArrowUpIcon v-else class="size-5" stroke-width="2.5" />
+                    </Button>
                 </div>
             </div>
         </template>

@@ -1,4 +1,5 @@
 // ── External Dependencies & Registrations
+import { clientTools } from '@tanstack/ai-client';
 import { toolDefinition } from '@tanstack/ai/client';
 
 // ── Local Framework
@@ -104,7 +105,9 @@ const previewConnectorItemTool = toolDefinition({
     }
 }).client((arguments_) => executePreviewConnectorItem(arguments_));
 
-export const tanstackClientTools = [
+// 'clientTools' rather than a plain array: it captures each tool's literal name and its input and output types, which
+// a widened 'AnyClientTool[]' loses — and with them the narrowing that makes a tool part typed at the point of use.
+export const tanstackClientTools = clientTools(
     getConnectionTool,
     getConnectorTool,
     getLocalTimeTool,
@@ -112,4 +115,4 @@ export const tanstackClientTools = [
     listConnectorItemsTool,
     listConnectorsTool,
     previewConnectorItemTool
-];
+);

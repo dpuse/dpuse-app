@@ -104,7 +104,7 @@ async function handleSelectItem(row: T): Promise<void> {
             <!-- Detail (Right) Pane -->
             <div class="gdp-detail min-w-0 flex-1 border-separator" style="container-type: inline-size">
                 <!-- Active Item -->
-                <div v-if="activeItem" class="flex h-full min-h-0 flex-col">
+                <div v-if="activeItem" class="relative flex h-full min-h-0 flex-col">
                     <slot name="detail" :item="activeItem" :clear="handleClearSelection" :close="handleClose" />
                 </div>
 

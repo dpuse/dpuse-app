@@ -2,7 +2,7 @@ import { defineAsyncPanel } from '@/utilities/index.ts';
 import { flushPromises, mount } from '@vue/test-utils';
 import { reportAppError } from '@/observability/errorTracking';
 import { describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, nextTick } from 'vue';
+import { defineComponent, h, nextTick, ref } from 'vue';
 
 vi.mock('@/observability/errorTracking', () => ({ reportAppError: vi.fn(() => Promise.resolve(true)) }));
 
@@ -11,6 +11,18 @@ async function render(panel: ReturnType<typeof defineAsyncPanel>): Promise<Retur
     await settle();
     return wrapper;
 }
+
+function echo(text: string): string {
+    return text;
+}
+
+// Stands in for a panel that publishes an imperative API, which is the only kind a template ref on a panel is for.
+const ExposingPanel = defineComponent({
+    setup(_properties, { expose }) {
+        expose({ sendMessage: echo });
+    },
+    template: '<div data-region="ExposingPanel" />'
+});
 
 async function settle(): Promise<void> {
     for (let index = 0; index < 6; index++) {
@@ -90,5 +102,23 @@ describe('defineAsyncPanel load failure', () => {
         const wrapper = await render(defineAsyncPanel(() => Promise.resolve(defineComponent({ template: '<div />' })), 'StalePanel'));
         expect(wrapper.text()).toContain('Reload');
         expect(wrapper.text()).toContain('outdated version');
+    });
+});
+
+// The host forwards attributes by hand, and 'ref' cannot travel that way — Vue takes it off the vnode first. Left
+// unforwarded it fails silently at mount and only bites when the caller reaches through the ref, which is how a panel
+// shipped with an unreachable 'defineExpose'.
+describe('defineAsyncPanel template refs', () => {
+    it('binds a caller’s ref to the panel rather than to the host', async () => {
+        history.replaceState({}, '', '/');
+        // Built outside the render function: a panel created inside it is a new component type on every render, which
+        // remounts forever rather than failing.
+        const host = defineAsyncPanel(() => Promise.resolve(ExposingPanel), 'ExposingPanel');
+        const panelReference = ref<{ sendMessage?: (text: string) => string } | null>(null);
+        const wrapper = mount(defineComponent({ render: () => h(host, { ref: panelReference }) }));
+        await settle();
+
+        expect(wrapper.find('[data-region="ExposingPanel"]').exists()).toBe(true);
+        expect(typeof panelReference.value?.sendMessage).toBe('function');
     });
 });

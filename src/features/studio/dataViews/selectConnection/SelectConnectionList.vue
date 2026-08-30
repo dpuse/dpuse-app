@@ -1,14 +1,16 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, watch } from 'vue';
+import { computed, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
+import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
 import { activeMetaStoreConnectionConfig, configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded } from '@/state/session';
 
@@ -29,6 +31,7 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const dataViewFailure = shallowRef<AppFailure | undefined>();
 const route = useRoute();
 const router = useRouter();
 
@@ -43,9 +46,27 @@ const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<Connecti
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => getDataViewRecord(newLocalMetaStoreConnectionConfig, route));
+// Caught rather than left to reject: this reaches the engine, and without the catch a failure there escapes as an
+// unhandled rejection and is announced over the app as one, rather than said here in terms of what it cost.
+watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => {
+    dataViewFailure.value = undefined;
+    void getDataViewRecord(newLocalMetaStoreConnectionConfig, route).catch((error: unknown) => {
+        dataViewFailure.value = raiseFailure(
+            new AppError('Failed to open this data view.', 'dpuse-app.selectConnectionList.getDataViewRecord', { typeId: 'handled' }, { cause: error })
+        );
+    });
+});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+function handleRetryDataView(): void {
+    dataViewFailure.value = undefined;
+    void getDataViewRecord(activeMetaStoreConnectionConfig.value, route).catch((error: unknown) => {
+        dataViewFailure.value = raiseFailure(
+            new AppError('Failed to open this data view.', 'dpuse-app.selectConnectionList.getDataViewRecord', { typeId: 'handled' }, { cause: error })
+        );
+    });
+}
 
 function handleAddConnection(): void {
     void router.replace({ query: { ...route.query, dlg: 'connection' } }).catch(() => {
@@ -107,13 +128,17 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
          region: there is nothing to pick here, and no way to add one either, until the connection is back. -->
     <ErrorDisplay v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
 
+    <!-- Covers the region: the data view behind this connection is what the list exists to open, so there is nothing
+         useful left to pick from. -->
+    <ErrorDisplay v-else-if="dataViewFailure" covers-region :failures="[dataViewFailure]" @retry="handleRetryDataView" />
+
     <GridDetailPanel
         v-else
         :active-item="activeConnectionConfig"
         add-label="Connection"
         :data-source="connectionConfigsDataSource"
         max-detail-width="65ch"
-        :row-height="162"
+        :row-height="16 + 16 + 28 + 32 + 16"
         @add="handleAddConnection"
         @select="handleSelectConnection"
     >
@@ -135,8 +160,8 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
             />
         </template>
 
-        <template #detail="{ item, clear }">
-            <SelectConnectionPanel :connection-localised-config="item" @close="clear" />
+        <template #detail="{ item, clear, close }">
+            <SelectConnectionPanel :connection-localised-config="item" @clear="clear" @close="close" />
             <StepActionButton label="Select" @click="handleCommitDetail" />
         </template>
 

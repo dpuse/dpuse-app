@@ -45,17 +45,19 @@ function handleSelect(newVendorId: AssistantVendorId, newModelConfig: AssistantM
 </script>
 
 <template>
-    <div ref="menuReference" class="relative">
+    <div ref="menuReference" class="relative max-w-full min-w-0">
+        <!-- max-w-full on both this box and the trigger is load-bearing: without it the button holds its max-content width and
+             overlays whatever sits to its right when the pane narrows. -->
         <Button
             aria-haspopup="true"
             :aria-expanded="menuIsOpen"
             aria-label="Select vendor and model"
-            class="flex items-center gap-x-1 rounded-full bg-zinc-200 px-2.5 py-1 text-xs dark:bg-zinc-700"
+            class="flex max-w-full min-w-0 items-center gap-x-1 rounded-full px-2.5 py-1 text-xs text-selected-text hover:bg-selected-hover focus-visible:ring-1 focus-visible:ring-selected-ring"
             shape="minimal"
             @click="menuIsOpen = !menuIsOpen"
         >
-            <span>{{ modelConfig.providerLabel }} · {{ modelConfig.modelId }}</span>
-            <ChevronDownIcon class="size-3.5" :stroke-width="1.5" />
+            <span class="min-w-0 truncate">{{ modelConfig.providerLabel }} · {{ modelConfig.modelId }}</span>
+            <ChevronDownIcon class="size-3.5 flex-none" :stroke-width="1.5" />
         </Button>
 
         <div v-if="menuIsOpen" class="absolute bottom-full left-0 z-10 mb-1 min-w-56 rounded-md border border-separator bg-surface p-1 text-sm shadow-md" role="menu">

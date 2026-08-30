@@ -7,13 +7,14 @@ import { DefaultChatTransport, isReasoningUIPart, isTextUIPart, lastAssistantMes
 // ── Local Framework
 import type { AssistantChatMessage } from './assistantChat';
 import type { AssistantModelConfig } from './modelConfigs';
+import { isConversationMessage } from './assistantChat';
 import { toolExecutors } from './tools';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { modelConfig } = defineProps<{ modelConfig: AssistantModelConfig }>();
 
-const emit = defineEmits<{ messagesChange: [messages: AssistantChatMessage[]]; statusChange: [status: string] }>();
+const emit = defineEmits<{ messagesChange: [messages: AssistantChatMessage[]]; sendFailure: [message: string]; statusChange: [status: string] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -23,6 +24,7 @@ const {
     messages,
     status,
     sendMessage: sendChatMessage,
+    stop: stopChat,
     addToolOutput
 } = useChat({
     transport: new DefaultChatTransport({
@@ -35,14 +37,7 @@ const {
         }
     }),
     onError: (error: Error): void => {
-        console.log('onError 1', error);
-        const extractedError = error.message;
-        const extractedMessage = typeof extractedError === 'string' ? extractedError : JSON.stringify(extractedError);
-        console.log('onError 2', extractedMessage);
-        appendErrorForLatestUserMessage(extractedMessage);
-    },
-    onData: (data: unknown): void => {
-        console.log('onData', data);
+        appendErrorForLatestUserMessage(error.message);
     },
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     onToolCall: async ({ toolCall }: { toolCall: { toolName: string; toolCallId: string } }): Promise<void> => {
@@ -63,15 +58,12 @@ const {
             });
         }
     },
-    onFinish: (properties: unknown): void => {
-        console.log('onFinish', properties);
-    }
 });
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const normalizedMessages = computed<AssistantChatMessage[]>(() =>
-    messages.value.map((message) => ({
+    messages.value.filter((message) => isConversationMessage(message)).map((message) => ({
         id: message.id,
         role: message.role === 'user' ? 'user' : 'assistant',
         parts: [
@@ -114,11 +106,28 @@ function appendErrorForLatestUserMessage(errorText: string): void {
 
 // ── Exposed API ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function sendMessage(text: string): void {
-    void sendChatMessage({ text });
+// Awaited internally rather than returned: a rejection here never reaches 'onError', so voiding it made an unhandled
+// rejection out of a failure the thread is able to show.
+async function sendMessage(text: string): Promise<void> {
+    try {
+        await sendChatMessage({ text });
+    } catch (error) {
+        // Reported against the thread, not a message: the send was refused before it appended one, so the only
+        // message to hang this on would be the previous question — which is how a failure ended up above the
+        // conversation instead of at the end of it.
+        emit('sendFailure', error instanceof Error ? error.message : 'Failed to send the message.');
+    }
 }
 
-defineExpose({ sendMessage });
+async function stop(): Promise<void> {
+    try {
+        await stopChat();
+    } catch {
+        // Ignore — a run that has already settled is not a failure the user needs telling about.
+    }
+}
+
+defineExpose({ sendMessage, stop });
 </script>
 
 <template><div /></template>

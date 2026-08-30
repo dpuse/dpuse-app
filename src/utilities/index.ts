@@ -1,5 +1,5 @@
 // ── External Dependencies & Registrations
-import { type AsyncComponentLoader, type Component, defineAsyncComponent, defineComponent, h, ref, type VNode } from 'vue';
+import { type AsyncComponentLoader, type Component, type ComponentPublicInstance, defineAsyncComponent, defineComponent, h, ref, type VNode } from 'vue';
 
 // ── DPUse Tools
 import type { BaseConfig } from '@dpuse/dpuse-shared';
@@ -88,8 +88,24 @@ export function defineAsyncPanel(loader: AsyncComponentLoader, name: string, opt
     return defineComponent({
         name: `${name}Host`,
         inheritAttrs: false,
-        setup(_properties, { attrs, slots }) {
-            return () => h(asyncComponent, { ...attrs, key: attempt.value }, slots);
+        setup(_properties, { attrs, expose, slots }) {
+            // A template ref on a panel has to be forwarded by hand as well, and cannot go through 'attrs': Vue takes
+            // 'ref' off the vnode before the wrapper ever sees it, so a caller's ref lands on this host — which exposes
+            // nothing of its own — rather than on the panel. Holding the panel's instance and re-exposing it is what
+            // keeps the panel's 'defineExpose' reachable from the call site.
+            const panel = ref<ComponentPublicInstance | null>(null);
+
+            expose(
+                new Proxy(
+                    {},
+                    {
+                        get: (_target, key): unknown => (panel.value as unknown as Record<string | symbol, unknown> | null)?.[key],
+                        has: (_target, key): boolean => panel.value != null && Reflect.has(panel.value, key)
+                    }
+                )
+            );
+
+            return () => h(asyncComponent, { ...attrs, key: attempt.value, ref: panel }, slots);
         }
     });
 }

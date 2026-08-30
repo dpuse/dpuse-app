@@ -136,11 +136,13 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
     <StudioListPanel>
         <Separator class="flex-none" />
 
-
-        <!-- Covers the region: nothing was retrieved, so an empty list with no explanation is what this replaces. -->
+        <!-- Covers the region: nothing was retrieved, so an empty list with no explanation is what this replaces. The
+             grid gives way to it rather than sitting behind it — an empty list and a detail pane asking the user to
+             pick from it are exactly what the failure is there to account for. -->
         <ErrorDisplay v-if="dataViewRetrievalFailure" covers-region :failures="[dataViewRetrievalFailure]" @retry="handleRetryRetrieve" />
 
         <GridDetailPanel
+            v-else
             :active-item="activeDataViewLocalisedConfig"
             add-label="Data View"
             class="min-h-0 flex-1"

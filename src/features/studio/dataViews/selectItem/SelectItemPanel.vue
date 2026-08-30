@@ -5,6 +5,7 @@ import { computed, markRaw, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
+import { AppError } from '@dpuse/dpuse-shared/errors';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { ConnectionConfig, ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
@@ -14,6 +15,7 @@ import type { GetInfoOptions, GetInfoResult, ListNodesOptions, ListNodesResult, 
 // ── Local Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 import { useEngine } from '@/services/useEngine';
 import { viewportIsWide } from '@/state/appLayout';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, setConnectionNodeConfig } from '@/state/dataViews';
@@ -21,6 +23,7 @@ import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfig
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
+import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
@@ -75,6 +78,11 @@ const activeItemAction = ref('table');
 
 const activeConnectionObjectConfig = shallowRef<ConnectionNodeConfig | undefined>();
 
+// Whatever the engine could not do for this panel — list a folder, preview an item, read its info. One ref for all
+// three, because they are one loss to the user: the panel cannot reach the connection.
+const engineFailure = shallowRef<AppFailure | undefined>();
+const engineAttempt = ref(0); // Bumped on retry, which rebuilds the data source and makes the window fetch again.
+
 const currentFolderNodes = shallowRef<ConnectionNodeConfig[]>([]);
 
 const currentFolderPath = ref('');
@@ -103,17 +111,26 @@ const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...c
 
 const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionNodeConfig>>>(() => {
     const folderPath = currentFolderPath.value; // Read synchronously so this computed (and useDataWindow's cache) resets on navigation.
+    void engineAttempt.value; // Read for the same reason: a retry has to produce a new data source for the window to refetch.
     return {
         rowCount: undefined, // Unknown until the first listNodes response reports totalCount — useDataWindow guarantees that fetch happens.
         getRows: async (start: number, end: number): Promise<{ rows: LocalisedConfig<ConnectionNodeConfig>[]; totalCount: number }> => {
-            const activeConnection = await waitForActiveConnectionConfig();
-            const { processRequest } = await useEngine();
-            const result = (await processRequest('listNodes', activeConnection, {
-                folderPath,
-                limit: end - start,
-                offset: start
-            } as ListNodesOptions)) as ListNodesResult;
-            return { rows: result.connectionNodeConfigs as unknown as LocalisedConfig<ConnectionNodeConfig>[], totalCount: result.totalCount };
+            try {
+                const activeConnection = await waitForActiveConnectionConfig();
+                const { processRequest } = await useEngine();
+                const result = (await processRequest('listNodes', activeConnection, {
+                    folderPath,
+                    limit: end - start,
+                    offset: start
+                } as ListNodesOptions)) as ListNodesResult;
+                return { rows: result.connectionNodeConfigs as unknown as LocalisedConfig<ConnectionNodeConfig>[], totalCount: result.totalCount };
+            } catch (error) {
+                // Settled with an empty page as well as raised: the window is waiting on this promise, and a rejection
+                // would leave it loading behind the failure it is being told about.
+                const data = { folderPath, typeId: 'handled' };
+                engineFailure.value = raiseFailure(new AppError('Failed to list the items in this connection.', 'dpuse-app.selectItemPanel.listNodes', data, { cause: error }));
+                return { rows: [], totalCount: 0 };
+            }
         }
     };
 });
@@ -156,17 +173,30 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
     resetPreviewState();
     if (newActiveItem == null) return;
 
-    const { processRequest } = await useEngine();
-    if (!activeConnectionConfig.value) return;
+    try {
+        const { processRequest } = await useEngine();
+        if (!activeConnectionConfig.value) return;
 
-    const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: buildObjectPath(newActiveItem) };
-    const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewConfig;
-    if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
+        const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: buildObjectPath(newActiveItem) };
+        const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewConfig;
+        if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
 
-    applyPreviewConfig(newActiveItem, previewConfig);
+        applyPreviewConfig(newActiveItem, previewConfig);
+    } catch (error) {
+        if (currentRequestId !== previewRequestId.value) return; // A newer selection owns the panel now.
+        const data = { typeId: 'handled' };
+        engineFailure.value = raiseFailure(new AppError('Failed to preview this item.', 'dpuse-app.selectItemPanel.previewObject', data, { cause: error }));
+    }
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Clearing the failure alone would show the panel again with the same empty window behind it, so the attempt count is
+// bumped too: that rebuilds the data source, which is what makes the window ask for its rows a second time.
+function handleRetryEngine(): void {
+    engineFailure.value = undefined;
+    engineAttempt.value++;
+}
 
 function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): void {
     activeConnectionObjectConfig.value = undefined;
@@ -263,19 +293,28 @@ function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfig> | u
 const infoString = ref('');
 
 async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
-    const activeConnection = await waitForActiveConnectionConfig();
-    const { processRequest } = await useEngine();
-    const options: GetInfoOptions = { path: buildObjectPath(connectionNodeConfig) };
-    const { info } = (await processRequest('getInfo', activeConnection, options)) as GetInfoResult;
-    const infoWithoutChildren = { ...info };
-    delete infoWithoutChildren.children;
-    infoString.value = JSON.stringify(infoWithoutChildren);
-    console.log(infoWithoutChildren);
+    try {
+        const activeConnection = await waitForActiveConnectionConfig();
+        const { processRequest } = await useEngine();
+        const options: GetInfoOptions = { path: buildObjectPath(connectionNodeConfig) };
+        const { info } = (await processRequest('getInfo', activeConnection, options)) as GetInfoResult;
+        const infoWithoutChildren = { ...info };
+        delete infoWithoutChildren.children;
+        infoString.value = JSON.stringify(infoWithoutChildren);
+        console.log(infoWithoutChildren);
+    } catch (error) {
+        const data = { typeId: 'handled' };
+        engineFailure.value = raiseFailure(new AppError('Failed to read this item.', 'dpuse-app.selectItemPanel.getInfo', data, { cause: error }));
+    }
 }
 </script>
 
 <template>
+    <!-- Covers the region: without the engine there is nothing to list, preview or open here. -->
+    <ErrorDisplay v-if="engineFailure" covers-region :failures="[engineFailure]" @retry="handleRetryEngine" />
+
     <GridDetailPanel
+        v-else
         :active-item="activeConnectionObjectConfig"
         :data-source="connectionNodeConfigsDataSource"
         :is-compact="true"
