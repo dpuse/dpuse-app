@@ -6,6 +6,10 @@ import { useAttrs, useId, useTemplateRef } from 'vue';
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const KEYBOARD_ANIMATION_MS = 300; // iOS keyboard transition; see the caret note in 'handleClear'.
+
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 defineOptions({ inheritAttrs: false });
@@ -33,14 +37,22 @@ function handleClear(): void {
     // NOTE: On iOS, the keyboard-open animation can leave WebKit's caret geometry desynced from the real
     // viewport (visualViewport.offsetTop doesn't always settle immediately) — a 1px scroll nudge is
     // the standard forced-repaint workaround to make it resync. See https://bugs.webkit.org/show_bug.cgi?id=176896.
-    window.visualViewport?.addEventListener(
-        'resize',
-        () => {
-            window.scrollBy(0, 1);
-            window.scrollBy(0, -1);
-        },
-        { once: true }
-    );
+    // Nothing else resyncs it: 'nextTick' before the focus and a 'setSelectionRange' after it were both tried on
+    // device and neither moved the caret, because the desync is in WebKit's paint pass rather than in the selection.
+    //
+    // The resize is the signal when the keyboard animates, but a clear made while it is already open — reached by
+    // opening a menu in the same bar and dismissing it, which leaves the keyboard up — changes no geometry and
+    // fires nothing, stranding the caret. The timeout covers that path, and is long enough to land after the
+    // animation on the path that does resize. Whichever arrives first nudges and tears the other down, so a clear
+    // that never resizes cannot leave a listener behind to fire against some later, unrelated keyboard opening.
+    const nudge = (): void => {
+        clearTimeout(timeoutId);
+        window.visualViewport?.removeEventListener('resize', nudge);
+        window.scrollBy(0, 1);
+        window.scrollBy(0, -1);
+    };
+    const timeoutId = setTimeout(nudge, KEYBOARD_ANIMATION_MS);
+    window.visualViewport?.addEventListener('resize', nudge);
 }
 </script>
 
