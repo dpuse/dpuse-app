@@ -1,6 +1,16 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, useAttrs, useId } from 'vue';
+import { computed, ref, useAttrs, useId, useTemplateRef } from 'vue';
+
+// ── Local Framework
+import { t } from '@/state/locale';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const T = {
+    Enter_a_valid_email_address: { en: 'Enter a valid email address', es: 'Introduce una dirección de correo electrónico válida' },
+    Required: { en: 'Required', es: 'Obligatorio' }
+};
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -15,14 +25,42 @@ interface Properties {
 }
 const { errors = [], id, label, labelHidden, type = 'text' } = defineProps<Properties>();
 
-defineEmits<{ blur: [] }>();
-
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const attributes = useAttrs();
+const inputReference = useTemplateRef<HTMLInputElement>('inputReference');
 const textInputId = id ?? useId();
 const textValue = defineModel<string>({ default: '' });
-const valueHasErrors = computed(() => errors.length > 0);
+const validationMessage = ref(''); // Set from the native 'invalid' event, raised whenever this field or its form is checked.
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const allErrors = computed(() => (validationMessage.value ? [...errors, validationMessage.value] : errors));
+const valueHasErrors = computed(() => allErrors.value.length > 0);
+
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+function handleBlur(): void {
+    inputReference.value?.checkValidity(); // Raises 'invalid' when unacceptable; never shows a bubble, unlike reportValidity.
+}
+
+function handleInput(): void {
+    validationMessage.value = ''; // Stop complaining while the user is fixing the value; the next check re-reports it.
+}
+
+function handleInvalid(): void {
+    validationMessage.value = describeValidity(inputReference.value);
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function describeValidity(element: HTMLInputElement | null | undefined): string {
+    if (!element) return '';
+    const { validity } = element;
+    if (validity.valueMissing) return t(T, 'Required');
+    if (type === 'email' && validity.typeMismatch) return t(T, 'Enter_a_valid_email_address');
+    return element.validationMessage; // Remaining cases are rare, so fall back to the browser's wording, in the browser's language.
+}
 </script>
 
 <template>
@@ -33,17 +71,20 @@ const valueHasErrors = computed(() => errors.length > 0);
         <!-- Input -->
         <input
             :id="textInputId"
+            ref="inputReference"
             v-model="textValue"
             v-bind="{ ...attributes, class: undefined, style: undefined }"
             class="w-full rounded border bg-surface px-2.5 py-1.5 text-sm text-content transition-colors outline-none placeholder:text-subtle focus:ring-1 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
             :class="valueHasErrors ? 'border-danger-ring' : 'border-boundary focus:border-accent'"
             :type="type"
-            @blur="$emit('blur')"
+            @blur="handleBlur"
+            @input="handleInput"
+            @invalid.prevent="handleInvalid"
         />
 
         <!-- Errors -->
         <ul v-if="valueHasErrors" class="mt-1 space-y-0.5">
-            <li v-for="(error, i) in errors" :key="i" class="text-xs text-danger-text">{{ error }}</li>
+            <li v-for="(error, i) in allErrors" :key="i" class="text-xs text-danger-text">{{ error }}</li>
         </ul>
     </div>
 </template>

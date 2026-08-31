@@ -59,16 +59,21 @@ watch(
     { immediate: true }
 );
 
+// The model is read once, when the client is built, so a change has to be pushed into the live client. Updating it in
+// place rather than rebuilding is what lets the conversation outlast a model change: a new client starts from an empty
+// transcript, so rebuilding would silently throw the thread away.
+watch(
+    () => modelConfig,
+    (newModelConfig) => {
+        state.client?.updateOptions({ forwardedProps: buildForwardedProperties(newModelConfig) });
+    }
+);
+
 onMounted(() => {
     const client = new ChatClient({
-        connection: fetchServerSentEvents('https://api.dpuse.app/ai/chat/tanstack'),
+        connection: fetchServerSentEvents('https://api.dpuse.app/ai/chat'),
         tools: tanstackClientTools,
-        forwardedProps: {
-            providerId: modelConfig.providerId,
-            modelId: modelConfig.modelId,
-            options: modelConfig.options,
-            rag: true
-        },
+        forwardedProps: buildForwardedProperties(modelConfig),
         initialMessages: [],
         onMessagesChange: (messages): void => {
             rawMessages.value = messages;
@@ -84,8 +89,8 @@ onMounted(() => {
     state.client = client;
 
     // A client starts idle: it only tails a run once attached. Pairs with the teardown below, which is what stops a
-    // stream when the panel goes — the panel is rebuilt on every vendor or model change, so without it each switch
-    // abandons a live connection, and a browser only allows about six per origin before everything else queues.
+    // stream when the panel goes — without it a panel that unmounts mid-answer abandons a live connection, and a
+    // browser allows only about six per origin before everything else queues.
     client.attach();
 
     // The status callback only fires on a change, so the opening state has to be read out rather than waited for.
@@ -93,14 +98,19 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    // 'dispose' rather than 'detach': this client is not coming back. The panel is keyed on vendor and model, so a
-    // change destroys this component and builds a new client, and 'detach' would leave the old one alive for a return
-    // that never happens.
+    // 'dispose' rather than 'detach': this client is not coming back. A model change updates it in place, so an
+    // unmount means the panel itself is gone — 'detach' would leave the client alive for a return that never happens.
     state.client?.dispose();
     state.client = null;
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// What the server needs to pick a provider and model for the run. Shared by the initial build and every later model
+// change so the two cannot drift.
+function buildForwardedProperties(config: AssistantModelConfig): Record<string, unknown> {
+    return { providerId: config.providerId, modelId: config.modelId, options: config.options, rag: true };
+}
 
 // Errors arriving from the stream carry the server's JSON payload behind a short status prefix; the message itself is
 // the fallback whenever that shape does not hold, which includes every transport and client-side failure.

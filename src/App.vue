@@ -218,8 +218,9 @@ function toggleStudioPane(): void {
                 // Already reported by 'router.onError'.
             });
     } else {
-        // Else - toggle studio pane and update route properties.
+        // Else - toggle studio pane, ensure studio pane is activated (may be first time), and update route properties.
         studioPaneIsActive.value = studioPaneIsVisible.value = !studioPaneIsVisible.value;
+        if (studioPaneIsActive.value) studioPaneActivated.value = true;
         void router.replace({ query: { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined } }).catch(() => {
             // Already reported by 'router.onError'.
         });

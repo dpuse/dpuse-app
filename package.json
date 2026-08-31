@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1670",
+    "version": "0.0.1671",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -47,14 +47,11 @@
         "sync": "node -e \"import('@dpuse/dpuse-development').then(m => m.syncProjectWithGitHub())\""
     },
     "dependencies": {
-        "@ai-sdk/vue": "^4.0.84",
         "@dpuse/dpuse-shared": "^0.3.781",
         "@dpuse/dpuse-tool-d3-visualiser": "^0.0.49",
         "@dpuse/dpuse-tool-marked-markdown-parser": "^0.1.15",
         "@fontsource-variable/inter": "^5.3.0",
         "@formkit/drag-and-drop": "^0.6.1",
-        "@regle/core": "^1.29.1",
-        "@regle/rules": "^1.29.1",
         "@tailwindcss/vite": "^4.3.3",
         "@tanstack/ai": "^0.52.0",
         "@tanstack/ai-client": "^0.29.2",
@@ -67,14 +64,14 @@
         "vue": "^3.5.42",
         "vue-router": "^5.3.0",
         "web-vitals": "^6.2.1",
-        "zod": "^4.5.2"
+        "zod": "^4.5.4"
     },
     "devDependencies": {
         "@cloudflare/vite-plugin": "1.54.2",
-        "@cloudflare/workers-types": "^5.20260829.1",
+        "@cloudflare/workers-types": "^5.20260831.1",
         "@dpuse/dpuse-development": "^0.3.706",
         "@dpuse/eslint-config-dpuse": "^1.0.116",
-        "@lucide/vue": "^1.37.0",
+        "@lucide/vue": "^1.38.0",
         "@playwright/test": "^1.62.1",
         "@tsconfig/node24": "^24.0.5",
         "@types/eslint-plugin-tailwindcss": "^3.17.0",

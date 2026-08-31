@@ -1,8 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { reactive } from 'vue';
-import { required } from '@regle/rules';
-import { useRegle } from '@regle/core';
+import { ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
 import { t } from '@/state/locale';
@@ -30,8 +28,8 @@ const emit = defineEmits<{ back: []; submit: [password: string] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const form = reactive({ password: 'datapos1111' });
-const { r$ } = useRegle(form, { password: { required } });
+const formReference = useTemplateRef<HTMLFormElement>('formReference');
+const password = ref('datapos1111');
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -39,9 +37,8 @@ function handleBack(): void {
     emit('back');
 }
 
-async function handleSubmit(): Promise<void> {
-    await r$.$validate();
-    if (!r$.$invalid) emit('submit', form.password);
+function handleSubmit(): void {
+    if (formReference.value?.checkValidity() === true) emit('submit', password.value);
 }
 </script>
 
@@ -51,21 +48,14 @@ async function handleSubmit(): Promise<void> {
 
         <p>Enter the password for the account linked to the email address 'terrell.jm@gmail.com'.</p>
 
-        <form class="mt-2 flex flex-col gap-y-3">
+        <!-- 'novalidate' suppresses the browser's own error bubbles; the fields render the messages themselves. -->
+        <form ref="formReference" class="mt-2 flex flex-col gap-y-3" novalidate @submit.prevent="handleSubmit">
             <!-- Following required to help browsers and assistive tech recognize the form as a login or password form -->
             <TextInput id="userName" type="text" autocomplete="username" label="Username" placeholder="Username" style="display: none" tabindex="-1" aria-hidden="true" />
 
-            <TextInput
-                v-model="form.password"
-                autocomplete="current-password"
-                type="password"
-                :label="t(T, 'Password')"
-                :placeholder="t(T, 'Password')"
-                :errors="r$.password.$errors"
-                @blur="r$.password.$touch()"
-            />
+            <TextInput v-model="password" autocomplete="current-password" required type="password" :label="t(T, 'Password')" :placeholder="t(T, 'Password')" />
 
-            <Button variant="primary" @click="handleSubmit">{{ t(T, 'Continue') }}</Button>
+            <Button type="submit" variant="primary">{{ t(T, 'Continue') }}</Button>
         </form>
 
         <div class="flex justify-between">

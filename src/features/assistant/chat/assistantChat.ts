@@ -1,5 +1,5 @@
-// The common shape both vendor sessions (Tanstack, Vercel) normalise their messages to, so the shared chat UI
-// can render either vendor's conversation identically without knowing which one produced it.
+// The shape the session normalises its messages to, so the chat UI renders a conversation without knowing how the
+// SDK beneath it represents one.
 
 export interface AssistantChatPart {
     type: 'text' | 'thinking';
@@ -19,8 +19,8 @@ export interface AssistantChatStep {
 }
 
 // Only user and assistant turns are part of the conversation. The server prepends a system turn carrying the RAG
-// prompt, and a vendor client that keeps it in its message list would otherwise have it normalised to 'assistant' and
-// rendered as the thread's first response — the whole prompt shown above the question that triggered it.
+// prompt, and the client keeps it in its message list, so without this it is normalised to 'assistant' and rendered
+// as the thread's first response — the whole prompt shown above the question that triggered it.
 export function isConversationMessage(message: { role: string }): boolean {
     return message.role === 'assistant' || message.role === 'user';
 }

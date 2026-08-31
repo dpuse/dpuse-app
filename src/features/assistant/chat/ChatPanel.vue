@@ -5,13 +5,13 @@ import { ArrowUpIcon, SquareIcon } from '@lucide/vue';
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
+import type { AssistantModelConfig } from './modelConfigs';
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { useMarkedTool } from '@/services/useMarkedTool';
 import { type AssistantChatMessage, getMessageSteps } from './assistantChat';
-import type { AssistantModelConfig, AssistantVendorConfig, AssistantVendorId } from './modelConfigs';
 
 // ── Static Components
-import AssistantVendorMenu from '../_components/AssistantVendorMenu.vue';
+import AssistantModelMenu from '../_components/AssistantModelMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import PendingLabel from '../_components/PendingLabel.vue';
@@ -19,8 +19,7 @@ import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import TextArea from '@/components/ui/text/TextArea.vue';
 
 // ── Dynamic Components
-const ChatTanstackInterface = defineAsyncPanel(() => import('./ChatTanstackInterface.vue'), 'ChatTanstackInterface');
-const ChatVercelInterface = defineAsyncPanel(() => import('./ChatVercelInterface.vue'), 'ChatVercelInterface');
+const ChatSession = defineAsyncPanel(() => import('./ChatTanstackInterface.vue'), 'ChatTanstackInterface');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -28,12 +27,9 @@ const PROMPT = 'List the connectors.';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { modelConfig, vendorConfigs, vendorId } = defineProps<{ modelConfig: AssistantModelConfig; vendorConfigs: AssistantVendorConfig[]; vendorId: AssistantVendorId }>();
+const { modelConfig, modelConfigs } = defineProps<{ modelConfig: AssistantModelConfig; modelConfigs: AssistantModelConfig[] }>();
 
-const emit = defineEmits<{ vendorChange: [vendorId: AssistantVendorId, modelConfig: AssistantModelConfig] }>();
-
-// A vendor change always remounts this panel (see AssistantLayout's :key), so the choice here is fixed for the panel's lifetime.
-const SessionComponent = vendorId === 'tanstack' ? ChatTanstackInterface : ChatVercelInterface;
+const emit = defineEmits<{ modelChange: [modelConfig: AssistantModelConfig] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -54,8 +50,7 @@ const state: { inputContainerResizeObserver: ResizeObserver | null; scrollObserv
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Both vendors report the same run states, so one check covers either session. 'submitted' counts: the run is the
-// user's to cancel from the moment it is accepted, not only once tokens are arriving.
+// 'submitted' counts: the run is the user's to cancel from the moment it is accepted, not only once tokens arrive.
 const responseIsRunning = computed(() => status.value === 'streaming' || status.value === 'submitted');
 
 // The gaps in a run where the thread has nothing to show: between the question and the first token, and again while a
@@ -109,8 +104,8 @@ onUnmounted(() => {
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleSelectVendor(newVendorId: AssistantVendorId, newModelConfig: AssistantModelConfig): void {
-    emit('vendorChange', newVendorId, newModelConfig);
+function handleSelectModel(newModelConfig: AssistantModelConfig): void {
+    emit('modelChange', newModelConfig);
 }
 
 // The one composer action: the same button sends while the thread is idle and cancels while a response is running.
@@ -148,7 +143,7 @@ function handleRetryMarkedTool(): void {
 <template>
     <div class="relative flex min-h-0 flex-1 flex-col">
         <component
-            :is="SessionComponent"
+            :is="ChatSession"
             ref="sessionReference"
             :model-config="modelConfig"
             @messages-change="messages = $event"
@@ -207,7 +202,7 @@ function handleRetryMarkedTool(): void {
                 </div>
             </ScrollArea>
 
-            <!-- Input - in-flow, always rounded, with an action bar (vendor/model, status, send) attached below the text box. -->
+            <!-- Input - in-flow, always rounded, with an action bar (model, status, send) attached below the text box. -->
             <div
                 ref="inputContainer"
                 :class="[
@@ -224,13 +219,7 @@ function handleRetryMarkedTool(): void {
                 <div
                     class="grid grid-cols-[minmax(0,auto)_minmax(0,auto)_max-content] items-center gap-x-2 rounded-b-2xl border-t border-selected-border bg-selected p-2 text-selected-text"
                 >
-                    <AssistantVendorMenu
-                        class="min-w-0 justify-self-start"
-                        :model-config="modelConfig"
-                        :vendor-configs="vendorConfigs"
-                        :vendor-id="vendorId"
-                        @select="handleSelectVendor"
-                    />
+                    <AssistantModelMenu class="min-w-0 justify-self-start" :model-config="modelConfig" :model-configs="modelConfigs" @select="handleSelectModel" />
 
                     <!-- Fills its track and right-aligns instead of justify-self-end: nowrap makes the item's min-content the whole string, so a
                          fit-content item would never ellipsise and would spill left over the menu. -->

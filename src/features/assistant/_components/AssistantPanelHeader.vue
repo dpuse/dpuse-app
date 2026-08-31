@@ -18,7 +18,7 @@ import TabBar from '@/components/ui/TabBar.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The assistant's 3 views, always shown together so any one is reachable from any other.
-// 'chat' can run on either the Tanstack or Vercel AI SDK — swap vendor via the model selector in the chat input.
+// 'chat' runs on the TanStack AI SDK — pick the model via the selector in the chat input.
 const ASSISTANT_TABS: ConfigOptionConfig<Component>[] = [
     { id: 'chat', label: { en: 'Chat' }, description: {}, icon: null, iconDark: null },
     { id: 'library', label: { en: 'Library' }, description: {}, icon: null, iconDark: null },

@@ -24,7 +24,6 @@ function buildStubSession() {
     };
 }
 vi.mock('@/features/assistant/chat/ChatTanstackInterface.vue', () => buildStubSession());
-vi.mock('@/features/assistant/chat/ChatVercelInterface.vue', () => buildStubSession());
 
 // Found by its own label rather than by position: the composer shares the bar with the vendor menu, and the text box
 // contributes a clear button of its own.
@@ -39,8 +38,7 @@ async function mountPanel(): Promise<ReturnType<typeof mount>> {
     const wrapper = mount(panelModule.default, {
         props: {
             modelConfig: { id: 'm', providerId: 'anthropic', providerLabel: 'Anthropic', modelId: 'claude-sonnet-4-6', options: {} },
-            vendorConfigs: [],
-            vendorId: 'tanstack'
+            modelConfigs: []
         }
     });
     for (let index = 0; index < 8; index++) {

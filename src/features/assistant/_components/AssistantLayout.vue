@@ -4,8 +4,8 @@ import { useRoute } from 'vue-router';
 import { type Component, computed, ref, watch } from 'vue';
 
 // ── Local Framework
-import { assertDefined, defineAsyncPanel } from '@/utilities/index.ts';
-import { ASSISTANT_VENDOR_CONFIGS, type AssistantModelConfig, type AssistantVendorId } from '../chat/modelConfigs';
+import { defineAsyncPanel } from '@/utilities/index.ts';
+import { ASSISTANT_MODEL_CONFIGS, type AssistantModelConfig } from '../chat/modelConfigs';
 
 // ── Static Components
 import AssistantPanelHeader from './AssistantPanelHeader.vue';
@@ -19,8 +19,7 @@ const LibraryView = defineAsyncPanel(() => import('../library/LibraryPanel.vue')
 
 const ASSISTANT_VIEW_IDS = new Set<string>(['about', 'chat', 'library']);
 
-const VENDOR_ID_KEY = 'dpuse-assistantVendorId';
-const VENDOR_MODEL_ID_KEY_PREFIX = 'dpuse-assistantVendorModelId-';
+const MODEL_ID_KEY = 'dpuse-assistantModelId';
 
 const ASSISTANT_PANELS: Record<string, Component> = {
     about: InfoView,
@@ -34,13 +33,7 @@ const { studioPaneIsHidden } = defineProps<{ studioPaneIsHidden: boolean }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const vendorId = ref(establishVendorId());
-
-// The last-selected model id per vendor, so switching vendor and back restores what you had. Keyed by vendor id.
-const modelIdByVendorId = ref<Record<AssistantVendorId, string>>({
-    tanstack: establishVendorModelId('tanstack'),
-    vercel: establishVendorModelId('vercel')
-});
+const modelId = ref(establishModelId());
 
 const route = useRoute();
 
@@ -53,64 +46,37 @@ const activeViewId = computed<string>(() => {
 
 const activeView = computed(() => ASSISTANT_PANELS[activeViewId.value]);
 
-const activeVendorConfig = computed(() => ASSISTANT_VENDOR_CONFIGS.find((vendorConfig) => vendorConfig.id === vendorId.value) ?? ASSISTANT_VENDOR_CONFIGS[0]);
+// The selected model — only meaningful while viewing Chat.
+const activeModelConfig = computed<AssistantModelConfig>(
+    () => ASSISTANT_MODEL_CONFIGS.find((config) => config.id === modelId.value) ?? ASSISTANT_MODEL_CONFIGS[0]
+);
 
-// The active vendor's selected model config — only meaningful while viewing Chat.
-const activeModelConfig = computed<AssistantModelConfig>(() => {
-    const modelConfigs = activeVendorConfig.value.modelConfigs;
-    const selectedId = modelIdByVendorId.value[activeVendorConfig.value.id];
-    return modelConfigs.find((config) => config.id === selectedId) ?? modelConfigs[0];
-});
-
-// Keying on the vendor+model forces the Chat panel to remount (and so re-establish its session) whenever either changes.
-const activePanelKey = computed(() => `${activeViewId.value}:${vendorId.value}:${activeModelConfig.value.id}`);
+// Keyed on the view alone. A model change must not remount the panel: the session takes the new model in place, so the
+// conversation carries over and the next answer simply comes from the new model.
+const activePanelKey = computed(() => activeViewId.value);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(vendorId, (newVendorId) => {
-    localStorage.setItem(VENDOR_ID_KEY, newVendorId);
+watch(modelId, (newModelId) => {
+    localStorage.setItem(MODEL_ID_KEY, newModelId);
 });
-
-watch(
-    modelIdByVendorId,
-    (newModelIdByVendorId) => {
-        for (const [id, modelId] of Object.entries(newModelIdByVendorId)) localStorage.setItem(VENDOR_MODEL_ID_KEY_PREFIX + id, modelId);
-    },
-    { deep: true }
-);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleVendorChange(newVendorId: AssistantVendorId, newModelConfig: AssistantModelConfig): void {
-    vendorId.value = newVendorId;
-    modelIdByVendorId.value = { ...modelIdByVendorId.value, [newVendorId]: newModelConfig.id };
+function handleModelChange(newModelConfig: AssistantModelConfig): void {
+    modelId.value = newModelConfig.id;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function establishVendorId(): AssistantVendorId {
+function establishModelId(): string {
     try {
-        const storedId = localStorage.getItem(VENDOR_ID_KEY);
-        if (ASSISTANT_VENDOR_CONFIGS.some((vendorConfig) => vendorConfig.id === storedId)) return storedId as AssistantVendorId;
-    } catch {
-        // Ignore - fall back to the default vendor.
-    }
-    return ASSISTANT_VENDOR_CONFIGS[0].id;
-}
-
-function establishVendorModelId(id: AssistantVendorId): string {
-    const vendorConfig = assertDefined(
-        ASSISTANT_VENDOR_CONFIGS.find((config) => config.id === id),
-        `No vendor config found for id '${id}'.`
-    );
-    const modelConfigs = vendorConfig.modelConfigs;
-    try {
-        const storedId = localStorage.getItem(VENDOR_MODEL_ID_KEY_PREFIX + id);
-        if (storedId != null && modelConfigs.some((config) => config.id === storedId)) return storedId;
+        const storedId = localStorage.getItem(MODEL_ID_KEY);
+        if (storedId != null && ASSISTANT_MODEL_CONFIGS.some((config) => config.id === storedId)) return storedId;
     } catch {
         // Ignore - fall back to the default model.
     }
-    return modelConfigs[0].id;
+    return ASSISTANT_MODEL_CONFIGS[0].id;
 }
 </script>
 
@@ -122,10 +88,9 @@ function establishVendorModelId(id: AssistantVendorId): string {
             :is="activeView"
             :key="activePanelKey"
             :model-config="activeModelConfig"
+            :model-configs="ASSISTANT_MODEL_CONFIGS"
             :studio-pane-is-hidden="studioPaneIsHidden"
-            :vendor-configs="ASSISTANT_VENDOR_CONFIGS"
-            :vendor-id="vendorId"
-            @vendor-change="handleVendorChange"
+            @model-change="handleModelChange"
         />
     </div>
 </template>
