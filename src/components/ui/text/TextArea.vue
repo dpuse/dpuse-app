@@ -1,14 +1,14 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { XIcon } from '@lucide/vue';
-import { useAttrs, useId, useTemplateRef } from 'vue';
+import { useAttrs, useId, useTemplateRef, watch } from 'vue';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const KEYBOARD_ANIMATION_MS = 300; // iOS keyboard transition; see the caret note in 'handleClear'.
+const KEYBOARD_ANIMATION_MS = 300; // iOS keyboard transition; see the caret note in 'resyncCaret'.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -28,31 +28,60 @@ const textAreaId = id ?? useId();
 const textValue = defineModel<string>({ default: '' });
 const textAreaElement = useTemplateRef<HTMLTextAreaElement>('textAreaElement');
 
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Emptying the box is what strands the caret, and the routes that do it do not share a handler: the clear button
+// below, a send that resets the bound value from the parent, and a backspace over the last character all arrive
+// separately, and only meet at the value itself. Watching the value therefore covers the send path, which never
+// passed through this component's own code at all. Post-flush so the 'field-sizing-content' collapse is already in
+// the DOM, and only while the box holds focus, since an unfocused textarea has no caret to resync.
+watch(
+    textValue,
+    (newValue, oldValue) => {
+        if (newValue !== '' || oldValue === '') return;
+        if (document.activeElement !== textAreaElement.value) return;
+        resyncCaret();
+    },
+    { flush: 'post' }
+);
+
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleClear(): void {
     textValue.value = '';
     textAreaElement.value?.focus();
+}
 
-    // NOTE: On iOS, the keyboard-open animation can leave WebKit's caret geometry desynced from the real
-    // viewport (visualViewport.offsetTop doesn't always settle immediately) — a 1px scroll nudge is
-    // the standard forced-repaint workaround to make it resync. See https://bugs.webkit.org/show_bug.cgi?id=176896.
-    // Nothing else resyncs it: 'nextTick' before the focus and a 'setSelectionRange' after it were both tried on
-    // device and neither moved the caret, because the desync is in WebKit's paint pass rather than in the selection.
-    //
-    // The resize is the signal when the keyboard animates, but a clear made while it is already open — reached by
-    // opening a menu in the same bar and dismissing it, which leaves the keyboard up — changes no geometry and
-    // fires nothing, stranding the caret. The timeout covers that path, and is long enough to land after the
-    // animation on the path that does resize. Whichever arrives first nudges and tears the other down, so a clear
-    // that never resizes cannot leave a listener behind to fire against some later, unrelated keyboard opening.
-    const nudge = (): void => {
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// NOTE: On iOS, WebKit leaves the caret where the box used to be — the overlay is composited separately and does not
+// follow either a 'field-sizing-content' collapse or a keyboard transition. A 1px scroll nudge is the standard
+// forced-repaint workaround that makes it resync. See https://bugs.webkit.org/show_bug.cgi?id=176896.
+// Nothing else does it: 'nextTick' before the focus and a 'setSelectionRange' after it were both tried on device and
+// neither moved the caret, because the desync is in the paint pass rather than in the selection.
+function nudge(): void {
+    textAreaElement.value?.getBoundingClientRect(); // Flushes the pending collapse, so the nudge lands against the box the caret must return to.
+    window.scrollBy(0, 1);
+    window.scrollBy(0, -1);
+}
+
+function resyncCaret(): void {
+    // Twice, because there are two ways to stray and one clear can hit either. Now, for the box collapsing under a
+    // caret that stays put — the whole story when the keyboard never moves, which on iOS is the common case, since
+    // Safari does not focus a <button> on tap and so neither the clear nor the send button takes focus off the box.
+    nudge();
+
+    // Again later, for a keyboard transition, which is not over at this point and stakes the caret out a second time
+    // when it lands. The resize is the signal while one is running; a clear made with the keyboard already up changes
+    // no geometry and fires nothing, so the timeout covers that. Whichever arrives first nudges and tears the other
+    // down, so no clear can leave a listener behind to fire against a later, unrelated keyboard opening.
+    const settle = (): void => {
         clearTimeout(timeoutId);
-        window.visualViewport?.removeEventListener('resize', nudge);
-        window.scrollBy(0, 1);
-        window.scrollBy(0, -1);
+        window.visualViewport?.removeEventListener('resize', settle);
+        nudge();
     };
-    const timeoutId = setTimeout(nudge, KEYBOARD_ANIMATION_MS);
-    window.visualViewport?.addEventListener('resize', nudge);
+    const timeoutId = setTimeout(settle, KEYBOARD_ANIMATION_MS);
+    window.visualViewport?.addEventListener('resize', settle);
 }
 </script>
 
