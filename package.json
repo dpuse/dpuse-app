@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1671",
+    "version": "0.0.1672",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -63,8 +63,7 @@
         "tailwindcss": "^4.3.3",
         "vue": "^3.5.42",
         "vue-router": "^5.3.0",
-        "web-vitals": "^6.2.1",
-        "zod": "^4.5.4"
+        "web-vitals": "^6.2.1"
     },
     "devDependencies": {
         "@cloudflare/vite-plugin": "1.54.2",

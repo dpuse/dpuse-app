@@ -1,6 +1,8 @@
+import { defineComponent, h, nextTick, ref } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
-import { nextTick } from 'vue';
+import type { AssistantModelConfig } from '@/features/assistant/chat/modelConfigs';
+import { useChatSession } from '@/services/useChatSession';
 
 const clientSpies = { attach: vi.fn(), dispose: vi.fn(), getStatus: vi.fn(() => 'ready'), updateOptions: vi.fn() };
 const constructed: Record<string, unknown>[] = [];
@@ -13,7 +15,6 @@ function buildConnection(): Record<string, unknown> {
     return {};
 }
 
-// Used where the tool array is built, so the mock has to carry it too.
 function passThroughTools(...tools: unknown[]): unknown[] {
     return tools;
 }
@@ -35,7 +36,21 @@ vi.mock('@tanstack/ai-client', () => ({
     clientTools: passThroughTools
 }));
 
-function buildModelConfig(id: string, modelId: string) {
+// The composable owns mount and unmount hooks, so it needs a component to live in.
+function buildHarness(getModelConfig: () => AssistantModelConfig): ReturnType<typeof defineComponent> {
+    return defineComponent({
+        setup() {
+            useChatSession(getModelConfig);
+            return renderNothing;
+        }
+    });
+}
+
+function renderNothing(): ReturnType<typeof h> {
+    return h('div');
+}
+
+function buildModelConfig(id: string, modelId: string): AssistantModelConfig {
     return { id, providerId: 'anthropic', providerLabel: 'Anthropic', modelId, options: {} };
 }
 
@@ -43,12 +58,12 @@ function buildModelConfig(id: string, modelId: string) {
 // conversation. The session has to take the new model in place instead.
 describe('changing model mid-conversation', () => {
     it('updates the live client rather than replacing it', async () => {
-        const interfaceModule = await import('@/features/assistant/chat/ChatTanstackInterface.vue');
-        const wrapper = mount(interfaceModule.default, { props: { modelConfig: buildModelConfig('a', 'claude-sonnet-4-6') } });
+        const modelConfig = ref(buildModelConfig('a', 'claude-sonnet-4-6'));
+        mount(buildHarness(() => modelConfig.value));
         await flushPromises();
         expect(constructed).toHaveLength(1);
 
-        await wrapper.setProps({ modelConfig: buildModelConfig('b', 'claude-opus-4-8') });
+        modelConfig.value = buildModelConfig('b', 'claude-opus-4-8');
         await nextTick();
 
         expect(constructed).toHaveLength(1); // No second client, so the transcript survives.

@@ -1,7 +1,6 @@
 // ── External Dependencies & Registrations
 import '@fontsource-variable/inter';
 import { createApp } from 'vue';
-import { z } from 'zod/v4'; // TODO: Required by Vercel AI SDK. Remove if we standardise on Tanstack AI.
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -9,9 +8,9 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 // ── Local Framework
 import '@/assets/main.css';
 import { createAppRouter } from '@/router';
-import { isComponentLoaderErrorInfo, markStaleDeployError, raiseAppFailure, reportStaleDeployFailure } from '@/state/errors';
-import { hasFault, throwOnFault } from '@/observability/faultInjection';
 import { reportFatalError } from '@/observability/errorTracking';
+import { hasFault, throwOnFault } from '@/observability/faultInjection';
+import { isComponentLoaderErrorInfo, markStaleDeployError, raiseAppFailure, reportStaleDeployFailure } from '@/state/errors';
 
 // ── Static Components
 import App from '@/App.vue';
@@ -20,7 +19,6 @@ import App from '@/App.vue';
 
 try {
     if (import.meta.env.DEV) throwOnFault('bootstrap'); // Before anything mounts, so the raw DOM banner is what answers.
-    z.config({ jitless: true }); // TODO: Required by Vercel AI SDK. Remove if we standardise on Tanstack AI.
 
     // Add global error handlers. Shown, not just reported: an error thrown outside Vue — from a timer, a DOM listener,
     // a worker message — costs the user exactly what one thrown inside it does, and there is no region that could have

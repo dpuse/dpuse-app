@@ -5,10 +5,11 @@ import { ArrowUpIcon, SquareIcon } from '@lucide/vue';
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
+import type { AssistantChatMessage } from './assistantChat';
 import type { AssistantModelConfig } from './modelConfigs';
-import { defineAsyncPanel } from '@/utilities/index.ts';
+import { getMessageSteps } from './assistantChat';
+import { isRunningStatus, useChatSession } from '@/services/useChatSession';
 import { useMarkedTool } from '@/services/useMarkedTool';
-import { type AssistantChatMessage, getMessageSteps } from './assistantChat';
 
 // ── Static Components
 import AssistantModelMenu from '../_components/AssistantModelMenu.vue';
@@ -17,9 +18,6 @@ import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
 import PendingLabel from '../_components/PendingLabel.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import TextArea from '@/components/ui/text/TextArea.vue';
-
-// ── Dynamic Components
-const ChatSession = defineAsyncPanel(() => import('./ChatTanstackInterface.vue'), 'ChatTanstackInterface');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -35,15 +33,12 @@ const emit = defineEmits<{ modelChange: [modelConfig: AssistantModelConfig] }>()
 
 const input = ref(PROMPT);
 const scrollElement = ref<HTMLElement | null>(null);
-const messages = ref<AssistantChatMessage[]>([]);
-const status = ref('idle');
-// A failure that belongs to no message — the send never got far enough to add one. Held here so it can be shown at
-// the end of the thread, where the question that failed would have gone.
-const sendFailure = ref<string>();
-const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
 const inputContainerHeight = ref(0);
+const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
+// The model is passed as a getter so a change reaches the live session rather than rebuilding it, which would start
+// the conversation again from nothing.
+const { messages, status, sendFailure, runWasStopped, runHasFinished, sendMessage, stop } = useChatSession(() => modelConfig);
 
-const sessionReference = useTemplateRef<{ sendMessage: (text: string) => void; stop: () => void }>('sessionReference');
 const inputContainer = useTemplateRef<HTMLElement>('inputContainer');
 
 const state: { inputContainerResizeObserver: ResizeObserver | null; scrollObserver: MutationObserver | null } = { inputContainerResizeObserver: null, scrollObserver: null };
@@ -51,7 +46,23 @@ const state: { inputContainerResizeObserver: ResizeObserver | null; scrollObserv
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // 'submitted' counts: the run is the user's to cancel from the moment it is accepted, not only once tokens arrive.
-const responseIsRunning = computed(() => status.value === 'streaming' || status.value === 'submitted');
+const responseIsRunning = computed(() => isRunningStatus(status.value));
+
+// A finished run that produced nothing to read. The cause is not knowable here: the adapter maps every stop reason
+// other than a tool call or a token limit to a plain finish, so a model that declined the request arrives looking
+// exactly like one that answered with silence. Saying so is still better than the alternative, which is a heading over
+// an empty space. A run the user stopped is excluded — they know why that one is empty.
+const answerIsMissing = computed(() => {
+    // 'runHasFinished' is what keeps this off the screen in the moment between a question being appended and its run
+    // starting, where the thread looks exactly the same as it does after an answerless run.
+    if (responseIsRunning.value || runWasStopped.value || !runHasFinished.value) return false;
+    const lastMessage = messages.value.at(-1);
+    if (lastMessage == null) return false;
+    // A question left standing as the last message is an answer that never arrived at all — unless an error is already
+    // sitting under it, which says the same thing with more detail.
+    if (lastMessage.role === 'user') return lastMessage.errors.length === 0;
+    return lastMessage.parts.length === 0;
+});
 
 // The gaps in a run where the thread has nothing to show: between the question and the first token, and again while a
 // tool call is in flight — a tool-only assistant message normalises to no parts, so it renders as nothing at all.
@@ -111,7 +122,7 @@ function handleSelectModel(newModelConfig: AssistantModelConfig): void {
 // The one composer action: the same button sends while the thread is idle and cancels while a response is running.
 function handleComposerAction(): void {
     if (responseIsRunning.value) {
-        sessionReference.value?.stop();
+        stop();
         return;
     }
     handleSendMessage();
@@ -120,11 +131,10 @@ function handleComposerAction(): void {
 function handleSendMessage(): void {
     // Guarded rather than queued: Enter during a run would otherwise reach a session that cannot take a second send.
     if (responseIsRunning.value) return;
-    sendFailure.value = undefined; // The last failure belongs to the attempt before this one.
     const text = input.value.trim();
-    if (!text || sessionReference.value == null) return;
+    if (!text) return;
     input.value = '';
-    sessionReference.value.sendMessage(text);
+    void sendMessage(text);
 }
 
 function handleScrollAreaInitialised(element: HTMLElement): void {
@@ -142,15 +152,6 @@ function handleRetryMarkedTool(): void {
 
 <template>
     <div class="relative flex min-h-0 flex-1 flex-col">
-        <component
-            :is="ChatSession"
-            ref="sessionReference"
-            :model-config="modelConfig"
-            @messages-change="messages = $event"
-            @send-failure="sendFailure = $event"
-            @status-change="status = $event"
-        />
-
         <!-- Covers the region: 'purifyMarkdown' returns an empty string without the formatter, so every message in the
              thread renders blank. The chat is not degraded by this, it is unreadable, so the thread and the composer
              give way to the failure rather than sitting beneath it. The session component stays mounted throughout,
@@ -197,6 +198,11 @@ function handleRetryMarkedTool(): void {
 
                 <!-- Carries the step label's own classes, so the first real step lands on the same line at the same
                      size and the swap does not move anything. -->
+                <div v-if="answerIsMissing" class="mx-auto mt-3 max-w-prose pb-4">
+                    <div class="mb-1 text-xs font-medium tracking-wide text-subtle">No answer</div>
+                    <div class="text-sm text-subtle">The model returned nothing for this turn. It may have declined the request. Try rephrasing it, or pick a different model.</div>
+                </div>
+
                 <div v-if="responseIsPending" class="mx-auto mt-3 max-w-prose pb-4">
                     <PendingLabel class="mb-1 text-xs font-medium tracking-wide text-subtle" />
                 </div>

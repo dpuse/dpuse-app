@@ -1,31 +1,50 @@
 import { defineComponent, nextTick, ref } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
+import type { AssistantChatMessage } from '@/features/assistant/chat/assistantChat';
 
-const sessionSpies = { sendMessage: vi.fn(), stop: vi.fn() };
-
-vi.mock('@/services/useMarkedTool', () => ({
-    useMarkedTool: () => ({ markedTool: ref(undefined), failure: ref(undefined), initialise: () => Promise.resolve(undefined) })
-}));
-
-// Stands in for a vendor session: publishes the same imperative API and drives the status the composer reads.
-// '__esModule' marks the mock as a module namespace, which is what makes 'defineAsyncComponent' unwrap 'default'.
-function buildStubSession() {
-    return {
-        __esModule: true,
-        default: defineComponent({
-            emits: ['messagesChange', 'statusChange'],
-            setup(_properties, { emit, expose }) {
-                expose(sessionSpies);
-                emit('statusChange', 'ready');
-            },
-            template: '<div />'
-        })
+// The panel reads its session from the composable, so the spec drives that directly rather than standing up a fake
+// component: the refs below are the session, and the tests move them the way a real run would.
+vi.mock('@/services/useChatSession', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@/services/useChatSession')>();
+    const { ref } = await import('vue');
+    const session = {
+        messages: ref([] as AssistantChatMessage[]),
+        status: ref('ready'),
+        sendFailure: ref<string | undefined>(undefined),
+        runWasStopped: ref(false),
+        runHasFinished: ref(false),
+        sendMessage: vi.fn(),
+        stop: vi.fn()
     };
-}
-vi.mock('@/features/assistant/chat/ChatTanstackInterface.vue', () => buildStubSession());
+    // The run-state helper is real; only the session itself is stood in for.
+    return { ...actual, useChatSession: () => session, sessionForTest: session };
+});
 
-// Found by its own label rather than by position: the composer shares the bar with the vendor menu, and the text box
+vi.mock('@/services/useMarkedTool', async () => {
+    const { ref } = await import('vue');
+    // Real refs: a plain object is truthy in the template, which puts the panel into its load-failure branch.
+    const markedTool = ref(undefined);
+    const failure = ref(undefined);
+    return { useMarkedTool: () => ({ markedTool, failure, initialise: () => Promise.resolve(undefined) }) };
+});
+
+interface SessionForTest {
+    messages: { value: AssistantChatMessage[] };
+    status: { value: string };
+    sendFailure: { value: string | undefined };
+    runWasStopped: { value: boolean };
+    runHasFinished: { value: boolean };
+    sendMessage: ReturnType<typeof vi.fn>;
+    stop: ReturnType<typeof vi.fn>;
+}
+
+async function getSession(): Promise<SessionForTest> {
+    const module_ = (await import('@/services/useChatSession')) as unknown as { sessionForTest: SessionForTest };
+    return module_.sessionForTest;
+}
+
+// Found by its own label rather than by position: the composer shares the bar with the model menu, and the text box
 // contributes a clear button of its own.
 function composerButton(wrapper: ReturnType<typeof mount>): ReturnType<ReturnType<typeof mount>['get']> {
     const button = wrapper.findAll('button').find((candidate) => ['Send the message', 'Stop the response'].includes(candidate.attributes('aria-label') ?? ''));
@@ -52,22 +71,25 @@ async function mountPanel(): Promise<ReturnType<typeof mount>> {
 // mid-run reaches a session that cannot take it, and a stop the user cannot reach leaves a run they cannot end.
 describe('chat composer send/stop button', () => {
     it('sends while the thread is idle', async () => {
-        sessionSpies.sendMessage.mockClear();
+        const session = await getSession();
+        session.sendMessage.mockClear();
+        session.status.value = 'ready';
         const wrapper = await mountPanel();
         const button = composerButton(wrapper);
 
         expect(button.attributes('aria-label')).toBe('Send the message');
         await button.trigger('click');
 
-        expect(sessionSpies.sendMessage).toHaveBeenCalledOnce();
+        expect(session.sendMessage).toHaveBeenCalledOnce();
     });
 
     it('becomes a stop button while a response is running, and cancels rather than sending', async () => {
-        sessionSpies.sendMessage.mockClear();
-        sessionSpies.stop.mockClear();
+        const session = await getSession();
+        session.sendMessage.mockClear();
+        session.stop.mockClear();
         const wrapper = await mountPanel();
 
-        await wrapper.findComponent({ name: 'ChatTanstackInterfaceHost' }).vm.$emit('statusChange', 'streaming');
+        session.status.value = 'streaming';
         await nextTick();
 
         const button = composerButton(wrapper);
@@ -76,43 +98,45 @@ describe('chat composer send/stop button', () => {
         expect(button.classes()).not.toContain('bg-blue-400');
 
         await button.trigger('click');
-        expect(sessionSpies.stop).toHaveBeenCalledOnce();
-        expect(sessionSpies.sendMessage).not.toHaveBeenCalled();
+        expect(session.stop).toHaveBeenCalledOnce();
+        expect(session.sendMessage).not.toHaveBeenCalled();
     });
 
     it('stands in with a placeholder until the response has something to show', async () => {
+        const session = await getSession();
+        session.status.value = 'ready';
+        session.messages.value = [];
         const wrapper = await mountPanel();
-        const session = wrapper.findComponent({ name: 'ChatTanstackInterfaceHost' });
 
         expect(wrapper.text()).not.toContain('Working…');
 
         // Sent, nothing back yet.
-        await session.vm.$emit('statusChange', 'submitted');
-        await session.vm.$emit('messagesChange', [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }]);
+        session.status.value = 'submitted';
+        session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }];
         await nextTick();
         expect(wrapper.text()).toContain('Working…');
 
         // A tool round: the assistant turn exists but normalises to nothing renderable, so the silence continues.
-        await session.vm.$emit('messagesChange', [
+        session.messages.value = [
             { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
             { id: 'a1', role: 'assistant', parts: [], errors: [] }
-        ]);
+        ];
         await nextTick();
         expect(wrapper.text()).toContain('Working…');
 
         // First content — the standalone placeholder gives way to the answer, and the heading carries the wait on
         // while the rest of the text is still arriving.
-        await session.vm.$emit('messagesChange', [
+        session.messages.value = [
             { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
             { id: 'a1', role: 'assistant', parts: [{ type: 'text', content: 'An answer' }], errors: [] }
-        ]);
-        await session.vm.$emit('statusChange', 'streaming');
+        ];
+        session.status.value = 'streaming';
         await nextTick();
         expect(wrapper.text()).toContain('An answer');
         expect(wrapper.text()).toContain('Working…');
 
         // Step complete: the heading settles and the wait is over.
-        await session.vm.$emit('statusChange', 'ready');
+        session.status.value = 'ready';
         await nextTick();
         expect(wrapper.text()).not.toContain('Working…');
         expect(wrapper.text()).toContain('An answer');
@@ -121,21 +145,21 @@ describe('chat composer send/stop button', () => {
     // 'Done' marks the answer to the question, so it belongs to the last message alone — the earlier turns are steps
     // on the way to it, and nothing is finished while the run is still going.
     it('heads only the final answer with Done, and only once the run has ended', async () => {
+        const session = await getSession();
         const wrapper = await mountPanel();
-        const session = wrapper.findComponent({ name: 'ChatTanstackInterfaceHost' });
-        const thread = [
+        const thread: AssistantChatMessage[] = [
             { id: 'a1', role: 'assistant', parts: [{ type: 'text', content: 'An interim answer' }], errors: [] },
             { id: 'u2', role: 'user', parts: [{ type: 'text', content: 'A second question' }], errors: [] },
             { id: 'a2', role: 'assistant', parts: [{ type: 'text', content: 'The final answer' }], errors: [] }
         ];
 
-        await session.vm.$emit('messagesChange', thread);
-        await session.vm.$emit('statusChange', 'streaming');
+        session.messages.value = thread;
+        session.status.value = 'streaming';
         await nextTick();
         expect(wrapper.text()).not.toContain('Done'); // Still running: nothing is finished.
         expect(wrapper.text()).toContain('Working…'); // The live step says so until it completes.
 
-        await session.vm.$emit('statusChange', 'ready');
+        session.status.value = 'ready';
         await nextTick();
 
         const text = wrapper.text();
@@ -148,14 +172,14 @@ describe('chat composer send/stop button', () => {
     // A refused send appends no message, so hanging its error on the latest user message put it against the previous
     // question — above the conversation rather than at the end of it.
     it('shows a refused send at the end of the thread rather than against an earlier question', async () => {
+        const session = await getSession();
         const wrapper = await mountPanel();
-        const session = wrapper.findComponent({ name: 'ChatTanstackInterfaceHost' });
 
-        await session.vm.$emit('messagesChange', [
+        session.messages.value = [
             { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'The earlier question' }], errors: [] },
             { id: 'a1', role: 'assistant', parts: [{ type: 'text', content: 'The earlier answer' }], errors: [] }
-        ]);
-        await session.vm.$emit('sendFailure', 'The session refused the message.');
+        ];
+        session.sendFailure.value = 'The session refused the message.';
         await nextTick();
 
         const text = wrapper.text();
@@ -163,9 +187,84 @@ describe('chat composer send/stop button', () => {
         expect(text.indexOf('The session refused the message.')).toBeGreaterThan(text.indexOf('The earlier answer'));
     });
 
-    it('stays available while a run is in flight, even with an empty composer', async () => {
+    // The adapter reports a declined request as an ordinary finish, so an empty turn is all the panel ever sees. It
+    // cannot say why, but a heading over blank space is worse than saying nothing came back.
+    it('says so when a finished run produced nothing to read', async () => {
+        const session = await getSession();
+        session.runWasStopped.value = false;
+        session.runHasFinished.value = false;
+        session.status.value = 'streaming';
+        session.messages.value = [
+            { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
+            { id: 'a1', role: 'assistant', parts: [], errors: [] }
+        ];
         const wrapper = await mountPanel();
-        await wrapper.findComponent({ name: 'ChatTanstackInterfaceHost' }).vm.$emit('statusChange', 'submitted');
+
+        // Mid-run an empty assistant turn is just a tool round, so the placeholder speaks for it.
+        expect(wrapper.text()).toContain('Working…');
+        expect(wrapper.text()).not.toContain('No answer');
+
+        session.status.value = 'ready';
+        session.runHasFinished.value = true;
+        await nextTick();
+        expect(wrapper.text()).toContain('No answer');
+    });
+
+    it('stays quiet about an empty turn the user stopped themselves', async () => {
+        const session = await getSession();
+        session.status.value = 'ready';
+        session.runHasFinished.value = true;
+        session.runWasStopped.value = true;
+        session.messages.value = [
+            { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
+            { id: 'a1', role: 'assistant', parts: [], errors: [] }
+        ];
+        const wrapper = await mountPanel();
+
+        expect(wrapper.text()).not.toContain('No answer');
+    });
+
+    // A refusal may produce no assistant message at all, leaving the question as the last thing in the thread. That is
+    // still an answer that never came, and it has to say so rather than leave the question hanging.
+    it('says so when a run ends without producing any assistant turn', async () => {
+        const session = await getSession();
+        session.runWasStopped.value = false;
+        session.runHasFinished.value = true;
+        session.status.value = 'ready';
+        session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }];
+        const wrapper = await mountPanel();
+
+        expect(wrapper.text()).toContain('No answer');
+    });
+
+    // Before the run starts, the thread looks identical to one that produced nothing — hence the finished-run guard.
+    it('stays quiet in the gap between a question being sent and its run starting', async () => {
+        const session = await getSession();
+        session.runWasStopped.value = false;
+        session.runHasFinished.value = false;
+        session.status.value = 'ready';
+        session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }];
+        const wrapper = await mountPanel();
+
+        expect(wrapper.text()).not.toContain('No answer');
+    });
+
+    it('leaves a question that already carries an error alone', async () => {
+        const session = await getSession();
+        session.runWasStopped.value = false;
+        session.runHasFinished.value = true;
+        session.status.value = 'ready';
+        session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: ['The model is overloaded.'] }];
+        const wrapper = await mountPanel();
+
+        expect(wrapper.text()).toContain('The model is overloaded.');
+        expect(wrapper.text()).not.toContain('No answer');
+    });
+
+    it('stays available while a run is in flight, even with an empty composer', async () => {
+        const session = await getSession();
+        const wrapper = await mountPanel();
+        session.status.value = 'submitted';
         await nextTick();
 
         expect(composerButton(wrapper).attributes('disabled')).toBeUndefined();
