@@ -21,6 +21,7 @@ import DPUseLogo from '@/components/branding/DPUseLogo.vue'; // Always visible.
 import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue'; // Can be no delay when rendering.
 import LoadingMask from '@/components/ui/LoadingMask.vue'; // Can be no delay when rendering.
 import SessionButton from '@/features/session/SessionButton.vue'; // Always visible.
+import ViewportDebug from '@/components/ui/ViewportDebug.vue'; // Diagnostic strip, rendered only when asked for by URL.
 
 // ── Dynamic Components
 const AccountDialog = defineAsyncPanel(() => import('@/features/session/accountDialog/AccountDialog.vue'), 'AccountDialog');
@@ -58,6 +59,10 @@ const T = {
 };
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Opt-in by URL rather than by build flag, so the numbers can be read on a real device against a real deployment,
+// which is the only place the viewport behaviour being diagnosed actually happens.
+const isViewportDebugVisible = new URLSearchParams(location.search).has('vpdebug');
 
 const activeAppPaneId = ref<'studio' | 'assistant' | undefined>();
 
@@ -257,6 +262,8 @@ function establishPaneSplitterPercent(): number {
         <!-- Height comes from the visual viewport, not 'inset-0', so the shell ends where the screen actually does:
              iOS leaves the layout viewport at full height when the keyboard is up, and a shell anchored to its bottom
              puts everything at the foot of the page behind the keyboard. See 'appLayout.ts'. -->
+
+        <ViewportDebug v-if="isViewportDebugVisible" />
 
         <!--
           z-10: Content: StudioPane (includes fixed OptionBar), PaneSplitter & AssistantPane

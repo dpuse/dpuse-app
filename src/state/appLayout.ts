@@ -78,6 +78,11 @@ function handleVisualViewportChange(): void {
 // rather than only when the keyboard moves, and answering it would put the motion back.
 function publishViewportHeight(): void {
     if (!VISUAL_VIEWPORT) return; // The stylesheet's own '100dvh' stands, which is the best available without this API.
-    // Rounded because subpixel values jitter the layout on every reflow.
-    document.documentElement.style.setProperty('--viewport-height', `${String(Math.round(VISUAL_VIEWPORT.height))}px`);
+    const height = Math.round(VISUAL_VIEWPORT.height); // Rounded because subpixel values jitter the layout on reflow.
+    // A height of zero is a measurement taken before the viewport has one, and writing it collapses the shell to
+    // nothing — which puts everything anchored to its bottom at the top of the screen. Leaving the variable alone
+    // keeps the stylesheet's '100dvh', which is right until the keyboard opens, and the resize that opens it
+    // publishes a real figure.
+    if (!Number.isFinite(height) || height <= 0) return;
+    document.documentElement.style.setProperty('--viewport-height', `${String(height)}px`);
 }
