@@ -92,11 +92,6 @@ export function useChatSession(getModelConfig: () => AssistantModelConfig): Chat
             },
             onError: (error): void => {
                 appendErrorForLatestUserMessage(extractErrorMessage(error));
-                // A run that fails partway through a client tool leaves its interrupt pending, and the client refuses
-                // every later send while one is — so the error takes the composer down with it and only a remount
-                // brings it back. Nothing is lost by clearing them: the run that would have consumed the tool output
-                // is already over, so there is no resume left to make, and the alternative is a dead thread.
-                if (state.client != null && state.client.getInterrupts().length > 0) state.client.cancelInterrupts();
             }
         });
 
@@ -130,6 +125,20 @@ export function useChatSession(getModelConfig: () => AssistantModelConfig): Chat
         runHasFinished.value = false;
         runWasStopped.value = false;
         sendFailure.value = undefined;
+
+        // So does any interrupt left standing, and that one is not merely stale — it is disabling. A run that fails
+        // partway through a client tool never clears its interrupt state: the client ignores a RUN_ERROR while an
+        // interrupt submission is active, precisely so a failed submission can be retried, and nothing afterwards
+        // takes that decision back. Every normal send is then refused, so one failed turn ends the conversation
+        // until the panel remounts.
+        //
+        // 'stop' is what clears it, and 'cancelInterrupts' is not: cancelling stages a cancelled resolution and
+        // submits it, firing a fresh request at the run that just failed. Nothing here is waiting on a person —
+        // client tools run themselves — so an interrupt outliving its run is debris either way. On a healthy client
+        // every step of 'stop' is a no-op, which is what makes it safe to run before each send rather than only
+        // after a failure, where the state it has to clear is not observable yet.
+        if (!isRunningStatus(status.value)) state.client.stop();
+
         try {
             await state.client.sendMessage(text);
         } catch (error) {
