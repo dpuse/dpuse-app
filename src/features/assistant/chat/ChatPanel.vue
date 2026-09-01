@@ -38,7 +38,7 @@ const inputContainerHeight = ref(0);
 const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
 // The model is passed as a getter so a change reaches the live session rather than rebuilding it, which would start
 // the conversation again from nothing.
-const { messages, status, sendFailure, runWasStopped, runHasFinished, sendMessage, stop } = useChatSession(() => modelConfig);
+const { messages, status, sendFailure, answerlessQuestionIds, sendMessage, stop } = useChatSession(() => modelConfig);
 
 const inputContainer = useTemplateRef<HTMLElement>('inputContainer');
 
@@ -52,18 +52,11 @@ const responseIsRunning = computed(() => isRunningStatus(status.value));
 // A finished run that produced nothing to read. The cause is not knowable here: the adapter maps every stop reason
 // other than a tool call or a token limit to a plain finish, so a model that declined the request arrives looking
 // exactly like one that answered with silence. Saying so is still better than the alternative, which is a heading over
-// an empty space. A run the user stopped is excluded — they know why that one is empty.
-const answerIsMissing = computed(() => {
-    // 'runHasFinished' is what keeps this off the screen in the moment between a question being appended and its run
-    // starting, where the thread looks exactly the same as it does after an answerless run.
-    if (responseIsRunning.value || runWasStopped.value || !runHasFinished.value) return false;
-    const lastMessage = messages.value.at(-1);
-    if (lastMessage == null) return false;
-    // A question left standing as the last message is an answer that never arrived at all — unless an error is already
-    // sitting under it, which says the same thing with more detail.
-    if (lastMessage.role === 'user') return lastMessage.errors.length === 0;
-    return lastMessage.parts.length === 0;
-});
+// an empty space. Which questions those were is decided by the session, at the moment each run ends; here it is only
+// looked up, so an answerless turn keeps its notice as the conversation goes on past it.
+function hasNoAnswer(message: AssistantChatMessage): boolean {
+    return message.role === 'user' && answerlessQuestionIds.value.includes(message.id);
+}
 
 // The gaps in a run where the thread has nothing to show: between the question and the first token, and again while a
 // tool call is in flight — a tool-only assistant message normalises to no parts, so it renders as nothing at all.
@@ -172,6 +165,15 @@ function handleRetryMarkedTool(): void {
                             <div class="mb-1 text-xs font-medium tracking-wide text-danger-text">Error</div>
                             <div class="text-sm whitespace-pre-line text-danger-text">{{ errorText }}</div>
                         </div>
+
+                        <!-- Sits with the question it belongs to, so it stays put once the conversation moves past it.
+                             Carries the step label's own classes, so it lands where a real answer would have. -->
+                        <div v-if="hasNoAnswer(message)" class="mx-auto mt-3 max-w-prose pb-4">
+                            <div class="mb-1 text-xs font-medium tracking-wide text-subtle">No answer</div>
+                            <div class="text-sm text-subtle">
+                                The model returned nothing for this turn. It may have declined the request. Try rephrasing it, or pick a different model.
+                            </div>
+                        </div>
                     </template>
 
                     <template v-else-if="message.role === 'assistant'">
@@ -191,18 +193,11 @@ function handleRetryMarkedTool(): void {
                     </template>
                 </template>
 
-                <!-- Both sit after the thread rather than inside it: each stands in for a message that does not exist,
-                     so there is no message to key them to. -->
+                <!-- Sits after the thread rather than inside it: a send that was refused never became a message, so
+                     there is no message to key it to. Cleared by the next send, which is the attempt it describes. -->
                 <div v-if="sendFailure" class="mx-auto mt-3 max-w-prose pb-4">
                     <div class="mb-1 text-xs font-medium tracking-wide text-danger-text">Error</div>
                     <div class="text-sm whitespace-pre-line text-danger-text">{{ sendFailure }}</div>
-                </div>
-
-                <!-- Carries the step label's own classes, so the first real step lands on the same line at the same
-                     size and the swap does not move anything. -->
-                <div v-if="answerIsMissing" class="mx-auto mt-3 max-w-prose pb-4">
-                    <div class="mb-1 text-xs font-medium tracking-wide text-subtle">No answer</div>
-                    <div class="text-sm text-subtle">The model returned nothing for this turn. It may have declined the request. Try rephrasing it, or pick a different model.</div>
                 </div>
 
                 <div v-if="responseIsPending" class="mx-auto mt-3 max-w-prose pb-4">

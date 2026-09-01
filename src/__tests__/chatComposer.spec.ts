@@ -14,6 +14,7 @@ vi.mock('@/services/useChatSession', async (importOriginal) => {
         sendFailure: ref<string | undefined>(undefined),
         runWasStopped: ref(false),
         runHasFinished: ref(false),
+        answerlessQuestionIds: ref([] as string[]),
         sendMessage: vi.fn(),
         stop: vi.fn()
     };
@@ -35,6 +36,7 @@ interface SessionForTest {
     sendFailure: { value: string | undefined };
     runWasStopped: { value: boolean };
     runHasFinished: { value: boolean };
+    answerlessQuestionIds: { value: string[] };
     sendMessage: ReturnType<typeof vi.fn>;
     stop: ReturnType<typeof vi.fn>;
 }
@@ -187,12 +189,11 @@ describe('chat composer send/stop button', () => {
         expect(text.indexOf('The session refused the message.')).toBeGreaterThan(text.indexOf('The earlier answer'));
     });
 
-    // The adapter reports a declined request as an ordinary finish, so an empty turn is all the panel ever sees. It
-    // cannot say why, but a heading over blank space is worse than saying nothing came back.
-    it('says so when a finished run produced nothing to read', async () => {
+    // Which runs came back empty is the session's call, made as each one ends; the panel only renders what it is told.
+    // The adapter reports a declined request as an ordinary finish, so an empty turn is all either of them ever sees.
+    it('says so for a question the session recorded as answerless', async () => {
         const session = await getSession();
-        session.runWasStopped.value = false;
-        session.runHasFinished.value = false;
+        session.answerlessQuestionIds.value = [];
         session.status.value = 'streaming';
         session.messages.value = [
             { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
@@ -205,16 +206,16 @@ describe('chat composer send/stop button', () => {
         expect(wrapper.text()).not.toContain('No answer');
 
         session.status.value = 'ready';
-        session.runHasFinished.value = true;
+        session.answerlessQuestionIds.value = ['u1'];
         await nextTick();
         expect(wrapper.text()).toContain('No answer');
     });
 
-    it('stays quiet about an empty turn the user stopped themselves', async () => {
+    // The empty turn the user stopped themselves never reaches the list, so nothing here has to know about stopping.
+    it('stays quiet about an empty turn the session did not record', async () => {
         const session = await getSession();
         session.status.value = 'ready';
-        session.runHasFinished.value = true;
-        session.runWasStopped.value = true;
+        session.answerlessQuestionIds.value = [];
         session.messages.value = [
             { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
             { id: 'a1', role: 'assistant', parts: [], errors: [] }
@@ -228,32 +229,39 @@ describe('chat composer send/stop button', () => {
     // still an answer that never came, and it has to say so rather than leave the question hanging.
     it('says so when a run ends without producing any assistant turn', async () => {
         const session = await getSession();
-        session.runWasStopped.value = false;
-        session.runHasFinished.value = true;
         session.status.value = 'ready';
+        session.answerlessQuestionIds.value = ['u1'];
         session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }];
         const wrapper = await mountPanel();
 
         expect(wrapper.text()).toContain('No answer');
     });
 
-    // Before the run starts, the thread looks identical to one that produced nothing — hence the finished-run guard.
-    it('stays quiet in the gap between a question being sent and its run starting', async () => {
+    // The notice belongs to the turn that earned it. Derived from the tail of the conversation it described only the
+    // most recent run, so asking again wiped the previous turn's outcome out of the history.
+    it('keeps an answerless turn marked once the conversation moves past it', async () => {
         const session = await getSession();
-        session.runWasStopped.value = false;
-        session.runHasFinished.value = false;
         session.status.value = 'ready';
+        session.answerlessQuestionIds.value = ['u1'];
         session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }];
         const wrapper = await mountPanel();
+        expect(wrapper.text()).toContain('No answer');
 
-        expect(wrapper.text()).not.toContain('No answer');
+        session.messages.value = [
+            ...session.messages.value,
+            { id: 'u2', role: 'user', parts: [{ type: 'text', content: 'Another question' }], errors: [] },
+            { id: 'a2', role: 'assistant', parts: [{ type: 'text', content: 'An answer' }], errors: [] }
+        ];
+        await nextTick();
+        expect(wrapper.text()).toContain('No answer');
+        expect(wrapper.text()).toContain('An answer');
     });
 
+    // The session withholds the question from the list when an error already sits under it, so the two never stack.
     it('leaves a question that already carries an error alone', async () => {
         const session = await getSession();
-        session.runWasStopped.value = false;
-        session.runHasFinished.value = true;
         session.status.value = 'ready';
+        session.answerlessQuestionIds.value = [];
         session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: ['The model is overloaded.'] }];
         const wrapper = await mountPanel();
 
