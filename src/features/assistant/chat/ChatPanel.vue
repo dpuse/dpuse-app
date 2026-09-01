@@ -67,7 +67,7 @@ const responseIsPending = computed(() => {
 });
 
 // mb-4 (16px) on the input container isn't part of its own height, so it's added on top to keep messages clear of it.
-const scrollPaddingBottom = computed(() => `${String(inputContainerHeight.value + 16)}px`);
+const scrollPaddingBottom = computed(() => `${String(inputContainerHeight.value + 32)}px`);
 
 // Only the thread's last message can still be running; everything above it is settled.
 function isResponseStreaming(message: AssistantChatMessage): boolean {
