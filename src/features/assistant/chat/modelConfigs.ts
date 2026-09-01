@@ -23,6 +23,13 @@ export interface AssistantModelConfig {
 //     that nor 'effort'.
 //   - 'effort' runs low → medium → high → xhigh → max, and only on models that carry it. It is the cost dial: it
 //     decides how much thinking the model does before answering.
+//   - OpenAI's 'reasoning.effort' is a different setting under the same name, and is pinned to 'none' below for a
+//     reason that is not about cost. A reasoning model emits a reasoning item beside every tool call, and the
+//     Responses API refuses a later turn that replays the tool call without it. The adapter cannot send it: it keeps
+//     no thought signature for OpenAI the way it does for Anthropic, and discards OpenAI's id for the item on the way
+//     in. So reasoning and tools cannot both be had here, and tools are what this assistant is for. Adding
+//     'summary: auto' would surface the thinking in the UI, but only at an effort that brings the failure back.
+//     Revisit when '@tanstack/openai-base' emits reasoning items — nothing after 0.10.8 does.
 export const ASSISTANT_MODEL_CONFIGS: AssistantModelConfig[] = [
     {
         id: 'anthropic-claude-opus-5',
@@ -39,7 +46,7 @@ export const ASSISTANT_MODEL_CONFIGS: AssistantModelConfig[] = [
         options: { effort: 'medium', maxTokens: 4096, thinking: { type: 'adaptive' } }
     },
     { id: 'anthropic-claude-haiku-4-5', providerId: 'anthropic', providerLabel: 'Anthropic', modelId: 'claude-haiku-4-5', options: { maxTokens: 4096, temperature: 1 } }, // No 'effort' and no 'thinking': Haiku 4.5 predates both and rejects them.
-    { id: 'openai-gpt-5.6', providerId: 'openAI', providerLabel: 'OpenAI', modelId: 'gpt-5.6', options: { maxOutputTokens: 4096 } },
-    { id: 'openai-gpt-5.6-terra', providerId: 'openAI', providerLabel: 'OpenAI', modelId: 'gpt-5.6-terra', options: { maxOutputTokens: 4096 } },
-    { id: 'openai-gpt-5.6-luna', providerId: 'openAI', providerLabel: 'OpenAI', modelId: 'gpt-5.6-luna', options: { maxOutputTokens: 4096 } }
+    { id: 'openai-gpt-5.6', providerId: 'openAI', providerLabel: 'OpenAI', modelId: 'gpt-5.6', options: { maxOutputTokens: 4096, reasoning: { effort: 'none' } } },
+    { id: 'openai-gpt-5.6-terra', providerId: 'openAI', providerLabel: 'OpenAI', modelId: 'gpt-5.6-terra', options: { maxOutputTokens: 4096, reasoning: { effort: 'none' } } },
+    { id: 'openai-gpt-5.6-luna', providerId: 'openAI', providerLabel: 'OpenAI', modelId: 'gpt-5.6-luna', options: { maxOutputTokens: 4096, reasoning: { effort: 'none' } } }
 ];
