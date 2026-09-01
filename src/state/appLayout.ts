@@ -12,7 +12,6 @@ const VISUAL_VIEWPORT = window.visualViewport;
 
 export const assistantPaneIsVisible = ref(false); // The assistant pane is actually rendered (visible) in the layout right now.
 export const contentScrollPosition = ref(0);
-export const keyboardInset = ref(establishKeyboardInset()); // Screen the on-screen keyboard takes from the bottom of the layout viewport.
 export const viewportIsWide = ref(MEDIA_QUERY.matches);
 export const appearanceIsDark = ref(document.documentElement.classList.contains('dark'));
 export const orientationIsLandscape = ref(LANDSCAPE_QUERY.matches);
@@ -30,11 +29,12 @@ MEDIA_QUERY.addEventListener('change', handleMediaQueryChange);
 LANDSCAPE_QUERY.addEventListener('change', handleLandscapeQueryChange);
 // eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
 APPEARANCE_OBSERVER.observe(document.documentElement, { attributeFilter: ['class'] });
-// 'resize' only, deliberately. 'scroll' fires for every pan and rubber-band of the visual viewport, and answering
-// those moved the composer continuously under a caret that does not follow it — which is the whole family of iOS
-// caret bugs this was meant to end, rebuilt as a machine for producing them.
+// 'resize' only, deliberately. 'scroll' fires for every pan and rubber-band of the visual viewport, and resizing the
+// shell on those would move the focused box continuously under a caret that does not follow it.
 // eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
 VISUAL_VIEWPORT?.addEventListener('resize', handleVisualViewportChange);
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- the shell has to be sized before first paint.
+publishViewportHeight();
 if (import.meta.hot) {
     import.meta.hot.dispose(() => {
         MEDIA_QUERY.removeEventListener('change', handleMediaQueryChange); // Dispose runs when module is about to be replaced.
@@ -59,20 +59,25 @@ function handleMediaQueryChange(event: MediaQueryListEvent): void {
 }
 
 function handleVisualViewportChange(): void {
-    keyboardInset.value = establishKeyboardInset();
+    publishViewportHeight();
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// iOS does not shrink the layout viewport for the keyboard, so a bottom-anchored element sits behind it. What it
-// loses is the difference between the two heights, and that is all this is: how far such an element has to lift to
-// clear the keyboard. Rounded because subpixel values jitter the layout.
+// iOS shrinks the visual viewport for the on-screen keyboard but leaves the layout viewport alone, so every CSS
+// length — 'dvh' included — still measures a screen the keyboard is covering part of. Publishing the visible height
+// as a variable is what lets the shell be laid out at the size it can actually occupy.
 //
-// 'offsetTop' is deliberately not subtracted, though it would describe where the visual viewport sits more exactly.
-// It changes on every pan of the viewport rather than only when the keyboard moves, so including it made the inset —
-// and with it the composer — follow the user's scrolling. An element that moves under a focused caret is what strands
-// the caret, so the less exact figure is the one that holds still, and holding still is what matters here.
-function establishKeyboardInset(): number {
-    if (!VISUAL_VIEWPORT) return 0;
-    return Math.max(0, Math.round(window.innerHeight - VISUAL_VIEWPORT.height));
+// The shell is sized rather than the composer inside it being offset, and the difference is the whole point. WebKit
+// composites the text caret as an overlay positioned when focus or selection changes, and it does not follow an
+// element that moves for any other reason. Offsetting the composer moved a focused box, and stranded the caret every
+// time. Resizing the shell moves nothing inside it: the composer stays at the bottom of its container, and the
+// container is simply the right height. One reflow when the keyboard appears, rather than motion under the caret.
+//
+// 'offsetTop' is deliberately not part of this. It tracks Safari panning the viewport, which happens on every scroll
+// rather than only when the keyboard moves, and answering it would put the motion back.
+function publishViewportHeight(): void {
+    if (!VISUAL_VIEWPORT) return; // The stylesheet's own '100dvh' stands, which is the best available without this API.
+    // Rounded because subpixel values jitter the layout on every reflow.
+    document.documentElement.style.setProperty('--viewport-height', `${String(Math.round(VISUAL_VIEWPORT.height))}px`);
 }

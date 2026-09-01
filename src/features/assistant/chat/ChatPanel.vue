@@ -8,7 +8,6 @@ import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import type { AssistantChatMessage } from './assistantChat';
 import type { AssistantModelConfig } from './modelConfigs';
 import { getMessageSteps } from './assistantChat';
-import { keyboardInset } from '@/state/appLayout';
 import { useMarkedTool } from '@/services/useMarkedTool';
 import { isRunningStatus, useChatSession } from '@/services/useChatSession';
 
@@ -67,9 +66,8 @@ const responseIsPending = computed(() => {
     return lastMessage?.role !== 'assistant' || lastMessage.parts.length === 0;
 });
 
-// mb-4 (16px) on the input container isn't part of its own height, so it's added on top to keep messages clear of it,
-// as is the keyboard inset, which lifts the container without changing how tall it is.
-const scrollPaddingBottom = computed(() => `${String(inputContainerHeight.value + 16 + keyboardInset.value)}px`);
+// mb-4 (16px) on the input container isn't part of its own height, so it's added on top to keep messages clear of it.
+const scrollPaddingBottom = computed(() => `${String(inputContainerHeight.value + 16)}px`);
 
 // Only the thread's last message can still be running; everything above it is settled.
 function isResponseStreaming(message: AssistantChatMessage): boolean {
@@ -208,7 +206,6 @@ function handleRetryMarkedTool(): void {
             <!-- Input - in-flow, always rounded, with an action bar (model, status, send) attached below the text box. -->
             <div
                 ref="inputContainer"
-                :style="{ bottom: `${String(keyboardInset)}px` }"
                 :class="[
                     'absolute right-4 left-16 mb-8.75 flex flex-none flex-col bg-surface shadow-md',
                     'rounded-2xl border border-selected-border',

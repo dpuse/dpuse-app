@@ -250,7 +250,14 @@ function establishPaneSplitterPercent(): number {
 </script>
 
 <template>
-    <div class="fixed inset-0 flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
+    <div
+        class="fixed inset-x-0 top-0 flex h-(--viewport-height) bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content"
+        data-region="App"
+    >
+        <!-- Height comes from the visual viewport, not 'inset-0', so the shell ends where the screen actually does:
+             iOS leaves the layout viewport at full height when the keyboard is up, and a shell anchored to its bottom
+             puts everything at the foot of the page behind the keyboard. See 'appLayout.ts'. -->
+
         <!--
           z-10: Content: StudioPane (includes fixed OptionBar), PaneSplitter & AssistantPane
           z-20: topFadeOut, assistantPaneToggle
