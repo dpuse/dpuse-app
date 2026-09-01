@@ -92,6 +92,11 @@ export function useChatSession(getModelConfig: () => AssistantModelConfig): Chat
             },
             onError: (error): void => {
                 appendErrorForLatestUserMessage(extractErrorMessage(error));
+                // A run that fails partway through a client tool leaves its interrupt pending, and the client refuses
+                // every later send while one is — so the error takes the composer down with it and only a remount
+                // brings it back. Nothing is lost by clearing them: the run that would have consumed the tool output
+                // is already over, so there is no resume left to make, and the alternative is a dead thread.
+                if (state.client != null && state.client.getInterrupts().length > 0) state.client.cancelInterrupts();
             }
         });
 
