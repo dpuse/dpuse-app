@@ -49,8 +49,6 @@ watch(
 
 function handleClear(): void {
     textValue.value = '';
-    // Focus is already here on a pointer clear, which the button refuses to take. Kept for the routes where it is not
-    // — a keyboard activation reached by tabbing to the button, where the caret has genuinely left the box.
     textAreaElement.value?.focus();
 }
 
@@ -98,16 +96,16 @@ function resyncCaret(): void {
                 class="block field-sizing-content w-full resize-none py-2 pr-8 pl-3 text-sm text-muted outline-none"
             />
 
-            <!-- Clear Action - 'mousedown.prevent' keeps the caret where it is. Safari raises mousedown before it
-                 moves focus, so letting the default through blurs the box: on iOS that dismisses the keyboard, and the
-                 layout it drags with it loses the click that was meant to clear the text, which is why the first tap
-                 after the keyboard appeared only closed it again. -->
+            <!-- Clear Action - deliberately does NOT suppress the blur, though that would stop the first tap after
+                 the keyboard appears closing it instead of clearing. The caret fix below rides on the keyboard closing
+                 and reopening: that transition is what fires the resize the nudge waits for. Hold focus here and the
+                 keyboard never moves, so the nudge never runs and the caret is stranded — a worse bug than the one it
+                 would fix. -->
             <Button
                 v-if="textValue.length > 0"
                 aria-label="Clear text"
                 class="absolute top-1.5 right-1.5 rounded-full p-1 hover:bg-zinc-100 dark:hover:bg-zinc-300/20"
                 shape="minimal"
-                @mousedown.prevent
                 @click="handleClear"
             >
                 <XIcon class="size-3.5" :stroke-width="1.5" />
