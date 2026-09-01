@@ -49,6 +49,8 @@ watch(
 
 function handleClear(): void {
     textValue.value = '';
+    // Focus is already here on a pointer clear, which the button refuses to take. Kept for the routes where it is not
+    // — a keyboard activation reached by tabbing to the button, where the caret has genuinely left the box.
     textAreaElement.value?.focus();
 }
 
@@ -96,12 +98,16 @@ function resyncCaret(): void {
                 class="block field-sizing-content w-full resize-none py-2 pr-8 pl-3 text-sm text-muted outline-none"
             />
 
-            <!-- Clear Action -->
+            <!-- Clear Action - 'mousedown.prevent' keeps the caret where it is. Safari raises mousedown before it
+                 moves focus, so letting the default through blurs the box: on iOS that dismisses the keyboard, and the
+                 layout it drags with it loses the click that was meant to clear the text, which is why the first tap
+                 after the keyboard appeared only closed it again. -->
             <Button
                 v-if="textValue.length > 0"
                 aria-label="Clear text"
                 class="absolute top-1.5 right-1.5 rounded-full p-1 hover:bg-zinc-100 dark:hover:bg-zinc-300/20"
                 shape="minimal"
+                @mousedown.prevent
                 @click="handleClear"
             >
                 <XIcon class="size-3.5" :stroke-width="1.5" />
