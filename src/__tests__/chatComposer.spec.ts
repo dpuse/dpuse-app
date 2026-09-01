@@ -14,7 +14,7 @@ vi.mock('@/services/useChatSession', async (importOriginal) => {
         sendFailure: ref<string | undefined>(undefined),
         runWasStopped: ref(false),
         runHasFinished: ref(false),
-        answerlessQuestionIds: ref([] as string[]),
+        unansweredQuestionIds: ref([] as string[]),
         sendMessage: vi.fn(),
         stop: vi.fn()
     };
@@ -36,7 +36,7 @@ interface SessionForTest {
     sendFailure: { value: string | undefined };
     runWasStopped: { value: boolean };
     runHasFinished: { value: boolean };
-    answerlessQuestionIds: { value: string[] };
+    unansweredQuestionIds: { value: string[] };
     sendMessage: ReturnType<typeof vi.fn>;
     stop: ReturnType<typeof vi.fn>;
 }
@@ -191,9 +191,9 @@ describe('chat composer send/stop button', () => {
 
     // Which runs came back empty is the session's call, made as each one ends; the panel only renders what it is told.
     // The adapter reports a declined request as an ordinary finish, so an empty turn is all either of them ever sees.
-    it('says so for a question the session recorded as answerless', async () => {
+    it('says so for a question the session recorded as unanswered', async () => {
         const session = await getSession();
-        session.answerlessQuestionIds.value = [];
+        session.unansweredQuestionIds.value = [];
         session.status.value = 'streaming';
         session.messages.value = [
             { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
@@ -206,7 +206,7 @@ describe('chat composer send/stop button', () => {
         expect(wrapper.text()).not.toContain('No answer');
 
         session.status.value = 'ready';
-        session.answerlessQuestionIds.value = ['u1'];
+        session.unansweredQuestionIds.value = ['u1'];
         await nextTick();
         expect(wrapper.text()).toContain('No answer');
     });
@@ -215,7 +215,7 @@ describe('chat composer send/stop button', () => {
     it('stays quiet about an empty turn the session did not record', async () => {
         const session = await getSession();
         session.status.value = 'ready';
-        session.answerlessQuestionIds.value = [];
+        session.unansweredQuestionIds.value = [];
         session.messages.value = [
             { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
             { id: 'a1', role: 'assistant', parts: [], errors: [] }
@@ -230,7 +230,7 @@ describe('chat composer send/stop button', () => {
     it('says so when a run ends without producing any assistant turn', async () => {
         const session = await getSession();
         session.status.value = 'ready';
-        session.answerlessQuestionIds.value = ['u1'];
+        session.unansweredQuestionIds.value = ['u1'];
         session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }];
         const wrapper = await mountPanel();
 
@@ -239,10 +239,10 @@ describe('chat composer send/stop button', () => {
 
     // The notice belongs to the turn that earned it. Derived from the tail of the conversation it described only the
     // most recent run, so asking again wiped the previous turn's outcome out of the history.
-    it('keeps an answerless turn marked once the conversation moves past it', async () => {
+    it('keeps an unanswered turn marked once the conversation moves past it', async () => {
         const session = await getSession();
         session.status.value = 'ready';
-        session.answerlessQuestionIds.value = ['u1'];
+        session.unansweredQuestionIds.value = ['u1'];
         session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }];
         const wrapper = await mountPanel();
         expect(wrapper.text()).toContain('No answer');
@@ -261,7 +261,7 @@ describe('chat composer send/stop button', () => {
     it('leaves a question that already carries an error alone', async () => {
         const session = await getSession();
         session.status.value = 'ready';
-        session.answerlessQuestionIds.value = [];
+        session.unansweredQuestionIds.value = [];
         session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: ['The model is overloaded.'] }];
         const wrapper = await mountPanel();
 

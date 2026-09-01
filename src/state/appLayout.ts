@@ -30,19 +30,17 @@ MEDIA_QUERY.addEventListener('change', handleMediaQueryChange);
 LANDSCAPE_QUERY.addEventListener('change', handleLandscapeQueryChange);
 // eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
 APPEARANCE_OBSERVER.observe(document.documentElement, { attributeFilter: ['class'] });
-// Both events matter: 'resize' is the keyboard opening or closing, 'scroll' is Safari panning the visual viewport
-// to keep the focused field in sight, which moves the inset without changing any height.
+// 'resize' only, deliberately. 'scroll' fires for every pan and rubber-band of the visual viewport, and answering
+// those moved the composer continuously under a caret that does not follow it — which is the whole family of iOS
+// caret bugs this was meant to end, rebuilt as a machine for producing them.
 // eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
 VISUAL_VIEWPORT?.addEventListener('resize', handleVisualViewportChange);
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
-VISUAL_VIEWPORT?.addEventListener('scroll', handleVisualViewportChange);
 if (import.meta.hot) {
     import.meta.hot.dispose(() => {
         MEDIA_QUERY.removeEventListener('change', handleMediaQueryChange); // Dispose runs when module is about to be replaced.
         LANDSCAPE_QUERY.removeEventListener('change', handleLandscapeQueryChange);
         APPEARANCE_OBSERVER.disconnect();
         VISUAL_VIEWPORT?.removeEventListener('resize', handleVisualViewportChange);
-        VISUAL_VIEWPORT?.removeEventListener('scroll', handleVisualViewportChange);
     });
 }
 
@@ -66,11 +64,15 @@ function handleVisualViewportChange(): void {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// iOS does not shrink the layout viewport for the keyboard, so a bottom-anchored element sits behind it and Safari
-// compensates by panning the visual viewport instead — by an amount nothing reads back. Derived here rather than
-// left implicit: the gap between the bottom of the visual viewport and the bottom of the layout viewport is exactly
-// how far such an element has to lift to clear the keyboard. Rounded because subpixel values jitter the layout.
+// iOS does not shrink the layout viewport for the keyboard, so a bottom-anchored element sits behind it. What it
+// loses is the difference between the two heights, and that is all this is: how far such an element has to lift to
+// clear the keyboard. Rounded because subpixel values jitter the layout.
+//
+// 'offsetTop' is deliberately not subtracted, though it would describe where the visual viewport sits more exactly.
+// It changes on every pan of the viewport rather than only when the keyboard moves, so including it made the inset —
+// and with it the composer — follow the user's scrolling. An element that moves under a focused caret is what strands
+// the caret, so the less exact figure is the one that holds still, and holding still is what matters here.
 function establishKeyboardInset(): number {
     if (!VISUAL_VIEWPORT) return 0;
-    return Math.max(0, Math.round(window.innerHeight - VISUAL_VIEWPORT.height - VISUAL_VIEWPORT.offsetTop));
+    return Math.max(0, Math.round(window.innerHeight - VISUAL_VIEWPORT.height));
 }

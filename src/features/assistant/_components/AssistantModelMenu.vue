@@ -56,7 +56,7 @@ function handleSelect(newModelConfig: AssistantModelConfig): void {
             shape="minimal"
             @click="menuIsOpen = !menuIsOpen"
         >
-            <span class="min-w-0 truncate">{{ modelConfig.providerLabel }} · {{ modelConfig.modelId }}</span>
+            <span class="min-w-0 truncate">{{ modelConfig.modelId }} · {{ modelConfig.providerLabel }}</span>
             <ChevronDownIcon class="size-3.5 flex-none" :stroke-width="1.5" />
         </Button>
 

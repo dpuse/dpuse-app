@@ -1,6 +1,6 @@
 // ── External Dependencies & Registrations
 import { ChatClient, fetchServerSentEvents, type MessagePart, type TextPart, type ThinkingPart, type UIMessage } from '@tanstack/ai-client';
-import { type ComputedRef, type Ref, computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue';
+import { computed, type ComputedRef, onMounted, onUnmounted, ref, type Ref, shallowRef, watch } from 'vue';
 
 // ── Local Framework
 import type { AssistantChatMessage } from '@/features/assistant/chat/assistantChat';
@@ -24,8 +24,8 @@ interface ChatSessionState {
     runHasFinished: Ref<boolean>;
     // The questions whose run ended having produced nothing to read, so the thread can say so where it happened. Held
     // per question rather than derived from the tail of the conversation: derived, it describes only the run that just
-    // ended, so asking again would erase the previous answerless turn instead of leaving it standing in the history.
-    answerlessQuestionIds: Ref<string[]>;
+    // ended, so asking again would erase the previous unanswered turn instead of leaving it standing in the history.
+    unansweredQuestionIds: Ref<string[]>;
     // Sends, and reports its own refusal rather than throwing at the call site.
     sendMessage: (text: string) => Promise<void>;
     // Ends the run being watched.
@@ -50,7 +50,7 @@ export function useChatSession(getModelConfig: () => AssistantModelConfig): Chat
     // Errors are held against the user message that provoked them, so the thread can show a failed turn where it
     // happened.
     const chatErrorsByUserMessageId = ref<Record<string, string[]>>({});
-    const answerlessQuestionIds = ref<string[]>([]);
+    const unansweredQuestionIds = ref<string[]>([]);
     // 'shallowRef' because the client replaces this array wholesale on every chunk — deep reactivity would proxy every
     // message and part of the transcript on each token for nothing.
     const rawMessages = shallowRef<UIMessage[]>([]);
@@ -64,12 +64,14 @@ export function useChatSession(getModelConfig: () => AssistantModelConfig): Chat
     // ── Derived State
 
     const messages = computed<AssistantChatMessage[]>(() =>
-        rawMessages.value.filter((message) => isConversationMessage(message)).map((message) => ({
-            id: message.id,
-            role: message.role === 'user' ? 'user' : 'assistant',
-            parts: message.parts.filter((part) => isRenderablePart(part)).map((part) => ({ type: part.type, content: part.content })),
-            errors: message.role === 'user' ? (chatErrorsByUserMessageId.value[message.id] ?? []) : []
-        }))
+        rawMessages.value
+            .filter((message) => isConversationMessage(message))
+            .map((message) => ({
+                id: message.id,
+                role: message.role === 'user' ? 'user' : 'assistant',
+                parts: message.parts.filter((part) => isRenderablePart(part)).map((part) => ({ type: part.type, content: part.content })),
+                errors: message.role === 'user' ? (chatErrorsByUserMessageId.value[message.id] ?? []) : []
+            }))
     );
 
     // ── Side Effects
@@ -93,8 +95,8 @@ export function useChatSession(getModelConfig: () => AssistantModelConfig): Chat
         const hasNoAnswer = (lastMessage.role === 'user' ? lastMessage.errors : lastMessage.parts).length === 0;
         if (!hasNoAnswer) return;
         const question = messages.value.findLast((message) => message.role === 'user');
-        if (question == null || answerlessQuestionIds.value.includes(question.id)) return;
-        answerlessQuestionIds.value = [...answerlessQuestionIds.value, question.id];
+        if (question == null || unansweredQuestionIds.value.includes(question.id)) return;
+        unansweredQuestionIds.value = [...unansweredQuestionIds.value, question.id];
     });
 
     onMounted(() => {
@@ -190,7 +192,7 @@ export function useChatSession(getModelConfig: () => AssistantModelConfig): Chat
         };
     }
 
-    return { messages, status, sendFailure, runWasStopped, runHasFinished, answerlessQuestionIds, sendMessage, stop };
+    return { messages, status, sendFailure, runWasStopped, runHasFinished, unansweredQuestionIds, sendMessage, stop };
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

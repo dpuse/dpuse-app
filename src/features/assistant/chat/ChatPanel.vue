@@ -9,8 +9,8 @@ import type { AssistantChatMessage } from './assistantChat';
 import type { AssistantModelConfig } from './modelConfigs';
 import { getMessageSteps } from './assistantChat';
 import { keyboardInset } from '@/state/appLayout';
-import { isRunningStatus, useChatSession } from '@/services/useChatSession';
 import { useMarkedTool } from '@/services/useMarkedTool';
+import { isRunningStatus, useChatSession } from '@/services/useChatSession';
 
 // ── Static Components
 import AssistantModelMenu from '../_components/AssistantModelMenu.vue';
@@ -38,7 +38,7 @@ const inputContainerHeight = ref(0);
 const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
 // The model is passed as a getter so a change reaches the live session rather than rebuilding it, which would start
 // the conversation again from nothing.
-const { messages, status, sendFailure, answerlessQuestionIds, sendMessage, stop } = useChatSession(() => modelConfig);
+const { messages, status, sendFailure, unansweredQuestionIds, sendMessage, stop } = useChatSession(() => modelConfig);
 
 const inputContainer = useTemplateRef<HTMLElement>('inputContainer');
 
@@ -53,9 +53,9 @@ const responseIsRunning = computed(() => isRunningStatus(status.value));
 // other than a tool call or a token limit to a plain finish, so a model that declined the request arrives looking
 // exactly like one that answered with silence. Saying so is still better than the alternative, which is a heading over
 // an empty space. Which questions those were is decided by the session, at the moment each run ends; here it is only
-// looked up, so an answerless turn keeps its notice as the conversation goes on past it.
+// looked up, so an unanswered turn keeps its notice as the conversation goes on past it.
 function hasNoAnswer(message: AssistantChatMessage): boolean {
-    return message.role === 'user' && answerlessQuestionIds.value.includes(message.id);
+    return message.role === 'user' && unansweredQuestionIds.value.includes(message.id);
 }
 
 // The gaps in a run where the thread has nothing to show: between the question and the first token, and again while a
