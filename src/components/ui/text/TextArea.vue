@@ -60,21 +60,17 @@ function handleClear(): void {
 // Nothing else does it: 'nextTick' before the focus and a 'setSelectionRange' after it were both tried on device and
 // neither moved the caret, because the desync is in the paint pass rather than in the selection.
 function nudge(): void {
-    textAreaElement.value?.getBoundingClientRect(); // Flushes the pending collapse, so the nudge lands against the box the caret must return to.
     window.scrollBy(0, 1);
     window.scrollBy(0, -1);
 }
 
+// The nudge is always deferred, never immediate. Scrolling while the keyboard is still animating does not net back
+// to zero — the scrollable range is growing underneath the two calls, so the second is clamped against a different
+// range than the first and the composer is left parked off-screen. It has to land on a settled viewport.
 function resyncCaret(): void {
-    // Twice, because there are two ways to stray and one clear can hit either. Now, for the box collapsing under a
-    // caret that stays put — the whole story when the keyboard never moves, which on iOS is the common case, since
-    // Safari does not focus a <button> on tap and so neither the clear nor the send button takes focus off the box.
-    nudge();
-
-    // Again later, for a keyboard transition, which is not over at this point and stakes the caret out a second time
-    // when it lands. The resize is the signal while one is running; a clear made with the keyboard already up changes
-    // no geometry and fires nothing, so the timeout covers that. Whichever arrives first nudges and tears the other
-    // down, so no clear can leave a listener behind to fire against a later, unrelated keyboard opening.
+    // The resize is the signal while a keyboard transition is running; a clear made with the keyboard already up
+    // changes no geometry and fires nothing, so the timeout covers that. Whichever arrives first nudges and tears
+    // the other down, so no clear can leave a listener behind to fire against a later, unrelated keyboard opening.
     const settle = (): void => {
         clearTimeout(timeoutId);
         window.visualViewport?.removeEventListener('resize', settle);
