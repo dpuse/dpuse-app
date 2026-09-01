@@ -203,12 +203,6 @@ html {
 
     --status-bar-height: calc(max(env(safe-area-inset-bottom), 21px)); /* Status bar height: 'safe-area-inset-bottom' or '21px'. */
 
-    /* The height the app shell occupies. Overwritten in pixels from 'visualViewport.height' by 'appLayout.ts', which is
-       the only way to learn that an on-screen keyboard is covering part of the screen: iOS shrinks the visual viewport
-       for the keyboard but leaves the layout viewport — and so every CSS length, 'dvh' included — untouched. This
-       declaration is what applies before that script runs, and on any browser without 'visualViewport'. */
-    --viewport-height: 100dvh;
-
     --vertical-scroll-bottom-embedded-inset: 72px; /* Scroll area bottom inset: '24px' for horizontal scroll bar; '40px' for floating buttons; '8px' for padding above floating buttons. */
     --vertical-scroll-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 21px) + 72px);
 

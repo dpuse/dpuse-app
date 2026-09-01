@@ -6,7 +6,6 @@ import { ref } from 'vue';
 const APPEARANCE_OBSERVER = new MutationObserver(handleAppearanceChange);
 const MEDIA_QUERY = matchMedia('(min-width: 768px)');
 const LANDSCAPE_QUERY = matchMedia('(orientation: landscape)');
-const VISUAL_VIEWPORT = window.visualViewport;
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -29,18 +28,11 @@ MEDIA_QUERY.addEventListener('change', handleMediaQueryChange);
 LANDSCAPE_QUERY.addEventListener('change', handleLandscapeQueryChange);
 // eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
 APPEARANCE_OBSERVER.observe(document.documentElement, { attributeFilter: ['class'] });
-// 'resize' only, deliberately. 'scroll' fires for every pan and rubber-band of the visual viewport, and resizing the
-// shell on those would move the focused box continuously under a caret that does not follow it.
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
-VISUAL_VIEWPORT?.addEventListener('resize', handleVisualViewportChange);
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- the shell has to be sized before first paint.
-publishViewportHeight();
 if (import.meta.hot) {
     import.meta.hot.dispose(() => {
         MEDIA_QUERY.removeEventListener('change', handleMediaQueryChange); // Dispose runs when module is about to be replaced.
         LANDSCAPE_QUERY.removeEventListener('change', handleLandscapeQueryChange);
         APPEARANCE_OBSERVER.disconnect();
-        VISUAL_VIEWPORT?.removeEventListener('resize', handleVisualViewportChange);
     });
 }
 
@@ -56,33 +48,4 @@ function handleLandscapeQueryChange(event: MediaQueryListEvent): void {
 
 function handleMediaQueryChange(event: MediaQueryListEvent): void {
     viewportIsWide.value = event.matches;
-}
-
-function handleVisualViewportChange(): void {
-    publishViewportHeight();
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// iOS shrinks the visual viewport for the on-screen keyboard but leaves the layout viewport alone, so every CSS
-// length — 'dvh' included — still measures a screen the keyboard is covering part of. Publishing the visible height
-// as a variable is what lets the shell be laid out at the size it can actually occupy.
-//
-// The shell is sized rather than the composer inside it being offset, and the difference is the whole point. WebKit
-// composites the text caret as an overlay positioned when focus or selection changes, and it does not follow an
-// element that moves for any other reason. Offsetting the composer moved a focused box, and stranded the caret every
-// time. Resizing the shell moves nothing inside it: the composer stays at the bottom of its container, and the
-// container is simply the right height. One reflow when the keyboard appears, rather than motion under the caret.
-//
-// 'offsetTop' is deliberately not part of this. It tracks Safari panning the viewport, which happens on every scroll
-// rather than only when the keyboard moves, and answering it would put the motion back.
-function publishViewportHeight(): void {
-    if (!VISUAL_VIEWPORT) return; // The stylesheet's own '100dvh' stands, which is the best available without this API.
-    const height = Math.round(VISUAL_VIEWPORT.height); // Rounded because subpixel values jitter the layout on reflow.
-    // A height of zero is a measurement taken before the viewport has one, and writing it collapses the shell to
-    // nothing — which puts everything anchored to its bottom at the top of the screen. Leaving the variable alone
-    // keeps the stylesheet's '100dvh', which is right until the keyboard opens, and the resize that opens it
-    // publishes a real figure.
-    if (!Number.isFinite(height) || height <= 0) return;
-    document.documentElement.style.setProperty('--viewport-height', `${String(height)}px`);
 }
