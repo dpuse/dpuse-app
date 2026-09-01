@@ -210,7 +210,7 @@ function handleRetryMarkedTool(): void {
                 ref="inputContainer"
                 :style="{ bottom: `${String(keyboardInset)}px` }"
                 :class="[
-                    'absolute right-4 left-16 mb-4 flex flex-none flex-col bg-surface shadow-md',
+                    'absolute right-4 left-16 mb-8.75 flex flex-none flex-col bg-surface shadow-md',
                     'rounded-2xl border border-selected-border',
                     'focus-within:ring-1 focus-within:ring-selected-ring',
                     'md:inset-x-0 md:mx-auto md:w-[min(65ch,calc(100%-32px))]'
