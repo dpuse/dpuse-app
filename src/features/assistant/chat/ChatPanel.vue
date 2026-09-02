@@ -217,13 +217,13 @@ function handleRetryMarkedTool(): void {
 
                 <!-- Grid rather than flex: the send button sits in a max-content track it never gives up or stretches into, while the menu
                      and status take content-sized tracks that stay at full width until the bar genuinely runs short, then ellipsise together. -->
-                <div
+                <!-- <div
                     class="grid grid-cols-[minmax(0,auto)_minmax(0,auto)_max-content] items-center gap-x-2 rounded-b-2xl border-t border-selected-border bg-selected p-2 text-selected-text"
                 >
                     <AssistantModelMenu class="min-w-0 justify-self-start" :model-config="modelConfig" :model-configs="modelConfigs" @select="handleSelectModel" />
 
-                    <!-- Fills its track and right-aligns instead of justify-self-end: nowrap makes the item's min-content the whole string, so a
-                         fit-content item would never ellipsise and would spill left over the menu. -->
+                    <! -- Fills its track and right-aligns instead of justify-self-end: nowrap makes the item's min-content the whole string, so a
+                         fit-content item would never ellipsise and would spill left over the menu. -- >
                     <span class="min-w-0 truncate text-right text-xs text-muted">{{ status }}</span>
 
                     <Button
@@ -234,11 +234,11 @@ function handleRetryMarkedTool(): void {
                         :disabled="!responseIsRunning && input.trim().length === 0"
                         @click="handleComposerAction"
                     >
-                        <!-- Filled: an outlined square at this size reads as an empty box rather than a stop. -->
+                        <! -- Filled: an outlined square at this size reads as an empty box rather than a stop. -- >
                         <SquareIcon v-if="responseIsRunning" class="size-3" fill="currentColor" stroke-width="2.5" />
                         <ArrowUpIcon v-else class="size-5" stroke-width="2.5" />
                     </Button>
-                </div>
+                </div> -->
             </div>
         </template>
     </div>
