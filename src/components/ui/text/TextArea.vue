@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { XIcon } from '@lucide/vue';
-import { nextTick, useAttrs, useId, useTemplateRef } from 'vue';
+import { useAttrs, useId, useTemplateRef } from 'vue';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
@@ -28,19 +28,7 @@ const textAreaElement = useTemplateRef<HTMLTextAreaElement>('textAreaElement');
 
 function handleClear(): void {
     textValue.value = '';
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises, unicorn/prefer-await
-    nextTick().then(() => {
-        textAreaElement.value?.focus();
-        textAreaElement.value?.setSelectionRange(0, 0);
-        textAreaElement.value?.dispatchEvent(new Event('input', { bubbles: true }));
-        requestAnimationFrame(() => {
-            textAreaElement.value?.focus();
-
-            requestAnimationFrame(() => {
-                textAreaElement.value?.setSelectionRange(0, 0);
-            });
-        });
-    });
+    textAreaElement.value?.focus();
 }
 </script>
 
@@ -60,7 +48,7 @@ function handleClear(): void {
             />
 
             <!-- Clear Action -->
-            <!-- <Button
+            <Button
                 v-if="textValue.length > 0"
                 aria-label="Clear text"
                 class="absolute top-1.5 right-1.5 rounded-full p-1 hover:bg-zinc-100 dark:hover:bg-zinc-300/20"
@@ -68,17 +56,7 @@ function handleClear(): void {
                 @click="handleClear"
             >
                 <XIcon class="size-3.5" :stroke-width="1.5" />
-            </Button> -->
-            <span
-                v-if="textValue.length > 0"
-                class="absolute top-1.5 right-1.5 rounded-full p-1 hover:bg-zinc-100 dark:hover:bg-zinc-300/20"
-                role="button"
-                tabindex="-1"
-                aria-label="Clear"
-                @pointerdown.prevent="handleClear"
-            >
-                <XIcon class="size-3.5" :stroke-width="1.5" />
-            </span>
+            </Button>
         </div>
     </div>
 </template>
