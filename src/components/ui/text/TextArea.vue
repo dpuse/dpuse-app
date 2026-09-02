@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { XIcon } from '@lucide/vue';
-import { useAttrs, useId, useTemplateRef } from 'vue';
+import { nextTick, useAttrs, useId, useTemplateRef } from 'vue';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
@@ -28,7 +28,11 @@ const textAreaElement = useTemplateRef<HTMLTextAreaElement>('textAreaElement');
 
 function handleClear(): void {
     textValue.value = '';
-    textAreaElement.value?.focus();
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises, unicorn/prefer-await
+    nextTick().then(() => {
+        textAreaElement.value?.focus();
+        textAreaElement.value?.setSelectionRange(0, 0);
+    });
 }
 </script>
 
