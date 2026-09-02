@@ -32,6 +32,7 @@ function handleClear(): void {
     nextTick().then(() => {
         textAreaElement.value?.focus();
         textAreaElement.value?.setSelectionRange(0, 0);
+        textAreaElement.value?.dispatchEvent(new Event('input', { bubbles: true }));
     });
 }
 </script>
