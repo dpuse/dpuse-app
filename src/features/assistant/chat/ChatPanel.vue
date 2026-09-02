@@ -23,12 +23,6 @@ import TextArea from '@/components/ui/text/TextArea.vue';
 
 const PROMPT = 'List the connectors.';
 
-// Already at the end, allowing for the fractional heights this measurement is made of.
-const SCROLL_AT_BOTTOM_TOLERANCE = 2;
-// Close enough to the end to count as following the thread rather than reading back through it. Roughly the last line
-// or two, so a stream that has just run past the fold still pulls the view along, and a deliberate scroll up does not.
-const SCROLL_FOLLOW_THRESHOLD = 48;
-
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { modelConfig, modelConfigs } = defineProps<{ modelConfig: AssistantModelConfig; modelConfigs: AssistantModelConfig[] }>();
@@ -137,23 +131,11 @@ function handleSendMessage(): void {
 }
 
 function handleScrollAreaInitialised(element: HTMLElement): void {
-    scrollElement.value = element;
-    // The observer fires on every change in the thread — each streamed character among them — so what it does on each
-    // one has to be nearly nothing. Writing 'scrollTop' unconditionally was not: on iOS a scroll of this container
-    // moves the composer on screen, and WebKit does not move the text caret with it, so the caret was left outside the
-    // box at unpredictable moments. Hence both guards below; neither is an optimisation.
-    state.scrollObserver = new MutationObserver(() => {
-        // Reading first, and only writing on a real difference, is what keeps an unchanged thread from scrolling at
-        // all. A tolerance rather than equality because the three lengths are fractional at most zoom levels and would
-        // never agree exactly.
-        const distanceFromBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
-        if (distanceFromBottom <= SCROLL_AT_BOTTOM_TOLERANCE) return;
-        // Someone who has scrolled up is reading something, and yanking them back to the newest message would take it
-        // away from them. Following the thread is only for those already at the end of it.
-        if (distanceFromBottom > SCROLL_FOLLOW_THRESHOLD) return;
-        element.scrollTop = element.scrollHeight;
-    });
-    state.scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
+    // scrollElement.value = element;
+    // state.scrollObserver = new MutationObserver(() => {
+    //     element.scrollTop = element.scrollHeight;
+    // });
+    // state.scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
 }
 
 function handleRetryMarkedTool(): void {
