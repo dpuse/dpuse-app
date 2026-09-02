@@ -57,6 +57,16 @@ function handleClear(): void {
             >
                 <XIcon class="size-3.5" :stroke-width="1.5" />
             </Button> -->
+            <span
+                v-if="textValue.length > 0"
+                class="absolute top-1.5 right-1.5 rounded-full p-1 hover:bg-zinc-100 dark:hover:bg-zinc-300/20"
+                role="button"
+                tabindex="-1"
+                aria-label="Clear"
+                @pointerdown.prevent="handleClear"
+            >
+                <XIcon class="size-3.5" :stroke-width="1.5" />
+            </span>
         </div>
     </div>
 </template>
