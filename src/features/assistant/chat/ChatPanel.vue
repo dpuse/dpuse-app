@@ -130,13 +130,13 @@ function handleSendMessage(): void {
     void sendMessage(text);
 }
 
-function handleScrollAreaInitialised(element: HTMLElement): void {
-    scrollElement.value = element;
-    state.scrollObserver = new MutationObserver(() => {
-        element.scrollTop = element.scrollHeight;
-    });
-    state.scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
-}
+// function handleScrollAreaInitialised(element: HTMLElement): void {
+//     scrollElement.value = element;
+//     state.scrollObserver = new MutationObserver(() => {
+//         element.scrollTop = element.scrollHeight;
+//     });
+//     state.scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
+// }
 
 function handleRetryMarkedTool(): void {
     void initialiseMarkedTool();
@@ -152,7 +152,7 @@ function handleRetryMarkedTool(): void {
         <ErrorDisplay v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
         <template v-else>
-            <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-bottom="scrollPaddingBottom" @initialised="handleScrollAreaInitialised">
+            <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-bottom="scrollPaddingBottom">
                 <template v-for="message in messages" :key="message.id">
                     <template v-if="message.role === 'user'">
                         <div v-for="part in message.parts.filter((part) => part.type === 'text')" :key="part.content" class="mx-auto mt-3 flex max-w-prose">
