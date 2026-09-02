@@ -137,6 +137,7 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
     // nothing, reports no records at all and so cannot reach the scroll.
     state.scrollObserver = new MutationObserver((records) => {
         const wasContentAdded = records.some((record) => record.type === 'characterData' || record.addedNodes.length > 0);
+        console.log(111, wasContentAdded);
         if (!wasContentAdded) return;
         element.scrollTop = element.scrollHeight;
     });
