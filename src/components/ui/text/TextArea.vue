@@ -33,6 +33,13 @@ function handleClear(): void {
         textAreaElement.value?.focus();
         textAreaElement.value?.setSelectionRange(0, 0);
         textAreaElement.value?.dispatchEvent(new Event('input', { bubbles: true }));
+        requestAnimationFrame(() => {
+            textAreaElement.value?.focus();
+
+            requestAnimationFrame(() => {
+                textAreaElement.value?.setSelectionRange(0, 0);
+            });
+        });
     });
 }
 </script>
