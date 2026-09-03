@@ -131,17 +131,11 @@ function handleSendMessage(): void {
 }
 
 function handleScrollAreaInitialised(element: HTMLElement): void {
-    // scrollElement.value = element;
-    // // Only an addition scrolls. The records say what each change was, so nodes appearing and text growing are told
-    // // apart from everything else that happens under the thread — and the keyboard opening, which resizes but mutates
-    // // nothing, reports no records at all and so cannot reach the scroll.
-    // state.scrollObserver = new MutationObserver((records) => {
-    //     const wasContentAdded = records.some((record) => record.type === 'characterData' || record.addedNodes.length > 0);
-    //     console.log(111, wasContentAdded);
-    //     if (!wasContentAdded) return;
-    //     element.scrollTop = element.scrollHeight;
-    // });
-    // state.scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
+    scrollElement.value = element;
+    state.scrollObserver = new MutationObserver(() => {
+        element.scrollTop = element.scrollHeight;
+    });
+    state.scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
 }
 
 function handleRetryMarkedTool(): void {
