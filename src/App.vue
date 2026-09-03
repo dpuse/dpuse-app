@@ -320,7 +320,7 @@ function establishPaneSplitterPercent(): number {
     <!-- <OptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" /> -->
 
     <!-- Studio Pane - Contains studio layout (via RouterView). Rendered once studio pane is activated and visible. -->
-    <div class="size-full bg-red-100"></div>
+    <div class="absolute inset-0 bg-red-100"></div>
     <!-- <div
             v-if="studioPaneActivated"
             v-show="studioPaneIsVisible"
