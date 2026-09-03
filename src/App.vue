@@ -250,8 +250,8 @@ function establishPaneSplitterPercent(): number {
 </script>
 
 <template>
-    <!-- <div class="absolute inset-0 flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App"> -->
-    <!--
+    <div class="fixed inset-0 flex bg-blue-100 pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
+        <!--
           z-10: Content: StudioPane (includes fixed OptionBar), PaneSplitter & AssistantPane
           z-20: topFadeOut, assistantPaneToggle
           z-30: OptionBar (floating)
@@ -263,12 +263,12 @@ function establishPaneSplitterPercent(): number {
           z-80: App-level failures (a failure with no region of its own)
           -->
 
-    <!-- Mask - Semi-transparent mask over the top safe area that fades out content scrolling beneath it. -->
-    <!-- TODO: Currently has no effect as headers are always visible. It is proposed that long scrolling content like presentations would hide headers and float toggles. -->
-    <!-- <div class="fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-surface/80 via-25% to-surface/95" data-region="topFadeOut" /> -->
-    <!-- <div class="fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-blue-100" data-region="topFadeOut" /> -->
+        <!-- Mask - Semi-transparent mask over the top safe area that fades out content scrolling beneath it. -->
+        <!-- TODO: Currently has no effect as headers are always visible. It is proposed that long scrolling content like presentations would hide headers and float toggles. -->
+        <!-- <div class="fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-surface/80 via-25% to-surface/95" data-region="topFadeOut" /> -->
+        <!-- <div class="fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-blue-100" data-region="topFadeOut" /> -->
 
-    <!-- Failures with no region of their own: an uncaught error, a navigation that never reached a view, a service
+        <!-- Failures with no region of their own: an uncaught error, a navigation that never reached a view, a service
              the app loads for itself. A failure fills the space it owns, and these own no region, so their space is
              the screen and they are shown as a modal. One body listing all of them rather than one each — losing the
              network fails every service independently, and four notices would read as four problems instead of the
@@ -276,7 +276,7 @@ function establishPaneSplitterPercent(): number {
              Retry is offered only when one of them carried something to run again — most did not, being a service
              loaded once at startup or an error no region ever contained, and for those a fresh document is the only
              recovery there is. -->
-    <!-- <ErrorDisplay
+        <!-- <ErrorDisplay
             v-if="appFailures.length > 0"
             :can-retry="appFailures.some((failure) => failure.retry != null)"
             :failures="appFailures"
@@ -286,11 +286,11 @@ function establishPaneSplitterPercent(): number {
             @retry="retryAppFailures"
         /> -->
 
-    <!-- Modal scrim. Loading is shown by each region's own spinner, so this no longer tracks navigation. -->
-    <!-- <LoadingMask class="z-50" :is-dialog-active="dialogIsActive" :is-modal-active="modalIsActive" /> -->
+        <!-- Modal scrim. Loading is shown by each region's own spinner, so this no longer tracks navigation. -->
+        <!-- <LoadingMask class="z-50" :is-dialog-active="dialogIsActive" :is-modal-active="modalIsActive" /> -->
 
-    <!-- Studio Pane Toggle - Fixed in top left corner and always visible. -->
-    <!-- <Button
+        <!-- Studio Pane Toggle - Fixed in top left corner and always visible. -->
+        <!-- <Button
             :aria-label="t(T, 'wb.toggle.label.aria')"
             class="fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full!"
             :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
@@ -301,8 +301,8 @@ function establishPaneSplitterPercent(): number {
             <DPUseLogo />
         </Button> -->
 
-    <!-- Assistant Pane Toggle - Fixed in top right corner and always visible. -->
-    <!-- <Button
+        <!-- Assistant Pane Toggle - Fixed in top right corner and always visible. -->
+        <!-- <Button
             :aria-label="t(T, 'k.toggle.label.aria')"
             class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20 rounded-full! bg-surface"
             :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
@@ -313,15 +313,15 @@ function establishPaneSplitterPercent(): number {
             <AssistantLogo />
         </Button> -->
 
-    <!-- Session Button - Fixed in bottom left corner and always visible. -->
-    <!-- <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-49" :studio-option-bar-is-visible="studioOptionBarIsVisible" /> -->
+        <!-- Session Button - Fixed in bottom left corner and always visible. -->
+        <!-- <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-49" :studio-option-bar-is-visible="studioOptionBarIsVisible" /> -->
 
-    <!-- Studio Option Bar - Only rendered here when viewport is narrow. -->
-    <!-- <OptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" /> -->
+        <!-- Studio Option Bar - Only rendered here when viewport is narrow. -->
+        <!-- <OptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" /> -->
 
-    <!-- Studio Pane - Contains studio layout (via RouterView). Rendered once studio pane is activated and visible. -->
-    <div class="fixed inset-0 bg-red-100"></div>
-    <!-- <div
+        <!-- Studio Pane - Contains studio layout (via RouterView). Rendered once studio pane is activated and visible. -->
+        <!-- <div class="fixed inset-0 bg-red-100"></div> -->
+        <!-- <div
             v-if="studioPaneActivated"
             v-show="studioPaneIsVisible"
             class="grid h-full"
@@ -331,15 +331,15 @@ function establishPaneSplitterPercent(): number {
             @pointerdown="activeAppPaneId = 'studio'"
             @scroll.capture="activeAppPaneId = 'studio'"
         > -->
-    <!-- Studio Option Bar - Only rendered here when viewport is wide. -->
-    <!-- <OptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleStudioOptionBarHide" /> -->
+        <!-- Studio Option Bar - Only rendered here when viewport is wide. -->
+        <!-- <OptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleStudioOptionBarHide" /> -->
 
-    <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
-    <!-- <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="studio-content"> -->
-    <!-- The spinner must stay outside the transition. Put it inside as a 'v-if' branch and the incoming
+        <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
+        <!-- <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="studio-content"> -->
+        <!-- The spinner must stay outside the transition. Put it inside as a 'v-if' branch and the incoming
                      route component renders as an empty comment and never appears, because the update that follows the
                      spinner's leave does not pick up the resolved component. -->
-    <!-- <RouterView v-slot="{ Component }">
+        <!-- <RouterView v-slot="{ Component }">
                     <ComponentLoadingSpinner v-if="studioLayoutIsLoading" />
                     <Transition v-else name="action-fade" mode="out-in">
                         <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
@@ -348,11 +348,11 @@ function establishPaneSplitterPercent(): number {
             </div>
         </div> -->
 
-    <!-- Pane (Vertical) Splitter - Rendered if viewport is wide and both panes are shown. -->
-    <!-- <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" /> -->
+        <!-- Pane (Vertical) Splitter - Rendered if viewport is wide and both panes are shown. -->
+        <!-- <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" /> -->
 
-    <!-- Assistant Pane - Contains assistant layout. Rendered once assistant pane is activated and visible. -->
-    <!-- <div
+        <!-- Assistant Pane - Contains assistant layout. Rendered once assistant pane is activated and visible. -->
+        <!-- <div
             v-if="assistantPaneActivated"
             v-show="assistantPaneIsVisible"
             class="flex h-full"
@@ -364,11 +364,11 @@ function establishPaneSplitterPercent(): number {
             <AssistantLayout class="flex-1" :studio-pane-is-hidden="!studioPaneIsVisible" />
         </div> -->
 
-    <!-- Dialogs - Modal wrapper for dialogs which are activated using URL 'dlg' parameter. This wrapper is owned
+        <!-- Dialogs - Modal wrapper for dialogs which are activated using URL 'dlg' parameter. This wrapper is owned
              here rather than by each dialog so it can appear immediately, while the dialog's own chunk is still
              loading. Its body then fills in behind the spinner without the frame remounting, so there is no second
             fade and nothing shifts. -->
-    <!-- <DialogModal
+        <!-- <DialogModal
             v-if="activeDialogConfig"
             :key="activeDialogId"
             :is-open="true"
@@ -378,5 +378,5 @@ function establishPaneSplitterPercent(): number {
         >
             <component :is="activeDialogConfig.component" />
         </DialogModal> -->
-    <!-- </div> -->
+    </div>
 </template>
