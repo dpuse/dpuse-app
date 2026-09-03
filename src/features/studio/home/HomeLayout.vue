@@ -24,14 +24,15 @@ const studioOptionConfigs = useOptions();
 </script>
 
 <template>
-    <StudioLayout>
+    <StudioLayout class="bg-green-100!">
         <!-- Header -->
         <StudioHeader :title="t(T, 'Studio')" />
 
         <Separator />
 
         <!-- Workflow Steps -->
-        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
+        <!-- <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)"> -->
+        <ScrollArea class="flex-1" scroll-area-padding-bottom="0px">
             <!-- Every section shares one track definition so a card is the same width in all of them, and each section's
                  intro paragraph spans the columns its cards leave free rather than claiming a track of its own — as a
                  grid item it would take a full column and widen the remaining cards. Breakpoints are container queries
