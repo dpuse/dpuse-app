@@ -2,7 +2,9 @@
 <html dir="ltr" lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        <!-- 'maximum-scale=1.0' stops iOS Safari auto-zooming when a sub-16px input is focused, which broke keyboard
+             geometry tracking. Since iOS 10 it does not limit user pinch-zoom, so accessibility is unaffected. -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
         <meta name="color-scheme" content="dark light" />
 
         <title>DPUse App</title>
