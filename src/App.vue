@@ -320,7 +320,8 @@ function establishPaneSplitterPercent(): number {
         <OptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" />
 
         <!-- Studio Pane - Contains studio layout (via RouterView). Rendered once studio pane is activated and visible. -->
-        <div
+        <div class="size-full bg-red-100"></div>
+        <!-- <div
             v-if="studioPaneActivated"
             v-show="studioPaneIsVisible"
             class="grid h-full"
@@ -329,23 +330,23 @@ function establishPaneSplitterPercent(): number {
             :style="[studioPaneStyle, { 'container-type': 'inline-size' }]"
             @pointerdown="activeAppPaneId = 'studio'"
             @scroll.capture="activeAppPaneId = 'studio'"
-        >
-            <!-- Studio Option Bar - Only rendered here when viewport is wide. -->
-            <OptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleStudioOptionBarHide" />
+        > -->
+        <!-- Studio Option Bar - Only rendered here when viewport is wide. -->
+        <!-- <OptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleStudioOptionBarHide" /> -->
 
-            <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
-            <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="studio-content">
-                <!-- The spinner must stay outside the transition. Put it inside as a 'v-if' branch and the incoming
+        <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
+        <!-- <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="studio-content"> -->
+        <!-- The spinner must stay outside the transition. Put it inside as a 'v-if' branch and the incoming
                      route component renders as an empty comment and never appears, because the update that follows the
                      spinner's leave does not pick up the resolved component. -->
-                <RouterView v-slot="{ Component }">
+        <!-- <RouterView v-slot="{ Component }">
                     <ComponentLoadingSpinner v-if="studioLayoutIsLoading" />
                     <Transition v-else name="action-fade" mode="out-in">
                         <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
                     </Transition>
                 </RouterView>
             </div>
-        </div>
+        </div> -->
 
         <!-- Pane (Vertical) Splitter - Rendered if viewport is wide and both panes are shown. -->
         <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
