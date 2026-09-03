@@ -150,7 +150,7 @@ function handleRetryMarkedTool(): void {
 </script>
 
 <template>
-    <div class="relative flex min-h-0 flex-1 flex-col">
+    <div class="flex min-h-0 flex-1 flex-col">
         <!-- Covers the region: 'purifyMarkdown' returns an empty string without the formatter, so every message in the
              thread renders blank. The chat is not degraded by this, it is unreadable, so the thread and the composer
              give way to the failure rather than sitting beneath it. The session component stays mounted throughout,
