@@ -250,7 +250,7 @@ function establishPaneSplitterPercent(): number {
 </script>
 
 <template>
-    <div class="flex min-h-[100vh+1200px] bg-green-100 pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
+    <div class="fixed inset-0 flex bg-green-100 pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
         <!--
           z-10: Content: StudioPane (includes fixed OptionBar), PaneSplitter & AssistantPane
           z-20: topFadeOut, assistantPaneToggle
@@ -266,7 +266,7 @@ function establishPaneSplitterPercent(): number {
         <!-- Mask - Semi-transparent mask over the top safe area that fades out content scrolling beneath it. -->
         <!-- TODO: Currently has no effect as headers are always visible. It is proposed that long scrolling content like presentations would hide headers and float toggles. -->
         <!-- <div class="fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-linear-to-t from-transparent via-surface/80 via-25% to-surface/95" data-region="topFadeOut" /> -->
-        <div class="fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-red-100" data-region="topFadeOut" />
+        <!-- <div class="fixed inset-x-0 top-0 z-20 h-[env(safe-area-inset-top)] bg-red-100" data-region="topFadeOut" /> -->
 
         <!-- Failures with no region of their own: an uncaught error, a navigation that never reached a view, a service
              the app loads for itself. A failure fills the space it owns, and these own no region, so their space is
