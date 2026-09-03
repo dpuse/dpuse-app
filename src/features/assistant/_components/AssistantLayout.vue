@@ -47,9 +47,7 @@ const activeViewId = computed<string>(() => {
 const activeView = computed(() => ASSISTANT_PANELS[activeViewId.value]);
 
 // The selected model — only meaningful while viewing Chat.
-const activeModelConfig = computed<AssistantModelConfig>(
-    () => ASSISTANT_MODEL_CONFIGS.find((config) => config.id === modelId.value) ?? ASSISTANT_MODEL_CONFIGS[0]
-);
+const activeModelConfig = computed<AssistantModelConfig>(() => ASSISTANT_MODEL_CONFIGS.find((config) => config.id === modelId.value) ?? ASSISTANT_MODEL_CONFIGS[0]);
 
 // Keyed on the view alone. A model change must not remount the panel: the session takes the new model in place, so the
 // conversation carries over and the next answer simply comes from the new model.
@@ -81,7 +79,7 @@ function establishModelId(): string {
 </script>
 
 <template>
-    <div class="flex h-full min-w-0 flex-col">
+    <div class="relative flex h-full min-w-0 flex-col">
         <AssistantPanelHeader :title="'Assistant'" />
 
         <component
