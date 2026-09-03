@@ -30,6 +30,11 @@ function handleClear(): void {
     textValue.value = '';
     textAreaElement.value?.focus();
 }
+
+window.visualViewport?.addEventListener('resize', () => {
+    const isKeyboardVisible = (window.visualViewport?.height ?? window.innerHeight) < window.innerHeight;
+    if (isKeyboardVisible) textAreaElement.value?.focus();
+});
 </script>
 
 <template>
