@@ -11,6 +11,7 @@ const LANDSCAPE_QUERY = matchMedia('(orientation: landscape)');
 
 export const assistantPaneIsVisible = ref(false); // The assistant pane is actually rendered (visible) in the layout right now.
 export const contentScrollPosition = ref(0);
+export const keyboardInset = ref(0); // How far the on-screen keyboard overlaps the layout viewport; bottom-anchored UI lifts itself by this.
 export const viewportIsWide = ref(MEDIA_QUERY.matches);
 export const appearanceIsDark = ref(document.documentElement.classList.contains('dark'));
 export const orientationIsLandscape = ref(LANDSCAPE_QUERY.matches);
@@ -28,11 +29,17 @@ MEDIA_QUERY.addEventListener('change', handleMediaQueryChange);
 LANDSCAPE_QUERY.addEventListener('change', handleLandscapeQueryChange);
 // eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
 APPEARANCE_OBSERVER.observe(document.documentElement, { attributeFilter: ['class'] });
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
+window.visualViewport?.addEventListener('resize', handleViewportGeometryChange);
+// eslint-disable-next-line unicorn/no-top-level-side-effects, unicorn/prefer-observer-apis -- see comment above; the listener undoes the scroll itself, which no observer can do
+window.addEventListener('scroll', handleViewportGeometryChange);
 if (import.meta.hot) {
     import.meta.hot.dispose(() => {
         MEDIA_QUERY.removeEventListener('change', handleMediaQueryChange); // Dispose runs when module is about to be replaced.
         LANDSCAPE_QUERY.removeEventListener('change', handleLandscapeQueryChange);
         APPEARANCE_OBSERVER.disconnect();
+        window.visualViewport?.removeEventListener('resize', handleViewportGeometryChange);
+        window.removeEventListener('scroll', handleViewportGeometryChange);
     });
 }
 
@@ -48,4 +55,16 @@ function handleLandscapeQueryChange(event: MediaQueryListEvent): void {
 
 function handleMediaQueryChange(event: MediaQueryListEvent): void {
     viewportIsWide.value = event.matches;
+}
+
+// iOS overlays the keyboard rather than resizing the layout viewport, and scrolls the window to reveal the focused
+// field. With a 'fixed inset-0' shell nothing legitimate ever scrolls, and WebKit paints the caret offset by that
+// scroll — outside the field (WebKit bug 176896) — so the scroll is undone here, and the keyboard's overlap is
+// published instead for bottom-anchored UI to lift itself clear. A pinch-zoomed visual viewport is also shorter than
+// the window, but that is not a keyboard, so it publishes no inset.
+function handleViewportGeometryChange(): void {
+    if (window.scrollX !== 0 || window.scrollY !== 0) window.scrollTo(0, 0);
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    keyboardInset.value = viewport.scale > 1 ? 0 : Math.max(0, Math.round(window.innerHeight - viewport.height));
 }

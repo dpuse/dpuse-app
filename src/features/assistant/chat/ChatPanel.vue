@@ -8,6 +8,7 @@ import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import type { AssistantChatMessage } from './assistantChat';
 import type { AssistantModelConfig } from './modelConfigs';
 import { getMessageSteps } from './assistantChat';
+import { keyboardInset } from '@/state/appLayout';
 import { useMarkedTool } from '@/services/useMarkedTool';
 import { isRunningStatus, useChatSession } from '@/services/useChatSession';
 
@@ -66,8 +67,14 @@ const responseIsPending = computed(() => {
     return lastMessage?.role !== 'assistant' || lastMessage.parts.length === 0;
 });
 
+// The keyboard overlays the layout viewport on iOS rather than shrinking it, so the composer lifts itself clear by the
+// published inset. A transform rather than a bottom offset: it doesn't disturb the container's layout size, which the
+// ResizeObserver below is watching.
+const inputContainerStyle = computed(() => (keyboardInset.value > 0 ? { transform: `translateY(-${String(keyboardInset.value)}px)` } : undefined));
+
 // mb-4 (16px) on the input container isn't part of its own height, so it's added on top to keep messages clear of it.
-const scrollPaddingBottom = computed(() => `${String(inputContainerHeight.value + 32)}px`);
+// The keyboard inset counts too: a lifted composer covers that much more of the thread.
+const scrollPaddingBottom = computed(() => `${String(inputContainerHeight.value + 32 + keyboardInset.value)}px`);
 
 // Only the thread's last message can still be running; everything above it is settled.
 function isResponseStreaming(message: AssistantChatMessage): boolean {
@@ -206,6 +213,7 @@ function handleRetryMarkedTool(): void {
             <!-- Input - in-flow, always rounded, with an action bar (model, status, send) attached below the text box. -->
             <div
                 ref="inputContainer"
+                :style="inputContainerStyle"
                 :class="[
                     'absolute right-4 bottom-0 left-16 mb-8.75 flex flex-none flex-col bg-surface shadow-md',
                     'rounded-2xl border border-selected-border',

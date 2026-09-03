@@ -131,18 +131,6 @@ onMounted(() => {
     initialiseServices();
 });
 
-onMounted(() => {
-    // The shell is 'fixed inset-0', so the document never has anything legitimate to scroll. iOS Safari still scrolls
-    // the window to reveal a focused field when the keyboard opens, and WebKit then paints the caret offset by that
-    // scroll — outside the field (WebKit bug 176896). Undoing the scroll keeps the caret aligned; on platforms that
-    // never scroll the window these listeners see nothing to undo. Never removed: the app shell lives for the page.
-    function pinWindowScroll(): void {
-        if (window.scrollX !== 0 || window.scrollY !== 0) window.scrollTo(0, 0);
-    }
-    window.addEventListener('scroll', pinWindowScroll);
-    window.visualViewport?.addEventListener('resize', pinWindowScroll);
-});
-
 watch(viewportIsWide, (newViewportIsWide) => {
     if (activeAppPaneId.value != null) establishActivePaneId(newViewportIsWide);
 });
