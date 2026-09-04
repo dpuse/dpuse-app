@@ -6,6 +6,11 @@ html {
     font-size: 1rem; /* 16px is default */
 }
 
+.app-root {
+    min-height: 100vh;
+    min-height: var(--app-height);
+}
+
 .dpuse-prose h1,
 .dpuse-prose h2,
 .dpuse-prose h3,

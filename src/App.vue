@@ -139,6 +139,14 @@ watch(paneSplitterPercent, (newPaneSplitterPercent) => {
     localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent));
 });
 
+function setAppHeight(): void {
+    const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    document.documentElement.style.setProperty('--app-height', `${h}px`);
+}
+setAppHeight();
+window.visualViewport?.addEventListener('resize', setAppHeight);
+window.addEventListener('resize', setAppHeight);
+
 // ── Event Handlers - Studio Option Bar ────────────────────────────────────────────────────────────────────────────
 
 function handleStudioOptionBarHide(): void {
@@ -250,10 +258,7 @@ function establishPaneSplitterPercent(): number {
 </script>
 
 <template>
-    <div
-        class="flex min-h-dvh w-screen bg-red-100 pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] text-content"
-        data-region="App"
-    >
+    <div class="flex min-h-dvh w-screen bg-blue-100 pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
         <!--
           z-10: Content: StudioPane (includes fixed OptionBar), PaneSplitter & AssistantPane
           z-20: topFadeOut, assistantPaneToggle
