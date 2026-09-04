@@ -128,6 +128,7 @@ router
 onMounted(() => {
     // Thrown from the root component, which no 'ErrorBoundary' wraps, so it reaches 'app.config.errorHandler'.
     if (import.meta.env.DEV) throwOnFault('vue');
+    document.documentElement.style.setProperty('--app-height', `${String(screen.height)}px`);
     initialiseServices();
 });
 
@@ -138,8 +139,6 @@ watch(viewportIsWide, (newViewportIsWide) => {
 watch(paneSplitterPercent, (newPaneSplitterPercent) => {
     localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent));
 });
-
-document.documentElement.style.setProperty('--app-height', `${String(screen.height)}px`);
 
 // ── Event Handlers - Studio Option Bar ────────────────────────────────────────────────────────────────────────────
 
