@@ -24,7 +24,7 @@ const studioOptionConfigs = useOptions();
 </script>
 
 <template>
-    <StudioLayout class="bg-green-100!">
+    <StudioLayout>
         <!-- Header -->
         <StudioHeader :title="t(T, 'Studio')" />
 

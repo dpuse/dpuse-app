@@ -251,7 +251,7 @@ function establishPaneSplitterPercent(): number {
 </script>
 
 <template>
-    <div class="app-root flex min-h-dvh w-screen bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
+    <div class="app-root flex h-screen w-screen bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
         <!--
           z-10: Content: StudioPane (includes fixed OptionBar), PaneSplitter & AssistantPane
           z-20: topFadeOut, assistantPaneToggle
@@ -277,7 +277,7 @@ function establishPaneSplitterPercent(): number {
              Retry is offered only when one of them carried something to run again — most did not, being a service
              loaded once at startup or an error no region ever contained, and for those a fresh document is the only
              recovery there is. -->
-        <!-- <ErrorDisplay
+        <ErrorDisplay
             v-if="appFailures.length > 0"
             :can-retry="appFailures.some((failure) => failure.retry != null)"
             :failures="appFailures"
@@ -285,10 +285,10 @@ function establishPaneSplitterPercent(): number {
             owns-screen
             @dismiss="clearAppFailures"
             @retry="retryAppFailures"
-        /> -->
+        />
 
         <!-- Modal scrim. Loading is shown by each region's own spinner, so this no longer tracks navigation. -->
-        <!-- <LoadingMask class="z-50" :is-dialog-active="dialogIsActive" :is-modal-active="modalIsActive" /> -->
+        <LoadingMask class="z-50" :is-dialog-active="dialogIsActive" :is-modal-active="modalIsActive" />
 
         <!-- Studio Pane Toggle - Fixed in top left corner and always visible. -->
         <Button
@@ -318,11 +318,10 @@ function establishPaneSplitterPercent(): number {
         <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-49" :studio-option-bar-is-visible="studioOptionBarIsVisible" />
 
         <!-- Studio Option Bar - Only rendered here when viewport is narrow. -->
-        <!-- <OptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" /> -->
+        <OptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" />
 
         <!-- Studio Pane - Contains studio layout (via RouterView). Rendered once studio pane is activated and visible. -->
-        <!-- <div class="fixed inset-0 bg-red-100"></div> -->
-        <!-- <div
+        <div
             v-if="studioPaneActivated"
             v-show="studioPaneIsVisible"
             class="grid h-full"
@@ -331,45 +330,44 @@ function establishPaneSplitterPercent(): number {
             :style="[studioPaneStyle, { 'container-type': 'inline-size' }]"
             @pointerdown="activeAppPaneId = 'studio'"
             @scroll.capture="activeAppPaneId = 'studio'"
-        > -->
-        <!-- Studio Option Bar - Only rendered here when viewport is wide. -->
-        <!-- <OptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleStudioOptionBarHide" /> -->
+        >
+            <!-- Studio Option Bar - Only rendered here when viewport is wide. -->
+            <OptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleStudioOptionBarHide" />
 
-        <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
-        <!-- <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="studio-content"> -->
-        <!-- The spinner must stay outside the transition. Put it inside as a 'v-if' branch and the incoming
+            <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
+            <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="studio-content">
+                <!-- The spinner must stay outside the transition. Put it inside as a 'v-if' branch and the incoming
                      route component renders as an empty comment and never appears, because the update that follows the
                      spinner's leave does not pick up the resolved component. -->
-        <!-- <RouterView v-slot="{ Component }">
+                <RouterView v-slot="{ Component }">
                     <ComponentLoadingSpinner v-if="studioLayoutIsLoading" />
                     <Transition v-else name="action-fade" mode="out-in">
                         <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
                     </Transition>
                 </RouterView>
             </div>
-        </div> -->
+        </div>
 
         <!-- Pane (Vertical) Splitter - Rendered if viewport is wide and both panes are shown. -->
-        <!-- <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" /> -->
+        <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
 
         <!-- Assistant Pane - Contains assistant layout. Rendered once assistant pane is activated and visible. -->
-        <!-- <div
+        <div
             v-if="assistantPaneActivated"
             v-show="assistantPaneIsVisible"
-            class="flex h-full"
             data-region="AssistantPane"
             :style="assistantPaneStyle"
             @pointerdown="activeAppPaneId = 'assistant'"
             @scroll.capture="activeAppPaneId = 'assistant'"
         >
-            <AssistantLayout class="flex-1" :studio-pane-is-hidden="!studioPaneIsVisible" />
-        </div> -->
+            <AssistantLayout :studio-pane-is-hidden="!studioPaneIsVisible" />
+        </div>
 
         <!-- Dialogs - Modal wrapper for dialogs which are activated using URL 'dlg' parameter. This wrapper is owned
              here rather than by each dialog so it can appear immediately, while the dialog's own chunk is still
              loading. Its body then fills in behind the spinner without the frame remounting, so there is no second
             fade and nothing shifts. -->
-        <!-- <DialogModal
+        <DialogModal
             v-if="activeDialogConfig"
             :key="activeDialogId"
             :is-open="true"
@@ -378,12 +376,6 @@ function establishPaneSplitterPercent(): number {
             :sizing="activeDialogConfig.sizing"
         >
             <component :is="activeDialogConfig.component" />
-        </DialogModal> -->
+        </DialogModal>
     </div>
 </template>
-
-<style>
-.app-root {
-    min-height: var(--app-height, 100lvh);
-}
-</style>
