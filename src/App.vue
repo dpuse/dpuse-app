@@ -10,7 +10,7 @@ import { navigationPendingDepth } from '@/router';
 import { t } from '@/state/locale';
 import { throwOnFault } from '@/observability/faultInjection';
 import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors';
-import { assistantPaneIsVisible, contentScrollPosition, sessionMenuIsOpen, studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
+import { assistantPaneIsVisible, contentScrollPosition, isPWA, sessionMenuIsOpen, studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 
 // ── Static Components
 import AssistantLogo from '@/components/branding/AssistantLogo.vue'; // Always visible.
@@ -250,7 +250,7 @@ function establishPaneSplitterPercent(): number {
 </script>
 
 <template>
-    <div class="flex size-full bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
+    <div class="flex size-full bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" :class="isPWA ? 'size-full' : 'max-h-dvh'" data-region="App">
         <!--
           z-10: Content: StudioPane (includes fixed OptionBar), PaneSplitter & AssistantPane
           z-20: topFadeOut, assistantPaneToggle
