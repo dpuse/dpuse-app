@@ -128,7 +128,6 @@ router
 onMounted(() => {
     // Thrown from the root component, which no 'ErrorBoundary' wraps, so it reaches 'app.config.errorHandler'.
     if (import.meta.env.DEV) throwOnFault('vue');
-    document.documentElement.style.setProperty('--app-height', `${String(window.innerHeight)}px`);
     initialiseServices();
 });
 
@@ -251,7 +250,7 @@ function establishPaneSplitterPercent(): number {
 </script>
 
 <template>
-    <div class="app-root flex w-screen bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
+    <div class="flex h-screen w-screen bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
         <!--
           z-10: Content: StudioPane (includes fixed OptionBar), PaneSplitter & AssistantPane
           z-20: topFadeOut, assistantPaneToggle
@@ -379,10 +378,3 @@ function establishPaneSplitterPercent(): number {
         </DialogModal>
     </div>
 </template>
-
-<style>
-.app-root {
-    height: var(--app-height, 100lvh);
-    /* min-height: var(--app-height, 100lvh); */
-}
-</style>
