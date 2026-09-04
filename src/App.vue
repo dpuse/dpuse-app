@@ -250,7 +250,7 @@ function establishPaneSplitterPercent(): number {
 </script>
 
 <template>
-    <div class="flex size-full bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" :class="isPWA ? 'size-full' : 'max-h-dvh'" data-region="App">
+    <div class="flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" :class="isPWA ? 'h-screen w-screen' : 'h-dvh w-dvh'" data-region="App">
         <!--
           z-10: Content: StudioPane (includes fixed OptionBar), PaneSplitter & AssistantPane
           z-20: topFadeOut, assistantPaneToggle
