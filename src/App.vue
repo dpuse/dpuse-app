@@ -310,7 +310,7 @@ function establishPaneSplitterPercent(): number {
         </Button>
 
         <!-- Assistant Pane Toggle - Fixed in top right corner and always visible. -->
-        <!-- <Button
+        <Button
             :aria-label="t(T, 'k.toggle.label.aria')"
             class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20 rounded-full! bg-surface"
             :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
@@ -319,10 +319,10 @@ function establishPaneSplitterPercent(): number {
             @click="handleToggleAssistantPane"
         >
             <AssistantLogo />
-        </Button> -->
+        </Button>
 
         <!-- Session Button - Fixed in bottom left corner and always visible. -->
-        <!-- <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-49" :studio-option-bar-is-visible="studioOptionBarIsVisible" /> -->
+        <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-49" :studio-option-bar-is-visible="studioOptionBarIsVisible" />
 
         <!-- Studio Option Bar - Only rendered here when viewport is narrow. -->
         <!-- <OptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" /> -->
