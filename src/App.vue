@@ -250,7 +250,7 @@ function establishPaneSplitterPercent(): number {
 </script>
 
 <template>
-    <div class="flex h-[calc(100vh+200px)] w-screen bg-red-100 pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
+    <div class="flex min-h-dvh w-screen bg-red-100 pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
         <!--
           z-10: Content: StudioPane (includes fixed OptionBar), PaneSplitter & AssistantPane
           z-20: topFadeOut, assistantPaneToggle
@@ -290,7 +290,7 @@ function establishPaneSplitterPercent(): number {
         <!-- <LoadingMask class="z-50" :is-dialog-active="dialogIsActive" :is-modal-active="modalIsActive" /> -->
 
         <!-- Studio Pane Toggle - Fixed in top left corner and always visible. -->
-        <!-- <Button
+        <Button
             :aria-label="t(T, 'wb.toggle.label.aria')"
             class="fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 rounded-full!"
             :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
@@ -299,7 +299,7 @@ function establishPaneSplitterPercent(): number {
             @click="handleToggleStudioPane"
         >
             <DPUseLogo />
-        </Button> -->
+        </Button>
 
         <!-- Assistant Pane Toggle - Fixed in top right corner and always visible. -->
         <!-- <Button
