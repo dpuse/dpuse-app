@@ -203,8 +203,9 @@ html {
 
     --status-bar-height: calc(max(env(safe-area-inset-bottom), 21px)); /* Status bar height: 'safe-area-inset-bottom' or '21px'. */
 
-    --vertical-scroll-bottom-embedded-inset: 72px; /* Scroll area bottom inset: '24px' for horizontal scroll bar; '40px' for floating buttons; '8px' for padding above floating buttons. */
-    --vertical-scroll-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 21px) + 72px);
+    --vertical-scroll-bottom-embedded-inset: 88px; /* Scroll area bottom inset: '24px' for horizontal scroll bar; '40px' for floating buttons; '16px' for padding above floating buttons. */
+    --vertical-scroll-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 21px) + 88px);
+    --vertical-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 21px) + 72px);
 
     /* Light mode colors. */
     --backdrop: var(--color-zinc-50);

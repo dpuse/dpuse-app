@@ -62,7 +62,7 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
 <template>
     <nav
         aria-label="Studio options"
-        class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-t border-r border-r-separator bg-backdrop pt-13.5 pb-[calc(var(--vertical-scroll-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
+        class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-t border-r border-r-separator bg-backdrop pt-13.5 pb-[calc(var(--vertical-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
         :class="isPWA ? 'border-t-separator' : 'border-t-transparent'"
         data-region="OptionPanel"
     >
