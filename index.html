@@ -18,9 +18,9 @@
         <meta name="apple-mobile-web-app-title" content="DPUse" />
 
         <!-- No-media theme-color fallback. -->
-        <meta name="theme-color" content="#dbeafe" />
-        <!-- NOTE: Tailwind 'blue-100', same as App's chosen background. Also 'public/manifest.webmanifest'. -->
-        <meta name="theme-color" content="#dbeafe" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#ffffff" />
+        <!-- NOTE: white, same as light 'surface' in main.css. -->
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
         <!-- NOTE: zinc-950, same as dark 'surface' in main.css. Uncertain as to support for 'oklch' as of May, 2026. -->
         <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
 
@@ -34,7 +34,7 @@
         <!-- CSP requires style-src hash in production for following style block. See console error message for required hash. -->
         <style>
             html {
-                background-color: #dbeafe; /* NOTE: Tailwind 'blue-100', same as App's chosen background. */
+                background-color: #ffffff; /* NOTE: white, same as light 'surface' in main.css. */
                 color: oklch(44.2% 0.017 285.786); /* NOTE: zinc-600, same as light 'content' in main.css. */
             }
 
