@@ -6,7 +6,7 @@ html {
     font-size: 1rem; /* 16px is default */
 }
 
-.app-root {
+#app {
     min-height: 100vh;
     min-height: var(--app-height);
 }
