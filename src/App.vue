@@ -139,13 +139,7 @@ watch(paneSplitterPercent, (newPaneSplitterPercent) => {
     localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent));
 });
 
-function setAppHeight(): void {
-    const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-    document.documentElement.style.setProperty('--app-height', `${h}px`);
-}
-setAppHeight();
-window.visualViewport?.addEventListener('resize', setAppHeight);
-window.addEventListener('resize', setAppHeight);
+document.documentElement.style.setProperty('--app-height', `${String(screen.height)}px`);
 
 // ── Event Handlers - Studio Option Bar ────────────────────────────────────────────────────────────────────────────
 
@@ -258,7 +252,7 @@ function establishPaneSplitterPercent(): number {
 </script>
 
 <template>
-    <div class="flex min-h-dvh w-screen bg-blue-100 pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
+    <div class="app-root flex min-h-dvh w-screen bg-blue-100 pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" data-region="App">
         <!--
           z-10: Content: StudioPane (includes fixed OptionBar), PaneSplitter & AssistantPane
           z-20: topFadeOut, assistantPaneToggle
@@ -388,3 +382,9 @@ function establishPaneSplitterPercent(): number {
         </DialogModal> -->
     </div>
 </template>
+
+<style>
+.app-root {
+    min-height: var(--app-height, 100lvh);
+}
+</style>
