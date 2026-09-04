@@ -349,7 +349,7 @@ function establishPaneSplitterPercent(): number {
         </div>
 
         <!-- Pane (Vertical) Splitter - Rendered if viewport is wide and both panes are shown. -->
-        <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
+        <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" class="h-full" />
 
         <!-- Assistant Pane - Contains assistant layout. Rendered once assistant pane is activated and visible. -->
         <div
@@ -382,6 +382,7 @@ function establishPaneSplitterPercent(): number {
 
 <style>
 .app-root {
-    min-height: var(--app-height, 100lvh);
+    height: var(--app-height, 100lvh);
+    /* min-height: var(--app-height, 100lvh); */
 }
 </style>
