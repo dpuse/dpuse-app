@@ -107,11 +107,11 @@ const config = defineConfigWithVueTs(
         }
     }),
 
-    // `PaneSplitter` is an ARIA window splitter: a focusable `separator` carrying pointer and keyboard handlers, which
+    // `StudioPaneSplitter` is an ARIA window splitter: a focusable `separator` carrying pointer and keyboard handlers, which
     // the rule does not recognise as interactive. Declared here rather than as a template comment above the root
     // element, which would make the component multi-root and silently break attribute fallthrough.
     {
-        files: ['src/components/ui/PaneSplitter.vue'],
+        files: ['src/features/studio/_components/StudioPaneSplitter.vue'],
         rules: {
             'vuejs-accessibility/no-static-element-interactions': 'off'
         }

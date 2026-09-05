@@ -4,7 +4,7 @@
 // between an even split and a wider left pane.
 
 // ── External Dependencies & Registrations
-import { onUnmounted, ref, shallowRef } from 'vue';
+import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -28,6 +28,13 @@ const splitterContainerRect = shallowRef<DOMRect>(); // The row holding both pan
 const splitterIsDragging = ref(false);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+onMounted(() => {
+    // A caller can hand over a percentage from outside its own control — 'App.vue' restores the last split from local
+    // storage, which a stale key or a hand edit can put out of range. The bounds are defined here, so the correction
+    // belongs here too: every other way the value moves is already clamped, and this closes the one way in that is not.
+    splitterLeftPanePercent.value = clampPercent(splitterLeftPanePercent.value);
+});
 
 onUnmounted(() => {
     // Safety net only. A drag holds the pointer, so nothing should be able to remove the splitter before it ends, but
@@ -110,13 +117,13 @@ function endDrag(): void {
         :aria-valuemin="MINIMUM_PERCENT"
         :aria-valuenow="Math.round(splitterLeftPanePercent)"
         :class="[
-            'group relative z-10 h-full w-1.5 flex-none cursor-col-resize touch-none border-x border-boundary transition-colors',
+            'group relative z-10 h-full w-(--pane-splitter-width) flex-none cursor-col-resize touch-none border-x border-boundary transition-colors',
             'hover:bg-separator focus-visible:bg-separator focus-visible:outline-none',
             splitterIsDragging && 'bg-separator'
         ]"
         aria-label="Resize panes"
         aria-orientation="vertical"
-        data-region="PaneSplitter"
+        data-region="StudioPaneSplitter"
         role="separator"
         tabIndex="0"
         @dblclick="handleDoubleClick"
@@ -128,12 +135,12 @@ function endDrag(): void {
     >
         <!--
           The root is an ARIA window splitter: 'separator' plus a tab stop, which is what makes arrow keys expected here.
-          Its 'w-1.5' is mirrored by 'PANE_SPLITTER_WIDTH' in 'App.vue'. Change one and the other must follow, otherwise
-          an even split no longer gives the two panes the same width.
           -->
 
-        <!-- Widens the grab area equally over both panes without affecting layout. The parent's z-index keeps it above them. -->
-        <div class="absolute -inset-x-1.5 inset-y-0" />
+        <!-- Widens the grab area equally over both panes without affecting layout. The parent's z-index keeps it above
+             them. A splitter's width on each side, so the target is three times what is drawn — a size chosen for the
+             pointer rather than tied to the divider, which is why it repeats the value instead of sharing it. -->
+        <div class="absolute -inset-x-(--pane-splitter-width) inset-y-0" />
 
         <div class="pointer-events-none absolute top-1/2 left-1/2 flex -translate-1/2 flex-col gap-0.75">
             <span

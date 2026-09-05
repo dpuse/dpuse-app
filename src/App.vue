@@ -24,20 +24,20 @@ import {
 import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors';
 
 // ── Static Components
-import AssistantToggle from './features/assistant/_components/AssistantToggle.vue';
-import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue'; // Stands in for a studio layout mid-navigation.
-import DialogShell from '@/components/ui/dialog/DialogShell.vue'; // Renders before the dialog it frames.
-import ErrorShell from '@/components/ui/error/ErrorShell.vue'; // Can be no delay when rendering.
+import AssistantToggle from '@/features/assistant/_components/AssistantToggle.vue'; // Always visible.
+import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue'; // Required immediately if there is a delay, cannot wait for it to load.
+import DialogShell from '@/components/ui/dialog/DialogShell.vue'; // Required immediately if a dialog is to be shown, cannot wait for it to load.
+import ErrorShell from '@/components/ui/error/ErrorShell.vue'; // Required immediately if there is an error, cannot wait for it to load.
 import SessionButton from '@/features/session/SessionButton.vue'; // Always visible.
-import StudioToggle from './features/studio/_components/StudioToggle.vue';
+import StudioToggle from '@/features/studio/_components/StudioToggle.vue'; // Always visible.
 
 // ── Dynamic Components
-const AccountPanel = defineAsyncPanel(() => import('@/features/session/accountPanel/AccountPanel.vue'), 'AccountPanel');
-const AuthPanel = defineAsyncPanel(() => import('@/features/session/authPanel/AuthPanel.vue'), 'AuthPanel');
-const ConnectionPanel = defineAsyncPanel(() => import('@/features/studio/connectionPanel/ConnectionPanel.vue'), 'ConnectionPanel', { simulation: { delayMs: 3000 } });
+const SessionAccountPanel = defineAsyncPanel(() => import('@/features/session/accountPanel/SessionAccountPanel.vue'), 'SessionAccountPanel');
 const AssistantLayout = defineAsyncPanel(() => import('@/features/assistant/_components/AssistantLayout.vue'), 'AssistantLayout');
-const PaneSplitter = defineAsyncPanel(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
-const OptionBar = defineAsyncPanel(() => import('@/features/studio/options/OptionBar.vue'), 'OptionBar', { hasPlaceholder: false });
+const ConnectionPanel = defineAsyncPanel(() => import('@/features/studio/connectionPanel/ConnectionPanel.vue'), 'ConnectionPanel', { simulation: { delayMs: 0 } });
+const SessionAuthPanel = defineAsyncPanel(() => import('@/features/session/authPanel/SessionAuthPanel.vue'), 'SessionAuthPanel');
+const StudioOptionBar = defineAsyncPanel(() => import('@/features/studio/options/StudioOptionBar.vue'), 'StudioOptionBar', { hasPlaceholder: false });
+const StudioPaneSplitter = defineAsyncPanel(() => import('@/features/studio/_components/StudioPaneSplitter.vue'), 'StudioPaneSplitter', { hasPlaceholder: false });
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -50,27 +50,26 @@ interface DialogConfig {
     sizing: 'full' | 'reserved';
 }
 const DIALOG_CONFIGS: Record<'account' | 'auth' | 'connection', DialogConfig> = {
-    account: { component: AccountPanel, sizing: 'full' },
+    account: { component: SessionAccountPanel, sizing: 'full' },
     // Reserved rather than fixed: the sign-in body moves between steps of differing height, and the minimum is the
     // tallest of the short ones, so the frame neither collapses around the loading spinner nor towers over the first step.
-    auth: { component: AuthPanel, maxWidth: '24rem', minHeight: '250px', sizing: 'reserved' },
+    auth: { component: SessionAuthPanel, maxWidth: '24rem', minHeight: '250px', sizing: 'reserved' },
     connection: { component: ConnectionPanel, sizing: 'full' }
 };
 
-const PANE_SPLITTER_DEFAULT_PERCENT = 50;
-const PANE_SPLITTER_WIDTH = 6; // The value must match the 'w-1.5' class on the root element in 'PaneSplitter.vue'.
-const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
+const STUDIO_PANE_SPLITTER_DEFAULT_PERCENT = 50;
+const STUDIO_PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent'; // The stored name is deliberately not the constant's: changing it would discard every split already saved.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The pane model itself is not here: it lives in '@/state/appLayout' alongside the viewport it depends on, because the
 // studio and assistant headers read it too. What is left here is the chrome this component alone owns.
-const paneSplitterPercent = ref(establishPaneSplitterPercent());
-
+const paneModelIsBootstrapped = ref(false); // Reading the URL counts as a change; see the watcher that records the panes.
 const route = useRoute();
 const router = useRouter();
 
 const studioOptionBarIsVisible = ref(false); // Narrow displays only; on a wide one the option bar is always in the pane.
+const studioPaneSplitterPercent = ref(establishStudioPaneSplitterPercent());
 
 // ── Derived State - Dialogs ──────────────────────────────────────────────────────────────────────────────────────────
 
@@ -80,6 +79,12 @@ const activeDialogId = computed(() => {
 });
 const activeDialogConfig = computed(() => (activeDialogId.value ? DIALOG_CONFIGS[activeDialogId.value] : undefined));
 
+// ── Derived State - Failures ─────────────────────────────────────────────────────────────────────────────────────────
+
+// Most app-level failures carry nothing to run again — a service loaded once at startup, or an error no region ever
+// contained — and for those a fresh document is the only recovery there is. One that does is enough to offer retry.
+const appFailuresCanRetry = computed(() => appFailures.value.some((failure) => failure.retry != null));
+
 // ── Derived State - Panes ────────────────────────────────────────────────────────────────────────────────────────────
 
 const assistantPaneStyle = computed(() => {
@@ -87,15 +92,21 @@ const assistantPaneStyle = computed(() => {
     return { width: '0' };
 });
 
-const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assistantPaneIsVisible.value);
-
 // This is the outermost 'RouterView', so it hosts level 0 and only shows a spinner when the studio layout itself is
 // being replaced. A panel changing inside the layout reports a deeper level and is covered by that layout instead.
 const studioLayoutIsLoading = computed(() => navigationPendingDepth.value === 0);
 
+// What the transition below remounts on. Keyed to the deepest matched record that actually renders something, so a
+// genuine change of layout plays the fade while a move between panels inside one layout, or a change of query
+// parameter, leaves it alone.
+const studioLayoutKey = computed(() => route.matched.find((record) => record.components?.default)?.path);
+
+const studioPaneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assistantPaneIsVisible.value);
+
 const studioPaneStyle = computed(() => {
     if (!studioPaneIsVisible.value) return { width: '0' };
-    if (assistantPaneIsVisible.value) return { minWidth: '0', width: `calc(${String(paneSplitterPercent.value)}% - ${String(PANE_SPLITTER_WIDTH / 2)}px)` };
+    // Half the splitter comes off each pane, so an even split leaves the two the same width.
+    if (assistantPaneIsVisible.value) return { minWidth: '0', width: `calc(${String(studioPaneSplitterPercent.value)}% - var(--pane-splitter-width) / 2)` };
     return { minWidth: '0', flex: '1' };
 });
 
@@ -109,7 +120,8 @@ router
         // The studio is the default pane: it opens unless the assistant was explicitly the one left showing.
         setPaneActiveState('studio', route.query.sState === '1' || route.query.aState !== '1');
         setPaneActiveState('assistant', route.query.aState === '1');
-        activeAppPaneId.value = studioPaneIsActive.value ? 'studio' : 'assistant';
+        activeAppPaneId.value = establishActivePaneId();
+        paneModelIsBootstrapped.value = true;
     })
     // eslint-disable-next-line unicorn/prefer-await, unicorn/prefer-top-level-await -- top-level await in <script setup> suspends the component; .catch() keeps the mount non-blocking.
     .catch(() => {
@@ -117,6 +129,7 @@ router
         setPaneActiveState('studio', true);
         setPaneActiveState('assistant', false);
         activeAppPaneId.value = 'studio';
+        paneModelIsBootstrapped.value = true;
     });
 
 onMounted(() => {
@@ -124,22 +137,39 @@ onMounted(() => {
     initialiseServices();
 });
 
-watch(paneSplitterPercent, (newPaneSplitterPercent) => {
-    localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent));
+// Records the layout in the URL whenever it actually changes, rather than from each handler that might have changed it.
+// Assigning a ref the value it already holds is not a change, so working within one pane writes nothing however much
+// the pointer moves; only a real switch does. Silent until the bootstrap above has run, because reading the URL sets
+// these too, and reacting to that would write the defaults straight back into a link that had none.
+watch([activeAppPaneId, assistantPaneIsActive, studioPaneIsActive], () => {
+    if (paneModelIsBootstrapped.value) syncPaneQuery();
 });
 
-// ── Event Handlers - Studio Option Bar ────────────────────────────────────────────────────────────────────────────
+watch(studioPaneSplitterPercent, (newStudioPaneSplitterPercent) => {
+    try {
+        localStorage.setItem(STUDIO_PANE_SPLITTER_PERCENT_KEY, String(newStudioPaneSplitterPercent));
+    } catch {
+        // Storage can refuse a write — Safari in private browsing, or a full quota. The split still works for this
+        // document, it just will not be remembered, and a throw here would escape the watcher and be raised as an
+        // app-level failure. Losing a preference is not worth a modal.
+    }
+});
 
+// ── Event Handlers - Studio Option Bar ───────────────────────────────────────────────────────────────────────────────
+
+// Only the narrow option bar can be hidden. The wide one is laid out inside the studio pane and is always there, which
+// is why only the narrow instance below binds this.
 function handleStudioOptionBarHide(): void {
-    if (viewportIsWide.value) return;
     studioOptionBarIsVisible.value = false;
 }
 
 // ── Event Handlers - Panes ───────────────────────────────────────────────────────────────────────────────────────────
 
-// A pointer or a scroll anywhere in a pane makes it the one the user is working in. On a narrow display that is
-// already the case, since only the front pane can be reached at all. It is on a wide display that this earns its keep:
-// both panes are reachable, and the last one touched is the one the narrow layout falls back to if the display shrinks.
+// A pointer, a scroll, or focus arriving anywhere in a pane makes it the one the user is working in. On a narrow
+// display that is already the case, since only the front pane can be reached at all. It is on a wide display that this
+// earns its keep: both are reachable, and the last one used is what the narrow layout falls back to if the display
+// shrinks. Three signals rather than one because none covers the others — focus alone misses a click on anything not
+// focusable, and the pointer alone misses a reader who moves between the panes with the keyboard.
 function handlePaneActivate(paneId: AppPaneId): void {
     activeAppPaneId.value = paneId;
 }
@@ -149,7 +179,6 @@ function handleToggleAssistantPane(): void {
         if (assistantPaneIsVisible.value && !studioPaneIsVisible.value) return; // Don't close the assistant pane if it's the only one visible.
         setPaneActiveState('assistant', !assistantPaneIsActive.value);
         activeAppPaneId.value = assistantPaneIsActive.value ? 'assistant' : 'studio';
-        syncPaneQuery();
         return;
     }
 
@@ -161,7 +190,6 @@ function handleToggleAssistantPane(): void {
     studioOptionBarIsVisible.value = false;
     setPaneActiveState('assistant', true);
     activeAppPaneId.value = 'assistant';
-    syncPaneQuery();
 }
 
 function handleToggleStudioPane(): void {
@@ -169,7 +197,6 @@ function handleToggleStudioPane(): void {
         if (studioPaneIsVisible.value && !assistantPaneIsVisible.value) return; // Don't close the studio pane if it's the only one visible.
         setPaneActiveState('studio', !studioPaneIsActive.value);
         activeAppPaneId.value = studioPaneIsActive.value ? 'studio' : 'assistant';
-        syncPaneQuery();
         return;
     }
 
@@ -182,57 +209,70 @@ function handleToggleStudioPane(): void {
     // Display is narrow, so bringing this pane to the front is itself what hides the assistant.
     setPaneActiveState('studio', true);
     activeAppPaneId.value = 'studio';
-    syncPaneQuery();
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function establishPaneSplitterPercent(): number {
+// Which pane is in front. It decides what a narrow display shows, so it has to be settled even where both panes are
+// open; 'pane' carries that, since the open flags alone cannot say which of two was on top.
+function establishActivePaneId(): AppPaneId {
+    if (!studioPaneIsActive.value) return 'assistant';
+    if (!assistantPaneIsActive.value) return 'studio';
+    return route.query.pane === 'assistant' ? 'assistant' : 'studio';
+}
+
+function establishStudioPaneSplitterPercent(): number {
     try {
-        return Number(localStorage.getItem(PANE_SPLITTER_PERCENT_KEY)) || PANE_SPLITTER_DEFAULT_PERCENT;
+        return Number(localStorage.getItem(STUDIO_PANE_SPLITTER_PERCENT_KEY)) || STUDIO_PANE_SPLITTER_DEFAULT_PERCENT;
     } catch {
-        return PANE_SPLITTER_DEFAULT_PERCENT;
+        return STUDIO_PANE_SPLITTER_DEFAULT_PERCENT;
     }
 }
 
-// Records which panes are showing, so a reload or a shared link opens on the same layout. Called at the end of a
-// handler rather than as part of changing the model: visibility is derived, so it only settles once every assignment
-// that handler makes has been made.
+// Records which panes are open, so a reload or a shared link opens on the same layout. Open rather than showing: a
+// narrow display has room for only one at a time, and writing what is on screen would throw away the fact that the
+// other was open too, so widening after a reload would give back one pane where there had been two.
+// Driven by the watcher above rather than called from the handlers, which is what keeps it off the paths that change
+// nothing and guarantees the whole model has settled before any of it is written.
 function syncPaneQuery(): void {
-    const query: LocationQueryRaw = { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined };
+    const query: LocationQueryRaw = {
+        ...route.query,
+        sState: studioPaneIsActive.value ? '1' : undefined,
+        aState: assistantPaneIsActive.value ? '1' : undefined,
+        // Which of the two is in front, needed only where both are open and the display can show just one. With a
+        // single pane open the flags above already say which, so it is left off rather than stated twice.
+        pane: studioPaneIsActive.value && assistantPaneIsActive.value ? activeAppPaneId.value : undefined
+    };
 
     // The assistant reopens on the view it was last on, which it reads from 'aView'. The first time it opens there is
     // nothing to reopen, so it starts at 'about'.
-    if (assistantPaneIsVisible.value && !('aView' in query)) query.aView = 'about';
+    if (assistantPaneIsActive.value && !('aView' in query)) query.aView = 'about';
 
-    void router.replace({ query });
+    void router.replace({ query }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 }
 </script>
 
 <template>
     <div class="flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" :class="isPWA ? 'h-screen w-screen' : 'h-dvh w-dvw'" data-region="App">
         <!--
-          z-10: Content: StudioPane (includes fixed OptionBar), PaneSplitter & AssistantPane
+          z-10: Content: StudioPane (includes the wide StudioOptionBar), StudioPaneSplitter & AssistantPane
           z-20: topFadeOut, assistantPaneToggle
-          z-30: OptionBar (floating)
+          z-30: StudioOptionBar (the narrow one, floating over the panes as a sibling of them)
           z-40: studioPaneToggle
           z-49: SessionButton
+          z-80: App-level failures (a failure with no region of its own)
           Dialogs and the SessionMenu are not listed: 'showModal()' puts them in the browser's top layer, above every
           z-index here, and their own '::backdrop' is the scrim.
-          z-80: App-level failures (a failure with no region of its own)
           -->
 
-        <!-- Failures with no region of their own: an uncaught error, a navigation that never reached a view, a service
-             the app loads for itself. A failure fills the space it owns, and these own no region, so their space is
-             the screen and they are shown as a modal. One body listing all of them rather than one each — losing the
-             network fails every service independently, and four notices would read as four problems instead of the
-             one that happened.
-             Retry is offered only when one of them carried something to run again — most did not, being a service
-             loaded once at startup or an error no region ever contained, and for those a fresh document is the only
-             recovery there is. -->
+        <!-- The failures no region ever owned: an uncaught error, a navigation that never reached a view, a service the
+             app loads for itself. Nothing smaller than the screen is theirs, which is what 'owns-screen' says, and this
+             is the only call site that passes more than one failure. 'ErrorShell' documents the rest of the contract. -->
         <ErrorShell
             v-if="appFailures.length > 0"
-            :can-retry="appFailures.some((failure) => failure.retry != null)"
+            :can-retry="appFailuresCanRetry"
             :failures="appFailures"
             is-dismissible
             owns-screen
@@ -247,41 +287,49 @@ function syncPaneQuery(): void {
         <AssistantToggle @click="handleToggleAssistantPane" />
 
         <!-- Session Button - Fixed in bottom left corner and always visible. -->
-        <SessionButton class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-49" :studio-option-bar-is-visible="studioOptionBarIsVisible" />
+        <SessionButton :studio-option-bar-is-visible="studioOptionBarIsVisible" />
 
-        <!-- Studio Option Bar - Only rendered here when viewport is narrow. -->
-        <OptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" />
+        <!-- Studio Option Bar, narrow. Declared out here and not in the studio pane with its wide twin, which looks
+             like duplication worth collapsing and is not: on a narrow display this slides in as a 'fixed' full-screen
+             overlay, and the pane carries '@container', whose containment makes it the containing block for 'fixed'
+             descendants. Moved inside, the overlay would size itself to the pane rather than the viewport.
+             The two also sit in different places by design — one is a floating overlay, the other a grid column — so
+             they carry different classes, and only this one can be dismissed. -->
+        <StudioOptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="handleStudioOptionBarHide" />
 
         <!-- Studio Pane - Contains studio layout (via RouterView). Rendered once studio pane is activated and visible. -->
         <div
             v-if="studioPaneWasActivated"
             v-show="studioPaneIsVisible"
-            class="grid h-full"
+            class="@container grid h-full"
             :class="viewportIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
             data-region="StudioPane"
-            :style="[studioPaneStyle, { 'container-type': 'inline-size' }]"
+            :style="studioPaneStyle"
+            @focusin="handlePaneActivate('studio')"
             @pointerdown="handlePaneActivate('studio')"
             @scroll.capture="handlePaneActivate('studio')"
         >
-            <!-- Studio Option Bar - Only rendered here when viewport is wide. -->
-            <OptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleStudioOptionBarHide" />
+            <!-- Studio Option Bar, wide. A column of the pane's grid, always present, so nothing dismisses it. See the
+                 note on its narrow twin above for why the two are not one. -->
+            <StudioOptionBar v-if="viewportIsWide" class="overflow-y-hidden" />
 
-            <!-- 'col-start-2' required to ensure content is place in 2nd grid column when async sidebar unresolved. Minimises CLS WebVital metric. -->
-            <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="studio-content">
+            <!-- 'col-start-2' required to ensure content is placed in the 2nd grid column while the async option bar is
+                 still unresolved. Minimises the CLS WebVital metric. -->
+            <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="StudioContent">
                 <!-- The spinner must stay outside the transition. Put it inside as a 'v-if' branch and the incoming
                      route component renders as an empty comment and never appears, because the update that follows the
                      spinner's leave does not pick up the resolved component. -->
                 <RouterView v-slot="{ Component }">
                     <ComponentLoadingSpinner v-if="studioLayoutIsLoading" />
                     <Transition v-else name="action-fade" mode="out-in">
-                        <component :is="Component" :key="$route.matched.find((r) => r.components?.default)?.path" />
+                        <component :is="Component" :key="studioLayoutKey" />
                     </Transition>
                 </RouterView>
             </div>
         </div>
 
-        <!-- Pane (Vertical) Splitter - Rendered if viewport is wide and both panes are shown. -->
-        <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" class="h-full" />
+        <!-- Pane (Vertical) Splitter - Rendered only while both panes are on screen, which a narrow display never does. -->
+        <StudioPaneSplitter v-if="studioPaneSplitterIsVisible" v-model="studioPaneSplitterPercent" class="h-full" />
 
         <!-- Assistant Pane - Contains assistant layout. Rendered once assistant pane is activated and visible. -->
         <div
@@ -289,6 +337,7 @@ function syncPaneQuery(): void {
             v-show="assistantPaneIsVisible"
             data-region="AssistantPane"
             :style="assistantPaneStyle"
+            @focusin="handlePaneActivate('assistant')"
             @pointerdown="handlePaneActivate('assistant')"
             @scroll.capture="handlePaneActivate('assistant')"
         >
@@ -298,7 +347,7 @@ function syncPaneQuery(): void {
         <!-- Dialogs - Modal wrapper for dialogs which are activated using URL 'dlg' parameter. This wrapper is owned
              here rather than by each dialog so it can appear immediately, while the dialog's own chunk is still
              loading. Its body then fills in behind the spinner without the frame remounting, so there is no second
-            fade and nothing shifts. -->
+             fade and nothing shifts. -->
         <DialogShell
             v-if="activeDialogConfig"
             :key="activeDialogId"

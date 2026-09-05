@@ -98,8 +98,8 @@ const pending = { depth: undefined as number | undefined, timer: undefined as Re
 export const createAppRouter = (): Router => {
     const router = createRouter({
         history: createWebHistory(import.meta.env.BASE_URL),
-        routes: APP_ROUTES,
-        scrollBehavior: handleScrollBehavior
+        routes: APP_ROUTES
+        // scrollBehavior: handleScrollBehavior
     });
 
     if (import.meta.env.DEV) assertViewDepths(APP_ROUTES);

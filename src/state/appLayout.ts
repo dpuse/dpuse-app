@@ -16,9 +16,11 @@ const WIDE_VIEWPORT_MEDIA_QUERY = matchMedia('(min-width: 768px)'); // 768px is 
 // ── State - Environment ──────────────────────────────────────────────────────────────────────────────────────────────
 
 export const appearanceIsDark = ref(document.documentElement.classList.contains('dark'));
+export const isPWA = STANDALONE_DISPLAY_MEDIA_QUERY.matches || FULLSCREEN_DISPLAY_MEDIA_QUERY.matches;
 export const orientationIsLandscape = ref(LANDSCAPE_ORIENTATION_MEDIA_QUERY.matches);
 export const viewportIsWide = ref(WIDE_VIEWPORT_MEDIA_QUERY.matches);
-export const isPWA = STANDALONE_DISPLAY_MEDIA_QUERY.matches || FULLSCREEN_DISPLAY_MEDIA_QUERY.matches;
+
+// ── State - Application Panes ────────────────────────────────────────────────────────────────────────────────────────
 
 export const activeAppPaneId = ref<AppPaneId | undefined>(); // Undefined until the initial URL has been read.
 export const assistantPaneIsActive = ref(false);
@@ -26,14 +28,16 @@ export const assistantPaneWasActivated = ref(false); // Latches on first activat
 export const studioPaneIsActive = ref(false);
 export const studioPaneWasActivated = ref(false); // Latches on first activation and never clears; see 'setPaneActiveState'.
 
-export const sessionMenuIsOpen = ref(false); // The session menu overlay is open.
+// ── State - Session Menu ─────────────────────────────────────────────────────────────────────────────────────────────
+
+export const sessionMenuIsOpen = ref(false);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A wide display shows every active pane side by side. A narrow one has room for only one, so being active is not
-// enough — the pane also has to be the one in front. 'activeAppPaneId' is what decides that, which is why a pointer or
-// scroll anywhere in a pane claims it: on a narrow display the claim is already true, and on a wide one it records
-// which pane the user was last working in so the narrow layout knows what to show if the display shrinks.
+// A wide display can show both active panes side by side. A narrow one has room for only one, so being active is not
+// enough — the pane also has to be the one in front. 'activeAppPaneId' is what decides that, which is why a pointer, a
+// scroll or focus anywhere in a pane claims it: on a narrow display the claim is already true, and on a wide one it
+// records which pane the user was last working in, so the narrow layout knows what to show if the display shrinks.
 export const assistantPaneIsVisible: ComputedRef<boolean> = computed(() => isPaneVisible('assistant'));
 export const studioPaneIsVisible: ComputedRef<boolean> = computed(() => isPaneVisible('studio'));
 

@@ -7,7 +7,7 @@ import { type Component, shallowRef, watch } from 'vue';
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities';
 import { t } from '@/state/locale';
-import T from './AccountPanel.json';
+import T from './SessionAccountPanel.json';
 import { viewportIsWide } from '@/state/appLayout';
 
 // ── Static Components
@@ -44,16 +44,18 @@ const OPTION_CONFIGS: OptionLocalisedConfig[] = [
     { id: 'criticalActions', type: 'label', label: 'Critical Actions' },
     { id: 'deleteAccount', icon: '', label: 'Delete account', isDestructive: true }
 ];
+// Each panel is named for itself, not for this one. The name is what a load failure reports and what '?fault=panel:'
+// targets, so sharing the parent's name left every one of them unreportable and unreachable individually.
 const OPTION_COMPONENT_MAP: Record<string, Component> = {
-    managePersonalDetails: defineAsyncPanel(() => import('./ManagePersonalDetailsPanel.vue'), 'AccountPanel'),
-    manageSubscription: defineAsyncPanel(() => import('./ManageSubscriptionPanel.vue'), 'AccountPanel'),
-    managePreferences: defineAsyncPanel(() => import('./ManagePreferencesPanel.vue'), 'AccountPanel'),
-    manageAccess: defineAsyncPanel(() => import('./ManageAccessPanel.vue'), 'AccountPanel'),
-    manageSessions: defineAsyncPanel(() => import('./ManageSessionsPanel.vue'), 'AccountPanel'),
-    reviewActivity: defineAsyncPanel(() => import('./ReviewActivityPanel.vue'), 'AccountPanel'),
-    manageDataServiceTokens: defineAsyncPanel(() => import('./ManageDataServiceTokensPanel.vue'), 'AccountPanel'),
-    generateToken: defineAsyncPanel(() => import('./GenerateTokenPanel.vue'), 'AccountPanel'),
-    deleteAccount: defineAsyncPanel(() => import('./DeleteAccountPanel.vue'), 'AccountPanel')
+    managePersonalDetails: defineAsyncPanel(() => import('./ManagePersonalDetailsPanel.vue'), 'ManagePersonalDetailsPanel'),
+    manageSubscription: defineAsyncPanel(() => import('./ManageSubscriptionPanel.vue'), 'ManageSubscriptionPanel'),
+    managePreferences: defineAsyncPanel(() => import('./ManagePreferencesPanel.vue'), 'ManagePreferencesPanel'),
+    manageAccess: defineAsyncPanel(() => import('./ManageAccessPanel.vue'), 'ManageAccessPanel'),
+    manageSessions: defineAsyncPanel(() => import('./ManageSessionsPanel.vue'), 'ManageSessionsPanel'),
+    reviewActivity: defineAsyncPanel(() => import('./ReviewActivityPanel.vue'), 'ReviewActivityPanel'),
+    manageDataServiceTokens: defineAsyncPanel(() => import('./ManageDataServiceTokensPanel.vue'), 'ManageDataServiceTokensPanel'),
+    generateToken: defineAsyncPanel(() => import('./GenerateTokenPanel.vue'), 'GenerateTokenPanel'),
+    deleteAccount: defineAsyncPanel(() => import('./DeleteAccountPanel.vue'), 'DeleteAccountPanel')
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

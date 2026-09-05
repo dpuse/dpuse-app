@@ -47,7 +47,9 @@ onMounted(async () => {
         });
         flowConstructed.value = true;
     } catch (error) {
-        signInFailure.value = raiseFailure(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthPanel.onMounted.constructFlow', { typeId: 'handled' }, { cause: error }));
+        signInFailure.value = raiseFailure(
+            new AppError('Failed to initialise sign in flow.', 'dpuse.SessionAuthPanel.onMounted.constructFlow', { typeId: 'handled' }, { cause: error })
+        );
     }
 });
 
@@ -67,7 +69,9 @@ function handleRetrySignIn(): void {
     })
         .then(() => (flowConstructed.value = true))
         .catch((error: unknown) => {
-            signInFailure.value = raiseFailure(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthPanel.handleRetrySignIn', { typeId: 'handled' }, { cause: error }));
+            signInFailure.value = raiseFailure(
+                new AppError('Failed to initialise sign in flow.', 'dpuse.SessionAuthPanel.handleRetrySignIn', { typeId: 'handled' }, { cause: error })
+            );
         });
 }
 
@@ -77,7 +81,9 @@ async function safeHandleLoginFlowStateChange(state: AnyState): Promise<void> {
     try {
         await handleLoginFlowStateChange(state);
     } catch (error) {
-        signInFailure.value = raiseFailure(new AppError('Failed to handle sign in flow state change.', 'dpuse.AuthPanel.handleLoginFlowStateChange', { typeId: 'handled' }, { cause: error }));
+        signInFailure.value = raiseFailure(
+            new AppError('Failed to handle sign in flow state change.', 'dpuse.SessionAuthPanel.handleLoginFlowStateChange', { typeId: 'handled' }, { cause: error })
+        );
     }
 }
 
