@@ -12,6 +12,7 @@ import { type AppFailure, raiseFailure } from '@/state/errors';
 import { toolConfigs } from '@/state/session';
 
 // ── Static Components
+import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
@@ -90,6 +91,8 @@ async function renderDiagram(): Promise<void> {
 </script>
 
 <template>
+    <DialogHeader class="flex-none" title="Sample ERD Diagram" />
+
     <ScrollArea class="min-h-0 flex-1">
         <ErrorShell v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
 

@@ -9,6 +9,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities';
+import { useDialogs } from '@/state/dialogs';
 import type { LocalisedModel, LocalisedModelItem, LocalisedSecondaryMeasure } from './contextModel';
 import { purifyMarkdown, useMarkedTool } from '@/services/useMarkedTool';
 
@@ -25,15 +26,10 @@ import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import type { GridListItem } from './ConfigContextModelList.vue';
 
 // ── Dynamic Components
+// The two diagram panels are not here: they stand up from the URL alone, so they are registered in '@/state/dialogs'
+// and rendered by the app's own frame. This one edits state that only this panel holds, which the URL cannot restore,
+// so it stays local until the selected model is itself part of the route.
 const ConfigContextModelDescriptorsPanel = defineAsyncPanel(() => import('./ConfigContextModelDescriptorsPanel.vue'), 'ConfigContextModelDescriptorsPanel');
-const ConfigContextModelEntityRelationshipDiagramPanel = defineAsyncPanel(
-    () => import('./ConfigContextModelEntityRelationshipDiagramPanel.vue'),
-    'ConfigContextModelEntityRelationshipDiagramPanel'
-);
-const ConfigContextModelDimensionSchemaDiagramPanel = defineAsyncPanel(
-    () => import('./ConfigContextModelDimensionSchemaDiagramPanel.vue'),
-    'ConfigContextModelDimensionSchemaDiagramPanel'
-);
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -75,9 +71,8 @@ const modelReferenceLabel = ref('');
 
 const activeModel = shallowRef<LocalisedModel | undefined>();
 
-const dimensionSchemaDiagramIsOpen = ref(false);
-const entityRelationshipDiagramIsOpen = ref(false);
 const modelDescriptorsDialogIsOpen = ref(false);
+const { openDialog } = useDialogs();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -96,6 +91,14 @@ watch(
 
 function handleRetryMarkedTool(): void {
     void initialiseMarkedTool();
+}
+
+function handleShowDimensionTreeDiagram(): void {
+    void openDialog('modelDimensionDiagram');
+}
+
+function handleShowErdDiagram(): void {
+    void openDialog('modelErdDiagram');
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -145,14 +148,14 @@ function localiseModel(model: Model): LocalisedModel {
                 :entities="activeModel?.entities ?? []"
                 :marked-tool="markedTool"
                 @edit="modelDescriptorsDialogIsOpen = true"
-                @show-erd-diagram="entityRelationshipDiagramIsOpen = true"
+                @show-erd-diagram="handleShowErdDiagram"
             />
 
             <ConfigContextModelDimensionsPanel
                 :dimensions="activeModel?.dimensions ?? []"
                 :marked-tool="markedTool"
                 @edit="modelDescriptorsDialogIsOpen = true"
-                @show-tree-diagram="dimensionSchemaDiagramIsOpen = true"
+                @show-tree-diagram="handleShowDimensionTreeDiagram"
             />
 
             <ConfigContextModelSecondaryMeasuresPanel
@@ -171,28 +174,6 @@ function localiseModel(model: Model): LocalisedModel {
             @close="modelDescriptorsDialogIsOpen = false"
         >
             <ConfigContextModelDescriptorsPanel v-if="modelDescriptorsDialogIsOpen" v-model:label="modelReferenceLabel" v-model:description="modelReferenceDescription" />
-        </DialogShell>
-
-        <DialogShell
-            :is-open="entityRelationshipDiagramIsOpen"
-            max-width="90vw"
-            min-height="90vh"
-            sizing="full"
-            title="Sample ERD Diagram"
-            @close="entityRelationshipDiagramIsOpen = false"
-        >
-            <ConfigContextModelEntityRelationshipDiagramPanel v-if="entityRelationshipDiagramIsOpen" />
-        </DialogShell>
-
-        <DialogShell
-            :is-open="dimensionSchemaDiagramIsOpen"
-            max-width="90vw"
-            min-height="90vh"
-            sizing="full"
-            title="Sample Dimension Tree Diagram"
-            @close="dimensionSchemaDiagramIsOpen = false"
-        >
-            <ConfigContextModelDimensionSchemaDiagramPanel v-if="dimensionSchemaDiagramIsOpen" />
         </DialogShell>
     </div>
 </template>

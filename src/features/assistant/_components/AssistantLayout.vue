@@ -8,7 +8,8 @@ import { defineAsyncPanel } from '@/utilities/index.ts';
 import { ASSISTANT_MODEL_CONFIGS, type AssistantModelConfig } from '../chat/modelConfigs';
 
 // ── Static Components
-import AssistantPanelHeader from './AssistantPanelHeader.vue';
+import AssistantHeader from './AssistantHeader.vue';
+import Separator from '~/src/components/ui/Separator.vue';
 
 // ── Dynamic Components
 const ChatView = defineAsyncPanel(() => import('../chat/ChatPanel.vue'), 'ChatPanel');
@@ -41,7 +42,7 @@ const route = useRoute();
 
 const activeViewId = computed<string>(() => {
     const parameter = route.query.aView as string | undefined;
-    return parameter != null && ASSISTANT_VIEW_IDS.has(parameter) ? parameter : 'about';
+    return parameter != null && ASSISTANT_VIEW_IDS.has(parameter) ? parameter : 'chat';
 });
 
 const activeView = computed(() => ASSISTANT_PANELS[activeViewId.value]);
@@ -80,7 +81,9 @@ function establishModelId(): string {
 
 <template>
     <div class="relative flex h-full min-w-0 flex-col">
-        <AssistantPanelHeader :title="'Assistant'" />
+        <AssistantHeader class="mx-4 flex-none" :title="'Assistant'" />
+
+        <Separator />
 
         <component
             :is="activeView"

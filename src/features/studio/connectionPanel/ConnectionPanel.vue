@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed, shallowRef, watch } from 'vue';
-import { type RouteRecordNameGeneric, useRoute, useRouter } from 'vue-router';
+import { type RouteRecordNameGeneric, useRoute } from 'vue-router';
 
 // ── DPUse Framework
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
@@ -10,6 +10,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import T from './ConnectionPanel.json';
+import { useDialogs } from '@/state/dialogs';
 import { viewportIsWide } from '@/state/appLayout';
 import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
@@ -55,8 +56,8 @@ const OPTION_CONFIGS: OptionLocalisedConfig[] = [
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const { closeDialog } = useDialogs();
 const route = useRoute();
-const router = useRouter();
 
 const activeConnectorConfig = shallowRef<LocalisedConfig<ConnectorConfig> | undefined>();
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig(route.name)); // TODO: Use route to set this!
@@ -84,11 +85,7 @@ watch(viewportIsWide, (isWide) => {
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleCommitDetail(): void {
-    const query = { ...route.query };
-    delete query.dlg;
-    void router.push({ query }).catch(() => {
-        // Already reported by 'router.onError'.
-    });
+    closeDialog();
 }
 
 function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> | undefined): void {

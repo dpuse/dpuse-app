@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { onMounted, useTemplateRef, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 
@@ -33,8 +32,6 @@ const emit = defineEmits<{ close: [] }>();
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dialogElement = useTemplateRef<HTMLDialogElement>('dialogReference');
-const route = useRoute();
-const router = useRouter();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -57,17 +54,10 @@ watch(
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Fired by the close button, by Escape, and by 'close()'. A dialog opened from the URL is closed by clearing it, so
-// that the browser's back button and the dialog's own dismissal agree on what state the app is in.
+// Fired by the close button, by Escape, and by 'close()'. What dismissal then means is the caller's: a URL-driven
+// dialog clears its 'dlg' parameter through 'useDialogs', so the back button and the dialog agree on the app's state.
 function handleClose(): void {
     emit('close');
-    if (route.query.dlg == null) return;
-
-    const routeQueryParameters = { ...route.query };
-    delete routeQueryParameters.dlg;
-    void router.push({ query: { ...routeQueryParameters } }).catch(() => {
-        // Already reported by 'router.onError'.
-    });
 }
 
 function handleRequestClose(): void {

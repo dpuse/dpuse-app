@@ -2,11 +2,11 @@
 // ── External Dependencies & Registrations
 import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
 import { onMounted, onUnmounted, ref, shallowRef, useTemplateRef } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import { t } from '@/state/locale';
+import { useDialogs } from '@/state/dialogs';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
@@ -28,8 +28,7 @@ const T = {
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const route = useRoute();
-const router = useRouter();
+const { closeDialog } = useDialogs();
 const containerElement = useTemplateRef<HTMLDivElement>('container');
 const flowConstructed = ref(false);
 const signInFailure = shallowRef<AppFailure | undefined>();
@@ -110,11 +109,7 @@ async function handleLoginFlowStateChange(state: AnyState): Promise<void> {
             handlePasswordEntered.value = undefined;
             handlePasswordBack.value = undefined;
             destroyFlow();
-            const query = { ...route.query };
-            delete query.dlg;
-            void router.push({ query }).catch(() => {
-                // Already reported by 'router.onError'.
-            });
+            closeDialog(); // Signed in, so the dialog has finished its job and takes itself off the URL.
             return;
         case 'error':
             console.log('STATE', 'error', state.error, state);

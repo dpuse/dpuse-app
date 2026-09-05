@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, onMounted, ref, type Component as VueComponent, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
@@ -8,6 +8,7 @@ import { defineAsyncPanel } from '@/utilities/index.ts';
 import { initialiseServices } from '@/state/session';
 import { navigationPendingDepth } from '@/router';
 import { throwOnFault } from '@/observability/faultInjection';
+import { useDialogs } from '@/state/dialogs';
 import {
     activeAppPaneId,
     type AppPaneId,
@@ -24,38 +25,19 @@ import {
 import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors';
 
 // ── Static Components
-import AssistantToggle from '@/features/assistant/_components/AssistantToggle.vue'; // Always visible.
+import AssistantPaneToggle from '@/features/assistant/_components/AssistantPaneToggle.vue'; // Always visible.
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue'; // Required immediately if there is a delay, cannot wait for it to load.
 import DialogShell from '@/components/ui/dialog/DialogShell.vue'; // Required immediately if a dialog is to be shown, cannot wait for it to load.
 import ErrorShell from '@/components/ui/error/ErrorShell.vue'; // Required immediately if there is an error, cannot wait for it to load.
 import SessionButton from '@/features/session/SessionButton.vue'; // Always visible.
-import StudioToggle from '@/features/studio/_components/StudioToggle.vue'; // Always visible.
+import StudioPaneToggle from '@/features/studio/_components/StudioPaneToggle.vue'; // Always visible.
 
 // ── Dynamic Components
-const SessionAccountPanel = defineAsyncPanel(() => import('@/features/session/accountPanel/SessionAccountPanel.vue'), 'SessionAccountPanel');
 const AssistantLayout = defineAsyncPanel(() => import('@/features/assistant/_components/AssistantLayout.vue'), 'AssistantLayout');
-const ConnectionPanel = defineAsyncPanel(() => import('@/features/studio/connectionPanel/ConnectionPanel.vue'), 'ConnectionPanel', { simulation: { delayMs: 0 } });
-const SessionAuthPanel = defineAsyncPanel(() => import('@/features/session/authPanel/SessionAuthPanel.vue'), 'SessionAuthPanel');
 const StudioOptionBar = defineAsyncPanel(() => import('@/features/studio/options/StudioOptionBar.vue'), 'StudioOptionBar', { hasPlaceholder: false });
 const StudioPaneSplitter = defineAsyncPanel(() => import('@/features/studio/_components/StudioPaneSplitter.vue'), 'StudioPaneSplitter', { hasPlaceholder: false });
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// The frame is rendered from the URL alone, before the dialog's own chunk exists, so its shape has to be known here.
-// Only the outer chrome is listed: each dialog still owns its own header, keeping its title with its translations.
-interface DialogConfig {
-    component: VueComponent;
-    maxWidth?: string;
-    minHeight?: string;
-    sizing: 'full' | 'reserved';
-}
-const DIALOG_CONFIGS: Record<'account' | 'auth' | 'connection', DialogConfig> = {
-    account: { component: SessionAccountPanel, sizing: 'full' },
-    // Reserved rather than fixed: the sign-in body moves between steps of differing height, and the minimum is the
-    // tallest of the short ones, so the frame neither collapses around the loading spinner nor towers over the first step.
-    auth: { component: SessionAuthPanel, maxWidth: '24rem', minHeight: '250px', sizing: 'reserved' },
-    connection: { component: ConnectionPanel, sizing: 'full' }
-};
 
 const STUDIO_PANE_SPLITTER_DEFAULT_PERCENT = 50;
 const STUDIO_PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent'; // The stored name is deliberately not the constant's: changing it would discard every split already saved.
@@ -68,16 +50,12 @@ const paneModelIsBootstrapped = ref(false); // Reading the URL counts as a chang
 const route = useRoute();
 const router = useRouter();
 
+// The dialog catalogue itself is in '@/state/dialogs', so a feature can add one without editing the root component.
+// What is left here is the single frame every one of them is rendered in.
+const { activeDialogConfig, activeDialogId, closeDialog } = useDialogs();
+
 const studioOptionBarIsVisible = ref(false); // Narrow displays only; on a wide one the option bar is always in the pane.
 const studioPaneSplitterPercent = ref(establishStudioPaneSplitterPercent());
-
-// ── Derived State - Dialogs ──────────────────────────────────────────────────────────────────────────────────────────
-
-const activeDialogId = computed(() => {
-    const dialogId = String(route.query.dlg ?? '');
-    return Object.hasOwn(DIALOG_CONFIGS, dialogId) ? (dialogId as keyof typeof DIALOG_CONFIGS) : undefined;
-});
-const activeDialogConfig = computed(() => (activeDialogId.value ? DIALOG_CONFIGS[activeDialogId.value] : undefined));
 
 // ── Derived State - Failures ─────────────────────────────────────────────────────────────────────────────────────────
 
@@ -246,7 +224,7 @@ function syncPaneQuery(): void {
 
     // The assistant reopens on the view it was last on, which it reads from 'aView'. The first time it opens there is
     // nothing to reopen, so it starts at 'about'.
-    if (assistantPaneIsActive.value && !('aView' in query)) query.aView = 'about';
+    if (assistantPaneIsActive.value && !('aView' in query)) query.aView = 'chat';
 
     void router.replace({ query }).catch(() => {
         // Already reported by 'router.onError'.
@@ -281,10 +259,10 @@ function syncPaneQuery(): void {
         />
 
         <!-- Studio Pane Toggle - Fixed in top left corner and always visible. -->
-        <StudioToggle @click="handleToggleStudioPane" />
+        <StudioPaneToggle @click="handleToggleStudioPane" />
 
         <!-- Assistant Pane Toggle - Fixed in top right corner and always visible. -->
-        <AssistantToggle @click="handleToggleAssistantPane" />
+        <AssistantPaneToggle @click="handleToggleAssistantPane" />
 
         <!-- Session Button - Fixed in bottom left corner and always visible. -->
         <SessionButton :studio-option-bar-is-visible="studioOptionBarIsVisible" />
@@ -344,10 +322,10 @@ function syncPaneQuery(): void {
             <AssistantLayout :studio-pane-is-hidden="!studioPaneIsVisible" />
         </div>
 
-        <!-- Dialogs - Modal wrapper for dialogs which are activated using URL 'dlg' parameter. This wrapper is owned
-             here rather than by each dialog so it can appear immediately, while the dialog's own chunk is still
-             loading. Its body then fills in behind the spinner without the frame remounting, so there is no second
-             fade and nothing shifts. -->
+        <!-- Dialog Shell - The app's one modal frame, for every dialog activated by the URL 'dlg' parameter. Owned here
+             rather than by each dialog so it can appear immediately, while the dialog's own chunk is still loading.
+             Its body then fills in behind the spinner without the frame remounting, so there is no second fade and
+             nothing shifts. -->
         <DialogShell
             v-if="activeDialogConfig"
             :key="activeDialogId"
@@ -355,6 +333,7 @@ function syncPaneQuery(): void {
             :max-width="activeDialogConfig.maxWidth"
             :min-height="activeDialogConfig.minHeight"
             :sizing="activeDialogConfig.sizing"
+            @close="closeDialog"
         >
             <component :is="activeDialogConfig.component" />
         </DialogShell>

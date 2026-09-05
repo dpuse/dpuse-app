@@ -10,6 +10,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
+import { useDialogs } from '@/state/dialogs';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
 import { activeMetaStoreConnectionConfig, configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded } from '@/state/session';
@@ -32,6 +33,7 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const dataViewFailure = shallowRef<AppFailure | undefined>();
+const { openDialog } = useDialogs();
 const route = useRoute();
 const router = useRouter();
 
@@ -69,9 +71,7 @@ function handleRetryDataView(): void {
 }
 
 function handleAddConnection(): void {
-    void router.replace({ query: { ...route.query, dlg: 'connection' } }).catch(() => {
-        // Already reported by 'router.onError'.
-    });
+    void openDialog('connection');
 }
 
 function handleCommitDetail(): void {

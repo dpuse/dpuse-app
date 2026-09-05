@@ -2,7 +2,6 @@
 // ── External Dependencies & Registrations
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from '@lucide/vue';
-import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import { formatNumberAsDuration } from '@dpuse/dpuse-shared/utilities';
@@ -10,6 +9,7 @@ import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import T from './SessionMenu.json';
+import { useDialogs } from '@/state/dialogs';
 import { expiresIn, lifetime, sessionIsAuthenticated, setSessionExpiryTimer, signOut } from '@/state/session';
 import { isPWA, viewportIsWide } from '@/state/appLayout';
 import { localeId, t } from '@/state/locale';
@@ -35,8 +35,7 @@ const currentAppearance = ref(localStorage.getItem(APPEARANCE_KEY) ?? 'auto');
 const dialogElement = useTemplateRef<HTMLDialogElement>('dialogReference');
 const isFullScreenSupported = document.fullscreenEnabled;
 const screenIsFullscreen = ref(!!document.fullscreenElement);
-const route = useRoute();
-const router = useRouter();
+const { openDialog } = useDialogs();
 
 const elapsed = computed(() => {
     if (lifetime.value == null || lifetime.value === 0) return 0;
@@ -89,13 +88,7 @@ function handleFullscreenChange(): void {
 }
 
 async function handleManageAccount(): Promise<void> {
-    // Awaited so the menu closes only once the URL carries the dialog, and caught so it still closes when the
-    // navigation failed — 'router.onError' has already reported that.
-    try {
-        await router.replace({ query: { ...route.query, dlg: 'account' } });
-    } catch {
-        // Already reported by 'router.onError'.
-    }
+    await openDialog('account'); // Awaited so the menu closes only once the URL carries the dialog.
     emit('continue');
 }
 
@@ -119,13 +112,7 @@ function handleSetLanguage(id: LocaleId): void {
 }
 
 async function handleSignInRegister(): Promise<void> {
-    // Awaited so the menu closes only once the URL carries the dialog, and caught so it still closes when the
-    // navigation failed — 'router.onError' has already reported that.
-    try {
-        await router.replace({ query: { ...route.query, dlg: 'auth' } });
-    } catch {
-        // Already reported by 'router.onError'.
-    }
+    await openDialog('auth'); // Awaited so the menu closes only once the URL carries the dialog.
     emit('continue');
 }
 

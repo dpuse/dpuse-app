@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
-import { ArrowUpIcon, SquareIcon } from '@lucide/vue';
+import { ArrowUpIcon, SearchIcon, SquareIcon, XIcon } from '@lucide/vue';
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
@@ -18,6 +18,7 @@ import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import PendingLabel from '../_components/PendingLabel.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import TextArea from '@/components/ui/text/TextArea.vue';
+import TextInput from '~/src/components/ui/text/TextInput.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -42,6 +43,7 @@ const { messages, status, sendFailure, unansweredQuestionIds, sendMessage, stop 
 const inputContainer = useTemplateRef<HTMLElement>('inputContainer');
 
 const state: { inputContainerResizeObserver: ResizeObserver | null; scrollObserver: MutationObserver | null } = { inputContainerResizeObserver: null, scrollObserver: null };
+const query = ref('');
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -141,6 +143,10 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
 function handleRetryMarkedTool(): void {
     void initialiseMarkedTool();
 }
+
+function handleClearQuery(): void {
+    query.value = '';
+}
 </script>
 
 <template>
@@ -152,6 +158,14 @@ function handleRetryMarkedTool(): void {
         <ErrorShell v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
         <template v-else>
+            <div class="mt-3 flex items-center gap-x-2 pr-4">
+                <SearchIcon aria-hidden="true" class="size-4.5 flex-none text-muted" :stroke-width="1.5" />
+                <TextInput v-model="query" class="flex-1" label="Search" label-hidden placeholder="Search connectors, data views, context and documents…" />
+                <Button v-if="query.length > 0" aria-label="Clear search" shape="icon" size="sm" @click="handleClearQuery">
+                    <XIcon :stroke-width="1.5" />
+                </Button>
+            </div>
+
             <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-bottom="scrollPaddingBottom" @initialised="handleScrollAreaInitialised">
                 <template v-for="message in messages" :key="message.id">
                     <template v-if="message.role === 'user'">
