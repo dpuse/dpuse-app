@@ -9,7 +9,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import T from './ConnectionDialog.json';
+import T from './ConnectionPanel.json';
 import { viewportIsWide } from '@/state/appLayout';
 import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
@@ -17,7 +17,7 @@ import { localeId, t } from '@/state/locale';
 // ── Static Components
 import AddConnectionForm from './AddConnectionForm.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
@@ -120,7 +120,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 
     <!-- No connectors arrived, so there is nothing here to add a connection with. Covers the region rather than
          leaving an empty picker with no explanation. -->
-    <ErrorDisplay v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
+    <ErrorShell v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
 
     <GridDetailPanel v-else :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" @select="handleSelectConnector">
         <template #grid-item="{ item }">

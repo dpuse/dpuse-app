@@ -23,7 +23,7 @@ import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfig
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
@@ -311,7 +311,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
 <template>
     <!-- Covers the region: without the engine there is nothing to list, preview or open here. -->
-    <ErrorDisplay v-if="engineFailure" covers-region :failures="[engineFailure]" @retry="handleRetryEngine" />
+    <ErrorShell v-if="engineFailure" covers-region :failures="[engineFailure]" @retry="handleRetryEngine" />
 
     <GridDetailPanel
         v-else

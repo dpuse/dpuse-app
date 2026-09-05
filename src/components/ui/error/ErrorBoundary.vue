@@ -10,7 +10,7 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 import { type AppFailure, isComponentLoaderErrorInfo, raiseFailure } from '@/state/errors';
 
 // ── Static Components
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -32,7 +32,7 @@ const slotIsMounted = ref(true); // Cleared for one tick on retry, which is what
 // it, it is handled below this point and the global handler must not treat it as an uncaught error as well.
 onErrorCaptured((error, _instance, info) => {
     // A lazy panel that failed to load is already being shown in its own place, by name, by its own
-    // 'PanelLoadFailure'. Claiming it here would replace this whole region with a vaguer message for a failure
+    // 'LoadFailureNotice'. Claiming it here would replace this whole region with a vaguer message for a failure
     // that costs only the panel.
     if (!isComponentLoaderErrorInfo(info)) {
         const data = { region: name, typeId: 'componentRender' };
@@ -64,7 +64,7 @@ async function handleRetry(): Promise<void> {
          that would disturb the layout of whatever it wraps. It suits the covering display too: with no box of its own,
          that display becomes a child of whatever laid the slot out and takes the space the slot would have had. -->
     <div class="contents" data-region="ErrorBoundary">
-        <ErrorDisplay v-if="capturedFailure" covers-region :failures="[capturedFailure]" @retry="handleRetry" />
+        <ErrorShell v-if="capturedFailure" covers-region :failures="[capturedFailure]" @retry="handleRetry" />
         <slot v-else-if="slotIsMounted" />
     </div>
 </template>

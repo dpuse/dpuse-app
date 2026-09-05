@@ -14,15 +14,15 @@ import { assistantPaneIsVisible, isPWA, studioPaneIsVisible, viewportIsWide } fr
 // ── Static Components
 import AssistantToggle from './features/assistant/_components/AssistantToggle.vue';
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue'; // Stands in for a studio layout mid-navigation.
-import DialogModal from '@/components/ui/dialog/DialogModal.vue'; // Renders before the dialog it frames.
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue'; // Can be no delay when rendering.
+import DialogShell from '@/components/ui/dialog/DialogShell.vue'; // Renders before the dialog it frames.
+import ErrorShell from '@/components/ui/error/ErrorShell.vue'; // Can be no delay when rendering.
 import SessionButton from '@/features/session/SessionButton.vue'; // Always visible.
 import StudioToggle from './features/studio/_components/StudioToggle.vue';
 
 // ── Dynamic Components
-const AccountDialog = defineAsyncPanel(() => import('@/features/session/accountDialog/AccountDialog.vue'), 'AccountDialog');
-const AuthDialog = defineAsyncPanel(() => import('@/features/session/authDialog/AuthDialog.vue'), 'AuthDialog');
-const ConnectionDialog = defineAsyncPanel(() => import('@/features/studio/connectionDialog/ConnectionDialog.vue'), 'ConnectionDialog', { simulation: { delayMs: 3000 } });
+const AccountPanel = defineAsyncPanel(() => import('@/features/session/accountPanel/AccountPanel.vue'), 'AccountPanel');
+const AuthPanel = defineAsyncPanel(() => import('@/features/session/authPanel/AuthPanel.vue'), 'AuthPanel');
+const ConnectionPanel = defineAsyncPanel(() => import('@/features/studio/connectionPanel/ConnectionPanel.vue'), 'ConnectionPanel', { simulation: { delayMs: 3000 } });
 const AssistantLayout = defineAsyncPanel(() => import('@/features/assistant/_components/AssistantLayout.vue'), 'AssistantLayout');
 const PaneSplitter = defineAsyncPanel(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
 const OptionBar = defineAsyncPanel(() => import('@/features/studio/options/OptionBar.vue'), 'OptionBar', { hasPlaceholder: false });
@@ -38,11 +38,11 @@ interface DialogConfig {
     sizing: 'full' | 'reserved';
 }
 const DIALOG_CONFIGS: Record<'account' | 'auth' | 'connection', DialogConfig> = {
-    account: { component: AccountDialog, sizing: 'full' },
+    account: { component: AccountPanel, sizing: 'full' },
     // Reserved rather than fixed: the sign-in body moves between steps of differing height, and the minimum is the
     // tallest of the short ones, so the frame neither collapses around the loading spinner nor towers over the first step.
-    auth: { component: AuthDialog, maxWidth: '24rem', minHeight: '250px', sizing: 'reserved' },
-    connection: { component: ConnectionDialog, sizing: 'full' }
+    auth: { component: AuthPanel, maxWidth: '24rem', minHeight: '250px', sizing: 'reserved' },
+    connection: { component: ConnectionPanel, sizing: 'full' }
 };
 
 const PANE_SPLITTER_DEFAULT_PERCENT = 50;
@@ -236,7 +236,7 @@ function establishPaneSplitterPercent(): number {
              Retry is offered only when one of them carried something to run again — most did not, being a service
              loaded once at startup or an error no region ever contained, and for those a fresh document is the only
              recovery there is. -->
-        <ErrorDisplay
+        <ErrorShell
             v-if="appFailures.length > 0"
             :can-retry="appFailures.some((failure) => failure.retry != null)"
             :failures="appFailures"
@@ -305,7 +305,7 @@ function establishPaneSplitterPercent(): number {
              here rather than by each dialog so it can appear immediately, while the dialog's own chunk is still
              loading. Its body then fills in behind the spinner without the frame remounting, so there is no second
             fade and nothing shifts. -->
-        <DialogModal
+        <DialogShell
             v-if="activeDialogConfig"
             :key="activeDialogId"
             :is-open="true"
@@ -314,6 +314,6 @@ function establishPaneSplitterPercent(): number {
             :sizing="activeDialogConfig.sizing"
         >
             <component :is="activeDialogConfig.component" />
-        </DialogModal>
+        </DialogShell>
     </div>
 </template>

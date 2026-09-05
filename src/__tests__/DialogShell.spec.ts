@@ -1,4 +1,4 @@
-import DialogModal from '@/components/ui/dialog/DialogModal.vue';
+import DialogShell from '@/components/ui/dialog/DialogShell.vue';
 import { createMemoryHistory, createRouter, type Router } from 'vue-router';
 import { describe, expect, it } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
@@ -14,17 +14,17 @@ async function buildRouter(query = ''): Promise<Router> {
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-describe('DialogModal', () => {
+describe('DialogShell', () => {
     it('opens on mount when it is mounted already open', async () => {
         const router = await buildRouter();
-        const wrapper = mount(DialogModal, { attachTo: document.body, global: { plugins: [router] }, props: { isOpen: true }, slots: { default: '<p>Body.</p>' } });
+        const wrapper = mount(DialogShell, { attachTo: document.body, global: { plugins: [router] }, props: { isOpen: true }, slots: { default: '<p>Body.</p>' } });
 
         expect(wrapper.find('dialog').element.hasAttribute('open')).toBe(true);
     });
 
     it('follows "isOpen" when the caller does control it', async () => {
         const router = await buildRouter();
-        const wrapper = mount(DialogModal, { attachTo: document.body, global: { plugins: [router] }, props: { isOpen: false }, slots: { default: '<p>Body.</p>' } });
+        const wrapper = mount(DialogShell, { attachTo: document.body, global: { plugins: [router] }, props: { isOpen: false }, slots: { default: '<p>Body.</p>' } });
         expect(wrapper.find('dialog').element.hasAttribute('open')).toBe(false);
 
         await wrapper.setProps({ isOpen: true });
@@ -36,7 +36,7 @@ describe('DialogModal', () => {
 
     it('clears the "dlg" parameter when a URL-driven dialog closes', async () => {
         const router = await buildRouter('?dlg=account&keep=1');
-        const wrapper = mount(DialogModal, { attachTo: document.body, global: { plugins: [router] }, props: { isOpen: true }, slots: { default: '<p>Body.</p>' } });
+        const wrapper = mount(DialogShell, { attachTo: document.body, global: { plugins: [router] }, props: { isOpen: true }, slots: { default: '<p>Body.</p>' } });
 
         (wrapper.find('dialog').element as HTMLDialogElement).close(); // As Escape and the close button both do.
         await flushPromises(); // The close handler navigates, which settles a tick later than the event.

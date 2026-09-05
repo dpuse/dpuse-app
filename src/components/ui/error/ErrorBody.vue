@@ -15,7 +15,7 @@ import Button from '@/components/ui/button/Button.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-// The full failure body, authored once. 'ErrorDisplay' renders it in the card shell and inside the dialog its narrow
+// The full failure body, authored once. 'ErrorShell' renders it in the card shell and inside the dialog its narrow
 // shells open, which is why this stays a component of its own rather than markup inside that one: it appears twice in
 // the same tree at the same time. It carries its own card chrome but no outer spacing — the caller places it.
 //
@@ -54,7 +54,7 @@ const T = {
         en: 'Unable to confirm this error was logged with DPUse Support.',
         es: 'No se puede confirmar que este error se haya registrado con el soporte de DPUse.'
     },
-    'reload.label': { en: 'Reload', es: 'Recargar' },
+    'reload.label': { en: 'Reload App', es: 'Recargar aplicación' },
     'reporting.pending': { en: 'Logging this error with DPUse Support…', es: 'Registrando este error con el soporte de DPUse…' },
     'reporting.succeeded': {
         en: 'This error has been logged with DPUse Support for investigation.',
@@ -85,7 +85,7 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
 </script>
 
 <template>
-    <div class="rounded-lg border border-warning-ring/20 bg-warning px-4 py-5" data-region="ErrorDetail">
+    <div class="rounded-lg border border-warning-ring/20 bg-warning px-4 py-5" data-region="ErrorBody">
         <TriangleAlertIcon class="size-8 text-warning-text" stroke-width="1.5" />
 
         <!-- One block per failure, ruled off from the next so four losses read as a list rather than as run-on prose.
@@ -104,9 +104,7 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
                 <!-- No focus box of any kind: a summary is focusable, so browsers draw their own, and inside a
                      warning-coloured panel any box reads as a stray control. The chevron already turns to show the
                      open state, which is the feedback that matters here. -->
-                <summary
-                    class="flex w-fit cursor-pointer list-none items-center gap-1 text-sm font-semibold text-warning-text/80 outline-none [&::-webkit-details-marker]:hidden"
-                >
+                <summary class="flex w-fit cursor-pointer list-none items-center gap-1 text-sm font-semibold text-warning-text/80 outline-none [&::-webkit-details-marker]:hidden">
                     {{ t(T, 'trace.label') }}:
                     <ChevronDownIcon class="size-4 transition-transform group-open:rotate-180" />
                 </summary>

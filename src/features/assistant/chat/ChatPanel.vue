@@ -14,7 +14,7 @@ import { isRunningStatus, useChatSession } from '@/services/useChatSession';
 // ── Static Components
 import AssistantModelMenu from '../_components/AssistantModelMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import PendingLabel from '../_components/PendingLabel.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import TextArea from '@/components/ui/text/TextArea.vue';
@@ -149,7 +149,7 @@ function handleRetryMarkedTool(): void {
              thread renders blank. The chat is not degraded by this, it is unreadable, so the thread and the composer
              give way to the failure rather than sitting beneath it. The session component stays mounted throughout,
              holding the messages a retry brings back. -->
-        <ErrorDisplay v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
+        <ErrorShell v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
         <template v-else>
             <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-bottom="scrollPaddingBottom" @initialised="handleScrollAreaInitialised">

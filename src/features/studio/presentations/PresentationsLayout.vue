@@ -19,7 +19,7 @@ import { presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
@@ -155,7 +155,7 @@ async function loadPresenters(): Promise<void> {
             </template>
 
             <template #detail>
-                <ErrorDisplay v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetryRender" />
+                <ErrorShell v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetryRender" />
                 <div v-show="!renderFailure" ref="container" class="dpuse-prose overflow-y-scroll overscroll-y-none px-4 pt-4" />
             </template>
 

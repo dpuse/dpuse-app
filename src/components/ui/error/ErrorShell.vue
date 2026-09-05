@@ -12,7 +12,7 @@ import { t } from '@/state/locale';
 
 // ── Static Components
 import CloseButton from '@/components/ui/button/CloseButton.vue';
-import ErrorDetail from '@/components/ui/error/ErrorDetail.vue';
+import ErrorBody from '@/components/ui/error/ErrorBody.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ import ErrorDetail from '@/components/ui/error/ErrorDetail.vue';
 // component is given, not by the caller — panes are resized at runtime by 'PaneSplitter.vue', so a caller cannot know.
 //
 // 'canRetry' is false where nothing local could be retried — a failure with no region of its own, where a fresh
-// document is the only recovery there is. Everywhere else both recoveries are offered; see the note in 'ErrorDetail'.
+// document is the only recovery there is. Everywhere else both recoveries are offered; see the note in 'ErrorBody'.
 //
 // A failure fills the space it owns. 'coversRegion' says the region is that space — a panel that never loaded, a view
 // that could not render — so it reads as failed rather than as oddly empty with a card in it. Opt-in, because plenty
@@ -120,7 +120,7 @@ function handleShowDetail(): void {
 </script>
 
 <template>
-    <div class="error-display" :class="[ownsScreen ? 'owns-screen' : 'is-region', { 'covers-region': coversRegion }]" data-region="ErrorDisplay">
+    <div class="error-shell" :class="[ownsScreen ? 'owns-screen' : 'is-region', { 'covers-region': coversRegion }]" data-region="ErrorShell">
         <!-- The region shells, and the dialog the badge opens. A screen-owning failure has no use for any of them: it
              has no region to measure, and shows its body in its own modal below. -->
         <template v-if="!ownsScreen">
@@ -137,15 +137,15 @@ function handleShowDetail(): void {
 
             <!-- Card - room for the whole body. -->
             <div class="shell-card">
-                <ErrorDetail class="mx-auto my-8 w-[calc(100%-2rem)] max-w-sm" :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
+                <ErrorBody class="mx-auto my-8 w-[calc(100%-2rem)] max-w-sm" :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
             </div>
 
             <dialog ref="detailDialogReference" class="detail-dialog" @cancel="handleCloseDetail" @close="handleCloseDetail">
                 <!-- Closed from the corner rather than by a button under the body, which sat outside the panel and read
-                     as belonging to the page behind it. Placed as 'DialogModal' places its own, so a dialog opened from
+                     as belonging to the page behind it. Placed as 'DialogShell' places its own, so a dialog opened from
                      here is dismissed the same way as every other one. -->
                 <div v-if="detailIsVisible" class="relative">
-                    <ErrorDetail can-cancel :can-retry="canRetry" :failures="failures" @cancel="handleRequestCloseDetail" @reload="handleReload" @retry="handleRetry" />
+                    <ErrorBody can-cancel :can-retry="canRetry" :failures="failures" @cancel="handleRequestCloseDetail" @reload="handleReload" @retry="handleRetry" />
                     <CloseButton class="absolute top-2 right-2" @click="handleRequestCloseDetail" />
                 </div>
             </dialog>
@@ -156,7 +156,7 @@ function handleShowDetail(): void {
              show, which suppressed every dialog for the rest of the session and had no way out at all. -->
         <dialog v-else ref="screenDialogReference" class="screen-dialog" @cancel="emit('dismiss')" @close="emit('dismiss')">
             <div class="relative">
-                <ErrorDetail :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
+                <ErrorBody :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
                 <CloseButton v-if="isDismissible" :aria-label="t(T, 'dismiss.label.aria')" class="absolute top-2 right-2" @click="screenDialog?.close()" />
             </div>
         </dialog>
@@ -164,13 +164,13 @@ function handleShowDetail(): void {
 </template>
 
 <style scoped>
-.error-display.is-region {
+.error-shell.is-region {
     container-type: inline-size;
 }
 
 /* Takes the height its host will give it, so the covering shell inside has something to fill. Harmless where the host
    offers none: the shell falls back to its own minimum. */
-.error-display.is-region.covers-region {
+.error-shell.is-region.covers-region {
     display: flex;
     flex: 1 1 auto;
     min-height: 0;
@@ -306,7 +306,7 @@ function handleShowDetail(): void {
     }
 
     /* Reached by name rather than as a child, because the placement box now sits between this and the card. */
-    .is-region.covers-region [data-region='ErrorDetail'] {
+    .is-region.covers-region [data-region='ErrorBody'] {
         padding: 0;
         border: none;
         border-radius: 0;
@@ -316,14 +316,19 @@ function handleShowDetail(): void {
 
 /* Nothing of its own is laid out: the screen-owning placement is entirely the modal below, which the browser renders
    in the top layer. */
-.error-display.owns-screen {
+.error-shell.owns-screen {
     display: contents;
 }
 
 /* Sized like the detail dialog but allowed the wider prose measure, since this one is the whole account of what the
-   app has lost rather than a narrow rail's overflow. */
+   app has lost rather than a narrow rail's overflow.
+
+   A set width rather than a maximum, so the panel stands still: the UA sizes a dialog to 'fit-content', which had it
+   growing and shrinking with whatever the failure happened to say, and a box that changes shape per message reads as
+   part of the error. The 'min()' is what keeps the floor from becoming an overflow — below the measure there is no
+   room to hold, so it gives way to the width actually available. */
 .screen-dialog {
-    max-width: min(65ch, calc(100vw - 2rem));
+    width: min(65ch, calc(100vw - 2rem));
     max-height: calc(100dvh - 4rem);
     margin: auto;
     background: transparent;
@@ -339,7 +344,7 @@ function handleShowDetail(): void {
    in the top layer with 'showModal()' is what keeps it out of that stacking context, so it needs no z-index of its
    own. */
 .detail-dialog {
-    max-width: min(24rem, calc(100vw - 2rem));
+    width: min(24rem, calc(100vw - 2rem));
     margin: auto;
     background: transparent;
     padding: 0;

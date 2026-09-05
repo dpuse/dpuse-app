@@ -12,9 +12,9 @@ import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
 // ── Static Components
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
-import LoginForm from '@/features/session/authDialog/LoginForm.vue';
-import PasswordForm from '@/features/session/authDialog/PasswordForm.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
+import LoginForm from '@/features/session/authPanel/LoginForm.vue';
+import PasswordForm from '@/features/session/authPanel/PasswordForm.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -47,7 +47,7 @@ onMounted(async () => {
         });
         flowConstructed.value = true;
     } catch (error) {
-        signInFailure.value = raiseFailure(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthDialog.onMounted.constructFlow', { typeId: 'handled' }, { cause: error }));
+        signInFailure.value = raiseFailure(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthPanel.onMounted.constructFlow', { typeId: 'handled' }, { cause: error }));
     }
 });
 
@@ -67,7 +67,7 @@ function handleRetrySignIn(): void {
     })
         .then(() => (flowConstructed.value = true))
         .catch((error: unknown) => {
-            signInFailure.value = raiseFailure(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthDialog.handleRetrySignIn', { typeId: 'handled' }, { cause: error }));
+            signInFailure.value = raiseFailure(new AppError('Failed to initialise sign in flow.', 'dpuse.AuthPanel.handleRetrySignIn', { typeId: 'handled' }, { cause: error }));
         });
 }
 
@@ -77,7 +77,7 @@ async function safeHandleLoginFlowStateChange(state: AnyState): Promise<void> {
     try {
         await handleLoginFlowStateChange(state);
     } catch (error) {
-        signInFailure.value = raiseFailure(new AppError('Failed to handle sign in flow state change.', 'dpuse.AuthDialog.handleLoginFlowStateChange', { typeId: 'handled' }, { cause: error }));
+        signInFailure.value = raiseFailure(new AppError('Failed to handle sign in flow state change.', 'dpuse.AuthPanel.handleLoginFlowStateChange', { typeId: 'handled' }, { cause: error }));
     }
 }
 
@@ -204,7 +204,7 @@ function onAfterEnter(): void {
          there is nothing here left to keep. The logo is laid over it rather than above it, so the dialog still reads as
          the sign-in dialog; the close button belongs to the frame and is already over everything here. -->
     <div v-if="signInFailure" class="relative flex min-h-0 flex-1">
-        <ErrorDisplay covers-region :failures="[signInFailure]" @retry="handleRetrySignIn" />
+        <ErrorShell covers-region :failures="[signInFailure]" @retry="handleRetrySignIn" />
         <DPUseLogo class="absolute top-8 left-8 size-12" />
     </div>
 

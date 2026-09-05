@@ -12,7 +12,7 @@ import { type AppFailure, raiseFailure } from '@/state/errors';
 import { toolConfigs } from '@/state/session';
 
 // ── Static Components
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ async function renderDiagram(): Promise<void> {
 
 <template>
     <ScrollArea class="min-h-0 flex-1">
-        <ErrorDisplay v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
+        <ErrorShell v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
 
         <div v-show="!renderFailure" ref="container" class="p-6" />
     </ScrollArea>

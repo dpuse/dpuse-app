@@ -13,7 +13,7 @@ import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import ConfigConnectorPanel from '@/features/studio/config/ConfigConnectorPanel.vue';
 import ConfigCookbookPanel from '@/features/studio/config/ConfigCookbookPanel.vue';
 import ConfigPresenterPanel from '@/features/studio/config/ConfigPresenterPanel.vue';
@@ -84,7 +84,7 @@ function handleSelect(localisedConfig: LocalisedConfig<ManagedModuleConfig> | un
     <!-- The list is empty because the configurations never arrived, not because there are none. Covers the region: an
          empty grid with no explanation is what this replaces, and the app-level announcement of the same failure can
          be dismissed, after which this is all that is left to say why. -->
-    <ErrorDisplay v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
+    <ErrorShell v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
 
     <GridDetailPanel
         v-else

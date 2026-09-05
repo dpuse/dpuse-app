@@ -15,7 +15,7 @@ import { useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -43,7 +43,7 @@ const textValue = defineModel<string>({ required: true });
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Either failure leaves the editor unusable, so ErrorDisplay presents whichever one occurred.
+// Either failure leaves the editor unusable, so ErrorShell presents whichever one occurred.
 const renderFailure = computed(() => editorFailure.value ?? markedToolFailure.value);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -58,7 +58,7 @@ watch(textValue, async (newValue) => {
         return;
     }
     const tool = markedTool.value ?? (await initialiseMarkedTool());
-    if (!tool) return; // Formatter unavailable; the failure is already reported and shown by ErrorDisplay.
+    if (!tool) return; // Formatter unavailable; the failure is already reported and shown by ErrorShell.
 
     // Sanitised for the comparison below, not for safety — 'setHTML' sanitises through 'sanitizeToDOMFragment'
     // anyway. 'getHTML' returns Squire's own sanitised markup, so comparing raw rendered output against it would
@@ -198,7 +198,7 @@ function updateParentCanScroll(ancestor: HTMLElement): void {
             {{ label }}
         </div>
 
-        <ErrorDisplay v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
+        <ErrorShell v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
 
         <div
             v-show="!renderFailure"

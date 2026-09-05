@@ -20,8 +20,8 @@ import Button from '@/components/ui/button/Button.vue';
 import ConfigContextModelDimensionsPanel from './ConfigContextModelDimensionsPanel.vue';
 import ConfigContextModelEntitiesPanel from './ConfigContextModelEntitiesPanel.vue';
 import ConfigContextModelSecondaryMeasuresPanel from './ConfigContextModelSecondaryMeasuresPanel.vue';
-import DialogModal from '@/components/ui/dialog/DialogModal.vue';
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
+import DialogShell from '@/components/ui/dialog/DialogShell.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import type { GridListItem } from './ConfigContextModelList.vue';
 
 // ── Dynamic Components
@@ -126,7 +126,7 @@ function localiseModel(model: Model): LocalisedModel {
     <!-- Covers the region, as the same failure does in the chat: the descriptions render blank without the formatter,
          so what is left is a page of empty headings. Placed outside the prose column it replaces, which is padded and
          measure-limited for reading and would otherwise inset the failure from the region it is meant to fill. -->
-    <ErrorDisplay v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
+    <ErrorShell v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
     <div v-else class="dpuse-prose flex-1 overflow-y-auto overscroll-y-none px-4 pb-(--vertical-scroll-bottom-screen-inset)">
         <div class="max-w-prose">
@@ -162,7 +162,7 @@ function localiseModel(model: Model): LocalisedModel {
             />
         </div>
 
-        <DialogModal
+        <DialogShell
             :is-open="modelDescriptorsDialogIsOpen"
             max-width="90vw"
             min-height="90vh"
@@ -171,9 +171,9 @@ function localiseModel(model: Model): LocalisedModel {
             @close="modelDescriptorsDialogIsOpen = false"
         >
             <ConfigContextModelDescriptorsPanel v-if="modelDescriptorsDialogIsOpen" v-model:label="modelReferenceLabel" v-model:description="modelReferenceDescription" />
-        </DialogModal>
+        </DialogShell>
 
-        <DialogModal
+        <DialogShell
             :is-open="entityRelationshipDiagramIsOpen"
             max-width="90vw"
             min-height="90vh"
@@ -182,9 +182,9 @@ function localiseModel(model: Model): LocalisedModel {
             @close="entityRelationshipDiagramIsOpen = false"
         >
             <ConfigContextModelEntityRelationshipDiagramPanel v-if="entityRelationshipDiagramIsOpen" />
-        </DialogModal>
+        </DialogShell>
 
-        <DialogModal
+        <DialogShell
             :is-open="dimensionSchemaDiagramIsOpen"
             max-width="90vw"
             min-height="90vh"
@@ -193,6 +193,6 @@ function localiseModel(model: Model): LocalisedModel {
             @close="dimensionSchemaDiagramIsOpen = false"
         >
             <ConfigContextModelDimensionSchemaDiagramPanel v-if="dimensionSchemaDiagramIsOpen" />
-        </DialogModal>
+        </DialogShell>
     </div>
 </template>

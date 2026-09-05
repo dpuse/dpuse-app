@@ -12,7 +12,7 @@ import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 import { throwOnFault, throwOnStaleFault } from '@/observability/faultInjection';
 
 // ── Static Components
-import PanelLoadFailure from '@/components/ui/error/PanelLoadFailure.vue';
+import LoadFailureNotice from '@/components/ui/error/LoadFailureNotice.vue';
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -70,12 +70,12 @@ export function defineAsyncPanel(loader: AsyncComponentLoader, name: string, opt
     // the counter lives out here. Shared by every instance of this panel, which in practice means the one.
     const attempt = ref(0);
 
-    // A functional component rather than 'defineComponent({ extends: PanelLoadFailure, props: { name } })'. That
+    // A functional component rather than 'defineComponent({ extends: LoadFailureNotice, props: { name } })'. That
     // reads correctly and is silently inert: Vue takes 'setup' from the component's own definition, and 'extends' does
     // not put it there, so the base's template was inherited while none of its script ran — no display, no report.
     // Forwarding the props by hand is what makes the failure component actually run.
     const errorComponent = (failureProperties: { error: unknown }): VNode =>
-        h(PanelLoadFailure, { ...failureProperties, name, retry: () => attempt.value++ });
+        h(LoadFailureNotice, { ...failureProperties, name, retry: () => attempt.value++ });
 
     // 'delay' is stated rather than left to defineAsyncComponent's own default of 200ms, which is a number this app
     // never chose. A failure is always shown, even where the load itself is not: it is the one thing the user has to

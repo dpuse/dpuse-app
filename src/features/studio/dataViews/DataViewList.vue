@@ -28,7 +28,7 @@ import {
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import DataViewPanel from './DataViewPanel.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
@@ -139,7 +139,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
         <!-- Covers the region: nothing was retrieved, so an empty list with no explanation is what this replaces. The
              grid gives way to it rather than sitting behind it — an empty list and a detail pane asking the user to
              pick from it are exactly what the failure is there to account for. -->
-        <ErrorDisplay v-if="dataViewRetrievalFailure" covers-region :failures="[dataViewRetrievalFailure]" @retry="handleRetryRetrieve" />
+        <ErrorShell v-if="dataViewRetrievalFailure" covers-region :failures="[dataViewRetrievalFailure]" @retry="handleRetryRetrieve" />
 
         <GridDetailPanel
             v-else

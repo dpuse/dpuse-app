@@ -7,7 +7,7 @@ import { type Component, shallowRef, watch } from 'vue';
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities';
 import { t } from '@/state/locale';
-import T from './AccountDialog.json';
+import T from './AccountPanel.json';
 import { viewportIsWide } from '@/state/appLayout';
 
 // ── Static Components

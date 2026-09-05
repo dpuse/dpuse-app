@@ -16,7 +16,7 @@ import { activeMetaStoreConnectionConfig, configRetrievalFailed, configRetrieval
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectConnectionPanel from './SelectConnectionPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
@@ -126,11 +126,11 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
 <template>
     <!-- The list is empty because the configurations never arrived, not because there are no connections. Covers the
          region: there is nothing to pick here, and no way to add one either, until the connection is back. -->
-    <ErrorDisplay v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
+    <ErrorShell v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
 
     <!-- Covers the region: the data view behind this connection is what the list exists to open, so there is nothing
          useful left to pick from. -->
-    <ErrorDisplay v-else-if="dataViewFailure" covers-region :failures="[dataViewFailure]" @retry="handleRetryDataView" />
+    <ErrorShell v-else-if="dataViewFailure" covers-region :failures="[dataViewFailure]" @retry="handleRetryDataView" />
 
     <GridDetailPanel
         v-else

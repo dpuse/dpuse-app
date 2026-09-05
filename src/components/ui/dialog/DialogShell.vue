@@ -85,7 +85,7 @@ function handleRequestClose(): void {
             sizing === 'fit' ? 'md:w-auto md:max-w-(--dialog-modal-max-width)' : 'md:w-(--dialog-modal-max-width) md:max-w-[calc(100vw-2rem)]',
             sizing === 'full' ? '' : 'dialog-modal-content-height'
         ]"
-        data-region="DialogModal"
+        data-region="DialogShell"
         :style="{ 'container-type': 'inline-size', '--dialog-modal-max-width': maxWidth, '--dialog-modal-min-height': minHeight ?? '0px' }"
         @cancel="handleClose"
         @close="handleClose"

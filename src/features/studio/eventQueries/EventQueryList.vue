@@ -22,7 +22,7 @@ import { activeMetaStoreConnectionConfig, eventQueryConfigs } from '@/state/sess
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ErrorDisplay from '@/components/ui/error/ErrorDisplay.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import Grid from '@/components/ui/grid/Grid.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
@@ -105,7 +105,7 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
     </div>
 
     <!-- Covers the region: nothing was retrieved, so an empty list with no explanation is what this replaces. -->
-    <ErrorDisplay v-if="retrieveFailure" covers-region :failures="[retrieveFailure]" @retry="handleRetryRetrieve" />
+    <ErrorShell v-if="retrieveFailure" covers-region :failures="[retrieveFailure]" @retry="handleRetryRetrieve" />
 
     <Grid
         v-else-if="eventQueryRetrievalIsActive && eventQueryConfigs && eventQueryConfigs.length > 0"
