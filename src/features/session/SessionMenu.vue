@@ -146,18 +146,25 @@ async function toggleFullscreen(): Promise<void> {
 <template>
     <dialog
         ref="dialogReference"
-        class="session-menu hidden max-w-sm min-w-xs flex-col overflow-hidden border-separator bg-surface p-0 text-content shadow-md open:flex"
+        class="session-menu hidden size-auto max-w-sm min-w-xs flex-col overflow-hidden border-separator bg-surface p-0 text-content shadow-md open:flex"
         :class="
             viewportIsWide
                 ? 'fixed top-auto right-auto bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 m-0 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] rounded-md border border-boundary'
-                : 'session-menu-dimmed fixed inset-x-0 top-auto bottom-0 mx-auto my-0 max-h-[80dvh] rounded-t-2xl border-x border-t'
+                : 'session-menu-dimmed fixed inset-x-0 top-auto bottom-0 mx-auto my-0 max-h-[80dvh] rounded-t-2xl border-x border-t border-b-0'
         "
         @cancel="handleCancel"
     >
-        <!-- 'hidden ... open:flex' rather than a bare 'flex': the UA hides a dialog that is not open, and any author
+        <!-- The class list is mostly a reply to the UA's dialog stylesheet.
+             'hidden ... open:flex' rather than a bare 'flex': the UA hides a dialog that is not open, and any author
              'display' would defeat that and leave the menu on screen permanently.
              'top-auto'/'right-auto' undo the UA's 'inset: 0' on a modal dialog, which would otherwise stretch the menu
              to fill the viewport rather than sit where the offsets above put it.
+             'size-auto' undoes the UA's 'fit-content' on both axes. They are not the same thing here: with 'top'
+             auto, 'height: auto' already shrink-wraps, while WebKit sizing a 'fit-content' column flex container drops
+             the body — 'flex-1' against a zero basis — to nothing and leaves the header alone on screen. Width matters
+             for the same reason in reverse: the sheet spans 'inset-x-0' and is meant to fill that up to 'max-w-sm',
+             which 'fit-content' would shrink to the content instead.
+             'border-b-0' because the UA's 'border: solid' leaves a medium bottom border the old div never had.
              The comments stay inside the root: above it they would be sibling root nodes, making this multi-root and
              costing the transition classes the parent applies here. -->
         <div class="flex items-center justify-between border-b border-b-boundary bg-card px-4 pt-3 pb-2">
