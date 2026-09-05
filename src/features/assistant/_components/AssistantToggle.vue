@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // ── Local Framework
 import { t } from '@/state/locale';
-import { contentScrollPosition, viewportIsWide } from '@/state/appLayout';
 
 // ── Static Components
 import AssistantLogo from '@/components/branding/AssistantLogo.vue';
@@ -18,7 +17,6 @@ const T = {
     <Button
         :aria-label="t(T, 'k.toggle.label.aria')"
         class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20 rounded-full! bg-surface"
-        :class="{ 'shadow-md': !viewportIsWide && contentScrollPosition > 0 }"
         data-region="AssistantPaneToggle"
         shape="icon"
     >

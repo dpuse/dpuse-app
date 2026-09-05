@@ -1,15 +1,27 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed, onMounted, ref, type Component as VueComponent, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { initialiseServices } from '@/state/session';
 import { navigationPendingDepth } from '@/router';
 import { throwOnFault } from '@/observability/faultInjection';
+import {
+    activeAppPaneId,
+    type AppPaneId,
+    assistantPaneIsActive,
+    assistantPaneIsVisible,
+    assistantPaneWasActivated,
+    isPWA,
+    setPaneActiveState,
+    studioPaneIsActive,
+    studioPaneIsVisible,
+    studioPaneWasActivated,
+    viewportIsWide
+} from '@/state/appLayout';
 import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors';
-import { assistantPaneIsVisible, isPWA, studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 
 // ── Static Components
 import AssistantToggle from './features/assistant/_components/AssistantToggle.vue';
@@ -51,19 +63,14 @@ const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeAppPaneId = ref<'studio' | 'assistant' | undefined>();
-
-const assistantPaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
-const assistantPaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
-
+// The pane model itself is not here: it lives in '@/state/appLayout' alongside the viewport it depends on, because the
+// studio and assistant headers read it too. What is left here is the chrome this component alone owns.
 const paneSplitterPercent = ref(establishPaneSplitterPercent());
 
 const route = useRoute();
 const router = useRouter();
 
-const studioOptionBarIsVisible = ref(false);
-const studioPaneActivated = ref(false); // Keeps the component alive so it doesn't lose its internal state when hidden.
-const studioPaneIsActive = ref(false); // On narrow displays a pane can be active but not visible.
+const studioOptionBarIsVisible = ref(false); // Narrow displays only; on a wide one the option bar is always in the pane.
 
 // ── Derived State - Dialogs ──────────────────────────────────────────────────────────────────────────────────────────
 
@@ -98,27 +105,23 @@ router
     .isReady()
     // eslint-disable-next-line unicorn/prefer-await -- top-level await in <script setup> suspends the component; .then() keeps the mount non-blocking.
     .then(() => {
-        // The initial navigation has fully completed. This block intentionally runs once to bootstrap the pane states from the initial URL.
-        studioPaneActivated.value = studioPaneIsActive.value = route.query.sState === '1' || route.query.aState !== '1';
-        assistantPaneActivated.value = assistantPaneIsActive.value = route.query.aState === '1';
-        activeAppPaneId.value = studioPaneActivated.value ? 'studio' : 'assistant';
-        establishActivePaneId(viewportIsWide.value);
+        // The initial navigation has fully completed, so the URL can be read. Runs once, to bootstrap the pane model.
+        // The studio is the default pane: it opens unless the assistant was explicitly the one left showing.
+        setPaneActiveState('studio', route.query.sState === '1' || route.query.aState !== '1');
+        setPaneActiveState('assistant', route.query.aState === '1');
+        activeAppPaneId.value = studioPaneIsActive.value ? 'studio' : 'assistant';
     })
     // eslint-disable-next-line unicorn/prefer-await, unicorn/prefer-top-level-await -- top-level await in <script setup> suspends the component; .catch() keeps the mount non-blocking.
     .catch(() => {
         // Router failed to initialise — fall back to showing the studio pane.
-        studioPaneActivated.value = studioPaneIsActive.value = studioPaneIsVisible.value = true;
-        assistantPaneActivated.value = assistantPaneIsActive.value = assistantPaneIsVisible.value = false;
+        setPaneActiveState('studio', true);
+        setPaneActiveState('assistant', false);
         activeAppPaneId.value = 'studio';
     });
 
 onMounted(() => {
     if (import.meta.env.DEV) throwOnFault('vue'); // Thrown from the root component, which no 'ErrorBoundary' wraps, so it reaches 'app.config.errorHandler'.
     initialiseServices();
-});
-
-watch(viewportIsWide, (newViewportIsWide) => {
-    if (activeAppPaneId.value != null) establishActivePaneId(newViewportIsWide);
 });
 
 watch(paneSplitterPercent, (newPaneSplitterPercent) => {
@@ -132,46 +135,41 @@ function handleStudioOptionBarHide(): void {
     studioOptionBarIsVisible.value = false;
 }
 
-// ── Event Handlers - Assistant Pane/Panels ───────────────────────────────────────────────────────────────────────────
+// ── Event Handlers - Panes ───────────────────────────────────────────────────────────────────────────────────────────
+
+// A pointer or a scroll anywhere in a pane makes it the one the user is working in. On a narrow display that is
+// already the case, since only the front pane can be reached at all. It is on a wide display that this earns its keep:
+// both panes are reachable, and the last one touched is the one the narrow layout falls back to if the display shrinks.
+function handlePaneActivate(paneId: AppPaneId): void {
+    activeAppPaneId.value = paneId;
+}
 
 function handleToggleAssistantPane(): void {
     if (viewportIsWide.value) {
         if (assistantPaneIsVisible.value && !studioPaneIsVisible.value) return; // Don't close the assistant pane if it's the only one visible.
-        toggleAssistantPane();
-        activeAppPaneId.value = assistantPaneIsVisible.value ? 'assistant' : 'studio';
+        setPaneActiveState('assistant', !assistantPaneIsActive.value);
+        activeAppPaneId.value = assistantPaneIsActive.value ? 'assistant' : 'studio';
+        syncPaneQuery();
         return;
     }
 
     // Display is narrow, pane already visible — its own task bar handles navigation, so there's nothing to toggle.
     if (assistantPaneIsVisible.value) return;
 
-    // Display is narrow, switching to this pane — close other option bar first if open.
-    activeAppPaneId.value = 'assistant';
+    // Display is narrow, so bringing this pane to the front is itself what hides the studio. Its option bar has to be
+    // closed by hand, being fixed over the whole screen rather than laid out inside the pane it belongs to.
     studioOptionBarIsVisible.value = false;
-    studioPaneIsVisible.value = false;
-    toggleAssistantPane();
+    setPaneActiveState('assistant', true);
+    activeAppPaneId.value = 'assistant';
+    syncPaneQuery();
 }
-
-function toggleAssistantPane(): void {
-    if ('aView' in route.query) {
-        // Then - toggle assistant pane, ensure assistant pane is activated (may be first time), and update route properties.
-        assistantPaneIsActive.value = assistantPaneIsVisible.value = !assistantPaneIsVisible.value;
-        if (assistantPaneIsActive.value) assistantPaneActivated.value = true;
-        void router.replace({ query: { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined } });
-    } else {
-        // Else - assistant pane has never been activated, active and navigate to last 'about' route.
-        assistantPaneActivated.value = assistantPaneIsActive.value = assistantPaneIsVisible.value = true;
-        void router.replace({ query: { ...route.query, aView: 'about', sState: studioPaneIsVisible.value ? 1 : undefined, aState: 1 } });
-    }
-}
-
-// ── Event Handlers - Studio Pane ──────────────────────────────────────────────────────────────────────────────────
 
 function handleToggleStudioPane(): void {
     if (viewportIsWide.value) {
         if (studioPaneIsVisible.value && !assistantPaneIsVisible.value) return; // Don't close the studio pane if it's the only one visible.
-        toggleStudioPane();
-        activeAppPaneId.value = studioPaneIsVisible.value ? 'studio' : 'assistant';
+        setPaneActiveState('studio', !studioPaneIsActive.value);
+        activeAppPaneId.value = studioPaneIsActive.value ? 'studio' : 'assistant';
+        syncPaneQuery();
         return;
     }
 
@@ -181,30 +179,13 @@ function handleToggleStudioPane(): void {
         return;
     }
 
-    // Display is narrow, switching to this pane — close the assistant pane first if open.
+    // Display is narrow, so bringing this pane to the front is itself what hides the assistant.
+    setPaneActiveState('studio', true);
     activeAppPaneId.value = 'studio';
-    assistantPaneIsVisible.value = false;
-    toggleStudioPane();
-}
-
-function toggleStudioPane(): void {
-    studioPaneIsActive.value = studioPaneIsVisible.value = !studioPaneIsVisible.value;
-    if (studioPaneIsActive.value) studioPaneActivated.value = true;
-    void router.replace({ query: { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined } });
+    syncPaneQuery();
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function establishActivePaneId(isViewportIsWide: boolean): void {
-    // eslint-disable-next-line sonarjs/no-selector-parameter -- splitting into two methods would just move the if/else to the caller.
-    if (isViewportIsWide) {
-        studioPaneIsVisible.value = studioPaneIsActive.value;
-        assistantPaneIsVisible.value = assistantPaneIsActive.value;
-    } else {
-        studioPaneIsVisible.value = studioPaneIsActive.value && activeAppPaneId.value === 'studio';
-        assistantPaneIsVisible.value = assistantPaneIsActive.value && activeAppPaneId.value === 'assistant';
-    }
-}
 
 function establishPaneSplitterPercent(): number {
     try {
@@ -212,6 +193,19 @@ function establishPaneSplitterPercent(): number {
     } catch {
         return PANE_SPLITTER_DEFAULT_PERCENT;
     }
+}
+
+// Records which panes are showing, so a reload or a shared link opens on the same layout. Called at the end of a
+// handler rather than as part of changing the model: visibility is derived, so it only settles once every assignment
+// that handler makes has been made.
+function syncPaneQuery(): void {
+    const query: LocationQueryRaw = { ...route.query, sState: studioPaneIsVisible.value ? 1 : undefined, aState: assistantPaneIsVisible.value ? 1 : undefined };
+
+    // The assistant reopens on the view it was last on, which it reads from 'aView'. The first time it opens there is
+    // nothing to reopen, so it starts at 'about'.
+    if (assistantPaneIsVisible.value && !('aView' in query)) query.aView = 'about';
+
+    void router.replace({ query });
 }
 </script>
 
@@ -260,14 +254,14 @@ function establishPaneSplitterPercent(): number {
 
         <!-- Studio Pane - Contains studio layout (via RouterView). Rendered once studio pane is activated and visible. -->
         <div
-            v-if="studioPaneActivated"
+            v-if="studioPaneWasActivated"
             v-show="studioPaneIsVisible"
             class="grid h-full"
             :class="viewportIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
             data-region="StudioPane"
             :style="[studioPaneStyle, { 'container-type': 'inline-size' }]"
-            @pointerdown="activeAppPaneId = 'studio'"
-            @scroll.capture="activeAppPaneId = 'studio'"
+            @pointerdown="handlePaneActivate('studio')"
+            @scroll.capture="handlePaneActivate('studio')"
         >
             <!-- Studio Option Bar - Only rendered here when viewport is wide. -->
             <OptionBar v-if="viewportIsWide" class="overflow-y-hidden" @continue="handleStudioOptionBarHide" />
@@ -291,12 +285,12 @@ function establishPaneSplitterPercent(): number {
 
         <!-- Assistant Pane - Contains assistant layout. Rendered once assistant pane is activated and visible. -->
         <div
-            v-if="assistantPaneActivated"
+            v-if="assistantPaneWasActivated"
             v-show="assistantPaneIsVisible"
             data-region="AssistantPane"
             :style="assistantPaneStyle"
-            @pointerdown="activeAppPaneId = 'assistant'"
-            @scroll.capture="activeAppPaneId = 'assistant'"
+            @pointerdown="handlePaneActivate('assistant')"
+            @scroll.capture="handlePaneActivate('assistant')"
         >
             <AssistantLayout :studio-pane-is-hidden="!studioPaneIsVisible" />
         </div>
