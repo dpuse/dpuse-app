@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { LoaderCircleIcon } from '@lucide/vue';
-import { type ComponentPublicInstance, computed, onUnmounted, ref, useTemplateRef } from 'vue';
+import { computed, ref } from 'vue';
 
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities/index.ts';
@@ -52,24 +52,10 @@ async function gravatarUrl(email: string, size: number): Promise<string> {
     return `https://gravatar.com/avatar/${hashHex}?s=${String(size)}&d=404`;
 }
 
-// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-onUnmounted(() => {
-    document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
-});
-
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-const sessionMenuReference = useTemplateRef<ComponentPublicInstance>('sessionMenuReference');
-const handleDocumentPointerDown = (event: PointerEvent): void => {
-    if (!sessionMenuIsOpen.value) return;
-    const target = event.target as Element;
-    if ((sessionMenuReference.value?.$el as Element | undefined)?.contains(target) === true) return;
-    if (target.closest('.dpuse-outside-click-ignore')) return;
-    handleClose();
-};
-document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
-
+// Dismissal is the menu's own: its backdrop covers the page, so a click outside — the avatar button included — lands
+// there rather than on the document, and Escape reaches it too.
 function handleClose(): void {
     sessionMenuIsOpen.value = false;
 }
@@ -81,11 +67,11 @@ function onMenuAfterLeave(): void {
 
 <template>
     <div class="flex flex-col">
-        <Teleport to="body">
-            <Transition :name="viewportIsWide ? 'dpuse-slide-up' : 'dpuse-sheet'" @after-leave="onMenuAfterLeave">
-                <SessionMenu v-if="sessionMenuIsOpen" ref="sessionMenuReference" class="z-51" @continue="handleClose" />
-            </Transition>
-        </Teleport>
+        <!-- No 'Teleport' and no z-index: 'showModal()' promotes the menu to the browser's top layer, which sits above
+             every stacking context on the page regardless of where the element is declared. -->
+        <Transition :name="viewportIsWide ? 'dpuse-slide-up' : 'dpuse-sheet'" @after-leave="onMenuAfterLeave">
+            <SessionMenu v-if="sessionMenuIsOpen" @continue="handleClose" />
+        </Transition>
 
         <AvatarButton
             aria-label="Toggle session panel"

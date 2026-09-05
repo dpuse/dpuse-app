@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
 import { TriangleAlertIcon } from '@lucide/vue';
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
 import { serialiseError } from '@dpuse/dpuse-shared/errors';
@@ -11,7 +11,6 @@ import type { AppFailure } from '@/state/errors';
 import { t } from '@/state/locale';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 import ErrorDetail from '@/components/ui/error/ErrorDetail.vue';
 
@@ -314,7 +313,6 @@ function handleShowDetail(): void {
         background: none;
     }
 }
-
 
 /* Nothing of its own is laid out: the screen-owning placement is entirely the modal below, which the browser renders
    in the top layer. */

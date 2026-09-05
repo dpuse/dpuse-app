@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -32,6 +32,7 @@ const emit = defineEmits<{ continue: [] }>();
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const currentAppearance = ref(localStorage.getItem(APPEARANCE_KEY) ?? 'auto');
+const dialogElement = useTemplateRef<HTMLDialogElement>('dialogReference');
 const isFullScreenSupported = document.fullscreenEnabled;
 const screenIsFullscreen = ref(!!document.fullscreenElement);
 const route = useRoute();
@@ -50,7 +51,15 @@ setSessionExpiryTimer(true);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// The menu is mounted only while open, so it opens itself. 'showModal' is what promotes it to the top layer, and with
+// it comes the scrim (its own '::backdrop'), Escape, focus containment, focus returned to the avatar button, and the
+// rest of the document marked inert — none of which is reimplemented here.
 onMounted(() => {
+    dialogElement.value?.showModal();
+    // Bound here rather than in the template because a click on the backdrop reports the dialog itself as its target,
+    // and the accessibility lint reads a click handler on a 'dialog' as one put on a static element. Dismissal by
+    // pointer belongs beside dismissal by Escape in any case.
+    dialogElement.value?.addEventListener('click', handleClick);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
 });
 
@@ -60,6 +69,20 @@ onUnmounted(() => {
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Escape is stopped from closing the element itself: the parent owns whether the menu exists, and letting the browser
+// close it would leave the node mounted but hidden, with no leave animation and nothing to reopen it.
+function handleCancel(event: Event): void {
+    event.preventDefault();
+    emit('continue');
+}
+
+// Only a click that lands on the dialog itself is a backdrop click: anything inside the menu reports that child as the
+// target. The avatar button is covered by the backdrop while the menu is open, so clicking it arrives here and closes.
+function handleClick(event: MouseEvent): void {
+    if (event.target !== dialogElement.value) return;
+    emit('continue');
+}
 
 function handleFullscreenChange(): void {
     screenIsFullscreen.value = !!document.fullscreenElement;
@@ -121,14 +144,22 @@ async function toggleFullscreen(): Promise<void> {
 }
 </script>
 <template>
-    <div
-        class="flex max-w-sm min-w-xs flex-col overflow-hidden border-separator bg-surface shadow-md"
+    <dialog
+        ref="dialogReference"
+        class="session-menu hidden max-w-sm min-w-xs flex-col overflow-hidden border-separator bg-surface p-0 text-content shadow-md open:flex"
         :class="
             viewportIsWide
-                ? 'fixed bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] rounded-md border border-boundary'
-                : 'fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[80dvh] rounded-t-2xl border-x border-t'
+                ? 'fixed top-auto right-auto bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 m-0 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] rounded-md border border-boundary'
+                : 'session-menu-dimmed fixed inset-x-0 top-auto bottom-0 mx-auto my-0 max-h-[80dvh] rounded-t-2xl border-x border-t'
         "
+        @cancel="handleCancel"
     >
+        <!-- 'hidden ... open:flex' rather than a bare 'flex': the UA hides a dialog that is not open, and any author
+             'display' would defeat that and leave the menu on screen permanently.
+             'top-auto'/'right-auto' undo the UA's 'inset: 0' on a modal dialog, which would otherwise stretch the menu
+             to fill the viewport rather than sit where the offsets above put it.
+             The comments stay inside the root: above it they would be sibling root nodes, making this multi-root and
+             costing the transition classes the parent applies here. -->
         <div class="flex items-center justify-between border-b border-b-boundary bg-card px-4 pt-3 pb-2">
             <span class="text-lg">Session</span>
             <CloseButton @click="emit('continue')" />
@@ -226,5 +257,37 @@ async function toggleFullscreen(): Promise<void> {
                 <Button v-else class="mt-2 min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</Button>
             </div>
         </ScrollAreaFit>
-    </div>
+    </dialog>
 </template>
+
+<style scoped>
+/* The scrim. Wide, the menu is a small popover anchored to the avatar button and the backdrop only has to swallow the
+   click that dismisses it, so it stays clear; narrow, the menu is a sheet over most of the screen, so it dims.
+   The enter fade needs '@starting-style' because the backdrop has no state before the dialog is shown, and the leave
+   fade is keyed off the transition classes the parent puts on this element, since the backdrop goes with the node. */
+.session-menu::backdrop {
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+}
+
+.session-menu.session-menu-dimmed::backdrop {
+    background-color: var(--overlay);
+}
+
+@starting-style {
+    .session-menu[open]::backdrop {
+        background-color: transparent;
+    }
+}
+
+.session-menu.dpuse-sheet-leave-active::backdrop,
+.session-menu.dpuse-slide-up-leave-active::backdrop {
+    background-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .session-menu::backdrop {
+        transition: none;
+    }
+}
+</style>
