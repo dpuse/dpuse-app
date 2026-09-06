@@ -8,7 +8,6 @@ import { formatNumberAsDuration } from '@dpuse/dpuse-shared/utilities';
 import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import T from './SessionMenu.json';
 import { useDialogs } from '@/state/dialogs';
 import { expiresIn, lifetime, sessionIsAuthenticated, setSessionExpiryTimer, signOut } from '@/state/session';
 import { isPWA, viewportIsWide } from '@/state/appLayout';
@@ -24,6 +23,22 @@ import Separator from '@/components/ui/Separator.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const APPEARANCE_KEY = 'dpuse-appearance';
+
+const T = {
+    Appearance: { en: 'Appearance', es: 'Apariencia' },
+    Collapse: { en: 'Collapse', es: 'Contraer' },
+    Dark: { en: 'Dark', es: 'Oscura' },
+    Display: { en: 'Display', es: 'Pantalla' },
+    Expand: { en: 'Expand', es: 'Expandir' },
+    Full_screen: { en: 'Screen', es: 'Pantalla' },
+    Language: { en: 'Language', es: 'Idioma' },
+    Light: { en: 'Light', es: 'Clara' },
+    Manage_account: { en: 'Manage account', es: 'Administrar cuenta' },
+    Reload: { en: 'Reload', es: 'Recargar' },
+    'Sign_in/Register': { en: 'Sign in / Register', es: 'Iniciar sesión / Registrarse' },
+    Sign_out: { en: 'Sign out', es: 'Desconectar' },
+    System: { en: 'System', es: 'Sistema' }
+};
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

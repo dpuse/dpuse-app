@@ -47,9 +47,11 @@ class ObserverStub {
     }
 }
 
+// 'configurable' so a spec can put its own in place with 'vi.stubGlobal', which redefines rather than assigns. The stub
+// here never calls back, which is what most specs want and what a spec testing observer-driven code cannot use.
 Object.defineProperties(globalThis, {
-    ResizeObserver: { writable: true, value: ObserverStub },
-    IntersectionObserver: { writable: true, value: ObserverStub }
+    ResizeObserver: { configurable: true, writable: true, value: ObserverStub },
+    IntersectionObserver: { configurable: true, writable: true, value: ObserverStub }
 });
 
 // jsdom implements '<dialog>' but not 'showModal'/'close', which is what the app uses to promote a dialog to the top

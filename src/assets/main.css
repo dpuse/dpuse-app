@@ -201,7 +201,7 @@ html {
     --safe-left-offset: calc(env(safe-area-inset-left) + 12px); /* Floating button screen left offset: 'safe-area-inset-left'; '12px' for gutter. */
     --safe-right-offset: calc(env(safe-area-inset-right) + 12px); /* Floating button screen right offset: 'safe-area-inset-right'; '12px' for gutter. */
 
-    --pane-splitter-width: 6px; /* Width of 'StudioPaneSplitter'. Declared here because 'App.vue' subtracts half of it from the studio pane. */
+    --pane-splitter-width: 6px; /* Width of 'PaneSplitter'. Declared here because 'App.vue' subtracts half of it from the studio pane. */
 
     --status-bar-height: calc(max(env(safe-area-inset-bottom), 21px)); /* Status bar height: 'safe-area-inset-bottom' or '21px'. */
 

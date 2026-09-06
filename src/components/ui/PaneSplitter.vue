@@ -123,7 +123,7 @@ function endDrag(): void {
         ]"
         aria-label="Resize panes"
         aria-orientation="vertical"
-        data-region="StudioPaneSplitter"
+        data-region="PaneSplitter"
         role="separator"
         tabIndex="0"
         @dblclick="handleDoubleClick"

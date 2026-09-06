@@ -17,7 +17,7 @@ import ErrorBody from '@/components/ui/error/ErrorBody.vue';
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 // The single surface for a failure, wherever it happened. Within a region the shell is decided by the width this
-// component is given, not by the caller — panes are resized at runtime by 'StudioPaneSplitter.vue', so a caller cannot know.
+// component is given, not by the caller — panes are resized at runtime by 'PaneSplitter.vue', so a caller cannot know.
 //
 // 'canRetry' is false where nothing local could be retried — a failure with no region of its own, where a fresh
 // document is the only recovery there is. Everywhere else both recoveries are offered; see the note in 'ErrorBody'.

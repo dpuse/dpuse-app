@@ -60,7 +60,10 @@ async function mountPanel(): Promise<ReturnType<typeof mount>> {
         props: {
             modelConfig: { id: 'm', providerId: 'anthropic', providerLabel: 'Anthropic', modelId: 'claude-sonnet-4-6', options: {} },
             modelConfigs: []
-        }
+        },
+        // Stood in for like the session and the formatter above: the empty state links into the studio, so it wants a
+        // router this spec has no reason to stand up. Nothing here asserts on an empty thread's contents.
+        global: { stubs: { ChatEmptyState: true } }
     });
     for (let index = 0; index < 8; index++) {
         await flushPromises();

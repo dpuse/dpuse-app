@@ -57,7 +57,7 @@ const studioOptionConfigs = useOptions();
                     </Button>
                 </div>
 
-                <h2 class="my-4 border-b border-separator pb-2">Build Data Apps</h2>
+                <h2 class="mt-6 mb-4 border-b border-separator pb-2">Build Data Apps</h2>
 
                 <div class="grid grid-cols-1 gap-4 @min-[33rem]:grid-cols-2 @min-[50rem]:grid-cols-3">
                     <p class="col-span-full self-center text-sm text-muted @min-[50rem]:col-span-2">
@@ -74,7 +74,7 @@ const studioOptionConfigs = useOptions();
                     </Button>
                 </div>
 
-                <h2 class="my-4 border-b border-separator pb-2">Configuration</h2>
+                <h2 class="mt-6 mb-4 border-b border-separator pb-2">Configuration</h2>
 
                 <div class="grid grid-cols-1 gap-4 @min-[33rem]:grid-cols-2 @min-[50rem]:grid-cols-3">
                     <p class="col-span-full self-center text-sm text-muted @min-[50rem]:col-span-2">

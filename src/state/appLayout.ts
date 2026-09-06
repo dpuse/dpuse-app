@@ -64,7 +64,13 @@ if (import.meta.hot) {
 // The only way a pane's active state is changed. Activating also latches 'wasActivated', which is what 'App.vue' keeps
 // the pane mounted on: a hidden pane stays in the DOM behind a 'v-show' so it does not lose what the user had done in
 // it. The latch never clears, because a pane that has been open once can be reopened at any time.
+//
+// Which pane is in front follows from the same change, so it is settled here rather than at each call site: switching a
+// pane on puts it in front, and switching one off leaves the other. The bootstrap in 'App.vue' is the one caller that
+// assigns 'activeAppPaneId' afterwards, because the URL records which pane was in front and that cannot be derived.
 export function setPaneActiveState(paneId: AppPaneId, isActive: boolean): void {
+    const otherPaneId: AppPaneId = paneId === 'assistant' ? 'studio' : 'assistant';
+
     if (paneId === 'assistant') {
         assistantPaneIsActive.value = isActive;
         if (isActive) assistantPaneWasActivated.value = true;
@@ -72,6 +78,8 @@ export function setPaneActiveState(paneId: AppPaneId, isActive: boolean): void {
         studioPaneIsActive.value = isActive;
         if (isActive) studioPaneWasActivated.value = true;
     }
+
+    activeAppPaneId.value = isActive ? paneId : otherPaneId;
 }
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
-import { ArrowUpIcon, SearchIcon, SquareIcon, XIcon } from '@lucide/vue';
+import { ArrowUpIcon, SquareIcon } from '@lucide/vue';
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
@@ -14,11 +14,11 @@ import { isRunningStatus, useChatSession } from '@/services/useChatSession';
 // ── Static Components
 import AssistantModelMenu from '../_components/AssistantModelMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
+import ChatEmptyState from './ChatEmptyState.vue';
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import PendingLabel from '../_components/PendingLabel.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import TextArea from '@/components/ui/text/TextArea.vue';
-import TextInput from '~/src/components/ui/text/TextInput.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -26,7 +26,14 @@ const PROMPT = 'List the connectors.';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { modelConfig, modelConfigs } = defineProps<{ modelConfig: AssistantModelConfig; modelConfigs: AssistantModelConfig[] }>();
+const {
+    modelConfig,
+    modelConfigs,
+    // Whether the assistant reaches the left edge of the screen, which is the only case where the session button
+    // overlaps this pane. Declared rather than left to fall through: it was already being passed, and an undeclared
+    // prop lands on the root element as a stray DOM attribute instead of being read.
+    studioPaneIsHidden
+} = defineProps<{ modelConfig: AssistantModelConfig; modelConfigs: AssistantModelConfig[]; studioPaneIsHidden?: boolean }>();
 
 const emit = defineEmits<{ modelChange: [modelConfig: AssistantModelConfig] }>();
 
@@ -43,7 +50,6 @@ const { messages, status, sendFailure, unansweredQuestionIds, sendMessage, stop 
 const inputContainer = useTemplateRef<HTMLElement>('inputContainer');
 
 const state: { inputContainerResizeObserver: ResizeObserver | null; scrollObserver: MutationObserver | null } = { inputContainerResizeObserver: null, scrollObserver: null };
-const query = ref('');
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -143,14 +149,14 @@ function handleScrollAreaInitialised(element: HTMLElement): void {
 function handleRetryMarkedTool(): void {
     void initialiseMarkedTool();
 }
-
-function handleClearQuery(): void {
-    query.value = '';
-}
 </script>
 
 <template>
-    <div class="flex min-h-0 flex-1 flex-col">
+    <div class="@container relative flex min-h-0 min-w-0 flex-1 flex-col" data-region="ChatPanel">
+        <!-- The composer below is positioned against this element, and its '@md:' width is measured against it: this
+             pane is one half of a split nested inside another split, so its width changes whenever either splitter
+             moves, which no viewport breakpoint ever reports. -->
+
         <!-- Covers the region: 'purifyMarkdown' returns an empty string without the formatter, so every message in the
              thread renders blank. The chat is not degraded by this, it is unreadable, so the thread and the composer
              give way to the failure rather than sitting beneath it. The session component stays mounted throughout,
@@ -158,15 +164,11 @@ function handleClearQuery(): void {
         <ErrorShell v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
         <template v-else>
-            <div class="mt-3 flex items-center gap-x-2 pr-4">
-                <SearchIcon aria-hidden="true" class="size-4.5 flex-none text-muted" :stroke-width="1.5" />
-                <TextInput v-model="query" class="flex-1" label="Search" label-hidden placeholder="Search connectors, data views, context and documents…" />
-                <Button v-if="query.length > 0" aria-label="Clear search" shape="icon" size="sm" @click="handleClearQuery">
-                    <XIcon :stroke-width="1.5" />
-                </Button>
-            </div>
-
             <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-bottom="scrollPaddingBottom" @initialised="handleScrollAreaInitialised">
+                <!-- Inside the scroller rather than beside it, so the first answer pushes it up the thread the way any
+                     other content would, instead of the pane swapping one layout for another. -->
+                <ChatEmptyState v-if="messages.length === 0 && !responseIsRunning" />
+
                 <template v-for="message in messages" :key="message.id">
                     <template v-if="message.role === 'user'">
                         <div v-for="part in message.parts.filter((part) => part.type === 'text')" :key="part.content" class="mx-auto mt-3 flex max-w-prose">
@@ -221,10 +223,20 @@ function handleClearQuery(): void {
             <div
                 ref="inputContainer"
                 :class="[
-                    'absolute right-4 bottom-0 left-16 mb-8.75 flex flex-none flex-col bg-surface shadow-md',
+                    'absolute bottom-0 mb-8.75 flex flex-none flex-col bg-surface shadow-md',
                     'rounded-2xl border border-selected-border',
                     'focus-within:ring-1 focus-within:ring-selected-ring',
-                    'md:inset-x-0 md:mx-auto md:w-[min(65ch,calc(100%-32px))]'
+                    // Two separate questions, and one breakpoint used to answer both — which is what made this wrong.
+                    //
+                    // Where the composer may start is about the session button, which is fixed to the viewport's
+                    // bottom-left corner and so reaches this pane only when the assistant runs to the left edge of the
+                    // screen. That is true at every width, so it is a bound rather than a breakpoint: nothing below may
+                    // reset it, which is why the centring keeps the insets instead of overriding them with 'inset-x-0'.
+                    studioPaneIsHidden ? 'right-4 left-16' : 'inset-x-4',
+                    // How wide it then gets is about the room this pane has, which is a container query. Capping with
+                    // 'max-w' rather than setting a width leaves the element free to fill the inset box when it is
+                    // narrow, and the auto margins centre it within that box once the cap bites.
+                    '@md:mx-auto @md:max-w-[65ch]'
                 ]"
             >
                 <TextArea v-model="input" class="max-h-40 rounded-t-2xl" placeholder="Ask a question" @keydown.enter.exact.prevent="handleSendMessage" />

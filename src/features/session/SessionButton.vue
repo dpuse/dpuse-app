@@ -66,7 +66,7 @@ function onMenuAfterLeave(): void {
 </script>
 
 <template>
-    <div class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-49 flex flex-col">
+    <div class="fixed bottom-(--safe-bottom-offset) left-(--safe-left-offset) z-50 flex flex-col">
         <!-- No 'Teleport' and no z-index: 'showModal()' promotes the menu to the browser's top layer, which sits above
              every stacking context on the page regardless of where the element is declared. -->
         <Transition :name="viewportIsWide ? 'dpuse-slide-up' : 'dpuse-sheet'" @after-leave="onMenuAfterLeave">
