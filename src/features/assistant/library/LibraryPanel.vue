@@ -8,7 +8,7 @@ import { computed } from 'vue';
 
 // ── Local Framework
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
-import { type LibraryDocumentType, type LibraryFilterId, useAssistantLibrary } from '@/state/assistantLibrary';
+import { LIBRARY_DOCUMENT_TYPE_LABELS, type LibraryDocument, type LibraryDocumentType, useAssistantLibrary } from '@/state/assistantLibrary';
 
 // ── Static Components
 import AssistantSearchBar from '../_components/AssistantSearchBar.vue';
@@ -19,23 +19,15 @@ import Tag from '@/components/ui/Tag.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-interface LibraryDocument {
-    id: string;
-    type: LibraryDocumentType;
-    title: string;
-    snippet: string;
-    source: string;
-}
-
-interface DocumentFilterConfig {
-    id: LibraryFilterId;
+// The index's folders, one per document type.
+interface DocumentFolderConfig {
+    id: LibraryDocumentType;
     label: string;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const DOCUMENT_FILTERS: DocumentFilterConfig[] = [
-    { id: 'all', label: 'All' },
+const DOCUMENT_FOLDERS: DocumentFolderConfig[] = [
     { id: 'connector', label: 'Connectors' },
     { id: 'dataView', label: 'Data views' },
     { id: 'context', label: 'Context' },
@@ -47,13 +39,6 @@ const DOCUMENT_TYPE_COLORS: Record<LibraryDocumentType, 'danger' | 'success' | '
     dataView: 'success',
     context: 'warning',
     document: undefined
-};
-
-const DOCUMENT_TYPE_LABELS: Record<LibraryDocumentType, string> = {
-    connector: 'Connector',
-    dataView: 'Data view',
-    context: 'Context',
-    document: 'Document'
 };
 
 // The index's top level: one folder per document type, which is also what the trail's first step names.
@@ -95,9 +80,13 @@ const SAMPLE_DOCUMENTS: LibraryDocument[] = [
     { id: 'r8', type: 'document', title: 'Renewable Energy Briefing', snippet: 'Summary of the latest developments in renewable energy for Q3.', source: 'Library' }
 ];
 
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
+
+const emit = defineEmits<{ open: [document: LibraryDocument] }>();
+
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const { filterId, path, query, searchIsActive, setPath } = useAssistantLibrary();
+const { path, query, searchIsActive, setPath } = useAssistantLibrary();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -106,39 +95,31 @@ const { filterId, path, query, searchIsActive, setPath } = useAssistantLibrary()
 // name a folder that no longer exists, and that has to fall back to the top level rather than an empty one.
 const activeTypeId = computed<LibraryDocumentType | undefined>(() => {
     const [typeId] = path.value;
-    return Object.hasOwn(DOCUMENT_TYPE_LABELS, typeId) ? (typeId as LibraryDocumentType) : undefined;
+    return Object.hasOwn(LIBRARY_DOCUMENT_TYPE_LABELS, typeId) ? (typeId as LibraryDocumentType) : undefined;
 });
 
 const breadcrumbs = computed<BreadcrumbConfig[]>(() => {
     const items: BreadcrumbConfig[] = [{ id: 'root', label: ROOT_LABEL }];
-    if (activeTypeId.value) items.push({ id: activeTypeId.value, label: DOCUMENT_TYPE_LABELS[activeTypeId.value] });
+    if (activeTypeId.value) items.push({ id: activeTypeId.value, label: LIBRARY_DOCUMENT_TYPE_LABELS[activeTypeId.value] });
     return items;
 });
 
 // Inside a folder the list is that folder's documents; at the top it is the folders themselves.
 const indexDocuments = computed(() => (activeTypeId.value ? SAMPLE_DOCUMENTS.filter((document) => document.type === activeTypeId.value) : []));
 
-const indexFolders = computed(() =>
-    DOCUMENT_FILTERS.filter((filter) => filter.id !== 'all').map((filter) => ({
-        id: filter.id as LibraryDocumentType,
-        label: filter.label,
-        count: SAMPLE_DOCUMENTS.filter((document) => document.type === filter.id).length
-    }))
-);
+const indexFolders = computed(() => DOCUMENT_FOLDERS.map((folder) => ({ ...folder, count: SAMPLE_DOCUMENTS.filter((document) => document.type === folder.id).length })));
 
 const searchResults = computed<LibraryDocument[]>(() => {
     const trimmedQuery = query.value.trim().toLowerCase();
-
-    return SAMPLE_DOCUMENTS.filter((document) => {
-        if (filterId.value !== 'all' && document.type !== filterId.value) return false;
-        if (trimmedQuery.length === 0) return true;
-        return document.title.toLowerCase().includes(trimmedQuery) || document.snippet.toLowerCase().includes(trimmedQuery);
-    });
+    return SAMPLE_DOCUMENTS.filter((document) => document.title.toLowerCase().includes(trimmedQuery) || document.snippet.toLowerCase().includes(trimmedQuery));
 });
 
-const resultCountLabel = computed(() => `${String(searchResults.value.length)} result${searchResults.value.length === 1 ? '' : 's'}`);
-
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Opening is the layout's to do — the document covers the whole assistant, which is more than this pane owns.
+function handleOpenDocument(document: LibraryDocument): void {
+    emit('open', document);
+}
 
 function handleOpenFolder(typeId: LibraryDocumentType): void {
     setPath([typeId]);
@@ -170,32 +151,22 @@ function handleSelectBreadcrumb(index: number): void {
         <!-- Search - a flat list of what matches, whatever folder the index was left on. The trail is kept rather than
              cleared, so clearing the query returns the user to where they were browsing. -->
         <template v-if="searchIsActive">
-            <div class="mt-3 flex flex-none gap-x-2 overflow-x-auto pr-4" role="tablist" aria-label="Document type">
-                <Button
-                    v-for="filter in DOCUMENT_FILTERS"
-                    :key="filter.id"
-                    class="flex-none text-sm"
-                    role="tab"
-                    :aria-selected="filterId === filter.id"
-                    :variant="filterId === filter.id ? 'primary' : 'outline'"
-                    @click="filterId = filter.id"
-                >
-                    {{ filter.label }}
-                </Button>
-            </div>
-
-            <div class="mt-1 pr-4 text-xs text-muted">{{ resultCountLabel }}</div>
-
             <ScrollArea class="mt-3 flex flex-1 flex-col">
                 <template v-if="searchResults.length > 0">
-                    <div v-for="document in searchResults" :key="document.id" class="border-b border-separator py-3 pr-4 first:pt-0">
-                        <div class="flex items-center gap-x-2">
-                            <Tag :color="DOCUMENT_TYPE_COLORS[document.type]" :text="DOCUMENT_TYPE_LABELS[document.type]" />
+                    <Button
+                        v-for="document in searchResults"
+                        :key="document.id"
+                        class="flex w-full flex-col items-start border-b border-separator py-3 pr-4 text-left first:pt-0"
+                        shape="minimal"
+                        @click="handleOpenDocument(document)"
+                    >
+                        <div class="flex max-w-full items-center gap-x-2">
+                            <Tag :color="DOCUMENT_TYPE_COLORS[document.type]" :text="LIBRARY_DOCUMENT_TYPE_LABELS[document.type]" />
                             <div class="truncate text-sm font-medium">{{ document.title }}</div>
                         </div>
                         <p class="mt-1 text-sm text-muted">{{ document.snippet }}</p>
                         <p class="mt-1 text-xs text-subtle">{{ document.source }}</p>
-                    </div>
+                    </Button>
                 </template>
 
                 <div v-else class="py-8 text-center text-sm text-muted">No results found.</div>
@@ -213,6 +184,7 @@ function handleSelectBreadcrumb(index: number): void {
                         :key="document.id"
                         class="flex w-full flex-col items-start border-b border-separator py-2 pr-4 text-left last:border-b-0"
                         shape="minimal"
+                        @click="handleOpenDocument(document)"
                     >
                         <div class="truncate text-sm font-medium">{{ document.title }}</div>
                         <p class="mt-0.5 text-sm text-muted">{{ document.snippet }}</p>

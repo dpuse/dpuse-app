@@ -4,23 +4,25 @@
 // this pane's width changes whenever the app-level splitter moves, and no media query ever reports that.
 
 // ── External Dependencies & Registrations
-import { computed, ref, useTemplateRef, watch } from 'vue';
+import { computed, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities/index.ts';
-import { useAssistantLibrary } from '@/state/assistantLibrary';
+import { LIBRARY_DOCUMENT_TYPE_LABELS, type LibraryDocument, useAssistantLibrary } from '@/state/assistantLibrary';
 import { useElementIsWide } from '@/composables/useElementIsWide';
 import { useSplitPanes } from '@/composables/useSplitPanes';
 import { ASSISTANT_MODEL_CONFIGS, type AssistantModelConfig } from '../chat/modelConfigs';
 
 // ── Static Components
 import AssistantHeader from './AssistantHeader.vue';
+import ChatPaneToggle from './ChatPaneToggle.vue';
 import LibraryPaneToggle from './LibraryPaneToggle.vue';
 import PaneSplitter from '@/components/ui/PaneSplitter.vue';
 import Separator from '@/components/ui/Separator.vue';
 
 // ── Dynamic Components
 const ChatPanel = defineAsyncPanel(() => import('../chat/ChatPanel.vue'), 'ChatPanel');
+const LibraryDocumentPanel = defineAsyncPanel(() => import('../library/LibraryDocumentPanel.vue'), 'LibraryDocumentPanel', { hasPlaceholder: false });
 const LibraryPanel = defineAsyncPanel(() => import('../library/LibraryPanel.vue'), 'LibraryPanel');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -40,6 +42,10 @@ const WIDE_PANE_THRESHOLD_PX = 640;
 const { studioPaneIsHidden } = defineProps<{ studioPaneIsHidden: boolean }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The document a library row opened, or nothing. Held here rather than in the library because the panel covers the
+// whole assistant, which is more than that pane owns.
+const activeDocument = shallowRef<LibraryDocument | undefined>();
 
 const layoutElement = useTemplateRef<HTMLElement>('layoutElement');
 const modelId = ref(establishModelId());
@@ -104,6 +110,10 @@ watch(splitterPercent, (newSplitterPercent) => {
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
+function handleCloseDocument(): void {
+    activeDocument.value = undefined;
+}
+
 function handleModelChange(newModelConfig: AssistantModelConfig): void {
     modelId.value = newModelConfig.id;
 }
@@ -114,11 +124,16 @@ function handlePaneActivate(paneId: 'chat' | 'library'): void {
     activePaneId.value = paneId;
 }
 
-// Keyed to what is on screen rather than to what is merely open. On a narrow pane the library can be active and still
-// behind the chat, and there the toggle has to bring it forward — closing something the user cannot see would read as
-// the button doing nothing. Opening brings it to the front, which 'setPaneActiveState' settles.
+function handleOpenDocument(document: LibraryDocument): void {
+    activeDocument.value = document;
+}
+
+function handleToggleChat(): void {
+    togglePane('chat');
+}
+
 function handleToggleLibrary(): void {
-    setPaneActiveState('library', !isPaneVisible('library'));
+    togglePane('library');
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -140,6 +155,19 @@ function establishSplitterPercent(): number {
         return SPLITTER_DEFAULT_PERCENT;
     }
 }
+
+// Keyed to what is on screen rather than to what is merely open. On a narrow pane a pane can be active and still behind
+// the other, and there the toggle has to bring it forward — closing something the user cannot see would read as the
+// button doing nothing. Opening brings it to the front, which 'setPaneActiveState' settles.
+//
+// The last visible pane will not close, the guard 'App.vue' puts on its own two toggles: an assistant showing neither
+// chat nor library is an empty pane the user has no way out of, since both toggles live inside it.
+function togglePane(paneId: 'chat' | 'library'): void {
+    const otherPaneId = paneId === 'chat' ? 'library' : 'chat';
+    if (isPaneVisible(paneId) && !isPaneVisible(otherPaneId)) return;
+
+    setPaneActiveState(paneId, !isPaneVisible(paneId));
+}
 </script>
 
 <template>
@@ -154,8 +182,10 @@ function establishSplitterPercent(): number {
 
         <!-- The row the splitter measures itself against, and the containing block the search bar floats over. -->
         <div class="relative flex min-h-0 flex-1">
-            <!-- Outside the panes because it has to outlive the one it opens. The search box it reveals is inside the
-                 library, where it belongs. -->
+            <!-- Outside the panes because each has to outlive the one it opens. The search box the library toggle
+                 reveals is inside the library, where it belongs. -->
+            <ChatPaneToggle :is-open="isPaneVisible('chat')" @click="handleToggleChat" />
+
             <LibraryPaneToggle :is-open="isPaneVisible('library')" @click="handleToggleLibrary" />
 
             <div
@@ -188,8 +218,19 @@ function establishSplitterPercent(): number {
                 @pointerdown="handlePaneActivate('library')"
                 @scroll.capture="handlePaneActivate('library')"
             >
-                <LibraryPanel />
+                <LibraryPanel @open="handleOpenDocument" />
             </div>
+
+            <!-- Covers both panes and the toggles over them, but stops at the assistant's edge — a document is what the
+                 user came for, and the split it came from is still there behind it. -->
+            <LibraryDocumentPanel
+                v-if="activeDocument"
+                :snippet="activeDocument.snippet"
+                :source="activeDocument.source"
+                :title="activeDocument.title"
+                :type-label="LIBRARY_DOCUMENT_TYPE_LABELS[activeDocument.type]"
+                @close="handleCloseDocument"
+            />
         </div>
     </div>
 </template>

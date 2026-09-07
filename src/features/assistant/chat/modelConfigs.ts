@@ -5,6 +5,7 @@ export interface AssistantModelConfig {
     providerId: string;
     providerLabel: string;
     modelId: string;
+    modelLabel: string;
     options: Record<string, unknown>;
 }
 
@@ -36,6 +37,7 @@ export const ASSISTANT_MODEL_CONFIGS: AssistantModelConfig[] = [
         providerId: 'anthropic',
         providerLabel: 'Anthropic',
         modelId: 'claude-opus-5',
+        modelLabel: 'Claude Opus 5',
         options: { effort: 'medium', maxTokens: 4096, thinking: { type: 'adaptive' } }
     },
     {
@@ -43,10 +45,39 @@ export const ASSISTANT_MODEL_CONFIGS: AssistantModelConfig[] = [
         providerId: 'anthropic',
         providerLabel: 'Anthropic',
         modelId: 'claude-sonnet-5',
+        modelLabel: 'Claude Sonnet 5',
         options: { effort: 'medium', maxTokens: 4096, thinking: { type: 'adaptive' } }
     },
-    { id: 'anthropic-claude-haiku-4-5', providerId: 'anthropic', providerLabel: 'Anthropic', modelId: 'claude-haiku-4-5', options: { maxTokens: 4096, temperature: 1 } }, // No 'effort' and no 'thinking': Haiku 4.5 predates both and rejects them.
-    { id: 'openai-gpt-5.6', providerId: 'openAI', providerLabel: 'OpenAI', modelId: 'gpt-5.6', options: { maxOutputTokens: 4096, reasoning: { effort: 'none' } } },
-    { id: 'openai-gpt-5.6-terra', providerId: 'openAI', providerLabel: 'OpenAI', modelId: 'gpt-5.6-terra', options: { maxOutputTokens: 4096, reasoning: { effort: 'none' } } },
-    { id: 'openai-gpt-5.6-luna', providerId: 'openAI', providerLabel: 'OpenAI', modelId: 'gpt-5.6-luna', options: { maxOutputTokens: 4096, reasoning: { effort: 'none' } } }
+    {
+        id: 'anthropic-claude-haiku-4-5',
+        providerId: 'anthropic',
+        providerLabel: 'Anthropic',
+        modelId: 'claude-haiku-4-5',
+        modelLabel: 'Claude Haiku 5',
+        options: { maxTokens: 4096, temperature: 1 } // No 'effort' and no 'thinking': Haiku 4.5 predates both and rejects them.
+    },
+    {
+        id: 'openai-gpt-5.6',
+        providerId: 'openAI',
+        providerLabel: 'OpenAI',
+        modelId: 'gpt-5.6',
+        modelLabel: 'GPT 5.6',
+        options: { maxOutputTokens: 4096, reasoning: { effort: 'none' } }
+    },
+    {
+        id: 'openai-gpt-5.6-terra',
+        providerId: 'openAI',
+        providerLabel: 'OpenAI',
+        modelId: 'gpt-5.6-terra',
+        modelLabel: 'GPT 5.6 Terra',
+        options: { maxOutputTokens: 4096, reasoning: { effort: 'none' } }
+    },
+    {
+        id: 'openai-gpt-5.6-luna',
+        providerId: 'openAI',
+        providerLabel: 'OpenAI',
+        modelId: 'gpt-5.6-luna',
+        modelLabel: 'GPT 5.6 Luna',
+        options: { maxOutputTokens: 4096, reasoning: { effort: 'none' } }
+    }
 ];

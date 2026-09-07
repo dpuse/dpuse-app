@@ -51,7 +51,7 @@ function renderNothing(): ReturnType<typeof h> {
 }
 
 function buildModelConfig(id: string, modelId: string): AssistantModelConfig {
-    return { id, providerId: 'anthropic', providerLabel: 'Anthropic', modelId, options: {} };
+    return { id, providerId: 'anthropic', providerLabel: 'Anthropic', modelId, modelLabel: modelId, options: {} };
 }
 
 // A rebuilt client starts from an empty transcript, so rebuilding on a model change silently discards the

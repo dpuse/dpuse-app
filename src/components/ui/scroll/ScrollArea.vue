@@ -10,9 +10,10 @@ import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from './ScrollThumb.vue';
 interface Properties {
     scrollAreaPaddingBottom?: number | string;
     scrollAreaPaddingRight?: number | string; // Overrides the default gutter — pass 0 where the content is narrower than the reserved 16px.
+    scrollAreaPaddingTop?: number | string; // Clears a control floating above the content, the way the bottom padding clears one below it.
     scrollbarAlwaysVisible?: boolean;
 }
-const { scrollAreaPaddingBottom, scrollAreaPaddingRight, scrollbarAlwaysVisible } = defineProps<Properties>();
+const { scrollAreaPaddingBottom, scrollAreaPaddingRight, scrollAreaPaddingTop, scrollbarAlwaysVisible } = defineProps<Properties>();
 
 const emit = defineEmits<{ initialised: [scrollElement: HTMLElement] }>();
 
@@ -33,6 +34,7 @@ const verticalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('vertical
 
 const paddingBottom = computed(() => toLength(scrollAreaPaddingBottom));
 const paddingRight = computed(() => toLength(scrollAreaPaddingRight));
+const paddingTop = computed(() => toLength(scrollAreaPaddingTop));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -67,7 +69,7 @@ function toLength(value: number | string | undefined): string | undefined {
 
 <template>
     <div class="dpuse-scroll-area-wrapper" data-region="ScrollArea">
-        <div :id="scrollElementId" ref="scrollElement" class="dpuse-scroll-area-v" :style="{ paddingBottom, paddingRight }">
+        <div :id="scrollElementId" ref="scrollElement" class="dpuse-scroll-area-v" :style="{ paddingBottom, paddingRight, paddingTop }">
             <div :id="innerScrollElementId" ref="innerScrollElement" class="dpuse-scroll-area-h">
                 <slot />
             </div>

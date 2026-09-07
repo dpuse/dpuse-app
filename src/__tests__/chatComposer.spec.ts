@@ -58,7 +58,7 @@ async function mountPanel(): Promise<ReturnType<typeof mount>> {
     const panelModule = await import('@/features/assistant/chat/ChatPanel.vue');
     const wrapper = mount(panelModule.default, {
         props: {
-            modelConfig: { id: 'm', providerId: 'anthropic', providerLabel: 'Anthropic', modelId: 'claude-sonnet-4-6', options: {} },
+            modelConfig: { id: 'm', providerId: 'anthropic', providerLabel: 'Anthropic', modelId: 'claude-sonnet-4-6', modelLabel: 'Sonnet 4.6', options: {} },
             modelConfigs: []
         },
         // Stood in for like the session and the formatter above: the empty state links into the studio, so it wants a

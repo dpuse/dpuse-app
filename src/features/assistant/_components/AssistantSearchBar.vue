@@ -16,7 +16,7 @@ const { query } = useAssistantLibrary();
 
 <template>
     <div
-        class="flex items-center rounded-lg border border-selected-border bg-surface pl-2.5 shadow-md focus-within:ring-1 focus-within:ring-selected-ring"
+        class="flex items-center rounded-lg border border-selected-border bg-surface shadow-md focus-within:ring-1 focus-within:ring-selected-ring"
         data-region="AssistantSearchBar"
     >
         <!-- Wrapped because 'TextArea' forwards its attributes to the text box rather than to its own root, so a class
@@ -29,15 +29,7 @@ const { query } = useAssistantLibrary();
                  cannot wrap measures one line however long it gets and runs sideways instead of growing. A fixed height
                  would have fought that sizing rather than removed the reason for it. Enter is stopped for the same
                  reason there is no submit — results follow the query as it is typed. -->
-            <TextArea
-                v-model="query"
-                label="Search the library"
-                label-hidden
-                placeholder="Search connectors, data views, context and documents…"
-                rows="1"
-                wrap="off"
-                @keydown.enter.prevent
-            />
+            <TextArea v-model="query" label="Search the library" label-hidden placeholder="Search by keyword, topic…" rows="1" wrap="off" @keydown.enter.prevent />
         </div>
     </div>
 </template>

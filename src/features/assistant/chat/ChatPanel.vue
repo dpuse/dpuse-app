@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
-import { ArrowUpIcon, SquareIcon } from '@lucide/vue';
+import { ArrowUpIcon, PlusIcon, SquareIcon } from '@lucide/vue';
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
@@ -23,6 +23,14 @@ import TextArea from '@/components/ui/text/TextArea.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const PROMPT = 'List the connectors.';
+
+// A control floats over each end of the thread, so the scroller reserves their space by hand. Both reservations are the
+// same sum — the control's own offset from the pane's edge, its height, and one shared gap — which is what brings the
+// thread to rest the same distance from each.
+const CONTENT_GAP_PX = 16;
+const COMPOSER_BOTTOM_INSET_PX = 35; // 'mb-8.75' on the composer, which sits outside the height measured below.
+const TOGGLE_HEIGHT_PX = 36; // 'ChatPaneToggle' is a 'size="sm"' icon button: 'py-2' either side of a 20px glyph.
+const TOGGLE_TOP_INSET_PX = 8; // 'top-2' on that same toggle.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -74,8 +82,13 @@ const responseIsPending = computed(() => {
     return lastMessage?.role !== 'assistant' || lastMessage.parts.length === 0;
 });
 
-// mb-4 (16px) on the input container isn't part of its own height, so it's added on top to keep messages clear of it.
-const scrollPaddingBottom = computed(() => `${String(inputContainerHeight.value + 32)}px`);
+// Measured rather than stated: the composer grows with the text typed into it. Its bottom margin is not part of that
+// measurement, so it is added back here.
+const scrollPaddingBottom = computed(() => `${String(inputContainerHeight.value + COMPOSER_BOTTOM_INSET_PX + CONTENT_GAP_PX)}px`);
+
+// The mirror of the padding above. Stated rather than measured, because the toggle is a fixed shape owned by the layout
+// rather than by this panel, and plumbing a measurement across that boundary would cost more than the constants do.
+const scrollPaddingTop = `${String(TOGGLE_TOP_INSET_PX + TOGGLE_HEIGHT_PX + CONTENT_GAP_PX)}px`;
 
 // Only the thread's last message can still be running; everything above it is settled.
 function isResponseStreaming(message: AssistantChatMessage): boolean {
@@ -115,6 +128,12 @@ onUnmounted(() => {
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+// TODO: Attach files and add context to the conversation. The control is placed now so the composer's layout is settled;
+// what it opens is not built yet.
+function handleAddToConversation(): void {
+    // Intentionally empty until there is something to add.
+}
 
 function handleSelectModel(newModelConfig: AssistantModelConfig): void {
     emit('modelChange', newModelConfig);
@@ -164,7 +183,12 @@ function handleRetryMarkedTool(): void {
         <ErrorShell v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
         <template v-else>
-            <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-bottom="scrollPaddingBottom" @initialised="handleScrollAreaInitialised">
+            <ScrollArea
+                class="flex flex-1 flex-col pl-4"
+                :scroll-area-padding-bottom="scrollPaddingBottom"
+                :scroll-area-padding-top="scrollPaddingTop"
+                @initialised="handleScrollAreaInitialised"
+            >
                 <!-- Inside the scroller rather than beside it, so the first answer pushes it up the thread the way any
                      other content would, instead of the pane swapping one layout for another. -->
                 <ChatEmptyState v-if="messages.length === 0 && !responseIsRunning" />
@@ -219,7 +243,7 @@ function handleRetryMarkedTool(): void {
                 </div>
             </ScrollArea>
 
-            <!-- Input - in-flow, always rounded, with an action bar (model, status, send) attached below the text box. -->
+            <!-- Input - in-flow, always rounded, with an action bar (add, model, send) attached below the text box. -->
             <div
                 ref="inputContainer"
                 :class="[
@@ -241,16 +265,23 @@ function handleRetryMarkedTool(): void {
             >
                 <TextArea v-model="input" class="max-h-40 rounded-t-2xl" placeholder="Ask a question" @keydown.enter.exact.prevent="handleSendMessage" />
 
-                <!-- Grid rather than flex: the send button sits in a max-content track it never gives up or stretches into, while the menu
-                     and status take content-sized tracks that stay at full width until the bar genuinely runs short, then ellipsise together. -->
+                <!-- Grid rather than flex: the add and send buttons sit in max-content tracks they never give up or stretch into, while
+                     the model menu between them takes the rest and ellipsises once the bar genuinely runs short. -->
                 <div
-                    class="grid grid-cols-[minmax(0,auto)_minmax(0,auto)_max-content] items-center gap-x-2 rounded-b-2xl border-t border-selected-border bg-selected p-2 text-selected-text"
+                    class="grid grid-cols-[max-content_minmax(0,auto)_max-content] items-center gap-x-2 rounded-b-2xl border-t border-selected-border bg-selected p-2 text-selected-text"
                 >
-                    <AssistantModelMenu class="min-w-0 justify-self-start" :model-config="modelConfig" :model-configs="modelConfigs" @select="handleSelectModel" />
+                    <!-- Shaped like the send button at the other end of the row, so the pair reads as the composer's two actions. Neutral
+                         rather than tinted: sending is the thing this bar is for, and two filled circles would put them on equal footing. -->
+                    <Button
+                        aria-label="Add to the conversation"
+                        class="flex size-7 items-center justify-center rounded-full border border-boundary bg-surface text-content"
+                        shape="minimal"
+                        @click="handleAddToConversation"
+                    >
+                        <PlusIcon class="size-4" stroke-width="2.5" />
+                    </Button>
 
-                    <!-- Fills its track and right-aligns instead of justify-self-end: nowrap makes the item's min-content the whole string, so a
-                         fit-content item would never ellipsise and would spill left over the menu. -->
-                    <span class="min-w-0 truncate text-right text-xs text-muted">{{ status }}</span>
+                    <AssistantModelMenu class="min-w-0 justify-self-start" :model-config="modelConfig" :model-configs="modelConfigs" @select="handleSelectModel" />
 
                     <Button
                         :aria-label="responseIsRunning ? 'Stop the response' : 'Send the message'"

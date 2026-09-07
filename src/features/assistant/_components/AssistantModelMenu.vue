@@ -56,7 +56,12 @@ function handleSelect(newModelConfig: AssistantModelConfig): void {
             shape="minimal"
             @click="menuIsOpen = !menuIsOpen"
         >
-            <span class="min-w-0 truncate">{{ modelConfig.modelId }} · {{ modelConfig.providerLabel }}</span>
+            <!-- Stacked rather than separated by a middot, provider above model — the same order the menu below lists
+                 them in, so the trigger reads as the item that is currently chosen. -->
+            <span class="flex min-w-0 flex-col text-left">
+                <span class="truncate">{{ modelConfig.providerLabel }}</span>
+                <span class="truncate">{{ modelConfig.modelLabel }}</span>
+            </span>
             <ChevronDownIcon class="size-3.5 flex-none" :stroke-width="1.5" />
         </Button>
 
@@ -69,8 +74,9 @@ function handleSelect(newModelConfig: AssistantModelConfig): void {
                 role="menuitem"
                 @click="handleSelect(config)"
             >
-                <span>{{ config.providerLabel }}</span>
-                <span class="text-xs text-muted">{{ config.modelId }}</span>
+                <!-- The provider reads as an overline above the model, which is the line being chosen. -->
+                <span class="text-xs text-muted">{{ config.providerLabel }}</span>
+                <span>{{ config.modelLabel }}</span>
             </ListItemButton>
         </div>
     </div>
