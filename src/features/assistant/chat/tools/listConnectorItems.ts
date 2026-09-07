@@ -36,7 +36,9 @@ export async function executeListConnectorItems(
             }))
         };
     } catch (error) {
-        const failure = raiseFailure(new AppError(`Failed to list items for connection '${connectionId}'.`, 'dpuse-app.tools.listConnectorItems', { typeId: 'handled' }, { cause: error }));
+        const failure = raiseFailure(
+            new AppError(`Failed to list items for connection '${connectionId}'.`, 'dpuse-app.tools.listConnectorItems', { typeId: 'handled' }, { cause: error })
+        );
         return { error: serialiseError(failure.error)[0].message };
     }
 }

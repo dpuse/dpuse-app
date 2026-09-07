@@ -17,6 +17,7 @@ import type { AssistantModelConfig } from './modelConfigs';
 // ── Static Components
 import AssistantModelMenu from '../_components/AssistantModelMenu.vue';
 import Button from '@/components/ui/button/Button.vue';
+import ChatMenu from './ChatMenu.vue';
 import TextArea from '@/components/ui/text/TextArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -72,10 +73,10 @@ function handleAction(): void {
     emit('send');
 }
 
-// TODO: Attach files and add context to the conversation. The control is placed now so the composer's layout is
-// settled; what it opens is not built yet.
-function handleAdd(): void {
-    // Intentionally empty until there is something to add.
+// TODO: Start a new conversation. The control is placed now so the composer's layout is settled; what it does is not
+// built yet — 'useChatSession' holds one thread and cannot yet be asked for another.
+function handleStartChat(): void {
+    // Intentionally empty until a new chat is something the session service can be asked for.
 }
 
 function handleSelectModel(newModelConfig: AssistantModelConfig): void {
@@ -112,21 +113,26 @@ function reportHeight(): void {
     >
         <TextArea v-model="draft" class="max-h-40 rounded-t-lg" placeholder="Ask a question" @keydown.enter.exact.prevent="emit('send')" />
 
-        <!-- Grid rather than flex: the add and send buttons sit in max-content tracks they never give up or stretch into, while
-             the model menu between them takes the rest and ellipsises once the bar genuinely runs short. -->
+        <!-- Grid rather than flex: the conversation controls and the send button sit in max-content tracks they never give up or
+             stretch into, while the model menu between them takes the rest and ellipsises once the bar genuinely runs short. That
+             makes the model label the one thing that gives way as the pane narrows, which is right — it is the only part of the bar
+             that degrades to something still readable. -->
         <div
-            class="grid grid-cols-[max-content_minmax(0,auto)_max-content] items-center gap-x-2 rounded-b-lg border-t border-selected-border bg-selected px-2 py-1.5 text-selected-text"
+            class="grid grid-cols-[max-content_max-content_minmax(0,auto)_max-content] items-center gap-x-2 rounded-b-lg border-t border-selected-border bg-selected px-2 py-1.5 text-selected-text"
         >
-            <!-- Shaped like the send button at the other end of the row, so the pair reads as the composer's two actions. Neutral
-                 rather than tinted: sending is the thing this bar is for, and two filled circles would put them on equal footing. -->
+            <!-- The two conversation controls sit together at the left end: one starts a thread, the other returns to one. Shaped
+                 like the send button at the other end of the row, so the bar reads as one set of actions. Neutral rather than
+                 tinted: sending is the thing this bar is for, and competing filled circles would put them on equal footing. -->
             <Button
-                aria-label="Add to the conversation"
+                aria-label="Start a new chat"
                 class="flex size-7 items-center justify-center rounded-full border border-boundary bg-surface text-content"
                 shape="minimal"
-                @click="handleAdd"
+                @click="handleStartChat"
             >
                 <PlusIcon class="size-4" stroke-width="2.5" />
             </Button>
+
+            <ChatMenu />
 
             <AssistantModelMenu class="min-w-0 justify-self-start" :model-config="modelConfig" :model-configs="modelConfigs" @select="handleSelectModel" />
 

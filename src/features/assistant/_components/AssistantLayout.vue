@@ -42,7 +42,6 @@ const { studioPaneIsHidden } = defineProps<{ studioPaneIsHidden: boolean }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const chatMenuIsOpen = ref(false); // The chat's drawer of conversations, raised by a second press on its toggle.
 const layoutElement = useTemplateRef<HTMLElement>('layoutElement');
 const modelId = ref(establishModelId());
 const splitterPercent = ref(establishSplitterPercent());
@@ -116,14 +115,7 @@ function handlePaneActivate(paneId: 'chat' | 'library'): void {
     activePaneId.value = paneId;
 }
 
-// Two jobs on one control, split by what is already on screen. With the chat hidden this is the way back to it; with
-// the chat already there a second press has nothing left to toggle — 'togglePane' refuses to close the last visible
-// pane anyway — so it raises the chat's own drawer instead of doing nothing.
 function handleToggleChat(): void {
-    if (isPaneVisible('chat')) {
-        chatMenuIsOpen.value = true;
-        return;
-    }
     togglePane('chat');
 }
 
@@ -179,7 +171,7 @@ function togglePane(paneId: 'chat' | 'library'): void {
         <div class="relative flex min-h-0 flex-1">
             <!-- Outside the panes because each has to outlive the one it opens. The search box the library toggle
                  reveals is inside the library, where it belongs. -->
-            <ChatPaneToggle :is-open="isPaneVisible('chat')" :menu-is-open="chatMenuIsOpen" @click="handleToggleChat" />
+            <ChatPaneToggle :is-open="isPaneVisible('chat')" @click="handleToggleChat" />
 
             <LibraryPaneToggle :is-open="isPaneVisible('library')" @click="handleToggleLibrary" />
 
@@ -193,7 +185,6 @@ function togglePane(paneId: 'chat' | 'library'): void {
                 @scroll.capture="handlePaneActivate('chat')"
             >
                 <ChatPanel
-                    v-model:menu-is-open="chatMenuIsOpen"
                     :model-config="activeModelConfig"
                     :model-configs="ASSISTANT_MODEL_CONFIGS"
                     :studio-pane-is-hidden="studioPaneIsHidden"
