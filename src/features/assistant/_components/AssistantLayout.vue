@@ -205,7 +205,7 @@ function togglePane(paneId: 'chat' | 'library'): void {
                 @pointerdown="handlePaneActivate('library')"
                 @scroll.capture="handlePaneActivate('library')"
             >
-                <LibraryPanel />
+                <LibraryPanel :chat-pane-is-hidden="!isPaneVisible('chat')" />
             </div>
         </div>
     </div>

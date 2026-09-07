@@ -80,6 +80,13 @@ const SAMPLE_DOCUMENTS: LibraryDocument[] = [
     { id: 'r8', type: 'document', title: 'Renewable Energy Briefing', snippet: 'Summary of the latest developments in renewable energy for Q3.', source: 'Library' }
 ];
 
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
+
+// Whether the chat pane has been closed, which leaves its toggle floating over this pane instead of its own. The mirror
+// of 'studioPaneIsHidden' in the chat panel, and needed for the same reason: a control pinned to a corner of the row
+// belongs to whichever pane happens to reach that corner.
+const { chatPaneIsHidden } = defineProps<{ chatPaneIsHidden?: boolean }>();
+
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const { path, query, searchIsActive, setPath } = useAssistantLibrary();
@@ -135,12 +142,15 @@ function handleOpenFolder(typeId: LibraryDocumentType): void {
          pane overflows the split. -->
     <div class="relative flex min-h-0 min-w-0 flex-1 flex-col" data-region="LibraryPanel">
         <!-- Floats over the list rather than sitting above it, so the content scrolls up behind it the way the chat
-             thread does behind its own controls. 'left-4' lines it up with the rows beneath; 'right-18' clears the
-             pane toggle, which ends 56px in, and leaves the same 16px gap beside it that the lists leave beneath it —
-             the toggle floats over this pane and reserves nothing for itself.
+             thread does behind its own controls.
+             'right-18' clears the library's own toggle, which ends 56px in, leaving the same 16px gap the lists leave
+             beneath it. The left inset answers the same question about the chat's toggle, which is pinned to the row's
+             left corner rather than to a pane: with the chat open that corner is the chat's, and this can start at the
+             rows' own margin; with the chat closed this pane reaches the corner and has to clear the toggle by the
+             same 16px, so the two ends stay symmetrical.
              No heading beside it — the field's placeholder names what this pane holds, and the trail below starts at a
              home icon that says the same thing more briefly. -->
-        <LibrarySearchInput class="absolute top-2 right-18 left-4 z-10" @height-change="searchBarHeight = $event" />
+        <LibrarySearchInput :class="['absolute top-2 right-18 z-10', chatPaneIsHidden ? 'left-18' : 'left-4']" @height-change="searchBarHeight = $event" />
 
         <!-- Search - a flat list of what matches, whatever folder the index was left on. The trail is kept rather than
              cleared, so clearing the query returns the user to where they were browsing. -->
