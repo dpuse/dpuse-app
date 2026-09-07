@@ -13,6 +13,7 @@ import { isRunningStatus, useChatSession } from '@/services/useChatSession';
 // ── Static Components
 import ChatEmptyState from './ChatEmptyState.vue';
 import ChatInput from './ChatInput.vue';
+import ChatMenu from './ChatMenu.vue';
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import PendingLabel from '../_components/PendingLabel.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
@@ -38,6 +39,10 @@ const {
 } = defineProps<{ modelConfig: AssistantModelConfig; modelConfigs: AssistantModelConfig[]; studioPaneIsHidden?: boolean }>();
 
 const emit = defineEmits<{ modelChange: [modelConfig: AssistantModelConfig] }>();
+
+// Driven from outside because the control that opens it is: 'ChatPaneToggle' has to outlive the pane it opens, so
+// it lives in the layout, while the drawer it raises covers this pane alone and belongs here.
+const menuIsOpen = defineModel<boolean>('menuIsOpen', { default: false });
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -220,6 +225,10 @@ function handleRetryMarkedTool(): void {
                 @stop="stop"
             />
         </template>
+
+        <!-- Outside the branch above rather than inside it: the drawer is how the user reaches another conversation,
+             and a thread that cannot render is exactly when they need it. -->
+        <ChatMenu v-model="menuIsOpen" />
     </div>
 </template>
 

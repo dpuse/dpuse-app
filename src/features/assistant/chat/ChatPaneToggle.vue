@@ -15,7 +15,10 @@ import ChatIcon from '~/src/components/icons/ChatIcon.vue';
 
 // Whether the chat is on screen, not merely open: on a narrow pane it can be open and still behind the library, and
 // there this has to read as a way to bring it forward rather than as a way to close it.
-const { isOpen } = defineProps<{ isOpen: boolean }>();
+//
+// 'menuIsOpen' is only meaningful while it is: once the chat is up this button stops being a way to collapse the pane
+// and becomes the trigger for the chat's drawer, so that is what its expanded state has to describe.
+const { isOpen, menuIsOpen } = defineProps<{ isOpen: boolean; menuIsOpen?: boolean }>();
 </script>
 
 <template>
@@ -24,8 +27,9 @@ const { isOpen } = defineProps<{ isOpen: boolean }>();
          Clear of the app's fixed 'StudioPaneToggle' without arithmetic: that one sits in the header band above, and
          this row begins below the header and its separator. -->
     <Button
-        :aria-expanded="isOpen"
-        :aria-label="isOpen ? 'Close the chat' : 'Open the chat'"
+        :aria-expanded="isOpen ? menuIsOpen === true : false"
+        :aria-haspopup="isOpen ? 'dialog' : undefined"
+        :aria-label="isOpen ? 'Show chats and options' : 'Open the chat'"
         class="absolute top-2 left-3.5 z-20 rounded-full! border border-separator bg-surface shadow-md"
         data-region="ChatPaneToggle"
         :is-active="isOpen"
