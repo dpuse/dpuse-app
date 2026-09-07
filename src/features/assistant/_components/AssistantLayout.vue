@@ -15,8 +15,8 @@ import { ASSISTANT_MODEL_CONFIGS, type AssistantModelConfig } from '../chat/mode
 
 // ── Static Components
 import AssistantHeader from './AssistantHeader.vue';
-import ChatPaneToggle from './ChatPaneToggle.vue';
-import LibraryPaneToggle from './LibraryPaneToggle.vue';
+import ChatPaneToggle from '../chat/ChatPaneToggle.vue';
+import LibraryPaneToggle from '../library/LibraryPaneToggle.vue';
 import PaneSplitter from '@/components/ui/PaneSplitter.vue';
 import Separator from '@/components/ui/Separator.vue';
 
@@ -205,7 +205,7 @@ function togglePane(paneId: 'chat' | 'library'): void {
                 @pointerdown="handlePaneActivate('library')"
                 @scroll.capture="handlePaneActivate('library')"
             >
-                <LibraryPanel :chat-pane-is-hidden="!isPaneVisible('chat')" />
+                <LibraryPanel />
             </div>
         </div>
     </div>

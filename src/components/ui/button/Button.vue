@@ -53,14 +53,9 @@ const classes = computed((): (string | string[] | undefined)[] => {
 
     if (shape === 'icon') {
         if (size === 'sm') {
-            return [
-                COMMON_GRAPHIC_CLASSES,
-                COMMON_ICON_CLASSES,
-                'bg-zinc-50 py-2 px-2.5 [&_svg]:size-5 dark:bg-zinc-300/10',
-                isActive ? 'bg-blue-50! dark:bg-zinc-300/25!' : undefined
-            ];
+            return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'bg-zinc-50 p-1.75 [&_svg]:size-5 dark:bg-zinc-300/10', isActive ? 'bg-blue-50! dark:bg-zinc-300/25!' : undefined];
         }
-        return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.75 [&_svg]:size-[26px]'];
+        return [COMMON_GRAPHIC_CLASSES, COMMON_ICON_CLASSES, 'p-1.75 [&_svg]:size-6.5'];
     }
 
     switch (variant) {

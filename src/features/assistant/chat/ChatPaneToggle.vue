@@ -5,10 +5,11 @@
 // It lives outside the pane it toggles, or there would be no way back once the chat was shut.
 
 // ── External Dependencies & Registrations
-import { MessageSquareTextIcon } from '@lucide/vue';
+import { MessageSquareIcon } from '@lucide/vue';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
+import ChatIcon from '~/src/components/icons/ChatIcon.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -25,12 +26,14 @@ const { isOpen } = defineProps<{ isOpen: boolean }>();
     <Button
         :aria-expanded="isOpen"
         :aria-label="isOpen ? 'Close the chat' : 'Open the chat'"
-        class="absolute top-2 left-4 z-20 rounded-full! border border-selected-border bg-surface shadow-md"
+        class="absolute top-2 left-3 z-20 rounded-full! border border-separator bg-surface shadow-md"
         data-region="ChatPaneToggle"
         :is-active="isOpen"
         shape="icon"
         size="sm"
     >
-        <MessageSquareTextIcon :stroke-width="1.5" />
+        <!-- The open chat shows its own icon, lines and all; closed falls back to the empty square. -->
+        <ChatIcon v-if="isOpen" :stroke-width="1.5" />
+        <MessageSquareIcon v-else :stroke-width="1.5" />
     </Button>
 </template>
