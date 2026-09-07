@@ -4,11 +4,11 @@
 // this pane's width changes whenever the app-level splitter moves, and no media query ever reports that.
 
 // ── External Dependencies & Registrations
-import { computed, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities/index.ts';
-import { LIBRARY_DOCUMENT_TYPE_LABELS, type LibraryDocument, useAssistantLibrary } from '@/state/assistantLibrary';
+import { useAssistantLibrary } from '@/state/assistantLibrary';
 import { useElementIsWide } from '@/composables/useElementIsWide';
 import { useSplitPanes } from '@/composables/useSplitPanes';
 import { ASSISTANT_MODEL_CONFIGS, type AssistantModelConfig } from '../chat/modelConfigs';
@@ -22,7 +22,6 @@ import Separator from '@/components/ui/Separator.vue';
 
 // ── Dynamic Components
 const ChatPanel = defineAsyncPanel(() => import('../chat/ChatPanel.vue'), 'ChatPanel');
-const LibraryDocumentPanel = defineAsyncPanel(() => import('../library/LibraryDocumentPanel.vue'), 'LibraryDocumentPanel', { hasPlaceholder: false });
 const LibraryPanel = defineAsyncPanel(() => import('../library/LibraryPanel.vue'), 'LibraryPanel');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -42,10 +41,6 @@ const WIDE_PANE_THRESHOLD_PX = 640;
 const { studioPaneIsHidden } = defineProps<{ studioPaneIsHidden: boolean }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// The document a library row opened, or nothing. Held here rather than in the library because the panel covers the
-// whole assistant, which is more than that pane owns.
-const activeDocument = shallowRef<LibraryDocument | undefined>();
 
 const layoutElement = useTemplateRef<HTMLElement>('layoutElement');
 const modelId = ref(establishModelId());
@@ -110,10 +105,6 @@ watch(splitterPercent, (newSplitterPercent) => {
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleCloseDocument(): void {
-    activeDocument.value = undefined;
-}
-
 function handleModelChange(newModelConfig: AssistantModelConfig): void {
     modelId.value = newModelConfig.id;
 }
@@ -122,10 +113,6 @@ function handleModelChange(newModelConfig: AssistantModelConfig): void {
 // signals 'App.vue' uses, and for the same reason: none of them covers the others.
 function handlePaneActivate(paneId: 'chat' | 'library'): void {
     activePaneId.value = paneId;
-}
-
-function handleOpenDocument(document: LibraryDocument): void {
-    activeDocument.value = document;
 }
 
 function handleToggleChat(): void {
@@ -218,19 +205,8 @@ function togglePane(paneId: 'chat' | 'library'): void {
                 @pointerdown="handlePaneActivate('library')"
                 @scroll.capture="handlePaneActivate('library')"
             >
-                <LibraryPanel @open="handleOpenDocument" />
+                <LibraryPanel />
             </div>
-
-            <!-- Covers both panes and the toggles over them, but stops at the assistant's edge — a document is what the
-                 user came for, and the split it came from is still there behind it. -->
-            <LibraryDocumentPanel
-                v-if="activeDocument"
-                :snippet="activeDocument.snippet"
-                :source="activeDocument.source"
-                :title="activeDocument.title"
-                :type-label="LIBRARY_DOCUMENT_TYPE_LABELS[activeDocument.type]"
-                @close="handleCloseDocument"
-            />
         </div>
     </div>
 </template>

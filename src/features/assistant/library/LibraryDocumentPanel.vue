@@ -1,11 +1,10 @@
 <script setup lang="ts">
-// A document opened from the library, filling the whole assistant below its header rather than sitting inside the
-// library pane. A document is what the user came for, so it takes the room outright — an opaque surface, no scrim and
-// no raised card, because there is nothing to see behind it and a floating panel would only shrink what there is to
-// read.
+// A document opened from the library, filling that pane and stopping at its edge — the chat beside it carries on. A
+// document is what the user came for, so it takes the pane outright: an opaque surface, no scrim and no raised card,
+// because there is nothing to see behind it and a floating panel would only shrink what there is to read.
 //
 // Not built from 'DialogShell': that promotes its element with 'showModal', which puts it in the browser's top layer
-// over the entire viewport. This has to stop at the assistant's own edge.
+// over the entire viewport, and this has to stay inside one pane.
 
 // ── Local Framework
 import { t } from '@/state/locale';
@@ -30,8 +29,10 @@ defineEmits<{ close: [] }>();
 
 <template>
     <div class="absolute inset-0 z-30 flex flex-col bg-surface" data-region="LibraryDocumentPanel">
-        <!-- 'z-30' clears both pane toggles at 'z-20', which would otherwise sit over a panel that covers their panes.
-             All of it is sealed into the layout's '@container' stacking context, clear of the app-level ladder. -->
+        <!-- 'z-30' clears the library's own toggle at 'z-20', which floats over this pane and would otherwise sit on
+             top of the document. The toggle is a sibling of the pane rather than a child, so the value has to beat it
+             rather than merely stack above it. All of it is sealed into the layout's '@container' stacking context,
+             clear of the app-level ladder. -->
 
         <!-- Full width of the pane, so its scrollbar sits at the pane's edge rather than beside the article. -->
         <ScrollArea class="min-h-0 flex-1">

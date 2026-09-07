@@ -4,16 +4,15 @@
 // disagree about which is showing.
 
 // ── External Dependencies & Registrations
-import { computed } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 
 // ── Local Framework
-import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import { LIBRARY_DOCUMENT_TYPE_LABELS, type LibraryDocument, type LibraryDocumentType, useAssistantLibrary } from '@/state/assistantLibrary';
 
 // ── Static Components
-import AssistantSearchBar from '../_components/AssistantSearchBar.vue';
-import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import Button from '@/components/ui/button/Button.vue';
+import LibraryDocumentPanel from './LibraryDocumentPanel.vue';
+import LibrarySearchInput from './LibrarySearchInput.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Tag from '@/components/ui/Tag.vue';
 
@@ -41,8 +40,9 @@ const DOCUMENT_TYPE_COLORS: Record<LibraryDocumentType, 'danger' | 'success' | '
     document: undefined
 };
 
-// The index's top level: one folder per document type, which is also what the trail's first step names.
-const ROOT_LABEL = 'Library';
+// Matches the gap the chat panel leaves between its thread and the controls floating at either end of it.
+const CONTENT_GAP_PX = 16;
+const SEARCH_BAR_TOP_INSET_PX = 8; // 'top-2' on the bar below.
 
 // TODO: Sample data only. Replace with documents from a knowledge base index/search endpoint once one exists.
 const SAMPLE_DOCUMENTS: LibraryDocument[] = [
@@ -80,13 +80,15 @@ const SAMPLE_DOCUMENTS: LibraryDocument[] = [
     { id: 'r8', type: 'document', title: 'Renewable Energy Briefing', snippet: 'Summary of the latest developments in renewable energy for Q3.', source: 'Library' }
 ];
 
-// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
-
-const emit = defineEmits<{ open: [document: LibraryDocument] }>();
-
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const { path, query, searchIsActive, setPath } = useAssistantLibrary();
+
+// The document a row opened, or nothing. Held here rather than by the layout because the panel that shows it covers
+// this pane alone.
+const activeDocument = shallowRef<LibraryDocument | undefined>();
+
+const searchBarHeight = ref(0);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -96,12 +98,6 @@ const { path, query, searchIsActive, setPath } = useAssistantLibrary();
 const activeTypeId = computed<LibraryDocumentType | undefined>(() => {
     const [typeId] = path.value;
     return Object.hasOwn(LIBRARY_DOCUMENT_TYPE_LABELS, typeId) ? (typeId as LibraryDocumentType) : undefined;
-});
-
-const breadcrumbs = computed<BreadcrumbConfig[]>(() => {
-    const items: BreadcrumbConfig[] = [{ id: 'root', label: ROOT_LABEL }];
-    if (activeTypeId.value) items.push({ id: activeTypeId.value, label: LIBRARY_DOCUMENT_TYPE_LABELS[activeTypeId.value] });
-    return items;
 });
 
 // Inside a folder the list is that folder's documents; at the top it is the folders themselves.
@@ -114,44 +110,42 @@ const searchResults = computed<LibraryDocument[]>(() => {
     return SAMPLE_DOCUMENTS.filter((document) => document.title.toLowerCase().includes(trimmedQuery) || document.snippet.toLowerCase().includes(trimmedQuery));
 });
 
+// The bar floats over the list, so the list reserves its space rather than sitting below it — which is what lets the
+// content scroll up behind it, as the chat thread does behind its own controls.
+const scrollPaddingTop = computed(() => `${String(SEARCH_BAR_TOP_INSET_PX + searchBarHeight.value + CONTENT_GAP_PX)}px`);
+
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Opening is the layout's to do — the document covers the whole assistant, which is more than this pane owns.
+function handleCloseDocument(): void {
+    activeDocument.value = undefined;
+}
+
 function handleOpenDocument(document: LibraryDocument): void {
-    emit('open', document);
+    activeDocument.value = document;
 }
 
 function handleOpenFolder(typeId: LibraryDocumentType): void {
     setPath([typeId]);
 }
-
-function handleSelectBreadcrumb(index: number): void {
-    setPath(path.value.slice(0, index)); // The root is index 0 and names no folder, so slicing to it empties the trail.
-}
 </script>
 
 <template>
-    <div class="flex min-h-0 min-w-0 flex-1 flex-col pt-2 pl-4" data-region="LibraryPanel">
-        <!-- Names the pane, and shares its line with the toggle that opens it. 'h-9' matches the toggle's height so the
-             two sit on one baseline, and 'mr-14' keeps the text clear of it — the toggle floats and reserves nothing. -->
-        <div class="mr-14 flex h-9 flex-none items-center">
-            <h2 class="truncate text-sm font-medium text-emphasis">{{ ROOT_LABEL }}</h2>
-        </div>
+    <!-- 'min-w-0' is load-bearing: this is a flex item of its pane, and a flex item's default 'min-width: auto' is its
+         content's minimum, not zero. Without it a long row widens the panel rather than scrolling inside it, and the
+         pane overflows the split. -->
+    <div class="relative flex min-h-0 min-w-0 flex-1 flex-col" data-region="LibraryPanel">
+        <!-- Floats over the list rather than sitting above it, so the content scrolls up behind it the way the chat
+             thread does behind its own controls. 'left-4' lines it up with the rows beneath; 'right-18' clears the
+             pane toggle, which ends 56px in, and leaves the same 16px gap beside it that the lists leave beneath it —
+             the toggle floats over this pane and reserves nothing for itself.
+             No heading beside it — the field's placeholder names what this pane holds, and the trail below starts at a
+             home icon that says the same thing more briefly. -->
+        <LibrarySearchInput class="absolute top-2 right-18 left-4 z-10" @height-change="searchBarHeight = $event" />
 
-        <!-- In the flow at the top of this pane rather than floating over both: searching is the library's alone. Below
-             the heading and the toggle rather than beside them, so it is free of the corner and can hold the measure the
-             results below it are read at. -->
-        <div class="mt-2 flex-none pr-4">
-            <AssistantSearchBar class="mx-auto max-w-prose" />
-        </div>
-
-        <!-- 'min-w-0' is load-bearing: this is a flex item of its pane, and a flex item's default 'min-width: auto' is
-             its content's minimum, not zero. Without it the filter row below widens the panel rather than scrolling
-             inside it, and the pane overflows the split. -->
         <!-- Search - a flat list of what matches, whatever folder the index was left on. The trail is kept rather than
              cleared, so clearing the query returns the user to where they were browsing. -->
         <template v-if="searchIsActive">
-            <ScrollArea class="mt-3 flex flex-1 flex-col">
+            <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-top="scrollPaddingTop">
                 <template v-if="searchResults.length > 0">
                     <Button
                         v-for="document in searchResults"
@@ -175,9 +169,7 @@ function handleSelectBreadcrumb(index: number): void {
 
         <!-- Index - browse by folder, one level deep. -->
         <template v-else>
-            <Breadcrumbs class="mt-3 flex-none pr-4 text-sm" disable-last :items="breadcrumbs" @select="handleSelectBreadcrumb" />
-
-            <ScrollArea class="mt-3 flex flex-1 flex-col">
+            <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-top="scrollPaddingTop">
                 <template v-if="activeTypeId">
                     <Button
                         v-for="document in indexDocuments"
@@ -206,5 +198,16 @@ function handleSelectBreadcrumb(index: number): void {
                 </template>
             </ScrollArea>
         </template>
+
+        <!-- Covers this pane and the toggle floating over it, but stops at the pane's edge: the chat beside it is
+             untouched, and the document carries its own close. -->
+        <LibraryDocumentPanel
+            v-if="activeDocument"
+            :snippet="activeDocument.snippet"
+            :source="activeDocument.source"
+            :title="activeDocument.title"
+            :type-label="LIBRARY_DOCUMENT_TYPE_LABELS[activeDocument.type]"
+            @close="handleCloseDocument"
+        />
     </div>
 </template>

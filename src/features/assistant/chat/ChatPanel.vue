@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
-import { ArrowUpIcon, PlusIcon, SquareIcon } from '@lucide/vue';
-import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 // ── Local Framework
 import type { AssistantChatMessage } from './assistantChat';
@@ -12,13 +11,11 @@ import { useMarkedTool } from '@/services/useMarkedTool';
 import { isRunningStatus, useChatSession } from '@/services/useChatSession';
 
 // ── Static Components
-import AssistantModelMenu from '../_components/AssistantModelMenu.vue';
-import Button from '@/components/ui/button/Button.vue';
 import ChatEmptyState from './ChatEmptyState.vue';
+import ChatInput from './ChatInput.vue';
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import PendingLabel from '../_components/PendingLabel.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
-import TextArea from '@/components/ui/text/TextArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -28,7 +25,6 @@ const PROMPT = 'List the connectors.';
 // same sum — the control's own offset from the pane's edge, its height, and one shared gap — which is what brings the
 // thread to rest the same distance from each.
 const CONTENT_GAP_PX = 16;
-const COMPOSER_BOTTOM_INSET_PX = 35; // 'mb-8.75' on the composer, which sits outside the height measured below.
 const TOGGLE_HEIGHT_PX = 36; // 'ChatPaneToggle' is a 'size="sm"' icon button: 'py-2' either side of a 20px glyph.
 const TOGGLE_TOP_INSET_PX = 8; // 'top-2' on that same toggle.
 
@@ -49,15 +45,13 @@ const emit = defineEmits<{ modelChange: [modelConfig: AssistantModelConfig] }>()
 
 const input = ref(PROMPT);
 const scrollElement = ref<HTMLElement | null>(null);
-const inputContainerHeight = ref(0);
+const composerHeight = ref(0); // Reported by 'ChatInput', which measures itself and adds its own bottom inset.
 const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
 // The model is passed as a getter so a change reaches the live session rather than rebuilding it, which would start
 // the conversation again from nothing.
 const { messages, status, sendFailure, unansweredQuestionIds, sendMessage, stop } = useChatSession(() => modelConfig);
 
-const inputContainer = useTemplateRef<HTMLElement>('inputContainer');
-
-const state: { inputContainerResizeObserver: ResizeObserver | null; scrollObserver: MutationObserver | null } = { inputContainerResizeObserver: null, scrollObserver: null };
+const state: { scrollObserver: MutationObserver | null } = { scrollObserver: null };
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -82,9 +76,8 @@ const responseIsPending = computed(() => {
     return lastMessage?.role !== 'assistant' || lastMessage.parts.length === 0;
 });
 
-// Measured rather than stated: the composer grows with the text typed into it. Its bottom margin is not part of that
-// measurement, so it is added back here.
-const scrollPaddingBottom = computed(() => `${String(inputContainerHeight.value + COMPOSER_BOTTOM_INSET_PX + CONTENT_GAP_PX)}px`);
+// The composer grows with the text typed into it, so its share of this is measured and reported rather than stated.
+const scrollPaddingBottom = computed(() => `${String(composerHeight.value + CONTENT_GAP_PX)}px`);
 
 // The mirror of the padding above. Stated rather than measured, because the toggle is a fixed shape owned by the layout
 // rather than by this panel, and plumbing a measurement across that boundary would cost more than the constants do.
@@ -113,39 +106,14 @@ onMounted(() => {
     void initialiseMarkedTool();
 });
 
-onMounted(() => {
-    if (!inputContainer.value) return;
-    inputContainerHeight.value = inputContainer.value.offsetHeight;
-    state.inputContainerResizeObserver = new ResizeObserver(() => {
-        inputContainerHeight.value = inputContainer.value?.offsetHeight ?? 0;
-    });
-    state.inputContainerResizeObserver.observe(inputContainer.value);
-});
-
 onUnmounted(() => {
     state.scrollObserver?.disconnect();
-    state.inputContainerResizeObserver?.disconnect();
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-// TODO: Attach files and add context to the conversation. The control is placed now so the composer's layout is settled;
-// what it opens is not built yet.
-function handleAddToConversation(): void {
-    // Intentionally empty until there is something to add.
-}
-
 function handleSelectModel(newModelConfig: AssistantModelConfig): void {
     emit('modelChange', newModelConfig);
-}
-
-// The one composer action: the same button sends while the thread is idle and cancels while a response is running.
-function handleComposerAction(): void {
-    if (responseIsRunning.value) {
-        stop();
-        return;
-    }
-    handleSendMessage();
 }
 
 function handleSendMessage(): void {
@@ -243,60 +211,17 @@ function handleRetryMarkedTool(): void {
                 </div>
             </ScrollArea>
 
-            <!-- Input - in-flow, always rounded, with an action bar (add, model, send) attached below the text box. -->
-            <div
-                ref="inputContainer"
-                :class="[
-                    'absolute bottom-0 mb-8.75 flex flex-none flex-col bg-surface shadow-md',
-                    'rounded-2xl border border-selected-border',
-                    'focus-within:ring-1 focus-within:ring-selected-ring',
-                    // Two separate questions, and one breakpoint used to answer both — which is what made this wrong.
-                    //
-                    // Where the composer may start is about the session button, which is fixed to the viewport's
-                    // bottom-left corner and so reaches this pane only when the assistant runs to the left edge of the
-                    // screen. That is true at every width, so it is a bound rather than a breakpoint: nothing below may
-                    // reset it, which is why the centring keeps the insets instead of overriding them with 'inset-x-0'.
-                    studioPaneIsHidden ? 'right-4 left-16' : 'inset-x-4',
-                    // How wide it then gets is about the room this pane has, which is a container query. Capping with
-                    // 'max-w' rather than setting a width leaves the element free to fill the inset box when it is
-                    // narrow, and the auto margins centre it within that box once the cap bites.
-                    '@md:mx-auto @md:max-w-[65ch]'
-                ]"
-            >
-                <TextArea v-model="input" class="max-h-40 rounded-t-2xl" placeholder="Ask a question" @keydown.enter.exact.prevent="handleSendMessage" />
-
-                <!-- Grid rather than flex: the add and send buttons sit in max-content tracks they never give up or stretch into, while
-                     the model menu between them takes the rest and ellipsises once the bar genuinely runs short. -->
-                <div
-                    class="grid grid-cols-[max-content_minmax(0,auto)_max-content] items-center gap-x-2 rounded-b-2xl border-t border-selected-border bg-selected p-2 text-selected-text"
-                >
-                    <!-- Shaped like the send button at the other end of the row, so the pair reads as the composer's two actions. Neutral
-                         rather than tinted: sending is the thing this bar is for, and two filled circles would put them on equal footing. -->
-                    <Button
-                        aria-label="Add to the conversation"
-                        class="flex size-7 items-center justify-center rounded-full border border-boundary bg-surface text-content"
-                        shape="minimal"
-                        @click="handleAddToConversation"
-                    >
-                        <PlusIcon class="size-4" stroke-width="2.5" />
-                    </Button>
-
-                    <AssistantModelMenu class="min-w-0 justify-self-start" :model-config="modelConfig" :model-configs="modelConfigs" @select="handleSelectModel" />
-
-                    <Button
-                        :aria-label="responseIsRunning ? 'Stop the response' : 'Send the message'"
-                        class="flex size-7 items-center justify-center rounded-full text-white disabled:opacity-40"
-                        :class="responseIsRunning ? 'bg-red-400' : 'bg-blue-400'"
-                        shape="minimal"
-                        :disabled="!responseIsRunning && input.trim().length === 0"
-                        @click="handleComposerAction"
-                    >
-                        <!-- Filled: an outlined square at this size reads as an empty box rather than a stop. -->
-                        <SquareIcon v-if="responseIsRunning" class="size-3" fill="currentColor" stroke-width="2.5" />
-                        <ArrowUpIcon v-else class="size-5" stroke-width="2.5" />
-                    </Button>
-                </div>
-            </div>
+            <ChatInput
+                v-model="input"
+                :model-config="modelConfig"
+                :model-configs="modelConfigs"
+                :response-is-running="responseIsRunning"
+                :studio-pane-is-hidden="studioPaneIsHidden"
+                @height-change="composerHeight = $event"
+                @model-change="handleSelectModel"
+                @send="handleSendMessage"
+                @stop="stop"
+            />
         </template>
     </div>
 </template>
