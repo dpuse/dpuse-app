@@ -140,7 +140,10 @@ function handleOpenFolder(typeId: LibraryDocumentType): void {
     <!-- 'min-w-0' is load-bearing: this is a flex item of its pane, and a flex item's default 'min-width: auto' is its
          content's minimum, not zero. Without it a long row widens the panel rather than scrolling inside it, and the
          pane overflows the split. -->
-    <div class="relative flex min-h-0 min-w-0 flex-1 flex-col" data-region="LibraryPanel">
+    <div class="@container relative flex min-h-0 min-w-0 flex-1 flex-col" data-region="LibraryPanel">
+        <!-- '@container' for the same reason 'ChatPanel' declares its own: the search bar's width is a question about
+             the room this pane has, and this pane is one half of a split nested inside another split, so its width
+             changes whenever either splitter moves and no viewport breakpoint ever reports that. -->
         <!-- Floats over the list rather than sitting above it, so the content scrolls up behind it the way the chat
              thread does behind its own controls.
              'right-18' clears the library's own toggle, which ends 56px in, leaving the same 16px gap the lists leave
@@ -149,63 +152,87 @@ function handleOpenFolder(typeId: LibraryDocumentType): void {
              rows' own margin; with the chat closed this pane reaches the corner and has to clear the toggle by the
              same 16px, so the two ends stay symmetrical.
              No heading beside it — the field's placeholder names what this pane holds, and the trail below starts at a
-             home icon that says the same thing more briefly. -->
-        <LibrarySearchInput :class="['absolute top-2 right-18 z-10', chatPaneIsHidden ? 'left-18' : 'left-4']" @height-change="searchBarHeight = $event" />
+             home icon that says the same thing more briefly.
+             Capped to the same measure as the lists beneath it and as the composer in the other pane, so the three read
+             as one column rather than three widths. 'max-w' rather than a width, as the composer does it: the field
+             still fills the inset box while the pane is narrow, and the auto margins centre it once the cap bites.
+             '@xl:left-18' is what keeps the centring honest. The insets are collision bounds — the field has to clear
+             the library's toggle on the right, and the chat's on the left once this pane reaches that corner — but they
+             are asymmetric while the chat is open, and centring inside an asymmetric box would sit the field half the
+             difference off the column below it. The box goes symmetric at '@xl' (576px), below the 664px this pane
+             needs before a 65ch cap can bite at all, so by the time the auto margins do anything the axis they centre
+             on is the pane's own. -->
+        <LibrarySearchInput
+            :class="['absolute top-2 right-18 z-10 mx-auto max-w-prose', chatPaneIsHidden ? 'left-18' : 'left-4 @xl:left-18']"
+            @height-change="searchBarHeight = $event"
+        />
 
         <!-- Search - a flat list of what matches, whatever folder the index was left on. The trail is kept rather than
              cleared, so clearing the query returns the user to where they were browsing. -->
         <template v-if="searchIsActive">
             <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-top="scrollPaddingTop">
-                <template v-if="searchResults.length > 0">
-                    <Button
-                        v-for="document in searchResults"
-                        :key="document.id"
-                        class="flex w-full flex-col items-start border-b border-separator py-3 pr-4 text-left first:pt-0"
-                        shape="minimal"
-                        @click="handleOpenDocument(document)"
-                    >
-                        <div class="flex max-w-full items-center gap-x-2">
-                            <Tag :color="DOCUMENT_TYPE_COLORS[document.type]" :text="LIBRARY_DOCUMENT_TYPE_LABELS[document.type]" />
-                            <div class="truncate text-sm font-medium">{{ document.title }}</div>
-                        </div>
-                        <p class="mt-1 text-sm text-muted">{{ document.snippet }}</p>
-                        <p class="mt-1 text-xs text-subtle">{{ document.source }}</p>
-                    </Button>
-                </template>
+                <!-- Held to the same measure as the field floating above it and as the chat thread beside it. Declared
+                     here rather than on each row so the rules between them are one column's width rather than each
+                     row's, and so the cap resolves against one font size: 'max-w-prose' is 65ch, and 'ch' is relative
+                     to whatever element carries it, so the same class on a 'text-sm' row would be a narrower column.
+                     The rows carry no right padding of their own — the scroller reserves 16px there for its thumb,
+                     which mirrors the 'pl-4' on this side and leaves the column centred on the pane. -->
+                <div class="mx-auto max-w-prose">
+                    <template v-if="searchResults.length > 0">
+                        <Button
+                            v-for="document in searchResults"
+                            :key="document.id"
+                            class="flex w-full flex-col items-start border-b border-separator py-3 text-left first:pt-0"
+                            shape="minimal"
+                            @click="handleOpenDocument(document)"
+                        >
+                            <div class="flex max-w-full items-center gap-x-2">
+                                <Tag :color="DOCUMENT_TYPE_COLORS[document.type]" :text="LIBRARY_DOCUMENT_TYPE_LABELS[document.type]" />
+                                <div class="truncate text-sm font-medium">{{ document.title }}</div>
+                            </div>
+                            <p class="mt-1 text-sm text-muted">{{ document.snippet }}</p>
+                            <p class="mt-1 text-xs text-subtle">{{ document.source }}</p>
+                        </Button>
+                    </template>
 
-                <div v-else class="py-8 text-center text-sm text-muted">No results found.</div>
+                    <div v-else class="py-8 text-center text-sm text-muted">No results found.</div>
+                </div>
             </ScrollArea>
         </template>
 
         <!-- Index - browse by folder, one level deep. -->
         <template v-else>
             <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-top="scrollPaddingTop">
-                <template v-if="activeTypeId">
-                    <Button
-                        v-for="document in indexDocuments"
-                        :key="document.id"
-                        class="flex w-full flex-col items-start border-b border-separator py-2 pr-4 text-left last:border-b-0"
-                        shape="minimal"
-                        @click="handleOpenDocument(document)"
-                    >
-                        <div class="truncate text-sm font-medium">{{ document.title }}</div>
-                        <p class="mt-0.5 text-sm text-muted">{{ document.snippet }}</p>
-                        <p class="mt-0.5 text-xs text-subtle">{{ document.source }}</p>
-                    </Button>
-                </template>
+                <!-- The same column the results use, for the same reasons, so switching between the two changes what
+                     is listed rather than how wide the pane's content is. -->
+                <div class="mx-auto max-w-prose">
+                    <template v-if="activeTypeId">
+                        <Button
+                            v-for="document in indexDocuments"
+                            :key="document.id"
+                            class="flex w-full flex-col items-start border-b border-separator py-2 text-left last:border-b-0"
+                            shape="minimal"
+                            @click="handleOpenDocument(document)"
+                        >
+                            <div class="truncate text-sm font-medium">{{ document.title }}</div>
+                            <p class="mt-0.5 text-sm text-muted">{{ document.snippet }}</p>
+                            <p class="mt-0.5 text-xs text-subtle">{{ document.source }}</p>
+                        </Button>
+                    </template>
 
-                <template v-else>
-                    <Button
-                        v-for="folder in indexFolders"
-                        :key="folder.id"
-                        class="flex w-full items-center justify-between border-b border-separator py-2.5 pr-4 text-left last:border-b-0"
-                        shape="minimal"
-                        @click="handleOpenFolder(folder.id)"
-                    >
-                        <span class="truncate text-sm font-medium">{{ folder.label }}</span>
-                        <span class="ml-2 flex-none text-xs text-subtle">{{ folder.count }}</span>
-                    </Button>
-                </template>
+                    <template v-else>
+                        <Button
+                            v-for="folder in indexFolders"
+                            :key="folder.id"
+                            class="flex w-full items-center justify-between border-b border-separator py-2.5 text-left last:border-b-0"
+                            shape="minimal"
+                            @click="handleOpenFolder(folder.id)"
+                        >
+                            <span class="truncate text-sm font-medium">{{ folder.label }}</span>
+                            <span class="ml-2 flex-none text-xs text-subtle">{{ folder.count }}</span>
+                        </Button>
+                    </template>
+                </div>
             </ScrollArea>
         </template>
 

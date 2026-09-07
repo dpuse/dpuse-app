@@ -56,12 +56,9 @@ function handleSelect(newModelConfig: AssistantModelConfig): void {
             shape="minimal"
             @click="menuIsOpen = !menuIsOpen"
         >
-            <!-- Stacked rather than separated by a middot, provider above model — the same order the menu below lists
-                 them in, so the trigger reads as the item that is currently chosen. -->
-            <span class="flex min-w-0 flex-col text-left">
-                <span class="truncate">{{ modelConfig.providerLabel }}</span>
-                <span class="truncate">{{ modelConfig.modelLabel }}</span>
-            </span>
+            <!-- The model alone. The provider is how the menu below groups its choices, but every model label already
+                 names its vendor, so repeating it here spent a second line of the composer's bar on nothing. -->
+            <span class="min-w-0 truncate text-left">{{ modelConfig.modelLabel }}</span>
             <ChevronDownIcon class="size-3.5 flex-none" :stroke-width="1.5" />
         </Button>
 

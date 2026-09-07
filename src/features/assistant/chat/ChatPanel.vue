@@ -19,8 +19,6 @@ import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const PROMPT = 'List the connectors.';
-
 // A control floats over each end of the thread, so the scroller reserves their space by hand. Both reservations are the
 // same sum — the control's own offset from the pane's edge, its height, and one shared gap — which is what brings the
 // thread to rest the same distance from each.
@@ -43,7 +41,7 @@ const emit = defineEmits<{ modelChange: [modelConfig: AssistantModelConfig] }>()
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const input = ref(PROMPT);
+const input = ref<string | undefined>();
 const scrollElement = ref<HTMLElement | null>(null);
 const composerHeight = ref(0); // Reported by 'ChatInput', which measures itself and adds its own bottom inset.
 const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
@@ -119,8 +117,7 @@ function handleSelectModel(newModelConfig: AssistantModelConfig): void {
 function handleSendMessage(): void {
     // Guarded rather than queued: Enter during a run would otherwise reach a session that cannot take a second send.
     if (responseIsRunning.value) return;
-    const text = input.value.trim();
-    if (!text) return;
+    const text = input.value?.trim() ?? '';
     input.value = '';
     void sendMessage(text);
 }

@@ -86,7 +86,7 @@ function handleSelectBreadcrumb(index: number): void {
     >
         <!-- Wrapped because 'TextArea' forwards its attributes to the text box rather than to its own root, so a class
              put on it would size the box and leave the root unable to shrink. -->
-        <div class="min-w-0 pl-2.5">
+        <div class="min-w-0">
             <!-- 'TextArea' rather than 'TextInput': it carries no border, background or rounding of its own, so the box
                  around it provides the frame exactly as it does for the chat composer, and its built-in clear button is
                  the same one the composer shows.

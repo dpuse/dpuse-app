@@ -110,11 +110,13 @@ function reportHeight(): void {
         ]"
         data-region="ChatInput"
     >
-        <TextArea v-model="draft" class="max-h-40 rounded-t-2xl" placeholder="Ask a question" @keydown.enter.exact.prevent="emit('send')" />
+        <TextArea v-model="draft" class="max-h-40 rounded-t-lg" placeholder="Ask a question" @keydown.enter.exact.prevent="emit('send')" />
 
         <!-- Grid rather than flex: the add and send buttons sit in max-content tracks they never give up or stretch into, while
              the model menu between them takes the rest and ellipsises once the bar genuinely runs short. -->
-        <div class="grid grid-cols-[max-content_minmax(0,auto)_max-content] items-center gap-x-2 rounded-b-2xl border-t border-selected-border bg-selected px-2 text-selected-text">
+        <div
+            class="grid grid-cols-[max-content_minmax(0,auto)_max-content] items-center gap-x-2 rounded-b-lg border-t border-selected-border bg-selected px-2 py-1.5 text-selected-text"
+        >
             <!-- Shaped like the send button at the other end of the row, so the pair reads as the composer's two actions. Neutral
                  rather than tinted: sending is the thing this bar is for, and two filled circles would put them on equal footing. -->
             <Button

@@ -25,7 +25,7 @@ const { isOpen } = defineProps<{ isOpen: boolean }>();
     <Button
         :aria-expanded="isOpen"
         :aria-label="isOpen ? 'Close the library' : 'Search the library'"
-        class="absolute top-2 right-4 z-20 rounded-full! bg-surface shadow-md"
+        class="absolute top-2 right-4 z-20 rounded-full! border border-selected-border bg-surface shadow-md"
         data-region="LibraryPaneToggle"
         :is-active="isOpen"
         shape="icon"
