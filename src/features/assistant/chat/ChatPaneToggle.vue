@@ -26,7 +26,7 @@ const { isOpen } = defineProps<{ isOpen: boolean }>();
     <Button
         :aria-expanded="isOpen"
         :aria-label="isOpen ? 'Close the chat' : 'Open the chat'"
-        class="absolute top-2 left-3 z-20 rounded-full! border border-separator bg-surface shadow-md"
+        class="absolute top-2 left-3.5 z-20 rounded-full! border border-separator bg-surface shadow-md"
         data-region="ChatPaneToggle"
         :is-active="isOpen"
         shape="icon"
