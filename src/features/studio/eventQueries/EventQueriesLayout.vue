@@ -14,7 +14,7 @@ import { useConfigsReady } from '@/services/useConfigsReady';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import RectangleButton from '@/components/ui/button/RectangleButton.vue';
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '@/features/studio/_components/StudioHeader.vue';
@@ -99,7 +99,7 @@ async function renderDiagram(): Promise<void> {
         <ErrorShell v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
 
         <div v-show="!renderFailure" class="px-4 py-2">
-            <Button variant="outline" @click="handleAutoLayout">Auto-layout</Button>
+            <RectangleButton variant="outline" @click="handleAutoLayout">Auto-layout</RectangleButton>
         </div>
 
         <div v-show="!renderFailure" ref="container" class="w-full flex-1" />

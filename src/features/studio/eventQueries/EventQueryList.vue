@@ -20,7 +20,7 @@ import { useEngine } from '@/services/useEngine';
 import { activeMetaStoreConnectionConfig, eventQueryConfigs } from '@/state/session';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import RectangleButton from '@/components/ui/button/RectangleButton.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import type { DataSource } from '@/composables/useDataWindow';
@@ -88,7 +88,9 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
             }
         });
     } catch (error) {
-        retrieveFailure.value = raiseFailure(new AppError('Failed to retrieve event queries.', 'dpuse-app.EventQueryList.retrieveEventQueries', { typeId: 'handled' }, { cause: error }));
+        retrieveFailure.value = raiseFailure(
+            new AppError('Failed to retrieve event queries.', 'dpuse-app.EventQueryList.retrieveEventQueries', { typeId: 'handled' }, { cause: error })
+        );
     } finally {
         // Pending...
     }
@@ -99,9 +101,9 @@ async function retrieveEventQueries(connectionConfig?: ConnectionConfig): Promis
     <div class="mx-4 flex flex-none border-b border-separator py-1">
         <div class="flex-1"></div>
 
-        <Button @click="router.push({ name: '???', query: route.query }).catch(() => undefined)">
+        <RectangleButton @click="router.push({ name: '???', query: route.query }).catch(() => undefined)">
             <PlusIcon stroke-width="1.25" />
-        </Button>
+        </RectangleButton>
     </div>
 
     <!-- Covers the region: nothing was retrieved, so an empty list with no explanation is what this replaces. -->

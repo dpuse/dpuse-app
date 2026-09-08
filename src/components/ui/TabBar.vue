@@ -4,7 +4,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
 import { nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import BaseButton from '@/components/ui/button/BaseButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -70,21 +70,20 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
 <template>
     <div class="relative" data-region="TabBar">
         <div ref="rowElement" class="flex min-w-0 flex-1 items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator px-4" @scroll="updateScrollState">
-            <Button
+            <BaseButton
                 v-for="item in items"
                 :key="item.id"
                 class="border-b-2 border-t-transparent py-1.25"
                 :class="[activeId === item.id ? 'border-b-accent text-accent' : 'border-b-transparent', item.rightAligned ? 'ml-auto' : '']"
                 role="tab"
                 :aria-selected="activeId === item.id"
-                shape="minimal"
                 :to="item.to != null ? { name: item.to, query: { ...$route.query, sView: item.to } } : undefined"
                 @click="$emit('select', item)"
             >
                 <slot :item="item">
                     <div v-if="item.label" class="text-sm">{{ item.label }}</div>
                 </slot>
-            </Button>
+            </BaseButton>
         </div>
 
         <button

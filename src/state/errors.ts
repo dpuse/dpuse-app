@@ -207,4 +207,3 @@ function findComponentName(error: unknown): string | undefined {
         .find((value) => typeof value === 'string' && value.length > 0);
     return typeof name === 'string' ? name : undefined;
 }
-

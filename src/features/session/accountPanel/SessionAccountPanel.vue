@@ -11,7 +11,8 @@ import T from './SessionAccountPanel.json';
 import { viewportIsWide } from '@/state/appLayout';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import RectangleButton from '@/components/ui/button/RectangleButton.vue';
+import IconButton from '@/components/ui/button/IconButton.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
@@ -120,17 +121,17 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 
                 <!-- <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div> -->
 
-                <!-- <Button class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: route.query }" variant="destructive">
+                <!-- <RectangleButton class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: route.query }" variant="destructive">
                           {{ t(T, 'Delete_account') }}
-                        </Button> -->
+                        </RectangleButton> -->
             </ScrollArea>
         </div>
 
         <div v-if="viewportIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
             <div class="flex h-12 flex-none items-center gap-x-1 border-b border-separator">
-                <Button v-if="!viewportIsWide" shape="icon" size="sm" @click="handleBack">
+                <IconButton v-if="!viewportIsWide" :accessible-label="t(T, 'Back')" size="sm" @click="handleBack">
                     <ArrowBigLeftIcon stroke-width="1.25" />
-                </Button>
+                </IconButton>
                 {{ activeOptionConfig!.title }}
             </div>
 

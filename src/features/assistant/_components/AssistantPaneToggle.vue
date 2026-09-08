@@ -4,7 +4,7 @@ import { t } from '@/state/locale';
 
 // ── Static Components
 import AssistantLogo from '@/components/branding/AssistantLogo.vue';
-import Button from '@/components/ui/button/Button.vue';
+import ToggleButton from '@/components/ui/button/ToggleButton.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -14,12 +14,7 @@ const T = {
 </script>
 
 <template>
-    <Button
-        :aria-label="t(T, 'k.toggle.label.aria')"
-        class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20 rounded-full! bg-surface"
-        data-region="AssistantPaneToggle"
-        shape="icon"
-    >
+    <ToggleButton :accessible-label="t(T, 'k.toggle.label.aria')" class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20" data-region="AssistantPaneToggle">
         <AssistantLogo />
-    </Button>
+    </ToggleButton>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import { ArrowRightIcon } from '@lucide/vue';
 import { computed, shallowRef, watch } from 'vue';
 import { type RouteRecordNameGeneric, useRoute } from 'vue-router';
 
@@ -23,7 +24,7 @@ import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
-import StepActionButton from '@/components/ui/button/StepActionButton.vue';
+import ActionButton from '@/components/ui/button/ActionButton.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -133,7 +134,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
             <div class="relative min-h-0 flex-1">
                 <ErrorBoundary name="ConnectionDetail">
                     <AddConnectionForm :connector-localised-config="item" />
-                    <StepActionButton label="Select" @commit="handleCommitDetail" />
+                    <ActionButton :icon="ArrowRightIcon" label="Select" @commit="handleCommitDetail" />
                 </ErrorBoundary>
             </div>
         </template>

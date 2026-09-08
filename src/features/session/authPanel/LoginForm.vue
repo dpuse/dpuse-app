@@ -8,7 +8,7 @@ import { t } from '@/state/locale';
 
 // ── Static Components
 import AppleLogo from '@/components/branding/AppleLogo.vue';
-import Button from '@/components/ui/button/Button.vue';
+import RectangleButton from '@/components/ui/button/RectangleButton.vue';
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import GoogleLogo from '@/components/branding/GoogleLogo.vue';
 import MicrosoftLogo from '@/components/branding/MicrosoftLogo.vue';
@@ -54,17 +54,17 @@ function handleSubmit(): void {
         <!-- 'novalidate' suppresses the browser's own error bubbles; the fields render the messages themselves. -->
         <form ref="formReference" class="mt-2 flex flex-col gap-y-3" novalidate @submit.prevent="handleSubmit">
             <TextInput v-model="identifier" autocomplete="email" required type="email" :label="t(T, 'Email_address')" :placeholder="t(T, 'Email_address')" />
-            <Button type="submit" variant="primary">{{ t(T, 'Continue') }}</Button>
+            <RectangleButton type="submit" variant="primary">{{ t(T, 'Continue') }}</RectangleButton>
         </form>
 
         <Separator :text="t(T, 'or')" />
 
         <div class="flex flex-col gap-y-3">
-            <Button class="flex justify-start gap-x-2" variant="outline"><UserRoundKeyIcon class="size-5" />{{ t(T, 'Sign_in_with_a_passkey') }}</Button>
-            <Button class="flex justify-start gap-x-2" variant="outline"><AppleLogo class="size-5" />{{ t(T, 'Sign_in_with_Apple') }}</Button>
-            <Button class="flex justify-start gap-x-2" variant="outline"><GoogleLogo class="size-5" />{{ t(T, 'Sign_in_with_Google') }}</Button>
-            <Button class="flex justify-start gap-x-2" variant="outline"><GitHubLogo class="size-5" />{{ t(T, 'Sign_in_with_GitHub') }}</Button>
-            <Button class="flex justify-start gap-x-2" variant="outline"><MicrosoftLogo class="size-5" />{{ t(T, 'Sign_in_with_Microsoft') }}</Button>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><UserRoundKeyIcon class="size-5" />{{ t(T, 'Sign_in_with_a_passkey') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><AppleLogo class="size-5" />{{ t(T, 'Sign_in_with_Apple') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><GoogleLogo class="size-5" />{{ t(T, 'Sign_in_with_Google') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><GitHubLogo class="size-5" />{{ t(T, 'Sign_in_with_GitHub') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><MicrosoftLogo class="size-5" />{{ t(T, 'Sign_in_with_Microsoft') }}</RectangleButton>
         </div>
 
         <Separator class="mt-3 mb-2" />

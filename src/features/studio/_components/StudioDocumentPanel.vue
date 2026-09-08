@@ -1,10 +1,11 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import { ListXIcon } from '@lucide/vue';
 import { ArrowLeftIcon } from '@lucide/vue';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
-import ClearSelectionButton from '@/components/ui/button/ClearSelectionButton.vue';
+import BaseButton from '@/components/ui/button/BaseButton.vue';
+import IconButton from '@/components/ui/button/IconButton.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -23,7 +24,7 @@ defineEmits<{ clear: []; close: [] }>();
 <template>
     <div class="dpuse-prose relative pt-4" data-region="StudioDocumentPanel">
         <!-- Header -->
-        <Button class="group block w-full min-w-0 cursor-pointer text-left md:pointer-events-none" shape="minimal" @click="$emit('close')">
+        <BaseButton class="group block w-full min-w-0 cursor-pointer text-left md:pointer-events-none" @click="$emit('close')">
             <div class="mr-9 flex min-w-0 items-center gap-x-0.5 text-sm leading-tight text-muted group-hover:text-blue-500">
                 <!-- Back Arrow -->
                 <ArrowLeftIcon class="size-4 flex-none md:hidden" />
@@ -44,10 +45,12 @@ defineEmits<{ clear: []; close: [] }>();
                     {{ title }}
                 </h1>
             </div>
-        </Button>
+        </BaseButton>
 
         <!-- Clear Selection Action -->
-        <ClearSelectionButton class="absolute top-2 right-0" @click="$emit('clear')" />
+        <IconButton accessible-label="Clear the selection" class="absolute top-2 right-0" rounded size="sm" variant="ghost" @click="$emit('clear')">
+            <ListXIcon class="size-5.5!" stroke-width="1.25" />
+        </IconButton>
 
         <!-- Content -->
         <slot />

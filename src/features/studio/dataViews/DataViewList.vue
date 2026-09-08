@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import { ArrowRightIcon } from '@lucide/vue';
 import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -33,7 +34,7 @@ import DataViewPanel from './DataViewPanel.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
-import StepActionButton from '@/components/ui/button/StepActionButton.vue';
+import ActionButton from '@/components/ui/button/ActionButton.vue';
 import StudioListPanel from '@/features/studio/_components/StudioListPanel.vue';
 
 // ── Dynamic Components
@@ -96,7 +97,6 @@ async function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<Dat
 function handleRetryRetrieve(): void {
     if (activeMetaStoreConnectionConfig.value) void retrieveDataViewConfigs(activeMetaStoreConnectionConfig.value);
 }
-
 
 function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
     activeDataViewLocalisedConfig.value = dataViewLocalisedConfig;
@@ -170,7 +170,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
 
             <template #detail="{ item, clear, close }">
                 <DataViewPanel :data-view-localised-config="item" @clear="clear" @close="close" />
-                <StepActionButton label="Open" @click="handleOpenDataView(item)" />
+                <ActionButton :icon="ArrowRightIcon" label="Open" @click="handleOpenDataView(item)" />
             </template>
 
             <template #no-selection>

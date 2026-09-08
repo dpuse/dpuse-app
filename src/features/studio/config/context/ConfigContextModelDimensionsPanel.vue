@@ -11,7 +11,7 @@ import type { LocalisedModelItem } from './contextModel';
 import { purifyMarkdown } from '@/services/useMarkedTool';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import BaseButton from '@/components/ui/button/BaseButton.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -73,12 +73,12 @@ function purifyText(text: string): string {
         >
             <ChevronRightIcon class="size-5" stroke-width="1.5" />
             <div class="flex-1">{{ dimension.label }}</div>
-            <Button class="mr-1" shape="minimal" @click="$emit('showTreeDiagram')">
+            <BaseButton class="mr-1" @click="$emit('showTreeDiagram')">
                 <NetworkIcon class="size-5" stroke-width="1.5" />
-            </Button>
-            <Button shape="minimal" @click="$emit('edit')">
+            </BaseButton>
+            <BaseButton @click="$emit('edit')">
                 <SquarePenIcon class="size-5" stroke-width="1.5" />
-            </Button>
+            </BaseButton>
         </div>
 
         <div v-if="expandedDimensionId === dimension.id" class="overflow-y-hidden rounded-b-md px-4 pb-4">
@@ -88,14 +88,13 @@ function purifyText(text: string): string {
             <!-- Dimension Tabs -->
             <div class="flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
                 <template v-for="dimensionTab in DIMENSION_TABS" :key="dimensionTab.id">
-                    <Button
+                    <BaseButton
                         class="border-y-2 border-t-transparent py-1.25"
                         :class="dimensionTab.id === activeTab.id ? 'border-b-blue-400' : 'border-b-transparent'"
-                        shape="minimal"
                         @click="activeTab = dimensionTab"
                     >
                         <div>{{ dimensionTab.label }}</div>
-                    </Button>
+                    </BaseButton>
                 </template>
             </div>
 

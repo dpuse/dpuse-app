@@ -11,7 +11,16 @@ import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 // ── Local Framework
 import { raiseFailure } from '@/state/errors';
 import { hasFault } from '@/observability/faultInjection';
-import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/session';
+import {
+    configRetrievalFailed,
+    configRetrievalFailure,
+    configRetrievalSucceeded,
+    connectorConfigs,
+    cookbookConfigs,
+    engineConfig,
+    presenterConfigs,
+    toolConfigs
+} from '@/state/session';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

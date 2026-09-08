@@ -14,8 +14,8 @@ import { type AppFailure, raiseFailure } from '@/state/errors';
 import { useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
+import IconButton from '@/components/ui/button/IconButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -206,18 +206,18 @@ function updateParentCanScroll(ancestor: HTMLElement): void {
         >
             <!-- Toolbar -->
             <div class="flex flex-none gap-0.5 border-b border-boundary bg-backdrop">
-                <Button shape="icon" size="sm" type="button" :is-active="activeFormats.bold" aria-label="Bold" @mousedown.prevent @click="handleToggleBold">
+                <IconButton accessible-label="Bold" :is-active="activeFormats.bold" size="sm" @mousedown.prevent @click="handleToggleBold">
                     <BoldIcon class="size-4.5!" />
-                </Button>
-                <Button shape="icon" size="sm" type="button" :is-active="activeFormats.italic" aria-label="Italic" @mousedown.prevent @click="handleToggleItalic">
+                </IconButton>
+                <IconButton accessible-label="Italic" :is-active="activeFormats.italic" size="sm" @mousedown.prevent @click="handleToggleItalic">
                     <ItalicIcon class="size-4.5!" />
-                </Button>
-                <Button shape="icon" size="sm" type="button" :is-active="activeFormats.underline" aria-label="Underline" @mousedown.prevent @click="handleToggleUnderline">
+                </IconButton>
+                <IconButton accessible-label="Underline" :is-active="activeFormats.underline" size="sm" @mousedown.prevent @click="handleToggleUnderline">
                     <UnderlineIcon class="size-4.5!" />
-                </Button>
-                <Button shape="icon" size="sm" type="button" :is-active="activeFormats.link" aria-label="Link" @mousedown.prevent @click="handleToggleLink">
+                </IconButton>
+                <IconButton accessible-label="Link" :is-active="activeFormats.link" size="sm" @mousedown.prevent @click="handleToggleLink">
                     <LinkIcon class="size-4.5!" />
-                </Button>
+                </IconButton>
             </div>
 
             <!-- Content -->

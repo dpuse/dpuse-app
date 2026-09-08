@@ -8,7 +8,7 @@
 import { MessageSquareIcon } from '@lucide/vue';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import ToggleButton from '@/components/ui/button/ToggleButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -22,15 +22,7 @@ const { isOpen } = defineProps<{ isOpen: boolean }>();
          splitter's 'z-10'; both are sealed into the layout's '@container' stacking context.
          Clear of the app's fixed 'StudioPaneToggle' without arithmetic: that one sits in the header band above, and
          this row begins below the header and its separator. -->
-    <Button
-        :aria-expanded="isOpen"
-        :aria-label="isOpen ? 'Close the chat' : 'Open the chat'"
-        class="absolute top-2 left-3.5 z-20 rounded-full! border border-separator bg-surface shadow-md"
-        data-region="ChatPaneToggle"
-        :is-active="isOpen"
-        shape="icon"
-        size="sm"
-    >
+    <ToggleButton :accessible-label="isOpen ? 'Close the chat' : 'Open the chat'" class="absolute top-2 left-3.5 z-20" data-region="ChatPaneToggle" :is-open="isOpen" size="sm">
         <MessageSquareIcon :stroke-width="1.5" />
-    </Button>
+    </ToggleButton>
 </template>

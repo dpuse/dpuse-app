@@ -11,7 +11,7 @@ import type { AppFailure } from '@/state/errors';
 import { t } from '@/state/locale';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import RectangleButton from '@/components/ui/button/RectangleButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -135,15 +135,15 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
              the whole page and anything unsaved on it, so it is kept away from the buttons the user reaches for first
              and coloured to say so. Cancel and Retry group on the right, being the two that cost nothing. -->
         <div class="mt-6 flex flex-wrap items-center justify-between gap-2">
-            <Button class="flex items-center" variant="destructive" @click="$emit('reload')">
+            <RectangleButton class="flex items-center" variant="destructive" @click="$emit('reload')">
                 <RefreshCwIcon class="mr-1.5 size-4" />
                 {{ t(T, 'reload.label') }}
-            </Button>
+            </RectangleButton>
 
             <div class="flex flex-wrap items-center gap-2">
                 <!-- Only in the dialog, where it is the close action in words rather than a second way out: the body
                      rendered in place has nothing to close, and an error must not be dismissable into thin air. -->
-                <Button v-if="canCancel" variant="outline" @click="$emit('cancel')">{{ t(T, 'cancel.label') }}</Button>
+                <RectangleButton v-if="canCancel" variant="outline" @click="$emit('cancel')">{{ t(T, 'cancel.label') }}</RectangleButton>
 
                 <!-- Edged, which no 'guarded' button elsewhere needs: this one is filled with the same token as the
                      body behind it, and in light mode that token is opaque, so the two are the same colour and the
@@ -152,10 +152,10 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
                      'inset-ring' rather than 'border', matching how the 'outline' variant on Cancel draws its own: a
                      ring is a box-shadow and takes no layout space, where a border would add 2px and leave this button
                      visibly larger than the one beside it. -->
-                <Button v-if="canRetry" class="flex items-center inset-ring inset-ring-warning-ring/40" variant="guarded" @click="$emit('retry')">
+                <RectangleButton v-if="canRetry" class="flex items-center inset-ring inset-ring-warning-ring/40" variant="guarded" @click="$emit('retry')">
                     <RepeatIcon class="mr-1.5 size-4" />
                     {{ t(T, 'retry.label') }}
-                </Button>
+                </RectangleButton>
             </div>
         </div>
 

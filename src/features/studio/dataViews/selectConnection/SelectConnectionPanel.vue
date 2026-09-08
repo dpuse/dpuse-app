@@ -107,7 +107,7 @@ async function testAuth(): Promise<void> {
                     <div><strong>Version:</strong> {{ connectionLocalisedConfig?.connectorConfig.version }}</div>
                 </div>
 
-                <Button @click="testAuth">Auth</Button>
+                <RectangleButton @click="testAuth">Auth</RectangleButton>
 
                 <div>
                     <strong>Connection:</strong>

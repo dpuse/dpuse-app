@@ -17,20 +17,7 @@ import { markStaleDeployError } from '@/state/errors';
 // The four that name a component — the panel and route pairs — accept a target: '?fault=panel:ChatPanel' fails that
 // one and lets everything else load. Without a target they fail every panel or route at once, which cannot reach a
 // panel nested inside another: the outer one fails first and the inner one never loads.
-export type FaultId =
-    | 'account'
-    | 'auth'
-    | 'bootstrap'
-    | 'config'
-    | 'config-socket'
-    | 'engine'
-    | 'panel'
-    | 'panel-stale'
-    | 'preload'
-    | 'report'
-    | 'route'
-    | 'route-stale'
-    | 'vue';
+export type FaultId = 'account' | 'auth' | 'bootstrap' | 'config' | 'config-socket' | 'engine' | 'panel' | 'panel-stale' | 'preload' | 'report' | 'route' | 'route-stale' | 'vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

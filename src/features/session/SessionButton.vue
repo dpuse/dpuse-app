@@ -9,7 +9,7 @@ import { expiresIn, lifetime, sessionIsAuthenticated } from '@/state/session';
 import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
 
 // ── Static Components
-import AvatarButton from '@/components/ui/button/AvatarButton.vue';
+import BaseButton from '@/components/ui/button/BaseButton.vue';
 
 // ── Dynamic Components
 const SessionMenu = defineAsyncPanel(() => import('@/features/session/SessionMenu.vue'), 'SessionMenu', { hasPlaceholder: false });
@@ -73,9 +73,9 @@ function onMenuAfterLeave(): void {
             <SessionMenu v-if="sessionMenuIsOpen" @continue="handleClose" />
         </Transition>
 
-        <AvatarButton
+        <BaseButton
             aria-label="Toggle session panel"
-            class="dpuse-outside-click-ignore relative size-10"
+            class="dpuse-outside-click-ignore relative size-10 rounded-full border border-separator ring-2 ring-transparent ring-offset-0 hover:ring-zinc-300 active:ring-zinc-400 dark:border-zinc-400 dark:hover:ring-zinc-600 dark:active:ring-zinc-500 [&_img]:rounded-full"
             :class="{ 'bg-surface shadow-md': !viewportIsWide && !studioOptionBarIsVisible }"
             @click="sessionMenuIsOpen = !sessionMenuIsOpen"
         >
@@ -121,7 +121,7 @@ function onMenuAfterLeave(): void {
                     style="transition: stroke-dashoffset 1s linear"
                 />
             </svg> -->
-        </AvatarButton>
+        </BaseButton>
     </div>
 </template>
 

@@ -69,7 +69,9 @@ async function renderDiagram(): Promise<void> {
             await d3Tool.renderTreeDiagram(DIMENSION_TREE, container.value);
         }
     } catch (error) {
-        renderFailure.value = raiseFailure(new AppError('Failed to render diagram', 'dpuse.contextDimensionTreeDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error }));
+        renderFailure.value = raiseFailure(
+            new AppError('Failed to render diagram', 'dpuse.contextDimensionTreeDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error })
+        );
     }
 }
 </script>

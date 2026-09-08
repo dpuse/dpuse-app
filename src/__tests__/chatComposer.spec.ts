@@ -99,8 +99,10 @@ describe('chat composer send/stop button', () => {
 
         const button = composerButton(wrapper);
         expect(button.attributes('aria-label')).toBe('Stop the response');
-        expect(button.classes()).toContain('bg-red-400');
-        expect(button.classes()).not.toContain('bg-blue-400');
+        // The tokens the composer's two states resolve to, not the raw colours: the button takes 'destructive' while a
+        // run is cancellable and 'primary' otherwise, so the assertion follows the variant rather than a hex.
+        expect(button.classes()).toContain('bg-danger');
+        expect(button.classes()).not.toContain('bg-info');
 
         await button.trigger('click');
         expect(session.stop).toHaveBeenCalledOnce();

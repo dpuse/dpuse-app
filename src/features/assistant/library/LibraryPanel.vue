@@ -18,7 +18,7 @@ import { LIBRARY_DOCUMENT_TYPE_LABELS, type LibraryDocument, type LibraryDocumen
 
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
-import Button from '@/components/ui/button/Button.vue';
+import BaseButton from '@/components/ui/button/BaseButton.vue';
 import LibraryDocumentPanel from './LibraryDocumentPanel.vue';
 import LibrarySearchInput from './LibrarySearchInput.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
@@ -190,11 +190,10 @@ function handleSelectBreadcrumb(index: number): void {
                 <!-- Search - a flat list of what matches, whatever folder the index was left on. The trail is kept
                      rather than cleared, so clearing the query returns the user to where they were browsing. -->
                 <div v-if="searchIsActive">
-                    <Button
+                    <BaseButton
                         v-for="document in searchResults"
                         :key="document.id"
                         class="flex w-full flex-col items-start border-b border-separator py-3 text-left"
-                        shape="minimal"
                         @click="handleOpenDocument(document)"
                     >
                         <div class="flex max-w-full items-center gap-x-2">
@@ -203,7 +202,7 @@ function handleSelectBreadcrumb(index: number): void {
                         </div>
                         <p class="mt-1 text-sm text-muted">{{ document.snippet }}</p>
                         <p class="mt-1 text-xs text-subtle">{{ document.source }}</p>
-                    </Button>
+                    </BaseButton>
 
                     <div v-if="searchResults.length === 0" class="py-8 text-center text-sm text-muted">No results found.</div>
                 </div>
@@ -211,30 +210,28 @@ function handleSelectBreadcrumb(index: number): void {
                 <!-- Index - browse by folder, one level deep. -->
                 <div v-else>
                     <template v-if="activeTypeId">
-                        <Button
+                        <BaseButton
                             v-for="document in indexDocuments"
                             :key="document.id"
                             class="flex w-full flex-col items-start border-b border-separator py-2 text-left last:border-b-0"
-                            shape="minimal"
                             @click="handleOpenDocument(document)"
                         >
                             <div class="truncate text-sm font-medium">{{ document.title }}</div>
                             <p class="mt-0.5 text-sm text-muted">{{ document.snippet }}</p>
                             <p class="mt-0.5 text-xs text-subtle">{{ document.source }}</p>
-                        </Button>
+                        </BaseButton>
                     </template>
 
                     <template v-else>
-                        <Button
+                        <BaseButton
                             v-for="folder in indexFolders"
                             :key="folder.id"
                             class="flex w-full items-center justify-between border-b border-separator py-2.5 text-left last:border-b-0"
-                            shape="minimal"
                             @click="handleOpenFolder(folder.id)"
                         >
                             <span class="truncate text-sm font-medium">{{ folder.label }}</span>
                             <span class="ml-2 flex-none text-xs text-subtle">{{ folder.count }}</span>
-                        </Button>
+                        </BaseButton>
                     </template>
                 </div>
             </div>

@@ -7,7 +7,7 @@ import type { BaseConfig } from '@dpuse/dpuse-shared';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import BaseButton from '@/components/ui/button/BaseButton.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -89,11 +89,11 @@ const { actions = [], badges = [], config, descriptionIsVisible, isCompact, over
         <!-- Actions -->
         <div v-if="actions.length > 0 && config" class="flex items-center gap-x-1 place-self-end">
             <template v-for="action in actions" :key="action.typeId">
-                <Button v-if="action.typeId === 'delete'" aria-label="Delete" class="rounded-md border border-boundary p-1.5" shape="minimal" @click.stop="action.onClick(config)">
+                <BaseButton v-if="action.typeId === 'delete'" aria-label="Delete" class="rounded-md border border-boundary p-1.5" @click.stop="action.onClick(config)">
                     <TrashIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
-                </Button>
+                </BaseButton>
 
-                <Button v-if="action.typeId === 'open'" aria-label="Open" class="rounded-md border border-boundary p-0.5" shape="minimal" @click.stop="action.onClick(config)">
+                <BaseButton v-if="action.typeId === 'open'" aria-label="Open" class="rounded-md border border-boundary p-0.5" @click.stop="action.onClick(config)">
                     <svg
                         viewBox="0 0 24 24"
                         class="size-7"
@@ -105,17 +105,11 @@ const { actions = [], badges = [], config, descriptionIsVisible, isCompact, over
                         <path d="m12 16 4-4-4-4" stroke-width="1.75" />
                         <path d="M8 12h8" stroke-width="1.75" />
                     </svg>
-                </Button>
+                </BaseButton>
 
-                <Button
-                    v-if="action.typeId === 'info'"
-                    aria-label="Information"
-                    class="rounded-md border border-boundary p-1.5"
-                    shape="minimal"
-                    @click.stop="action.onClick(config)"
-                >
+                <BaseButton v-if="action.typeId === 'info'" aria-label="Information" class="rounded-md border border-boundary p-1.5" @click.stop="action.onClick(config)">
                     <InfoIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
-                </Button>
+                </BaseButton>
             </template>
         </div>
 

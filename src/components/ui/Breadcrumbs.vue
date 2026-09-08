@@ -6,7 +6,7 @@ import { computed } from 'vue';
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import BaseButton from '@/components/ui/button/BaseButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -35,11 +35,10 @@ const enrichedItems = computed(() =>
 
             <!-- Breadcrumb Body -->
             <component
-                :is="isDisabled ? 'div' : Button"
+                :is="isDisabled ? 'div' : BaseButton"
                 :to="!isDisabled && item.to != null ? { name: item.to, query: { ...$route.query, sView: item.to } } : undefined"
                 :aria-disabled="isDisabled || undefined"
                 :aria-label="item.label"
-                shape="minimal"
                 class="flex items-center"
                 :class="[
                     item.icon ? 'flex-none' : 'max-w-full min-w-0 overflow-hidden',

@@ -7,7 +7,7 @@ import { SearchIcon, XIcon } from '@lucide/vue';
 import { useAssistantLibrary } from '@/state/assistantLibrary';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import IconButton from '@/components/ui/button/IconButton.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ const inputElement = useTemplateRef<HTMLInputElement>('inputElement');
 // Focus returns to the field rather than being dropped on the button that has just disappeared.
 function handleClear(): void {
     query.value = '';
-    // inputElement.value?.focus();
+    inputElement.value?.focus();
 }
 </script>
 
@@ -45,14 +45,16 @@ function handleClear(): void {
             type="search"
         />
 
-        <Button
+        <IconButton
             v-if="query.length > 0"
-            aria-label="Clear the search"
-            class="absolute top-1/2 right-1.5 -translate-y-1/2 rounded-full p-1 hover:bg-zinc-100 dark:hover:bg-zinc-300/20"
-            shape="minimal"
+            accessible-label="Clear the search"
+            class="absolute top-1/2 right-1.5 -translate-y-1/2"
+            rounded
+            size="sm"
+            variant="ghost"
             @click="handleClear"
         >
-            <XIcon class="size-3.5" :stroke-width="1.5" />
-        </Button>
+            <XIcon class="size-3.5!" :stroke-width="1.5" />
+        </IconButton>
     </div>
 </template>

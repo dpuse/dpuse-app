@@ -11,7 +11,7 @@ import { t } from '@/state/locale';
 import { type StudioOptionConfig, useOptions } from './useOptions';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import IconButton from '@/components/ui/button/IconButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHomeIcon from '@/components/icons/StudioHomeIcon.vue';
@@ -72,19 +72,18 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
         <!-- Studio options scroller -->
         <ScrollArea class="flex-1" :scroll-area-padding-right="0">
             <div class="flex flex-col items-center gap-y-2 py-2">
-                <Button
-                    :aria-label="t(T, 'home.aria')"
-                    shape="icon"
+                <IconButton
+                    :accessible-label="t(T, 'home.aria')"
                     :to="{ name: 'studio', query: { ...$route.query, sView: 'studio' } }"
                     @click="handleComplete({ id: 'home', label: '', description: '', icon: '', iconDark: null, step: 0, tasks: [] })"
                 >
                     <StudioHomeIcon aria-hidden="true" />
-                </Button>
+                </IconButton>
 
                 <template v-for="config in workflowOptionConfigs" :key="config.id">
-                    <Button :aria-label="config.label" shape="icon" :to="{ name: config.id, query: { ...$route.query, sView: config.id } }" @click="handleComplete(config)">
+                    <IconButton :accessible-label="config.label" :to="{ name: config.id, query: { ...$route.query, sView: config.id } }" @click="handleComplete(config)">
                         <div aria-hidden="true" v-html="config.icon" />
-                    </Button>
+                    </IconButton>
                 </template>
             </div>
         </ScrollArea>

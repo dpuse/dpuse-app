@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import { ArrowRightIcon } from '@lucide/vue';
 import { computed, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -21,7 +22,7 @@ import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectConnectionPanel from './SelectConnectionPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
-import StepActionButton from '@/components/ui/button/StepActionButton.vue';
+import ActionButton from '@/components/ui/button/ActionButton.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -162,7 +163,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
 
         <template #detail="{ item, clear, close }">
             <SelectConnectionPanel :connection-localised-config="item" @clear="clear" @close="close" />
-            <StepActionButton label="Select" @click="handleCommitDetail" />
+            <ActionButton :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
         </template>
 
         <template #no-selection>

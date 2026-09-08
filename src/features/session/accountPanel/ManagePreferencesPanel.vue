@@ -3,12 +3,12 @@
 import { localeId } from '@/state/locale';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import RectangleButton from '@/components/ui/button/RectangleButton.vue';
 </script>
 
 <template>
     <div class="flex h-full items-center justify-center overflow-y-auto">
-        <Button @click="localeId = 'en'">English</Button>
-        <Button @click="localeId = 'es'">Español</Button>
+        <RectangleButton @click="localeId = 'en'">English</RectangleButton>
+        <RectangleButton @click="localeId = 'es'">Español</RectangleButton>
     </div>
 </template>

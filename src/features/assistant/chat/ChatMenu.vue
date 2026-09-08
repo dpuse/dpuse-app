@@ -12,7 +12,7 @@ import { GalleryVerticalEndIcon } from '@lucide/vue';
 import { onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import IconButton from '@/components/ui/button/IconButton.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
@@ -68,16 +68,9 @@ function handleSelectChat(): void {
 <template>
     <div ref="menuReference" class="relative">
         <!-- Shaped like the composer's other round controls, so the bar reads as one row of actions. -->
-        <Button
-            :aria-expanded="menuIsOpen"
-            aria-haspopup="true"
-            aria-label="Show other chats"
-            class="flex size-7 items-center justify-center rounded-full border border-boundary bg-surface text-content"
-            shape="minimal"
-            @click="menuIsOpen = !menuIsOpen"
-        >
-            <GalleryVerticalEndIcon class="size-4" stroke-width="2.5" />
-        </Button>
+        <IconButton accessible-label="Show other chats" :aria-expanded="menuIsOpen" aria-haspopup="true" rounded size="sm" variant="outline" @click="menuIsOpen = !menuIsOpen">
+            <GalleryVerticalEndIcon class="size-4!" stroke-width="2.5" />
+        </IconButton>
 
         <!-- Opens upward, as the model menu does: this bar sits at the bottom of the pane, so there is no room beneath
              it. Capped and scrolled rather than left to grow, because the list has no natural length. -->

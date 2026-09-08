@@ -16,7 +16,7 @@ import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import RectangleButton from '@/components/ui/button/RectangleButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -65,7 +65,7 @@ async function handleSubmit(): Promise<void> {
                     <div><strong>Version:</strong> {{ connectionLocalisedConfig?.connectorConfig.version }}</div> -->
                 </div>
 
-                <!-- <Button @click="testAuth">Auth</Button> -->
+                <!-- <RectangleButton @click="testAuth">Auth</RectangleButton> -->
 
                 <div>
                     <!-- <strong>Connection:</strong>

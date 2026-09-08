@@ -6,7 +6,7 @@ import { ref, useTemplateRef } from 'vue';
 import { t } from '@/state/locale';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import RectangleButton from '@/components/ui/button/RectangleButton.vue';
 import Separator from '@/components/ui/Separator.vue';
 import TextInput from '@/components/ui/text/TextInput.vue';
 
@@ -55,7 +55,7 @@ function handleSubmit(): void {
 
             <TextInput v-model="password" autocomplete="current-password" required type="password" :label="t(T, 'Password')" :placeholder="t(T, 'Password')" />
 
-            <Button type="submit" variant="primary">{{ t(T, 'Continue') }}</Button>
+            <RectangleButton type="submit" variant="primary">{{ t(T, 'Continue') }}</RectangleButton>
         </form>
 
         <div class="flex justify-between">

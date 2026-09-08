@@ -10,7 +10,7 @@
 import { LibraryIcon } from '@lucide/vue';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import ToggleButton from '@/components/ui/button/ToggleButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -22,15 +22,13 @@ const { isOpen } = defineProps<{ isOpen: boolean }>();
 <template>
     <!-- Floats over whichever pane is beneath, reserving no space, exactly as the app's own pane toggles do. 'z-20'
          clears the splitter's 'z-10'; both are sealed into the layout's '@container' stacking context. -->
-    <Button
-        :aria-expanded="isOpen"
-        :aria-label="isOpen ? 'Close the library' : 'Search the library'"
-        class="absolute top-2 right-3.5 z-20 rounded-full! border border-selected-border bg-surface shadow-md"
+    <ToggleButton
+        :accessible-label="isOpen ? 'Close the library' : 'Search the library'"
+        class="absolute top-2 right-3.5 z-20"
         data-region="LibraryPaneToggle"
-        :is-active="isOpen"
-        shape="icon"
+        :is-open="isOpen"
         size="sm"
     >
         <LibraryIcon :stroke-width="1.5" />
-    </Button>
+    </ToggleButton>
 </template>

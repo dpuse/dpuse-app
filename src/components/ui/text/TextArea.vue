@@ -4,7 +4,7 @@ import { XIcon } from '@lucide/vue';
 import { useAttrs, useId, useTemplateRef } from 'vue';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import RectangleButton from '@/components/ui/button/RectangleButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -53,15 +53,14 @@ window.visualViewport?.addEventListener('resize', () => {
             />
 
             <!-- Clear Action -->
-            <Button
+            <RectangleButton
                 v-if="textValue.length > 0"
                 aria-label="Clear text"
                 class="absolute top-1.5 right-1.5 rounded-full p-1 hover:bg-zinc-100 dark:hover:bg-zinc-300/20"
-                shape="minimal"
                 @click="handleClear"
             >
                 <XIcon class="size-3.5" :stroke-width="1.5" />
-            </Button>
+            </RectangleButton>
         </div>
     </div>
 </template>

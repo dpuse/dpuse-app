@@ -16,7 +16,7 @@ import type { AssistantModelConfig } from './modelConfigs';
 
 // ── Static Components
 import AssistantModelMenu from '../_components/AssistantModelMenu.vue';
-import Button from '@/components/ui/button/Button.vue';
+import IconButton from '@/components/ui/button/IconButton.vue';
 import ChatMenu from './ChatMenu.vue';
 import TextArea from '@/components/ui/text/TextArea.vue';
 
@@ -122,31 +122,26 @@ function reportHeight(): void {
             <!-- The two conversation controls sit together at the left end: one starts a thread, the other returns to one. Shaped
                  like the send button at the other end of the row, so the bar reads as one set of actions. Neutral rather than
                  tinted: sending is the thing this bar is for, and competing filled circles would put them on equal footing. -->
-            <Button
-                aria-label="Start a new chat"
-                class="flex size-7 items-center justify-center rounded-full border border-boundary bg-surface text-content"
-                shape="minimal"
-                @click="handleStartChat"
-            >
-                <PlusIcon class="size-4" stroke-width="2.5" />
-            </Button>
+            <IconButton accessible-label="Start a new chat" rounded size="sm" variant="outline" @click="handleStartChat">
+                <PlusIcon class="size-4!" stroke-width="2.5" />
+            </IconButton>
 
             <ChatMenu />
 
             <AssistantModelMenu class="min-w-0 justify-self-start" :model-config="modelConfig" :model-configs="modelConfigs" @select="handleSelectModel" />
 
-            <Button
-                :aria-label="responseIsRunning ? 'Stop the response' : 'Send the message'"
-                class="flex size-7 items-center justify-center rounded-full text-white disabled:opacity-40"
-                :class="responseIsRunning ? 'bg-red-400' : 'bg-blue-400'"
-                shape="minimal"
+            <IconButton
+                :accessible-label="responseIsRunning ? 'Stop the response' : 'Send the message'"
                 :disabled="!responseIsRunning && draft.trim().length === 0"
+                rounded
+                size="sm"
+                :variant="responseIsRunning ? 'destructive' : 'primary'"
                 @click="handleAction"
             >
                 <!-- Filled: an outlined square at this size reads as an empty box rather than a stop. -->
-                <SquareIcon v-if="responseIsRunning" class="size-3" fill="currentColor" stroke-width="2.5" />
-                <ArrowUpIcon v-else class="size-5" stroke-width="2.5" />
-            </Button>
+                <SquareIcon v-if="responseIsRunning" class="size-3!" fill="currentColor" stroke-width="2.5" />
+                <ArrowUpIcon v-else class="size-5!" stroke-width="2.5" />
+            </IconButton>
         </div>
     </div>
 </template>

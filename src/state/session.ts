@@ -202,7 +202,9 @@ async function initialiseHanko(): Promise<void> {
         // Raised at app level because no region owns signing in: a signed-out user looking at a working app has no
         // other way to learn why the sign-in button leads nowhere.
         establishSession('validationFailure');
-        raiseAppFailure(new AppError('Failed to load the authentication service.', 'dpuse-app.session.initialiseHanko', { typeId: 'handled' }, { cause: error }), { capability: 'authentication' });
+        raiseAppFailure(new AppError('Failed to load the authentication service.', 'dpuse-app.session.initialiseHanko', { typeId: 'handled' }, { cause: error }), {
+            capability: 'authentication'
+        });
         return;
     }
 
@@ -267,7 +269,9 @@ async function initialiseAccountMonitor(): Promise<void> {
         accountMonitorModule.initialise();
     } catch (error) {
         // 'accountConfigsAreRetrieved' stays false, so connection lists would otherwise sit busy indefinitely.
-        raiseAppFailure(new AppError('Failed to load the account service.', 'dpuse-app.session.initialiseAccountMonitor', { typeId: 'handled' }, { cause: error }), { capability: 'account' });
+        raiseAppFailure(new AppError('Failed to load the account service.', 'dpuse-app.session.initialiseAccountMonitor', { typeId: 'handled' }, { cause: error }), {
+            capability: 'account'
+        });
     }
 }
 

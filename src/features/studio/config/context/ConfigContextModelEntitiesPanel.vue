@@ -11,7 +11,7 @@ import type { LocalisedModelItem } from './contextModel';
 import { purifyMarkdown } from '@/services/useMarkedTool';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import BaseButton from '@/components/ui/button/BaseButton.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -53,9 +53,9 @@ function purifyText(text: string): string {
 <template>
     <h2 class="flex flex-none items-center justify-between gap-x-3">
         Entities
-        <Button class="mr-4" shape="minimal" @click="$emit('showErdDiagram')">
+        <BaseButton class="mr-4" @click="$emit('showErdDiagram')">
             <NetworkIcon class="size-5" stroke-width="1.5" />
-        </Button>
+        </BaseButton>
     </h2>
 
     <p>The entities that make up this model.</p>
@@ -78,9 +78,9 @@ function purifyText(text: string): string {
         >
             <ChevronRightIcon class="size-5" stroke-width="1.5" />
             <div class="flex-1">{{ entity.label }}</div>
-            <Button shape="minimal" @click="$emit('edit')">
+            <BaseButton @click="$emit('edit')">
                 <SquarePenIcon class="size-5" stroke-width="1.5" />
-            </Button>
+            </BaseButton>
         </div>
 
         <div v-if="expandedEntityId === entity.id" class="overflow-y-hidden rounded-b-md px-4 pb-4">
@@ -90,14 +90,13 @@ function purifyText(text: string): string {
             <!-- Entity Tabs -->
             <div class="flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
                 <template v-for="entityTab in ENTITY_TABS" :key="entityTab.id">
-                    <Button
+                    <BaseButton
                         class="border-y-2 border-t-transparent py-1.25"
                         :class="entityTab.id === activeTab.id ? 'border-b-blue-400' : 'border-b-transparent'"
-                        shape="minimal"
                         @click="activeTab = entityTab"
                     >
                         <div>{{ entityTab.label }}</div>
-                    </Button>
+                    </BaseButton>
                 </template>
             </div>
 

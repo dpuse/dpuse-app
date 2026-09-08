@@ -4,7 +4,7 @@ import { t } from '@/state/locale';
 import { useOptions } from '@/features/studio/options/useOptions.ts';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import BaseButton from '@/components/ui/button/BaseButton.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
@@ -47,14 +47,9 @@ const studioOptionConfigs = useOptions();
                         Commodo nec sagittis tortor mauris sed. Turpis tortor quis scelerisque diam id accumsan nullam tempus. Pulvinar etiam lacus volutpat eu.
                     </p>
 
-                    <Button
-                        v-for="config in studioOptionConfigs.slice(0, 3)"
-                        :key="config.id"
-                        shape="minimal"
-                        :to="{ name: config.id, query: { ...$route.query, sView: config.id } }"
-                    >
+                    <BaseButton v-for="config in studioOptionConfigs.slice(0, 3)" :key="config.id" :to="{ name: config.id, query: { ...$route.query, sView: config.id } }">
                         <ConfigCard :config="config" :overline="t(T, 'Step_{number}', { number: config.step })" />
-                    </Button>
+                    </BaseButton>
                 </div>
 
                 <h2 class="mt-6 mb-4 border-b border-separator pb-2">Build Data Apps</h2>
@@ -64,14 +59,9 @@ const studioOptionConfigs = useOptions();
                         Commodo nec sagittis tortor mauris sed. Turpis tortor quis scelerisque diam id accumsan nullam tempus. Pulvinar etiam lacus volutpat eu.
                     </p>
 
-                    <Button
-                        v-for="config in studioOptionConfigs.slice(3, 4)"
-                        :key="config.id"
-                        shape="minimal"
-                        :to="{ name: config.id, query: { ...$route.query, sView: config.id } }"
-                    >
+                    <BaseButton v-for="config in studioOptionConfigs.slice(3, 4)" :key="config.id" :to="{ name: config.id, query: { ...$route.query, sView: config.id } }">
                         <ConfigCard :config="config" />
-                    </Button>
+                    </BaseButton>
                 </div>
 
                 <h2 class="mt-6 mb-4 border-b border-separator pb-2">Configuration</h2>
@@ -81,9 +71,9 @@ const studioOptionConfigs = useOptions();
                         Commodo nec sagittis tortor mauris sed. Turpis tortor quis scelerisque diam id accumsan nullam tempus. Pulvinar etiam lacus volutpat eu.
                     </p>
 
-                    <Button v-for="config in studioOptionConfigs.slice(4)" :key="config.id" shape="minimal" :to="{ name: config.id, query: { ...$route.query, sView: config.id } }">
+                    <BaseButton v-for="config in studioOptionConfigs.slice(4)" :key="config.id" :to="{ name: config.id, query: { ...$route.query, sView: config.id } }">
                         <ConfigCard :config="config" />
-                    </Button>
+                    </BaseButton>
                 </div>
             </div>
         </ScrollArea>

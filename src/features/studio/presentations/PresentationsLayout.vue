@@ -42,7 +42,6 @@ const presenters: PresenterInterface[] = [];
 // Keyed by reference object, so entries for references dropped on a retry become unreachable and need no explicit clear.
 const presenterByPresentationReference = new WeakMap<LocalisedReference<ComponentReferenceConfig>, PresenterInterface>();
 
-
 // A render failure is confined to the detail pane, so it is held separately and presented there.
 const renderFailure = shallowRef<AppFailure | undefined>();
 
@@ -65,7 +64,6 @@ onMounted(() => {
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
 
 function handleRetryRender(): void {
     void handleSelectPresentation(activePresentationReference.value);
@@ -129,7 +127,11 @@ async function loadPresenters(): Promise<void> {
     // Announced rather than shown above the list: the presenters that did load are in it, so this has taken no space
     // here. Covering the list to report two failures would hide the three that work.
     raiseAppFailure(
-        new AppError(`Failed to load ${String(failedPresenterIds.length)} of ${String(presenterConfigs.value.length)} presenters.`, 'dpuse.presentationsLayout.loadPresenters', data),
+        new AppError(
+            `Failed to load ${String(failedPresenterIds.length)} of ${String(presenterConfigs.value.length)} presenters.`,
+            'dpuse.presentationsLayout.loadPresenters',
+            data
+        ),
         { retry: () => void loadPresenters() }
     );
 }
@@ -140,7 +142,6 @@ async function loadPresenters(): Promise<void> {
         <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Explore_Presentations')" to="studio" />
 
         <Separator />
-
 
         <GridDetailPanel
             :active-item="activePresentationReference"

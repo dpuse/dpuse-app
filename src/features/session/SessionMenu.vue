@@ -14,7 +14,8 @@ import { isPWA, viewportIsWide } from '@/state/appLayout';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import RectangleButton from '@/components/ui/button/RectangleButton.vue';
+import IconButton from '@/components/ui/button/IconButton.vue';
 import CloseButton from '@/components/ui/button/CloseButton.vue';
 import ListItemButton from '@/components/ui/button/ListItemButton.vue';
 import ScrollAreaFit from '@/components/ui/scroll/ScrollArea.vue';
@@ -186,46 +187,53 @@ async function toggleFullscreen(): Promise<void> {
                             <Separator class="mt-1 mb-2.25 flex-none" />
                         </div>
                         <div class="flex gap-x-2">
-                            <Button
-                                class="flex flex-1 flex-col items-center text-xs"
+                            <IconButton
+                                :accessible-label="t(T, 'System')"
+                                class="flex-1"
                                 :is-active="currentAppearance === 'auto'"
-                                shape="icon"
+                                :label="t(T, 'System')"
                                 size="sm"
                                 @click="handleSetAppearance('auto')"
                             >
-                                <MonitorIcon class="size-4.5!" />{{ t(T, 'System') }}
-                            </Button>
+                                <MonitorIcon class="size-4.5!" />
+                            </IconButton>
 
-                            <Button
-                                class="flex flex-1 flex-col items-center text-xs"
+                            <IconButton
+                                :accessible-label="t(T, 'Light')"
+                                class="flex-1"
                                 :is-active="currentAppearance === 'light'"
-                                shape="icon"
+                                :label="t(T, 'Light')"
                                 size="sm"
                                 @click="handleSetAppearance('light')"
                             >
-                                <SunIcon class="size-4.5!" />{{ t(T, 'Light') }}
-                            </Button>
+                                <SunIcon class="size-4.5!" />
+                            </IconButton>
 
-                            <Button
-                                class="flex flex-1 flex-col items-center text-xs"
+                            <IconButton
+                                :accessible-label="t(T, 'Dark')"
+                                class="flex-1"
                                 :is-active="currentAppearance === 'dark'"
-                                shape="icon"
+                                :label="t(T, 'Dark')"
                                 size="sm"
                                 @click="handleSetAppearance('dark')"
                             >
-                                <MoonIcon class="size-4.5!" />{{ t(T, 'Dark') }}
-                            </Button>
+                                <MoonIcon class="size-4.5!" />
+                            </IconButton>
                         </div>
                     </div>
 
                     <div v-if="isFullScreenSupported" class="flex flex-none flex-col">
                         <div class="text-sm font-semibold text-muted">{{ t(T, 'Full_screen') }}</div>
                         <Separator class="mt-1 mb-2.25 flex-none" />
-                        <Button class="flex flex-col items-center text-xs" shape="icon" size="sm" @click="handleToggleWindowExpansion">
+                        <IconButton
+                            :accessible-label="screenIsFullscreen ? t(T, 'Collapse') : t(T, 'Expand')"
+                            :label="screenIsFullscreen ? t(T, 'Collapse') : t(T, 'Expand')"
+                            size="sm"
+                            @click="handleToggleWindowExpansion"
+                        >
                             <ShrinkIcon v-if="screenIsFullscreen" class="size-4.5!" />
                             <ExpandIcon v-else class="size-4.5!" />
-                            {{ screenIsFullscreen ? t(T, 'Collapse') : t(T, 'Expand') }}
-                        </Button>
+                        </IconButton>
                     </div>
                 </div>
 
@@ -256,14 +264,14 @@ async function toggleFullscreen(): Promise<void> {
                 </template> -->
 
                 <!-- Manage Account -->
-                <Button v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</Button>
+                <RectangleButton v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'Manage_account') }}</RectangleButton>
 
                 <!-- Reload -->
-                <Button v-if="isPWA" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApp">{{ t(T, 'Reload') }}</Button>
+                <RectangleButton v-if="isPWA" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApp">{{ t(T, 'Reload') }}</RectangleButton>
 
                 <!-- Sign In / Sign Out -->
-                <Button v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</Button>
-                <Button v-else class="mt-2 min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</Button>
+                <RectangleButton v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{ t(T, 'Sign_out') }}</RectangleButton>
+                <RectangleButton v-else class="mt-2 min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'Sign_in/Register') }}</RectangleButton>
             </div>
         </ScrollAreaFit>
     </dialog>

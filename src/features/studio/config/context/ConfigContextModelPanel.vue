@@ -17,7 +17,7 @@ import { purifyMarkdown, useMarkedTool } from '@/services/useMarkedTool';
 import modelConfigsData from './data/modelConfigs.json'; // TODO: remove once loadModel fetches remotely
 
 // ── Static Components
-import Button from '@/components/ui/button/Button.vue';
+import BaseButton from '@/components/ui/button/BaseButton.vue';
 import ConfigContextModelDimensionsPanel from './ConfigContextModelDimensionsPanel.vue';
 import ConfigContextModelEntitiesPanel from './ConfigContextModelEntitiesPanel.vue';
 import ConfigContextModelSecondaryMeasuresPanel from './ConfigContextModelSecondaryMeasuresPanel.vue';
@@ -136,9 +136,9 @@ function localiseModel(model: Model): LocalisedModel {
             <!-- Header -->
             <h1 class="flex flex-none items-center justify-between gap-x-3 pt-6">
                 {{ modelReference.label }} Model
-                <Button class="mr-4" shape="minimal" @click="modelDescriptorsDialogIsOpen = true">
+                <BaseButton class="mr-4" @click="modelDescriptorsDialogIsOpen = true">
                     <SquarePenIcon class="size-5" stroke-width="1.5" />
-                </Button>
+                </BaseButton>
             </h1>
 
             <!-- Description -->
