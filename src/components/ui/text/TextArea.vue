@@ -49,7 +49,7 @@ window.visualViewport?.addEventListener('resize', () => {
                 ref="textAreaElement"
                 v-model="textValue"
                 v-bind="attributes"
-                class="block field-sizing-content w-full resize-none py-2 pr-8 pl-3 text-sm text-muted outline-none"
+                class="block field-sizing-content w-full resize-none py-2 pr-8 pl-3 text-sm text-muted focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring"
             />
 
             <!-- Clear Action -->

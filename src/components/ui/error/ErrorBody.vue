@@ -104,7 +104,9 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
                 <!-- No focus box of any kind: a summary is focusable, so browsers draw their own, and inside a
                      warning-coloured panel any box reads as a stray control. The chevron already turns to show the
                      open state, which is the feedback that matters here. -->
-                <summary class="flex w-fit cursor-pointer list-none items-center gap-1 text-sm font-semibold text-warning-text/80 outline-none [&::-webkit-details-marker]:hidden">
+                <summary
+                    class="flex w-fit cursor-pointer list-none items-center gap-1 text-sm font-semibold text-warning-text/80 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring [&::-webkit-details-marker]:hidden"
+                >
                     {{ t(T, 'trace.label') }}:
                     <ChevronDownIcon class="size-4 transition-transform group-open:rotate-180" />
                 </summary>

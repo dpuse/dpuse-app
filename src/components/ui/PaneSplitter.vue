@@ -118,7 +118,10 @@ function endDrag(): void {
         :aria-valuenow="Math.round(splitterLeftPanePercent)"
         :class="[
             'group relative z-10 h-full w-(--pane-splitter-width) flex-none cursor-col-resize touch-none border-x border-boundary transition-colors',
-            'hover:bg-separator focus-visible:bg-separator focus-visible:outline-none',
+            // The handle is a few pixels wide, so it shows focus by lighting up rather than by being ringed. 'outline-hidden'
+            // rather than 'outline-none': in Tailwind v4 the former keeps an outline in forced-colors mode, where this
+            // background change is not rendered and would otherwise leave no indicator at all.
+            'hover:bg-separator focus-visible:bg-separator focus-visible:outline-hidden',
             splitterIsDragging && 'bg-separator'
         ]"
         aria-label="Resize panes"

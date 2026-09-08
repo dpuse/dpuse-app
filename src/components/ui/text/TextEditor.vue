@@ -227,7 +227,7 @@ function updateParentCanScroll(ancestor: HTMLElement): void {
                 role="textbox"
                 aria-multiline="true"
                 :aria-labelledby="labelId"
-                class="min-h-10 flex-1 overflow-y-auto px-2.5 outline-none"
+                class="min-h-10 flex-1 overflow-y-auto px-2.5 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring"
                 :class="parentCanScroll ? 'overscroll-y-auto' : 'overscroll-y-none'"
             />
         </div>

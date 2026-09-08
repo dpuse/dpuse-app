@@ -7,7 +7,7 @@
 // search box it reveals sits inside the library while this does not.
 
 // ── External Dependencies & Registrations
-import { SearchIcon } from '@lucide/vue';
+import { LibraryIcon } from '@lucide/vue';
 
 // ── Static Components
 import Button from '@/components/ui/button/Button.vue';
@@ -31,6 +31,6 @@ const { isOpen } = defineProps<{ isOpen: boolean }>();
         shape="icon"
         size="sm"
     >
-        <SearchIcon :stroke-width="1.5" />
+        <LibraryIcon :stroke-width="1.5" />
     </Button>
 </template>

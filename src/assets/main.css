@@ -158,6 +158,7 @@ html {
     --color-accent: var(--accent); /* Text/icons (interactive — links, active states) */
     --color-accent-hover: var(--accent-hover); /* Text/icons (interactive — hover) */
     --color-accent-ring: var(--accent-ring); /* Focus ring (interactive) */
+    --color-focus-ring: var(--focus-ring); /* Focus indicator — one colour for every focusable thing */
 
     /* Status colors (success/warning/danger/info) — used for tags, badges, status pills, buttons, and alerts. */
     --color-success: var(--success);
@@ -225,6 +226,11 @@ html {
     --accent: var(--color-sky-600);
     --accent-hover: var(--color-sky-700);
     --accent-ring: var(--color-sky-300);
+    /* Focus follows the accent because focus is an interactive state, but it is its own token so it can be
+       retuned without touching links. sky-600 is 4.1:1 on the white surface and 3.9:1 on the zinc-50 backdrop,
+       clearing the 3:1 that WCAG 2.2's focus-appearance criterion asks for. The zinc-300 this replaces was
+       1.5:1 — visible in theory and not in practice. */
+    --focus-ring: var(--accent);
 
     /* Light mode status colors — Tailwind UI's documented badge/alert palette (bg-50/text-700/ring-600, amber bumped to text-800 for contrast). */
     --success: var(--color-green-50);
@@ -276,6 +282,7 @@ html {
     --accent: var(--color-blue-300);
     --accent-hover: var(--color-blue-200);
     --accent-ring: var(--color-blue-500);
+    --focus-ring: var(--accent); /* blue-300: 11:1 on the zinc-950 surface, 10:1 on the zinc-900 backdrop. */
 
     /* Dark mode status colors — Tailwind UI's documented dark badge/alert palette (bg-400/10, text-400, ring-400/20; green uses 500 for bg/text). */
     --success: color-mix(in srgb, var(--color-green-500) 10%, transparent);

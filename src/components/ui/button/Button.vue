@@ -5,28 +5,34 @@ import { type RouteLocationRaw, RouterLink } from 'vue-router';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const COMMON_RECTANGLE_CLASSES = 'rounded-md text-[15px] leading-6 focus-visible:ring-2 px-3 py-1.5';
-const COMMON_GRAPHIC_CLASSES = 'focus-visible:ring-2';
+// Outline rather than 'ring'. A Tailwind ring is a box-shadow, and box-shadows are not painted in forced-colors
+// mode, so the focus indicator disappeared entirely for the users most likely to be navigating by keyboard.
+// Outlines survive it, follow 'border-radius' in every browser this app supports, and take no part in layout.
+//
+// One colour for every variant, rather than a ring tinted to match each. What a focus indicator has to do is
+// clear 3:1 against whatever it sits on, which is a property of the page rather than of the button — and the
+// per-variant tints this replaces were how 'zinc-300' came to be the light-mode indicator at 1.5:1.
+const COMMON_FOCUS_CLASSES = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring';
 
-const COMMON_DESTRUCTIVE_CLASSES = ['bg-danger hover:bg-danger-hover active:bg-danger-active text-danger-text focus-visible:ring-danger-ring'];
-const COMMON_GUARDED_CLASSES = ['bg-warning hover:bg-warning-hover active:bg-warning-active text-warning-text focus-visible:ring-warning-ring'];
-const COMMON_PRIMARY_CLASSES = ['bg-info hover:bg-info-hover active:bg-info-active text-info-text focus-visible:ring-info-ring'];
-const COMMON_POSITIVE_CLASSES = ['bg-success hover:bg-success-hover active:bg-success-active text-success-text focus-visible:ring-success-ring'];
+const COMMON_RECTANGLE_CLASSES = `rounded-md text-[15px] leading-6 ${COMMON_FOCUS_CLASSES} px-3 py-1.5`;
+const COMMON_GRAPHIC_CLASSES = COMMON_FOCUS_CLASSES;
+
+const COMMON_DESTRUCTIVE_CLASSES = ['bg-danger hover:bg-danger-hover active:bg-danger-active text-danger-text'];
+const COMMON_GUARDED_CLASSES = ['bg-warning hover:bg-warning-hover active:bg-warning-active text-warning-text'];
+const COMMON_PRIMARY_CLASSES = ['bg-info hover:bg-info-hover active:bg-info-active text-info-text'];
+const COMMON_POSITIVE_CLASSES = ['bg-success hover:bg-success-hover active:bg-success-active text-success-text'];
 const COMMON_NEUTRAL_CLASSES = [
-    'bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 text-emphasis focus-visible:ring-zinc-300',
-    'dark:bg-zinc-300/20 dark:hover:bg-zinc-300/35 dark:active:bg-zinc-300/45 dark:focus-visible:ring-zinc-500 dark:text-content'
+    'bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 text-emphasis',
+    'dark:bg-zinc-300/20 dark:hover:bg-zinc-300/35 dark:active:bg-zinc-300/45 dark:dark:text-content'
 ];
-const COMMON_GHOST_CLASSES = [
-    'bg-transparent hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300',
-    'dark:hover:bg-zinc-300/25 dark:active:bg-zinc-300/35 dark:focus-visible:ring-zinc-500 dark:text-content'
-];
+const COMMON_GHOST_CLASSES = ['bg-transparent hover:bg-zinc-100 active:bg-zinc-200', 'dark:hover:bg-zinc-300/25 dark:active:bg-zinc-300/35 dark:dark:text-content'];
 const COMMON_ICON_CLASSES = [
-    'rounded-md hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300 dark:hover:bg-zinc-300/25 dark:active:bg-zinc-300/35 dark:focus-visible:ring-zinc-500'
+    'rounded-md hover:bg-zinc-100 active:bg-zinc-200 dark:hover:bg-zinc-300/25 dark:active:bg-zinc-300/35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring'
 ];
 const COMMON_OUTLINE_CLASSES = [
     'bg-transparent inset-ring inset-ring-separator dark:inset-ring-separator',
-    'hover:bg-zinc-100 active:bg-zinc-200 focus-visible:ring-zinc-300',
-    'dark:hover:bg-zinc-300/25 dark:active:bg-zinc-300/35 dark:focus-visible:ring-zinc-500 dark:text-content'
+    'hover:bg-zinc-100 active:bg-zinc-200',
+    'dark:hover:bg-zinc-300/25 dark:active:bg-zinc-300/35 dark:dark:text-content'
 ];
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -78,13 +84,7 @@ const classes = computed((): (string | string[] | undefined)[] => {
 </script>
 
 <template>
-    <component
-        :is="to ? RouterLink : 'button'"
-        class="transition-[background-color] duration-150 focus-visible:outline-none"
-        :class="classes"
-        data-region="Button"
-        v-bind="to ? { to } : { type }"
-    >
+    <component :is="to ? RouterLink : 'button'" class="transition-[background-color] duration-150" :class="classes" data-region="Button" v-bind="to ? { to } : { type }">
         <slot />
     </component>
 </template>

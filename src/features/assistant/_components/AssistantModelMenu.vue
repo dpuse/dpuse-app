@@ -52,7 +52,7 @@ function handleSelect(newModelConfig: AssistantModelConfig): void {
             aria-haspopup="true"
             :aria-expanded="menuIsOpen"
             aria-label="Select model"
-            class="flex max-w-full min-w-0 items-center gap-x-1 rounded-full px-2.5 py-1 text-xs text-selected-text hover:bg-selected-hover focus-visible:ring-1 focus-visible:ring-selected-ring"
+            class="flex max-w-full min-w-0 items-center gap-x-1 rounded-full px-2.5 py-1 text-xs text-selected-text hover:bg-selected-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
             shape="minimal"
             @click="menuIsOpen = !menuIsOpen"
         >

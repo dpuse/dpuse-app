@@ -127,7 +127,7 @@ function handleShowDetail(): void {
             <!-- Badge - the container is too narrow for prose, so the body moves to a dialog. -->
             <button
                 :aria-label="t(T, 'detail.label.aria')"
-                class="shell-badge items-center justify-center rounded-md border border-warning-ring/20 bg-warning p-1.5 text-warning-text hover:bg-warning-hover focus-visible:ring-2 focus-visible:ring-warning-ring focus-visible:outline-none active:bg-warning-active"
+                class="shell-badge items-center justify-center rounded-md border border-warning-ring/20 bg-warning p-1.5 text-warning-text hover:bg-warning-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring active:bg-warning-active"
                 :title="mainSerialisedError.message"
                 type="button"
                 @click="handleShowDetail"

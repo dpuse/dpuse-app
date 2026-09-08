@@ -96,7 +96,6 @@ function reportHeight(): void {
         :class="[
             'absolute bottom-0 mb-9.75 flex flex-none flex-col bg-surface shadow-md',
             'rounded-lg border border-selected-border',
-            'focus-within:ring-1 focus-within:ring-selected-ring',
             // Two separate questions, and one breakpoint used to answer both — which is what made this wrong once.
             //
             // Where the composer may start is about the session button, which is fixed to the viewport's bottom-left

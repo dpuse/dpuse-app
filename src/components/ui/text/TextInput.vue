@@ -74,7 +74,7 @@ function describeValidity(element: HTMLInputElement | null | undefined): string 
             ref="inputReference"
             v-model="textValue"
             v-bind="{ ...attributes, class: undefined, style: undefined }"
-            class="w-full rounded border bg-surface px-2.5 py-1.5 text-sm text-content transition-colors outline-none placeholder:text-subtle focus:ring-1 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
+            class="w-full rounded border bg-surface px-2.5 py-1.5 text-sm text-content transition-colors placeholder:text-subtle focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50"
             :class="valueHasErrors ? 'border-danger-ring' : 'border-boundary focus:border-accent'"
             :type="type"
             @blur="handleBlur"

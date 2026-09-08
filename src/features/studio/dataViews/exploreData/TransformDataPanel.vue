@@ -265,7 +265,7 @@ function typeIcon(name: string): Component {
                 <div class="relative">
                     <input
                         v-model="columnSearch"
-                        class="dpuse-search-input w-full rounded-sm bg-card-hover px-2 py-1.5 pr-7 text-xs text-content outline-none placeholder:text-subtle"
+                        class="dpuse-search-input w-full rounded-sm bg-card-hover px-2 py-1.5 pr-7 text-xs text-content placeholder:text-subtle focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring"
                         placeholder="Search column names…"
                         type="search"
                         aria-label="Search column names"
