@@ -38,7 +38,7 @@ const classes = computed(() => [
 </script>
 
 <template>
-    <BaseButton :class="classes" data-region="ListItemButton" :to="to">
+    <BaseButton :class="classes" data-region="ItemButton" :to="to">
         <slot />
     </BaseButton>
 </template>

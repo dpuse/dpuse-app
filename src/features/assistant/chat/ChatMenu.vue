@@ -13,7 +13,7 @@ import { onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── Static Components
 import IconButton from '@/components/ui/button/IconButton.vue';
-import ListItemButton from '@/components/ui/button/ListItemButton.vue';
+import ItemButton from '@/components/ui/button/ItemButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -80,10 +80,10 @@ function handleSelectChat(): void {
             role="menu"
         >
             <ScrollArea class="flex min-h-0 flex-1 flex-col" :scroll-area-padding-right="0">
-                <ListItemButton v-for="chat in SAMPLE_CHATS" :key="chat.id" class="mt-0.5 flex flex-col items-start first:mt-0" role="menuitem" @click="handleSelectChat">
+                <ItemButton v-for="chat in SAMPLE_CHATS" :key="chat.id" class="mt-0.5 flex flex-col items-start first:mt-0" role="menuitem" @click="handleSelectChat">
                     <span class="w-full truncate">{{ chat.title }}</span>
                     <span class="text-xs text-subtle">{{ chat.timeLabel }}</span>
-                </ListItemButton>
+                </ItemButton>
             </ScrollArea>
         </div>
     </div>

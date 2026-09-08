@@ -17,7 +17,7 @@ import { localeId, t } from '@/state/locale';
 import RectangleButton from '@/components/ui/button/RectangleButton.vue';
 import IconButton from '@/components/ui/button/IconButton.vue';
 import CloseButton from '@/components/ui/button/CloseButton.vue';
-import ListItemButton from '@/components/ui/button/ListItemButton.vue';
+import ItemButton from '@/components/ui/button/ItemButton.vue';
 import ScrollAreaFit from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
@@ -240,7 +240,7 @@ async function toggleFullscreen(): Promise<void> {
                 <!-- Languages -->
                 <div class="mt-4 text-sm font-semibold text-muted">{{ t(T, 'Language') }}</div>
                 <Separator class="mt-1 mb-1.25" />
-                <ListItemButton
+                <ItemButton
                     v-for="lang in SUPPORTED_LANGUAGES"
                     :key="lang.id"
                     class="mt-1 flex w-full flex-none items-center gap-x-2 text-sm"
@@ -250,7 +250,7 @@ async function toggleFullscreen(): Promise<void> {
                     <!-- See https://github.com/lipis/flag-icons. -->
                     <img :src="`/flags/${lang.flag}.svg`" class="h-4 w-5.5 object-fill ring-1 ring-black/10 dark:ring-white/10" :alt="lang.label" />
                     <div>{{ lang.label }}</div>
-                </ListItemButton>
+                </ItemButton>
 
                 <Separator class="mt-4 mb-2" />
 

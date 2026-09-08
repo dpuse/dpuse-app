@@ -3,7 +3,7 @@
 import { useId } from 'vue';
 
 // ── Static Components
-import ListItemButton from '@/components/ui/button/ListItemButton.vue';
+import ItemButton from '@/components/ui/button/ItemButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -23,9 +23,9 @@ const id = useId();
 
         <!-- List -->
         <div class="flex flex-col gap-y-1">
-            <ListItemButton v-for="item in items" :key="item.id" @click="$emit('select', item)">
+            <ItemButton v-for="item in items" :key="item.id" @click="$emit('select', item)">
                 {{ item.label }}
-            </ListItemButton>
+            </ItemButton>
         </div>
     </div>
 </template>

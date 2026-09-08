@@ -8,7 +8,7 @@ import type { AssistantModelConfig } from '../chat/modelConfigs';
 
 // ── Static Components
 import BaseButton from '@/components/ui/button/BaseButton.vue';
-import ListItemButton from '@/components/ui/button/ListItemButton.vue';
+import ItemButton from '@/components/ui/button/ItemButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -62,7 +62,7 @@ function handleSelect(newModelConfig: AssistantModelConfig): void {
         </BaseButton>
 
         <div v-if="menuIsOpen" class="absolute bottom-full left-0 z-10 mb-1 min-w-56 rounded-md border border-separator bg-surface p-1 text-sm shadow-md" role="menu">
-            <ListItemButton
+            <ItemButton
                 v-for="config in modelConfigs"
                 :key="config.id"
                 class="mt-0.5 flex flex-col items-start first:mt-0"
@@ -73,7 +73,7 @@ function handleSelect(newModelConfig: AssistantModelConfig): void {
                 <!-- The provider reads as an overline above the model, which is the line being chosen. -->
                 <span class="text-xs text-muted">{{ config.providerLabel }}</span>
                 <span>{{ config.modelLabel }}</span>
-            </ListItemButton>
+            </ItemButton>
         </div>
     </div>
 </template>

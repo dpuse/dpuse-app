@@ -14,7 +14,7 @@ import { viewportIsWide } from '@/state/appLayout';
 import RectangleButton from '@/components/ui/button/RectangleButton.vue';
 import IconButton from '@/components/ui/button/IconButton.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
-import ListItemButton from '@/components/ui/button/ListItemButton.vue';
+import ItemButton from '@/components/ui/button/ItemButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -107,7 +107,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                 <div class="flex flex-1 flex-col gap-y-1 pb-6">
                     <template v-for="optionConfig in OPTION_CONFIGS" :key="optionConfig.id">
                         <div v-if="optionConfig.type === 'label'" class="mt-3 text-xs font-medium text-muted">{{ optionConfig.label }}</div>
-                        <ListItemButton
+                        <ItemButton
                             v-else
                             class="inline-flex min-w-50 justify-start"
                             :is-active="route.name === optionConfig.id && viewportIsWide"
@@ -115,7 +115,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                             @click="activeOptionConfig = optionConfig"
                         >
                             {{ optionConfig.label }}
-                        </ListItemButton>
+                        </ItemButton>
                     </template>
                 </div>
 
