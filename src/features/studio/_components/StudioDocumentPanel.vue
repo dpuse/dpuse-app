@@ -1,11 +1,10 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowLeftIcon, ListXIcon } from '@lucide/vue';
+import { ArrowLeftIcon } from '@lucide/vue';
 
 // ── Static Components
 import BaseButton from '@/components/ui/button/BaseButton.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
-import IconButton from '@/components/ui/button/IconButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -17,7 +16,7 @@ interface Properties {
 }
 const { icon, iconDark, overline, title } = defineProps<Properties>();
 
-defineEmits<{ clear: []; close: [] }>();
+defineEmits<{ close: [] }>();
 </script>
 
 <template>
@@ -45,11 +44,6 @@ defineEmits<{ clear: []; close: [] }>();
                 </h1>
             </div>
         </BaseButton>
-
-        <!-- Clear Selection Action -->
-        <IconButton accessible-label="Clear the selection" class="absolute top-2 right-0" rounded size="sm" variant="ghost" @click="$emit('clear')">
-            <ListXIcon class="size-5.5!" stroke-width="1.25" />
-        </IconButton>
 
         <!-- Content -->
         <slot />

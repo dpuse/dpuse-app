@@ -104,7 +104,7 @@ function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewCon
 }
 
 function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig> | undefined): void {
-    activeDataViewLocalisedConfig.value = dataViewLocalisedConfig;
+    activeDataViewLocalisedConfig.value = activeDataViewLocalisedConfig.value === dataViewLocalisedConfig ? undefined : dataViewLocalisedConfig;
 }
 
 function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
@@ -150,7 +150,6 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
             max-detail-width="65ch"
             :row-height="16 + 16 + 28 + 32 + 16"
             @add="handleAddDataView"
-            @select="handleSelectDataView"
         >
             <template #grid-item="{ item }">
                 <ConfigCard
@@ -161,11 +160,12 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
                     :config="item"
                     :selected="item.id === activeDataViewLocalisedConfig?.id"
                     status-message="4 steps left"
+                    @click="handleSelectDataView(item)"
                 />
             </template>
 
-            <template #detail="{ item, clear, close }">
-                <DataViewPanel :data-view-localised-config="item" @clear="clear" @close="close" />
+            <template #detail="{ item, close }">
+                <DataViewPanel :data-view-localised-config="item" @close="close" />
                 <ActionButton :icon="ArrowRightIcon" label="Open" @click="handleOpenDataView(item)" />
             </template>
 

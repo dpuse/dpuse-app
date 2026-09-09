@@ -161,8 +161,8 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
             />
         </template>
 
-        <template #detail="{ item, clear, close }">
-            <SelectConnectionPanel :connection-localised-config="item" @clear="clear" @close="close" />
+        <template #detail="{ item, close }">
+            <SelectConnectionPanel :connection-localised-config="item" @close="close" />
             <ActionButton :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
         </template>
 

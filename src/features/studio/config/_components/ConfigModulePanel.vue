@@ -45,7 +45,7 @@ interface Properties {
 }
 const { activeConfigOptionConfig, localisedConfig } = defineProps<Properties>();
 
-defineEmits<{ clear: []; close: [] }>();
+defineEmits<{ close: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -60,7 +60,6 @@ const moduleStatus = computed(() => (localisedConfig.statusId ? getComponentStat
                 :icon-dark="localisedConfig.iconDark"
                 :overline="activeConfigOptionConfig.label"
                 :title="localisedConfig.label"
-                @clear="$emit('clear')"
                 @close="$emit('close')"
             >
                 <!-- Tags -->

@@ -99,8 +99,8 @@ function handleSelect(localisedConfig: LocalisedConfig<ManagedModuleConfig> | un
             <ConfigCard v-if="item" :config="item" :selected="item.id === activeLocalisedConfig?.id" />
         </template>
 
-        <template #detail="{ item, clear, close }">
-            <component :is="moduleTypeConfig.panel" :active-config-option-config="activeConfigOptionConfig" :localised-config="item" @clear="clear" @close="close" />
+        <template #detail="{ item, close }">
+            <component :is="moduleTypeConfig.panel" :active-config-option-config="activeConfigOptionConfig" :localised-config="item" @close="close" />
         </template>
 
         <template #no-selection>

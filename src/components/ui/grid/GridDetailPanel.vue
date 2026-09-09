@@ -6,7 +6,6 @@ import { nextTick, ref, watch } from 'vue';
 import type { DataSource } from '@/composables/useDataWindow';
 
 // ── Static Components
-import BaseButton from '@/components/ui/button/BaseButton.vue';
 import Grid from '@/components/ui/grid/Grid.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -43,6 +42,7 @@ watch(
     () => activeItem,
     (newActiveItem) => {
         if (newActiveItem == null) detailPaneIsVisible.value = false;
+        detailPaneIsVisible.value = activeItem != null;
     }
 );
 
@@ -90,9 +90,9 @@ async function handleSelectItem(row: T): Promise<void> {
                     @add="$emit('add')"
                 >
                     <template #default="{ item }">
-                        <BaseButton class="size-full" :is-active="activeItem === item" @click="handleSelectItem(item)">
-                            <slot name="grid-item" :item="item" />
-                        </BaseButton>
+                        <!-- <BaseButton class="size-full" :is-active="activeItem === item" @click="handleSelectItem(item)"> -->
+                        <slot name="grid-item" :item="item" />
+                        <!-- </BaseButton> -->
                     </template>
 
                     <template #empty>

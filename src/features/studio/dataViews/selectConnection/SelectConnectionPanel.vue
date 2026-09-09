@@ -46,8 +46,12 @@ const T = {
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> }>();
-defineEmits<{ clear: []; close: [] }>();
+interface Properties {
+    connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>;
+}
+const { connectionLocalisedConfig } = defineProps<Properties>();
+
+defineEmits<{ close: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -78,7 +82,7 @@ async function testAuth(): Promise<void> {
 <template>
     <StudioDetailPanel data-region="SelectConnectionPanel">
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
-            <StudioDocumentPanel overline="Connections" :title="connectionLocalisedConfig.label" @clear="$emit('clear')" @close="$emit('close')">
+            <StudioDocumentPanel overline="Connections" :title="connectionLocalisedConfig.label" @close="$emit('close')">
                 <!-- Tags -->
                 <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
                     <Tag :text="connectionLocalisedConfig.connectorConfig.categoryId" />
