@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
+
 const { loading, value } = defineProps<{ loading: boolean; value: unknown }>();
 </script>
 

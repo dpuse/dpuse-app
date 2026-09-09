@@ -29,7 +29,7 @@ export type GridListItem<T> = T & { isHeader?: boolean };
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Select_focus: { en: 'Select a focus from the list.', es: 'Selecciona un foco de la lista.' }
+    'selectFocus.text': { en: 'Select a focus from the list.', es: 'Selecciona un foco de la lista.' }
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -113,7 +113,7 @@ function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBaseConfi
         </template>
 
         <template #no-selection>
-            <SelectPlaceholder :message="t(T, 'Select_focus')" />
+            <SelectPlaceholder :message="t(T, 'selectFocus.text')" />
         </template>
     </GridDetailPanel>
 </template>

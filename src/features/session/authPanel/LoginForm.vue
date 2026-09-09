@@ -18,17 +18,17 @@ import TextInput from '@/components/ui/text/TextInput.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Continue: { en: 'Continue', es: 'Continuar' },
-    Email_address: { en: 'Email address', es: 'Dirección de correo electrónico' },
-    "Don't_have_an_account?": { en: "Don't have an account?", es: 'No tengo una cuenta' },
-    or: { en: 'or', es: 'o' },
-    Sign_in: { en: 'Sign in', es: 'Iniciar sesión' },
-    Sign_in_with_a_passkey: { en: 'Sign in with a passkey', es: 'Iniciar sesión con una clave de acceso' },
-    Sign_in_with_Apple: { en: 'Sign in with Apple', es: 'Iniciar sesión con Apple' },
-    Sign_in_with_Google: { en: 'Sign in with Google', es: 'Iniciar sesión con Google' },
-    Sign_in_with_GitHub: { en: 'Sign in with GitHub', es: 'Iniciar sesión con GitHub' },
-    Sign_in_with_Microsoft: { en: 'Sign in with Microsoft', es: 'Iniciar sesión con Microsoft' },
-    Sign_up: { en: 'Sign up', es: 'Inscribirse' }
+    'continue.label': { en: 'Continue', es: 'Continuar' },
+    'email.label': { en: 'Email address', es: 'Dirección de correo electrónico' },
+    'noAccount.text': { en: "Don't have an account?", es: 'No tengo una cuenta' },
+    'or.label': { en: 'or', es: 'o' },
+    'signIn.title': { en: 'Sign in', es: 'Iniciar sesión' },
+    'signInApple.label': { en: 'Sign in with Apple', es: 'Iniciar sesión con Apple' },
+    'signInGitHub.label': { en: 'Sign in with GitHub', es: 'Iniciar sesión con GitHub' },
+    'signInGoogle.label': { en: 'Sign in with Google', es: 'Iniciar sesión con Google' },
+    'signInMicrosoft.label': { en: 'Sign in with Microsoft', es: 'Iniciar sesión con Microsoft' },
+    'signInPasskey.label': { en: 'Sign in with a passkey', es: 'Iniciar sesión con una clave de acceso' },
+    'signUp.label': { en: 'Sign up', es: 'Inscribirse' }
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -49,25 +49,25 @@ function handleSubmit(): void {
 
 <template>
     <div class="flex flex-col gap-y-3">
-        <h2 class="text-2xl font-normal">{{ t(T, 'Sign_in') }}</h2>
+        <h2 class="text-2xl font-normal">{{ t(T, 'signIn.title') }}</h2>
 
         <!-- 'novalidate' suppresses the browser's own error bubbles; the fields render the messages themselves. -->
         <form ref="formReference" class="mt-2 flex flex-col gap-y-3" novalidate @submit.prevent="handleSubmit">
-            <TextInput v-model="identifier" autocomplete="email" required type="email" :label="t(T, 'Email_address')" :placeholder="t(T, 'Email_address')" />
-            <RectangleButton type="submit" variant="primary">{{ t(T, 'Continue') }}</RectangleButton>
+            <TextInput v-model="identifier" autocomplete="email" required type="email" :label="t(T, 'email.label')" :placeholder="t(T, 'email.label')" />
+            <RectangleButton type="submit" variant="primary">{{ t(T, 'continue.label') }}</RectangleButton>
         </form>
 
-        <Separator :text="t(T, 'or')" />
+        <Separator :text="t(T, 'or.label')" />
 
         <div class="flex flex-col gap-y-3">
-            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><UserRoundKeyIcon class="size-5" />{{ t(T, 'Sign_in_with_a_passkey') }}</RectangleButton>
-            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><AppleLogo class="size-5" />{{ t(T, 'Sign_in_with_Apple') }}</RectangleButton>
-            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><GoogleLogo class="size-5" />{{ t(T, 'Sign_in_with_Google') }}</RectangleButton>
-            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><GitHubLogo class="size-5" />{{ t(T, 'Sign_in_with_GitHub') }}</RectangleButton>
-            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><MicrosoftLogo class="size-5" />{{ t(T, 'Sign_in_with_Microsoft') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><UserRoundKeyIcon class="size-5" />{{ t(T, 'signInPasskey.label') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><AppleLogo class="size-5" />{{ t(T, 'signInApple.label') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><GoogleLogo class="size-5" />{{ t(T, 'signInGoogle.label') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><GitHubLogo class="size-5" />{{ t(T, 'signInGitHub.label') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><MicrosoftLogo class="size-5" />{{ t(T, 'signInMicrosoft.label') }}</RectangleButton>
         </div>
 
         <Separator class="mt-3 mb-2" />
-        <div class="text-center text-muted">{{ t(T, "Don't_have_an_account?") }} {{ t(T, 'Sign_up') }}</div>
+        <div class="text-center text-muted">{{ t(T, 'noAccount.text') }} {{ t(T, 'signUp.label') }}</div>
     </div>
 </template>

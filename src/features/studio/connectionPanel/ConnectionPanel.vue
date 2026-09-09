@@ -53,8 +53,6 @@ const OPTION_CONFIGS: OptionLocalisedConfig[] = [
     { id: 'deleteAccount', icon: '', label: 'Delete account', isDestructive: true }
 ];
 
-// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
-
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const { closeDialog } = useDialogs();
@@ -114,7 +112,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 </script>
 
 <template>
-    <DialogHeader class="flex-none" :title="t(T, 'Manage_Connection')" />
+    <DialogHeader class="flex-none" :title="t(T, 'manageConnection.title')" />
 
     <!-- No connectors arrived, so there is nothing here to add a connection with. Covers the region rather than
          leaving an empty picker with no explanation. -->

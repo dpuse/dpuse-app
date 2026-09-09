@@ -29,8 +29,8 @@ import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Explore_Presentations: { en: 'Explore Presentations', es: 'Explorar Presentaciones' },
-    'wb.label': { en: 'Workflow', es: 'Flujo de Trabajo' }
+    'explorePresentations.title': { en: 'Explore Presentations', es: 'Explorar Presentaciones' },
+    'workflow.label': { en: 'Workflow', es: 'Flujo de Trabajo' }
 };
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -139,7 +139,7 @@ async function loadPresenters(): Promise<void> {
 
 <template>
     <StudioLayout>
-        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Explore_Presentations')" to="studio" />
+        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'explorePresentations.title')" to="studio" />
 
         <Separator />
 

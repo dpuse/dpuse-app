@@ -99,7 +99,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 </script>
 
 <template>
-    <DialogHeader class="flex-none" :title="t(T, 'Manage_Account')" />
+    <DialogHeader class="flex-none" :title="t(T, 'manageAccount.title')" />
 
     <div class="flex min-h-0 flex-1">
         <div v-if="viewportIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 pl-4">
@@ -119,17 +119,17 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                     </template>
                 </div>
 
-                <!-- <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'Critical_Actions') }}</div> -->
+                <!-- <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'criticalActions.label') }}</div> -->
 
                 <!-- <RectangleButton class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: route.query }" variant="destructive">
-                          {{ t(T, 'Delete_account') }}
+                          {{ t(T, 'deleteAccount.label') }}
                         </RectangleButton> -->
             </ScrollArea>
         </div>
 
         <div v-if="viewportIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
             <div class="flex h-12 flex-none items-center gap-x-1 border-b border-separator">
-                <IconButton v-if="!viewportIsWide" :accessible-label="t(T, 'Back')" size="sm" @click="handleBack">
+                <IconButton v-if="!viewportIsWide" :accessible-label="t(T, 'back.label')" size="sm" @click="handleBack">
                     <ArrowBigLeftIcon stroke-width="1.25" />
                 </IconButton>
                 {{ activeOptionConfig!.title }}

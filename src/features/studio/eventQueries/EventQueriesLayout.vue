@@ -23,10 +23,10 @@ import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Contextualise_Data: { en: 'Contextualise Data', es: 'Contextualizar Datos' },
-    event_queries: { en: 'event queries', es: 'consultas de eventos' },
-    Event_Query: { en: 'Event Query', es: 'Consulta de Eventos' },
-    'wb.label': { en: 'Workflow', es: 'Flujo de Trabajo' }
+    'contextualiseData.title': { en: 'Contextualise Data', es: 'Contextualizar Datos' },
+    'eventQuery.label': { en: 'Event Query', es: 'Consulta de Eventos' },
+    'eventQuery.other.text': { en: 'event queries', es: 'consultas de eventos' },
+    'workflow.label': { en: 'Workflow', es: 'Flujo de Trabajo' }
 };
 
 // ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -92,7 +92,7 @@ async function renderDiagram(): Promise<void> {
 
 <template>
     <StudioLayout>
-        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Contextualise_Data')" to="studio" />
+        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'contextualiseData.title')" to="studio" />
 
         <Separator />
 

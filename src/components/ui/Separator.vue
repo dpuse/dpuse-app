@@ -1,6 +1,10 @@
 <script setup lang="ts">
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
-const { text } = defineProps<{ text?: string }>();
+
+interface Properties {
+    text?: string;
+}
+const { text } = defineProps<Properties>();
 </script>
 
 <template>

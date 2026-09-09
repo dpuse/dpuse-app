@@ -30,11 +30,11 @@ const DATA_REGIONS: Partial<Record<ModuleTypeId, string>> = {
 };
 
 const T = {
-    Documentation: { en: 'Documentation', es: 'Documentación' },
-    GitHub_repository: { en: 'GitHub Repository', es: 'Repositorio de GitHub' },
-    Links: { en: 'Links', es: 'Enlaces' },
-    Sign_in: { en: 'Sign in', es: 'Iniciar sesión' },
-    Website: { en: 'Website', es: 'Sitio web' }
+    'documentation.label': { en: 'Documentation', es: 'Documentación' },
+    'gitHubRepository.label': { en: 'GitHub Repository', es: 'Repositorio de GitHub' },
+    'links.title': { en: 'Links', es: 'Enlaces' },
+    'signIn.label': { en: 'Sign in', es: 'Iniciar sesión' },
+    'website.label': { en: 'Website', es: 'Sitio web' }
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -77,13 +77,13 @@ const moduleStatus = computed(() => (localisedConfig.statusId ? getComponentStat
                 <slot />
 
                 <!-- Links -->
-                <h2>{{ t(T, 'Links') }}</h2>
+                <h2>{{ t(T, 'links.title') }}</h2>
                 <ul>
                     <li v-if="localisedConfig.vendorHomeURL" class="flex items-center gap-x-2">
                         <GlobeIcon class="size-4" />
                         <a :href="localisedConfig.vendorHomeURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
                             {{ localisedConfig.label }}
-                            {{ t(T, 'Website') }}
+                            {{ t(T, 'website.label') }}
                             <ExternalLinkIcon class="size-4" />
                         </a>
                     </li>
@@ -92,7 +92,7 @@ const moduleStatus = computed(() => (localisedConfig.statusId ? getComponentStat
                         <InfoIcon class="size-4" />
                         <a :href="localisedConfig.vendorDocumentationURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
                             {{ localisedConfig.label }}
-                            {{ t(T, 'Documentation') }}
+                            {{ t(T, 'documentation.label') }}
                             <ExternalLinkIcon class="size-4" />
                         </a>
                     </li>
@@ -101,7 +101,7 @@ const moduleStatus = computed(() => (localisedConfig.statusId ? getComponentStat
                         <UserRoundIcon class="size-4" />
                         <a :href="localisedConfig.vendorAccountURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
                             {{ localisedConfig.label }}
-                            {{ t(T, 'Sign_in') }}
+                            {{ t(T, 'signIn.label') }}
                             <ExternalLinkIcon class="size-4" />
                         </a>
                     </li>
@@ -109,7 +109,7 @@ const moduleStatus = computed(() => (localisedConfig.statusId ? getComponentStat
                     <li class="flex items-center gap-x-2">
                         <a :href="`https://github.com/dpuse/${localisedConfig.id}`" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
                             <GitHubLogo class="size-4" />
-                            {{ t(T, 'GitHub_repository') }}
+                            {{ t(T, 'gitHubRepository.label') }}
                             <ExternalLinkIcon class="size-4" />
                         </a>
                     </li>

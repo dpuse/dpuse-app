@@ -1,12 +1,11 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ListXIcon } from '@lucide/vue';
-import { ArrowLeftIcon } from '@lucide/vue';
+import { ArrowLeftIcon, ListXIcon } from '@lucide/vue';
 
 // ── Static Components
 import BaseButton from '@/components/ui/button/BaseButton.vue';
-import IconButton from '@/components/ui/button/IconButton.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
+import IconButton from '@/components/ui/button/IconButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

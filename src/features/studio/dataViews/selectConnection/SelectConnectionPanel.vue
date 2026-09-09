@@ -22,26 +22,26 @@ import Tag from '@/components/ui/Tag.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Select_Connection: { en: 'Select Connection', es: 'Seleccionar Conexión' },
-    Select_a_connection_to_configure_the_data_view_before_continuing: {
-        en: 'Review the selected connection and leave space for connection-specific settings before continuing.',
-        es: 'Revise la conexión seleccionada y deje espacio para configuraciones específicas de la conexión antes de continuar.'
-    },
-    Selected_Connection: { en: 'Selected Connection', es: 'Conexión Seleccionada' },
-    Connection_Type: { en: 'Connection Type', es: 'Tipo de Conexión' },
-    Capabilities: { en: 'Capabilities', es: 'Capacidades' },
-    Configuration: { en: 'Configuration', es: 'Configuración' },
-    Add_connection_specific_fields_here_as_this_workflow_evolves: {
+    'capabilities.label': { en: 'Capabilities', es: 'Capacidades' },
+    'configuration.text': {
         en: 'Add connection-specific fields here as this workflow evolves.',
         es: 'Agregue aquí campos específicos de la conexión a medida que evolucione este flujo de trabajo.'
     },
-    Implementation_not_available: { en: 'Implementation not available', es: 'Implementación no disponible' },
-    No_connection_selected: { en: 'No connection selected', es: 'No se ha seleccionado ninguna conexión' },
-    Choose_a_connection_from_the_list_to_continue: {
+    'configuration.title': { en: 'Configuration', es: 'Configuración' },
+    'connectionType.label': { en: 'Connection Type', es: 'Tipo de Conexión' },
+    'continue.label': { en: 'Continue', es: 'Continuar' },
+    'implementationUnavailable.error': { en: 'Implementation not available', es: 'Implementación no disponible' },
+    'noConnection.text': {
         en: 'Choose a connection from the list to continue.',
         es: 'Elija una conexión de la lista para continuar.'
     },
-    Continue: { en: 'Continue', es: 'Continuar' }
+    'noConnection.title': { en: 'No connection selected', es: 'No se ha seleccionado ninguna conexión' },
+    'selectConnection.text': {
+        en: 'Review the selected connection and leave space for connection-specific settings before continuing.',
+        es: 'Revise la conexión seleccionada y deje espacio para configuraciones específicas de la conexión antes de continuar.'
+    },
+    'selectConnection.title': { en: 'Select Connection', es: 'Seleccionar Conexión' },
+    'selectedConnection.title': { en: 'Selected Connection', es: 'Conexión Seleccionada' }
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

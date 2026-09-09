@@ -21,8 +21,8 @@ import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Establish_Data_Views: { en: 'Establish Data Views', es: 'Establecer Vistas de Datos' },
-    Studio: { en: 'Studio', es: 'Estudio' }
+    'establishDataViews.title': { en: 'Establish Data Views', es: 'Establecer Vistas de Datos' },
+    'studio.label': { en: 'Studio', es: 'Estudio' }
 };
 
 const TASK_CONFIGS: TaskConfig[] = [
@@ -54,9 +54,9 @@ const panelIsLoading = computed(() => navigationPendingDepth.value === 1);
 
 const activeTaskLocalisedConfig = computed(() => taskLocalisedConfigsWithDisabled.value.find((config) => config.id === route.query.sView));
 const navigateBackRouteName = computed(() => (route.query.sView === 'dataViews' ? 'studio' : 'dataViews'));
-const headerOverline = computed(() => t(T, activeTaskLocalisedConfig.value ? 'Establish_Data_Views' : 'Studio'));
+const headerOverline = computed(() => t(T, activeTaskLocalisedConfig.value ? 'establishDataViews.title' : 'studio.label'));
 const headerTitle = computed(() => {
-    if (!activeTaskLocalisedConfig.value) return t(T, 'Establish_Data_Views');
+    if (!activeTaskLocalisedConfig.value) return t(T, 'establishDataViews.title');
     return activeDataViewConfig.value ? localiseConfig(activeDataViewConfig.value, localeId.value).label : 'Loading...';
 });
 

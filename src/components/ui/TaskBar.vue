@@ -10,6 +10,7 @@ import type { LocaleDescription, LocaleLabel, LocalisedConfig } from '@dpuse/dpu
 import BaseButton from '@/components/ui/button/BaseButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
+
 interface Properties {
     activeTaskId?: string;
     items?: LocalisedConfig<TaskConfig>[];

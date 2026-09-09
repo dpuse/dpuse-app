@@ -20,7 +20,7 @@ import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Service_unavailable: {
+    'serviceUnavailable.error': {
         en: 'The Hanko authentication service is currently unavailable. An error has been logged and we will follow up with the service provider.',
         es: 'El servicio de autenticación de Hanko no está disponible actualmente. Se ha registrado un error y haremos seguimiento con el proveedor del servicio.'
     }
@@ -224,7 +224,7 @@ function onAfterEnter(): void {
                         @submit="handlePasswordEntered"
                     />
 
-                    <div v-else-if="flowConstructed">{{ t(T, 'Service_unavailable') }}</div>
+                    <div v-else-if="flowConstructed">{{ t(T, 'serviceUnavailable.error') }}</div>
                 </Transition>
             </div>
         </div>

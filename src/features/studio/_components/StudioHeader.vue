@@ -6,6 +6,7 @@ import { ArrowLeftIcon } from '@lucide/vue';
 import { assistantPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
+
 const { overline, title, to } = defineProps<{ overline?: string; title: string; to?: string }>();
 </script>
 

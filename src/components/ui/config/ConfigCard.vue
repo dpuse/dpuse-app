@@ -9,6 +9,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // ── Static Components
 import BaseButton from '@/components/ui/button/BaseButton.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
+import type { RouteLocationRaw } from 'vue-router';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -27,27 +28,27 @@ interface Properties<T> {
     actions?: Action<T>[];
     badges?: Badge[];
     config: LocalisedConfig<T>;
-    descriptionIsVisible?: boolean;
     isCompact?: boolean;
     overline?: string;
     selected?: boolean;
     statusColor?: StatusColor;
     statusMessage?: string;
+    to?: RouteLocationRaw;
 }
-const { actions = [], badges = [], config, descriptionIsVisible, isCompact, overline, selected, statusColor = 'warning', statusMessage } = defineProps<Properties<T>>();
+const { actions = [], badges = [], config, isCompact, overline, selected, statusColor = 'warning', statusMessage, to } = defineProps<Properties<T>>();
 </script>
 
 <template>
-    <div
-        class="relative flex size-full cursor-pointer flex-col outline -outline-offset-1 transition-colors"
+    <BaseButton
+        class="relative flex size-full flex-col border"
         :class="[
             isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4',
             selected
-                ? 'bg-selected outline-selected-border hover:bg-selected-hover hover:outline-selected-border'
-                : 'bg-card outline-separator hover:bg-card-hover hover:outline-boundary-hover active:bg-card-hover'
+                ? 'border-selected-border bg-selected hover:bg-selected-hover'
+                : 'border-separator bg-card hover:border-boundary-hover hover:bg-card-hover active:bg-card-hover'
         ]"
         data-region="ConfigCard"
-        role="presentation"
+        :to="to"
     >
         <!-- Badges -->
         <div v-if="!isCompact" class="absolute top-1.5 right-1.5 flex gap-x-1">
@@ -79,11 +80,6 @@ const { actions = [], badges = [], config, descriptionIsVisible, isCompact, over
                 <!-- Label -->
                 <div class="min-w-0 truncate leading-tight text-muted">{{ config.label }}</div>
             </div>
-        </div>
-
-        <!-- Description -->
-        <div v-if="!isCompact && descriptionIsVisible && config.description" class="line-clamp-2 flex-none text-left text-sm text-subtle">
-            {{ config.description }}
         </div>
 
         <!-- Actions -->
@@ -126,5 +122,5 @@ const { actions = [], badges = [], config, descriptionIsVisible, isCompact, over
         >
             {{ statusMessage }}
         </div>
-    </div>
+    </BaseButton>
 </template>

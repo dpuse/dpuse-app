@@ -11,13 +11,13 @@ import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Build_Data_Apps: { en: 'Build Data Apps', es: 'Crear Aplicaciones de Datos' }
+    'buildDataApps.title': { en: 'Build Data Apps', es: 'Crear Aplicaciones de Datos' }
 };
 </script>
 
 <template>
     <StudioLayout>
-        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'Build_Data_Apps')" to="studio" />
+        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'buildDataApps.title')" to="studio" />
 
         <Separator />
 

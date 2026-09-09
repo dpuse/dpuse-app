@@ -24,10 +24,10 @@ import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Select_connector: { en: 'Select a connector from the list.', es: 'Selecciona un conector de la lista.' },
-    Select_cookbook: { en: 'Select a cookbook from the list.', es: 'Selecciona un recetario de la lista.' },
-    Select_presenter: { en: 'Select a presenter from the list.', es: 'Selecciona un presentador de la lista.' },
-    Select_tool: { en: 'Select a tool from the list.', es: 'Selecciona una herramienta de la lista.' }
+    'selectConnector.text': { en: 'Select a connector from the list.', es: 'Selecciona un conector de la lista.' },
+    'selectCookbook.text': { en: 'Select a cookbook from the list.', es: 'Selecciona un recetario de la lista.' },
+    'selectPresenter.text': { en: 'Select a presenter from the list.', es: 'Selecciona un presentador de la lista.' },
+    'selectTool.text': { en: 'Select a tool from the list.', es: 'Selecciona una herramienta de la lista.' }
 };
 
 // Everything that varies between the module types this list serves. Keyed by the tab identifier in
@@ -39,10 +39,10 @@ interface ModuleTypeConfig {
     selectKey: keyof typeof T;
 }
 const MODULE_TYPE_CONFIGS: Record<string, ModuleTypeConfig> = {
-    connectors: { configs: connectorConfigs, panel: ConfigConnectorPanel, selectKey: 'Select_connector' },
-    cookbooks: { configs: cookbookConfigs, panel: ConfigCookbookPanel, selectKey: 'Select_cookbook' },
-    presenters: { configs: presenterConfigs, panel: ConfigPresenterPanel, selectKey: 'Select_presenter' },
-    tools: { configs: toolConfigs, panel: ConfigToolPanel, selectKey: 'Select_tool' }
+    connectors: { configs: connectorConfigs, panel: ConfigConnectorPanel, selectKey: 'selectConnector.text' },
+    cookbooks: { configs: cookbookConfigs, panel: ConfigCookbookPanel, selectKey: 'selectCookbook.text' },
+    presenters: { configs: presenterConfigs, panel: ConfigPresenterPanel, selectKey: 'selectPresenter.text' },
+    tools: { configs: toolConfigs, panel: ConfigToolPanel, selectKey: 'selectTool.text' }
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

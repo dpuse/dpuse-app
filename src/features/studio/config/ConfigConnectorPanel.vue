@@ -30,8 +30,8 @@ const CONNECTOR_USAGE_DESCRIPTIONS: Record<string, string> = {
 };
 
 const T = {
-    Authentication: { en: 'Authentication', es: 'Autenticación' },
-    Connections: { en: 'Connections', es: 'Conexiones' }
+    'authentication.title': { en: 'Authentication', es: 'Autenticación' },
+    'connections.title': { en: 'Connections', es: 'Conexiones' }
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -64,12 +64,12 @@ const authMethods = computed(() => [
         <p>{{ CONNECTOR_USAGE_DESCRIPTIONS[localisedConfig.usageId ?? 'unknown'] }}</p>
 
         <!-- Authentication -->
-        <h2>{{ t(T, 'Authentication') }}</h2>
+        <h2>{{ t(T, 'authentication.title') }}</h2>
         <p v-for="method in authMethods" :key="method">
             {{ AUTH_METHOD_DESCRIPTIONS[method] ?? method }}
         </p>
 
         <!-- Connections -->
-        <h2>{{ t(T, 'Connections') }}</h2>
+        <h2>{{ t(T, 'connections.title') }}</h2>
     </ConfigModulePanel>
 </template>

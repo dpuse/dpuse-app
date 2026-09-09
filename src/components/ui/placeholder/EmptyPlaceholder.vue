@@ -3,6 +3,7 @@
 import { PlusIcon } from '@lucide/vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
+
 defineProps<{ messageItemLabel: string; descriptionItemLabel: string; actionItemLabel: string }>();
 </script>
 

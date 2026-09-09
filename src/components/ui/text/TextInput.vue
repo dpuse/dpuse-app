@@ -8,8 +8,8 @@ import { t } from '@/state/locale';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Enter_a_valid_email_address: { en: 'Enter a valid email address', es: 'Introduce una dirección de correo electrónico válida' },
-    Required: { en: 'Required', es: 'Obligatorio' }
+    'email.error': { en: 'Enter a valid email address', es: 'Introduce una dirección de correo electrónico válida' },
+    'required.error': { en: 'Required', es: 'Obligatorio' }
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -57,8 +57,8 @@ function handleInvalid(): void {
 function describeValidity(element: HTMLInputElement | null | undefined): string {
     if (!element) return '';
     const { validity } = element;
-    if (validity.valueMissing) return t(T, 'Required');
-    if (type === 'email' && validity.typeMismatch) return t(T, 'Enter_a_valid_email_address');
+    if (validity.valueMissing) return t(T, 'required.error');
+    if (type === 'email' && validity.typeMismatch) return t(T, 'email.error');
     return element.validationMessage; // Remaining cases are rare, so fall back to the browser's wording, in the browser's language.
 }
 </script>

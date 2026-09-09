@@ -41,9 +41,9 @@ import StudioListPanel from '@/features/studio/_components/StudioListPanel.vue';
 const EmptyPlaceholder = defineAsyncPanel(() => import('~/src/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');
 
 const T = {
-    data_view: { en: 'data view', es: 'vista de datos' },
-    data_views: { en: 'data views', es: 'vistas de datos' },
-    Data_View: { en: 'Data View', es: 'Vista de Datos' }
+    'dataView.label': { en: 'Data View', es: 'Vista de Datos' },
+    'dataView.one.text': { en: 'data view', es: 'vista de datos' },
+    'dataView.other.text': { en: 'data views', es: 'vistas de datos' }
 };
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -164,13 +164,17 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
                 />
             </template>
 
-            <template #empty>
-                <EmptyPlaceholder :message-item-label="t(T, 'data_views')" :description-item-label="t(T, 'data_view')" :action-item-label="t(T, 'Data_View')" />
-            </template>
-
             <template #detail="{ item, clear, close }">
                 <DataViewPanel :data-view-localised-config="item" @clear="clear" @close="close" />
                 <ActionButton :icon="ArrowRightIcon" label="Open" @click="handleOpenDataView(item)" />
+            </template>
+
+            <template #empty>
+                <EmptyPlaceholder
+                    :message-item-label="t(T, 'dataView.other.text')"
+                    :description-item-label="t(T, 'dataView.one.text')"
+                    :action-item-label="t(T, 'dataView.label')"
+                />
             </template>
 
             <template #no-selection>

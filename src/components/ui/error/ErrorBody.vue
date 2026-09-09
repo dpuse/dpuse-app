@@ -49,19 +49,19 @@ defineEmits<{ cancel: []; reload: []; retry: [] }>();
 const T = {
     'cancel.label': { en: 'Cancel', es: 'Cancelar' },
     'cause.label': { en: 'Cause', es: 'Causa' },
-    'console.message': { en: 'See the browser console for more details.', es: 'Consulte la consola del navegador para obtener más detalles.' },
-    'reporting.failed': {
+    'console.text': { en: 'See the browser console for more details.', es: 'Consulte la consola del navegador para obtener más detalles.' },
+    'reload.label': { en: 'Reload App', es: 'Recargar aplicación' },
+    'reporting.failed.text': {
         en: 'Unable to confirm this error was logged with DPUse Support.',
         es: 'No se puede confirmar que este error se haya registrado con el soporte de DPUse.'
     },
-    'reload.label': { en: 'Reload App', es: 'Recargar aplicación' },
-    'reporting.pending': { en: 'Logging this error with DPUse Support…', es: 'Registrando este error con el soporte de DPUse…' },
-    'reporting.succeeded': {
+    'reporting.pending.text': { en: 'Logging this error with DPUse Support…', es: 'Registrando este error con el soporte de DPUse…' },
+    'reporting.succeeded.text': {
         en: 'This error has been logged with DPUse Support for investigation.',
         es: 'Este error se ha registrado con el soporte de DPUse para su investigación.'
     },
     'retry.label': { en: 'Retry', es: 'Reintentar' },
-    'staleDeploy.message': {
+    'staleDeploy.text': {
         en: 'You may be running an outdated version of the app. Reloading fetches the current one.',
         es: 'Es posible que esté utilizando una versión desactualizada de la aplicación. Al recargar se obtiene la versión actual.'
     },
@@ -123,13 +123,13 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
             </details>
 
             <p class="mt-2 mb-0! text-xs leading-snug! text-warning-text/80">
-                <span v-if="entry.failure.wasReported.value == null">{{ t(T, 'reporting.pending') }}</span>
-                <span v-else-if="entry.failure.wasReported.value">{{ t(T, 'reporting.succeeded') }}</span>
-                <span v-else class="font-semibold">{{ t(T, 'reporting.failed') }}</span>
+                <span v-if="entry.failure.wasReported.value == null">{{ t(T, 'reporting.pending.text') }}</span>
+                <span v-else-if="entry.failure.wasReported.value">{{ t(T, 'reporting.succeeded.text') }}</span>
+                <span v-else class="font-semibold">{{ t(T, 'reporting.failed.text') }}</span>
             </p>
         </div>
 
-        <p v-if="needsReload" class="mt-4 text-sm text-warning-text/80">{{ t(T, 'staleDeploy.message') }}</p>
+        <p v-if="needsReload" class="mt-4 text-sm text-warning-text/80">{{ t(T, 'staleDeploy.text') }}</p>
 
         <!-- Reload stands apart on the left and in the danger colour: it is the heaviest thing offered here, costing
              the whole page and anything unsaved on it, so it is kept away from the buttons the user reaches for first
@@ -159,6 +159,6 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
             </div>
         </div>
 
-        <p class="mt-2 mb-0! border-t border-warning-ring/30 pt-2 text-xs leading-snug! text-warning-text">{{ t(T, 'console.message') }}</p>
+        <p class="mt-2 mb-0! border-t border-warning-ring/30 pt-2 text-xs leading-snug! text-warning-text">{{ t(T, 'console.text') }}</p>
     </div>
 </template>

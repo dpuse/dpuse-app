@@ -24,7 +24,7 @@ interface RouteComponentLoader {
 // Every loader is wrapped so that a failed chunk can be reported by name, and so that loading one raises the spinner.
 // The number is the nesting level of the 'RouterView' that renders the component: 'App.vue' is 0, the studio layouts
 // below it are 1. 'assertViewDepths' checks these against the route table at startup in Dev environment.
-const HomeLayout = defineLazyLoader('HomeLayout', 0, () => import('@/features/studio/home/HomeLayout.vue'));
+const HomePanel = defineLazyLoader('HomePanel', 0, () => import('@/features/studio/home/HomePanel.vue'));
 const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/features/studio/dataViews/DataViewsLayout.vue'));
 const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/features/studio/dataViews/DataViewList.vue'));
 const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/features/studio/dataViews/selectConnection/SelectConnectionList.vue'));
@@ -45,7 +45,7 @@ export const APP_ROUTES = [
     {
         path: '/',
         children: [
-            { name: 'studio', path: '', component: HomeLayout },
+            { name: 'studio', path: '', component: HomePanel },
             {
                 path: 'dataViews',
                 component: DataViewsLayout,

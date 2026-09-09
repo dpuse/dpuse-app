@@ -1,8 +1,8 @@
 {
-    "Connection": { "en": "Connection", "es": "Conexión" },
-    "Critical_Actions": { "en": "Critical Actions", "es": "Acciones Críticas" },
-    "Back": { "en": "← Back", "es": "← Volver" },
-    "Delete_account": { "en": "Delete account" },
-    "Manage_Connection": { "en": "Add Connection", "es": "Administrar Conexión" },
-    "Studio": { "en": "Studio", "es": "Estudio" }
+    "back.label": { "en": "← Back", "es": "← Volver" },
+    "connection.title": { "en": "Connection", "es": "Conexión" },
+    "criticalActions.label": { "en": "Critical Actions", "es": "Acciones Críticas" },
+    "deleteAccount.label": { "en": "Delete account" },
+    "manageConnection.title": { "en": "Add Connection", "es": "Administrar Conexión" },
+    "studio.label": { "en": "Studio", "es": "Estudio" }
 }

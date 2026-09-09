@@ -21,8 +21,8 @@ import TabBar from '@/components/ui/TabBar.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const T = {
-    Manage_Config: { en: 'Manage Configuration', es: 'Gestionar Configuración' },
-    Studio: { en: 'Studio', es: 'Estudio' }
+    'manageConfig.title': { en: 'Manage Configuration', es: 'Gestionar Configuración' },
+    'studio.label': { en: 'Studio', es: 'Estudio' }
 };
 
 const CONFIG_OPTION_CONFIGS: ConfigOptionConfig[] = [
@@ -86,7 +86,7 @@ const panelIsLoading = computed(() => navigationPendingDepth.value === 1);
 <template>
     <StudioLayout>
         <!-- Header -->
-        <StudioHeader class="flex-none px-4" :overline="t(T, 'Studio')" :title="t(T, 'Manage_Config')" to="studio" />
+        <StudioHeader class="flex-none px-4" :overline="t(T, 'studio.label')" :title="t(T, 'manageConfig.title')" to="studio" />
 
         <!-- Tab Bar -->
         <TabBar class="flex-none" :active-id="activeConfigOptionConfig.id" :items="configOptionLocalisedConfigs">
