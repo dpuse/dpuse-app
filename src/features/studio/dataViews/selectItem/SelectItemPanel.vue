@@ -18,7 +18,6 @@ import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 import { useEngine } from '@/services/useEngine';
-import { viewportIsWide } from '@/state/appLayout';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, setConnectionNodeConfig } from '@/state/dataViews';
 
 // ── Static Components
@@ -314,27 +313,21 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
     <!-- Covers the region: without the engine there is nothing to list, preview or open here. -->
     <ErrorShell v-if="engineFailure" covers-region :failures="[engineFailure]" @retry="handleRetryEngine" />
 
-    <GridDetailPanel
-        v-else
-        :active-item="activeConnectionObjectConfig"
-        :data-source="connectionNodeConfigsDataSource"
-        :is-compact="true"
-        max-list-width="400px"
-        @select="handleSelectConnectionNode($event)"
-    >
-        <template #header>
+    <GridDetailPanel v-else :active-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="400px">
+        <template #header="{ isSplit }">
             <div class="flex h-full min-w-0 items-center border-b border-separator text-sm">
-                <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="viewportIsWide || activeConnectionObjectConfig == null" @select="handleSelectBreadcrumb" />
+                <!-- The last crumb is the item on show. It leads back to the list, so it stays live only while the list
+                     is hidden; 'isSplit' comes from the panel below so the two cannot disagree about that. -->
+                <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="isSplit || activeConnectionObjectConfig == null" @select="handleSelectBreadcrumb" />
             </div>
         </template>
 
-        <template #grid-item="{ item }">
-            <ConfigCard v-if="item" :actions="[{ typeId: 'info', onClick: () => getInfo(item) }]" :config="item" :is-compact="true" />
+        <template #item="{ item }">
+            <ConfigCard v-if="item" :actions="[{ typeId: 'info', onClick: () => getInfo(item) }]" :config="item" :is-compact="true" @click="handleSelectConnectionNode(item)" />
         </template>
 
-        <template #detail="{ item, clear }">
-            <!-- TODO: @close="clear" -->
-            <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator" @close="clear">
+        <template #detail="{ item }">
+            <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
                 <div class="flex size-7 items-center justify-center">
                     <div v-if="item.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="item.icon" />
                     <div v-if="item.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="item.icon" />

@@ -1,15 +1,18 @@
 <script setup lang="ts" generic="T extends BaseConfig = BaseConfig">
 // ── External Dependencies & Registrations
+import type { RouteLocationRaw } from 'vue-router';
 import { InfoIcon, TrashIcon } from '@lucide/vue';
 
 // ── DPUse Framework
 import type { BaseConfig } from '@dpuse/dpuse-shared';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
+// ── Local Framework
+import type { Action } from './configCard';
+
 // ── Static Components
 import BaseButton from '@/components/ui/button/BaseButton.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
-import type { RouteLocationRaw } from 'vue-router';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -19,12 +22,7 @@ interface Badge {
     color?: StatusColor;
     label: string;
 }
-type ActionTypeId = 'delete' | 'info' | 'open';
-interface Action<T> {
-    typeId: ActionTypeId;
-    onClick: (item: LocalisedConfig<T>) => void;
-}
-interface Properties<T> {
+interface Properties<T extends BaseConfig> {
     actions?: Action<T>[];
     badges?: Badge[];
     config: LocalisedConfig<T>;

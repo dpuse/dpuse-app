@@ -82,12 +82,9 @@ const config = defineConfigWithVueTs(
                         'dpuse-scrollbar-track-h',
                         'dpuse-scrollbar-track-v',
                         'dpuse-scrollbar-visible',
-                        'dpuse-show-detail',
                         'dpuse-prose',
                         'dpuse-prose-overline',
                         'dpuse-studio-prose',
-                        'gdp-detail',
-                        'gdp-grid',
                         'pell-editor',
                         String.raw`.*stroke-1\.25` // Valid decimal stroke-width utility; the plugin's static class list doesn't recognise it.
                     ]

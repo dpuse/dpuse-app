@@ -1,12 +1,19 @@
-<script setup lang="ts" generic="T extends { icon?: string | null; iconDark?: string | null; label: string; typeId: string; isHeader?: boolean }">
+<script setup lang="ts" generic="T extends LocalisedConfig<BaseConfig>">
 // ── External Dependencies & Registrations
-import { nextTick, ref, watch } from 'vue';
+import { computed, provide, ref, useTemplateRef, watch } from 'vue';
+
+// ── DPUse Framework
+
+import type { BaseConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
+import { useElementIsWide } from '@/composables/useElementIsWide';
+import { GRID_DETAIL_SPLIT_THRESHOLD_PX, gridDetailIsSplitKey } from '@/components/ui/grid/gridDetail';
 
 // ── Static Components
 import Grid from '@/components/ui/grid/Grid.vue';
+import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -15,97 +22,84 @@ interface Properties {
     addLabel?: string;
     dataSource: DataSource<T>;
     isCompact?: boolean;
-    maxListWidth?: string;
     maxDetailWidth?: string;
-    rowHeight?: number;
-    scrollAreaPaddingBottom?: number | string;
+    maxGridWidth?: string;
+    rowHeight?: number; // Row height in px. Default: 48, matching 'Grid'.
 }
-const { activeItem, addLabel, dataSource, isCompact, maxListWidth, maxDetailWidth, rowHeight = 80, scrollAreaPaddingBottom } = defineProps<Properties>();
+const { activeItem, addLabel, dataSource, isCompact, maxDetailWidth, maxGridWidth, rowHeight = 48 } = defineProps<Properties>();
 
 defineSlots<{
-    header(): unknown;
-    'grid-item'(properties: { item: T }): unknown;
-    empty(): unknown;
-    detail(properties: { item: T; clear: () => void; close: () => void }): unknown;
+    header(properties: { isSplit: boolean }): unknown;
+    item(properties: { item: T }): unknown;
+    'no-items'(): unknown;
+    detail(properties: { item: T; close: () => void }): unknown;
     'no-selection'(): unknown;
 }>();
 
-const emit = defineEmits<{ add: []; select: [item?: T] }>();
+defineEmits<{ add: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const detailPaneIsVisible = ref(false);
+const bodyElement = useTemplateRef<HTMLElement>('bodyElement');
+const detailIsOpen = ref(false); // Whether the detail has been opened and not since dismissed, which is intent rather than visibility.
+const { isWide: isSplit } = useElementIsWide(bodyElement, GRID_DETAIL_SPLIT_THRESHOLD_PX);
+provide(gridDetailIsSplitKey, isSplit);
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const detailPaneIsVisible = computed(() => isSplit.value || detailIsOpen.value);
+const gridPaneIsVisible = computed(() => isSplit.value || !detailIsOpen.value);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
     () => activeItem,
     (newActiveItem) => {
-        if (newActiveItem == null) detailPaneIsVisible.value = false;
-        detailPaneIsVisible.value = activeItem != null;
+        detailIsOpen.value = newActiveItem != null;
     }
 );
-
-// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-function handleClearSelection(): void {
-    detailPaneIsVisible.value = false;
-    emit('select');
-}
-
-function handleClose(): void {
-    detailPaneIsVisible.value = false;
-}
-
-async function handleSelectItem(row: T): Promise<void> {
-    emit('select', row);
-    await nextTick();
-    detailPaneIsVisible.value = activeItem != null;
-}
 </script>
 
 <template>
     <div class="flex h-full flex-col" data-region="GridDetailPanel">
         <!-- Header -->
         <header class="mx-4 flex-none">
-            <slot name="header" />
+            <slot name="header" :is-split="isSplit" />
         </header>
 
         <!-- Body -->
-        <div
-            class="flex min-h-0 flex-1"
-            :class="{ 'dpuse-show-detail': detailPaneIsVisible }"
-            :style="{ '--gdp-max-list-width': maxListWidth, '--gdp-max-detail-width': maxDetailWidth }"
-        >
-            <!-- Grid (Left) Pane -->
-            <div class="gdp-grid relative flex-1 flex-col">
-                <Grid
-                    :add-label="addLabel"
-                    class="flex-1"
-                    :data-source="dataSource"
-                    :is-compact="isCompact"
-                    :row-height="rowHeight"
-                    :scroll-area-padding-bottom="scrollAreaPaddingBottom"
-                    :target-column-width="250"
-                    @add="$emit('add')"
-                >
-                    <template #default="{ item }">
-                        <!-- <BaseButton class="size-full" :is-active="activeItem === item" @click="handleSelectItem(item)"> -->
-                        <slot name="grid-item" :item="item" />
-                        <!-- </BaseButton> -->
-                    </template>
+        <div ref="bodyElement" class="flex min-h-0 flex-1">
+            <!-- Grid (Left) Pane. Hidden with 'v-show' rather than a 'hidden' class because Grid's own root carries
+                 'flex': the two are both display utilities, and which won would rest on stylesheet order alone. -->
+            <Grid
+                v-show="gridPaneIsVisible"
+                :add-label="addLabel"
+                class="flex-1"
+                :data-source="dataSource"
+                :is-compact="isCompact"
+                :row-height="rowHeight"
+                :style="{ maxWidth: isSplit ? maxGridWidth : undefined }"
+                :target-column-width="250"
+                @add="$emit('add')"
+            >
+                <template #default="{ item }">
+                    <slot name="item" :item="item" />
+                </template>
 
-                    <template #empty>
-                        <slot name="empty" />
-                    </template>
-                </Grid>
-            </div>
+                <template #no-items>
+                    <slot name="no-items" />
+                </template>
+            </Grid>
 
             <!-- Detail (Right) Pane -->
-            <div class="gdp-detail min-w-0 flex-1 border-separator" style="container-type: inline-size">
+            <div
+                class="@container min-w-0 flex-1 border-separator"
+                :class="[detailPaneIsVisible ? 'block' : 'hidden', { 'border-l': isSplit }]"
+                :style="{ maxWidth: isSplit ? maxDetailWidth : undefined }"
+            >
                 <!-- Active Item -->
                 <div v-if="activeItem" class="relative flex h-full min-h-0 flex-col">
-                    <slot name="detail" :item="activeItem" :clear="handleClearSelection" :close="handleClose" />
+                    <slot name="detail" :item="activeItem" :close="() => (detailIsOpen = false)" />
                 </div>
 
                 <!-- No Selection -->
@@ -116,39 +110,3 @@ async function handleSelectItem(row: T): Promise<void> {
         </div>
     </div>
 </template>
-
-<style scoped>
-/* Narrow: show list, hide detail */
-.gdp-grid {
-    display: flex;
-}
-
-.gdp-detail {
-    display: none;
-}
-
-/* Narrow + item selected: show detail only */
-.dpuse-show-detail .gdp-grid {
-    display: none;
-}
-
-.dpuse-show-detail .gdp-detail {
-    display: block;
-}
-
-/* Wide: always show both panes regardless of selection state */
-@container (min-width: 768px) {
-    .gdp-grid,
-    .dpuse-show-detail .gdp-grid {
-        display: flex;
-        max-width: var(--gdp-max-list-width, none);
-    }
-
-    .gdp-detail,
-    .dpuse-show-detail .gdp-detail {
-        display: block;
-        border-left-width: 1px;
-        max-width: var(--gdp-max-detail-width, none);
-    }
-}
-</style>

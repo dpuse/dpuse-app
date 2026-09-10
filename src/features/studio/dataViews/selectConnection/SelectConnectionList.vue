@@ -10,20 +10,34 @@ import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection'
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import type { Action } from '@/components/ui/config/configCard';
 import type { DataSource } from '@/composables/useDataWindow';
 import { useDialogs } from '@/state/dialogs';
-import { type AppFailure, raiseFailure } from '@/state/errors';
 import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
 import { activeMetaStoreConnectionConfig, configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded } from '@/state/session';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
+import ActionButton from '@/components/ui/button/ActionButton.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectConnectionPanel from './SelectConnectionPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
-import ActionButton from '@/components/ui/button/ActionButton.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const ACTION_CONFIGS: Action<ConnectionConfig>[] = [
+    { typeId: 'delete', onClick: handleDeleteDataView },
+    {
+        typeId: 'open',
+        onClick: (connectionConfig): void => {
+            handleSelectConnection(connectionConfig);
+            handleCommitDetail();
+        }
+    }
+];
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -86,7 +100,7 @@ function handleDeleteDataView(connectionConfig: LocalisedConfig<ConnectionConfig
 }
 
 function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
-    activeConnectionConfig.value = connectionLocalisedConfig;
+    activeConnectionConfig.value = activeConnectionConfig.value === connectionLocalisedConfig ? undefined : connectionLocalisedConfig;
     activeConnectionNodeConfigs.value = [];
     resetActiveDataViewConfig(connectionLocalisedConfig);
 }
@@ -141,24 +155,9 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
         max-detail-width="65ch"
         :row-height="16 + 16 + 28 + 32 + 16"
         @add="handleAddConnection"
-        @select="handleSelectConnection"
     >
-        <template #grid-item="{ item }">
-            <ConfigCard
-                v-if="item"
-                :actions="[
-                    { typeId: 'delete', onClick: handleDeleteDataView },
-                    {
-                        typeId: 'open',
-                        onClick: () => {
-                            handleSelectConnection(item);
-                            handleCommitDetail();
-                        }
-                    }
-                ]"
-                :config="item"
-                :selected="item.id === activeConnectionConfig?.id"
-            />
+        <template #item="{ item }">
+            <ConfigCard v-if="item" :actions="ACTION_CONFIGS" :config="item" :selected="item.id === activeConnectionConfig?.id" @click="handleSelectConnection(item)" />
         </template>
 
         <template #detail="{ item, close }">

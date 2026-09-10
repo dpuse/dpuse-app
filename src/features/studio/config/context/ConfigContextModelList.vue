@@ -95,17 +95,10 @@ function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBaseConfi
 </script>
 
 <template>
-    <GridDetailPanel
-        :active-item="activeModelReference"
-        class="min-h-0 flex-1"
-        :data-source="modelReferencesDataSource"
-        :is-compact="true"
-        max-list-width="350px"
-        @select="handleSelectModel($event)"
-    >
-        <template #grid-item="{ item }">
+    <GridDetailPanel :active-item="activeModelReference" class="min-h-0 flex-1" :data-source="modelReferencesDataSource" :is-compact="true" max-grid-width="350px">
+        <template #item="{ item }">
             <div v-if="item.isHeader" class="pl-2 text-left text-xs font-semibold text-subtle uppercase">{{ item.label }}</div>
-            <ConfigCard v-else :is-compact="true" :config="item" />
+            <ConfigCard v-else :is-compact="true" :config="item" @click="handleSelectModel(item)" />
         </template>
 
         <template #detail="{ item }">

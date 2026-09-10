@@ -139,20 +139,20 @@ async function loadPresenters(): Promise<void> {
 
 <template>
     <StudioLayout>
+        <!-- Header -->
         <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'explorePresentations.title')" to="studio" />
 
+        <!-- Body -->
         <Separator />
-
         <GridDetailPanel
             :active-item="activePresentationReference"
             class="min-h-0 flex-1"
             :data-source="presentationReferencesDataSource"
             :is-compact="true"
-            max-list-width="350px"
-            @select="handleSelectPresentation($event)"
+            max-grid-width="350px"
         >
-            <template #grid-item="{ item }">
-                <ConfigCard v-if="item" :config="item" :is-compact="true" />
+            <template #item="{ item }">
+                <ConfigCard v-if="item" :config="item" :is-compact="true" @click="handleSelectPresentation(item)" />
             </template>
 
             <template #detail>

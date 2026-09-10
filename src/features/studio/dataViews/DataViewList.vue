@@ -151,7 +151,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
             :row-height="16 + 16 + 28 + 32 + 16"
             @add="handleAddDataView"
         >
-            <template #grid-item="{ item }">
+            <template #item="{ item }">
                 <ConfigCard
                     :actions="[
                         { typeId: 'delete', onClick: handleDeleteDataView },
@@ -169,7 +169,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
                 <ActionButton :icon="ArrowRightIcon" label="Open" @click="handleOpenDataView(item)" />
             </template>
 
-            <template #empty>
+            <template #no-items>
                 <EmptyPlaceholder
                     :message-item-label="t(T, 'dataView.other.text')"
                     :description-item-label="t(T, 'dataView.one.text')"

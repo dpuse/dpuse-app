@@ -80,7 +80,7 @@ function handleUpdateScrollState(): void {
 </script>
 
 <template>
-    <div class="relative" data-region="TaskBar">
+    <div class="@container relative" data-region="TaskBar">
         <div ref="rowElement" class="flex min-w-0 flex-1 gap-x-1 overflow-x-auto overscroll-x-none border-b border-separator px-4" @scroll="handleUpdateScrollState">
             <component
                 :is="item.disabled ? 'div' : BaseButton"
@@ -110,7 +110,9 @@ function handleUpdateScrollState(): void {
                         {{ item.number }}
                     </div>
 
-                    <div class="flex flex-col leading-none sm:flex-row sm:gap-x-1">
+                    <!-- Verb and label share a line once the bar itself is wide enough, which is not the same question
+                         as the viewport being wide: the bar sits in an app pane the splitter resizes. -->
+                    <div class="flex flex-col leading-none @min-[40rem]:flex-row @min-[40rem]:gap-x-1">
                         <span>{{ item.verb }}</span>
                         <span>{{ item.label }}</span>
                     </div>

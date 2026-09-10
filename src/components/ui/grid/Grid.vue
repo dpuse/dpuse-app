@@ -36,7 +36,7 @@ const {
     targetColumnWidth
 } = defineProps<Properties>();
 
-defineSlots<{ default?(properties: { index: number; item: T }): unknown; empty?(): unknown }>();
+defineSlots<{ default?(properties: { index: number; item: T }): unknown; 'no-items'?(): unknown }>();
 
 defineEmits<{ add: []; select: [item: T | undefined] }>();
 
@@ -106,7 +106,7 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
 
 function getRowHeight(item: T | undefined): number {
     if ((item as { isHeader?: boolean } | undefined)?.isHeader === true) return headerRowHeight;
-    return isCompact ? 48 : rowHeight;
+    return rowHeight;
 }
 </script>
 
@@ -117,7 +117,7 @@ function getRowHeight(item: T | undefined): number {
             <BusyBar v-if="state === 'busy'" class="mx-4" />
 
             <ScrollArea v-else-if="state === 'empty'" class="flex-1" :scroll-area-padding-bottom="scrollAreaPaddingBottom">
-                <slot name="empty" />
+                <slot name="no-items" />
             </ScrollArea>
 
             <ScrollArea v-else class="flex-1" role="list" :row-count="rowCount" :scroll-area-padding-bottom="scrollAreaPaddingBottom" @initialised="handleScrollAreaInitialised">

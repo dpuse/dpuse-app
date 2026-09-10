@@ -88,6 +88,7 @@ function handleCommitDetail(): void {
 }
 
 function handleSelectConnector(connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> | undefined): void {
+    console.log(111);
     activeConnectorConfig.value = connectorLocalisedConfig;
 }
 
@@ -118,9 +119,9 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
          leaving an empty picker with no explanation. -->
     <ErrorShell v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
 
-    <GridDetailPanel v-else :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" @select="handleSelectConnector">
-        <template #grid-item="{ item }">
-            <ConfigCard v-if="item" :config="item" />
+    <GridDetailPanel v-else :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" :row-height="80">
+        <template #item="{ item }">
+            <ConfigCard v-if="item" :config="item" @click="handleSelectConnector(item)" />
         </template>
 
         <template #detail="{ item }">
