@@ -9,10 +9,6 @@ import { type ButtonSize, ICON_SIZE_CLASSES, VARIANT_CLASSES } from './action';
 // ── Static Components
 import ActionWrapper from './ActionWrapper.vue';
 
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const ACTIVE_CLASSES = 'bg-blue-50! dark:bg-zinc-300/25!';
-
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
@@ -28,8 +24,12 @@ const { accessibleLabel, disabled, isActive, label, rounded, size = 'lg', to } =
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// An icon button has one look, ghost, rather than a variant per caller: nothing here has ever asked for another.
-const classes = computed(() => [rounded ? 'rounded-full' : 'rounded-md', ICON_SIZE_CLASSES[size], VARIANT_CLASSES.ghost, isActive ? ACTIVE_CLASSES : undefined]);
+const classes = computed(() => [
+    rounded ? 'rounded-full' : 'rounded-md',
+    ICON_SIZE_CLASSES[size],
+    VARIANT_CLASSES.ghost,
+    isActive ? 'bg-blue-50! dark:bg-zinc-300/25!' : undefined
+]);
 </script>
 
 <template>

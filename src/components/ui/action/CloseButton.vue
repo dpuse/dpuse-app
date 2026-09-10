@@ -7,7 +7,10 @@ import IconButton from '@/components/ui/action/IconButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { accessibleLabel = 'Close' } = defineProps<{ accessibleLabel?: string }>();
+interface Properties {
+    accessibleLabel?: string;
+}
+const { accessibleLabel = 'Close' } = defineProps<Properties>();
 </script>
 
 <template>
