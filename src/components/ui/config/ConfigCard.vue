@@ -34,10 +34,14 @@ interface Properties<T extends BaseConfig> {
     to?: RouteLocationRaw;
 }
 const { actions = [], badges = [], config, isCompact, overline, selected, statusColor = 'warning', statusMessage, to } = defineProps<Properties<T>>();
+
+// Listeners like '@click' from the host land on the card-activation button below rather than on the root, which
+// carries no interactive semantics of its own.
+defineOptions({ inheritAttrs: false });
 </script>
 
 <template>
-    <BaseButton
+    <div
         class="relative flex size-full flex-col border"
         :class="[
             isCompact ? 'justify-center rounded-md px-2' : 'rounded-lg p-4',
@@ -46,8 +50,13 @@ const { actions = [], badges = [], config, isCompact, overline, selected, status
                 : 'border-separator bg-card hover:border-boundary-hover hover:bg-card-hover active:bg-card-hover'
         ]"
         data-region="ConfigCard"
-        :to="to"
     >
+        <!-- Card activation, stretched to cover the card rather than wrapping its content. A 'button' or anchor may
+             not contain other interactive content, and this is the one element here that is genuinely one — the
+             actions below are real, independently focusable buttons, kept clickable by sitting above this in
+             stacking order rather than inside it. -->
+        <BaseButton :aria-label="overline ? `${overline}: ${config.label}` : config.label" class="absolute inset-0 z-10" :to="to" v-bind="$attrs" />
+
         <!-- Badges -->
         <div v-if="!isCompact" class="absolute top-1.5 right-1.5 flex gap-x-1">
             <template v-for="badge in badges" :key="badge.id">
@@ -80,14 +89,15 @@ const { actions = [], badges = [], config, isCompact, overline, selected, status
             </div>
         </div>
 
-        <!-- Actions -->
-        <div v-if="actions.length > 0 && config" class="flex items-center gap-x-1 place-self-end">
+        <!-- Actions, raised above the card-activation button by stacking order rather than nested inside it, so each
+             keeps its own click instead of the card's. -->
+        <div v-if="actions.length > 0 && config" class="relative z-20 flex items-center gap-x-1 place-self-end">
             <template v-for="action in actions" :key="action.typeId">
-                <BaseButton v-if="action.typeId === 'delete'" aria-label="Delete" class="rounded-md border border-boundary p-1.5" @click.stop="action.onClick(config)">
+                <BaseButton v-if="action.typeId === 'delete'" aria-label="Delete" class="rounded-md border border-boundary p-1.5" @click="action.onClick(config)">
                     <TrashIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
                 </BaseButton>
 
-                <BaseButton v-if="action.typeId === 'open'" aria-label="Open" class="rounded-md border border-boundary p-0.5" @click.stop="action.onClick(config)">
+                <BaseButton v-if="action.typeId === 'open'" aria-label="Open" class="rounded-md border border-boundary p-0.5" @click="action.onClick(config)">
                     <svg
                         viewBox="0 0 24 24"
                         class="size-7"
@@ -101,7 +111,7 @@ const { actions = [], badges = [], config, isCompact, overline, selected, status
                     </svg>
                 </BaseButton>
 
-                <BaseButton v-if="action.typeId === 'info'" aria-label="Information" class="rounded-md border border-boundary p-1.5" @click.stop="action.onClick(config)">
+                <BaseButton v-if="action.typeId === 'info'" aria-label="Information" class="rounded-md border border-boundary p-1.5" @click="action.onClick(config)">
                     <InfoIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
                 </BaseButton>
             </template>
@@ -120,5 +130,5 @@ const { actions = [], badges = [], config, isCompact, overline, selected, status
         >
             {{ statusMessage }}
         </div>
-    </BaseButton>
+    </div>
 </template>
