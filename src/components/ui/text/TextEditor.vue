@@ -15,7 +15,7 @@ import { useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Static Components
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
-import IconButton from '@/components/ui/button/IconButton.vue';
+import IconButton from '@/components/ui/action/IconButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

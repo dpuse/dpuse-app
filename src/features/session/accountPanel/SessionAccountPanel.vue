@@ -11,10 +11,10 @@ import T from './SessionAccountPanel.json';
 import { viewportIsWide } from '@/state/appLayout';
 
 // ── Static Components
-import RectangleButton from '@/components/ui/button/RectangleButton.vue';
-import IconButton from '@/components/ui/button/IconButton.vue';
+import RectangleButton from '@/components/ui/action/RectangleButton.vue';
+import IconButton from '@/components/ui/action/IconButton.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
-import ItemButton from '@/components/ui/button/ItemButton.vue';
+import ItemButton from '@/components/ui/action/ItemButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────

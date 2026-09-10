@@ -7,15 +7,15 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { activeStudioOptionConfig } from '@/state/activeStudioOption';
+import { isPWA } from '@/state/appLayout';
 import { t } from '@/state/locale';
 import { type StudioOptionConfig, useOptions } from './useOptions';
 
 // ── Static Components
-import IconButton from '@/components/ui/button/IconButton.vue';
+import IconButton from '@/components/ui/action/IconButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHomeIcon from '@/components/icons/StudioHomeIcon.vue';
-import { isPWA } from '~/src/state/appLayout';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

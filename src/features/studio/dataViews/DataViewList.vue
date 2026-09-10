@@ -34,7 +34,7 @@ import DataViewPanel from './DataViewPanel.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
-import ActionButton from '@/components/ui/button/ActionButton.vue';
+import PillButton from '@/components/ui/action/PillButton.vue';
 import StudioListPanel from '@/features/studio/_components/StudioListPanel.vue';
 
 // ── Dynamic Components
@@ -166,7 +166,7 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
 
             <template #detail="{ item, close }">
                 <DataViewPanel :data-view-localised-config="item" @close="close" />
-                <ActionButton :icon="ArrowRightIcon" label="Open" @click="handleOpenDataView(item)" />
+                <PillButton :icon="ArrowRightIcon" label="Open" @click="handleOpenDataView(item)" />
             </template>
 
             <template #no-items>

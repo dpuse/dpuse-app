@@ -3,10 +3,10 @@
 import type { RouteLocationRaw } from 'vue-router';
 
 // ── Local Framework
-import { type ButtonVariant, VARIANT_CLASSES } from './baseButton';
+import { type ButtonVariant, VARIANT_CLASSES } from './action';
 
 // ── Static Components
-import BaseButton, { type ButtonType } from './BaseButton.vue';
+import ActionWrapper, { type ButtonType } from './ActionWrapper.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ const { disabled, to, type, variant = 'neutral' } = defineProps<Properties>();
 </script>
 
 <template>
-    <BaseButton class="rounded-md px-3 py-1.5 text-[15px] leading-6" :class="VARIANT_CLASSES[variant]" data-region="RectangleButton" :disabled="disabled" :to="to" :type="type">
+    <ActionWrapper class="rounded-md px-3 py-1.5 text-[15px] leading-6" :class="VARIANT_CLASSES[variant]" data-region="RectangleButton" :disabled="disabled" :to="to" :type="type">
         <slot />
-    </BaseButton>
+    </ActionWrapper>
 </template>

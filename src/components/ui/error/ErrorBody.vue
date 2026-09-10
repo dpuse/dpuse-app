@@ -11,7 +11,7 @@ import type { AppFailure } from '@/state/errors';
 import { t } from '@/state/locale';
 
 // ── Static Components
-import RectangleButton from '@/components/ui/button/RectangleButton.vue';
+import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

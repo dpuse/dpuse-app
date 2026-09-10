@@ -5,7 +5,7 @@ import { onMounted, useTemplateRef, watch } from 'vue';
 // ── Local Framework
 
 // ── Static Components
-import CloseButton from '@/components/ui/button/CloseButton.vue';
+import CloseButton from '@/components/ui/action/CloseButton.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

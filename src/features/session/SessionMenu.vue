@@ -14,10 +14,10 @@ import { isPWA, viewportIsWide } from '@/state/appLayout';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
-import RectangleButton from '@/components/ui/button/RectangleButton.vue';
-import IconButton from '@/components/ui/button/IconButton.vue';
-import CloseButton from '@/components/ui/button/CloseButton.vue';
-import ItemButton from '@/components/ui/button/ItemButton.vue';
+import RectangleButton from '@/components/ui/action/RectangleButton.vue';
+import IconButton from '@/components/ui/action/IconButton.vue';
+import CloseButton from '@/components/ui/action/CloseButton.vue';
+import ItemButton from '@/components/ui/action/ItemButton.vue';
 import ScrollAreaFit from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 

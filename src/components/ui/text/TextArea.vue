@@ -4,7 +4,7 @@ import { XIcon } from '@lucide/vue';
 import { useAttrs, useId, useTemplateRef } from 'vue';
 
 // ── Static Components
-import RectangleButton from '@/components/ui/button/RectangleButton.vue';
+import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

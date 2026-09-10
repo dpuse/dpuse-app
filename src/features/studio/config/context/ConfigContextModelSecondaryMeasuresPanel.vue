@@ -11,7 +11,7 @@ import type { LocalisedSecondaryMeasure } from './contextModel';
 import { purifyMarkdown } from '@/services/useMarkedTool';
 
 // ── Static Components
-import BaseButton from '@/components/ui/button/BaseButton.vue';
+import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -73,9 +73,9 @@ function purifyText(text: string): string {
         >
             <ChevronRightIcon class="size-5" stroke-width="1.5" />
             <div class="flex-1">{{ measure.label }}</div>
-            <BaseButton @click="$emit('edit')">
+            <ActionWrapper @click="$emit('edit')">
                 <SquarePenIcon class="size-5" stroke-width="1.5" />
-            </BaseButton>
+            </ActionWrapper>
         </div>
 
         <div v-if="expandedSecondaryMeasureId === measure.id" class="overflow-y-hidden rounded-b-md px-4 pb-4">
@@ -85,13 +85,13 @@ function purifyText(text: string): string {
             <!-- Secondary Measure Tabs -->
             <div class="flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
                 <template v-for="measureTab in SECONDARY_MEASURE_TABS" :key="measureTab.id">
-                    <BaseButton
+                    <ActionWrapper
                         class="border-y-2 border-t-transparent py-1.25"
                         :class="measureTab.id === activeTab.id ? 'border-b-blue-400' : 'border-b-transparent'"
                         @click="activeTab = measureTab"
                     >
                         <div>{{ measureTab.label }}</div>
-                    </BaseButton>
+                    </ActionWrapper>
                 </template>
             </div>
 

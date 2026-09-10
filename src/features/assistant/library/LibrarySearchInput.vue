@@ -7,7 +7,7 @@ import { SearchIcon, XIcon } from '@lucide/vue';
 import { useAssistantLibrary } from '@/state/assistantLibrary';
 
 // ── Static Components
-import IconButton from '@/components/ui/button/IconButton.vue';
+import IconButton from '@/components/ui/action/IconButton.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -51,7 +51,6 @@ function handleClear(): void {
             class="absolute top-1/2 right-1.5 -translate-y-1/2"
             rounded
             size="sm"
-            variant="ghost"
             @click="handleClear"
         >
             <XIcon class="size-3.5!" :stroke-width="1.5" />

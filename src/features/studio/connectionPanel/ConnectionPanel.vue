@@ -24,7 +24,7 @@ import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
-import ActionButton from '@/components/ui/button/ActionButton.vue';
+import PillButton from '@/components/ui/action/PillButton.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -133,7 +133,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
             <div class="relative min-h-0 flex-1">
                 <ErrorBoundary name="ConnectionDetail">
                     <AddConnectionForm :connector-localised-config="item" />
-                    <ActionButton :icon="ArrowRightIcon" label="Select" @commit="handleCommitDetail" />
+                    <PillButton :icon="ArrowRightIcon" label="Select" @commit="handleCommitDetail" />
                 </ErrorBoundary>
             </div>
         </template>

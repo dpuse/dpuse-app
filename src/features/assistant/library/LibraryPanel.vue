@@ -17,8 +17,8 @@ import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import { LIBRARY_DOCUMENT_TYPE_LABELS, type LibraryDocument, type LibraryDocumentType, useAssistantLibrary } from '@/state/assistantLibrary';
 
 // ── Static Components
+import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
-import BaseButton from '@/components/ui/button/BaseButton.vue';
 import LibraryDocumentPanel from './LibraryDocumentPanel.vue';
 import LibrarySearchInput from './LibrarySearchInput.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
@@ -190,7 +190,7 @@ function handleSelectBreadcrumb(index: number): void {
                 <!-- Search - a flat list of what matches, whatever folder the index was left on. The trail is kept
                      rather than cleared, so clearing the query returns the user to where they were browsing. -->
                 <div v-if="searchIsActive">
-                    <BaseButton
+                    <ActionWrapper
                         v-for="document in searchResults"
                         :key="document.id"
                         class="flex w-full flex-col items-start border-b border-separator py-3 text-left"
@@ -202,7 +202,7 @@ function handleSelectBreadcrumb(index: number): void {
                         </div>
                         <p class="mt-1 text-sm text-muted">{{ document.snippet }}</p>
                         <p class="mt-1 text-xs text-subtle">{{ document.source }}</p>
-                    </BaseButton>
+                    </ActionWrapper>
 
                     <div v-if="searchResults.length === 0" class="py-8 text-center text-sm text-muted">No results found.</div>
                 </div>
@@ -210,7 +210,7 @@ function handleSelectBreadcrumb(index: number): void {
                 <!-- Index - browse by folder, one level deep. -->
                 <div v-else>
                     <template v-if="activeTypeId">
-                        <BaseButton
+                        <ActionWrapper
                             v-for="document in indexDocuments"
                             :key="document.id"
                             class="flex w-full flex-col items-start border-b border-separator py-2 text-left last:border-b-0"
@@ -219,11 +219,11 @@ function handleSelectBreadcrumb(index: number): void {
                             <div class="truncate text-sm font-medium">{{ document.title }}</div>
                             <p class="mt-0.5 text-sm text-muted">{{ document.snippet }}</p>
                             <p class="mt-0.5 text-xs text-subtle">{{ document.source }}</p>
-                        </BaseButton>
+                        </ActionWrapper>
                     </template>
 
                     <template v-else>
-                        <BaseButton
+                        <ActionWrapper
                             v-for="folder in indexFolders"
                             :key="folder.id"
                             class="flex w-full items-center justify-between border-b border-separator py-2.5 text-left last:border-b-0"
@@ -231,7 +231,7 @@ function handleSelectBreadcrumb(index: number): void {
                         >
                             <span class="truncate text-sm font-medium">{{ folder.label }}</span>
                             <span class="ml-2 flex-none text-xs text-subtle">{{ folder.count }}</span>
-                        </BaseButton>
+                        </ActionWrapper>
                     </template>
                 </div>
             </div>

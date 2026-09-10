@@ -7,7 +7,7 @@ import { nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vu
 import type { LocaleDescription, LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Static Components
-import BaseButton from '@/components/ui/button/BaseButton.vue';
+import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -83,7 +83,7 @@ function handleUpdateScrollState(): void {
     <div class="@container relative" data-region="TaskBar">
         <div ref="rowElement" class="flex min-w-0 flex-1 gap-x-1 overflow-x-auto overscroll-x-none border-b border-separator px-4" @scroll="handleUpdateScrollState">
             <component
-                :is="item.disabled ? 'div' : BaseButton"
+                :is="item.disabled ? 'div' : ActionWrapper"
                 v-for="item in items"
                 :key="item.id"
                 :aria-selected="activeTaskId === item.id"

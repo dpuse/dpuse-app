@@ -17,7 +17,7 @@ const { disabled, to, type = 'button' } = defineProps<Properties>();
     <component
         :is="to ? RouterLink : 'button'"
         class="transition-[background-color,border-color] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-40"
-        data-region="BaseButton"
+        data-region="ActionWrapper"
         v-bind="to ? { to } : { type, disabled }"
     >
         <slot />

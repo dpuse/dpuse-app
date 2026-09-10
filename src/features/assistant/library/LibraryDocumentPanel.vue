@@ -10,7 +10,7 @@
 import { t } from '@/state/locale';
 
 // ── Static Components
-import CloseButton from '@/components/ui/button/CloseButton.vue';
+import CloseButton from '@/components/ui/action/CloseButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Tag from '@/components/ui/Tag.vue';
 

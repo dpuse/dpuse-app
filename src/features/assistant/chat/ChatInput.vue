@@ -9,14 +9,14 @@
 
 // ── External Dependencies & Registrations
 import { ArrowUpIcon, PlusIcon, SquareIcon } from '@lucide/vue';
-import { onMounted, onUnmounted, useTemplateRef } from 'vue';
+import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue';
 
 // ── Local Framework
 import type { AssistantModelConfig } from './modelConfigs';
 
 // ── Static Components
 import AssistantModelMenu from '../_components/AssistantModelMenu.vue';
-import IconButton from '@/components/ui/button/IconButton.vue';
+import IconButton from '@/components/ui/action/IconButton.vue';
 import ChatMenu from './ChatMenu.vue';
 import TextArea from '@/components/ui/text/TextArea.vue';
 
@@ -47,6 +47,17 @@ const emit = defineEmits<{ heightChange: [height: number]; modelChange: [modelCo
 const inputElement = useTemplateRef<HTMLElement>('inputElement');
 
 const state: { resizeObserver: ResizeObserver | null } = { resizeObserver: null };
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The send button is the one filled control in the bar — see the comment above it — so it carries its own colour
+// rather than reading it from 'IconButton', which now has a single, unfilled look. '!' forces each utility over that
+// look's own background/hover/active classes, the same way 'IconButton' already does for its active state.
+const sendButtonClasses = computed(() =>
+    responseIsRunning
+        ? 'bg-danger! hover:bg-danger-hover! active:bg-danger-active! text-danger-text!'
+        : 'bg-info! hover:bg-info-hover! active:bg-info-active! text-info-text!'
+);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -122,7 +133,7 @@ function reportHeight(): void {
             <!-- The two conversation controls sit together at the left end: one starts a thread, the other returns to one. Shaped
                  like the send button at the other end of the row, so the bar reads as one set of actions. Neutral rather than
                  tinted: sending is the thing this bar is for, and competing filled circles would put them on equal footing. -->
-            <IconButton accessible-label="Start a new chat" rounded size="sm" variant="outline" @click="handleStartChat">
+            <IconButton accessible-label="Start a new chat" rounded size="sm" @click="handleStartChat">
                 <PlusIcon class="size-4!" stroke-width="2.5" />
             </IconButton>
 
@@ -132,10 +143,10 @@ function reportHeight(): void {
 
             <IconButton
                 :accessible-label="responseIsRunning ? 'Stop the response' : 'Send the message'"
+                :class="sendButtonClasses"
                 :disabled="!responseIsRunning && draft.trim().length === 0"
                 rounded
                 size="sm"
-                :variant="responseIsRunning ? 'destructive' : 'primary'"
                 @click="handleAction"
             >
                 <!-- Filled: an outlined square at this size reads as an empty box rather than a stop. -->

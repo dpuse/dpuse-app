@@ -14,7 +14,7 @@ import { useConfigsReady } from '@/services/useConfigsReady';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
-import RectangleButton from '@/components/ui/button/RectangleButton.vue';
+import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '@/features/studio/_components/StudioHeader.vue';

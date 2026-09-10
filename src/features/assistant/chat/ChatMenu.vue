@@ -12,8 +12,8 @@ import { GalleryVerticalEndIcon } from '@lucide/vue';
 import { onUnmounted, ref, useTemplateRef } from 'vue';
 
 // ── Static Components
-import IconButton from '@/components/ui/button/IconButton.vue';
-import ItemButton from '@/components/ui/button/ItemButton.vue';
+import IconButton from '@/components/ui/action/IconButton.vue';
+import ItemButton from '@/components/ui/action/ItemButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -68,7 +68,7 @@ function handleSelectChat(): void {
 <template>
     <div ref="menuReference" class="relative">
         <!-- Shaped like the composer's other round controls, so the bar reads as one row of actions. -->
-        <IconButton accessible-label="Show other chats" :aria-expanded="menuIsOpen" aria-haspopup="true" rounded size="sm" variant="outline" @click="menuIsOpen = !menuIsOpen">
+        <IconButton accessible-label="Show other chats" :aria-expanded="menuIsOpen" aria-haspopup="true" rounded size="sm" @click="menuIsOpen = !menuIsOpen">
             <GalleryVerticalEndIcon class="size-4!" stroke-width="2.5" />
         </IconButton>
 

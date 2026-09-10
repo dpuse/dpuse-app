@@ -3,7 +3,7 @@
 import { localeId } from '@/state/locale';
 
 // ── Static Components
-import RectangleButton from '@/components/ui/button/RectangleButton.vue';
+import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 </script>
 
 <template>

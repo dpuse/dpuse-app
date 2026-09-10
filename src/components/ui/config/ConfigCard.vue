@@ -11,7 +11,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { Action } from './configCard';
 
 // ── Static Components
-import BaseButton from '@/components/ui/button/BaseButton.vue';
+import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -55,7 +55,7 @@ defineOptions({ inheritAttrs: false });
              not contain other interactive content, and this is the one element here that is genuinely one — the
              actions below are real, independently focusable buttons, kept clickable by sitting above this in
              stacking order rather than inside it. -->
-        <BaseButton :aria-label="overline ? `${overline}: ${config.label}` : config.label" class="absolute inset-0 z-10" :to="to" v-bind="$attrs" />
+        <ActionWrapper :aria-label="overline ? `${overline}: ${config.label}` : config.label" class="absolute inset-0 z-10" :to="to" v-bind="$attrs" />
 
         <!-- Badges -->
         <div v-if="!isCompact" class="absolute top-1.5 right-1.5 flex gap-x-1">
@@ -93,11 +93,11 @@ defineOptions({ inheritAttrs: false });
              keeps its own click instead of the card's. -->
         <div v-if="actions.length > 0 && config" class="relative z-20 flex items-center gap-x-1 place-self-end">
             <template v-for="action in actions" :key="action.typeId">
-                <BaseButton v-if="action.typeId === 'delete'" aria-label="Delete" class="rounded-md border border-boundary p-1.5" @click="action.onClick(config)">
+                <ActionWrapper v-if="action.typeId === 'delete'" aria-label="Delete" class="rounded-md border border-boundary p-1.5" @click="action.onClick(config)">
                     <TrashIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
-                </BaseButton>
+                </ActionWrapper>
 
-                <BaseButton v-if="action.typeId === 'open'" aria-label="Open" class="rounded-md border border-boundary p-0.5" @click="action.onClick(config)">
+                <ActionWrapper v-if="action.typeId === 'open'" aria-label="Open" class="rounded-md border border-boundary p-0.5" @click="action.onClick(config)">
                     <svg
                         viewBox="0 0 24 24"
                         class="size-7"
@@ -109,11 +109,11 @@ defineOptions({ inheritAttrs: false });
                         <path d="m12 16 4-4-4-4" stroke-width="1.75" />
                         <path d="M8 12h8" stroke-width="1.75" />
                     </svg>
-                </BaseButton>
+                </ActionWrapper>
 
-                <BaseButton v-if="action.typeId === 'info'" aria-label="Information" class="rounded-md border border-boundary p-1.5" @click="action.onClick(config)">
+                <ActionWrapper v-if="action.typeId === 'info'" aria-label="Information" class="rounded-md border border-boundary p-1.5" @click="action.onClick(config)">
                     <InfoIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
-                </BaseButton>
+                </ActionWrapper>
             </template>
         </div>
 

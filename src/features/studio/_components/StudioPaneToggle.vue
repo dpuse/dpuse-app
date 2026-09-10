@@ -3,7 +3,7 @@
 import { t } from '@/state/locale';
 
 // ── Static Components
-import ToggleButton from '@/components/ui/button/ToggleButton.vue';
+import ToggleButton from '@/components/ui/action/ToggleButton.vue';
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

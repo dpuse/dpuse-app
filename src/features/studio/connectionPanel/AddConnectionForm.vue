@@ -16,7 +16,7 @@ import { t } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 
 // ── Static Components
-import RectangleButton from '@/components/ui/button/RectangleButton.vue';
+import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

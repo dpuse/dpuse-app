@@ -169,6 +169,6 @@ async function loadPresenters(): Promise<void> {
 
 <style scoped>
 :deep(math) * {
-    font-size: inherit; /* Otherwise fractions use a smaller font. */
+    font-size: inherit; /* Stop maths fractions using a smaller font. */
 }
 </style>

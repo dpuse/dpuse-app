@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 
 // ── Static Components
-import BaseButton from '@/components/ui/button/BaseButton.vue';
+import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -38,7 +38,7 @@ const classes = computed(() => [
 </script>
 
 <template>
-    <BaseButton :class="classes" data-region="ItemButton" :to="to">
+    <ActionWrapper :class="classes" data-region="ItemButton" :to="to">
         <slot />
-    </BaseButton>
+    </ActionWrapper>
 </template>

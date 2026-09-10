@@ -27,7 +27,7 @@ import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
-import ActionButton from '@/components/ui/button/ActionButton.vue';
+import PillButton from '@/components/ui/action/PillButton.vue';
 import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
@@ -342,7 +342,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     <div class="absolute inset-y-0 left-0 bg-success" :style="{ width: `${previewPercentage}%` }"></div>
                     <div class="relative pl-1">{{ previewMessage }}</div>
                 </div>
-                <ActionButton :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
+                <PillButton :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
             </div>
         </template>
 

@@ -3,7 +3,7 @@
 import { useId } from 'vue';
 
 // ── Static Components
-import ItemButton from '@/components/ui/button/ItemButton.vue';
+import ItemButton from '@/components/ui/action/ItemButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

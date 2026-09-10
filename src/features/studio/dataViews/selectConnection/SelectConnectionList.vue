@@ -18,10 +18,10 @@ import { activeMetaStoreConnectionConfig, configRetrievalFailed, configRetrieval
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
-import ActionButton from '@/components/ui/button/ActionButton.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
+import PillButton from '@/components/ui/action/PillButton.vue';
 import SelectConnectionPanel from './SelectConnectionPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
@@ -162,7 +162,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
 
         <template #detail="{ item, close }">
             <SelectConnectionPanel :connection-localised-config="item" @close="close" />
-            <ActionButton :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
+            <PillButton :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
         </template>
 
         <template #no-selection>

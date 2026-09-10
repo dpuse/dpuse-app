@@ -6,7 +6,7 @@ import { ref, useTemplateRef } from 'vue';
 import { t } from '@/state/locale';
 
 // ── Static Components
-import RectangleButton from '@/components/ui/button/RectangleButton.vue';
+import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import Separator from '@/components/ui/Separator.vue';
 import TextInput from '@/components/ui/text/TextInput.vue';
 

@@ -10,7 +10,7 @@
 import { useOptions } from '@/features/studio/options/useOptions';
 
 // ── Static Components
-import BaseButton from '@/components/ui/button/BaseButton.vue';
+import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -25,7 +25,7 @@ const workflowOptionConfigs = useOptions();
         <!-- One column until the pane is genuinely wide enough for two. A container query, not a viewport one: this sits
              inside a pane nested in another pane, so neither splitter's position is visible to a media query. -->
         <dl class="mt-6 grid grid-cols-1 gap-3 @md:grid-cols-2">
-            <BaseButton
+            <ActionWrapper
                 v-for="config in workflowOptionConfigs"
                 :key="config.id"
                 class="flex flex-col items-start rounded-md border border-separator p-3 text-left"
@@ -36,7 +36,7 @@ const workflowOptionConfigs = useOptions();
                     {{ config.label }}
                 </dt>
                 <dd class="mt-1 text-sm text-muted">{{ config.description }}</dd>
-            </BaseButton>
+            </ActionWrapper>
         </dl>
     </div>
 </template>

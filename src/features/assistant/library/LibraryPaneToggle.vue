@@ -10,7 +10,7 @@
 import { LibraryIcon } from '@lucide/vue';
 
 // ── Static Components
-import ToggleButton from '@/components/ui/button/ToggleButton.vue';
+import ToggleButton from '@/components/ui/action/ToggleButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

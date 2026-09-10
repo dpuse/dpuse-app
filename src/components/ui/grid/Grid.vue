@@ -7,8 +7,8 @@ import { computed, onUnmounted, ref, shallowRef } from 'vue';
 import { type DataSource, DEFAULT_CACHE_BLOCK_SIZE, useDataWindow } from '@/composables/useDataWindow';
 
 // ── Static Components
-import ActionButton from '@/components/ui/button/ActionButton.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
+import PillButton from '@/components/ui/action/PillButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -150,14 +150,14 @@ function getRowHeight(item: T | undefined): number {
         </Transition>
 
         <!-- Floating Add Button (Optional) -->
-        <ActionButton v-if="addLabel" :icon="PlusIcon" icon-is-leading :label="addLabel" @click="$emit('add')" />
-        <!-- <BaseButton v-if="addLabel" class="absolute right-(--safe-right-offset) bottom-(--safe-bottom-offset)" @click="$emit('add')">
+        <PillButton v-if="addLabel" :icon="PlusIcon" icon-is-leading :label="addLabel" @click="$emit('add')" />
+        <!-- <ActionWrapper v-if="addLabel" class="absolute right-(--safe-right-offset) bottom-(--safe-bottom-offset)" @click="$emit('add')">
             <div
  class="flex h-10 items-center gap-x-1 rounded-full border border-blue-200 bg-blue-50 pr-3.5 pl-2 text-blue-600 shadow-md hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring dark:border-blue-600 dark:bg-blue-800 dark:text-blue-300 dark:hover:bg-blue-700"
             >
                 <PlusIcon class="size-5" :stroke-width="1.25" />
                 <span class="text-sm">{{ addLabel }}</span>
             </div>
-        </BaseButton> -->
+        </ActionWrapper> -->
     </div>
 </template>

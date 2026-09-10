@@ -4,7 +4,7 @@ import { t } from '@/state/locale';
 
 // ── Static Components
 import AssistantLogo from '@/components/branding/AssistantLogo.vue';
-import ToggleButton from '@/components/ui/button/ToggleButton.vue';
+import ToggleButton from '@/components/ui/action/ToggleButton.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

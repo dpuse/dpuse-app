@@ -11,7 +11,7 @@ import type { AppFailure } from '@/state/errors';
 import { t } from '@/state/locale';
 
 // ── Static Components
-import CloseButton from '@/components/ui/button/CloseButton.vue';
+import CloseButton from '@/components/ui/action/CloseButton.vue';
 import ErrorBody from '@/components/ui/error/ErrorBody.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

@@ -3,10 +3,10 @@
 import { computed } from 'vue';
 
 // ── Local Framework
-import { type ButtonSize, ICON_SIZE_CLASSES } from './baseButton';
+import { type ButtonSize, ICON_SIZE_CLASSES } from './action';
 
 // ── Static Components
-import BaseButton from './BaseButton.vue';
+import ActionWrapper from './ActionWrapper.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -24,7 +24,7 @@ const classes = computed(() => [ICON_SIZE_CLASSES[size], isFloating ? 'shadow-md
 </script>
 
 <template>
-    <BaseButton
+    <ActionWrapper
         :aria-expanded="isOpen"
         :aria-label="accessibleLabel"
         class="inline-flex items-center justify-center rounded-full border border-transparent hover:border-separator hover:bg-zinc-100 active:bg-zinc-200 dark:hover:bg-zinc-300/25 dark:active:bg-zinc-300/35"
@@ -32,5 +32,5 @@ const classes = computed(() => [ICON_SIZE_CLASSES[size], isFloating ? 'shadow-md
         data-region="ToggleButton"
     >
         <slot />
-    </BaseButton>
+    </ActionWrapper>
 </template>

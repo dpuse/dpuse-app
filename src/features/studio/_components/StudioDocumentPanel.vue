@@ -7,7 +7,7 @@ import { inject, ref } from 'vue';
 import { gridDetailIsSplitKey } from '@/components/ui/grid/gridDetail';
 
 // ── Static Components
-import BaseButton from '@/components/ui/button/BaseButton.vue';
+import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -24,7 +24,7 @@ const panesAreSplit = inject(gridDetailIsSplitKey, ref(false));
 <template>
     <div class="dpuse-prose relative pt-4" data-region="StudioDocumentPanel">
         <!-- Header -->
-        <BaseButton class="group block w-full min-w-0 cursor-pointer text-left" :class="{ 'pointer-events-none': panesAreSplit }" @click="$emit('close')">
+        <ActionWrapper class="group block w-full min-w-0 cursor-pointer text-left" :class="{ 'pointer-events-none': panesAreSplit }" @click="$emit('close')">
             <!-- Overline with optional back icon. -->
             <div class="mr-9 flex min-w-0 items-center gap-x-0.5 text-sm leading-tight text-muted group-hover:text-blue-500">
                 <ArrowLeftIcon v-if="!panesAreSplit" class="size-4 flex-none" />
@@ -38,7 +38,7 @@ const panesAreSplit = inject(gridDetailIsSplitKey, ref(false));
                     {{ title }}
                 </h1>
             </div>
-        </BaseButton>
+        </ActionWrapper>
 
         <!-- Content -->
         <slot />

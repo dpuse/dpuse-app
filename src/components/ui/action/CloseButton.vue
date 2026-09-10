@@ -3,18 +3,15 @@
 import { XIcon } from '@lucide/vue';
 
 // ── Static Components
-import IconButton from '@/components/ui/button/IconButton.vue';
+import IconButton from '@/components/ui/action/IconButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-interface Properties {
-    accessibleLabel?: string;
-}
-const { accessibleLabel = 'Close' } = defineProps<Properties>();
+const { accessibleLabel = 'Close' } = defineProps<{ accessibleLabel?: string }>();
 </script>
 
 <template>
-    <IconButton :accessible-label="accessibleLabel" data-region="CloseButton" rounded size="sm" variant="ghost">
+    <IconButton :accessible-label="accessibleLabel" data-region="CloseButton" rounded size="sm">
         <XIcon class="size-5.5!" stroke-width="1.25" />
     </IconButton>
 </template>
