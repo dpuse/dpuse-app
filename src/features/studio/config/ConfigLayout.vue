@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed } from 'vue';
+import { HomeIcon } from '@lucide/vue';
 import { useRoute } from 'vue-router';
 
 // ── DPUse Framework
@@ -13,7 +14,6 @@ import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
-import HomeIcon from '@/components/icons/HomeIcon.vue';
 import StudioHeader from '@/features/studio/_components/StudioHeader.vue';
 import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
 import TabBar from '@/components/ui/TabBar.vue';
@@ -91,8 +91,7 @@ const panelIsLoading = computed(() => navigationPendingDepth.value === 1);
         <!-- Tab Bar -->
         <TabBar class="flex-none" :active-id="activeConfigOptionConfig.id" :items="configOptionLocalisedConfigs">
             <template #default="{ item }">
-                <!-- eslint-disable-next-line tailwindcss/no-unnecessary-arbitrary-value  -- stroke-1.5 is not a valid preset value.  -->
-                <HomeIcon v-if="item.id === 'home'" class="size-5! [&>path]:stroke-[1.5]" />
+                <HomeIcon v-if="item.id === 'home'" class="size-4.75! [&>path]:stroke-2" />
                 <div v-else class="text-sm">{{ item.label }}</div>
             </template>
         </TabBar>

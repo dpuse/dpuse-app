@@ -24,13 +24,11 @@ export interface AssistantModelConfig {
 //     that nor 'effort'.
 //   - 'effort' runs low → medium → high → xhigh → max, and only on models that carry it. It is the cost dial: it
 //     decides how much thinking the model does before answering.
-//   - OpenAI's 'reasoning.effort' is a different setting under the same name, and is pinned to 'none' below for a
-//     reason that is not about cost. A reasoning model emits a reasoning item beside every tool call, and the
-//     Responses API refuses a later turn that replays the tool call without it. The adapter cannot send it: it keeps
-//     no thought signature for OpenAI the way it does for Anthropic, and discards OpenAI's id for the item on the way
-//     in. So reasoning and tools cannot both be had here, and tools are what this assistant is for. Adding
-//     'summary: auto' would surface the thinking in the UI, but only at an effort that brings the failure back.
-//     Revisit when '@tanstack/openai-base' emits reasoning items — nothing after 0.10.8 does.
+//   - OpenAI's 'reasoning.effort' is a different setting under the same name. It used to be pinned to 'none': a
+//     reasoning model emits a reasoning item beside every tool call, and the Responses API refused a later turn that
+//     replayed the tool call without it, while the adapter kept no thought signature for OpenAI the way it does for
+//     Anthropic. '@tanstack/openai-base' 0.10.9 replays that item, so it is set to 'medium' below, matching the
+//     Anthropic models, with 'summary: auto' to surface the thinking in the UI.
 export const ASSISTANT_MODEL_CONFIGS: AssistantModelConfig[] = [
     {
         id: 'anthropic-claude-opus-5',
@@ -62,7 +60,7 @@ export const ASSISTANT_MODEL_CONFIGS: AssistantModelConfig[] = [
         providerLabel: 'OpenAI',
         modelId: 'gpt-5.6',
         modelLabel: 'GPT 5.6',
-        options: { maxOutputTokens: 4096, reasoning: { effort: 'none' } }
+        options: { maxOutputTokens: 4096, reasoning: { effort: 'medium', summary: 'auto' } }
     },
     {
         id: 'openai-gpt-5.6-terra',
@@ -70,7 +68,7 @@ export const ASSISTANT_MODEL_CONFIGS: AssistantModelConfig[] = [
         providerLabel: 'OpenAI',
         modelId: 'gpt-5.6-terra',
         modelLabel: 'GPT 5.6 Terra',
-        options: { maxOutputTokens: 4096, reasoning: { effort: 'none' } }
+        options: { maxOutputTokens: 4096, reasoning: { effort: 'medium', summary: 'auto' } }
     },
     {
         id: 'openai-gpt-5.6-luna',
@@ -78,6 +76,6 @@ export const ASSISTANT_MODEL_CONFIGS: AssistantModelConfig[] = [
         providerLabel: 'OpenAI',
         modelId: 'gpt-5.6-luna',
         modelLabel: 'GPT 5.6 Luna',
-        options: { maxOutputTokens: 4096, reasoning: { effort: 'none' } }
+        options: { maxOutputTokens: 4096, reasoning: { effort: 'medium', summary: 'auto' } }
     }
 ];

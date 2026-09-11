@@ -1,25 +1,28 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { type Component, computed, type ShallowRef, shallowRef, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import type { ConfigOptionConfig, ManagedModuleConfig } from '@/utilities/index.ts';
+import { type ConfigOptionConfig, defineAsyncPanel, type ManagedModuleConfig } from '@/utilities/index.ts';
 import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ConfigConnectorPanel from '@/features/studio/config/ConfigConnectorPanel.vue';
-import ConfigCookbookPanel from '@/features/studio/config/ConfigCookbookPanel.vue';
-import ConfigPresenterPanel from '@/features/studio/config/ConfigPresenterPanel.vue';
-import ConfigToolPanel from '@/features/studio/config/ConfigToolPanel.vue';
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
+
+// ── Dynamic Components
+const ConfigConnectorPanel = defineAsyncPanel(() => import('@/features/studio/config/modules/ConfigConnectorPanel.vue'), 'ConfigConnectorPanel');
+const ConfigCookbookPanel = defineAsyncPanel(() => import('@/features/studio/config/modules/ConfigCookbookPanel.vue'), 'ConfigCookbookPanel');
+const ConfigPresenterPanel = defineAsyncPanel(() => import('@/features/studio/config/modules/ConfigPresenterPanel.vue'), 'ConfigPresenterPanel');
+const ConfigToolPanel = defineAsyncPanel(() => import('@/features/studio/config/modules/ConfigToolPanel.vue'), 'ConfigToolPanel');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -53,6 +56,8 @@ const { activeConfigOptionConfig } = defineProps<{ activeConfigOptionConfig: Loc
 
 const activeLocalisedConfig = shallowRef<LocalisedConfig<ManagedModuleConfig> | undefined>();
 const localisedConfigs = shallowRef<LocalisedConfig<ManagedModuleConfig>[]>([]);
+const route = useRoute();
+const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -73,10 +78,34 @@ watch(
     { immediate: true }
 );
 
+// Restores the selection from the URL on reload. Also clears a 'configId' that no longer matches anything once
+// retrieval settles — e.g. a bookmarked link to a since-deleted item — so the URL does not keep pointing at nothing.
+watch(
+    localisedConfigs,
+    (newConfigs) => {
+        if (typeof route.params.configId !== 'string') return;
+        const restoredConfig = newConfigs.find((config) => config.id === route.params.configId);
+        if (restoredConfig) activeLocalisedConfig.value = restoredConfig;
+        else if (configRetrievalSucceeded.value || configRetrievalFailed.value) updateConfigIdParameter();
+    },
+    { immediate: true }
+);
+
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleSelect(localisedConfig: LocalisedConfig<ManagedModuleConfig> | undefined): void {
     activeLocalisedConfig.value = localisedConfig;
+    updateConfigIdParameter(localisedConfig?.id);
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// An explicit 'name' is required even though this stays on the same route: it is what makes an absent 'configId'
+// actually clear the param instead of inheriting the one already in the URL — see 'router/index.ts' for why.
+function updateConfigIdParameter(configId?: string): void {
+    void router.replace({ name: route.name ?? undefined, params: { configId }, query: route.query }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 }
 </script>
 

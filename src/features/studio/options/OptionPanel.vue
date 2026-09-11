@@ -74,14 +74,14 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
             <div class="flex flex-col items-center gap-y-2 py-2">
                 <IconButton
                     :accessible-label="t(T, 'home.aria')"
-                    :to="{ name: 'studio', query: { ...$route.query, sView: 'studio' } }"
+                    :to="{ name: 'studio', query: $route.query }"
                     @click="handleComplete({ id: 'home', label: '', description: '', icon: '', iconDark: null, step: 0, tasks: [] })"
                 >
                     <StudioHomeIcon aria-hidden="true" />
                 </IconButton>
 
                 <template v-for="config in workflowOptionConfigs" :key="config.id">
-                    <IconButton :accessible-label="config.label" :to="{ name: config.id, query: { ...$route.query, sView: config.id } }" @click="handleComplete(config)">
+                    <IconButton :accessible-label="config.label" :to="{ name: config.id, query: $route.query }" @click="handleComplete(config)">
                         <div aria-hidden="true" v-html="config.icon" />
                     </IconButton>
                 </template>

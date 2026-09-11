@@ -3,10 +3,10 @@
 import type { RouteLocationRaw } from 'vue-router';
 
 // ── Local Framework
-import { type ButtonVariant, VARIANT_CLASSES } from './action';
+import { type ButtonType, type ButtonVariant, VARIANT_CLASSES } from './action';
 
 // ── Static Components
-import ActionWrapper, { type ButtonType } from './ActionWrapper.vue';
+import ActionWrapper from './ActionWrapper.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

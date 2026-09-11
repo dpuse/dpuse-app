@@ -65,6 +65,16 @@ const dataViewConfigsDataSource = computed((): DataSource<LocalisedConfig<DataVi
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Restores the selection from the URL once the list arrives, for reload and deep links.
+watch(
+    dataViewLocalisedConfigs,
+    (newConfigs) => {
+        if (typeof route.params.dataViewId !== 'string') return;
+        activeDataViewLocalisedConfig.value = newConfigs.find((config) => config.id === route.params.dataViewId);
+    },
+    { immediate: true }
+);
+
 // Detail action bar reports clicks via v-model rather than dedicated events, so route them to the matching handler here.
 watch(detailActionId, (newDetailActionId) => {
     if (newDetailActionId == null || !activeDataViewLocalisedConfig.value) return;
@@ -78,7 +88,7 @@ watch(detailActionId, (newDetailActionId) => {
 
 function handleAddDataView(): void {
     setActiveDataViewConfig();
-    void router.push({ name: 'connections', params: { dataViewId: NEW_DATA_VIEW_ID }, query: { ...route.query, sView: 'connections' } }).catch(() => {
+    void router.push({ name: 'connections', params: { dataViewId: NEW_DATA_VIEW_ID }, query: route.query }).catch(() => {
         // Already reported by 'router.onError'.
     });
 }
@@ -105,6 +115,10 @@ function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewCon
 
 function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig> | undefined): void {
     activeDataViewLocalisedConfig.value = activeDataViewLocalisedConfig.value === dataViewLocalisedConfig ? undefined : dataViewLocalisedConfig;
+    const parameters = activeDataViewLocalisedConfig.value ? { dataViewId: activeDataViewLocalisedConfig.value.id } : {};
+    void router.replace({ name: 'dataViews', params: parameters, query: route.query }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 }
 
 function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
@@ -113,19 +127,19 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
 
     setActiveDataViewConfig(dataViewConfig);
     if (dataViewConfig.connectionId == null) {
-        void router.push({ name: 'connections', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'connections' } }).catch(() => {
+        void router.push({ name: 'connections', params: { dataViewId: dataViewConfig.id }, query: route.query }).catch(() => {
             // Already reported by 'router.onError'.
         });
     } else if (dataViewConfig.connectionNodeConfig == null) {
-        void router.push({ name: 'items', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'items' } }).catch(() => {
+        void router.push({ name: 'items', params: { dataViewId: dataViewConfig.id }, query: route.query }).catch(() => {
             // Already reported by 'router.onError'.
         });
     } else if (dataViewConfig.contentAuditConfig == null) {
-        void router.push({ name: 'content', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'content' } }).catch(() => {
+        void router.push({ name: 'content', params: { dataViewId: dataViewConfig.id }, query: route.query }).catch(() => {
             // Already reported by 'router.onError'.
         });
     } else {
-        void router.push({ name: 'data', params: { dataViewId: dataViewConfig.id }, query: { ...route.query, sView: 'data' } }).catch(() => {
+        void router.push({ name: 'data', params: { dataViewId: dataViewConfig.id }, query: route.query }).catch(() => {
             // Already reported by 'router.onError'.
         });
     }

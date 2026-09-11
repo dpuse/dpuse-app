@@ -4,17 +4,17 @@ import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
+import type { ComponentReferenceConfig } from '@dpuse/dpuse-shared/component';
+import type { PresenterInterface } from '@dpuse/dpuse-shared/component/module/presenter';
+import { type LocalisedReference, localiseReference } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { appearanceIsDark } from '@/state/appLayout';
-import type { ComponentReferenceConfig } from '@dpuse/dpuse-shared/component';
 import type { DataSource } from '@/composables/useDataWindow';
-import type { PresenterInterface } from '@dpuse/dpuse-shared/component/module/presenter';
 import { reportAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import { useConfigsReady } from '@/services/useConfigsReady';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
-import { type LocalisedReference, localiseReference } from '@dpuse/dpuse-shared/locale';
 import { presenterConfigs, toolConfigs } from '@/state/session';
 
 // ── Static Components

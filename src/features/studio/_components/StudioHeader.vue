@@ -20,10 +20,10 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
              NOTE: If width of logos changes, the above settings need to be adjusted accordingly. -->
 
         <component
-            :is="to && to !== $route.query.sView ? 'RouterLink' : 'div'"
+            :is="to && to !== $route.name ? 'RouterLink' : 'div'"
             class="min-w-0 text-content"
-            :class="{ 'text-center': !viewportIsWide, 'group cursor-pointer': to && to !== $route.query.sView }"
-            :to="{ name: to, query: { ...$route.query, sView: to } }"
+            :class="{ 'text-center': !viewportIsWide, 'group cursor-pointer': to && to !== $route.name }"
+            :to="{ name: to, query: $route.query }"
         >
             <!-- Overline -->
             <div

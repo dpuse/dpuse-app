@@ -63,6 +63,17 @@ const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<Connecti
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Restores the previewed connection from the URL on reload, when the data view record hasn't already resolved one.
+watch(
+    connectionLocalisedConfigs,
+    (newConfigs) => {
+        if (activeConnectionConfig.value != null || typeof route.query.connectionId !== 'string') return;
+        const restoredConnectionConfig = newConfigs.find((config) => config.id === route.query.connectionId);
+        if (restoredConnectionConfig) handleSelectConnection(restoredConnectionConfig);
+    },
+    { immediate: true }
+);
+
 // Caught rather than left to reject: this reaches the engine, and without the catch a failure there escapes as an
 // unhandled rejection and is announced over the app as one, rather than said here in terms of what it cost.
 watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => {
@@ -90,7 +101,7 @@ function handleAddConnection(): void {
 }
 
 function handleCommitDetail(): void {
-    void router.push({ name: 'items', query: { ...route.query, sView: 'items' } }).catch(() => {
+    void router.push({ name: 'items', query: route.query }).catch(() => {
         // Already reported by 'router.onError'.
     });
 }
@@ -103,6 +114,13 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
     activeConnectionConfig.value = activeConnectionConfig.value === connectionLocalisedConfig ? undefined : connectionLocalisedConfig;
     activeConnectionNodeConfigs.value = [];
     resetActiveDataViewConfig(connectionLocalisedConfig);
+
+    const query = { ...route.query };
+    if (activeConnectionConfig.value) query.connectionId = activeConnectionConfig.value.id;
+    else delete query.connectionId;
+    void router.replace({ query }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

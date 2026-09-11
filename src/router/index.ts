@@ -24,7 +24,7 @@ interface RouteComponentLoader {
 // Every loader is wrapped so that a failed chunk can be reported by name, and so that loading one raises the spinner.
 // The number is the nesting level of the 'RouterView' that renders the component: 'App.vue' is 0, the studio layouts
 // below it are 1. 'assertViewDepths' checks these against the route table at startup in Dev environment.
-const HomePanel = defineLazyLoader('HomePanel', 0, () => import('@/features/studio/home/HomePanel.vue'));
+const StudioHomePanel = defineLazyLoader('StudioHomePanel', 0, () => import('@/features/studio/home/HomePanel.vue'));
 const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/features/studio/dataViews/DataViewsLayout.vue'));
 const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/features/studio/dataViews/DataViewList.vue'));
 const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/features/studio/dataViews/selectConnection/SelectConnectionList.vue'));
@@ -35,9 +35,9 @@ const EventQueriesLayout = defineLazyLoader('EventQueriesLayout', 0, () => impor
 const PresentationsLayout = defineLazyLoader('PresentationsLayout', 0, () => import('@/features/studio/presentations/PresentationsLayout.vue'));
 const DataAppsLayout = defineLazyLoader('DataAppsLayout', 0, () => import('@/features/studio/dataApps/DataAppsLayout.vue'));
 const ConfigLayout = defineLazyLoader('ConfigLayout', 0, () => import('@/features/studio/config/ConfigLayout.vue'));
-const ConfigHomePanel = defineLazyLoader('ConfigHomePanel', 1, () => import('@/features/studio/config/ConfigHomePanel.vue'));
+const ConfigHomePanel = defineLazyLoader('ConfigHomePanel', 1, () => import('@/features/studio/config/home/ConfigHomePanel.vue'));
 const ConfigContextModelList = defineLazyLoader('ConfigContextModelList', 1, () => import('@/features/studio/config/context/ConfigContextModelList.vue'));
-const ConfigModuleList = defineLazyLoader('ConfigModuleList', 1, () => import('@/features/studio/config/_components/ConfigModuleList.vue'));
+const ConfigModuleList = defineLazyLoader('ConfigModuleList', 1, () => import('@/features/studio/config/modules/_components/ConfigModuleList.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -45,12 +45,12 @@ export const APP_ROUTES = [
     {
         path: '/',
         children: [
-            { name: 'studio', path: '', component: HomePanel },
+            { name: 'studio', path: '', component: StudioHomePanel },
             {
                 path: 'dataViews',
                 component: DataViewsLayout,
                 children: [
-                    { name: 'dataViews', path: '', component: DataViewList },
+                    { name: 'dataViews', path: ':dataViewId?', component: DataViewList },
                     {
                         path: ':dataViewId',
                         children: [
@@ -70,17 +70,26 @@ export const APP_ROUTES = [
                 component: ConfigLayout,
                 children: [
                     { name: 'config', path: '', component: ConfigHomePanel },
-                    { name: 'connectors', path: 'connectors', component: ConfigModuleList },
-                    { name: 'context', path: 'context', component: ConfigContextModelList },
-                    { name: 'presenters', path: 'presenters', component: ConfigModuleList },
-                    { name: 'cookbooks', path: 'cookbooks', component: ConfigModuleList },
-                    { name: 'tools', path: 'tools', component: ConfigModuleList }
+                    { name: 'connectors', path: 'connectors/:configId?', component: ConfigModuleList },
+                    { name: 'context', path: 'context/:configId?', component: ConfigContextModelList },
+                    { name: 'presenters', path: 'presenters/:configId?', component: ConfigModuleList },
+                    { name: 'cookbooks', path: 'cookbooks/:configId?', component: ConfigModuleList },
+                    { name: 'tools', path: 'tools/:configId?', component: ConfigModuleList }
                 ]
             }
         ]
     },
     { path: '/:catchAll(.*)', redirect: '/' }
 ];
+
+// Query keys that hold a list's row selection for its own route only (written via 'router.replace' by the route
+// that owns each one, to survive a reload or deep link there) — see 'SelectConnectionList', 'SelectItemPanel'.
+// Never meant to outlive that route: whatever a selection actually decided is saved into real state before the app
+// moves on, so carrying the id itself past its own route is pure query-string litter, not state anything depends
+// on. 'ConfigModuleList'/'ConfigContextModelList' and 'DataViewList' use an optional path param ('configId',
+// 'dataViewId') for the same purpose instead — those need no entry here, since a path param is naturally scoped to
+// the one route that declares it and cannot leak into a different route's query the way these can.
+const ROUTE_SCOPED_QUERY_KEYS = new Set(['connectionId', 'itemId']);
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -103,6 +112,20 @@ export const createAppRouter = (): Router => {
     });
 
     if (import.meta.env.DEV) assertViewDepths(APP_ROUTES);
+
+    // Strips a route-scoped selection id the moment it would cross into a different route. This is the one place
+    // that enforces it: call sites throughout the app forward the current query wholesale (`query: route.query`),
+    // and there is no way to stop a selection id riding along with it short of auditing every one of those call
+    // sites — fragile, and the last attempt at that missed cases. Guarding the navigation itself means it does not
+    // matter how many places spread the query forward.
+    router.beforeEach((to, from) => {
+        if (from.matched.length === 0 || to.name === from.name) return; // Initial load/reload, or writing the selection via a same-route 'replace' — nothing to strip.
+
+        const query = Object.fromEntries(Object.entries(to.query).filter(([key]) => !ROUTE_SCOPED_QUERY_KEYS.has(key)));
+        if (Object.keys(query).length === Object.keys(to.query).length) return; // Nothing to strip.
+
+        return { name: to.name, params: to.params, query, hash: to.hash };
+    });
 
     // Runs for completed and aborted navigations; ones that error only reach 'onError' below. Between the two, the
     // spinner is always cleared.

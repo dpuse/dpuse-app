@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowRightIcon } from '@lucide/vue';
 import type { ColumnDef } from '@tanstack/vue-table';
+import { ArrowRightIcon, HomeIcon } from '@lucide/vue';
 import { computed, markRaw, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -16,18 +16,17 @@ import type { GetInfoOptions, GetInfoResult, ListNodesOptions, ListNodesResult, 
 // ── Local Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
-import { type AppFailure, raiseFailure } from '@/state/errors';
 import { useEngine } from '@/services/useEngine';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, setConnectionNodeConfig } from '@/state/dataViews';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
-import HomeIcon from '@/components/icons/HomeIcon.vue';
-import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
+import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
@@ -150,7 +149,7 @@ watch(
 
         const dataViewConfig = await getDataViewRecord(newLocalMetaStoreConnectionConfig, route);
         if (dataViewConfig.connectionId == null) {
-            void router.replace({ name: 'connections', query: { ...route.query, sView: 'connections' } }).catch(() => {
+            void router.replace({ name: 'connections', query: route.query }).catch(() => {
                 // Already reported by 'router.onError'.
             });
         } else {
@@ -200,6 +199,7 @@ function handleRetryEngine(): void {
 
 function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): void {
     activeConnectionObjectConfig.value = undefined;
+    updateItemIdQuery();
     if (index <= 0) {
         currentFolderNodes.value = [];
         loadFolderNodes(activeConnectionConfig.value, '');
@@ -214,27 +214,41 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
     if (connectionNodeConfig == null) {
         // Clear the selection.
         activeConnectionObjectConfig.value = undefined;
+        updateItemIdQuery();
         return;
     }
 
     if (connectionNodeConfig.typeId === 'folder') {
         currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
         activeConnectionObjectConfig.value = undefined;
+        updateItemIdQuery();
         loadFolderNodes(activeConnectionConfig.value, `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`);
         return;
     }
 
     activeConnectionObjectConfig.value = connectionNodeConfig;
+    updateItemIdQuery(connectionNodeConfig.id);
 }
 
 function handleCommitDetail(): void {
     emit('task-completed', taskLocalisedConfig);
-    void router.push({ name: 'content', query: { ...route.query, sView: 'content' } }).catch(() => {
+    void router.push({ name: 'content', query: route.query }).catch(() => {
         // Already reported by 'router.onError'.
     });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Not restored on reload: rows come from a paginated, folder-scoped 'listNodes' window rather than a full list held
+// in memory, so there is no cheap lookup from a bare id back to the folder that contains it.
+function updateItemIdQuery(itemId?: string): void {
+    const query = { ...route.query };
+    if (typeof itemId === 'string') query.itemId = itemId;
+    else delete query.itemId;
+    void router.replace({ query }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
+}
 
 function buildObjectPath(connectionNodeConfig: ConnectionNodeConfig): string {
     const extension = connectionNodeConfig.extension == null ? '' : `.${connectionNodeConfig.extension}`;

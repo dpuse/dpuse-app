@@ -62,7 +62,7 @@ const connectorStatus = computed(() => (connectionLocalisedConfig.statusId ? get
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleSubmit(): void {
-    void router.push({ name: 'items', query: { ...route.query, sView: 'items' } }).catch(() => {
+    void router.push({ name: 'items', query: route.query }).catch(() => {
         // Already reported by 'router.onError'.
     });
 }

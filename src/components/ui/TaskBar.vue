@@ -93,7 +93,7 @@ function handleUpdateScrollState(): void {
                     'border-t-zinc-300 dark:border-t-zinc-500': item.disabled
                 }"
                 role="tab"
-                :to="!item.disabled && item.id != null ? { name: item.id, query: { ...$route.query, sView: item.id } } : undefined"
+                :to="!item.disabled && item.id != null ? { name: item.id, query: $route.query } : undefined"
                 @click="$emit('select', item)"
             >
                 <div

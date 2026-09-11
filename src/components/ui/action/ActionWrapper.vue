@@ -2,14 +2,16 @@
 // ── External Dependencies & Registrations
 import { type RouteLocationRaw, RouterLink } from 'vue-router';
 
+// ── Local Framework
+import type { ButtonType } from './action';
+
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
-    disabled?: boolean; // Only applies to buttons. Currently no anchors (RouterLinks) require it.
+    disabled?: boolean; // Only applies to buttons and not passed through to RouterLinks (anchors). Currently no RouterLinks require it.
     to?: RouteLocationRaw;
     type?: ButtonType;
 }
-export type ButtonType = 'button' | 'submit';
 const { disabled, to, type = 'button' } = defineProps<Properties>();
 </script>
 

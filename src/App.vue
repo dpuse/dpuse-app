@@ -92,8 +92,8 @@ router
     .then(() => {
         // The initial navigation has fully completed, so the URL can be read. Runs once, to bootstrap the pane model.
         // The studio is the default pane: it opens unless the assistant was explicitly the one left showing.
-        setPaneActiveState('studio', route.query.sState === '1' || route.query.aState !== '1');
-        setPaneActiveState('assistant', route.query.aState === '1');
+        setPaneActiveState('studio', route.query.studio === '1' || route.query.assistant !== '1');
+        setPaneActiveState('assistant', route.query.assistant === '1');
         activeAppPaneId.value = establishActivePaneId();
         paneModelIsBootstrapped.value = true;
     })
@@ -184,8 +184,8 @@ function establishPaneSplitterPercent(): number {
 function syncPaneQuery(): void {
     const query: LocationQueryRaw = {
         ...route.query,
-        sState: studioPaneIsActive.value ? '1' : undefined,
-        aState: assistantPaneIsActive.value ? '1' : undefined,
+        studio: studioPaneIsActive.value ? '1' : undefined,
+        assistant: assistantPaneIsActive.value ? '1' : undefined,
         // Which of the two is in front, needed only where both are open and the display can show just one. With a
         // single pane open the flags above already say which, so it is left off rather than stated twice.
         pane: studioPaneIsActive.value && assistantPaneIsActive.value ? activeAppPaneId.value : undefined

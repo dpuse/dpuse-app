@@ -7,7 +7,7 @@ import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/prese
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
 
 // ── Static Components
-import ConfigModulePanel from '@/features/studio/config/_components/ConfigModulePanel.vue';
+import ConfigModulePanel from '@/features/studio/config/modules/_components/ConfigModulePanel.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

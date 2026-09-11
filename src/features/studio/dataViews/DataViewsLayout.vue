@@ -52,8 +52,8 @@ const taskLocalisedConfigsWithDisabled = computed((): LocalisedConfig<TaskConfig
 // layout itself, which is what keeps the header and task bar in place through a panel swap.
 const panelIsLoading = computed(() => navigationPendingDepth.value === 1);
 
-const activeTaskLocalisedConfig = computed(() => taskLocalisedConfigsWithDisabled.value.find((config) => config.id === route.query.sView));
-const navigateBackRouteName = computed(() => (route.query.sView === 'dataViews' ? 'studio' : 'dataViews'));
+const activeTaskLocalisedConfig = computed(() => taskLocalisedConfigsWithDisabled.value.find((config) => config.id === route.name));
+const navigateBackRouteName = computed(() => (route.name === 'dataViews' ? 'studio' : 'dataViews'));
 const headerOverline = computed(() => t(T, activeTaskLocalisedConfig.value ? 'establishDataViews.title' : 'studio.label'));
 const headerTitle = computed(() => {
     if (!activeTaskLocalisedConfig.value) return t(T, 'establishDataViews.title');
@@ -63,9 +63,9 @@ const headerTitle = computed(() => {
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
-    () => route.query.sView,
-    (newSView) => {
-        const pendingEnableStepsUpTo = TASK_CONFIGS.find((config) => config.id === newSView)?.enableUpTo ?? 0;
+    () => route.name,
+    (newRouteName) => {
+        const pendingEnableStepsUpTo = TASK_CONFIGS.find((config) => config.id === newRouteName)?.enableUpTo ?? 0;
         if (pendingEnableStepsUpTo > tasksEnabledUpToNumber.value) tasksEnabledUpToNumber.value = pendingEnableStepsUpTo;
     },
     { immediate: true }

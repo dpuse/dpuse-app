@@ -17,13 +17,13 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
              NOTE: If width of logos changes, the following settings need to be adjusted accordingly. -->
 
         <component
-            :is="to && to !== $route.query.sView ? 'RouterLink' : 'div'"
+            :is="to && to !== $route.name ? 'RouterLink' : 'div'"
             class="min-w-0"
             :class="{
                 'text-center': !viewportIsWide,
-                'cursor-pointer text-accent hover:text-accent-hover hover:underline hover:decoration-accent-hover/40 hover:underline-offset-2': to && to !== $route.query.sView
+                'cursor-pointer text-accent hover:text-accent-hover hover:underline hover:decoration-accent-hover/40 hover:underline-offset-2': to && to !== $route.name
             }"
-            :to="{ name: to, query: { ...$route.query, sView: to } }"
+            :to="{ name: to, query: $route.query }"
         >
             <!-- Overline -->
             <div v-if="overline" class="truncate text-sm leading-tight">

@@ -77,7 +77,7 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
                 :class="[activeId === item.id ? 'border-b-accent text-accent' : 'border-b-transparent', item.rightAligned ? 'ml-auto' : '']"
                 role="tab"
                 :aria-selected="activeId === item.id"
-                :to="item.to != null ? { name: item.to, query: { ...$route.query, sView: item.to } } : undefined"
+                :to="item.to != null ? { name: item.to, query: $route.query } : undefined"
                 @click="$emit('select', item)"
             >
                 <slot :item="item">

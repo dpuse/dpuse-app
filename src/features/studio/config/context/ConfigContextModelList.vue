@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed, ref, shallowRef, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import type { ComponentBaseConfig } from '@dpuse/dpuse-shared/component';
@@ -42,6 +43,8 @@ const activeModelReference = shallowRef<GridListItem<LocalisedConfig<ComponentBa
 const contextConfig = shallowRef<ContextConfig>();
 const contextLocalisedConfig = shallowRef<LocalisedConfig<ContextConfig>>();
 const contextConfigIsLoading = ref(true);
+const route = useRoute();
+const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -68,15 +71,38 @@ watch(contextConfig, (newContextConfig) => {
     contextLocalisedConfig.value = localiseConfig<ContextConfig>(newContextConfig, localeId.value);
 });
 
+// Restores the selection from the URL once the models have loaded. Also clears a 'configId' that matches nothing
+// (e.g. a bookmarked link to a since-removed model) — a stray id from another tab is not a case this needs to
+// handle: 'configId' is this route's own optional path param, so it cannot survive a navigation to another route.
+watch(
+    contextConfigIsLoading,
+    (isLoading) => {
+        if (isLoading || typeof route.params.configId !== 'string') return;
+        const restoredModel = buildLocalisedModels().find((model) => model.isHeader !== true && model.id === route.params.configId);
+        if (restoredModel) activeModelReference.value = restoredModel;
+        else updateConfigIdParameter();
+    },
+    { immediate: true }
+);
+
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleSelectModel(modelReference: GridListItem<LocalisedConfig<ComponentBaseConfig>> | undefined): void {
     activeModelReference.value = modelReference;
+    updateConfigIdParameter(modelReference?.id);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBaseConfig>>> {
+// An explicit 'name' is required even though this stays on the same route: it is what makes an absent 'configId'
+// actually clear the param instead of inheriting the one already in the URL — see 'router/index.ts' for why.
+function updateConfigIdParameter(configId?: string): void {
+    void router.replace({ name: route.name ?? undefined, params: { configId }, query: route.query }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
+}
+
+function buildLocalisedModels(): GridListItem<LocalisedConfig<ComponentBaseConfig>>[] {
     const localisedModels: GridListItem<LocalisedConfig<ComponentBaseConfig>>[] = [];
     const areas = contextConfig.value?.areas ?? [];
     for (const area of areas) {
@@ -87,6 +113,11 @@ function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBaseConfi
             localisedModels.push({ ...lr, isHeader: false });
         }
     }
+    return localisedModels;
+}
+
+function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBaseConfig>>> {
+    const localisedModels = buildLocalisedModels();
     return {
         rowCount: localisedModels.length,
         rows: localisedModels

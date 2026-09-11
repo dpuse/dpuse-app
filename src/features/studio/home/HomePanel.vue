@@ -59,7 +59,7 @@ const configOptionConfig = studioOptionConfigs.value[4];
                         :key="config.id"
                         :config="config"
                         :overline="t(T, 'step.label', { number: config.step })"
-                        :to="{ name: config.id, query: { ...$route.query, sView: config.id } }"
+                        :to="{ name: config.id, query: $route.query }"
                     />
                 </div>
 
@@ -70,7 +70,7 @@ const configOptionConfig = studioOptionConfigs.value[4];
                     <ConfigCard
                         :key="buildDataAppsOptionConfig.id"
                         :config="buildDataAppsOptionConfig"
-                        :to="{ name: buildDataAppsOptionConfig.id, query: { ...$route.query, sView: buildDataAppsOptionConfig.id } }"
+                        :to="{ name: buildDataAppsOptionConfig.id, query: $route.query }"
                     />
                 </div>
 
@@ -81,7 +81,7 @@ const configOptionConfig = studioOptionConfigs.value[4];
                     <ConfigCard
                         :key="configOptionConfig.id"
                         :config="configOptionConfig"
-                        :to="{ name: configOptionConfig.id, query: { ...$route.query, sView: configOptionConfig.id } }"
+                        :to="{ name: configOptionConfig.id, query: $route.query }"
                     />
                 </div>
             </div>

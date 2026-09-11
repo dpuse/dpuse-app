@@ -4,6 +4,7 @@
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export type ButtonSize = 'lg' | 'sm';
+export type ButtonType = 'button' | 'submit';
 export type ButtonVariant = 'destructive' | 'ghost' | 'guarded' | 'neutral' | 'outline' | 'primary';
 
 // ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────

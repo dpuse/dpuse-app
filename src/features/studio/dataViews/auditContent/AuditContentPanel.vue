@@ -29,6 +29,6 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
     <div class="px-4 pt-1">
         <div>Audit content...</div>
 
-        <RouterLink :to="{ name: 'data', query: { ...$route.query, sView: 'data' } }" @click="$emit('task-completed', taskLocalisedConfig)">Next...</RouterLink>
+        <RouterLink :to="{ name: 'data', query: $route.query }" @click="$emit('task-completed', taskLocalisedConfig)">Next...</RouterLink>
     </div>
 </template>

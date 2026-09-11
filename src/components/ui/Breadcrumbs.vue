@@ -36,7 +36,7 @@ const enrichedItems = computed(() =>
             <!-- Breadcrumb Body -->
             <component
                 :is="isDisabled ? 'div' : ActionWrapper"
-                :to="!isDisabled && item.to != null ? { name: item.to, query: { ...$route.query, sView: item.to } } : undefined"
+                :to="!isDisabled && item.to != null ? { name: item.to, query: $route.query } : undefined"
                 :aria-disabled="isDisabled || undefined"
                 :aria-label="item.label"
                 class="flex items-center"
