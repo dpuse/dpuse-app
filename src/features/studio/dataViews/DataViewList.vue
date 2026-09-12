@@ -13,8 +13,8 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { defineAsyncPanel } from '@/utilities/index.ts';
-import { t } from '@/state/locale';
 import { raiseAppFailure } from '@/state/errors';
+import { t } from '@/state/locale';
 import {
     dataViewConfigs,
     dataViewLocalisedConfigs,
@@ -29,12 +29,12 @@ import {
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import DataViewPanel from './DataViewPanel.vue';
+import ErrorShell from '@/components/ui/error/ErrorShell.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
+import PillButton from '@/components/ui/action/PillButton.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
-import PillButton from '@/components/ui/action/PillButton.vue';
 import StudioListPanel from '@/features/studio/_components/StudioListPanel.vue';
 
 // ── Dynamic Components
@@ -115,10 +115,7 @@ function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewCon
 
 function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig> | undefined): void {
     activeDataViewLocalisedConfig.value = activeDataViewLocalisedConfig.value === dataViewLocalisedConfig ? undefined : dataViewLocalisedConfig;
-    const parameters = activeDataViewLocalisedConfig.value ? { dataViewId: activeDataViewLocalisedConfig.value.id } : {};
-    void router.replace({ name: 'dataViews', params: parameters, query: route.query }).catch(() => {
-        // Already reported by 'router.onError'.
-    });
+    updateDataViewIdParameter(activeDataViewLocalisedConfig.value?.id);
 }
 
 function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
@@ -143,6 +140,16 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
             // Already reported by 'router.onError'.
         });
     }
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// An explicit 'name' is required even though this stays on the same route: it is what makes an absent 'dataViewId'
+// actually clear the param instead of inheriting the one already in the URL — see 'router/index.ts' for why.
+function updateDataViewIdParameter(dataViewId?: string): void {
+    void router.replace({ name: 'dataViews', params: { dataViewId }, query: route.query }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 }
 </script>
 

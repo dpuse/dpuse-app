@@ -24,7 +24,7 @@ interface RouteComponentLoader {
 // Every loader is wrapped so that a failed chunk can be reported by name, and so that loading one raises the spinner.
 // The number is the nesting level of the 'RouterView' that renders the component: 'App.vue' is 0, the studio layouts
 // below it are 1. 'assertViewDepths' checks these against the route table at startup in Dev environment.
-const StudioHomePanel = defineLazyLoader('StudioHomePanel', 0, () => import('@/features/studio/home/HomePanel.vue'));
+const StudioHomePanel = defineLazyLoader('StudioHomePanel', 0, () => import('~/src/features/studio/StudioHomePanel.vue'));
 const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/features/studio/dataViews/DataViewsLayout.vue'));
 const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/features/studio/dataViews/DataViewList.vue'));
 const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/features/studio/dataViews/selectConnection/SelectConnectionList.vue'));
@@ -37,7 +37,7 @@ const DataAppsLayout = defineLazyLoader('DataAppsLayout', 0, () => import('@/fea
 const ConfigLayout = defineLazyLoader('ConfigLayout', 0, () => import('@/features/studio/config/ConfigLayout.vue'));
 const ConfigHomePanel = defineLazyLoader('ConfigHomePanel', 1, () => import('@/features/studio/config/home/ConfigHomePanel.vue'));
 const ConfigContextModelList = defineLazyLoader('ConfigContextModelList', 1, () => import('@/features/studio/config/context/ConfigContextModelList.vue'));
-const ConfigModuleList = defineLazyLoader('ConfigModuleList', 1, () => import('@/features/studio/config/modules/_components/ConfigModuleList.vue'));
+const ConfigPluginList = defineLazyLoader('ConfigPluginList', 1, () => import('@/features/studio/config/plugins/_components/ConfigPluginList.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -70,11 +70,11 @@ export const APP_ROUTES = [
                 component: ConfigLayout,
                 children: [
                     { name: 'config', path: '', component: ConfigHomePanel },
-                    { name: 'connectors', path: 'connectors/:configId?', component: ConfigModuleList },
+                    { name: 'connectors', path: 'connectors/:configId?', component: ConfigPluginList },
                     { name: 'context', path: 'context/:configId?', component: ConfigContextModelList },
-                    { name: 'presenters', path: 'presenters/:configId?', component: ConfigModuleList },
-                    { name: 'cookbooks', path: 'cookbooks/:configId?', component: ConfigModuleList },
-                    { name: 'tools', path: 'tools/:configId?', component: ConfigModuleList }
+                    { name: 'presenters', path: 'presenters/:configId?', component: ConfigPluginList },
+                    { name: 'cookbooks', path: 'cookbooks/:configId?', component: ConfigPluginList },
+                    { name: 'tools', path: 'tools/:configId?', component: ConfigPluginList }
                 ]
             }
         ]
@@ -86,7 +86,7 @@ export const APP_ROUTES = [
 // that owns each one, to survive a reload or deep link there) — see 'SelectConnectionList', 'SelectItemPanel'.
 // Never meant to outlive that route: whatever a selection actually decided is saved into real state before the app
 // moves on, so carrying the id itself past its own route is pure query-string litter, not state anything depends
-// on. 'ConfigModuleList'/'ConfigContextModelList' and 'DataViewList' use an optional path param ('configId',
+// on. 'ConfigPluginList'/'ConfigContextModelList' and 'DataViewList' use an optional path param ('configId',
 // 'dataViewId') for the same purpose instead — those need no entry here, since a path param is naturally scoped to
 // the one route that declares it and cannot leak into a different route's query the way these can.
 const ROUTE_SCOPED_QUERY_KEYS = new Set(['connectionId', 'itemId']);

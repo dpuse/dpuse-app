@@ -44,7 +44,7 @@ const configOptionPanelIsLoading = computed(() => navigationPendingDepth.value =
         <RouterView v-slot="{ Component }">
             <ComponentLoadingSpinner v-if="configOptionPanelIsLoading" />
 
-            <!-- Keyed by route: the module tabs share one 'ConfigModuleList' instance, whose selection state won't clear on its own when reused. -->
+            <!-- Keyed by route: the module tabs share one 'ConfigPluginList' instance, whose selection state won't clear on its own when reused. -->
             <component
                 :is="Component"
                 v-else

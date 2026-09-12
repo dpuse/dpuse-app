@@ -8,7 +8,8 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import { type ConfigOptionConfig, defineAsyncPanel, type ManagedModuleConfig } from '@/utilities/index.ts';
+import T from './_ConfigPluginList.json';
+import { type ConfigOptionConfig, defineAsyncPanel, type PluginConfig } from '@/utilities/index.ts';
 import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
@@ -19,25 +20,18 @@ import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 
 // ── Dynamic Components
-const ConfigConnectorPanel = defineAsyncPanel(() => import('@/features/studio/config/modules/ConfigConnectorPanel.vue'), 'ConfigConnectorPanel');
-const ConfigCookbookPanel = defineAsyncPanel(() => import('@/features/studio/config/modules/ConfigCookbookPanel.vue'), 'ConfigCookbookPanel');
-const ConfigPresenterPanel = defineAsyncPanel(() => import('@/features/studio/config/modules/ConfigPresenterPanel.vue'), 'ConfigPresenterPanel');
-const ConfigToolPanel = defineAsyncPanel(() => import('@/features/studio/config/modules/ConfigToolPanel.vue'), 'ConfigToolPanel');
+const ConfigConnectorPanel = defineAsyncPanel(() => import('@/features/studio/config/plugins/ConfigConnectorPanel.vue'), 'ConfigConnectorPanel');
+const ConfigCookbookPanel = defineAsyncPanel(() => import('@/features/studio/config/plugins/ConfigCookbookPanel.vue'), 'ConfigCookbookPanel');
+const ConfigPresenterPanel = defineAsyncPanel(() => import('@/features/studio/config/plugins/ConfigPresenterPanel.vue'), 'ConfigPresenterPanel');
+const ConfigToolPanel = defineAsyncPanel(() => import('@/features/studio/config/plugins/ConfigToolPanel.vue'), 'ConfigToolPanel');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const T = {
-    'selectConnector.text': { en: 'Select a connector from the list.', es: 'Selecciona un conector de la lista.' },
-    'selectCookbook.text': { en: 'Select a cookbook from the list.', es: 'Selecciona un recetario de la lista.' },
-    'selectPresenter.text': { en: 'Select a presenter from the list.', es: 'Selecciona un presentador de la lista.' },
-    'selectTool.text': { en: 'Select a tool from the list.', es: 'Selecciona una herramienta de la lista.' }
-};
 
 // Everything that varies between the module types this list serves. Keyed by the tab identifier in
 // 'ConfigLayout', which arrives as 'config.id'. The configs entry is the state ref itself
 // rather than its value, so the watch below re-runs when the underlying array is replaced.
 interface ModuleTypeConfig {
-    configs: ShallowRef<ManagedModuleConfig[]>;
+    configs: ShallowRef<PluginConfig[]>;
     panel: Component;
     selectKey: keyof typeof T;
 }
@@ -54,8 +48,8 @@ const { config } = defineProps<{ config: LocalisedConfig<ConfigOptionConfig> }>(
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeLocalisedConfig = shallowRef<LocalisedConfig<ManagedModuleConfig> | undefined>();
-const localisedConfigs = shallowRef<LocalisedConfig<ManagedModuleConfig>[]>([]);
+const activeLocalisedConfig = shallowRef<LocalisedConfig<PluginConfig> | undefined>();
+const localisedConfigs = shallowRef<LocalisedConfig<PluginConfig>[]>([]);
 const route = useRoute();
 const router = useRouter();
 
@@ -63,23 +57,21 @@ const router = useRouter();
 
 const moduleTypeConfig = computed(() => MODULE_TYPE_CONFIGS[config.id]);
 
-const configsDataSource = computed<DataSource<LocalisedConfig<ManagedModuleConfig>>>(() => ({
+const configsDataSource = computed<DataSource<LocalisedConfig<PluginConfig>>>(() => ({
     // Settled either way: an undefined count means 'not yet known' and leaves the grid busy, so checking only the
     // success flag left it spinning for the rest of the session when retrieval failed.
     rowCount: configRetrievalSucceeded.value || configRetrievalFailed.value ? localisedConfigs.value.length : undefined,
-    getRows: (start, end): Promise<{ rows: LocalisedConfig<ManagedModuleConfig>[] }> => Promise.resolve({ rows: localisedConfigs.value.slice(start, end) })
+    getRows: (start, end): Promise<{ rows: LocalisedConfig<PluginConfig>[] }> => Promise.resolve({ rows: localisedConfigs.value.slice(start, end) })
 }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
     () => moduleTypeConfig.value.configs.value,
-    (newConfigs) => (localisedConfigs.value = localiseConfigs<ManagedModuleConfig>(newConfigs, localeId.value, true)),
+    (newConfigs) => (localisedConfigs.value = localiseConfigs<PluginConfig>(newConfigs, localeId.value, true)),
     { immediate: true }
 );
 
-// Restores the selection from the URL on reload. Also clears a 'configId' that no longer matches anything once
-// retrieval settles — e.g. a bookmarked link to a since-deleted item — so the URL does not keep pointing at nothing.
 watch(
     localisedConfigs,
     (newConfigs) => {
@@ -93,15 +85,13 @@ watch(
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleSelect(localisedConfig: LocalisedConfig<ManagedModuleConfig> | undefined): void {
-    activeLocalisedConfig.value = localisedConfig;
+function handleSelect(localisedConfig: LocalisedConfig<PluginConfig> | undefined): void {
+    activeLocalisedConfig.value = activeLocalisedConfig.value === localisedConfig ? undefined : localisedConfig;
     updateConfigIdParameter(localisedConfig?.id);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// An explicit 'name' is required even though this stays on the same route: it is what makes an absent 'configId'
-// actually clear the param instead of inheriting the one already in the URL — see 'router/index.ts' for why.
 function updateConfigIdParameter(configId?: string): void {
     void router.replace({ name: route.name ?? undefined, params: { configId }, query: route.query }).catch(() => {
         // Already reported by 'router.onError'.

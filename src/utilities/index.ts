@@ -46,9 +46,9 @@ export interface ConfigOptionConfig<TIcon = string> extends Omit<BaseConfig, 'ic
     rightAligned?: boolean;
 }
 
-// The module types listed under 'Manage Configuration'. A union rather than 'ModuleConfig' so that each panel can
-// narrow on 'typeId' and reach its own fields.
-export type ManagedModuleConfig = ConnectorConfig | CookbookConfig | PresenterConfig | ToolConfig;
+// The module types that are dynamically loaded and executable in their own right, as listed under 'Manage
+// Configuration'. A union rather than 'ModuleConfig' so that each panel can narrow on 'typeId' and reach its own fields.
+export type PluginConfig = ConnectorConfig | CookbookConfig | PresenterConfig | ToolConfig;
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

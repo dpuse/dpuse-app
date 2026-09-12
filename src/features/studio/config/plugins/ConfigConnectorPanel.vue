@@ -11,7 +11,7 @@ import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 
 // ── Static Components
-import ConfigModulePanel from '@/features/studio/config/modules/_components/ConfigModulePanel.vue';
+import ConfigPluginShell from '@/features/studio/config/plugins/_components/ConfigPluginShell.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -54,8 +54,8 @@ const authMethods = computed(() => [
 </script>
 
 <template>
-    <!-- 'clear' and 'close' reach 'ConfigModulePanel' by attribute fallthrough, so this must stay single-root. -->
-    <ConfigModulePanel :config="config" :localised-config="localisedConfig">
+    <!-- 'clear' and 'close' reach 'ConfigPluginShell' by attribute fallthrough, so this must stay single-root. -->
+    <ConfigPluginShell :config="config" :localised-config="localisedConfig">
         <template #tags>
             <Tag :text="localisedConfig.categoryId" />
         </template>
@@ -71,5 +71,5 @@ const authMethods = computed(() => [
 
         <!-- Connections -->
         <h2>{{ t(T, 'connections.title') }}</h2>
-    </ConfigModulePanel>
+    </ConfigPluginShell>
 </template>

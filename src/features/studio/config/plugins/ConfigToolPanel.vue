@@ -7,7 +7,7 @@ import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 import type { ConfigOptionConfig } from '@/utilities/index.ts';
 
 // ── Static Components
-import ConfigModulePanel from '@/features/studio/config/modules/_components/ConfigModulePanel.vue';
+import ConfigPluginShell from '@/features/studio/config/plugins/_components/ConfigPluginShell.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -19,6 +19,6 @@ const { config, localisedConfig } = defineProps<Properties>();
 </script>
 
 <template>
-    <!-- 'close' reaches 'ConfigModulePanel' by attribute fallthrough, so this must stay single-root. -->
-    <ConfigModulePanel :config="config" :localised-config="localisedConfig" />
+    <!-- 'close' reaches 'ConfigPluginShell' by attribute fallthrough, so this must stay single-root. -->
+    <ConfigPluginShell :config="config" :localised-config="localisedConfig" />
 </template>
