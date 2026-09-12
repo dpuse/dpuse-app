@@ -39,7 +39,6 @@ defineProps<{ config: LocalisedConfig<ConfigOptionConfig> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeModelReference = shallowRef<GridListItem<LocalisedConfig<ComponentBaseConfig>> | undefined>();
 const contextConfig = shallowRef<ContextConfig>();
 const contextLocalisedConfig = shallowRef<LocalisedConfig<ContextConfig>>();
 const contextConfigIsLoading = ref(true);
@@ -48,6 +47,11 @@ const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Derived from the route rather than held as its own ref, so an external change to 'configId' — e.g. re-clicking
+// the active tab in 'ConfigLayout' to clear it — is reflected without a dedicated watcher of its own.
+const activeModelReference = computed(() =>
+    typeof route.params.configId === 'string' ? buildLocalisedModels().find((model) => model.isHeader !== true && model.id === route.params.configId) : undefined
+);
 const modelReferencesDataSource = computed<DataSource<GridListItem<LocalisedConfig<ComponentBaseConfig>>>>(() =>
     contextConfigIsLoading.value ? { rowCount: undefined, rows: [] } : getModels()
 );
@@ -71,16 +75,15 @@ watch(contextConfig, (newContextConfig) => {
     contextLocalisedConfig.value = localiseConfig<ContextConfig>(newContextConfig, localeId.value);
 });
 
-// Restores the selection from the URL once the models have loaded. Also clears a 'configId' that matches nothing
-// (e.g. a bookmarked link to a since-removed model) — a stray id from another tab is not a case this needs to
-// handle: 'configId' is this route's own optional path param, so it cannot survive a navigation to another route.
+// Clears a 'configId' that matches nothing (e.g. a bookmarked link to a since-removed model) once the models have
+// loaded — a stray id from another tab is not a case this needs to handle: 'configId' is this route's own optional
+// path param, so it cannot survive a navigation to another route.
 watch(
     contextConfigIsLoading,
     (isLoading) => {
         if (isLoading || typeof route.params.configId !== 'string') return;
-        const restoredModel = buildLocalisedModels().find((model) => model.isHeader !== true && model.id === route.params.configId);
-        if (restoredModel) activeModelReference.value = restoredModel;
-        else updateConfigIdParameter();
+        if (buildLocalisedModels().some((model) => model.isHeader !== true && model.id === route.params.configId)) return;
+        updateConfigIdParameter();
     },
     { immediate: true }
 );
@@ -88,7 +91,6 @@ watch(
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleSelectModel(modelReference: GridListItem<LocalisedConfig<ComponentBaseConfig>> | undefined): void {
-    activeModelReference.value = modelReference;
     updateConfigIdParameter(modelReference?.id);
 }
 

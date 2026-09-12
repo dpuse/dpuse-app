@@ -48,13 +48,17 @@ const { config } = defineProps<{ config: LocalisedConfig<ConfigOptionConfig> }>(
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeLocalisedConfig = shallowRef<LocalisedConfig<PluginConfig> | undefined>();
 const localisedConfigs = shallowRef<LocalisedConfig<PluginConfig>[]>([]);
 const route = useRoute();
 const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Derived from the route rather than held as its own ref, so an external change to 'configId' — e.g. re-clicking
+// the active tab in 'ConfigLayout' to clear it — is reflected without a dedicated watcher of its own.
+const activeLocalisedConfig = computed(() =>
+    typeof route.params.configId === 'string' ? localisedConfigs.value.find((config) => config.id === route.params.configId) : undefined
+);
 const moduleTypeConfig = computed(() => MODULE_TYPE_CONFIGS[config.id]);
 
 const configsDataSource = computed<DataSource<LocalisedConfig<PluginConfig>>>(() => ({
@@ -72,13 +76,14 @@ watch(
     { immediate: true }
 );
 
+// Clears a 'configId' that matches nothing (e.g. a bookmarked link to a since-removed config) once retrieval has
+// settled either way.
 watch(
     localisedConfigs,
     (newConfigs) => {
         if (typeof route.params.configId !== 'string') return;
-        const restoredConfig = newConfigs.find((config) => config.id === route.params.configId);
-        if (restoredConfig) activeLocalisedConfig.value = restoredConfig;
-        else if (configRetrievalSucceeded.value || configRetrievalFailed.value) updateConfigIdParameter();
+        if (newConfigs.some((config) => config.id === route.params.configId)) return;
+        if (configRetrievalSucceeded.value || configRetrievalFailed.value) updateConfigIdParameter();
     },
     { immediate: true }
 );
@@ -86,8 +91,7 @@ watch(
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleSelect(localisedConfig: LocalisedConfig<PluginConfig> | undefined): void {
-    activeLocalisedConfig.value = activeLocalisedConfig.value === localisedConfig ? undefined : localisedConfig;
-    updateConfigIdParameter(localisedConfig?.id);
+    updateConfigIdParameter(activeLocalisedConfig.value?.id === localisedConfig?.id ? undefined : localisedConfig?.id);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
