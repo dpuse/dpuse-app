@@ -35,7 +35,7 @@ const T = {
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
+defineProps<{ config: LocalisedConfig<ConfigOptionConfig> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

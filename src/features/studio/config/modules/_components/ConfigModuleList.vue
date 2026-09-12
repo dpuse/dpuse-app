@@ -34,7 +34,7 @@ const T = {
 };
 
 // Everything that varies between the module types this list serves. Keyed by the tab identifier in
-// 'ConfigLayout', which arrives as 'activeConfigOptionConfig.id'. The configs entry is the state ref itself
+// 'ConfigLayout', which arrives as 'config.id'. The configs entry is the state ref itself
 // rather than its value, so the watch below re-runs when the underlying array is replaced.
 interface ModuleTypeConfig {
     configs: ShallowRef<ManagedModuleConfig[]>;
@@ -50,7 +50,7 @@ const MODULE_TYPE_CONFIGS: Record<string, ModuleTypeConfig> = {
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { activeConfigOptionConfig } = defineProps<{ activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig> }>();
+const { config } = defineProps<{ config: LocalisedConfig<ConfigOptionConfig> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -61,7 +61,7 @@ const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const moduleTypeConfig = computed(() => MODULE_TYPE_CONFIGS[activeConfigOptionConfig.id]);
+const moduleTypeConfig = computed(() => MODULE_TYPE_CONFIGS[config.id]);
 
 const configsDataSource = computed<DataSource<LocalisedConfig<ManagedModuleConfig>>>(() => ({
     // Settled either way: an undefined count means 'not yet known' and leaves the grid busy, so checking only the
@@ -121,7 +121,7 @@ function updateConfigIdParameter(configId?: string): void {
         </template>
 
         <template #detail="{ item, close }">
-            <component :is="moduleTypeConfig.panel" :active-config-option-config="activeConfigOptionConfig" :localised-config="item" @close="close" />
+            <component :is="moduleTypeConfig.panel" :config="config" :localised-config="item" @close="close" />
         </template>
 
         <template #no-selection>

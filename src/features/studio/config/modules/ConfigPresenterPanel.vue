@@ -12,13 +12,13 @@ import ConfigModulePanel from '@/features/studio/config/modules/_components/Conf
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
-    activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
+    config: LocalisedConfig<ConfigOptionConfig>;
     localisedConfig: LocalisedConfig<PresenterConfig>;
 }
-const { activeConfigOptionConfig, localisedConfig } = defineProps<Properties>();
+const { config, localisedConfig } = defineProps<Properties>();
 </script>
 
 <template>
     <!-- 'clear' and 'close' reach 'ConfigModulePanel' by attribute fallthrough, so this must stay single-root. -->
-    <ConfigModulePanel :active-config-option-config="activeConfigOptionConfig" :localised-config="localisedConfig" />
+    <ConfigModulePanel :config="config" :localised-config="localisedConfig" />
 </template>

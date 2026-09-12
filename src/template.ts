@@ -4,13 +4,13 @@
 
 // ── DPUse Tools
 
-// ── Data
-
 // ── Local Framework
 
 // ── Static Components
 
 // ── Dynamic Components
+
+// ── Data
 
 // ── Schemas ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

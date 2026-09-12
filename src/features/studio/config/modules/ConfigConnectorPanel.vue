@@ -37,10 +37,10 @@ const T = {
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
-    activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
+    config: LocalisedConfig<ConfigOptionConfig>;
     localisedConfig: LocalisedConfig<ConnectorConfig>;
 }
-const { activeConfigOptionConfig, localisedConfig } = defineProps<Properties>();
+const { config, localisedConfig } = defineProps<Properties>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -55,7 +55,7 @@ const authMethods = computed(() => [
 
 <template>
     <!-- 'clear' and 'close' reach 'ConfigModulePanel' by attribute fallthrough, so this must stay single-root. -->
-    <ConfigModulePanel :active-config-option-config="activeConfigOptionConfig" :localised-config="localisedConfig">
+    <ConfigModulePanel :config="config" :localised-config="localisedConfig">
         <template #tags>
             <Tag :text="localisedConfig.categoryId" />
         </template>

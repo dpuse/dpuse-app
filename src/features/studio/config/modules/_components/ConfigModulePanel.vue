@@ -40,10 +40,10 @@ const T = {
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
-    activeConfigOptionConfig: LocalisedConfig<ConfigOptionConfig>;
+    config: LocalisedConfig<ConfigOptionConfig>;
     localisedConfig: LocalisedConfig<ManagedModuleConfig>;
 }
-const { activeConfigOptionConfig, localisedConfig } = defineProps<Properties>();
+const { config, localisedConfig } = defineProps<Properties>();
 
 defineEmits<{ close: [] }>();
 
@@ -58,7 +58,7 @@ const moduleStatus = computed(() => (localisedConfig.statusId ? getComponentStat
             <StudioDocumentPanel
                 :icon="localisedConfig.icon"
                 :icon-dark="localisedConfig.iconDark"
-                :overline="activeConfigOptionConfig.label"
+                :overline="config.label"
                 :title="localisedConfig.label"
                 @close="$emit('close')"
             >
