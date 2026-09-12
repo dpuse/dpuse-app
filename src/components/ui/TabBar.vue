@@ -68,7 +68,7 @@ function handleScrollButtonClicked(direction: 'left' | 'right'): void {
 </script>
 
 <template>
-    <div class="relative" data-region="TabBar">
+    <div class="relative flex-none" data-region="TabBar">
         <div ref="rowElement" class="flex min-w-0 flex-1 items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator px-4" @scroll="updateScrollState">
             <ActionWrapper
                 v-for="item in items"

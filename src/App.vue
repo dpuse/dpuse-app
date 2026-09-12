@@ -34,8 +34,8 @@ import StudioPaneToggle from '@/features/studio/_components/StudioPaneToggle.vue
 
 // ── Dynamic Components
 const AssistantLayout = defineAsyncPanel(() => import('@/features/assistant/_components/AssistantLayout.vue'), 'AssistantLayout');
+const OptionBar = defineAsyncPanel(() => import('@/features/studio/options/OptionBar.vue'), 'OptionBar', { hasPlaceholder: false });
 const PaneSplitter = defineAsyncPanel(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
-const StudioOptionBar = defineAsyncPanel(() => import('@/features/studio/options/StudioOptionBar.vue'), 'StudioOptionBar', { hasPlaceholder: false });
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -220,7 +220,7 @@ function syncPaneQuery(): void {
         <SessionButton :studio-option-bar-is-visible="studioOptionBarIsVisible" />
 
         <!-- Studio Option Bar - Rendered here when viewport is narrow. -->
-        <StudioOptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="studioOptionBarIsVisible = false" />
+        <OptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="studioOptionBarIsVisible = false" />
 
         <!-- Studio Pane - Rendered first time studio pane is activated and shown when pane is visible. Contains studio layout (via RouterView). -->
         <div
@@ -235,7 +235,7 @@ function syncPaneQuery(): void {
             @scroll.capture="activeAppPaneId = 'studio'"
         >
             <!-- Studio Option Bar - Rendered here when viewport is wide. -->
-            <StudioOptionBar v-if="viewportIsWide" class="overflow-y-hidden" />
+            <OptionBar v-if="viewportIsWide" class="overflow-y-hidden" />
 
             <!-- 'col-start-2' required to ensure content is placed in the 2nd grid column while the async option bar is
                  still unresolved. Minimises the CLS WebVital metric. -->
