@@ -15,7 +15,7 @@ import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ConfigContextModelPanel from './ConfigContextModelPanel.vue';
+import ContextModelPanel from './ContextModelPanel.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 
@@ -133,7 +133,7 @@ function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBaseConfi
         </template>
 
         <template #detail="{ item }">
-            <ConfigContextModelPanel :model-reference="item" />
+            <ContextModelPanel :model-reference="item" />
         </template>
 
         <template #no-selection>

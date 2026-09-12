@@ -8,13 +8,13 @@ import { defineAsyncPanel } from '@/utilities/index.ts';
 // ── Dynamic Components
 // Every dialog body is loaded on demand. The frame is rendered from the URL alone, so the body arrives behind its own
 // spinner and none of this is in the initial bundle.
-const ConfigContextModelDimensionSchemaDiagramPanel = defineAsyncPanel(
-    () => import('@/features/studio/config/context/ConfigContextModelDimensionSchemaDiagramPanel.vue'),
-    'ConfigContextModelDimensionSchemaDiagramPanel'
+const ContextModelDimensionSchemaDiagramPanel = defineAsyncPanel(
+    () => import('@/features/studio/config/context/ContextModelDimensionSchemaDiagramPanel.vue'),
+    'ContextModelDimensionSchemaDiagramPanel'
 );
-const ConfigContextModelEntityRelationshipDiagramPanel = defineAsyncPanel(
-    () => import('@/features/studio/config/context/ConfigContextModelEntityRelationshipDiagramPanel.vue'),
-    'ConfigContextModelEntityRelationshipDiagramPanel'
+const ContextModelEntityRelationshipDiagramPanel = defineAsyncPanel(
+    () => import('@/features/studio/config/context/ContextModelEntityRelationshipDiagramPanel.vue'),
+    'ContextModelEntityRelationshipDiagramPanel'
 );
 const ConnectionPanel = defineAsyncPanel(() => import('@/features/studio/connectionPanel/ConnectionPanel.vue'), 'ConnectionPanel', { simulation: { delayMs: 0 } });
 const SessionAccountPanel = defineAsyncPanel(() => import('@/features/session/accountPanel/SessionAccountPanel.vue'), 'SessionAccountPanel');
@@ -50,8 +50,8 @@ const DIALOG_CONFIGS = {
     // tallest of the short ones, so the frame neither collapses around the loading spinner nor towers over the first step.
     auth: { component: SessionAuthPanel, maxWidth: '24rem', minHeight: '250px', sizing: 'reserved' },
     connection: { component: ConnectionPanel, sizing: 'full' },
-    modelDimensionDiagram: { component: ConfigContextModelDimensionSchemaDiagramPanel, maxWidth: '90vw', minHeight: '90vh', sizing: 'full' },
-    modelErdDiagram: { component: ConfigContextModelEntityRelationshipDiagramPanel, maxWidth: '90vw', minHeight: '90vh', sizing: 'full' }
+    modelDimensionDiagram: { component: ContextModelDimensionSchemaDiagramPanel, maxWidth: '90vw', minHeight: '90vh', sizing: 'full' },
+    modelErdDiagram: { component: ContextModelEntityRelationshipDiagramPanel, maxWidth: '90vw', minHeight: '90vh', sizing: 'full' }
 } satisfies Record<string, DialogConfig>;
 
 export type DialogId = keyof typeof DIALOG_CONFIGS;

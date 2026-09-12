@@ -18,18 +18,18 @@ import modelConfigsData from './data/modelConfigs.json'; // TODO: remove once lo
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
-import ConfigContextModelDimensionsPanel from './ConfigContextModelDimensionsPanel.vue';
-import ConfigContextModelEntitiesPanel from './ConfigContextModelEntitiesPanel.vue';
-import ConfigContextModelSecondaryMeasuresPanel from './ConfigContextModelSecondaryMeasuresPanel.vue';
+import ContextModelDimensionsPanel from './ContextModelDimensionsPanel.vue';
+import ContextModelEntitiesPanel from './ContextModelEntitiesPanel.vue';
+import ContextModelSecondaryMeasuresPanel from './ContextModelSecondaryMeasuresPanel.vue';
 import DialogShell from '@/components/ui/dialog/DialogShell.vue';
 import ErrorShell from '@/components/ui/error/ErrorShell.vue';
-import type { GridListItem } from './ConfigContextModelList.vue';
+import type { GridListItem } from './ContextModelList.vue';
 
 // ── Dynamic Components
 // The two diagram panels are not here: they stand up from the URL alone, so they are registered in '@/state/dialogs'
 // and rendered by the app's own frame. This one edits state that only this panel holds, which the URL cannot restore,
 // so it stays local until the selected model is itself part of the route.
-const ConfigContextModelDescriptorsPanel = defineAsyncPanel(() => import('./ConfigContextModelDescriptorsPanel.vue'), 'ConfigContextModelDescriptorsPanel');
+const ContextModelDescriptorsPanel = defineAsyncPanel(() => import('./ContextModelDescriptorsPanel.vue'), 'ContextModelDescriptorsPanel');
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -144,21 +144,21 @@ function localiseModel(model: Model): LocalisedModel {
             <!-- Description -->
             <div v-html="purifyMarkdown(markedTool, modelReferenceDescription)" />
 
-            <ConfigContextModelEntitiesPanel
+            <ContextModelEntitiesPanel
                 :entities="activeModel?.entities ?? []"
                 :marked-tool="markedTool"
                 @edit="modelDescriptorsDialogIsOpen = true"
                 @show-erd-diagram="handleShowErdDiagram"
             />
 
-            <ConfigContextModelDimensionsPanel
+            <ContextModelDimensionsPanel
                 :dimensions="activeModel?.dimensions ?? []"
                 :marked-tool="markedTool"
                 @edit="modelDescriptorsDialogIsOpen = true"
                 @show-tree-diagram="handleShowDimensionTreeDiagram"
             />
 
-            <ConfigContextModelSecondaryMeasuresPanel
+            <ContextModelSecondaryMeasuresPanel
                 :secondary-measures="activeModel?.secondaryMeasures ?? []"
                 :marked-tool="markedTool"
                 @edit="modelDescriptorsDialogIsOpen = true"
@@ -173,7 +173,7 @@ function localiseModel(model: Model): LocalisedModel {
             :title="`${modelReference.label} Descriptors`"
             @close="modelDescriptorsDialogIsOpen = false"
         >
-            <ConfigContextModelDescriptorsPanel v-if="modelDescriptorsDialogIsOpen" v-model:label="modelReferenceLabel" v-model:description="modelReferenceDescription" />
+            <ContextModelDescriptorsPanel v-if="modelDescriptorsDialogIsOpen" v-model:label="modelReferenceLabel" v-model:description="modelReferenceDescription" />
         </DialogShell>
     </div>
 </template>

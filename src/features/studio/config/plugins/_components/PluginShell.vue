@@ -23,10 +23,10 @@ import Tag from '@/components/ui/Tag.vue';
 
 // Named here rather than passed in by each panel so the region can never drift from the module it labels.
 const DATA_REGIONS: Partial<Record<ModuleTypeId, string>> = {
-    connector: 'ConfigConnectorPanel',
-    cookbook: 'ConfigCookbookPanel',
-    presenter: 'ConfigPresenterPanel',
-    tool: 'ConfigToolPanel'
+    connector: 'PluginConnectorPanel',
+    cookbook: 'PluginCookbookPanel',
+    presenter: 'PluginPresenterPanel',
+    tool: 'PluginToolPanel'
 };
 
 const T = {

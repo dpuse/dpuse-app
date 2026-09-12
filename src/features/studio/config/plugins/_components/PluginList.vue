@@ -8,7 +8,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import T from './_ConfigPluginList.json';
+import T from './_PluginList.json';
 import { type ConfigOptionConfig, defineAsyncPanel, type PluginConfig } from '@/utilities/index.ts';
 import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
@@ -20,10 +20,10 @@ import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 
 // ── Dynamic Components
-const ConfigConnectorPanel = defineAsyncPanel(() => import('@/features/studio/config/plugins/ConfigConnectorPanel.vue'), 'ConfigConnectorPanel');
-const ConfigCookbookPanel = defineAsyncPanel(() => import('@/features/studio/config/plugins/ConfigCookbookPanel.vue'), 'ConfigCookbookPanel');
-const ConfigPresenterPanel = defineAsyncPanel(() => import('@/features/studio/config/plugins/ConfigPresenterPanel.vue'), 'ConfigPresenterPanel');
-const ConfigToolPanel = defineAsyncPanel(() => import('@/features/studio/config/plugins/ConfigToolPanel.vue'), 'ConfigToolPanel');
+const PluginConnectorPanel = defineAsyncPanel(() => import('@/features/studio/config/plugins/PluginConnectorPanel.vue'), 'PluginConnectorPanel');
+const PluginCookbookPanel = defineAsyncPanel(() => import('@/features/studio/config/plugins/PluginCookbookPanel.vue'), 'PluginCookbookPanel');
+const PluginPresenterPanel = defineAsyncPanel(() => import('@/features/studio/config/plugins/PluginPresenterPanel.vue'), 'PluginPresenterPanel');
+const PluginToolPanel = defineAsyncPanel(() => import('@/features/studio/config/plugins/PluginToolPanel.vue'), 'PluginToolPanel');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -36,10 +36,10 @@ interface ModuleTypeConfig {
     selectKey: keyof typeof T;
 }
 const MODULE_TYPE_CONFIGS: Record<string, ModuleTypeConfig> = {
-    connectors: { configs: connectorConfigs, panel: ConfigConnectorPanel, selectKey: 'selectConnector.text' },
-    cookbooks: { configs: cookbookConfigs, panel: ConfigCookbookPanel, selectKey: 'selectCookbook.text' },
-    presenters: { configs: presenterConfigs, panel: ConfigPresenterPanel, selectKey: 'selectPresenter.text' },
-    tools: { configs: toolConfigs, panel: ConfigToolPanel, selectKey: 'selectTool.text' }
+    connectors: { configs: connectorConfigs, panel: PluginConnectorPanel, selectKey: 'selectConnector.text' },
+    cookbooks: { configs: cookbookConfigs, panel: PluginCookbookPanel, selectKey: 'selectCookbook.text' },
+    presenters: { configs: presenterConfigs, panel: PluginPresenterPanel, selectKey: 'selectPresenter.text' },
+    tools: { configs: toolConfigs, panel: PluginToolPanel, selectKey: 'selectTool.text' }
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
