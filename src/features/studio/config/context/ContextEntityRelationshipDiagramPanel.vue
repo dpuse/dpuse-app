@@ -8,8 +8,8 @@ import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
 import type { Tool as D3Tool, ErdDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
-import { type AppFailure, raiseFailure } from '@/state/errors';
 import { toolConfigs } from '@/state/session';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';

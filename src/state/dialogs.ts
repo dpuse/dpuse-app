@@ -9,11 +9,11 @@ import { defineAsyncPanel } from '@/utilities/index.ts';
 // Every dialog body is loaded on demand. The frame is rendered from the URL alone, so the body arrives behind its own
 // spinner and none of this is in the initial bundle.
 const ContextModelDimensionSchemaDiagramPanel = defineAsyncPanel(
-    () => import('@/features/studio/config/context/ContextModelDimensionSchemaDiagramPanel.vue'),
+    () => import('@/features/studio/config/context/ContextDimensionSchemaDiagramPanel.vue'),
     'ContextModelDimensionSchemaDiagramPanel'
 );
 const ContextModelEntityRelationshipDiagramPanel = defineAsyncPanel(
-    () => import('@/features/studio/config/context/ContextModelEntityRelationshipDiagramPanel.vue'),
+    () => import('@/features/studio/config/context/ContextEntityRelationshipDiagramPanel.vue'),
     'ContextModelEntityRelationshipDiagramPanel'
 );
 const ConnectionPanel = defineAsyncPanel(() => import('@/features/studio/connectionPanel/ConnectionPanel.vue'), 'ConnectionPanel', { simulation: { delayMs: 0 } });
