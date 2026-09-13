@@ -6,9 +6,9 @@ import { ExternalLinkIcon, GlobeIcon, InfoIcon, UserRoundIcon } from '@lucide/vu
 // ── DPUse Framework
 import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import type { ModuleTypeId } from '@dpuse/dpuse-shared/component/module';
 
 // ── Local Framework
+import { T } from './PluginPanel_.json';
 import { t } from '@/state/locale';
 import type { PluginConfig, SetupOptionConfig } from '@/utilities/index.ts';
 
@@ -19,58 +19,39 @@ import StudioDetailPanel from '@/features/studio/_components/StudioDetailPanel.v
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// Named here rather than passed in by each panel so the region can never drift from the module it labels.
-const DATA_REGIONS: Partial<Record<ModuleTypeId, string>> = {
-    connector: 'PluginConnectorPanel',
-    cookbook: 'PluginCookbookPanel',
-    presenter: 'PluginPresenterPanel',
-    tool: 'PluginToolPanel'
-};
-
-const T = {
-    'documentation.label': { en: 'Documentation', es: 'Documentación' },
-    'gitHubRepository.label': { en: 'GitHub Repository', es: 'Repositorio de GitHub' },
-    'links.title': { en: 'Links', es: 'Enlaces' },
-    'signIn.label': { en: 'Sign in', es: 'Iniciar sesión' },
-    'website.label': { en: 'Website', es: 'Sitio web' }
-};
-
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-interface Properties {
-    config: LocalisedConfig<SetupOptionConfig>;
-    localisedConfig: LocalisedConfig<PluginConfig>;
-}
-const { config, localisedConfig } = defineProps<Properties>();
+const { pluginLocalisedConfig, setupOptionLocalisedConfig } = defineProps<{
+    pluginLocalisedConfig: LocalisedConfig<PluginConfig>;
+    setupOptionLocalisedConfig: LocalisedConfig<SetupOptionConfig>;
+}>();
 
 defineEmits<{ close: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const moduleStatus = computed(() => (localisedConfig.statusId ? getComponentStatus(localisedConfig.statusId) : undefined));
+const pluginStatus = computed(() => (pluginLocalisedConfig.statusId ? getComponentStatus(pluginLocalisedConfig.statusId) : undefined));
 </script>
 
 <template>
-    <StudioDetailPanel :data-region="DATA_REGIONS[localisedConfig.typeId]">
+    <StudioDetailPanel data-region="PluginPanel">
         <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <StudioDocumentPanel
-                :icon="localisedConfig.icon"
-                :icon-dark="localisedConfig.iconDark"
-                :overline="config.label"
-                :title="localisedConfig.label"
+                :icon="pluginLocalisedConfig.icon"
+                :icon-dark="pluginLocalisedConfig.iconDark"
+                :overline="setupOptionLocalisedConfig.label"
+                :title="pluginLocalisedConfig.label"
                 @close="$emit('close')"
             >
                 <!-- Tags -->
                 <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
                     <slot name="tags" />
-                    <Tag :text="`v${localisedConfig.version}`" />
-                    <Tag v-if="moduleStatus" :text="localisedConfig.statusId ?? ''" :color="moduleStatus.color" />
+                    <Tag :text="`v${pluginLocalisedConfig.version}`" />
+                    <Tag v-if="pluginStatus" :text="pluginLocalisedConfig.statusId ?? ''" :color="pluginStatus.color" />
                 </div>
 
                 <!-- Description -->
-                <p>{{ localisedConfig.description }}</p>
+                <p>{{ pluginLocalisedConfig.description }}</p>
 
                 <!-- Content -->
                 <slot />
@@ -78,35 +59,35 @@ const moduleStatus = computed(() => (localisedConfig.statusId ? getComponentStat
                 <!-- Links -->
                 <h2>{{ t(T, 'links.title') }}</h2>
                 <ul>
-                    <li v-if="localisedConfig.vendorHomeURL" class="flex items-center gap-x-2">
+                    <li v-if="pluginLocalisedConfig.vendorHomeURL" class="flex items-center gap-x-2">
                         <GlobeIcon class="size-4" />
-                        <a :href="localisedConfig.vendorHomeURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            {{ localisedConfig.label }}
+                        <a :href="pluginLocalisedConfig.vendorHomeURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
+                            {{ pluginLocalisedConfig.label }}
                             {{ t(T, 'website.label') }}
                             <ExternalLinkIcon class="size-4" />
                         </a>
                     </li>
 
-                    <li v-if="localisedConfig.vendorDocumentationURL" class="flex items-center gap-x-2">
+                    <li v-if="pluginLocalisedConfig.vendorDocumentationURL" class="flex items-center gap-x-2">
                         <InfoIcon class="size-4" />
-                        <a :href="localisedConfig.vendorDocumentationURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            {{ localisedConfig.label }}
+                        <a :href="pluginLocalisedConfig.vendorDocumentationURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
+                            {{ pluginLocalisedConfig.label }}
                             {{ t(T, 'documentation.label') }}
                             <ExternalLinkIcon class="size-4" />
                         </a>
                     </li>
 
-                    <li v-if="localisedConfig.vendorAccountURL" class="flex items-center gap-x-2">
+                    <li v-if="pluginLocalisedConfig.vendorAccountURL" class="flex items-center gap-x-2">
                         <UserRoundIcon class="size-4" />
-                        <a :href="localisedConfig.vendorAccountURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            {{ localisedConfig.label }}
+                        <a :href="pluginLocalisedConfig.vendorAccountURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
+                            {{ pluginLocalisedConfig.label }}
                             {{ t(T, 'signIn.label') }}
                             <ExternalLinkIcon class="size-4" />
                         </a>
                     </li>
 
                     <li class="flex items-center gap-x-2">
-                        <a :href="`https://github.com/dpuse/${localisedConfig.id}`" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
+                        <a :href="`https://github.com/dpuse/${pluginLocalisedConfig.id}`" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
                             <GitHubLogo class="size-4" />
                             {{ t(T, 'gitHubRepository.label') }}
                             <ExternalLinkIcon class="size-4" />

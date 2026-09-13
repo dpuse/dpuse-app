@@ -14,10 +14,7 @@ import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-interface Properties {
-    setupOptionLocalisedConfigs: LocalisedConfig<SetupOptionConfig>[];
-}
-const { setupOptionLocalisedConfigs } = defineProps<Properties>();
+const { setupOptionLocalisedConfigs } = defineProps<{ setupOptionLocalisedConfigs: LocalisedConfig<SetupOptionConfig>[] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 

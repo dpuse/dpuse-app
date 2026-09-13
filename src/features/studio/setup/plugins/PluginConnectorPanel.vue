@@ -8,6 +8,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import type { SetupOptionConfig } from '@/utilities/index.ts';
+import { T } from './PluginConnectorPanel_.json';
 import { t } from '@/state/locale';
 
 // ── Static Components
@@ -29,24 +30,18 @@ const CONNECTOR_USAGE_DESCRIPTIONS: Record<string, string> = {
     unknown: 'The usage for this connector has not yet been determined.'
 };
 
-const T = {
-    'authentication.title': { en: 'Authentication', es: 'Autenticación' },
-    'connections.title': { en: 'Connections', es: 'Conexiones' }
-};
-
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-interface Properties {
-    config: LocalisedConfig<SetupOptionConfig>;
-    localisedConfig: LocalisedConfig<ConnectorConfig>;
-}
-const { config, localisedConfig } = defineProps<Properties>();
+const { pluginLocalisedConfig, setupOptionLocalisedConfig } = defineProps<{
+    pluginLocalisedConfig: LocalisedConfig<ConnectorConfig>;
+    setupOptionLocalisedConfig: LocalisedConfig<SetupOptionConfig>;
+}>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const authMethods = computed(() => [
     ...new Set(
-        Object.values(localisedConfig.implementations)
+        Object.values(pluginLocalisedConfig.implementations)
             .map((impl) => impl.authMethodId)
             .filter((id) => id !== 'disabled')
     )
@@ -54,14 +49,14 @@ const authMethods = computed(() => [
 </script>
 
 <template>
-    <!-- 'clear' and 'close' reach 'PluginPanel' by attribute fallthrough, so this must stay single-root. -->
-    <PluginPanel :config="config" :localised-config="localisedConfig">
+    <!-- 'close' reaches 'PluginPanel' by attribute fallthrough, so this must stay single-root. -->
+    <PluginPanel :plugin-localised-config="pluginLocalisedConfig" :setup-option-localised-config="setupOptionLocalisedConfig">
         <template #tags>
-            <Tag :text="localisedConfig.categoryId" />
+            <Tag :text="pluginLocalisedConfig.categoryId" />
         </template>
 
         <!-- Usage -->
-        <p>{{ CONNECTOR_USAGE_DESCRIPTIONS[localisedConfig.usageId ?? 'unknown'] }}</p>
+        <p>{{ CONNECTOR_USAGE_DESCRIPTIONS[pluginLocalisedConfig.usageId ?? 'unknown'] }}</p>
 
         <!-- Authentication -->
         <h2>{{ t(T, 'authentication.title') }}</h2>

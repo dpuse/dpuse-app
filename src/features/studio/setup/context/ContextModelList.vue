@@ -10,7 +10,8 @@ import { localiseConfig, type LocalisedConfig, localiseReference } from '@dpuse/
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import type { SetupOptionConfig } from '@/utilities/index.ts';
-import { useSetupRouteId } from '../useSetupRouteId';
+import { T } from './ContextModelList_.json';
+import { useSetupRoute } from '../useSetupRoute';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -27,12 +28,6 @@ import contextConfigData from './data/contextConfig.json';
 
 export type GridListItem<T> = T & { isHeader?: boolean };
 
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const T = {
-    'selectFocus.text': { en: 'Select a focus from the list.', es: 'Selecciona un foco de la lista.' }
-};
-
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 defineProps<{ setupOptionLocalisedConfig: LocalisedConfig<SetupOptionConfig> }>();
@@ -42,7 +37,7 @@ defineProps<{ setupOptionLocalisedConfig: LocalisedConfig<SetupOptionConfig> }>(
 const contextConfig = shallowRef<ContextConfig>();
 const contextLocalisedConfig = shallowRef<LocalisedConfig<ContextConfig>>();
 const contextConfigIsLoading = ref(true);
-const { routeId, setRouteId } = useSetupRouteId();
+const { routeId, setRouteId } = useSetupRoute();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 

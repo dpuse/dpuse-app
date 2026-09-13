@@ -2,7 +2,6 @@
 // ── External Dependencies & Registrations
 import { computed } from 'vue';
 import { HomeIcon } from '@lucide/vue';
-import { useRoute } from 'vue-router';
 
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
@@ -10,10 +9,10 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 // ── Local Framework
 import { navigationPendingDepth } from '@/router';
 import type { SetupOptionConfig } from '@/utilities/index.ts';
+import { T } from './SetupLayout_.json';
 import { t } from '@/state/locale';
-import T from './SetupLayout_.json';
 import { useSetupOptions } from './useSetupOptions';
-import { useSetupRouteId } from './useSetupRouteId';
+import { useSetupRoute } from './useSetupRoute';
 
 // ── Static Components
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
@@ -24,12 +23,11 @@ import TabBar from '@/components/ui/TabBar.vue';
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const setupOptionLocalisedConfigs = useSetupOptions();
-const route = useRoute();
-const { routeId, setRouteId } = useSetupRouteId();
+const { routeId, routeName, setRouteId } = useSetupRoute();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const setupOptionActiveLocalisedConfig = computed(() => setupOptionLocalisedConfigs.value.find((config) => config.to === route.name) ?? setupOptionLocalisedConfigs.value[0]);
+const setupOptionActiveLocalisedConfig = computed(() => setupOptionLocalisedConfigs.value.find((config) => config.to === routeName.value) ?? setupOptionLocalisedConfigs.value[0]);
 const setupOptionPanelIsLoading = computed(() => navigationPendingDepth.value === 1); // Depth 1 is this layout's own child route (the active tab's panel); true only past the spinner delay, not the whole navigation.
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -61,9 +59,9 @@ function handleTabSelect(setupOptionLocalisedConfig: LocalisedConfig<SetupOption
             <component
                 :is="Component"
                 v-else
-                :key="route.name"
+                :key="routeName"
                 :setup-option-localised-config="setupOptionActiveLocalisedConfig"
-                v-bind="route.name === 'setup' ? { setupOptionLocalisedConfigs } : {}"
+                v-bind="routeName === 'setup' ? { setupOptionLocalisedConfigs } : {}"
             />
         </RouterView>
     </StudioLayout>

@@ -7,8 +7,8 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import T from './_PluginList.json';
-import { useSetupRouteId } from '../../useSetupRouteId';
+import { T } from './PluginList_.json';
+import { useSetupRoute } from '../../useSetupRoute';
 import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/session';
 import { defineAsyncPanel, type PluginConfig, type SetupOptionConfig } from '@/utilities/index.ts';
 import { localeId, t } from '@/state/locale';
@@ -49,7 +49,7 @@ const { setupOptionLocalisedConfig } = defineProps<{ setupOptionLocalisedConfig:
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const pluginLocalisedConfigs = shallowRef<LocalisedConfig<PluginConfig>[]>([]);
-const { routeId, setRouteId } = useSetupRouteId();
+const { routeId, setRouteId } = useSetupRoute();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -88,9 +88,7 @@ function handleSelect(localisedConfig: LocalisedConfig<PluginConfig> | undefined
 </script>
 
 <template>
-    <!-- The list is empty because the configurations never arrived, not because there are none. Covers the region: an
-         empty grid with no explanation is what this replaces, and the app-level announcement of the same failure can
-         be dismissed, after which this is all that is left to say why. -->
+    <!-- Error Notice - Failed to retrieve context/plugin configuration. -->
     <ErrorNotice v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
 
     <GridDetailPanel
@@ -106,7 +104,7 @@ function handleSelect(localisedConfig: LocalisedConfig<PluginConfig> | undefined
         </template>
 
         <template #detail="{ item, close }">
-            <component :is="moduleTypeConfig.panel" :config="setupOptionLocalisedConfig" :localised-config="item" @close="close" />
+            <component :is="moduleTypeConfig.panel" :plugin-localised-config="item" :setup-option-localised-config="setupOptionLocalisedConfig" @close="close" />
         </template>
 
         <template #no-selection>

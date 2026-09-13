@@ -11,14 +11,13 @@ import PluginPanel from '@/features/studio/setup/plugins/_components/PluginPanel
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-interface Properties {
-    config: LocalisedConfig<SetupOptionConfig>;
-    localisedConfig: LocalisedConfig<ToolConfig>;
-}
-const { config, localisedConfig } = defineProps<Properties>();
+const { pluginLocalisedConfig, setupOptionLocalisedConfig } = defineProps<{
+    pluginLocalisedConfig: LocalisedConfig<ToolConfig>;
+    setupOptionLocalisedConfig: LocalisedConfig<SetupOptionConfig>;
+}>();
 </script>
 
 <template>
     <!-- 'close' reaches 'PluginPanel' by attribute fallthrough, so this must stay single-root. -->
-    <PluginPanel :config="config" :localised-config="localisedConfig" />
+    <PluginPanel :plugin-localised-config="pluginLocalisedConfig" :setup-option-localised-config="setupOptionLocalisedConfig" />
 </template>
