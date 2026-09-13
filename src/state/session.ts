@@ -17,10 +17,15 @@ import { type LocaleId, localiseConfig, type LocalisedConfig } from '@dpuse/dpus
 
 // ── Local Framework
 import { localeId } from './locale';
-import { type AppFailure, raiseAppFailure } from '@/state/errors';
 import { reportAppError } from '@/observability/errorTracking';
 import { throwOnFault } from '@/observability/faultInjection';
+import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
+
+// ── Data
+//
+// Stands in for a real endpoint until one exists — see 'initialiseContextConfig'.
+import contextConfigData from '@/features/studio/setup/context/data/contextConfig.json';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -58,6 +63,11 @@ const updatesArePending = ref(false);
 export const connectionAccountConfigs = shallowRef<ConnectionAccountConfig[]>([]);
 export const connectorConfigs = shallowRef<ConnectorConfig[]>([]);
 export const contextConfig = shallowRef<ContextConfig | undefined>();
+// Same shape as the three flags below, scoped to context alone: context does not arrive over the config monitor's
+// socket yet, so it cannot share those. See 'initialiseContextConfig'.
+export const contextConfigRetrievalSucceeded = ref(false);
+export const contextConfigRetrievalFailed = ref(false);
+export const contextConfigRetrievalFailure = shallowRef<AppFailure | undefined>();
 export const cookbookConfigs = shallowRef<CookbookConfig[]>([]);
 export const engineConfig = shallowRef<EngineConfig | undefined>();
 export const eventQueryConfigs = shallowRef<EventQueryConfig[]>([]);
@@ -133,6 +143,7 @@ export function initialiseServices(): void {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     void initialiseHanko();
     void initialiseConfigMonitor();
+    void initialiseContextConfig();
 }
 
 export async function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): Promise<void> {
@@ -247,6 +258,22 @@ async function initialiseConfigMonitor(): Promise<void> {
         configRetrievalFailed.value = true;
         raiseAppFailure(new AppError('Failed to load the configuration service.', 'dpuse-app.session.initialiseConfigMonitor', { typeId: 'handled' }, { cause: error }), {
             capability: 'configuration'
+        });
+    }
+}
+
+// TODO: Replace the body below with a real fetch once the endpoint exists — e.g.
+// 'contextConfig.value = (await (await fetch('/api/context-config')).json()) as ContextConfig;' — and drop
+// 'contextConfigData' and the artificial delay, which only stand in for that.
+async function initialiseContextConfig(): Promise<void> {
+    try {
+        await new Promise((resolve) => setTimeout(resolve, 400)); // Simulates the network latency the real fetch above will have.
+        contextConfig.value = contextConfigData as ContextConfig;
+        contextConfigRetrievalSucceeded.value = true;
+    } catch (error) {
+        contextConfigRetrievalFailed.value = true;
+        contextConfigRetrievalFailure.value = raiseFailure(new AppError('Failed to load the context configuration.', 'dpuse-app.session.initialiseContextConfig', { typeId: 'handled' }, { cause: error }), {
+            capability: 'context'
         });
     }
 }

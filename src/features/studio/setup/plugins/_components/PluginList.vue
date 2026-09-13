@@ -45,7 +45,7 @@ const { routeId, setRouteId } = useSetupRoute();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const pluginActiveLocalisedConfig = computed(
+const pluginLocalisedConfigActive = computed(
     () => (routeId.value === undefined ? undefined : pluginLocalisedConfigs.value.find((config) => config.id === routeId.value)) // Use route so tabs clicks also register (clear selection).
 );
 const tabActiveConfig = computed(() => TAB_CONFIGS[setupOptionLocalisedConfig.id]);
@@ -75,7 +75,7 @@ watch(
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleSelectPlugin(localisedConfig: LocalisedConfig<PluginConfig> | undefined): void {
-    setRouteId(pluginActiveLocalisedConfig.value?.id === localisedConfig?.id ? undefined : localisedConfig?.id);
+    setRouteId(pluginLocalisedConfigActive.value?.id === localisedConfig?.id ? undefined : localisedConfig?.id);
 }
 </script>
 
@@ -85,14 +85,14 @@ function handleSelectPlugin(localisedConfig: LocalisedConfig<PluginConfig> | und
 
     <GridDetailPanel
         v-else
-        :active-item="pluginActiveLocalisedConfig"
+        :active-item="pluginLocalisedConfigActive"
         class="min-h-0 flex-1"
         :data-source="pluginLocalisedConfigsDataSource"
         max-detail-width="65ch"
         :row-height="16 + 16 + 28 + 16"
     >
         <template #item="{ item }">
-            <ConfigCard v-if="item" :config="item" :selected="item.id === pluginActiveLocalisedConfig?.id" @click="handleSelectPlugin(item)" />
+            <ConfigCard v-if="item" :config="item" :selected="item.id === pluginLocalisedConfigActive?.id" @click="handleSelectPlugin(item)" />
         </template>
 
         <template #detail="{ item, close }">

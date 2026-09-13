@@ -27,13 +27,13 @@ const { routeId, routeName, setRouteId } = useSetupRoute();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const setupOptionActiveLocalisedConfig = computed(() => setupOptionLocalisedConfigs.value.find((config) => config.to === routeName.value) ?? setupOptionLocalisedConfigs.value[0]);
+const setupOptionLocalisedConfigActive = computed(() => setupOptionLocalisedConfigs.value.find((config) => config.to === routeName.value) ?? setupOptionLocalisedConfigs.value[0]);
 const setupOptionPanelIsLoading = computed(() => navigationPendingDepth.value === 1); // Depth 1 is this layout's own child route (the active tab's panel); true only past the spinner delay, not the whole navigation.
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleTabSelect(setupOptionLocalisedConfig: LocalisedConfig<SetupOptionConfig>): void {
-    if (setupOptionLocalisedConfig.id !== setupOptionActiveLocalisedConfig.value.id || routeId.value === undefined) return; // Exit if setup option id has changed or route context/plugin id is undefined.
+    if (setupOptionLocalisedConfig.id !== setupOptionLocalisedConfigActive.value.id || routeId.value === undefined) return; // Exit if setup option id has changed or route context/plugin id is undefined.
     setRouteId(undefined); // Active tab clicked again - remove context/plugin id from path to clear active selection.
 }
 </script>
@@ -44,7 +44,7 @@ function handleTabSelect(setupOptionLocalisedConfig: LocalisedConfig<SetupOption
         <StudioHeader :overline="t(T, 'studio.label')" :title="t(T, 'manageSetup.title')" to="studio" />
 
         <!-- Tab Bar -->
-        <TabBar :active-id="setupOptionActiveLocalisedConfig.id" :items="setupOptionLocalisedConfigs" @select="handleTabSelect">
+        <TabBar :active-id="setupOptionLocalisedConfigActive.id" :items="setupOptionLocalisedConfigs" @select="handleTabSelect">
             <template #default="{ item }">
                 <HomeIcon v-if="item.id === 'home'" class="size-4.75! [&>path]:stroke-2" />
                 <div v-else class="text-sm">{{ item.label }}</div>
@@ -60,7 +60,7 @@ function handleTabSelect(setupOptionLocalisedConfig: LocalisedConfig<SetupOption
                 :is="Component"
                 v-else
                 :key="routeName"
-                :setup-option-localised-config="setupOptionActiveLocalisedConfig"
+                :setup-option-localised-config="setupOptionLocalisedConfigActive"
                 v-bind="routeName === 'setup' ? { setupOptionLocalisedConfigs } : {}"
             />
         </RouterView>
