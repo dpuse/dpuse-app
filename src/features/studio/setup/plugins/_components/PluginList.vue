@@ -27,15 +27,7 @@ const PluginToolPanel = defineAsyncPanel(() => import('@/features/studio/setup/p
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Everything that varies between the module types this list serves. Keyed by the tab identifier in
-// 'SetupLayout', which arrives as 'setupOptionLocalisedConfig.id'. The configs entry is the state ref itself
-// rather than its value, so the watch below re-runs when the underlying array is replaced.
-interface ModuleTypeConfig {
-    configs: ShallowRef<PluginConfig[]>;
-    panel: Component;
-    selectKey: keyof typeof T;
-}
-const MODULE_TYPE_CONFIGS: Record<string, ModuleTypeConfig> = {
+const TAB_CONFIGS: Record<string, { configs: ShallowRef<PluginConfig[]>; panel: Component; selectKey: keyof typeof T }> = {
     connectors: { configs: connectorConfigs, panel: PluginConnectorPanel, selectKey: 'selectConnector.text' },
     cookbooks: { configs: cookbookConfigs, panel: PluginCookbookPanel, selectKey: 'selectCookbook.text' },
     presenters: { configs: presenterConfigs, panel: PluginPresenterPanel, selectKey: 'selectPresenter.text' },
@@ -56,7 +48,7 @@ const { routeId, setRouteId } = useSetupRoute();
 const pluginActiveLocalisedConfig = computed(
     () => (routeId.value === undefined ? undefined : pluginLocalisedConfigs.value.find((config) => config.id === routeId.value)) // Use route so tabs clicks also register (clear selection).
 );
-const moduleTypeConfig = computed(() => MODULE_TYPE_CONFIGS[setupOptionLocalisedConfig.id]);
+const tabActiveConfig = computed(() => TAB_CONFIGS[setupOptionLocalisedConfig.id]);
 const pluginLocalisedConfigsDataSource = computed<DataSource<LocalisedConfig<PluginConfig>>>(() => ({
     rowCount: configRetrievalSucceeded.value || configRetrievalFailed.value ? pluginLocalisedConfigs.value.length : undefined, // Set count on success or failure, not pending.
     getRows: (start, end): Promise<{ rows: LocalisedConfig<PluginConfig>[] }> => Promise.resolve({ rows: pluginLocalisedConfigs.value.slice(start, end) })
@@ -65,7 +57,7 @@ const pluginLocalisedConfigsDataSource = computed<DataSource<LocalisedConfig<Plu
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
-    () => moduleTypeConfig.value.configs.value,
+    () => tabActiveConfig.value.configs.value,
     (newConfigs) => (pluginLocalisedConfigs.value = localiseConfigs<PluginConfig>(newConfigs, localeId.value, true)),
     { immediate: true }
 );
@@ -75,14 +67,14 @@ watch(
     (newConfigs) => {
         if (routeId.value === undefined) return; // Exit if no plugin identifier in url.
         if (newConfigs.some((config) => config.id === routeId.value)) return; // Exit if valid plugin identifier in url.
-        if (configRetrievalSucceeded.value || configRetrievalFailed.value) setRouteId(undefined); // Only clear invalid plugin identifier from utl once retrieval is finalised.
+        if (configRetrievalSucceeded.value || configRetrievalFailed.value) setRouteId(undefined); // Only clear invalid plugin identifier from url once retrieval is finalised.
     },
     { immediate: true }
 );
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleSelect(localisedConfig: LocalisedConfig<PluginConfig> | undefined): void {
+function handleSelectPlugin(localisedConfig: LocalisedConfig<PluginConfig> | undefined): void {
     setRouteId(pluginActiveLocalisedConfig.value?.id === localisedConfig?.id ? undefined : localisedConfig?.id);
 }
 </script>
@@ -100,15 +92,15 @@ function handleSelect(localisedConfig: LocalisedConfig<PluginConfig> | undefined
         :row-height="16 + 16 + 28 + 16"
     >
         <template #item="{ item }">
-            <ConfigCard v-if="item" :config="item" :selected="item.id === pluginActiveLocalisedConfig?.id" @click="handleSelect(item)" />
+            <ConfigCard v-if="item" :config="item" :selected="item.id === pluginActiveLocalisedConfig?.id" @click="handleSelectPlugin(item)" />
         </template>
 
         <template #detail="{ item, close }">
-            <component :is="moduleTypeConfig.panel" :plugin-localised-config="item" :setup-option-localised-config="setupOptionLocalisedConfig" @close="close" />
+            <component :is="tabActiveConfig.panel" :plugin-localised-config="item" :setup-option-localised-config="setupOptionLocalisedConfig" @close="close" />
         </template>
 
         <template #no-selection>
-            <SelectPlaceholder :message="t(T, moduleTypeConfig.selectKey)" />
+            <SelectPlaceholder :message="t(T, tabActiveConfig.selectKey)" />
         </template>
     </GridDetailPanel>
 </template>

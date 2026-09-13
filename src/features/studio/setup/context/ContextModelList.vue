@@ -5,7 +5,7 @@ import { computed, ref, shallowRef, watch } from 'vue';
 // ── DPUse Framework
 import type { ComponentBaseConfig } from '@dpuse/dpuse-shared/component';
 import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
-import { localiseConfig, type LocalisedConfig, localiseReference } from '@dpuse/dpuse-shared/locale';
+import { type LocalisedConfig, localiseReference } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -21,7 +21,6 @@ import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 
 // ── Data
-
 import contextConfigData from './data/contextConfig.json';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -35,22 +34,18 @@ defineProps<{ setupOptionLocalisedConfig: LocalisedConfig<SetupOptionConfig> }>(
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const contextConfig = shallowRef<ContextConfig>();
-const contextLocalisedConfig = shallowRef<LocalisedConfig<ContextConfig>>();
 const contextConfigIsLoading = ref(true);
 const { routeId, setRouteId } = useSetupRoute();
 
-// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Derived from the route rather than held as its own ref, so an external change to 'id' — e.g. re-clicking
-// the active tab in 'SetupLayout' to clear it — is reflected without a dedicated watcher of its own.
-const activeModelReference = computed(() =>
-    routeId.value === undefined ? undefined : buildLocalisedModels().find((model) => model.isHeader !== true && model.id === routeId.value)
-);
-const modelReferencesDataSource = computed<DataSource<GridListItem<LocalisedConfig<ComponentBaseConfig>>>>(() =>
-    contextConfigIsLoading.value ? { rowCount: undefined, rows: [] } : getModels()
-);
-
-// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+// NOTE: Prefer this approach to using Suspense.
+// TODO: Once 'loadContextConfig' does a real fetch, catch its failure here and surface it via 'ErrorNotice', the
+// way 'PluginList' does with 'configRetrievalFailure'. No failure path exists yet because there is nothing to fail.
+void (async (): Promise<void> => {
+    contextConfig.value = await loadContextConfig();
+    contextConfigIsLoading.value = false;
+})();
 
 // eslint-disable-next-line @typescript-eslint/require-await -- Code pending...
 async function loadContextConfig(): Promise<ContextConfig> {
@@ -58,26 +53,38 @@ async function loadContextConfig(): Promise<ContextConfig> {
     return contextConfigData as ContextConfig;
 }
 
-// NOTE: Prefer this approach to using Suspense.
-void (async (): Promise<void> => {
-    contextConfig.value = await loadContextConfig();
-    contextConfigIsLoading.value = false;
-})();
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(contextConfig, (newContextConfig) => {
-    if (!newContextConfig) return;
-    contextLocalisedConfig.value = localiseConfig<ContextConfig>(newContextConfig, localeId.value);
+// Cached rather than rebuilt per access: it was a plain function called from three separate places, each re-walking
+// 'contextConfig' from scratch.
+const localisedModels = computed<GridListItem<LocalisedConfig<ComponentBaseConfig>>[]>(() => {
+    const models: GridListItem<LocalisedConfig<ComponentBaseConfig>>[] = [];
+    const areas = contextConfig.value?.areas ?? [];
+    for (const area of areas) {
+        const la = localiseReference(area, localeId.value);
+        models.push({ ...la, isHeader: true });
+        for (const model of area.models) {
+            const lr = localiseReference(model, localeId.value);
+            models.push({ ...lr, isHeader: false });
+        }
+    }
+    return models;
 });
+const modelActiveReference = computed(() =>
+    routeId.value === undefined ? undefined : localisedModels.value.find((model) => model.isHeader !== true && model.id === routeId.value)
+);
+const modelReferencesDataSource = computed<DataSource<GridListItem<LocalisedConfig<ComponentBaseConfig>>>>(() =>
+    contextConfigIsLoading.value ? { rowCount: undefined, rows: [] } : getModels()
+);
 
-// Clears a 'id' that matches nothing (e.g. a bookmarked link to a since-removed model) once the models have
-// loaded — a stray id from another tab is not a case this needs to handle: 'id' is this route's own optional
-// path param, so it cannot survive a navigation to another route.
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
 watch(
     contextConfigIsLoading,
-    (isLoading) => {
-        if (isLoading || routeId.value === undefined) return;
-        if (buildLocalisedModels().some((model) => model.isHeader !== true && model.id === routeId.value)) return;
-        setRouteId(undefined);
+    (newContextConfigIsLoading) => {
+        if (newContextConfigIsLoading || routeId.value === undefined) return; // Exit if context config is loading or no model identifier in url.
+        if (localisedModels.value.some((model) => model.isHeader !== true && model.id === routeId.value)) return; // Exit if valid model identifier in url.
+        setRouteId(undefined); // Only clear invalid model identifier from url once retrieval is finalised.
     },
     { immediate: true }
 );
@@ -90,31 +97,16 @@ function handleSelectModel(modelReference: GridListItem<LocalisedConfig<Componen
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function buildLocalisedModels(): GridListItem<LocalisedConfig<ComponentBaseConfig>>[] {
-    const localisedModels: GridListItem<LocalisedConfig<ComponentBaseConfig>>[] = [];
-    const areas = contextConfig.value?.areas ?? [];
-    for (const area of areas) {
-        const la = localiseReference(area, localeId.value);
-        localisedModels.push({ ...la, isHeader: true });
-        for (const model of area.models) {
-            const lr = localiseReference(model, localeId.value);
-            localisedModels.push({ ...lr, isHeader: false });
-        }
-    }
-    return localisedModels;
-}
-
 function getModels(): DataSource<GridListItem<LocalisedConfig<ComponentBaseConfig>>> {
-    const localisedModels = buildLocalisedModels();
     return {
-        rowCount: localisedModels.length,
-        rows: localisedModels
+        rowCount: localisedModels.value.length,
+        rows: localisedModels.value
     };
 }
 </script>
 
 <template>
-    <GridDetailPanel :active-item="activeModelReference" class="min-h-0 flex-1" :data-source="modelReferencesDataSource" :is-compact="true" max-grid-width="350px">
+    <GridDetailPanel :active-item="modelActiveReference" class="min-h-0 flex-1" :data-source="modelReferencesDataSource" :is-compact="true" max-grid-width="350px">
         <template #item="{ item }">
             <div v-if="item.isHeader" class="pl-2 text-left text-xs font-semibold text-subtle uppercase">{{ item.label }}</div>
             <ConfigCard v-else :is-compact="true" :config="item" @click="handleSelectModel(item)" />
