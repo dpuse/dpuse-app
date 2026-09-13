@@ -52,7 +52,7 @@ describe('ErrorBoundary', () => {
         const { component } = buildChild('Failed to render.');
         const { wrapper } = await mountBoundary(component);
 
-        expect(wrapper.find('[data-region="ErrorShell"]').exists()).toBe(true);
+        expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(true);
         expect(wrapper.find('[data-region="TestChild"]').exists()).toBe(false);
         expect(reportAppError).toHaveBeenCalledOnce();
         expect(appFailures.value).toStrictEqual([]); // Contained here, so the app-level strip stays out of it.
@@ -63,32 +63,32 @@ describe('ErrorBoundary', () => {
         const { wrapper } = await mountBoundary(component);
         expect(renderCount()).toBe(1);
 
-        await wrapper.findComponent({ name: 'ErrorShell' }).vm.$emit('retry');
+        await wrapper.findComponent({ name: 'ErrorNotice' }).vm.$emit('retry');
         await nextTick();
         await nextTick();
 
         expect(renderCount()).toBe(2);
         expect(wrapper.find('[data-region="TestChild"]').exists()).toBe(true);
-        expect(wrapper.find('[data-region="ErrorShell"]').exists()).toBe(false);
+        expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(false);
     });
 
     it('clears the error on navigation, so it does not outlive the view that produced it', async () => {
         const { component } = buildChild('Failed to render.', 1);
         const { router, wrapper } = await mountBoundary(component);
-        expect(wrapper.find('[data-region="ErrorShell"]').exists()).toBe(true);
+        expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(true);
 
         await router.push('/elsewhere');
         await nextTick();
         await nextTick();
 
-        expect(wrapper.find('[data-region="ErrorShell"]').exists()).toBe(false);
+        expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(false);
     });
 
     it('shows a stale chunk in place like any other failure, since only this region lost anything', async () => {
         const { component } = buildChild('Failed to fetch dynamically imported module: /assets/Panel-a1b2c3.js');
         const { wrapper } = await mountBoundary(component);
 
-        expect(wrapper.find('[data-region="ErrorShell"]').exists()).toBe(true);
+        expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(true);
         expect(appFailures.value).toStrictEqual([]); // The rest of the app kept working, so nothing is raised over it.
     });
 });

@@ -73,7 +73,7 @@ const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
         tasks: []
     },
     {
-        id: 'config',
+        id: 'setup',
         label: { en: 'Manage Configuration' },
         description: {
             en: 'Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.'

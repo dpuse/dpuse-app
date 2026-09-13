@@ -80,12 +80,12 @@ describe('raiseFailure', () => {
     });
 
     it('names the capability from the cause chain, so a wrapping catch site need not repeat it', () => {
-        const cause = new AppError('Failed to load the panel.', 'test', { componentName: 'ConfigLayout' });
-        expect(raiseFailure(new AppError('Navigation failed.', 'test', undefined, { cause })).capability).toBe('ConfigLayout');
+        const cause = new AppError('Failed to load the panel.', 'test', { componentName: 'SetupLayout' });
+        expect(raiseFailure(new AppError('Navigation failed.', 'test', undefined, { cause })).capability).toBe('SetupLayout');
     });
 
     it('prefers a capability the caller states over one read from the chain', () => {
-        const cause = new AppError('Failed to load.', 'test', { componentName: 'ConfigLayout' });
+        const cause = new AppError('Failed to load.', 'test', { componentName: 'SetupLayout' });
         const failure = raiseFailure(new AppError('Failed to load the engine.', 'test', undefined, { cause }), { capability: 'engine' });
         expect(failure.capability).toBe('engine');
     });

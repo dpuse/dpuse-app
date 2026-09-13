@@ -19,7 +19,7 @@ import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ErrorShell from '@/components/ui/error/ErrorShell.vue';
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
 import SelectConnectionPanel from './SelectConnectionPanel.vue';
@@ -159,11 +159,11 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
 <template>
     <!-- The list is empty because the configurations never arrived, not because there are no connections. Covers the
          region: there is nothing to pick here, and no way to add one either, until the connection is back. -->
-    <ErrorShell v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
+    <ErrorNotice v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
 
     <!-- Covers the region: the data view behind this connection is what the list exists to open, so there is nothing
          useful left to pick from. -->
-    <ErrorShell v-else-if="dataViewFailure" covers-region :failures="[dataViewFailure]" @retry="handleRetryDataView" />
+    <ErrorNotice v-else-if="dataViewFailure" covers-region :failures="[dataViewFailure]" @retry="handleRetryDataView" />
 
     <GridDetailPanel
         v-else

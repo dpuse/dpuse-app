@@ -30,7 +30,7 @@ import {
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import DataViewPanel from './DataViewPanel.vue';
-import ErrorShell from '@/components/ui/error/ErrorShell.vue';
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
@@ -160,7 +160,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
         <!-- Covers the region: nothing was retrieved, so an empty list with no explanation is what this replaces. The
              grid gives way to it rather than sitting behind it — an empty list and a detail pane asking the user to
              pick from it are exactly what the failure is there to account for. -->
-        <ErrorShell v-if="dataViewRetrievalFailure" covers-region :failures="[dataViewRetrievalFailure]" @retry="handleRetryRetrieve" />
+        <ErrorNotice v-if="dataViewRetrievalFailure" covers-region :failures="[dataViewRetrievalFailure]" @retry="handleRetryRetrieve" />
 
         <GridDetailPanel
             v-else

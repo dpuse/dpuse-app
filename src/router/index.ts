@@ -34,10 +34,10 @@ const ExploreDataPanel = defineLazyLoader('ExploreDataPanel', 1, () => import('@
 const EventQueriesLayout = defineLazyLoader('EventQueriesLayout', 0, () => import('@/features/studio/eventQueries/EventQueriesLayout.vue'));
 const PresentationsLayout = defineLazyLoader('PresentationsLayout', 0, () => import('@/features/studio/presentations/PresentationsLayout.vue'));
 const DataAppsLayout = defineLazyLoader('DataAppsLayout', 0, () => import('@/features/studio/dataApps/DataAppsLayout.vue'));
-const ConfigLayout = defineLazyLoader('ConfigLayout', 0, () => import('@/features/studio/config/ConfigLayout.vue'));
-const ConfigHomePanel = defineLazyLoader('ConfigHomePanel', 1, () => import('@/features/studio/config/ConfigHomePanel.vue'));
-const ContextModelList = defineLazyLoader('ContextModelList', 1, () => import('@/features/studio/config/context/ContextModelList.vue'));
-const PluginList = defineLazyLoader('PluginList', 1, () => import('@/features/studio/config/plugins/_components/PluginList.vue'));
+const SetupLayout = defineLazyLoader('SetupLayout', 0, () => import('@/features/studio/setup/SetupLayout.vue'));
+const SetupHomePanel = defineLazyLoader('SetupHomePanel', 1, () => import('@/features/studio/setup/SetupHomePanel.vue'));
+const ContextModelList = defineLazyLoader('ContextModelList', 1, () => import('@/features/studio/setup/context/ContextModelList.vue'));
+const PluginList = defineLazyLoader('PluginList', 1, () => import('@/features/studio/setup/plugins/_components/PluginList.vue'));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -66,15 +66,15 @@ export const APP_ROUTES = [
             { name: 'presentations', path: 'presentations', component: PresentationsLayout },
             { name: 'dataApps', path: 'dataApps', component: DataAppsLayout },
             {
-                path: 'config',
-                component: ConfigLayout,
+                path: 'setup',
+                component: SetupLayout,
                 children: [
-                    { name: 'config', path: '', component: ConfigHomePanel },
-                    { name: 'connectors', path: 'connectors/:configId?', component: PluginList },
-                    { name: 'context', path: 'context/:configId?', component: ContextModelList },
-                    { name: 'presenters', path: 'presenters/:configId?', component: PluginList },
-                    { name: 'cookbooks', path: 'cookbooks/:configId?', component: PluginList },
-                    { name: 'tools', path: 'tools/:configId?', component: PluginList }
+                    { name: 'setup', path: '', component: SetupHomePanel },
+                    { name: 'connectors', path: 'connectors/:id?', component: PluginList },
+                    { name: 'context', path: 'context/:id?', component: ContextModelList },
+                    { name: 'presenters', path: 'presenters/:id?', component: PluginList },
+                    { name: 'cookbooks', path: 'cookbooks/:id?', component: PluginList },
+                    { name: 'tools', path: 'tools/:id?', component: PluginList }
                 ]
             }
         ]
@@ -86,7 +86,7 @@ export const APP_ROUTES = [
 // that owns each one, to survive a reload or deep link there) — see 'SelectConnectionList', 'SelectItemPanel'.
 // Never meant to outlive that route: whatever a selection actually decided is saved into real state before the app
 // moves on, so carrying the id itself past its own route is pure query-string litter, not state anything depends
-// on. 'PluginList'/'ContextModelList' and 'DataViewList' use an optional path param ('configId',
+// on. 'PluginList'/'ContextModelList' and 'DataViewList' use an optional path param ('id',
 // 'dataViewId') for the same purpose instead — those need no entry here, since a path param is naturally scoped to
 // the one route that declares it and cannot leak into a different route's query the way these can.
 const ROUTE_SCOPED_QUERY_KEYS = new Set(['connectionId', 'itemId']);

@@ -16,8 +16,8 @@ import ErrorBody from '@/components/ui/error/ErrorBody.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-// The single surface for a failure, wherever it happened. Within a region the shell is decided by the width this
-// component is given, not by the caller — panes are resized at runtime by 'PaneSplitter.vue', so a caller cannot know.
+// The single surface for a failure, wherever it happened. Within a region the presentation is decided by the width
+// this component is given, not by the caller — panes are resized at runtime by 'PaneSplitter.vue', so a caller cannot know.
 //
 // 'canRetry' is false where nothing local could be retried — a failure with no region of its own, where a fresh
 // document is the only recovery there is. Everywhere else both recoveries are offered; see the note in 'ErrorBody'.
@@ -120,29 +120,29 @@ function handleShowDetail(): void {
 </script>
 
 <template>
-    <div class="error-shell" :class="[ownsScreen ? 'owns-screen' : 'is-region', { 'covers-region': coversRegion }]" data-region="ErrorShell">
-        <!-- The region shells, and the dialog the badge opens. A screen-owning failure has no use for any of them: it
+    <div class="error-notice" :class="[ownsScreen ? 'owns-screen' : 'is-region', { 'covers-region': coversRegion }]" data-region="ErrorNotice">
+        <!-- The region's presentations, and the dialog the badge opens. A screen-owning failure has no use for any of them: it
              has no region to measure, and shows its body in its own modal below. -->
         <template v-if="!ownsScreen">
             <!-- Badge - the container is too narrow for prose, so the body moves to a dialog. -->
             <button
                 :aria-label="t(T, 'detail.aria')"
-                class="shell-badge items-center justify-center rounded-md border border-warning-ring/20 bg-warning p-1.5 text-warning-text hover:bg-warning-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring active:bg-warning-active"
+                class="notice-badge items-center justify-center rounded-md border border-warning-ring/20 bg-warning p-1.5 text-warning-text hover:bg-warning-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring active:bg-warning-active"
                 :title="mainSerialisedError.message"
                 type="button"
                 @click="handleShowDetail"
             >
-                <span class="shell-badge-body"><TriangleAlertIcon class="size-5" stroke-width="1.3" /></span>
+                <span class="notice-badge-body"><TriangleAlertIcon class="size-5" stroke-width="1.3" /></span>
             </button>
 
             <!-- Card - room for the whole body. -->
-            <div class="shell-card">
+            <div class="notice-card">
                 <ErrorBody class="mx-auto my-8 w-[calc(100%-2rem)] max-w-sm" :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
             </div>
 
             <dialog ref="detailDialogReference" class="detail-dialog" @cancel="handleCloseDetail" @close="handleCloseDetail">
                 <!-- Closed from the corner rather than by a button under the body, which sat outside the panel and read
-                     as belonging to the page behind it. Placed as 'DialogShell' places its own, so a dialog opened from
+                     as belonging to the page behind it. Placed as 'Dialog' places its own, so a dialog opened from
                      here is dismissed the same way as every other one. -->
                 <div v-if="detailIsVisible" class="relative">
                     <ErrorBody can-cancel :can-retry="canRetry" :failures="failures" @cancel="handleRequestCloseDetail" @reload="handleReload" @retry="handleRetry" />
@@ -164,19 +164,19 @@ function handleShowDetail(): void {
 </template>
 
 <style scoped>
-.error-shell.is-region {
+.error-notice.is-region {
     container-type: inline-size;
 }
 
-/* Takes the height its host will give it, so the covering shell inside has something to fill. Harmless where the host
-   offers none: the shell falls back to its own minimum. */
-.error-shell.is-region.covers-region {
+/* Takes the height its host will give it, so the covering presentation inside has something to fill. Harmless where the
+   host offers none: the presentation falls back to its own minimum. */
+.error-notice.is-region.covers-region {
     display: flex;
     flex: 1 1 auto;
     min-height: 0;
 }
 
-/* Shell selection. Narrow rails such as the studio option bar cannot fit prose at any font size, so below the
+/* Presentation selection. Narrow rails such as the studio option bar cannot fit prose at any font size, so below the
    threshold only the badge shows and the body moves into the dialog. Width alone decides — height is not queried
    because these containers are scroll regions whose height says nothing about the room actually available.
 
@@ -187,12 +187,12 @@ function handleShowDetail(): void {
    whole body one click away in its dialog.
 
 */
-.is-region .shell-badge {
+.is-region .notice-badge {
     display: flex;
 }
 
 /* A pass-through outside the covering case, where the badge is a chip and the icon is all there is to place. */
-.shell-badge-body {
+.notice-badge-body {
     display: contents;
 }
 
@@ -200,9 +200,9 @@ function handleShowDetail(): void {
    as the body it stands in for, so the two read as one treatment at two widths. Its chip chrome goes for the same
    reason the body's does — there is nothing to draw a box around when the whole region is the error.
 
-   Kept outside the width query below, since this is the shell that shows beneath it; above the threshold the badge is
+   Kept outside the width query below, since this is the presentation that shows beneath it; above the threshold the badge is
    hidden and these have nothing to apply to. */
-.is-region.covers-region .shell-badge {
+.is-region.covers-region .notice-badge {
     flex: 1 1 auto;
     align-items: safe center;
     justify-content: center;
@@ -216,35 +216,35 @@ function handleShowDetail(): void {
 
 /* The three signals that this whole region is a target, rather than a coloured area that happens to contain an icon.
    They are restated here because the flat background above outranks the utility classes on the element that carry them
-   — a chip's worth of specificity against a shell's — so without these the covering badge is inert to the eye and only
+   — a chip's worth of specificity against a filled region's — so without these the covering badge is inert to the eye and only
    the cursor gives it away.
 
    'outline' rather than the utilities' ring: a ring is a box-shadow drawn outside the element's edge, and this one
    fills its region, so the shadow would be the first thing an ancestor's overflow clips. */
-.is-region.covers-region .shell-badge:hover {
+.is-region.covers-region .notice-badge:hover {
     background: var(--warning-hover);
 }
 
-.is-region.covers-region .shell-badge:active {
+.is-region.covers-region .notice-badge:active {
     background: var(--warning-active);
 }
 
-.is-region.covers-region .shell-badge:focus-visible {
+.is-region.covers-region .notice-badge:focus-visible {
     outline: 2px solid var(--warning-ring);
     outline-offset: -2px;
 }
 
 /* Laid out exactly as the body's own leading icon is: same size, same left edge, inside the same maximum width. The
-   two shells are one treatment at two widths, so the icon must not move or change size as the region crosses the
+   two presentations are one treatment at two widths, so the icon must not move or change size as the region crosses the
    threshold — only what follows it disappears. */
-.is-region.covers-region .shell-badge-body {
+.is-region.covers-region .notice-badge-body {
     display: block;
     width: 100%;
     max-width: 65ch;
     text-align: left;
 }
 
-.is-region.covers-region .shell-badge-body > svg {
+.is-region.covers-region .notice-badge-body > svg {
     width: 2rem;
     height: 2rem;
     transition: transform 150ms;
@@ -252,20 +252,20 @@ function handleShowDetail(): void {
 
 /* The icon leans into the pointer. Small, but it is the only thing on screen with a shape, so it is what the eye
    checks when deciding whether the area under the cursor does anything. */
-.is-region.covers-region .shell-badge:hover .shell-badge-body > svg {
+.is-region.covers-region .notice-badge:hover .notice-badge-body > svg {
     transform: scale(1.08);
 }
 
-.is-region .shell-card {
+.is-region .notice-card {
     display: none;
 }
 
 @container (min-width: 11rem) {
-    .is-region .shell-badge {
+    .is-region .notice-badge {
         display: none;
     }
 
-    .is-region .shell-card {
+    .is-region .notice-card {
         display: block;
     }
 
@@ -281,7 +281,7 @@ function handleShowDetail(): void {
        error text rather than as the region having more to show. Centred with 'safe', which is what lets centring and
        scrolling coexist: it centres a body that fits and falls back to the start edge for one that does not, where
        plain centring would push the top out of reach above this container's start edge. */
-    .is-region.covers-region .shell-card {
+    .is-region.covers-region .notice-card {
         display: flex;
         flex: 1 1 auto;
         align-items: safe center;
@@ -299,7 +299,7 @@ function handleShowDetail(): void {
 
        The chrome goes with them: the body is already standing on the warning ground, so a bordered, rounded card of
        the same colour would only draw a box around the middle of a region that is uniformly in error. */
-    .is-region.covers-region .shell-card > * {
+    .is-region.covers-region .notice-card > * {
         width: 100%;
         max-width: 65ch;
         margin: 0;
@@ -316,7 +316,7 @@ function handleShowDetail(): void {
 
 /* Nothing of its own is laid out: the screen-owning placement is entirely the modal below, which the browser renders
    in the top layer. */
-.error-shell.owns-screen {
+.error-notice.owns-screen {
     display: contents;
 }
 

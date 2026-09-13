@@ -95,7 +95,7 @@ const config = defineConfigWithVueTs(
             'unicorn/no-non-function-verb-prefix': 'off',
             'unicorn/prefer-top-level-await': 'warn',
 
-            'vue/multi-word-component-names': ['warn', { ignores: ['Breadcrumbs', 'Button', 'Grid', 'Input', 'Separator', 'Table', 'Tag'] }],
+            'vue/multi-word-component-names': ['warn', { ignores: ['Breadcrumbs', 'Button', 'Dialog', 'Grid', 'Input', 'Separator', 'Table', 'Tag'] }],
             'vue/no-bare-strings-in-template': 'off',
             'vue/no-v-html': ['error', { ignorePattern: String.raw`^(?:icon|.*\.icon|purified|purify|renderText\()` }],
             'vue/require-default-prop': 'off', // Too much noise for properties with undefined values.

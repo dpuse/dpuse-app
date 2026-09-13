@@ -15,9 +15,10 @@ import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-// The full failure body, authored once. 'ErrorShell' renders it in the card shell and inside the dialog its narrow
-// shells open, which is why this stays a component of its own rather than markup inside that one: it appears twice in
-// the same tree at the same time. It carries its own card chrome but no outer spacing — the caller places it.
+// The full failure body, authored once. 'ErrorNotice' renders it in the card presentation and inside the dialog its
+// narrow presentation opens, which is why this stays a component of its own rather than markup inside that one: it
+// appears twice in the same tree at the same time. It carries its own card chrome but no outer spacing — the caller
+// places it.
 //
 // Both recoveries are always offered. Which one is likely to work is decided by matching browser-specific wording
 // (see 'STALE_DEPLOY_MESSAGE_PATTERNS'), so it can be wrong — and offering only its choice would leave the user with

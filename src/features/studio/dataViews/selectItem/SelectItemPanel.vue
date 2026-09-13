@@ -23,7 +23,7 @@ import { type AppFailure, raiseFailure } from '@/state/errors';
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ErrorShell from '@/components/ui/error/ErrorShell.vue';
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
@@ -325,7 +325,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
 <template>
     <!-- Covers the region: without the engine there is nothing to list, preview or open here. -->
-    <ErrorShell v-if="engineFailure" covers-region :failures="[engineFailure]" @retry="handleRetryEngine" />
+    <ErrorNotice v-if="engineFailure" covers-region :failures="[engineFailure]" @retry="handleRetryEngine" />
 
     <GridDetailPanel v-else :active-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="400px">
         <template #header="{ isSplit }">

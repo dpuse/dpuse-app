@@ -1,6 +1,6 @@
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
-import ErrorShell from '@/components/ui/error/ErrorShell.vue';
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { flushPromises, mount } from '@vue/test-utils';
@@ -58,7 +58,7 @@ describe('error reporting hierarchy', () => {
         await settle();
 
         expect(reportedMessages()).toStrictEqual(['Failed to load the BarePanel component.']);
-        expect(wrapper.find('[data-region="ErrorShell"]').exists()).toBe(true);
+        expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(true);
     });
 
     it('leaves a panel load failure to the panel rather than replacing the whole region around it', async () => {
@@ -119,7 +119,7 @@ describe('error reporting hierarchy', () => {
             raiseAppFailure(new AppError('Failed to load the configuration service.', 'test'), { capability: 'configuration' }),
             raiseAppFailure(new AppError('Failed to load the engine.', 'test'), { capability: 'engine' })
         ];
-        const wrapper = mount(ErrorShell, { attachTo: document.body, props: { canRetry: false, failures, ownsScreen: true } });
+        const wrapper = mount(ErrorNotice, { attachTo: document.body, props: { canRetry: false, failures, ownsScreen: true } });
         await nextTick();
 
         expect(wrapper.findAll('[data-region="ErrorBody"]')).toHaveLength(1);
@@ -128,7 +128,7 @@ describe('error reporting hierarchy', () => {
 
     it('takes the screen for a failure no region owns, since that is the space it has lost', async () => {
         const failures = [raiseAppFailure(new AppError('Unhandled Vue error.', 'test'))];
-        const wrapper = mount(ErrorShell, { attachTo: document.body, props: { canRetry: false, failures, ownsScreen: true } });
+        const wrapper = mount(ErrorNotice, { attachTo: document.body, props: { canRetry: false, failures, ownsScreen: true } });
         await nextTick();
 
         // A modal, not a lock: it is opened by the failure and closed by the user, which the 'dismiss' emit reports.

@@ -35,7 +35,7 @@ export function purifyMarkdown(markedTool: MarkedTool | undefined, text: string)
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Loads the marked markdown tool and owns the resulting state, so consumers only decide how to present a failure
-// (ErrorShell or a plain-text fallback) rather than repeating the load, report and retry wiring.
+// (ErrorNotice or a plain-text fallback) rather than repeating the load, report and retry wiring.
 //
 // Never throws: 'initialise' resolves with the tool, or with undefined once the failure has been recorded in 'failure'.
 export function useMarkedTool(): MarkedToolState {

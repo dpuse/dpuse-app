@@ -3,7 +3,7 @@
 // document is what the user came for, so it takes the pane outright: an opaque surface, no scrim and no raised card,
 // because there is nothing to see behind it and a floating panel would only shrink what there is to read.
 //
-// Not built from 'DialogShell': that promotes its element with 'showModal', which puts it in the browser's top layer
+// Not built from 'Dialog': that promotes its element with 'showModal', which puts it in the browser's top layer
 // over the entire viewport, and this has to stay inside one pane.
 
 // ── Local Framework

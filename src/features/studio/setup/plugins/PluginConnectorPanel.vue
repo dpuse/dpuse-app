@@ -7,11 +7,11 @@ import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/conne
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import type { ConfigOptionConfig } from '@/utilities/index.ts';
+import type { SetupOptionConfig } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 
 // ── Static Components
-import PluginShell from '@/features/studio/config/plugins/_components/PluginShell.vue';
+import PluginPanel from '@/features/studio/setup/plugins/_components/PluginPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -37,7 +37,7 @@ const T = {
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
-    config: LocalisedConfig<ConfigOptionConfig>;
+    config: LocalisedConfig<SetupOptionConfig>;
     localisedConfig: LocalisedConfig<ConnectorConfig>;
 }
 const { config, localisedConfig } = defineProps<Properties>();
@@ -54,8 +54,8 @@ const authMethods = computed(() => [
 </script>
 
 <template>
-    <!-- 'clear' and 'close' reach 'PluginShell' by attribute fallthrough, so this must stay single-root. -->
-    <PluginShell :config="config" :localised-config="localisedConfig">
+    <!-- 'clear' and 'close' reach 'PluginPanel' by attribute fallthrough, so this must stay single-root. -->
+    <PluginPanel :config="config" :localised-config="localisedConfig">
         <template #tags>
             <Tag :text="localisedConfig.categoryId" />
         </template>
@@ -71,5 +71,5 @@ const authMethods = computed(() => [
 
         <!-- Connections -->
         <h2>{{ t(T, 'connections.title') }}</h2>
-    </PluginShell>
+    </PluginPanel>
 </template>

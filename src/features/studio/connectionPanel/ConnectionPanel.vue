@@ -19,7 +19,7 @@ import { localeId, t } from '@/state/locale';
 // ── Static Components
 import AddConnectionForm from './AddConnectionForm.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ErrorShell from '@/components/ui/error/ErrorShell.vue';
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
@@ -117,7 +117,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 
     <!-- No connectors arrived, so there is nothing here to add a connection with. Covers the region rather than
          leaving an empty picker with no explanation. -->
-    <ErrorShell v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
+    <ErrorNotice v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
 
     <GridDetailPanel v-else :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" :row-height="80">
         <template #item="{ item }">

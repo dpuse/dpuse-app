@@ -21,8 +21,8 @@ import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ContextDimensionsPanel from './ContextDimensionsPanel.vue';
 import ContextEntitiesPanel from './ContextEntitiesPanel.vue';
 import ContextSecondaryMeasuresPanel from './ContextSecondaryMeasuresPanel.vue';
-import DialogShell from '@/components/ui/dialog/DialogShell.vue';
-import ErrorShell from '@/components/ui/error/ErrorShell.vue';
+import Dialog from '@/components/ui/dialog/Dialog.vue';
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import type { GridListItem } from './ContextModelList.vue';
 
 // ── Dynamic Components
@@ -129,7 +129,7 @@ function localiseModel(model: Model): LocalisedModel {
     <!-- Covers the region, as the same failure does in the chat: the descriptions render blank without the formatter,
          so what is left is a page of empty headings. Placed outside the prose column it replaces, which is padded and
          measure-limited for reading and would otherwise inset the failure from the region it is meant to fill. -->
-    <ErrorShell v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
+    <ErrorNotice v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
     <div v-else class="dpuse-prose flex-1 overflow-y-auto overscroll-y-none px-4 pb-(--vertical-scroll-bottom-screen-inset)">
         <div class="max-w-prose">
@@ -161,7 +161,7 @@ function localiseModel(model: Model): LocalisedModel {
             <ContextSecondaryMeasuresPanel :secondary-measures="activeModel?.secondaryMeasures ?? []" :marked-tool="markedTool" @edit="modelDescriptorsDialogIsOpen = true" />
         </div>
 
-        <DialogShell
+        <Dialog
             :is-open="modelDescriptorsDialogIsOpen"
             max-width="90vw"
             min-height="90vh"
@@ -170,6 +170,6 @@ function localiseModel(model: Model): LocalisedModel {
             @close="modelDescriptorsDialogIsOpen = false"
         >
             <ContextDescriptorsPanel v-if="modelDescriptorsDialogIsOpen" v-model:label="modelReferenceLabel" v-model:description="modelReferenceDescription" />
-        </DialogShell>
+        </Dialog>
     </div>
 </template>

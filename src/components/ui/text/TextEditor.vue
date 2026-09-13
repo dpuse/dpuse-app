@@ -14,7 +14,7 @@ import { type AppFailure, raiseFailure } from '@/state/errors';
 import { useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Static Components
-import ErrorShell from '@/components/ui/error/ErrorShell.vue';
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import IconButton from '@/components/ui/action/IconButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -43,7 +43,7 @@ const textValue = defineModel<string>({ required: true });
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Either failure leaves the editor unusable, so ErrorShell presents whichever one occurred.
+// Either failure leaves the editor unusable, so ErrorNotice presents whichever one occurred.
 const renderFailure = computed(() => editorFailure.value ?? markedToolFailure.value);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -58,7 +58,7 @@ watch(textValue, async (newValue) => {
         return;
     }
     const tool = markedTool.value ?? (await initialiseMarkedTool());
-    if (!tool) return; // Formatter unavailable; the failure is already reported and shown by ErrorShell.
+    if (!tool) return; // Formatter unavailable; the failure is already reported and shown by ErrorNotice.
 
     // Sanitised for the comparison below, not for safety — 'setHTML' sanitises through 'sanitizeToDOMFragment'
     // anyway. 'getHTML' returns Squire's own sanitised markup, so comparing raw rendered output against it would
@@ -198,7 +198,7 @@ function updateParentCanScroll(ancestor: HTMLElement): void {
             {{ label }}
         </div>
 
-        <ErrorShell v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
+        <ErrorNotice v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
 
         <div
             v-show="!renderFailure"

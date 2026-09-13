@@ -10,7 +10,7 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 import { type AppFailure, isComponentLoaderErrorInfo, raiseFailure } from '@/state/errors';
 
 // ── Static Components
-import ErrorShell from '@/components/ui/error/ErrorShell.vue';
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -64,7 +64,7 @@ async function handleRetry(): Promise<void> {
          that would disturb the layout of whatever it wraps. It suits the covering display too: with no box of its own,
          that display becomes a child of whatever laid the slot out and takes the space the slot would have had. -->
     <div class="contents" data-region="ErrorBoundary">
-        <ErrorShell v-if="capturedFailure" covers-region :failures="[capturedFailure]" @retry="handleRetry" />
+        <ErrorNotice v-if="capturedFailure" covers-region :failures="[capturedFailure]" @retry="handleRetry" />
         <slot v-else-if="slotIsMounted" />
     </div>
 </template>

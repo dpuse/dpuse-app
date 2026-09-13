@@ -39,7 +39,7 @@ export interface AsyncPanelSimulation {
     failsToLoad?: boolean;
 }
 
-export interface ConfigOptionConfig<TIcon = string> extends Omit<BaseConfig, 'icon' | 'iconDark'> {
+export interface SetupOptionConfig<TIcon = string> extends Omit<BaseConfig, 'icon' | 'iconDark'> {
     icon: TIcon | null;
     iconDark: TIcon | null;
     to?: string;

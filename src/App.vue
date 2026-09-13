@@ -27,8 +27,8 @@ import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors'
 // ── Static Components
 import AssistantPaneToggle from '@/features/assistant/_components/AssistantPaneToggle.vue'; // Always visible.
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue'; // Required immediately if there is a delay, cannot wait for it to load.
-import DialogShell from '@/components/ui/dialog/DialogShell.vue'; // Required immediately if a dialog is to be shown, cannot wait for it to load.
-import ErrorShell from '@/components/ui/error/ErrorShell.vue'; // Required immediately if there is an error, cannot wait for it to load.
+import Dialog from '@/components/ui/dialog/Dialog.vue'; // Required immediately if a dialog is to be shown, cannot wait for it to load.
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue'; // Required immediately if there is an error, cannot wait for it to load.
 import SessionButton from '@/features/session/SessionButton.vue'; // Always visible.
 import StudioPaneToggle from '@/features/studio/_components/StudioPaneToggle.vue'; // Always visible.
 
@@ -200,7 +200,7 @@ function syncPaneQuery(): void {
 <template>
     <div class="flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" :class="isPWA ? 'h-screen w-screen' : 'h-dvh w-dvw'" data-region="App">
         <!-- Error Shell - Show uncaught errors, failed navigations and service load failures using fullscreen dialog. -->
-        <ErrorShell
+        <ErrorNotice
             v-if="appFailures.length > 0"
             :can-retry="appFailuresCanRetry"
             :failures="appFailures"
@@ -269,7 +269,7 @@ function syncPaneQuery(): void {
 
         <!-- Dialog Shell - Modal shell for all dialogs. Dialogs are activated by the URL 'dlg' parameter. Owned here
              so it can appear immediately, while the dialog's own chunk is still loading. -->
-        <DialogShell
+        <Dialog
             v-if="activeDialogConfig"
             :key="activeDialogId"
             :is-open="true"
@@ -279,6 +279,6 @@ function syncPaneQuery(): void {
             @close="closeDialog"
         >
             <component :is="activeDialogConfig.component" />
-        </DialogShell>
+        </Dialog>
     </div>
 </template>

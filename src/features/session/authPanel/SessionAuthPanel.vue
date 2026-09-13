@@ -12,7 +12,7 @@ import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
 
 // ── Static Components
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';
-import ErrorShell from '@/components/ui/error/ErrorShell.vue';
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import LoginForm from '@/features/session/authPanel/LoginForm.vue';
 import PasswordForm from '@/features/session/authPanel/PasswordForm.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
@@ -205,7 +205,7 @@ function onAfterEnter(): void {
          there is nothing here left to keep. The logo is laid over it rather than above it, so the dialog still reads as
          the sign-in dialog; the close button belongs to the frame and is already over everything here. -->
     <div v-if="signInFailure" class="relative flex min-h-0 flex-1">
-        <ErrorShell covers-region :failures="[signInFailure]" @retry="handleRetrySignIn" />
+        <ErrorNotice covers-region :failures="[signInFailure]" @retry="handleRetrySignIn" />
         <DPUseLogo class="absolute top-8 left-8 size-12" />
     </div>
 

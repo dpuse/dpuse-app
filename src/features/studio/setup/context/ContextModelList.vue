@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed, ref, shallowRef, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import type { ComponentBaseConfig } from '@dpuse/dpuse-shared/component';
@@ -9,8 +8,9 @@ import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
 import { localiseConfig, type LocalisedConfig, localiseReference } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import type { DataSource } from '@/composables/useDataWindow';
+import type { SetupOptionConfig } from '@/utilities/index.ts';
+import { useSetupRouteId } from '../useSetupRouteId';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -35,22 +35,21 @@ const T = {
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-defineProps<{ config: LocalisedConfig<ConfigOptionConfig> }>();
+defineProps<{ setupOptionLocalisedConfig: LocalisedConfig<SetupOptionConfig> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const contextConfig = shallowRef<ContextConfig>();
 const contextLocalisedConfig = shallowRef<LocalisedConfig<ContextConfig>>();
 const contextConfigIsLoading = ref(true);
-const route = useRoute();
-const router = useRouter();
+const { routeId, setRouteId } = useSetupRouteId();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Derived from the route rather than held as its own ref, so an external change to 'configId' — e.g. re-clicking
-// the active tab in 'ConfigLayout' to clear it — is reflected without a dedicated watcher of its own.
+// Derived from the route rather than held as its own ref, so an external change to 'id' — e.g. re-clicking
+// the active tab in 'SetupLayout' to clear it — is reflected without a dedicated watcher of its own.
 const activeModelReference = computed(() =>
-    typeof route.params.configId === 'string' ? buildLocalisedModels().find((model) => model.isHeader !== true && model.id === route.params.configId) : undefined
+    routeId.value === undefined ? undefined : buildLocalisedModels().find((model) => model.isHeader !== true && model.id === routeId.value)
 );
 const modelReferencesDataSource = computed<DataSource<GridListItem<LocalisedConfig<ComponentBaseConfig>>>>(() =>
     contextConfigIsLoading.value ? { rowCount: undefined, rows: [] } : getModels()
@@ -75,15 +74,15 @@ watch(contextConfig, (newContextConfig) => {
     contextLocalisedConfig.value = localiseConfig<ContextConfig>(newContextConfig, localeId.value);
 });
 
-// Clears a 'configId' that matches nothing (e.g. a bookmarked link to a since-removed model) once the models have
-// loaded — a stray id from another tab is not a case this needs to handle: 'configId' is this route's own optional
+// Clears a 'id' that matches nothing (e.g. a bookmarked link to a since-removed model) once the models have
+// loaded — a stray id from another tab is not a case this needs to handle: 'id' is this route's own optional
 // path param, so it cannot survive a navigation to another route.
 watch(
     contextConfigIsLoading,
     (isLoading) => {
-        if (isLoading || typeof route.params.configId !== 'string') return;
-        if (buildLocalisedModels().some((model) => model.isHeader !== true && model.id === route.params.configId)) return;
-        updateConfigIdParameter();
+        if (isLoading || routeId.value === undefined) return;
+        if (buildLocalisedModels().some((model) => model.isHeader !== true && model.id === routeId.value)) return;
+        setRouteId(undefined);
     },
     { immediate: true }
 );
@@ -91,18 +90,10 @@ watch(
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleSelectModel(modelReference: GridListItem<LocalisedConfig<ComponentBaseConfig>> | undefined): void {
-    updateConfigIdParameter(modelReference?.id);
+    setRouteId(modelReference?.id);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// An explicit 'name' is required even though this stays on the same route: it is what makes an absent 'configId'
-// actually clear the param instead of inheriting the one already in the URL — see 'router/index.ts' for why.
-function updateConfigIdParameter(configId?: string): void {
-    void router.replace({ name: route.name ?? undefined, params: { configId }, query: route.query }).catch(() => {
-        // Already reported by 'router.onError'.
-    });
-}
 
 function buildLocalisedModels(): GridListItem<LocalisedConfig<ComponentBaseConfig>>[] {
     const localisedModels: GridListItem<LocalisedConfig<ComponentBaseConfig>>[] = [];

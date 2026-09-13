@@ -1,24 +1,24 @@
 <script setup lang="ts">
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
+import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
 // ── Local Framework
-import type { ConfigOptionConfig } from '@/utilities/index.ts';
+import type { SetupOptionConfig } from '@/utilities/index.ts';
 
 // ── Static Components
-import PluginShell from '@/features/studio/config/plugins/_components/PluginShell.vue';
+import PluginPanel from '@/features/studio/setup/plugins/_components/PluginPanel.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
-    config: LocalisedConfig<ConfigOptionConfig>;
-    localisedConfig: LocalisedConfig<PresenterConfig>;
+    config: LocalisedConfig<SetupOptionConfig>;
+    localisedConfig: LocalisedConfig<ToolConfig>;
 }
 const { config, localisedConfig } = defineProps<Properties>();
 </script>
 
 <template>
-    <!-- 'clear' and 'close' reach 'PluginShell' by attribute fallthrough, so this must stay single-root. -->
-    <PluginShell :config="config" :localised-config="localisedConfig" />
+    <!-- 'close' reaches 'PluginPanel' by attribute fallthrough, so this must stay single-root. -->
+    <PluginPanel :config="config" :localised-config="localisedConfig" />
 </template>

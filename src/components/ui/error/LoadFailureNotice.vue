@@ -9,7 +9,7 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
-import ErrorShell from '@/components/ui/error/ErrorShell.vue';
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -63,5 +63,5 @@ function handleRetry(): void {
 <template>
     <!-- Covers the region: this stands in for a panel that never arrived, so the space it would have occupied is
          exactly what has failed. -->
-    <ErrorShell v-if="loadFailure" covers-region :failures="[loadFailure]" @retry="handleRetry" />
+    <ErrorNotice v-if="loadFailure" covers-region :failures="[loadFailure]" @retry="handleRetry" />
 </template>

@@ -10,7 +10,7 @@ import type { ModuleTypeId } from '@dpuse/dpuse-shared/component/module';
 
 // ── Local Framework
 import { t } from '@/state/locale';
-import type { ConfigOptionConfig, PluginConfig } from '@/utilities/index.ts';
+import type { PluginConfig, SetupOptionConfig } from '@/utilities/index.ts';
 
 // ── Static Components
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';
@@ -40,7 +40,7 @@ const T = {
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
-    config: LocalisedConfig<ConfigOptionConfig>;
+    config: LocalisedConfig<SetupOptionConfig>;
     localisedConfig: LocalisedConfig<PluginConfig>;
 }
 const { config, localisedConfig } = defineProps<Properties>();

@@ -5,13 +5,13 @@ import { computed, type ComputedRef } from 'vue';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import type { ConfigOptionConfig } from '@/utilities/index.ts';
 import { localeId } from '@/state/locale';
+import type { SetupOptionConfig } from '@/utilities/index.ts';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const CONFIG_OPTION_CONFIGS: ConfigOptionConfig[] = [
-    { id: 'home', label: {}, description: {}, icon: null, iconDark: null, to: 'config' },
+const SETUP_OPTION_CONFIGS: SetupOptionConfig[] = [
+    { id: 'home', label: {}, description: {}, icon: null, iconDark: null, to: 'setup' },
     {
         id: 'context',
         label: { en: 'Context', es: 'Contexto' },
@@ -71,6 +71,6 @@ const CONFIG_OPTION_CONFIGS: ConfigOptionConfig[] = [
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export function useConfigOptions(): ComputedRef<LocalisedConfig<ConfigOptionConfig>[]> {
-    return computed(() => localiseConfigs<ConfigOptionConfig>(CONFIG_OPTION_CONFIGS, localeId.value));
+export function useSetupOptions(): ComputedRef<LocalisedConfig<SetupOptionConfig>[]> {
+    return computed(() => localiseConfigs<SetupOptionConfig>(SETUP_OPTION_CONFIGS, localeId.value));
 }

@@ -40,7 +40,7 @@ describe('defineAsyncPanel load failure', () => {
         vi.mocked(reportAppError).mockClear();
         const wrapper = await render(defineAsyncPanel(() => Promise.resolve(defineComponent({ template: '<div />' })), 'FaultPanel'));
 
-        expect(wrapper.find('[data-region="ErrorShell"]').exists()).toBe(true);
+        expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(true);
         expect(wrapper.text()).toContain('Failed to load the FaultPanel component.');
         expect(reportAppError).toHaveBeenCalledOnce();
     });
@@ -48,7 +48,7 @@ describe('defineAsyncPanel load failure', () => {
     it('pre-existing simulation option works too', async () => {
         history.replaceState({}, '', '/');
         const wrapper = await render(defineAsyncPanel(() => Promise.resolve(defineComponent({ template: '<div />' })), 'SimPanel', { simulation: { failsToLoad: true } }));
-        expect(wrapper.find('[data-region="ErrorShell"]').exists()).toBe(true);
+        expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(true);
     });
 
     it('fault=panel:<name> fails only the panel it names, so one nested inside another can be reached', async () => {
@@ -57,7 +57,7 @@ describe('defineAsyncPanel load failure', () => {
         const inner = await render(defineAsyncPanel(() => Promise.resolve(defineComponent({ template: '<div />' })), 'InnerPanel'));
 
         expect(outer.find('[data-region="Outer"]').exists()).toBe(true); // Loaded, so its children get their turn.
-        expect(inner.find('[data-region="ErrorShell"]').exists()).toBe(true);
+        expect(inner.find('[data-region="ErrorNotice"]').exists()).toBe(true);
     });
 
     it('retries the load in place rather than reloading the document', async () => {
@@ -69,15 +69,15 @@ describe('defineAsyncPanel load failure', () => {
         }, 'RetryPanel');
 
         const wrapper = await render(panel);
-        expect(wrapper.find('[data-region="ErrorShell"]').exists()).toBe(true);
+        expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(true);
 
-        await wrapper.findComponent({ name: 'ErrorShell' }).vm.$emit('retry');
+        await wrapper.findComponent({ name: 'ErrorNotice' }).vm.$emit('retry');
         await settle();
 
         // Vue drops its cached request when a load fails, so remounting the panel is a fresh attempt, not a replay.
         expect(state.attempts).toBe(2);
         expect(wrapper.find('[data-region="Loaded"]').exists()).toBe(true);
-        expect(wrapper.find('[data-region="ErrorShell"]').exists()).toBe(false);
+        expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(false);
     });
 
     it('offers both recoveries, so a misjudged classification is not a dead end', async () => {
@@ -94,7 +94,7 @@ describe('defineAsyncPanel load failure', () => {
         const wrapper = await render(defineAsyncPanel(() => Promise.resolve(defineComponent({ template: '<div />' })), 'CoveringPanel'));
 
         // The panel never arrived, so its whole region is what failed — 'covers-region' is what says so in the layout.
-        expect(wrapper.find('[data-region="ErrorShell"]').classes()).toContain('covers-region');
+        expect(wrapper.find('[data-region="ErrorNotice"]').classes()).toContain('covers-region');
     });
 
     it('tells the user a stale chunk needs the page reloading, which a retry cannot do', async () => {
