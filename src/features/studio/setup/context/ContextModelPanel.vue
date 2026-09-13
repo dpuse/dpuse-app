@@ -9,7 +9,6 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities';
-import { useDialogs } from '@/state/dialogs';
 import type { LocalisedModel, LocalisedModelItem, LocalisedSecondaryMeasure } from './contextModel';
 import { purifyMarkdown, useMarkedTool } from '@/services/useMarkedTool';
 
@@ -26,10 +25,11 @@ import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import type { GridListItem } from './ContextModelList.vue';
 
 // ── Dynamic Components
-// The two diagram panels are not here: they stand up from the URL alone, so they are registered in '@/state/dialogs'
-// and rendered by the app's own frame. This one edits state that only this panel holds, which the URL cannot restore,
-// so it stays local until the selected model is itself part of the route.
+// All three are local, not registered in '@/state/dialogs': each depends on state only this panel holds — the
+// loaded model, or refs this panel owns — which the URL cannot restore, so none can stand up from it alone.
 const ContextDescriptorsPanel = defineAsyncPanel(() => import('./ContextDescriptorsPanel.vue'), 'ContextDescriptorsPanel');
+const ContextDimensionSchemaDiagramPanel = defineAsyncPanel(() => import('./ContextDimensionSchemaDiagramPanel.vue'), 'ContextDimensionSchemaDiagramPanel');
+const ContextEntityRelationshipDiagramPanel = defineAsyncPanel(() => import('./ContextEntityRelationshipDiagramPanel.vue'), 'ContextEntityRelationshipDiagramPanel');
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -57,10 +57,7 @@ interface Model {
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-interface Properties {
-    modelReference: GridListItem<LocalisedConfig<ComponentBaseConfig>>;
-}
-const { modelReference } = defineProps<Properties>();
+const { modelReference } = defineProps<{ modelReference: GridListItem<LocalisedConfig<ComponentBaseConfig>> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -72,7 +69,8 @@ const modelReferenceLabel = ref('');
 const activeModel = shallowRef<LocalisedModel | undefined>();
 
 const modelDescriptorsDialogIsOpen = ref(false);
-const { openDialog } = useDialogs();
+const modelDimensionDiagramDialogIsOpen = ref(false);
+const modelErdDiagramDialogIsOpen = ref(false);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -94,11 +92,11 @@ function handleRetryMarkedTool(): void {
 }
 
 function handleShowDimensionTreeDiagram(): void {
-    void openDialog('modelDimensionDiagram');
+    modelDimensionDiagramDialogIsOpen.value = true;
 }
 
 function handleShowErdDiagram(): void {
-    void openDialog('modelErdDiagram');
+    modelErdDiagramDialogIsOpen.value = true;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -170,6 +168,15 @@ function localiseModel(model: Model): LocalisedModel {
             @close="modelDescriptorsDialogIsOpen = false"
         >
             <ContextDescriptorsPanel v-if="modelDescriptorsDialogIsOpen" v-model:label="modelReferenceLabel" v-model:description="modelReferenceDescription" />
+        </Dialog>
+
+        <!-- No 'title' passed through: both diagram panels render their own 'DialogHeader', unlike 'ContextDescriptorsPanel' above. -->
+        <Dialog :is-open="modelDimensionDiagramDialogIsOpen" max-width="90vw" min-height="90vh" sizing="full" @close="modelDimensionDiagramDialogIsOpen = false">
+            <ContextDimensionSchemaDiagramPanel v-if="modelDimensionDiagramDialogIsOpen" />
+        </Dialog>
+
+        <Dialog :is-open="modelErdDiagramDialogIsOpen" max-width="90vw" min-height="90vh" sizing="full" @close="modelErdDiagramDialogIsOpen = false">
+            <ContextEntityRelationshipDiagramPanel v-if="modelErdDiagramDialogIsOpen" />
         </Dialog>
     </div>
 </template>

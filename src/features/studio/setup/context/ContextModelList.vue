@@ -38,7 +38,6 @@ const { routeId, setRouteId } = useSetupRoute();
 const modelReferenceActive = computed(() =>
     routeId.value === undefined ? undefined : modelReferencesByArea.value.find((model) => model.isHeader !== true && model.id === routeId.value)
 );
-
 const modelReferencesByArea = computed<GridListItem<LocalisedConfig<ComponentBaseConfig>>[]>(() => {
     const items: GridListItem<LocalisedConfig<ComponentBaseConfig>>[] = [];
     const areaReferences = contextConfig.value?.areas ?? [];

@@ -8,14 +8,6 @@ import { defineAsyncPanel } from '@/utilities/index.ts';
 // ── Dynamic Components
 // Every dialog body is loaded on demand. The frame is rendered from the URL alone, so the body arrives behind its own
 // spinner and none of this is in the initial bundle.
-const ContextModelDimensionSchemaDiagramPanel = defineAsyncPanel(
-    () => import('@/features/studio/setup/context/ContextDimensionSchemaDiagramPanel.vue'),
-    'ContextModelDimensionSchemaDiagramPanel'
-);
-const ContextModelEntityRelationshipDiagramPanel = defineAsyncPanel(
-    () => import('@/features/studio/setup/context/ContextEntityRelationshipDiagramPanel.vue'),
-    'ContextModelEntityRelationshipDiagramPanel'
-);
 const ConnectionPanel = defineAsyncPanel(() => import('@/features/studio/connectionPanel/ConnectionPanel.vue'), 'ConnectionPanel', { simulation: { delayMs: 0 } });
 const SessionAccountPanel = defineAsyncPanel(() => import('@/features/session/accountPanel/SessionAccountPanel.vue'), 'SessionAccountPanel');
 const SessionAuthPanel = defineAsyncPanel(() => import('@/features/session/authPanel/SessionAuthPanel.vue'), 'SessionAuthPanel');
@@ -49,9 +41,7 @@ const DIALOG_CONFIGS = {
     // Reserved rather than fixed: the sign-in body moves between steps of differing height, and the minimum is the
     // tallest of the short ones, so the frame neither collapses around the loading spinner nor towers over the first step.
     auth: { component: SessionAuthPanel, maxWidth: '24rem', minHeight: '250px', sizing: 'reserved' },
-    connection: { component: ConnectionPanel, sizing: 'full' },
-    modelDimensionDiagram: { component: ContextModelDimensionSchemaDiagramPanel, maxWidth: '90vw', minHeight: '90vh', sizing: 'full' },
-    modelErdDiagram: { component: ContextModelEntityRelationshipDiagramPanel, maxWidth: '90vw', minHeight: '90vh', sizing: 'full' }
+    connection: { component: ConnectionPanel, sizing: 'full' }
 } satisfies Record<string, DialogConfig>;
 
 export type DialogId = keyof typeof DIALOG_CONFIGS;
