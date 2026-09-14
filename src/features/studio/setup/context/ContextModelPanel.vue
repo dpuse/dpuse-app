@@ -5,6 +5,7 @@ import { ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
 import type { ComponentBaseConfig } from '@dpuse/dpuse-shared/component';
+import type { ContextModelSecondaryMeasureConfig } from '@dpuse/dpuse-shared/component/context/model/secondaryMeasure';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
@@ -43,16 +44,10 @@ interface Entity {
     label: Record<string, string>;
     description: Record<string, string>;
 }
-interface SecondaryMeasure {
-    id: string;
-    label: Record<string, string>;
-    description: Record<string, string>;
-    formula: string;
-}
 interface Model {
     entities: Entity[];
     dimensions: Dimension[];
-    secondaryMeasures: SecondaryMeasure[];
+    secondaryMeasures: ContextModelSecondaryMeasureConfig[];
 }
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -101,10 +96,10 @@ function handleShowErdDiagram(): void {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/require-await
 async function loadModel(modelId: string): Promise<Model> {
     // Future: return (await fetch(`/api/model-configs/${modelId}`)).json() as Promise<Model>;
-    return (modelConfigsData as Record<string, Model>)[modelId];
+    await new Promise((resolve) => setTimeout(resolve, 400)); // Simulates the network latency the real fetch above will have.
+    return (modelConfigsData as unknown as Record<string, Model>)[modelId];
 }
 
 function localiseModel(model: Model): LocalisedModel {
@@ -116,8 +111,8 @@ function localiseModel(model: Model): LocalisedModel {
     }));
     const localisedSecondaryMeasures: LocalisedSecondaryMeasure[] = Array.from(model.secondaryMeasures, (measure) => ({
         ...measure,
-        label: measure.label.en,
-        description: measure.description.en
+        label: measure.label.en ?? '',
+        description: measure.description.en ?? ''
     }));
     return { ...model, entities: localisedEntities, dimensions: localisedDimensions, secondaryMeasures: localisedSecondaryMeasures };
 }
