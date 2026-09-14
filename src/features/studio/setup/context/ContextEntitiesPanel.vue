@@ -7,7 +7,7 @@ import { ref, shallowRef } from 'vue';
 import type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
-import type { LocalisedModelItem } from './contextModel';
+import type { LocalisedEntity } from './contextModel';
 import { purifyMarkdown } from '@/services/useMarkedTool';
 
 // ── Static Components
@@ -17,7 +17,7 @@ import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 
 const ENTITY_TABS = [
     { id: 'parents', label: 'Parents' },
-    { id: 'characteristics', label: 'Characteristics' },
+    { id: 'dataItems', label: 'Data Items' },
     { id: 'events', label: 'Events' },
     { id: 'primaryMeasures', label: 'Measures' }
 ];
@@ -25,7 +25,7 @@ const ENTITY_TABS = [
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
-    entities: LocalisedModelItem[];
+    entities: LocalisedEntity[];
     markedTool: MarkedTool | undefined;
 }
 const { entities, markedTool } = defineProps<Properties>();
@@ -105,9 +105,9 @@ function purifyText(text: string): string {
                 <div v-for="parent in entity.parents ?? []" :key="parent">{{ parent }}</div>
             </div>
 
-            <!-- Characteristics Panel -->
-            <div v-show="activeTab.id === 'characteristics'" class="py-1">
-                <div v-for="characteristic in entity.characteristics ?? []" :key="characteristic">{{ characteristic }}</div>
+            <!-- Data Items Panel -->
+            <div v-show="activeTab.id === 'dataItems'" class="py-1">
+                <div v-for="dataItem in entity.dataItems" :key="dataItem.id">{{ dataItem.label }}</div>
             </div>
 
             <!-- Events Panel -->

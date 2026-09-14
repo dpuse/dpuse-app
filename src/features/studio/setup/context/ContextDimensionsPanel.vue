@@ -7,7 +7,7 @@ import { ref, shallowRef } from 'vue';
 import type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
-import type { LocalisedModelItem } from './contextModel';
+import type { LocalisedDimension } from './contextModel';
 import { purifyMarkdown } from '@/services/useMarkedTool';
 
 // ── Static Components
@@ -25,7 +25,7 @@ const DIMENSION_TABS = [
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
-    dimensions: LocalisedModelItem[];
+    dimensions: LocalisedDimension[];
     markedTool: MarkedTool | undefined;
 }
 const { dimensions, markedTool } = defineProps<Properties>();

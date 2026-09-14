@@ -5,12 +5,14 @@ import { ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
 import type { ComponentBaseConfig } from '@dpuse/dpuse-shared/component';
-import type { ContextModelSecondaryMeasureConfig } from '@dpuse/dpuse-shared/component/context/model/secondaryMeasure';
+import type { ContextModelConfig } from '@dpuse/dpuse-shared/component/context/model';
+import type { ContextModelEntityConfig } from '@dpuse/dpuse-shared/component/context/model/entity';
+import type { ContextModelEntityDataItemConfig } from '@dpuse/dpuse-shared/component/context/model/entity/dataItem';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities';
-import type { LocalisedModel, LocalisedModelItem, LocalisedSecondaryMeasure } from './contextModel';
+import type { LocalisedDimension, LocalisedEntity, LocalisedModel, LocalisedSecondaryMeasure } from './contextModel';
 import { purifyMarkdown, useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Data
@@ -31,24 +33,6 @@ import type { GridListItem } from './ContextModelList.vue';
 const ContextDescriptorsPanel = defineAsyncPanel(() => import('./ContextDescriptorsPanel.vue'), 'ContextDescriptorsPanel');
 const ContextDimensionSchemaDiagramPanel = defineAsyncPanel(() => import('./ContextDimensionSchemaDiagramPanel.vue'), 'ContextDimensionSchemaDiagramPanel');
 const ContextEntityRelationshipDiagramPanel = defineAsyncPanel(() => import('./ContextEntityRelationshipDiagramPanel.vue'), 'ContextEntityRelationshipDiagramPanel');
-
-// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-interface Dimension {
-    id: string;
-    label: Record<string, string>;
-    description: Record<string, string>;
-}
-interface Entity {
-    id: string;
-    label: Record<string, string>;
-    description: Record<string, string>;
-}
-interface Model {
-    entities: Entity[];
-    dimensions: Dimension[];
-    secondaryMeasures: ContextModelSecondaryMeasureConfig[];
-}
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -96,25 +80,53 @@ function handleShowErdDiagram(): void {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function loadModel(modelId: string): Promise<Model> {
-    // Future: return (await fetch(`/api/model-configs/${modelId}`)).json() as Promise<Model>;
+async function loadModel(modelId: string): Promise<ContextModelConfig> {
+    // Future: return (await fetch(`/api/model-configs/${modelId}`)).json() as Promise<ContextModelConfig>;
     await new Promise((resolve) => setTimeout(resolve, 400)); // Simulates the network latency the real fetch above will have.
-    return (modelConfigsData as unknown as Record<string, Model>)[modelId];
+    return (modelConfigsData as unknown as Record<string, ContextModelConfig>)[modelId];
 }
 
-function localiseModel(model: Model): LocalisedModel {
-    const localisedEntities: LocalisedModelItem[] = Array.from(model.entities, (entity) => ({ ...entity, label: entity.label.en, description: entity.description.en }));
-    const localisedDimensions: LocalisedModelItem[] = Array.from(model.dimensions, (dimension) => ({
+function localiseModel(model: ContextModelConfig): LocalisedModel {
+    const localisedEntities: LocalisedEntity[] = Array.from(model.entities, (entity) => ({
+        ...entity,
+        label: localiseText(entity.label),
+        description: localiseText(entity.description),
+        dataItems: Array.from(rawEntityDataItems(entity), (dataItem) => ({ ...dataItem, label: localiseText(dataItem.label), description: localiseText(dataItem.description) })),
+        // Placeholders, not converted: the shared config types both as arrays of configs, but the mock model data
+        // still stores them as keyed objects — see 'LocalisedEntity'.
+        events: undefined,
+        primaryMeasures: undefined
+    }));
+    const localisedDimensions: LocalisedDimension[] = Array.from(model.dimensions, (dimension) => ({
         ...dimension,
-        label: dimension.label.en,
-        description: dimension.description.en
+        label: localiseText(dimension.label),
+        description: localiseText(dimension.description)
     }));
     const localisedSecondaryMeasures: LocalisedSecondaryMeasure[] = Array.from(model.secondaryMeasures, (measure) => ({
         ...measure,
-        label: measure.label.en ?? '',
-        description: measure.description.en ?? ''
+        label: localiseText(measure.label),
+        description: localiseText(measure.description)
     }));
-    return { ...model, entities: localisedEntities, dimensions: localisedDimensions, secondaryMeasures: localisedSecondaryMeasures };
+    return {
+        ...model,
+        label: localiseText(model.label),
+        description: localiseText(model.description),
+        entities: localisedEntities,
+        dimensions: localisedDimensions,
+        secondaryMeasures: localisedSecondaryMeasures
+    };
+}
+
+// The mock model data still calls this field 'characteristics'; the shared config names it 'dataItems'.
+function rawEntityDataItems(entity: ContextModelEntityConfig): ContextModelEntityDataItemConfig[] {
+    return (entity as unknown as { characteristics?: ContextModelEntityDataItemConfig[] }).characteristics ?? entity.dataItems;
+}
+
+// The shared config declares 'label'/'description' as always present, but the mock model data doesn't reliably
+// populate every field it declares required — some entries (e.g. a bare '{ entityTypeId: "country" }' data item)
+// have neither. Defensive despite what the type promises, until the data actually matches it.
+function localiseText(value: Partial<Record<string, string>> | undefined): string {
+    return value?.en ?? '';
 }
 </script>
 

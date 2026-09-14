@@ -8,7 +8,6 @@ import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection'
 import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
 import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbook';
-import type { DimensionConfig } from '@dpuse/dpuse-shared/component/dimension';
 import type { EngineConfig } from '@dpuse/dpuse-shared/component/module/engine';
 import type { EventQueryConfig } from '@dpuse/dpuse-shared/component/eventQuery';
 import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
@@ -71,7 +70,6 @@ export const contextConfigRetrievalFailure = shallowRef<AppFailure | undefined>(
 export const cookbookConfigs = shallowRef<CookbookConfig[]>([]);
 export const engineConfig = shallowRef<EngineConfig | undefined>();
 export const eventQueryConfigs = shallowRef<EventQueryConfig[]>([]);
-export const dimensionConfigs = shallowRef<DimensionConfig[]>([]);
 export const presenterConfigs = shallowRef<PresenterConfig[]>([]);
 export const toolConfigs = shallowRef<ToolConfig[]>([]);
 // True once configMonitor's initial WebSocket handshake has been processed — distinct from any one config array
