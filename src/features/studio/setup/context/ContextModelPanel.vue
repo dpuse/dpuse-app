@@ -19,17 +19,17 @@ import modelConfigsData from './_data/modelConfigs.json'; // TODO: remove once l
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
-import ContextDimensionsPanel from './ContextDimensionsPanel.vue';
-import ContextEntitiesPanel from './ContextEntitiesPanel.vue';
-import ContextSecondaryMeasuresPanel from './ContextSecondaryMeasuresPanel.vue';
+import ContextDimensionList from './ContextDimensionList.vue';
+import ContextEntityList from './ContextEntityList.vue';
+import ContextSecondaryMeasureList from './ContextSecondaryMeasureList.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import type { GridListItem } from './ContextModelList.vue';
 
 // ── Dynamic Components
-const ContextDescriptorsPanel = defineAsyncPanel(() => import('./ContextDescriptorsPanel.vue'), 'ContextDescriptorsPanel');
-const ContextDimensionTreePanel = defineAsyncPanel(() => import('./ContextDimensionTreePanel.vue'), 'ContextDimensionTreePanel');
-const ContextERDPanel = defineAsyncPanel(() => import('./ContextERDPanel.vue'), 'ContextERDPanel');
+const ContextDescriptorsPanel = defineAsyncPanel(() => import('./_components/ContextDescriptorsPanel.vue'), 'ContextDescriptorsPanel');
+const ContextDimensionDiagramPanel = defineAsyncPanel(() => import('./ContextDimensionDiagramPanel.vue'), 'ContextDimensionDiagramPanel');
+const ContextEntityDiagramPanel = defineAsyncPanel(() => import('./ContextEntityDiagramPanel.vue'), 'ContextEntityDiagramPanel');
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -163,21 +163,21 @@ function localiseText(value: string | Partial<Record<string, string>> | undefine
             <!-- Description -->
             <div v-html="purifyMarkdown(markedTool, modelReferenceDescription)" />
 
-            <ContextEntitiesPanel
+            <ContextEntityList
                 :entities="activeModel?.entities ?? []"
                 :marked-tool="markedTool"
                 @edit="modelDescriptorsDialogIsOpen = true"
                 @show-erd-diagram="handleShowErdDiagram"
             />
 
-            <ContextDimensionsPanel
+            <ContextDimensionList
                 :dimensions="activeModel?.dimensions ?? []"
                 :marked-tool="markedTool"
                 @edit="modelDescriptorsDialogIsOpen = true"
                 @show-tree-diagram="handleShowDimensionTreeDiagram"
             />
 
-            <ContextSecondaryMeasuresPanel :secondary-measures="activeModel?.secondaryMeasures ?? []" :marked-tool="markedTool" @edit="modelDescriptorsDialogIsOpen = true" />
+            <ContextSecondaryMeasureList :secondary-measures="activeModel?.secondaryMeasures ?? []" :marked-tool="markedTool" @edit="modelDescriptorsDialogIsOpen = true" />
         </div>
 
         <Dialog
@@ -193,11 +193,11 @@ function localiseText(value: string | Partial<Record<string, string>> | undefine
 
         <!-- No 'title' passed through: both diagram panels render their own 'DialogHeader', unlike 'ContextDescriptorsPanel' above. -->
         <Dialog :is-open="modelDimensionDiagramDialogIsOpen" max-width="90vw" min-height="90vh" sizing="full" @close="modelDimensionDiagramDialogIsOpen = false">
-            <ContextDimensionTreePanel v-if="modelDimensionDiagramDialogIsOpen" />
+            <ContextDimensionDiagramPanel v-if="modelDimensionDiagramDialogIsOpen" />
         </Dialog>
 
         <Dialog :is-open="modelErdDiagramDialogIsOpen" max-width="90vw" min-height="90vh" sizing="full" @close="modelErdDiagramDialogIsOpen = false">
-            <ContextERDPanel v-if="modelErdDiagramDialogIsOpen" />
+            <ContextEntityDiagramPanel v-if="modelErdDiagramDialogIsOpen" />
         </Dialog>
     </div>
 </template>
