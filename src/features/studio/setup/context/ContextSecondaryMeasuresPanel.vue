@@ -7,7 +7,7 @@ import { ChevronRightIcon, SquarePenIcon } from '@lucide/vue';
 import type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
-import type { LocalisedSecondaryMeasure } from './contextModel';
+import type { LocalisedSecondaryMeasure } from './_context';
 import { purifyMarkdown } from '@/services/useMarkedTool';
 
 // ── Static Components
@@ -15,11 +15,10 @@ import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-interface Properties {
-    secondaryMeasures: LocalisedSecondaryMeasure[];
+const { markedTool, secondaryMeasures } = defineProps<{
     markedTool: MarkedTool | undefined;
-}
-const { secondaryMeasures, markedTool } = defineProps<Properties>();
+    secondaryMeasures: LocalisedSecondaryMeasure[];
+}>();
 
 defineEmits<{ edit: [] }>();
 

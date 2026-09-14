@@ -6,18 +6,16 @@ import { ref, shallowRef, watch } from 'vue';
 // ── DPUse Framework
 import type { ComponentBaseConfig } from '@dpuse/dpuse-shared/component';
 import type { ContextModelConfig } from '@dpuse/dpuse-shared/component/context/model';
-import type { ContextModelEntityConfig } from '@dpuse/dpuse-shared/component/context/model/entity';
-import type { ContextModelEntityDataItemConfig } from '@dpuse/dpuse-shared/component/context/model/entity/dataItem';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import type { ContextModelDimensionHierarchyConfig, ContextModelDimensionHierarchyNodeConfig } from '@dpuse/dpuse-shared/component/context/model/dimension/hierarchy';
 
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities';
-import type { LocalisedDimension, LocalisedDimensionHierarchy, LocalisedDimensionHierarchyNode, LocalisedEntity, LocalisedModel, LocalisedSecondaryMeasure } from './contextModel';
+import type { LocalisedDimension, LocalisedDimensionHierarchy, LocalisedDimensionHierarchyNode, LocalisedEntity, LocalisedModel, LocalisedSecondaryMeasure } from './_context';
 import { purifyMarkdown, useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Data
-import modelConfigsData from './data/modelConfigs.json'; // TODO: remove once loadModel fetches remotely
+import modelConfigsData from './_data/modelConfigs.json'; // TODO: remove once loadModel fetches remotely
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -29,11 +27,9 @@ import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import type { GridListItem } from './ContextModelList.vue';
 
 // ── Dynamic Components
-// All three are local, not registered in '@/state/dialogs': each depends on state only this panel holds — the
-// loaded model, or refs this panel owns — which the URL cannot restore, so none can stand up from it alone.
 const ContextDescriptorsPanel = defineAsyncPanel(() => import('./ContextDescriptorsPanel.vue'), 'ContextDescriptorsPanel');
-const ContextDimensionSchemaDiagramPanel = defineAsyncPanel(() => import('./ContextDimensionSchemaDiagramPanel.vue'), 'ContextDimensionSchemaDiagramPanel');
-const ContextEntityRelationshipDiagramPanel = defineAsyncPanel(() => import('./ContextEntityRelationshipDiagramPanel.vue'), 'ContextEntityRelationshipDiagramPanel');
+const ContextDimensionTreePanel = defineAsyncPanel(() => import('./ContextDimensionTreePanel.vue'), 'ContextDimensionTreePanel');
+const ContextERDPanel = defineAsyncPanel(() => import('./ContextERDPanel.vue'), 'ContextERDPanel');
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -42,12 +38,9 @@ const { modelReference } = defineProps<{ modelReference: GridListItem<LocalisedC
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
-
 const modelReferenceDescription = ref('');
 const modelReferenceLabel = ref('');
-
 const activeModel = shallowRef<LocalisedModel | undefined>();
-
 const modelDescriptorsDialogIsOpen = ref(false);
 const modelDimensionDiagramDialogIsOpen = ref(false);
 const modelErdDiagramDialogIsOpen = ref(false);
@@ -92,7 +85,7 @@ function localiseModel(model: ContextModelConfig): LocalisedModel {
         ...entity,
         label: localiseText(entity.label),
         description: localiseText(entity.description),
-        dataItems: Array.from(rawEntityDataItems(entity), (dataItem) => ({ ...dataItem, label: localiseText(dataItem.label), description: localiseText(dataItem.description) })),
+        dataItems: Array.from(entity.dataItems, (dataItem) => ({ ...dataItem, label: localiseText(dataItem.label), description: localiseText(dataItem.description) })),
         events: Array.from(entity.events, (event) => ({
             ...event,
             labelAction: localiseText(event.labelAction),
@@ -105,8 +98,7 @@ function localiseModel(model: ContextModelConfig): LocalisedModel {
         ...dimension,
         label: localiseText(dimension.label),
         description: localiseText(dimension.description),
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- 'hierarchies' is required by the type but several mock dimensions (e.g. 'geoDiv') omit it entirely.
-        hierarchies: Array.from(dimension.hierarchies ?? [], localiseHierarchy)
+        hierarchies: Array.from(dimension.hierarchies, localiseHierarchy)
     }));
     const localisedSecondaryMeasures: LocalisedSecondaryMeasure[] = Array.from(model.secondaryMeasures, (measure) => ({
         ...measure,
@@ -121,11 +113,6 @@ function localiseModel(model: ContextModelConfig): LocalisedModel {
         dimensions: localisedDimensions,
         secondaryMeasures: localisedSecondaryMeasures
     };
-}
-
-// The mock model data still calls this field 'characteristics'; the shared config names it 'dataItems'.
-function rawEntityDataItems(entity: ContextModelEntityConfig): ContextModelEntityDataItemConfig[] {
-    return (entity as unknown as { characteristics?: ContextModelEntityDataItemConfig[] }).characteristics ?? entity.dataItems;
 }
 
 function localiseHierarchy(hierarchy: ContextModelDimensionHierarchyConfig): LocalisedDimensionHierarchy {
@@ -149,10 +136,9 @@ function localiseHierarchyNode(node: ContextModelDimensionHierarchyNodeConfig): 
     };
 }
 
-// The shared config declares 'label'/'description' as locale maps, but the mock model data doesn't reliably match
-// that shape: some entries (e.g. a bare '{ entityTypeId: "country" }' data item) have neither field at all, and some
-// primary measures (e.g. 'personLanguage') give a plain string instead of a locale map. Defensive despite what the
-// type promises, until the data actually matches it.
+// 'label'/'description' are locale maps, but not always: some primary measures (e.g. 'personLanguage') give a plain
+// string instead. 'description' can also be absent entirely on data items, events, and primary measures whose type
+// declares it optional — this still has to cope with that being 'undefined' at runtime.
 function localiseText(value: string | Partial<Record<string, string>> | undefined): string {
     return typeof value === 'string' ? value : (value?.en ?? '');
 }
@@ -207,11 +193,11 @@ function localiseText(value: string | Partial<Record<string, string>> | undefine
 
         <!-- No 'title' passed through: both diagram panels render their own 'DialogHeader', unlike 'ContextDescriptorsPanel' above. -->
         <Dialog :is-open="modelDimensionDiagramDialogIsOpen" max-width="90vw" min-height="90vh" sizing="full" @close="modelDimensionDiagramDialogIsOpen = false">
-            <ContextDimensionSchemaDiagramPanel v-if="modelDimensionDiagramDialogIsOpen" />
+            <ContextDimensionTreePanel v-if="modelDimensionDiagramDialogIsOpen" />
         </Dialog>
 
         <Dialog :is-open="modelErdDiagramDialogIsOpen" max-width="90vw" min-height="90vh" sizing="full" @close="modelErdDiagramDialogIsOpen = false">
-            <ContextEntityRelationshipDiagramPanel v-if="modelErdDiagramDialogIsOpen" />
+            <ContextERDPanel v-if="modelErdDiagramDialogIsOpen" />
         </Dialog>
     </div>
 </template>

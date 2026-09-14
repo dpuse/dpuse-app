@@ -13,9 +13,6 @@ import type {
     ContextModelDimensionHierarchyNodeConfig
 } from '@dpuse/dpuse-shared/component/context/model/dimension/hierarchy';
 
-// The localised shapes the model panels render, after 'localiseModel' has collapsed each label/description map down to
-// the active locale's string.
-
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface LocalisedModel extends Omit<LocalisedConfig<ContextModelConfig>, 'entities' | 'dimensions' | 'secondaryMeasures'> {

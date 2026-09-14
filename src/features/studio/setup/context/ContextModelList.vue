@@ -8,7 +8,6 @@ import { type LocalisedConfig, localiseReference } from '@dpuse/dpuse-shared/loc
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import type { SetupOptionConfig } from '@/utilities/index.ts';
 import { T } from './ContextModelList_.json';
 import { useSetupRoute } from '../useSetupRoute';
 import { contextConfig, contextConfigRetrievalFailed, contextConfigRetrievalFailure, contextConfigRetrievalSucceeded } from '@/state/session';
@@ -24,10 +23,6 @@ import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export type GridListItem<T> = T & { isHeader?: boolean };
-
-// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
-
-defineProps<{ setupOptionLocalisedConfig: LocalisedConfig<SetupOptionConfig> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

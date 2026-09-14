@@ -24,7 +24,7 @@ import { forgetUser, identifyUser } from '@/observability/eventTracking';
 // ── Data
 //
 // Stands in for a real endpoint until one exists — see 'initialiseContextConfig'.
-import contextConfigData from '@/features/studio/setup/context/data/contextConfig.json';
+import contextConfigData from '@/features/studio/setup/context/_data/contextConfig.json';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

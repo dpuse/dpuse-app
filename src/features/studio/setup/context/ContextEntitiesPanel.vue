@@ -7,7 +7,7 @@ import { ref, shallowRef } from 'vue';
 import type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
-import type { LocalisedEntity } from './contextModel';
+import type { LocalisedEntity } from './_context';
 import { purifyMarkdown } from '@/services/useMarkedTool';
 
 // ── Static Components
@@ -24,11 +24,10 @@ const ENTITY_TABS = [
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-interface Properties {
+const { entities, markedTool } = defineProps<{
     entities: LocalisedEntity[];
     markedTool: MarkedTool | undefined;
-}
-const { entities, markedTool } = defineProps<Properties>();
+}>();
 
 defineEmits<{ edit: []; showErdDiagram: [] }>();
 
@@ -102,7 +101,7 @@ function purifyText(text: string): string {
 
             <!-- Parents Panel -->
             <div v-show="activeTab.id === 'parents'" class="py-1">
-                <div v-for="parent in entity.parents ?? []" :key="parent">{{ parent }}</div>
+                <div v-for="parent in entity.parents ?? []" :key="parent.entityTypeId">{{ parent.entityTypeId }}</div>
             </div>
 
             <!-- Data Items Panel -->

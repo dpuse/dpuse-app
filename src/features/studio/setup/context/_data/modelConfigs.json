@@ -545,7 +545,7 @@
                 "description": {
                     "en": "Each occurrence of this entity represents a single organisation. An organisation is said to come into existence when it is incorporated or when another entity chooses to recognise it for some purpose. It will no longer exist if it is dissolved or if no other entities choose to recognise it.\n\nThere need only be one occurrence of this entity for each organisation no matter how many other entities reference it over time.\n\nAn organisation usually has a type that defines its function or purpose.\n\nIt is not uncommon for there to be formal relationships between organisations. A common example is a global organisation which is comprised of multiple subsidiaries. We may refer to the regional organisations as sections or divisions. However, for the sake of this module, we define each entity independently. Other modules will address the structural relationship between different organisations."
                 },
-                "characteristics": [{ "id": "name", "label": { "en": "Name" }, "type": "string", "entityTypeId": "organisationType" }],
+                "dataItems": [{ "id": "name", "label": { "en": "Name" }, "type": "string", "entityTypeId": "organisationType" }],
                 "events": [
                     {
                         "id": "activation",
@@ -677,7 +677,7 @@
                 "label": { "en": "Organisational Unit" },
                 "labelPlural": { "en": "Organisational Units" },
                 "description": { "en": "Describe organisational units..." },
-                "characteristics": [
+                "dataItems": [
                     { "id": "name", "label": { "en": "Name" }, "type": "string" },
                     { "id": "orgUnitTyp", "label": { "en": "Organisational Unit Type" } }
                 ],
@@ -754,7 +754,7 @@
                 "description": {
                     "en": "Each occurrence of this entity represents a single person. A person is said to come into existence when they are born or when another entity chooses to recognise them for some purpose. They will no longer exist if they are deceased or if no entities choose to recognise them. A person may participate in different roles (e.g. acquaintance, colleague, contact, contractor, employee, relation...) at different times. There need only be one occurrence of this entity for each person, no matter how many roles they play across time.\n\nEach occurrence of this entity represents a single person. A person is said to come into existence when they are born or when we chooses to recognise them for informational purposes. They will no longer exist if they are deceased or if we choose not to recognise them. A person may participate in different roles (e.g. acquaintance, colleague, contact, contractor, employee, relation...) at different times. There need only be one occurrence of this entity for each person, no matter how many roles they play across time."
                 },
-                "characteristics": [
+                "dataItems": [
                     { "id": "entId", "label": { "en": "Entity Id" }, "description": { "en": "The unique identifier assigned to the person." } },
                     {
                         "id": "evtMom",
@@ -782,18 +782,9 @@
                     { "id": "givNames", "label": { "en": "Given Names" }, "description": { "en": "The person's given names." } },
                     { "id": "bthDate", "label": { "en": "Date of Birth" }, "content": "day(first('brn'))" },
                     { "id": "dthDate", "label": { "en": "Date of Death" }, "content": "day(first('dec'))" },
-                    { "entityTypeId": "country" },
-                    { "entityTypeId": "educationLevel" },
-                    { "entityTypeId": "ethnicGroup" },
-                    { "entityTypeId": "gender" },
-                    { "entityTypeId": "languagePreference" },
-                    { "entityTypeId": "location" },
-                    { "entityTypeId": "maritalStatus" },
-                    { "entityTypeId": "nationality" },
-                    { "entityTypeId": "physicalAbility" },
                     { "id": "age", "label": { "en": "Age" }, "content": "ageYears(bthDate)", "lookup": "perAge" },
                     { "id": "ctryBth", "label": { "en": "Country of Birth" }, "lookup": "core.geographic.geoCountry" },
-                    { "id": "eduLvl", "label": { "en": "Education Level", "lookup": "perEduLvl" } },
+                    { "id": "eduLvl", "label": { "en": "Education Level" }, "lookup": "perEduLvl" },
                     { "id": "ethGrp", "label": { "en": "Ethnic Group" }, "lookup": "perEthGrp" },
                     { "id": "gdr", "label": { "en": "Gender" }, "lookup": "perGdr" },
                     { "id": "gen", "label": { "en": "Generation" }, "lookup": "perGen" },
@@ -904,7 +895,7 @@
                     "en": "Each occurrence of this entity represents a language spoken by a person. It is possible for a person to speak multiple languages, acquire a new language, and even loose the ability to speak a language.\n\nEach occurrence of this entity represents a language spoken by a person. It is possible for a person to speak multiple languages, acquire a new language, and even loose the ability to speak a language."
                 },
                 "parents": [{ "entityTypeId": "person" }],
-                "characteristics": [{ "id": "name", "label": { "en": "Name" }, "type": "string" }],
+                "dataItems": [{ "id": "name", "label": { "en": "Name" }, "type": "string" }],
                 "events": [],
                 "primaryMeasures": [
                     {
@@ -937,7 +928,7 @@
                     "en": "Each occurrence of this entity represents a nationality held by a person. It is possible for a person to hold multiple nationalities, acquire a new nationality, and loose an existing nationality.\n\nEach occurrence of this entity represents a nationality held by a person. It is possible for a person to hold multiple nationalities, acquire a new nationality, and loose an existing nationality."
                 },
                 "parents": [{ "entityTypeId": "person" }],
-                "characteristics": [{ "id": "name", "label": { "en": "Name" }, "type": "string" }],
+                "dataItems": [{ "id": "name", "label": { "en": "Name" }, "type": "string" }],
                 "events": [],
                 "primaryMeasures": [
                     {
@@ -1021,7 +1012,7 @@
                 "labelPlural": { "en": "Jobs" },
                 "description": { "en": "Job description..." },
                 "parents": [{ "entityTypeId": "organisation" }],
-                "characteristics": [],
+                "dataItems": [],
                 "events": [],
                 "primaryMeasures": []
             },
@@ -1031,7 +1022,7 @@
                 "labelPlural": { "en": "Positions" },
                 "description": { "en": "Position description..." },
                 "parents": [{ "entityTypeId": "organisation" }, { "entityTypeId": "job" }],
-                "characteristics": [],
+                "dataItems": [],
                 "events": [],
                 "primaryMeasures": []
             },
@@ -1041,12 +1032,11 @@
                 "labelPlural": { "en": "Person Engagements" },
                 "description": { "en": "Person engagement description..." },
                 "parents": [{ "entityTypeId": "organisation" }, { "entityTypeId": "person" }],
-                "characteristics": [
-                    { "entityTypeId": "engagementType" },
-                    { "entityTypeId": "engagementAttendance" },
+                "dataItems": [
                     { "id": "cstCtr", "label": { "en": "Cost Center" } },
                     { "id": "empSts", "label": { "en": "Employment Status" } },
                     { "id": "empTyp", "label": { "en": "Employment Type" } },
+                    { "id": "empAtt", "label": { "en": "Employment Attendance" } },
                     { "id": "jobTen", "label": { "en": "Job Tenure" } },
                     { "id": "loc", "label": { "en": "Location" } },
                     { "id": "locTen", "label": { "en": "Location Tenure" } },
@@ -1069,7 +1059,7 @@
                 "labelPlural": { "en": "Engagement Contracts" },
                 "description": { "en": "Engagement contract description..." },
                 "parents": [{ "entityTypeId": "personEngagement" }],
-                "characteristics": [],
+                "dataItems": [],
                 "events": [],
                 "primaryMeasures": []
             },
@@ -1079,7 +1069,7 @@
                 "labelPlural": { "en": "Position Occupancies" },
                 "description": { "en": "Position occupancy description..." },
                 "parents": [{ "entityTypeId": "personEngagement" }, { "entityTypeId": "position" }],
-                "characteristics": [],
+                "dataItems": [],
                 "events": [],
                 "primaryMeasures": []
             }

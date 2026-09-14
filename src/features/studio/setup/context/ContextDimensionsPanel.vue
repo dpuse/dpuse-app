@@ -7,7 +7,7 @@ import { ChevronRightIcon, NetworkIcon, SquarePenIcon } from '@lucide/vue';
 import type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
-import type { LocalisedDimension } from './contextModel';
+import type { LocalisedDimension } from './_context';
 import { purifyMarkdown } from '@/services/useMarkedTool';
 
 // ── Static Components
@@ -15,11 +15,10 @@ import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-interface Properties {
+const { dimensions, markedTool } = defineProps<{
     dimensions: LocalisedDimension[];
     markedTool: MarkedTool | undefined;
-}
-const { dimensions, markedTool } = defineProps<Properties>();
+}>();
 
 defineEmits<{ edit: []; showTreeDiagram: [] }>();
 

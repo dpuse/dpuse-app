@@ -60,8 +60,7 @@ function handleTabSelect(setupOptionLocalisedConfig: LocalisedConfig<SetupOption
                 :is="Component"
                 v-else
                 :key="routeName"
-                :setup-option-localised-config="setupOptionLocalisedConfigActive"
-                v-bind="routeName === 'setup' ? { setupOptionLocalisedConfigs } : {}"
+                v-bind="routeName === 'setup' ? { setupOptionLocalisedConfigs } : { setupOptionLocalisedConfig: setupOptionLocalisedConfigActive }"
             />
         </RouterView>
     </StudioLayout>
