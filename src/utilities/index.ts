@@ -57,6 +57,28 @@ export function assertDefined<T>(value: T | null | undefined, message = 'Expecte
     return value;
 }
 
+// Trailing-edge only: each call resets the timer, so only the last call within 'delayMs' of silence actually runs.
+// 'cancel' drops a pending call outright — call it from 'onUnmounted' when a caller keeps the debounced function
+// around past a single render.
+export function debounce<Arguments extends unknown[]>(function_: (...arguments_: Arguments) => void, delayMs: number): ((...arguments_: Arguments) => void) & { cancel: () => void } {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    function debounced(...arguments_: Arguments): void {
+        if (timeoutId !== undefined) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            timeoutId = undefined;
+            function_(...arguments_);
+        }, delayMs);
+    }
+
+    debounced.cancel = (): void => {
+        if (timeoutId !== undefined) clearTimeout(timeoutId);
+        timeoutId = undefined;
+    };
+
+    return debounced;
+}
+
 // Replaces the Suspense + error/loading-spinner boilerplate with defineAsyncComponent's own
 // loadingComponent/errorComponent options, so lazy panels don't depend on Suspense (unsupported in Vapor mode).
 // 'defineAsyncComponent' passes its error component only the error — not the 'retry' its own options document — so

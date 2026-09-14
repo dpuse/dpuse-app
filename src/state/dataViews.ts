@@ -22,7 +22,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // ── Local Framework
 import { localeId } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
-import { useOptions } from '@/features/studio/options/useOptions';
+import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
 import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
@@ -97,7 +97,7 @@ export const dataViewLocalisedConfigs = computed((): LocalisedConfig<DataViewCon
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const workflowOptionConfigs = useOptions();
+const workflowOptionConfigs = useStudioOptions();
 const dataViewIcon = workflowOptionConfigs.value[0].icon;
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -5,22 +5,29 @@ import { accountConfigsAreRetrieved, accountId, type ConnectionAccountConfig, co
 
 const DPU_API_HOST = 'api.dpuse.app';
 const TIMEOUT_DELAY = 5000;
-// Cloudflare closes an idle WebSocket after ~100s with no traffic; ping well inside that margin to prevent it.
+// Idle WebSockets get dropped by Cloudflare, by intermediate proxies and by mobile NATs, none of which publish a
+// figure. 30s sits well inside the shortest of them.
 const PING_INTERVAL_MS = 30_000;
 const PONG_TIMEOUT_MS = 10_000;
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const state: {
-    webSocket: WebSocket | undefined;
+    areListenersRegistered: boolean;
+    generation: number; // Bumped per connect attempt; handlers registered under an older one do nothing.
     isWebSocketShutdown: boolean;
+    lastMessageAt: number; // Evidence the socket is alive, which the pong timeout checks before closing anything.
     pingIntervalId: ReturnType<typeof setInterval> | undefined;
     pongTimeoutId: ReturnType<typeof setTimeout> | undefined;
+    webSocket: WebSocket | undefined;
 } = {
-    webSocket: undefined,
+    areListenersRegistered: false,
+    generation: 0,
     isWebSocketShutdown: false,
+    lastMessageAt: 0,
     pingIntervalId: undefined,
-    pongTimeoutId: undefined
+    pongTimeoutId: undefined,
+    webSocket: undefined
 };
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -31,7 +38,10 @@ export function initialise(): void {
     }
 
     state.isWebSocketShutdown = false;
-    state.webSocket = connectToWebSocket();
+    connectToWebSocket();
+    if (state.areListenersRegistered) return;
+    state.areListenersRegistered = true;
+
     window.addEventListener('pagehide', () => {
         shutdown();
     });
@@ -40,8 +50,14 @@ export function initialise(): void {
             return;
         }
 
-        state.isWebSocketShutdown = false;
-        state.webSocket = connectToWebSocket();
+        restart();
+    });
+
+    // A backgrounded tab has its timers throttled and eventually frozen, so the ping stops and the connection is
+    // dropped as idle. Reconnect as soon as the tab is looked at again rather than waiting for a timer to notice.
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState !== 'visible') return;
+        restartIfDisconnected();
     });
 }
 
@@ -51,20 +67,45 @@ export function terminate(): void {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function connectToWebSocket(): WebSocket | undefined {
+// Clears the shutdown 'pagehide' set and connects again, for a page restored from the back/forward cache.
+function restart(): void {
+    if (accountId.value == null) return; // Signed out, so there is no account socket to restore.
+    state.isWebSocketShutdown = false;
+    connectToWebSocket();
+}
+
+// Unlike 'restart', leaves a deliberate shutdown alone — sign-out calls 'terminate', and a tab being looked at again
+// is no reason to undo that.
+function restartIfDisconnected(): void {
+    if (state.isWebSocketShutdown || accountId.value == null) return;
+    if (state.webSocket?.readyState === WebSocket.CONNECTING || state.webSocket?.readyState === WebSocket.OPEN) return;
+    connectToWebSocket();
+}
+
+// Every attempt claims a new generation, and each handler does nothing once the generation it was registered under is
+// no longer current. That is what stops a socket being replaced from clearing its replacement's keepalive timers or
+// scheduling a reconnect of its own: a 'pagehide' close arriving after 'pageshow' had already reconnected used to
+// leave two live sockets sharing one pair of timer handles, and they would take turns closing each other.
+function connectToWebSocket(): void {
+    discardWebSocket();
+    const generation = ++state.generation;
+
     // Data from a previous connection can't be trusted as current until this connection has proven itself.
     accountConfigsAreRetrieved.value = false;
     try {
         const url = `wss://${DPU_API_HOST}/accounts/${String(accountId.value)}/websocket`;
         const webSocket = new WebSocket(url);
-        let pendingWebSocket: WebSocket | undefined = webSocket;
+        state.webSocket = webSocket;
 
-        pendingWebSocket.addEventListener('open', () => {
+        webSocket.addEventListener('open', () => {
+            if (generation !== state.generation) return;
             if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ✅  Account WebSocket connection opened.`);
-            startKeepalive(webSocket);
+            startKeepalive(webSocket, generation);
         });
 
-        pendingWebSocket.addEventListener('message', (event) => {
+        webSocket.addEventListener('message', (event) => {
+            if (generation !== state.generation) return;
+            state.lastMessageAt = Date.now();
             try {
                 const eventData = JSON.parse(event.data);
                 if (eventData.typeId === 'pong') {
@@ -82,34 +123,56 @@ function connectToWebSocket(): WebSocket | undefined {
             }
         });
 
-        pendingWebSocket.addEventListener('close', (event) => {
+        webSocket.addEventListener('close', (event) => {
+            if (generation !== state.generation) return;
             if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ⚠️  Account WebSocket close event '${String(event.code)}' received.`);
             stopKeepalive();
-            pendingWebSocket = undefined;
-            if (!state.isWebSocketShutdown) setTimeout(connectToWebSocket, TIMEOUT_DELAY);
+            state.webSocket = undefined;
+            scheduleReconnect(generation);
         });
 
-        pendingWebSocket.addEventListener('error', (error) => {
-            // TODO: Try and reconnect a limited number of times. If no success then display message requesting refresh.
+        webSocket.addEventListener('error', (error) => {
+            // The 'close' event always follows 'error' for a WebSocket, so reconnect scheduling lives there.
             if (import.meta.env.DEV || import.meta.env.PROD) console.info('[dpuse:app] ❌  Account WebSocket operational error.', error);
         });
-
-        return pendingWebSocket;
     } catch (error) {
         // TODO: Try and recreate a limited number of times. If no success then display message requesting refresh.
         if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ❌  Account WebSocket creation error: ${String(error)}`, error);
-        return undefined;
     }
 }
 
-// Sends a small 'ping' frame on an interval to reset Cloudflare's ~100s idle-connection timeout, and force-closes
-// the socket if a 'pong' doesn't arrive in time — catching connections that die silently (no close frame ever
-// arrives) rather than waiting indefinitely on a socket that looks OPEN but will never receive anything again.
-function startKeepalive(webSocket: WebSocket): void {
+// Closes whatever socket is currently held. The generation bump that follows makes its handlers inert, so nothing
+// else would ever clean it up.
+function discardWebSocket(): void {
+    stopKeepalive();
+    const webSocket = state.webSocket;
+    state.webSocket = undefined;
+    if (webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN)) webSocket.close();
+}
+
+function scheduleReconnect(generation: number): void {
+    if (state.isWebSocketShutdown || generation !== state.generation) return;
+    setTimeout(() => {
+        if (state.isWebSocketShutdown || generation !== state.generation) return;
+        connectToWebSocket();
+    }, TIMEOUT_DELAY);
+}
+
+// Sends a small 'ping' on an interval to stop the connection being dropped as idle, and force-closes the socket if a
+// 'pong' doesn't arrive in time — catching connections that die silently (no close frame ever arrives) rather than
+// waiting indefinitely on a socket that looks OPEN but will never receive anything again.
+function startKeepalive(webSocket: WebSocket, generation: number): void {
+    stopKeepalive();
     state.pingIntervalId = setInterval(() => {
-        if (webSocket.readyState !== WebSocket.OPEN) return;
+        if (generation !== state.generation || webSocket.readyState !== WebSocket.OPEN) return;
+        clearPongTimeout(); // A previous tick's timer is abandoned rather than left to fire against this tick's ping.
+        const pingSentAt = Date.now();
         webSocket.send(JSON.stringify({ typeId: 'ping' }));
         state.pongTimeoutId = setTimeout(() => {
+            if (generation !== state.generation) return;
+            // A throttled background timer can fire long after it was set, by which point the pong has usually
+            // arrived. Closing on the timer alone would drop a healthy socket, so look for traffic instead.
+            if (state.lastMessageAt >= pingSentAt) return;
             if (import.meta.env.DEV || import.meta.env.PROD) console.info('[dpuse:app] ⚠️  Account WebSocket ping timed out — forcing reconnect.');
             webSocket.close();
         }, PONG_TIMEOUT_MS);
@@ -133,8 +196,6 @@ function clearPongTimeout(): void {
 
 function shutdown(): void {
     state.isWebSocketShutdown = true;
-    if (state.webSocket) {
-        state.webSocket.close();
-        state.webSocket = undefined;
-    }
+    state.generation++;
+    discardWebSocket();
 }

@@ -9,7 +9,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 import { activeStudioOptionConfig } from '@/state/activeStudioOption';
 import { isPWA } from '@/state/appLayout';
 import { t } from '@/state/locale';
-import { type StudioOptionConfig, useOptions } from './useOptions';
+import { type StudioOptionConfig, useStudioOptions } from './useStudioOptions';
 
 // ── Static Components
 import IconButton from '@/components/ui/action/IconButton.vue';
@@ -31,7 +31,7 @@ const emit = defineEmits<{ continue: [] }>();
 
 const homeMenuIsOpen = ref(false);
 const homeMenuReference = useTemplateRef<ComponentPublicInstance>('homeMenuReference');
-const workflowOptionConfigs = useOptions();
+const workflowOptionConfigs = useStudioOptions();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 

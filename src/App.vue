@@ -4,7 +4,6 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
-import { defineAsyncPanel } from '@/utilities/index.ts';
 import { initialiseServices } from '@/state/session';
 import { navigationPendingDepth } from '@/router';
 import { throwOnFault } from '@/observability/faultInjection';
@@ -23,6 +22,7 @@ import {
     viewportIsWide
 } from '@/state/appLayout';
 import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors';
+import { debounce, defineAsyncPanel } from '@/utilities/index.ts';
 
 // ── Static Components
 import AssistantPaneToggle from '@/features/assistant/_components/AssistantPaneToggle.vue'; // Always visible.
@@ -41,6 +41,7 @@ const PaneSplitter = defineAsyncPanel(() => import('@/components/ui/PaneSplitter
 
 const PANE_SPLITTER_DEFAULT_PERCENT = 50;
 const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
+const PANE_SPLITTER_PERCENT_SAVE_DEBOUNCE_MS = 250;
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -72,9 +73,10 @@ const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assist
 // being replaced. A panel changing inside the layout reports a deeper level and is covered by that layout instead.
 const studioLayoutIsLoading = computed(() => navigationPendingDepth.value === 0);
 
-// What the transition below remounts on. Keyed to the deepest matched record that actually renders something, so a
-// genuine change of layout plays the fade while a move between panels inside one layout, or a change of query
-// parameter, leaves it alone.
+// What the transition below remounts on. Keyed to the shallowest matched record that actually renders something —
+// 'route.matched' runs root to leaf, so this is the depth-0 layout this 'RouterView' owns — so a genuine change of
+// layout plays the fade while a move between panels inside one layout, or a change of query parameter, leaves it
+// alone.
 const studioLayoutKey = computed(() => route.matched.find((record) => record.components?.default)?.path);
 
 const studioPaneStyle = computed(() => {
@@ -118,46 +120,46 @@ watch([activeAppPaneId, assistantPaneIsActive, studioPaneIsActive], () => {
     if (paneModelIsBootstrapped.value) syncPaneQuery();
 });
 
-watch(paneSplitterPercent, (newPaneSplitterPercent) => {
-    try {
-        localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent));
-    } catch {
-        // Storage can refuse a write (private browsing, or full quota). Split works but preference is not remembered.
-    }
-});
+// Debounced: this fires on every pointermove while dragging, and only the value the drag settles on is worth
+// persisting.
+watch(
+    paneSplitterPercent,
+    debounce((newPaneSplitterPercent: number): void => {
+        try {
+            localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent)); // Remember pane splitter percent.
+        } catch {
+            // Storage can refuse a write (private browsing, or full quota). Split works but preference is not remembered.
+        }
+    }, PANE_SPLITTER_PERCENT_SAVE_DEBOUNCE_MS)
+);
 
 // ── Event Handlers - Panes ───────────────────────────────────────────────────────────────────────────────────────────
 
 function handleToggleAssistantPane(): void {
     if (viewportIsWide.value) {
         if (assistantPaneIsVisible.value && !studioPaneIsVisible.value) return; // Don't close the assistant pane if it's the only one visible.
-        setPaneActiveState('assistant', !assistantPaneIsActive.value);
+        setPaneActiveState('assistant', !assistantPaneIsActive.value); // Toggle assistant pane.
         return;
     }
 
-    // Only here if viewport is narrow. Ignore assistant pane toggle if already visible.
-    if (assistantPaneIsVisible.value) return;
+    if (assistantPaneIsVisible.value) return; // Viewport is narrow so ignore assistant pane toggle if already visible.
 
-    // Show assistant pane
-    // studioOptionBarIsVisible.value = false;
-    setPaneActiveState('assistant', true);
+    setPaneActiveState('assistant', true); // Show assistant pane.
 }
 
 function handleToggleStudioPane(): void {
     if (viewportIsWide.value) {
         if (studioPaneIsVisible.value && !assistantPaneIsVisible.value) return; // Don't close the studio pane if it's the only one visible.
-        setPaneActiveState('studio', !studioPaneIsActive.value);
+        setPaneActiveState('studio', !studioPaneIsActive.value); // Toggle studio pane.
         return;
     }
 
-    // Only here if viewport is narrow. Toggle option bar and ignore studio pane toggle if already visible.
     if (studioPaneIsVisible.value) {
-        studioOptionBarIsVisible.value = !studioOptionBarIsVisible.value;
-        return;
+        studioOptionBarIsVisible.value = !studioOptionBarIsVisible.value; // Toggle studio option bar.
+        return; // Viewport is narrow so ignore studio pane toggle if already visible.
     }
 
-    // Show studio pane.
-    setPaneActiveState('studio', true);
+    setPaneActiveState('studio', true); // Show studio pane.
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

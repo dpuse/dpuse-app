@@ -7,14 +7,14 @@
 // 7xl measure, a 5xl heading — and this pane can be a fifth of one.
 
 // ── Local Framework
-import { useOptions } from '@/features/studio/options/useOptions';
+import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const workflowOptionConfigs = useOptions();
+const workflowOptionConfigs = useStudioOptions();
 </script>
 
 <template>

@@ -76,6 +76,9 @@
 import { computed, type ComputedRef, ref, type ShallowRef, watch } from 'vue';
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
 
+// ── Local Framework
+import { debounce } from '@/utilities/index.ts';
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Rows fetched per block by default, and the render-time guess used while a source's count is still unknown — see
@@ -219,16 +222,7 @@ export function useDataWindow<T>({
     // since only the final settled `items` (whatever's visible once scrolling pauses) is ever passed through.
     // fetchBlock also updates LRU for cached blocks. getDataIndexes maps a virtual row index to one or more data
     // indexes (default 1:1; Grid passes N:1).
-    let debounceTimeoutId: ReturnType<typeof setTimeout> | undefined;
-    watch(virtualRows, (items) => {
-        if (debounceTimeoutId !== undefined) clearTimeout(debounceTimeoutId);
-        if (import.meta.env.DEV) console.log(`[dpuse-app] useDataWindow debounce reset — ${String(items.length)} virtual rows in view, waiting ${String(fetchDebounceMs())}ms.`);
-        debounceTimeoutId = setTimeout(() => {
-            debounceTimeoutId = undefined;
-            if (import.meta.env.DEV) console.log('[dpuse-app] useDataWindow debounce settled — fetching visible blocks.');
-            fetchVisibleBlocks(items);
-        }, fetchDebounceMs());
-    });
+    watch(virtualRows, debounce(fetchVisibleBlocks, fetchDebounceMs()));
 
     // Row Virtualizer: Helpers ────────────────────────────────────────────────────────────────────────────────────────
 
@@ -287,17 +281,14 @@ export function useDataWindow<T>({
     // (rethrows immediately) if the data source changes mid-backoff — no point retrying a fetch nobody wants anymore.
     async function fetchRowsWithRetry(start: number, end: number, generation: number): Promise<{ rows: T[]; totalCount?: number }> {
         for (let attempt = 0; ; attempt++) {
-            logRetrievalAttempt(start, end, attempt);
             try {
                 const source = dataSource();
                 if (!('getRows' in source)) throw new Error('fetchRowsWithRetry called for a sync (rows-based) DataSource — fetchBlock should have skipped it.');
                 const result = await source.getRows(start, end);
-                logRetrievalSuccess(start, end, result.rows.length, result.totalCount);
                 return result;
             } catch (error) {
                 if (generation !== fetchGeneration || attempt >= FETCH_MAX_RETRIES) throw error;
                 const delayMs = FETCH_RETRY_BASE_DELAY_MS * 2 ** attempt;
-                logRetrievalRetry(start, end, delayMs, error);
                 await sleep(delayMs);
             }
         }
@@ -337,22 +328,4 @@ export function useDataWindow<T>({
 
 function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function logRetrievalAttempt(start: number, end: number, attempt: number): void {
-    if (!import.meta.env.DEV) return;
-    const label = attempt === 0 ? 'fetching' : `retry attempt ${String(attempt)}`;
-    console.log(`[dpuse-app] useDataWindow ${label} rows [${String(start)}, ${String(end)}).`);
-}
-
-function logRetrievalSuccess(start: number, end: number, rowCount: number, totalCount: number | undefined): void {
-    if (!import.meta.env.DEV) return;
-    console.log(
-        `[dpuse-app] useDataWindow retrieved ${String(rowCount)} rows for [${String(start)}, ${String(end)}) — totalCount: ${totalCount === undefined ? 'unknown' : String(totalCount)}.`
-    );
-}
-
-function logRetrievalRetry(start: number, end: number, delayMs: number, error: unknown): void {
-    if (!import.meta.env.DEV) return;
-    console.log(`[dpuse-app] useDataWindow retrieval failed for [${String(start)}, ${String(end)}), retrying in ${String(delayMs)}ms.`, error);
 }
