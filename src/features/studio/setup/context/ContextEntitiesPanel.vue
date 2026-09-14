@@ -112,12 +112,12 @@ function purifyText(text: string): string {
 
             <!-- Events Panel -->
             <div v-show="activeTab.id === 'events'" class="py-1">
-                <div v-for="event in entity.events ?? []" :key="event">{{ event }}</div>
+                <div v-for="event in entity.events" :key="event.id">{{ event.labelAction }}</div>
             </div>
 
             <!-- Primary Measures Panel -->
             <div v-show="activeTab.id === 'primaryMeasures'" class="py-1">
-                <div v-for="primaryMeasure in entity.primaryMeasures ?? []" :key="primaryMeasure">{{ primaryMeasure }}</div>
+                <div v-for="primaryMeasure in entity.primaryMeasures" :key="primaryMeasure.id">{{ primaryMeasure.label }}</div>
             </div>
         </div>
     </div>

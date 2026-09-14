@@ -48,90 +48,97 @@
                 },
                 "hierarchies": [
                     {
-                        "levels": [{ "label": { "en": "10 Year Intervals" } }, { "label": { "en": "5 Year Intervals" } }],
+                        "id": "def",
+                        "label": { "en": "Default" },
+                        "description": { "en": "..." },
+                        "type": null,
+                        "levels": [
+                            { "id": "decade", "label": { "en": "10 Year Intervals" }, "description": { "en": "Ages grouped into ten-year bands, e.g. '0-9', '10-19'." } },
+                            { "id": "halfDecade", "label": { "en": "5 Year Intervals" }, "description": { "en": "Ages grouped into five-year bands, e.g. '0-4', '5-9'." } }
+                        ],
                         "children": [
                             {
                                 "id": "0-9",
-                                "children:": [
-                                    { "id": "0-4", "children:": [{ "id": 0 }, { "id": 1 }, { "id": 2 }, { "id": 3 }, { "id": 4 }] },
-                                    { "id": "5-9", "children:": [{ "id": 5 }, { "id": 6 }, { "id": 7 }, { "id": 8 }, { "id": 9 }] }
+                                "children": [
+                                    { "id": "0-4", "children": [{ "id": 0 }, { "id": 1 }, { "id": 2 }, { "id": 3 }, { "id": 4 }] },
+                                    { "id": "5-9", "children": [{ "id": 5 }, { "id": 6 }, { "id": 7 }, { "id": 8 }, { "id": 9 }] }
                                 ]
                             },
                             {
                                 "id": "10-19",
-                                "children:": [
-                                    { "id": "10-14", "children:": [{ "id": 10 }, { "id": 11 }, { "id": 12 }, { "id": 13 }, { "id": 14 }] },
-                                    { "id": "15-19", "children:": [{ "id": 15 }, { "id": 16 }, { "id": 17 }, { "id": 18 }, { "id": 19 }] }
+                                "children": [
+                                    { "id": "10-14", "children": [{ "id": 10 }, { "id": 11 }, { "id": 12 }, { "id": 13 }, { "id": 14 }] },
+                                    { "id": "15-19", "children": [{ "id": 15 }, { "id": 16 }, { "id": 17 }, { "id": 18 }, { "id": 19 }] }
                                 ]
                             },
                             {
                                 "id": "20-29",
-                                "children:": [
-                                    { "id": "20-24", "children:": [{ "id": 20 }, { "id": 21 }, { "id": 22 }, { "id": 23 }, { "id": 24 }] },
-                                    { "id": "25-29", "children:": [{ "id": 25 }, { "id": 26 }, { "id": 27 }, { "id": 28 }, { "id": 29 }] }
+                                "children": [
+                                    { "id": "20-24", "children": [{ "id": 20 }, { "id": 21 }, { "id": 22 }, { "id": 23 }, { "id": 24 }] },
+                                    { "id": "25-29", "children": [{ "id": 25 }, { "id": 26 }, { "id": 27 }, { "id": 28 }, { "id": 29 }] }
                                 ]
                             },
                             {
                                 "id": "30-39",
-                                "children:": [
-                                    { "id": "30-34", "children:": [{ "id": 30 }, { "id": 31 }, { "id": 32 }, { "id": 33 }, { "id": 34 }] },
-                                    { "id": "35-39", "children:": [{ "id": 35 }, { "id": 36 }, { "id": 37 }, { "id": 38 }, { "id": 39 }] }
+                                "children": [
+                                    { "id": "30-34", "children": [{ "id": 30 }, { "id": 31 }, { "id": 32 }, { "id": 33 }, { "id": 34 }] },
+                                    { "id": "35-39", "children": [{ "id": 35 }, { "id": 36 }, { "id": 37 }, { "id": 38 }, { "id": 39 }] }
                                 ]
                             },
                             {
                                 "id": "40-49",
-                                "children:": [
-                                    { "id": "40-44", "children:": [{ "id": 40 }, { "id": 41 }, { "id": 42 }, { "id": 43 }, { "id": 44 }] },
-                                    { "id": "45-49", "children:": [{ "id": 45 }, { "id": 46 }, { "id": 47 }, { "id": 48 }, { "id": 49 }] }
+                                "children": [
+                                    { "id": "40-44", "children": [{ "id": 40 }, { "id": 41 }, { "id": 42 }, { "id": 43 }, { "id": 44 }] },
+                                    { "id": "45-49", "children": [{ "id": 45 }, { "id": 46 }, { "id": 47 }, { "id": 48 }, { "id": 49 }] }
                                 ]
                             },
                             {
                                 "id": "50-59",
-                                "children:": [
-                                    { "id": "50-54", "children:": [{ "id": 50 }, { "id": 51 }, { "id": 52 }, { "id": 53 }, { "id": 54 }] },
-                                    { "id": "55-59", "children:": [{ "id": 55 }, { "id": 56 }, { "id": 57 }, { "id": 58 }, { "id": 59 }] }
+                                "children": [
+                                    { "id": "50-54", "children": [{ "id": 50 }, { "id": 51 }, { "id": 52 }, { "id": 53 }, { "id": 54 }] },
+                                    { "id": "55-59", "children": [{ "id": 55 }, { "id": 56 }, { "id": 57 }, { "id": 58 }, { "id": 59 }] }
                                 ]
                             },
                             {
                                 "id": "60-69",
-                                "children:": [
-                                    { "id": "60-64", "children:": [{ "id": 60 }, { "id": 61 }, { "id": 62 }, { "id": 63 }, { "id": 64 }] },
-                                    { "id": "65-69", "children:": [{ "id": 65 }, { "id": 66 }, { "id": 67 }, { "id": 68 }, { "id": 69 }] }
+                                "children": [
+                                    { "id": "60-64", "children": [{ "id": 60 }, { "id": 61 }, { "id": 62 }, { "id": 63 }, { "id": 64 }] },
+                                    { "id": "65-69", "children": [{ "id": 65 }, { "id": 66 }, { "id": 67 }, { "id": 68 }, { "id": 69 }] }
                                 ]
                             },
                             {
                                 "id": "70-79",
-                                "children:": [
-                                    { "id": "70-74", "children:": [{ "id": 70 }, { "id": 71 }, { "id": 72 }, { "id": 73 }, { "id": 74 }] },
-                                    { "id": "75-79", "children:": [{ "id": 75 }, { "id": 76 }, { "id": 77 }, { "id": 78 }, { "id": 79 }] }
+                                "children": [
+                                    { "id": "70-74", "children": [{ "id": 70 }, { "id": 71 }, { "id": 72 }, { "id": 73 }, { "id": 74 }] },
+                                    { "id": "75-79", "children": [{ "id": 75 }, { "id": 76 }, { "id": 77 }, { "id": 78 }, { "id": 79 }] }
                                 ]
                             },
                             {
                                 "id": "80-89",
-                                "children:": [
-                                    { "id": "80-84", "children:": [{ "id": 80 }, { "id": 81 }, { "id": 82 }, { "id": 83 }, { "id": 84 }] },
-                                    { "id": "85-89", "children:": [{ "id": 85 }, { "id": 86 }, { "id": 87 }, { "id": 88 }, { "id": 89 }] }
+                                "children": [
+                                    { "id": "80-84", "children": [{ "id": 80 }, { "id": 81 }, { "id": 82 }, { "id": 83 }, { "id": 84 }] },
+                                    { "id": "85-89", "children": [{ "id": 85 }, { "id": 86 }, { "id": 87 }, { "id": 88 }, { "id": 89 }] }
                                 ]
                             },
                             {
                                 "id": "90-99",
-                                "children:": [
-                                    { "id": "90-94", "children:": [{ "id": 90 }, { "id": 91 }, { "id": 92 }, { "id": 93 }, { "id": 94 }] },
-                                    { "id": "95-99", "children:": [{ "id": 95 }, { "id": 96 }, { "id": 97 }, { "id": 98 }, { "id": 99 }] }
+                                "children": [
+                                    { "id": "90-94", "children": [{ "id": 90 }, { "id": 91 }, { "id": 92 }, { "id": 93 }, { "id": 94 }] },
+                                    { "id": "95-99", "children": [{ "id": 95 }, { "id": 96 }, { "id": 97 }, { "id": 98 }, { "id": 99 }] }
                                 ]
                             },
                             {
                                 "id": "100-109",
-                                "children:": [
-                                    { "id": "101-104", "children:": [{ "id": 100 }, { "id": 101 }, { "id": 102 }, { "id": 103 }, { "id": 104 }] },
-                                    { "id": "105-109", "children:": [{ "id": 105 }, { "id": 106 }, { "id": 107 }, { "id": 108 }, { "id": 109 }] }
+                                "children": [
+                                    { "id": "101-104", "children": [{ "id": 100 }, { "id": 101 }, { "id": 102 }, { "id": 103 }, { "id": 104 }] },
+                                    { "id": "105-109", "children": [{ "id": 105 }, { "id": 106 }, { "id": 107 }, { "id": 108 }, { "id": 109 }] }
                                 ]
                             },
                             {
                                 "id": "110-119",
-                                "children:": [
-                                    { "id": "110-114", "children:": [{ "id": 110 }, { "id": 111 }, { "id": 112 }, { "id": 113 }, { "id": 114 }] },
-                                    { "id": "115-119", "children:": [{ "id": 115 }, { "id": 116 }, { "id": 117 }, { "id": 118 }, { "id": 119 }] }
+                                "children": [
+                                    { "id": "110-114", "children": [{ "id": 110 }, { "id": 111 }, { "id": 112 }, { "id": 113 }, { "id": 114 }] },
+                                    { "id": "115-119", "children": [{ "id": 115 }, { "id": 116 }, { "id": 117 }, { "id": 118 }, { "id": 119 }] }
                                 ]
                             },
                             { "id": "120+" },
@@ -258,7 +265,11 @@
                 },
                 "hierarchies": [
                     {
-                        "levels": [{ "label": { "en": "Genders" } }],
+                        "id": "def",
+                        "label": { "en": "Default" },
+                        "description": { "en": "..." },
+                        "type": null,
+                        "levels": [{ "id": "gender", "label": { "en": "Genders" }, "description": { "en": "The full set of reported genders." } }],
                         "children": [
                             { "id": "f", "label": { "en": "Female" } },
                             { "id": "m", "label": { "en": "Male" } },
@@ -280,7 +291,14 @@
                 },
                 "hierarchies": [
                     {
-                        "levels": [{ "label": { "en": "Generations" } }, { "label": { "en": "Birth Years" } }],
+                        "id": "def",
+                        "label": { "en": "Default" },
+                        "description": { "en": "..." },
+                        "type": null,
+                        "levels": [
+                            { "id": "generation", "label": { "en": "Generations" }, "description": { "en": "Named generational cohorts, e.g. 'Baby Boomers', 'Generation X'." } },
+                            { "id": "birthYear", "label": { "en": "Birth Years" }, "description": { "en": "The individual birth year ranges each generation spans." } }
+                        ],
                         "children": [
                             {
                                 "id": "1927-",
@@ -528,46 +546,49 @@
                     "en": "Each occurrence of this entity represents a single organisation. An organisation is said to come into existence when it is incorporated or when another entity chooses to recognise it for some purpose. It will no longer exist if it is dissolved or if no other entities choose to recognise it.\n\nThere need only be one occurrence of this entity for each organisation no matter how many other entities reference it over time.\n\nAn organisation usually has a type that defines its function or purpose.\n\nIt is not uncommon for there to be formal relationships between organisations. A common example is a global organisation which is comprised of multiple subsidiaries. We may refer to the regional organisations as sections or divisions. However, for the sake of this module, we define each entity independently. Other modules will address the structural relationship between different organisations."
                 },
                 "characteristics": [{ "id": "name", "label": { "en": "Name" }, "type": "string", "entityTypeId": "organisationType" }],
-                "events": {
-                    "creation": null,
-                    "activation": {
+                "events": [
+                    {
+                        "id": "activation",
                         "labelAction": { "en": "Incorporation" },
                         "labelState": { "en": "Incorporated" },
                         "description": { "en": "The moment the organisation was incorporated. Optional if there is an incorporation event; otherwise, it is mandatory." }
                     },
-                    "recognition": {
+                    {
+                        "id": "recognition",
                         "labelAction": { "en": "Recognition" },
                         "description": {
                             "en": "The moment the organisation was recognised for informational purposes. Optional if there is an incorporation event; otherwise, it is mandatory."
                         }
                     },
-                    "correction": null,
-                    "modification": {
+                    {
+                        "id": "modification",
                         "labelAction": { "en": "Modification" },
                         "description": { "en": "The moment the organisations characteristics took on the specified values." }
                     },
-                    "derecognition": {
+                    {
+                        "id": "derecognition",
                         "labelAction": { "en": "Derecognition" },
                         "description": {
                             "en": "The moment the organisations's recognition was revoked for informational purposes. Optional if there is an dissolution event; otherwise, it is mandatory."
                         }
                     },
-                    "deactivation": {
+                    {
+                        "id": "deactivation",
                         "labelAction": { "en": "Dissolution" },
                         "labelState": { "en": "Disolved" },
                         "description": { "en": "The moment the organisation was disolved." }
                     },
-                    "archival": null,
-                    "deletion": {
+                    {
+                        "id": "deletion",
                         "labelAction": { "en": "Deletion" },
                         "description": {
                             "en": "The moment the organisations's details were deleted. An occurrence of this event will cause all other events for the organization to be disregarded."
                         }
                     }
-                },
-                "primaryMeasures": {
-                    "age": null,
-                    "openingCount": {
+                ],
+                "primaryMeasures": [
+                    {
+                        "id": "openingCount",
                         "label": { "en": "Opening Organisation Count" },
                         "description": {
                             "en": "The number of organisations at the moment the reporting period opened. This count is carried forward from the previous reporting period and is equal to the closing count for that period."
@@ -578,74 +599,78 @@
                             { "open": { "first": ["incorporation", "recognition"] }, "close": { "last": ["derecognition", "dissolution"] } }
                         ]
                     },
-                    "openingGrowth": {
+                    {
+                        "id": "openingGrowth",
                         "label": { "en": "Opening Organisation Growth" },
                         "description": {
                             "en": "The number of organisations incorporated or recognised the moment the reporting period started. These organisations are not included in the opening count but are included in the starting count."
                         },
                         "events": [{ "first": ["incorporation", "recognition"] }]
                     },
-
-                    "startingInCount": null,
-                    "startingCount": {
+                    {
+                        "id": "startingCount",
                         "label": { "en": "Starting Organisation Count" },
                         "description": { "en": "The number of organisations at the moment the reporting period started." }
                     },
-                    "interveningGrowth": {
+                    {
+                        "id": "interveningGrowth",
                         "label": { "en": "Intervening Organisation Growth" },
                         "description": {
                             "en": "The number of organisations incorporated or recognised during the reporting period but after the moment the reporting period started."
                         }
                     },
-                    "growth": {
+                    {
+                        "id": "growth",
                         "label": { "en": "Organisation Growth" },
                         "description": { "en": "The total number of organisations incorporated or recognised during the reporting period." }
                     },
-                    "duringInCount": null,
-                    "duringCount": {
+                    {
+                        "id": "duringCount",
                         "label": { "en": "During Organisation Count" },
                         "description": {
                             "en": "A count of the number of organisations during the reporting period. In most cases, each organisation will be counted once; however, if it were derecognised and then recognised again within the period, it would be counted twice."
                         }
                     },
-
-                    "weightedCount": {
+                    {
+                        "id": "weightedCount",
                         "label": { "en": "Weighted Organisation Count" },
                         "description": {
                             "en": "A weighted count of the number of organisations during the reporting period. If an organisation is active for the entire period, it will be counted as 1; if it is active for half the period, it will be counted as 0.5."
                         }
                     },
-                    "decline": {
+                    {
+                        "id": "decline",
                         "label": { "en": "Organisation Decline" },
                         "description": { "en": "The total number of organisations dissolved or derecognised during the reporting period." }
                     },
-                    "interveningDecline": {
+                    {
+                        "id": "interveningDecline",
                         "label": { "en": "Intervening Organisation Decline" },
                         "description": {
                             "en": "The number of organisations dissolved or derecognised during the reporting period but before the moment the reporting period ended."
                         }
                     },
-                    "duringOutCount": null,
-                    "endingCount": {
+                    {
+                        "id": "endingCount",
                         "label": { "en": "Ending Organisation Count" },
                         "description": { "en": "The number of organisations at the moment the reporting period ended." }
                     },
-                    "closingDecline": {
+                    {
+                        "id": "closingDecline",
                         "label": { "en": "Closing Organisation Decline" },
                         "description": {
                             "en": "The number of organisations dissolved or derecognised the moment the reporting period ended. These organisations are not included in the closing count but are included in the ending count."
                         },
                         "events": [{ "last": ["derecognition", "dissolution"] }]
                     },
-
-                    "endingOutCount": null,
-                    "closingCount": {
+                    {
+                        "id": "closingCount",
                         "label": { "en": "Closing Organisation Count" },
                         "description": {
                             "en": "The number of organisations at the moment the reporting period closed. This count is carried forward to the next reporting period and is equal to the opening count for that period."
                         }
                     }
-                }
+                ]
             },
             {
                 "id": "organisationalUnit",
@@ -656,74 +681,71 @@
                     { "id": "name", "label": { "en": "Name" }, "type": "string" },
                     { "id": "orgUnitTyp", "label": { "en": "Organisational Unit Type" } }
                 ],
-                "events": {
-                    "creation": null,
-                    "activation": null,
-                    "recognition": null,
-                    "correction": null,
-                    "modification": null,
-                    "derecognition": null,
-                    "deactivation": null,
-                    "archival": null,
-                    "deletion": null
-                },
-                "primaryMeasures": {
-                    "age": null,
-                    "openingCount": {
+                "events": [],
+                "primaryMeasures": [
+                    {
+                        "id": "openingCount",
                         "label": { "en": "Opening Population Count" },
                         "description": { "en": "The size of the population carried forward from the previous reporting period." }
                     },
-                    "openingGrowth": {
+                    {
+                        "id": "openingGrowth",
                         "label": { "en": "Opening Population Growth" },
                         "description": {
                             "en": "The number of people that joined the population at the moment the reporting period started. These people are not included in the opening count, but are included in the starting count."
                         }
                     },
-                    "startingInCount": null,
-                    "startingCount": {
+                    {
+                        "id": "startingCount",
                         "label": { "en": "Starting Population Count" },
                         "description": { "en": "The size of the population at the moment the reporting period started." }
                     },
-                    "duringGrowth": {
+                    {
+                        "id": "duringGrowth",
                         "label": { "en": "Exclusive Population Growth" },
                         "description": { "en": "" }
                     },
-                    "growth": {
+                    {
+                        "id": "growth",
                         "label": { "en": "Population Growth" },
                         "description": { "en": "" }
                     },
-                    "duringInCount": null,
-                    "duringCount": {
+                    {
+                        "id": "duringCount",
                         "label": { "en": "During Population Count" },
                         "description": { "en": "" }
                     },
-                    "weightedCount": {
+                    {
+                        "id": "weightedCount",
                         "label": { "en": "Weighted Population Count" },
                         "description": { "en": "" }
                     },
-                    "decline": {
+                    {
+                        "id": "decline",
                         "label": { "en": "Population Decline" },
                         "description": { "en": "" }
                     },
-                    "duringDecline": {
+                    {
+                        "id": "duringDecline",
                         "label": { "en": "Exclusive Population Decline" },
                         "description": { "en": "" }
                     },
-                    "duringOutCount": null,
-                    "endingCount": {
+                    {
+                        "id": "endingCount",
                         "label": { "en": "Ending Population Count" },
                         "description": { "en": "" }
                     },
-                    "closingDecline": {
+                    {
+                        "id": "closingDecline",
                         "label": { "en": "Ending Population Decline" },
                         "description": { "en": "" }
                     },
-                    "endingOutCount": null,
-                    "closingCount": {
+                    {
+                        "id": "closingCount",
                         "label": { "en": "Closing Population Count" },
                         "description": { "en": "" }
                     }
-                }
+                ]
             },
             {
                 "id": "person",
@@ -785,85 +807,94 @@
                     { "id": "sexOri", "label": { "en": "Sexual Orientation" }, "lookup": "perSexOri" },
                     { "id": "vetSts", "label": { "en": "Veteran Status" }, "lookup": "perVetSts" }
                 ],
-                "events": {
-                    "creation": null,
-                    "activation": {
+                "events": [
+                    {
+                        "id": "activation",
                         "labelAction": "Birth",
                         "labelState": "Born",
                         "description": { "en": "The moment the person was born." }
                     },
-                    "recognition": {
+                    {
+                        "id": "recognition",
                         "labelAction": { "en": "Recognition" },
                         "description": { "en": "The moment the person was recognised for informational purposes." }
                     },
-
-                    "correction": null,
-                    "modification": {
+                    {
                         "id": "modification",
                         "labelAction": { "en": "Modification" },
                         "description": { "en": "The moment associated characteristics took on the specified values. The moment from which the modification applied." }
                     },
-                    "derecognition": {
+                    {
                         "id": "derecognition",
                         "labelAction": { "en": "Derecognition" },
                         "description": {
                             "en": "The moment the person's recognition was revoked for informational purposes. The moment from which the person was no longer recognised."
                         }
                     },
-                    "deactivation": {
+                    {
+                        "id": "deactivation",
                         "labelAction": "Death",
                         "labelState": "Deceased",
                         "description": { "en": "The moment the person died. The moment from which the person was no longer alive." }
                     },
-                    "archival": null,
-                    "deletion": {
+                    {
+                        "id": "deletion",
                         "labelAction": { "en": "Deletion" },
                         "description": { "en": "The moment the person's details were deleted. The moment from which the person entity was deleted." }
                     }
-                },
-                "primaryMeasures": {
-                    "age": null,
-                    "openingCount": {
+                ],
+                "primaryMeasures": [
+                    {
+                        "id": "openingCount",
                         "label": { "en": "Person Opening Count" },
                         "description": { "en": "The number of people present at the opening moment of a reporting period." }
                     },
-                    "startingInCount": {
+                    {
+                        "id": "startingInCount",
                         "label": { "en": "Person Starting In Count" },
                         "description": { "en": "The number of people recognised at the first moment of a reporting period." }
                     },
-                    "startingCount": {
+                    {
+                        "id": "startingCount",
                         "label": { "en": "Person Starting Count" },
                         "description": { "en": "The number of people present at the start of a reporting period." }
                     },
-                    "duringInCount": {
+                    {
+                        "id": "duringInCount",
                         "label": { "en": "Person During In Count" },
                         "description": { "en": "The number of people recognised during a reporting period." }
                     },
-                    "duringCount": {
+                    {
+                        "id": "duringCount",
                         "label": { "en": "Person During Count" },
                         "description": { "en": "The number of people present at any moment within the reporting period." }
                     },
-                    "weightedCount": {
+                    {
+                        "id": "weightedCount",
                         "label": { "en": "Person Weighted Count" },
                         "description": { "en": "The weighted number of people present within a reporting period." }
                     },
-                    "duringOutCount": {
+                    {
+                        "id": "duringOutCount",
                         "label": { "en": "Person During Out Count" },
                         "description": { "en": "The number of people derecognised during a reporting period." }
                     },
-                    "endingCount": {
+                    {
+                        "id": "endingCount",
                         "label": { "en": "Person Ending Count" },
                         "description": { "en": "The number of people present at the end of a reporting period." }
                     },
-                    "endingOutCount": {
+                    {
+                        "id": "endingOutCount",
                         "label": { "en": "Person Ending Out Count" },
                         "description": { "en": "The number of people derecognised at the last moment of a reporting period." }
                     },
-                    "closingCount": {
+                    {
+                        "id": "closingCount",
                         "label": { "en": "Person Closing Count" },
                         "description": { "en": "The number of people present at the closing moment of a reporting period." }
                     }
-                }
+                ]
             },
             {
                 "id": "personLanguage",
@@ -874,43 +905,29 @@
                 },
                 "parents": [{ "entityTypeId": "person" }],
                 "characteristics": [{ "id": "name", "label": { "en": "Name" }, "type": "string" }],
-                "events": {
-                    "creation": null,
-                    "activation": null,
-                    "recognition": null,
-                    "correction": null,
-                    "modification": null,
-                    "derecognition": null,
-                    "deactivation": null,
-                    "archival": null,
-                    "deletion": null
-                },
-                "primaryMeasures": {
-                    "age": null,
-                    "openingCount": null,
-                    "startingInCount": null,
-                    "startingCount": null,
-                    "duringInCount": {
+                "events": [],
+                "primaryMeasures": [
+                    {
+                        "id": "duringInCount",
                         "label": "Languages Acquired Count",
                         "description": "A count of the number of person languages acquired during the reporting period."
                     },
-                    "duringCount": null,
-                    "weightedCount": null,
-                    "duringOutCount": {
+                    {
+                        "id": "duringOutCount",
                         "label": "Languages Lost Count",
                         "description": "A count of the number of person languages lost during the reporting period."
                     },
-                    "endingCount": null,
-                    "endingOutCount": null,
-                    "closingCount": {
+                    {
+                        "id": "closingCount",
                         "label": "Languages Spoken Count",
                         "description": "A count of the number of person languages as at the end of the reporting period."
                     },
-                    "personAverageLanguageCount": {
+                    {
+                        "id": "personAverageLanguageCount",
                         "label": "Person Average Language Count",
                         "formula": "closingCount/person$closingCount"
                     }
-                }
+                ]
             },
             {
                 "id": "personNationality",
@@ -921,43 +938,29 @@
                 },
                 "parents": [{ "entityTypeId": "person" }],
                 "characteristics": [{ "id": "name", "label": { "en": "Name" }, "type": "string" }],
-                "events": {
-                    "creation": null,
-                    "activation": null,
-                    "recognition": null,
-                    "correction": null,
-                    "modification": null,
-                    "derecognition": null,
-                    "deactivation": null,
-                    "archival": null,
-                    "deletion": null
-                },
-                "primaryMeasures": {
-                    "age": null,
-                    "openingCount": null,
-                    "startingInCount": null,
-                    "startingCount": null,
-                    "duringInCount": {
+                "events": [],
+                "primaryMeasures": [
+                    {
+                        "id": "duringInCount",
                         "label": "Nationalities Acquired Count",
                         "description": "A count of the number of person nationalities acquired during the reporting period."
                     },
-                    "duringCount": null,
-                    "weightedCount": null,
-                    "duringOutCount": {
+                    {
+                        "id": "duringOutCount",
                         "label": "Nationalities Lost Count",
                         "description": "A count of the number of person nationalities lost during the reporting period."
                     },
-                    "endingCount": null,
-                    "endingOutCount": null,
-                    "closingCount": {
+                    {
+                        "id": "closingCount",
                         "label": "Nationalities Held Count",
                         "description": "A count of the number of person nationalities as at the end of the reporting period."
                     },
-                    "averageNationalityCount": {
+                    {
+                        "id": "averageNationalityCount",
                         "label": "Average Nationality Count",
                         "formula": "closingCount/person$closingCount"
                     }
-                }
+                ]
             }
         ],
         "secondaryMeasures": [
@@ -976,20 +979,38 @@
                 "id": "engagementAttendance",
                 "label": { "en": "Engagement Attendance" },
                 "description": { "en": "..." },
-                "items": [
-                    { "id": "ft", "label": { "en": "Full/Time" } },
-                    { "id": "pt", "label": { "en": "Part/Time" } },
-                    { "id": "ca", "label": { "en": "Casual" } }
+                "hierarchies": [
+                    {
+                        "id": "def",
+                        "label": { "en": "Default" },
+                        "description": { "en": "..." },
+                        "type": null,
+                        "levels": [],
+                        "children": [
+                            { "id": "ft", "label": { "en": "Full/Time" } },
+                            { "id": "pt", "label": { "en": "Part/Time" } },
+                            { "id": "ca", "label": { "en": "Casual" } }
+                        ]
+                    }
                 ]
             },
             {
                 "id": "engagementType",
                 "label": { "en": "Engagement Type" },
                 "description": { "en": "..." },
-                "items": [
-                    { "id": "ft", "label": { "en": "Full/Time" } },
-                    { "id": "pt", "label": { "en": "Part/Time" } },
-                    { "id": "ca", "label": { "en": "Casual" } }
+                "hierarchies": [
+                    {
+                        "id": "def",
+                        "label": { "en": "Default" },
+                        "description": { "en": "..." },
+                        "type": null,
+                        "levels": [],
+                        "children": [
+                            { "id": "ft", "label": { "en": "Full/Time" } },
+                            { "id": "pt", "label": { "en": "Part/Time" } },
+                            { "id": "ca", "label": { "en": "Casual" } }
+                        ]
+                    }
                 ]
             }
         ],
@@ -1001,30 +1022,8 @@
                 "description": { "en": "Job description..." },
                 "parents": [{ "entityTypeId": "organisation" }],
                 "characteristics": [],
-                "events": {
-                    "creation": null,
-                    "activation": null,
-                    "recognition": null,
-                    "correction": null,
-                    "modification": null,
-                    "derecognition": null,
-                    "deactivation": null,
-                    "archival": null,
-                    "deletion": null
-                },
-                "primaryMeasures": {
-                    "age": null,
-                    "openingCount": null,
-                    "startingInCount": null,
-                    "startingCount": null,
-                    "duringInCount": null,
-                    "duringCount": null,
-                    "weightedCount": null,
-                    "duringOutCount": null,
-                    "endingCount": null,
-                    "endingOutCount": null,
-                    "closingCount": null
-                }
+                "events": [],
+                "primaryMeasures": []
             },
             {
                 "id": "position",
@@ -1033,30 +1032,8 @@
                 "description": { "en": "Position description..." },
                 "parents": [{ "entityTypeId": "organisation" }, { "entityTypeId": "job" }],
                 "characteristics": [],
-                "events": {
-                    "creation": null,
-                    "activation": null,
-                    "recognition": null,
-                    "correction": null,
-                    "modification": null,
-                    "derecognition": null,
-                    "deactivation": null,
-                    "archival": null,
-                    "deletion": null
-                },
-                "primaryMeasures": {
-                    "age": null,
-                    "openingCount": null,
-                    "startingInCount": null,
-                    "startingCount": null,
-                    "duringInCount": null,
-                    "duringCount": null,
-                    "weightedCount": null,
-                    "duringOutCount": null,
-                    "endingCount": null,
-                    "endingOutCount": null,
-                    "closingCount": null
-                }
+                "events": [],
+                "primaryMeasures": []
             },
             {
                 "id": "personEngagement",
@@ -1083,30 +1060,8 @@
                     { "id": "rptToTen", "label": { "en": "Reports To  Tenure" } },
                     { "id": "stdWrkHrs", "label": { "en": "Standard Working Hours" } }
                 ],
-                "events": {
-                    "creation": null,
-                    "activation": null,
-                    "recognition": null,
-                    "correction": null,
-                    "modification": null,
-                    "derecognition": null,
-                    "deactivation": null,
-                    "archival": null,
-                    "deletion": null
-                },
-                "primaryMeasures": {
-                    "age": null,
-                    "openingCount": null,
-                    "startingInCount": null,
-                    "startingCount": null,
-                    "duringInCount": null,
-                    "duringCount": null,
-                    "weightedCount": null,
-                    "duringOutCount": null,
-                    "endingCount": null,
-                    "endingOutCount": null,
-                    "closingCount": null
-                }
+                "events": [],
+                "primaryMeasures": []
             },
             {
                 "id": "engagementContract",
@@ -1115,30 +1070,8 @@
                 "description": { "en": "Engagement contract description..." },
                 "parents": [{ "entityTypeId": "personEngagement" }],
                 "characteristics": [],
-                "events": {
-                    "creation": null,
-                    "activation": null,
-                    "recognition": null,
-                    "correction": null,
-                    "modification": null,
-                    "derecognition": null,
-                    "deactivation": null,
-                    "archival": null,
-                    "deletion": null
-                },
-                "primaryMeasures": {
-                    "age": null,
-                    "openingCount": null,
-                    "startingInCount": null,
-                    "startingCount": null,
-                    "duringInCount": null,
-                    "duringCount": null,
-                    "weightedCount": null,
-                    "duringOutCount": null,
-                    "endingCount": null,
-                    "endingOutCount": null,
-                    "closingCount": null
-                }
+                "events": [],
+                "primaryMeasures": []
             },
             {
                 "id": "positionOccupancy",
@@ -1147,30 +1080,8 @@
                 "description": { "en": "Position occupancy description..." },
                 "parents": [{ "entityTypeId": "personEngagement" }, { "entityTypeId": "position" }],
                 "characteristics": [],
-                "events": {
-                    "creation": null,
-                    "activation": null,
-                    "recognition": null,
-                    "correction": null,
-                    "modification": null,
-                    "derecognition": null,
-                    "deactivation": null,
-                    "archival": null,
-                    "deletion": null
-                },
-                "primaryMeasures": {
-                    "age": null,
-                    "openingCount": null,
-                    "startingInCount": null,
-                    "startingCount": null,
-                    "duringInCount": null,
-                    "duringCount": null,
-                    "weightedCount": null,
-                    "duringOutCount": null,
-                    "endingCount": null,
-                    "endingOutCount": null,
-                    "closingCount": null
-                }
+                "events": [],
+                "primaryMeasures": []
             }
         ],
         "secondaryMeasures": []

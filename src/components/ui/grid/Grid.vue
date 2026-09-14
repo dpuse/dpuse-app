@@ -28,7 +28,7 @@ const {
     cacheBlockSize,
     dataSource,
     addLabel,
-    headerRowHeight = 24,
+    headerRowHeight = 32,
     isCompact,
     maxBlocksInCache,
     rowHeight = 48,
@@ -121,7 +121,8 @@ function getRowHeight(item: T | undefined): number {
             </ScrollArea>
 
             <ScrollArea v-else class="flex-1" role="list" :row-count="rowCount" :scroll-area-padding-bottom="scrollAreaPaddingBottom" @initialised="handleScrollAreaInitialised">
-                <div :class="{ 'mt-2': isCompact }" :style="{ height: totalSize + 'px', position: 'relative' }">
+                <!-- <div :class="{ 'mt-2': isCompact }" :style="{ height: totalSize + 'px', position: 'relative' }"> -->
+                <div :style="{ height: totalSize + 'px', position: 'relative' }">
                     <div
                         v-for="virtualRow in virtualRows"
                         :key="virtualRow.index"

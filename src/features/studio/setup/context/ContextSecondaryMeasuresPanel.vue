@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import { ref } from 'vue';
 import { ChevronRightIcon, SquarePenIcon } from '@lucide/vue';
-import { ref, shallowRef } from 'vue';
 
 // ── DPUse Framework
 import type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
@@ -12,15 +12,6 @@ import { purifyMarkdown } from '@/services/useMarkedTool';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
-
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const SECONDARY_MEASURE_TABS = [
-    { id: 'parents', label: 'Parents' },
-    { id: 'characteristics', label: 'Characteristics' },
-    { id: 'events', label: 'Events' },
-    { id: 'primaryMeasures', label: 'Measures' }
-];
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -34,7 +25,6 @@ defineEmits<{ edit: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeTab = shallowRef(SECONDARY_MEASURE_TABS[0]);
 const expandedSecondaryMeasureId = ref<string | null>(null);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -81,39 +71,6 @@ function purifyText(text: string): string {
         <div v-if="expandedSecondaryMeasureId === measure.id" class="overflow-y-hidden rounded-b-md px-4 pb-4">
             <!-- Description -->
             <div v-html="purifyText(measure.description)" />
-
-            <!-- Secondary Measure Tabs -->
-            <div class="flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
-                <template v-for="measureTab in SECONDARY_MEASURE_TABS" :key="measureTab.id">
-                    <ActionWrapper
-                        class="border-y-2 border-t-transparent py-1.25"
-                        :class="measureTab.id === activeTab.id ? 'border-b-blue-400' : 'border-b-transparent'"
-                        @click="activeTab = measureTab"
-                    >
-                        <div>{{ measureTab.label }}</div>
-                    </ActionWrapper>
-                </template>
-            </div>
-
-            <!-- Parents Panel -->
-            <div v-show="activeTab.id === 'parents'" class="py-1">
-                <div v-for="parent in measure.parents ?? []" :key="parent">{{ parent }}</div>
-            </div>
-
-            <!-- Characteristics Panel -->
-            <div v-show="activeTab.id === 'characteristics'" class="py-1">
-                <div v-for="characteristic in measure.characteristics ?? []" :key="characteristic">{{ characteristic }}</div>
-            </div>
-
-            <!-- Events Panel -->
-            <div v-show="activeTab.id === 'events'" class="py-1">
-                <div v-for="event in measure.events ?? []" :key="event">{{ event }}</div>
-            </div>
-
-            <!-- Primary Measures Panel -->
-            <div v-show="activeTab.id === 'primaryMeasures'" class="py-1">
-                <div v-for="primaryMeasure in measure.primaryMeasures ?? []" :key="primaryMeasure">{{ primaryMeasure }}</div>
-            </div>
         </div>
     </div>
 </template>

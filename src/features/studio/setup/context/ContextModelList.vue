@@ -80,7 +80,7 @@ function handleSelectModel(modelReference: GridListItem<LocalisedConfig<Componen
 
     <GridDetailPanel v-else :active-item="modelReferenceActive" class="min-h-0 flex-1" :data-source="modelReferencesByAreaDataSource" :is-compact="true" max-grid-width="350px">
         <template #item="{ item }">
-            <div v-if="item.isHeader" class="pl-2 text-left text-xs font-semibold text-subtle uppercase">{{ item.label }}</div>
+            <div v-if="item.isHeader" class="flex h-full items-end pl-2 text-left text-xs font-semibold text-muted uppercase">{{ item.label }}</div>
             <ConfigCard v-else :is-compact="true" :config="item" @click="handleSelectModel(item)" />
         </template>
 

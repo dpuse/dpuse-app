@@ -9,10 +9,11 @@ import type { ContextModelConfig } from '@dpuse/dpuse-shared/component/context/m
 import type { ContextModelEntityConfig } from '@dpuse/dpuse-shared/component/context/model/entity';
 import type { ContextModelEntityDataItemConfig } from '@dpuse/dpuse-shared/component/context/model/entity/dataItem';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { ContextModelDimensionHierarchyConfig, ContextModelDimensionHierarchyNodeConfig } from '@dpuse/dpuse-shared/component/context/model/dimension/hierarchy';
 
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities';
-import type { LocalisedDimension, LocalisedEntity, LocalisedModel, LocalisedSecondaryMeasure } from './contextModel';
+import type { LocalisedDimension, LocalisedDimensionHierarchy, LocalisedDimensionHierarchyNode, LocalisedEntity, LocalisedModel, LocalisedSecondaryMeasure } from './contextModel';
 import { purifyMarkdown, useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Data
@@ -92,15 +93,20 @@ function localiseModel(model: ContextModelConfig): LocalisedModel {
         label: localiseText(entity.label),
         description: localiseText(entity.description),
         dataItems: Array.from(rawEntityDataItems(entity), (dataItem) => ({ ...dataItem, label: localiseText(dataItem.label), description: localiseText(dataItem.description) })),
-        // Placeholders, not converted: the shared config types both as arrays of configs, but the mock model data
-        // still stores them as keyed objects — see 'LocalisedEntity'.
-        events: undefined,
-        primaryMeasures: undefined
+        events: Array.from(entity.events, (event) => ({
+            ...event,
+            labelAction: localiseText(event.labelAction),
+            labelState: event.labelState ? localiseText(event.labelState) : undefined,
+            description: localiseText(event.description)
+        })),
+        primaryMeasures: Array.from(entity.primaryMeasures, (measure) => ({ ...measure, label: localiseText(measure.label), description: localiseText(measure.description) }))
     }));
     const localisedDimensions: LocalisedDimension[] = Array.from(model.dimensions, (dimension) => ({
         ...dimension,
         label: localiseText(dimension.label),
-        description: localiseText(dimension.description)
+        description: localiseText(dimension.description),
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- 'hierarchies' is required by the type but several mock dimensions (e.g. 'geoDiv') omit it entirely.
+        hierarchies: Array.from(dimension.hierarchies ?? [], localiseHierarchy)
     }));
     const localisedSecondaryMeasures: LocalisedSecondaryMeasure[] = Array.from(model.secondaryMeasures, (measure) => ({
         ...measure,
@@ -122,11 +128,33 @@ function rawEntityDataItems(entity: ContextModelEntityConfig): ContextModelEntit
     return (entity as unknown as { characteristics?: ContextModelEntityDataItemConfig[] }).characteristics ?? entity.dataItems;
 }
 
-// The shared config declares 'label'/'description' as always present, but the mock model data doesn't reliably
-// populate every field it declares required — some entries (e.g. a bare '{ entityTypeId: "country" }' data item)
-// have neither. Defensive despite what the type promises, until the data actually matches it.
-function localiseText(value: Partial<Record<string, string>> | undefined): string {
-    return value?.en ?? '';
+function localiseHierarchy(hierarchy: ContextModelDimensionHierarchyConfig): LocalisedDimensionHierarchy {
+    return {
+        ...hierarchy,
+        label: localiseText(hierarchy.label),
+        description: localiseText(hierarchy.description),
+        levels: Array.from(hierarchy.levels, (level) => ({ ...level, label: localiseText(level.label), description: localiseText(level.description) })),
+        children: Array.from(hierarchy.children, localiseHierarchyNode)
+    };
+}
+
+// Recursive to match 'ContextModelDimensionHierarchyNodeConfig' — a hierarchy nests arbitrarily deep (the age
+// hierarchy's leaves are individual years), so there is no fixed depth to unroll.
+function localiseHierarchyNode(node: ContextModelDimensionHierarchyNodeConfig): LocalisedDimensionHierarchyNode {
+    return {
+        ...node,
+        label: localiseText(node.label),
+        description: localiseText(node.description),
+        children: node.children ? Array.from(node.children, localiseHierarchyNode) : undefined
+    };
+}
+
+// The shared config declares 'label'/'description' as locale maps, but the mock model data doesn't reliably match
+// that shape: some entries (e.g. a bare '{ entityTypeId: "country" }' data item) have neither field at all, and some
+// primary measures (e.g. 'personLanguage') give a plain string instead of a locale map. Defensive despite what the
+// type promises, until the data actually matches it.
+function localiseText(value: string | Partial<Record<string, string>> | undefined): string {
+    return typeof value === 'string' ? value : (value?.en ?? '');
 }
 </script>
 
