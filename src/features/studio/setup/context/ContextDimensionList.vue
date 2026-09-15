@@ -3,22 +3,18 @@
 import { ref } from 'vue';
 import { ChevronRightIcon, NetworkIcon, SquarePenIcon } from '@lucide/vue';
 
-// ── DPUse Framework
-import type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
-
 // ── Local Framework
 import type { LocalisedDimension } from './_context';
-import { purifyMarkdown } from '@/services/useMarkedTool';
+import { purifyText } from '@/services/useMarkedTool';
+import { T } from './ContextDimensionList_.json';
+import { t } from '@/state/locale';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { dimensions, markedTool } = defineProps<{
-    dimensions: LocalisedDimension[];
-    markedTool: MarkedTool | undefined;
-}>();
+const { dimensions } = defineProps<{ dimensions: LocalisedDimension[] }>();
 
 defineEmits<{ edit: []; showTreeDiagram: [] }>();
 
@@ -31,18 +27,12 @@ const expandedDimensionId = ref<string | null>(null);
 function handleToggleDimension(dimensionId: string): void {
     expandedDimensionId.value = expandedDimensionId.value === dimensionId ? null : dimensionId;
 }
-
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function purifyText(text: string): string {
-    return purifyMarkdown(markedTool, text);
-}
 </script>
 
 <template>
-    <h2 class="flex flex-none items-center justify-between gap-x-3">Dimensions</h2>
+    <h2 class="flex flex-none items-center justify-between gap-x-3">{{ t(T, 'dimensions.title') }}</h2>
 
-    <p>The dimensions ... this model.</p>
+    <p>{{ t(T, 'dimensions.text') }}</p>
 
     <div
         v-for="dimension in dimensions"

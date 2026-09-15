@@ -141,10 +141,10 @@ function handleRetryMarkedTool(): void {
              pane is one half of a split nested inside another split, so its width changes whenever either splitter
              moves, which no viewport breakpoint ever reports. -->
 
-        <!-- Covers the region: 'purifyMarkdown' returns an empty string without the formatter, so every message in the
-             thread renders blank. The chat is not degraded by this, it is unreadable, so the thread and the composer
-             give way to the failure rather than sitting beneath it. The session component stays mounted throughout,
-             holding the messages a retry brings back. -->
+        <!-- Covers the region: 'renderText' falls back to raw, unformatted markdown without the formatter, so every
+             message in the thread shows literal syntax instead of formatted prose. The chat is not degraded by this,
+             it is unreadable, so the thread and the composer give way to the failure rather than sitting beneath it.
+             The session component stays mounted throughout, holding the messages a retry brings back. -->
         <ErrorNotice v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
         <template v-else>

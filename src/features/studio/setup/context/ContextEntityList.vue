@@ -3,12 +3,11 @@
 import { ChevronRightIcon, NetworkIcon, SquarePenIcon } from '@lucide/vue';
 import { ref, shallowRef } from 'vue';
 
-// ── DPUse Framework
-import type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
-
 // ── Local Framework
 import type { LocalisedEntity } from './_context';
-import { purifyMarkdown } from '@/services/useMarkedTool';
+import { purifyText } from '@/services/useMarkedTool';
+import { T } from './ContextEntityList_.json';
+import { t } from '@/state/locale';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -24,40 +23,31 @@ const ENTITY_TABS = [
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { entities, markedTool } = defineProps<{
-    entities: LocalisedEntity[];
-    markedTool: MarkedTool | undefined;
-}>();
+const { entities } = defineProps<{ entities: LocalisedEntity[] }>();
 
 defineEmits<{ edit: []; showErdDiagram: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeTab = shallowRef(ENTITY_TABS[0]);
 const expandedEntityId = ref<string | null>(null);
+const expandedEntityTab = shallowRef(ENTITY_TABS[0]);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleToggleEntity(entityId: string): void {
     expandedEntityId.value = expandedEntityId.value === entityId ? null : entityId;
 }
-
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function purifyText(text: string): string {
-    return purifyMarkdown(markedTool, text);
-}
 </script>
 
 <template>
     <h2 class="flex flex-none items-center justify-between gap-x-3">
-        Entities
+        {{ t(T, 'entities.title') }}
         <ActionWrapper class="mr-4" @click="$emit('showErdDiagram')">
             <NetworkIcon class="size-5" stroke-width="1.5" />
         </ActionWrapper>
     </h2>
 
-    <p>The entities that make up this model.</p>
+    <p>{{ t(T, 'entities.text') }}</p>
 
     <div
         v-for="entity in entities"
@@ -91,8 +81,8 @@ function purifyText(text: string): string {
                 <template v-for="entityTab in ENTITY_TABS" :key="entityTab.id">
                     <ActionWrapper
                         class="border-y-2 border-t-transparent py-1.25"
-                        :class="entityTab.id === activeTab.id ? 'border-b-blue-400' : 'border-b-transparent'"
-                        @click="activeTab = entityTab"
+                        :class="entityTab.id === expandedEntityTab.id ? 'border-b-blue-400' : 'border-b-transparent'"
+                        @click="expandedEntityTab = entityTab"
                     >
                         <div>{{ entityTab.label }}</div>
                     </ActionWrapper>
@@ -100,22 +90,22 @@ function purifyText(text: string): string {
             </div>
 
             <!-- Parents Panel -->
-            <div v-show="activeTab.id === 'parents'" class="py-1">
+            <div v-show="expandedEntityTab.id === 'parents'" class="py-1">
                 <div v-for="parent in entity.parents ?? []" :key="parent.entityTypeId">{{ parent.entityTypeId }}</div>
             </div>
 
             <!-- Data Items Panel -->
-            <div v-show="activeTab.id === 'dataItems'" class="py-1">
+            <div v-show="expandedEntityTab.id === 'dataItems'" class="py-1">
                 <div v-for="dataItem in entity.dataItems" :key="dataItem.id">{{ dataItem.label }}</div>
             </div>
 
             <!-- Events Panel -->
-            <div v-show="activeTab.id === 'events'" class="py-1">
+            <div v-show="expandedEntityTab.id === 'events'" class="py-1">
                 <div v-for="event in entity.events" :key="event.id">{{ event.labelAction }}</div>
             </div>
 
             <!-- Primary Measures Panel -->
-            <div v-show="activeTab.id === 'primaryMeasures'" class="py-1">
+            <div v-show="expandedEntityTab.id === 'primaryMeasures'" class="py-1">
                 <div v-for="primaryMeasure in entity.primaryMeasures" :key="primaryMeasure.id">{{ primaryMeasure.label }}</div>
             </div>
         </div>

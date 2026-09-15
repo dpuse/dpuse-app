@@ -8,6 +8,8 @@ import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
 import type { Tool as D3Tool, ErdDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
+import { T } from './ContextEntityDiagramPanel_.json';
+import { t } from '@/state/locale';
 import { toolConfigs } from '@/state/session';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
@@ -18,7 +20,7 @@ import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Evaluation example: hard-coded ERD, laid out and drawn by dpuse-tool-d3-visualiser's renderErdDiagram (dagre + d3-selection).
+// Sample data for proof of concept.
 const ERD_DATA: ErdDiagramData = {
     nodes: [
         { id: 'organisation', label: 'Organisation', typeId: 'external' },
@@ -47,8 +49,8 @@ const ERD_DATA: ErdDiagramData = {
     ]
 };
 
-// Order constraints lay the rank out as: [organisation's own children] [engagement, shared] [person's own children],
-// so neither parent's edge into 'engagement' has to cross back through the other parent's cluster.
+// Lays the rank out as organisation's children, then the shared 'engagement' node, then person's children. That way
+// neither parent's edge into 'engagement' has to cross through the other parent's group.
 const ORDER_CONSTRAINTS = [
     { left: 'organisation', right: 'person' },
     { left: 'organisationalUnit', right: 'job' },
@@ -60,8 +62,8 @@ const ORDER_CONSTRAINTS = [
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const container = useTemplateRef<HTMLDivElement>('container');
-const renderFailure = shallowRef<AppFailure | undefined>();
+const d3ContainerElement = useTemplateRef<HTMLDivElement>('d3Container');
+const d3RenderFailure = shallowRef<AppFailure | undefined>();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -78,24 +80,25 @@ function handleRetry(): void {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function renderDiagram(): Promise<void> {
-    renderFailure.value = undefined;
+    d3RenderFailure.value = undefined;
     try {
         const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiser');
-        if (container.value) {
-            await d3Tool.renderErdDiagram(ERD_DATA, container.value, { orderConstraints: ORDER_CONSTRAINTS });
+        if (d3ContainerElement.value) {
+            await d3Tool.renderErdDiagram(ERD_DATA, d3ContainerElement.value, { orderConstraints: ORDER_CONSTRAINTS });
         }
     } catch (error) {
-        renderFailure.value = raiseFailure(new AppError('Failed to render diagram', 'dpuse.contextErdDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error }));
+        d3RenderFailure.value = raiseFailure(new AppError('Failed to render diagram', 'dpuse.ContextEntityDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error }));
     }
 }
 </script>
 
 <template>
-    <DialogHeader class="flex-none" title="Sample ERD Diagram" />
+    <DialogHeader class="flex-none" :title="t(T, 'sampleErdDiagram.title')" />
 
     <ScrollArea class="min-h-0 flex-1">
-        <ErrorNotice v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
+        <ErrorNotice v-if="d3RenderFailure" covers-region :failures="[d3RenderFailure]" @retry="handleRetry" />
 
-        <div v-show="!renderFailure" ref="container" class="p-6" />
+        <!-- v-show, not v-if: keeps this in the DOM so D3 always has an element to draw into, even while hidden. -->
+        <div v-show="!d3RenderFailure" ref="d3Container" class="p-6" />
     </ScrollArea>
 </template>

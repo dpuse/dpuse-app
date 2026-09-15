@@ -3,22 +3,16 @@
 import { ref } from 'vue';
 import { ChevronRightIcon, SquarePenIcon } from '@lucide/vue';
 
-// ── DPUse Framework
-import type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
-
 // ── Local Framework
 import type { LocalisedSecondaryMeasure } from './_context';
-import { purifyMarkdown } from '@/services/useMarkedTool';
+import { purifyText } from '@/services/useMarkedTool';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { markedTool, secondaryMeasures } = defineProps<{
-    markedTool: MarkedTool | undefined;
-    secondaryMeasures: LocalisedSecondaryMeasure[];
-}>();
+const { secondaryMeasures } = defineProps<{ secondaryMeasures: LocalisedSecondaryMeasure[] }>();
 
 defineEmits<{ edit: [] }>();
 
@@ -32,11 +26,6 @@ function handleToggleSecondaryMeasure(secondaryMeasureId: string): void {
     expandedSecondaryMeasureId.value = expandedSecondaryMeasureId.value === secondaryMeasureId ? null : secondaryMeasureId;
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function purifyText(text: string): string {
-    return purifyMarkdown(markedTool, text);
-}
 </script>
 
 <template>

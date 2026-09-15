@@ -14,44 +14,61 @@ import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+export type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
+
 interface MarkedToolState {
     // The loaded tool, or undefined while loading and after a failed load.
     markedTool: ShallowRef<MarkedTool | undefined>;
-    // The failure from the last 'initialise' call, cleared at the start of each attempt.
+    // The failure from the last load attempt, cleared at the start of each attempt.
     failure: ShallowRef<AppFailure | undefined>;
-    // Loads the tool, retaining and reporting any failure. Also serves as the retry action.
+    // Retries the load. Never needed just to get the tool loaded in the first place — 'purifyText' triggers that
+    // itself — only useful for a caller that wants to retry after 'failure' is set.
     initialise: () => Promise<MarkedTool | undefined>;
 }
 
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Module-level, not created per call: the tool is a stateless renderer shared by the whole app, so one load (and one
+// failure/retry) serves every consumer instead of each component tree loading and failing independently.
+const markedTool = shallowRef<MarkedTool | undefined>();
+const failure = shallowRef<AppFailure | undefined>();
+const loadPromise = shallowRef<Promise<MarkedTool | undefined>>(); // Ref rather than a plain variable: the lint rules forbid reassigning a top-level variable from inside a function.
+
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Renders markdown to sanitised HTML, or to an empty string while the tool is unavailable. Takes the tool rather than
-// calling 'useMarkedTool' so components that receive it as a prop can render without owning a second load.
-export function purifyMarkdown(markedTool: MarkedTool | undefined, text: string): string {
-    if (!markedTool) return '';
-    return DOMPurify.sanitize(markedTool.render(text));
+// Renders markdown to sanitised HTML, or to an empty string before the tool has loaded (or after it's failed to).
+// Starts the (idempotent) load itself, so a consumer that only wants rendered text never has to call 'initialise'.
+export function purifyText(text: string): string {
+    void initialise();
+    if (!markedTool.value) return '';
+    return DOMPurify.sanitize(markedTool.value.render(text));
 }
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Loads the marked markdown tool and owns the resulting state, so consumers only decide how to present a failure
-// (ErrorNotice or a plain-text fallback) rather than repeating the load, report and retry wiring.
-//
-// Never throws: 'initialise' resolves with the tool, or with undefined once the failure has been recorded in 'failure'.
+// For a caller that needs the tool itself (not just rendered text) or wants to show its own failure/retry UI.
+// 'markedTool', 'failure' and 'initialise' are the same shared instances 'purifyText' uses underneath.
 export function useMarkedTool(): MarkedToolState {
-    const markedTool = shallowRef<MarkedTool | undefined>();
-    const failure = shallowRef<AppFailure | undefined>();
+    return { markedTool, failure, initialise };
+}
 
-    async function initialise(): Promise<MarkedTool | undefined> {
-        failure.value = undefined;
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Idempotent: the first call starts the load and every later call reuses the same in-flight promise. A failed load
+// clears the promise, so the next call (a retry, or 'purifyText' on the next render) actually tries again rather than
+// replaying the same failure.
+function initialise(): Promise<MarkedTool | undefined> {
+    if (loadPromise.value) return loadPromise.value;
+    failure.value = undefined;
+    loadPromise.value = (async (): Promise<MarkedTool | undefined> => {
         try {
             await useConfigsReady();
             markedTool.value = await loadTool<MarkedTool>(toolConfigs.value, 'marked-markdown-parser');
         } catch (error) {
             failure.value = raiseFailure(new AppError('Failed to load markdown formatter.', 'dpuse.useMarkedTool.initialise', { typeId: 'handled' }, { cause: error }));
+            loadPromise.value = undefined;
         }
         return markedTool.value;
-    }
-
-    return { markedTool, failure, initialise };
+    })();
+    return loadPromise.value;
 }

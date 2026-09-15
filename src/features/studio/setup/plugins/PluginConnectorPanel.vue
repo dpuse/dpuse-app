@@ -17,12 +17,14 @@ import Tag from '@/components/ui/Tag.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// TODO: Need to support translations.
 const AUTH_METHOD_DESCRIPTIONS: Record<string, string> = {
     apiKey: 'API Key',
     oAuth2: "Requires OAuth 2.0 authentication for each account connected; access is scoped to that account's files and folders only.",
     none: 'Does not require authentication and can be used without creating a DPUse Account. Only a single connection is supported.'
 };
 
+// TODO: Need to support translations.
 const CONNECTOR_USAGE_DESCRIPTIONS: Record<string, string> = {
     bidirectional: 'This connector supports both sourcing and delivering data.',
     destination: 'This connector is used exclusively for delivering data.',

@@ -12,7 +12,7 @@ import type { ContextModelDimensionHierarchyConfig, ContextModelDimensionHierarc
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities';
 import type { LocalisedDimension, LocalisedDimensionHierarchy, LocalisedDimensionHierarchyNode, LocalisedEntity, LocalisedModel, LocalisedSecondaryMeasure } from './_context';
-import { purifyMarkdown, useMarkedTool } from '@/services/useMarkedTool';
+import { purifyText, useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Data
 import modelConfigsData from './_data/modelConfigs.json'; // TODO: remove once loadModel fetches remotely
@@ -161,23 +161,17 @@ function localiseText(value: string | Partial<Record<string, string>> | undefine
             </h1>
 
             <!-- Description -->
-            <div v-html="purifyMarkdown(markedTool, modelReferenceDescription)" />
+            <div v-html="purifyText(modelReferenceDescription)" />
 
-            <ContextEntityList
-                :entities="activeModel?.entities ?? []"
-                :marked-tool="markedTool"
-                @edit="modelDescriptorsDialogIsOpen = true"
-                @show-erd-diagram="handleShowErdDiagram"
-            />
+            <ContextEntityList :entities="activeModel?.entities ?? []" @edit="modelDescriptorsDialogIsOpen = true" @show-erd-diagram="handleShowErdDiagram" />
 
             <ContextDimensionList
                 :dimensions="activeModel?.dimensions ?? []"
-                :marked-tool="markedTool"
                 @edit="modelDescriptorsDialogIsOpen = true"
                 @show-tree-diagram="handleShowDimensionTreeDiagram"
             />
 
-            <ContextSecondaryMeasureList :secondary-measures="activeModel?.secondaryMeasures ?? []" :marked-tool="markedTool" @edit="modelDescriptorsDialogIsOpen = true" />
+            <ContextSecondaryMeasureList :secondary-measures="activeModel?.secondaryMeasures ?? []" @edit="modelDescriptorsDialogIsOpen = true" />
         </div>
 
         <Dialog

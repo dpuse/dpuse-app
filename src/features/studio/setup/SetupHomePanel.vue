@@ -18,7 +18,7 @@ const { setupOptionLocalisedConfigs } = defineProps<{ setupOptionLocalisedConfig
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const pluginOptionLocalisedConfigs = computed(() => setupOptionLocalisedConfigs.slice(1));
+const pluginOptionLocalisedConfigs = computed(() => setupOptionLocalisedConfigs.filter((config) => config.id !== 'home'));
 </script>
 
 <template>

@@ -8,6 +8,8 @@ import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
 import type { Tool as D3Tool, TreeDiagramNode } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
+import { T } from './ContextDimensionDiagramPanel_.json';
+import { t } from '@/state/locale';
 import { toolConfigs } from '@/state/session';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
@@ -18,7 +20,7 @@ import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Evaluation example: strict tree (single parent per node), laid out and drawn by dpuse-tool-d3-visualiser's renderTreeDiagram (d3-hierarchy + d3-selection).
+// Sample data for proof of concept.
 const DIMENSION_TREE: TreeDiagramNode = {
     id: 'geography',
     label: 'Geography',
@@ -69,15 +71,13 @@ async function renderDiagram(): Promise<void> {
             await d3Tool.renderTreeDiagram(DIMENSION_TREE, d3ContainerElement.value);
         }
     } catch (error) {
-        d3RenderFailure.value = raiseFailure(
-            new AppError('Failed to render diagram', 'dpuse.contextDimensionTreeDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error })
-        );
+        d3RenderFailure.value = raiseFailure(new AppError('Failed to render diagram', 'dpuse.ContextDimensionDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error }));
     }
 }
 </script>
 
 <template>
-    <DialogHeader class="flex-none" title="Sample Dimension Tree Diagram" />
+    <DialogHeader class="flex-none" :title="t(T, 'sampleDimensionTreeDiagram.title')" />
 
     <ScrollArea class="min-h-0 flex-1">
         <ErrorNotice v-if="d3RenderFailure" covers-region :failures="[d3RenderFailure]" @retry="handleRetry" />
