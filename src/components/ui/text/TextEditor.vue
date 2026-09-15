@@ -39,7 +39,7 @@ const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool
 const parentCanScroll = ref(true);
 const editorFailure = shallowRef<AppFailure | undefined>();
 const scrollableAncestorObserver = shallowRef<ResizeObserver>();
-const textValue = defineModel<string>({ required: true });
+const textValue = defineModel<string>({ default: '' });
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 

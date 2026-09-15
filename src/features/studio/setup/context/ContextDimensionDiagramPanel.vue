@@ -44,8 +44,8 @@ const DIMENSION_TREE: TreeDiagramNode = {
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const container = useTemplateRef<HTMLDivElement>('container');
-const renderFailure = shallowRef<AppFailure | undefined>();
+const d3ContainerElement = useTemplateRef<HTMLDivElement>('d3Container');
+const d3RenderFailure = shallowRef<AppFailure | undefined>();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -62,14 +62,14 @@ function handleRetry(): void {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function renderDiagram(): Promise<void> {
-    renderFailure.value = undefined;
+    d3RenderFailure.value = undefined;
     try {
         const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiser');
-        if (container.value) {
-            await d3Tool.renderTreeDiagram(DIMENSION_TREE, container.value);
+        if (d3ContainerElement.value) {
+            await d3Tool.renderTreeDiagram(DIMENSION_TREE, d3ContainerElement.value);
         }
     } catch (error) {
-        renderFailure.value = raiseFailure(
+        d3RenderFailure.value = raiseFailure(
             new AppError('Failed to render diagram', 'dpuse.contextDimensionTreeDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error })
         );
     }
@@ -80,8 +80,9 @@ async function renderDiagram(): Promise<void> {
     <DialogHeader class="flex-none" title="Sample Dimension Tree Diagram" />
 
     <ScrollArea class="min-h-0 flex-1">
-        <ErrorNotice v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
+        <ErrorNotice v-if="d3RenderFailure" covers-region :failures="[d3RenderFailure]" @retry="handleRetry" />
 
-        <div v-show="!renderFailure" ref="container" class="p-6" />
+        <!-- v-show, not v-if: keeps this in the DOM so D3 always has an element to draw into, even while hidden. -->
+        <div v-show="!d3RenderFailure" ref="d3Container" class="p-6" />
     </ScrollArea>
 </template>
