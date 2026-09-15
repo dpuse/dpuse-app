@@ -16,32 +16,55 @@ const ENGINE_STORAGE_URL_PREFIX = 'https://engine-eu.dpuse.app';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const state: { activeEngineVersion: string | undefined; engineWorker: EngineWorker | undefined } = { activeEngineVersion: undefined, engineWorker: undefined };
+const state: { activeEngineVersion: string | undefined; pendingEngineWorker: Promise<EngineWorker> | undefined } = {
+    activeEngineVersion: undefined,
+    pendingEngineWorker: undefined
+};
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export async function useEngine(): Promise<EngineWorker> {
+export function useEngine(): Promise<EngineWorker> {
     // "useEngine" is not invoked until all modules have been registered in session. So "engineConfig" will be populated.
     const engineVersion = engineConfig.value?.version;
 
     // Return current value if previously imported and a new version has not been published.
-    if (state.engineWorker != null && state.activeEngineVersion === engineVersion) return state.engineWorker;
+    if (state.pendingEngineWorker != null && state.activeEngineVersion === engineVersion) return state.pendingEngineWorker;
 
+    // The load is cached as a promise rather than as the worker it resolves to, and cached before anything awaits.
+    // Callers arrive together — two watchers on 'activeMetaStoreConnectionConfig' call this in the same flush on a
+    // refresh — and a cache written only once the load finished would still be empty for the second of them. That
+    // gave a second worker, with its own connector instances against the same store.
+    const pendingEngineWorker = loadEngine(engineVersion);
+    state.activeEngineVersion = engineVersion;
+    state.pendingEngineWorker = pendingEngineWorker;
+
+    // A rejected promise stays rejected, so a cached one would replay the original failure to every retry instead of
+    // loading again. The identity check leaves a newer load alone, in case the version changed while this one failed.
+    void pendingEngineWorker.catch(() => {
+        if (state.pendingEngineWorker === pendingEngineWorker) state.pendingEngineWorker = undefined;
+    });
+
+    return pendingEngineWorker;
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function loadEngine(engineVersion: string | undefined): Promise<EngineWorker> {
     // Import engine and initialise interface. Reported here rather than left to the caller: every data operation in
     // the app funnels through this one load, most call sites have no failure path of their own, and the failure is
     // the same one whoever triggered it — so this is the single place that can guarantee it reaches the console,
     // Axiom and the UI. Callers that do catch may report again with their own context; the cause chain still carries
     // this error, so the two reports agree.
     const engineURL = `${ENGINE_STORAGE_URL_PREFIX}/engine_v${String(engineVersion)}/dpuse-engine.es.js`;
-    let pendingEngineWorker: EngineWorker;
+    let engineWorker: EngineWorker;
     try {
         if (import.meta.env.DEV) throwOnFault('engine');
         const module = await import(/* @vite-ignore */ engineURL);
         const engineRuntime = module.engineRuntime as EngineRuntime;
-        pendingEngineWorker = engineRuntime.invokeWorker((errorEvent: ErrorEvent) => {
+        engineWorker = engineRuntime.invokeWorker((errorEvent: ErrorEvent) => {
             console.error(errorEvent, 'engineWorker@useEngine.1');
         });
-        await pendingEngineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: toolConfigs.value });
+        await engineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: toolConfigs.value });
     } catch (error) {
         // Raised to report it, not to display it: this knows the engine failed but not what the user was doing, and
         // every caller is inside a region that does. Each of them shows this as the cause of its own failure — the
@@ -96,7 +119,7 @@ export async function useEngine(): Promise<EngineWorker> {
         // console.log('RETRIEVE RECORDS');
         // const retrieveRecordsOptions: RetrieveRecordsOptions = { encodingId: 'utf8', path: FILE_PATH, valueDelimiterId: ',' };
         // const startTime1 = performance.now();
-        // await pendingEngineWorker.processRequest('retrieveRecords', connectionConfig, retrieveRecordsOptions, (data: EngineCallbackData) => {
+        // await engineWorker.processRequest('retrieveRecords', connectionConfig, retrieveRecordsOptions, (data: EngineCallbackData) => {
         //     if (data && data.typeId === 'complete') console.log('RETRIEVE RECORDS - RESULT', data.properties.summary);
         // });
         // const elapsedTime1 = performance.now() - startTime1;
@@ -105,13 +128,13 @@ export async function useEngine(): Promise<EngineWorker> {
         //     console.log('PREVIEW OBJECT');
         //     const startTime2 = performance.now();
         //     const previewObjectOptions: PreviewObjectOptions = { path: FILE_PATH };
-        //     const previewObjectResult = (await pendingEngineWorker.processRequest('previewObject', connectionConfig, previewObjectOptions)) as DataViewConfig;
+        //     const previewObjectResult = (await engineWorker.processRequest('previewObject', connectionConfig, previewObjectOptions)) as DataViewConfig;
         //     const elapsedTime2 = performance.now() - startTime2;
         //     console.log('PREVIEW OBJECT - RESULT', previewObjectResult);
         //     console.log('PREVIEW OBJECT - ELAPSED', elapsedTime2, `${(elapsedTime2 / 1000).toFixed(2)}s.`);
         //     /** */
         //     // const auditContentOptions: PreviewObjectOptions = { path: FILE_PATH };
-        //     // const xxxx = await pendingEngineWorker.processRequest('auditContent', connectionConfig, auditContentOptions);
+        //     // const xxxx = await engineWorker.processRequest('auditContent', connectionConfig, auditContentOptions);
         //     // console.log('xxxx', xxxx);
         //     /** */
         //     console.log('AUDIT OBJECT CONTENT JS');
@@ -122,7 +145,7 @@ export async function useEngine(): Promise<EngineWorker> {
         //         path: FILE_PATH,
         //         valueDelimiterId: ','
         //     };
-        //     const auditObjectContentResult = await pendingEngineWorker.processRequest('auditObjectContent', connectionConfig, auditObjectContentOptions);
+        //     const auditObjectContentResult = await engineWorker.processRequest('auditObjectContent', connectionConfig, auditObjectContentOptions);
         //     const elapsedTime3 = performance.now() - startTime3;
         //     console.log('AUDIT OBJECT CONTENT JS - RESULT', auditObjectContentResult);
         //     console.log('AUDIT OBJECT CONTENT JS - ELAPSED', elapsedTime3, `${(elapsedTime3 / 1000).toFixed(2)}s.`);
@@ -136,7 +159,7 @@ export async function useEngine(): Promise<EngineWorker> {
         //         path: FILE_PATH,
         //         valueDelimiterId: ','
         //     };
-        //     const auditObjectContentResultRust = await pendingEngineWorker.processRequest('auditObjectContent', connectionConfig, auditObjectContentOptionsRust);
+        //     const auditObjectContentResultRust = await engineWorker.processRequest('auditObjectContent', connectionConfig, auditObjectContentOptionsRust);
         //     const elapsedTime4 = performance.now() - startTime4;
         //     console.log('AUDIT OBJECT CONTENT RUST - RESULT', auditObjectContentResultRust);
         //     console.log('AUDIT OBJECT CONTENT RUST - ELAPSED', elapsedTime4, `${(elapsedTime4 / 1000).toFixed(2)}s.`);
@@ -147,8 +170,5 @@ export async function useEngine(): Promise<EngineWorker> {
     });
     /**/
 
-    state.engineWorker = pendingEngineWorker;
-    state.activeEngineVersion = engineVersion;
-
-    return state.engineWorker;
+    return engineWorker;
 }
