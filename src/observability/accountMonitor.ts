@@ -124,8 +124,11 @@ function connectToWebSocket(): void {
         });
 
         webSocket.addEventListener('close', (event) => {
-            if (generation !== state.generation) return;
-            if (import.meta.env.DEV || import.meta.env.PROD) console.info(`[dpuse:app] ⚠️  Account WebSocket close event '${String(event.code)}' received.`);
+            // Logged before the guard below, so a socket closing after it has been replaced still shows up rather than
+            // going silent.
+            const isSuperseded = generation !== state.generation;
+            if (import.meta.env.DEV || import.meta.env.PROD) logClose(event.code, isSuperseded);
+            if (isSuperseded) return;
             stopKeepalive();
             state.webSocket = undefined;
             scheduleReconnect(generation);
@@ -143,11 +146,23 @@ function connectToWebSocket(): void {
 
 // Closes whatever socket is currently held. The generation bump that follows makes its handlers inert, so nothing
 // else would ever clean it up.
+// Sign-out and page hide close the socket on purpose, so those are not warnings. A close arriving for a connection
+// that has already been replaced is, since that is what the generation counter exists to catch.
+function logClose(code: number, isSuperseded: boolean): void {
+    if (state.isWebSocketShutdown) {
+        console.info('[dpuse:app] ✅  Account WebSocket connection closed.');
+        return;
+    }
+
+    console.info(`[dpuse:app] ⚠️  Account WebSocket close event '${String(code)}' received${isSuperseded ? ' for a replaced connection' : ''}.`);
+}
+
 function discardWebSocket(): void {
     stopKeepalive();
     const webSocket = state.webSocket;
     state.webSocket = undefined;
-    if (webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN)) webSocket.close();
+    // Closed with an explicit code — a bare close() sends none, which the client then reports back as 1005.
+    if (webSocket && (webSocket.readyState === WebSocket.CONNECTING || webSocket.readyState === WebSocket.OPEN)) webSocket.close(1000, 'Client shutdown');
 }
 
 function scheduleReconnect(generation: number): void {
