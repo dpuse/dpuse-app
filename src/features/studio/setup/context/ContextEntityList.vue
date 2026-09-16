@@ -1,16 +1,16 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ChevronRightIcon, NetworkIcon, SquarePenIcon } from '@lucide/vue';
-import { ref, shallowRef } from 'vue';
+import { NetworkIcon } from '@lucide/vue';
+import { shallowRef } from 'vue';
 
 // ── Local Framework
 import type { LocalisedEntity } from './_context';
-import { purifyText } from '@/services/useMarkedTool';
 import { T } from './ContextEntityList_.json';
 import { t } from '@/state/locale';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
+import ContextDocument from './_components/ContextDocument.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -29,53 +29,18 @@ defineEmits<{ edit: []; showErdDiagram: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const expandedEntityId = ref<string | null>(null);
-const expandedEntityTab = shallowRef(ENTITY_TABS[0]);
-
-// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-function handleToggleEntity(entityId: string): void {
-    expandedEntityId.value = expandedEntityId.value === entityId ? null : entityId;
-}
+const expandedEntityTab = shallowRef(ENTITY_TABS[0]); // Shared by every entity, so the same tab stays selected as they are opened in turn.
 </script>
 
 <template>
-    <h2 class="flex flex-none items-center justify-between gap-x-3">
-        {{ t(T, 'entities.title') }}
-        <ActionWrapper class="mr-4" @click="$emit('showErdDiagram')">
-            <NetworkIcon class="size-5" stroke-width="1.5" />
-        </ActionWrapper>
-    </h2>
-
-    <p>{{ t(T, 'entities.text') }}</p>
-
-    <div
-        v-for="entity in entities"
-        :key="entity.id"
-        class="mt-2 max-w-prose border"
-        :class="expandedEntityId === entity.id ? 'rounded-md border-separator' : 'rounded-md border-backdrop'"
-    >
-        <div
-            role="button"
-            tabindex="0"
-            :aria-expanded="expandedEntityId === entity.id"
-            class="flex items-center gap-x-2 bg-backdrop py-2 pr-4 pl-2"
-            :class="expandedEntityId === entity.id ? 'rounded-t-md' : 'rounded-md'"
-            @click="handleToggleEntity(entity.id)"
-            @keydown.enter="handleToggleEntity(entity.id)"
-            @keydown.space.prevent="handleToggleEntity(entity.id)"
-        >
-            <ChevronRightIcon class="size-5" stroke-width="1.5" />
-            <div class="flex-1">{{ entity.label }}</div>
-            <ActionWrapper @click="$emit('edit')">
-                <SquarePenIcon class="size-5" stroke-width="1.5" />
+    <ContextDocument :description="t(T, 'entities.text')" :items="entities" :title="t(T, 'entities.title')" @edit="$emit('edit')">
+        <template #titleActions>
+            <ActionWrapper class="mr-4" @click="$emit('showErdDiagram')">
+                <NetworkIcon class="size-5" stroke-width="1.5" />
             </ActionWrapper>
-        </div>
+        </template>
 
-        <div v-if="expandedEntityId === entity.id" class="overflow-y-hidden rounded-b-md px-4 pb-4">
-            <!-- Description -->
-            <div v-html="purifyText(entity.description)" />
-
+        <template #default="{ item: entity }">
             <!-- Entity Tabs -->
             <div class="flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator">
                 <template v-for="entityTab in ENTITY_TABS" :key="entityTab.id">
@@ -108,6 +73,6 @@ function handleToggleEntity(entityId: string): void {
             <div v-show="expandedEntityTab.id === 'primaryMeasures'" class="py-1">
                 <div v-for="primaryMeasure in entity.primaryMeasures" :key="primaryMeasure.id">{{ primaryMeasure.label }}</div>
             </div>
-        </div>
-    </div>
+        </template>
+    </ContextDocument>
 </template>
