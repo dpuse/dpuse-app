@@ -117,7 +117,7 @@ function endDrag(): void {
         :aria-valuemin="MINIMUM_PERCENT"
         :aria-valuenow="Math.round(splitterLeftPanePercent)"
         :class="[
-            'group relative z-10 h-full w-(--pane-splitter-width) flex-none cursor-col-resize touch-none border-x border-boundary transition-colors',
+            'group relative z-10 w-(--pane-splitter-width) flex-none cursor-col-resize touch-none self-stretch border-x border-boundary transition-colors',
             // The handle is a few pixels wide, so it shows focus by lighting up rather than by being ringed. 'outline-hidden'
             // rather than 'outline-none': in Tailwind v4 the former keeps an outline in forced-colors mode, where this
             // background change is not rendered and would otherwise leave no indicator at all.

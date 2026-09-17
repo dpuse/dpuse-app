@@ -192,7 +192,7 @@ function togglePane(paneId: 'chat' | 'library'): void {
                 />
             </div>
 
-            <PaneSplitter v-if="splitterIsVisible" v-model="splitterPercent" class="h-full" />
+            <PaneSplitter v-if="splitterIsVisible" v-model="splitterPercent" />
 
             <!-- Mounted on first use and kept, so a closed library does not lose the folder it was left on. -->
             <div

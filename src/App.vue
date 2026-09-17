@@ -267,8 +267,9 @@ function syncPaneQuery(): void {
             </div>
         </div>
 
-        <!-- Pane Splitter (Vertical) - Only rendered when both panes are visible. -->
-        <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" />
+        <!-- Pane Splitter (Vertical) - Only rendered when both panes are visible. Starts below the status bar, where the
+             pane headers start; the splitter stretches, so the margin shortens it rather than pushing it off screen. -->
+        <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" class="mt-[env(safe-area-inset-top)]" />
 
         <!-- Assistant Pane - Rendered first time assistant pane is activated and shown when pane is visible. Contains
              assistant layout. -->
