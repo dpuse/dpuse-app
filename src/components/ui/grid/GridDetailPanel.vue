@@ -1,10 +1,6 @@
-<script setup lang="ts" generic="T extends LocalisedConfig<BaseConfig>">
+<script setup lang="ts" generic="T extends { id: string }">
 // ── External Dependencies & Registrations
 import { computed, provide, ref, useTemplateRef, watch } from 'vue';
-
-// ── DPUse Framework
-
-import type { BaseConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -13,7 +9,6 @@ import { GRID_DETAIL_SPLIT_THRESHOLD_PX, gridDetailIsSplitKey } from '@/componen
 
 // ── Static Components
 import Grid from '@/components/ui/grid/Grid.vue';
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -52,11 +47,15 @@ const gridPaneIsVisible = computed(() => isSplit.value || !detailIsOpen.value);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Watches the id rather than the item, because a caller can hand over a new object for the same item (a language switch
+// re-localises every row), and that must not reopen a detail the user has dismissed. Immediate, because returning to a
+// page with an item already selected (e.g. by the back button) must open its detail without the selection changing.
 watch(
-    () => activeItem,
-    (newActiveItem) => {
-        detailIsOpen.value = newActiveItem != null;
-    }
+    () => activeItem?.id,
+    (newActiveItemId) => {
+        detailIsOpen.value = newActiveItemId !== undefined;
+    },
+    { immediate: true }
 );
 </script>
 

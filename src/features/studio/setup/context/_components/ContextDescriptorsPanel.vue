@@ -9,8 +9,8 @@ import TextInput from '@/components/ui/text/TextInput.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const labelValue = defineModel<string>('label');
 const descriptionValue = defineModel<string>('description');
+const labelValue = defineModel<string>('label');
 </script>
 
 <template>

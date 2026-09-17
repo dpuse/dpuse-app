@@ -15,24 +15,26 @@ defineSlots<{
     titleActions(): unknown;
 }>();
 
-defineEmits<{ edit: [] }>();
+defineEmits<{ edit: [item: T] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const expandedItemId = ref<string | null>(null); // Held here rather than per disclosure, because only one item is open at a time.
+const expandedItemId = ref<string>(); // Held here rather than per disclosure, because only one item is open at a time.
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleToggleItem(itemId: string): void {
-    expandedItemId.value = expandedItemId.value === itemId ? null : itemId;
+    expandedItemId.value = expandedItemId.value === itemId ? undefined : itemId;
 }
 </script>
 
 <template>
-    <h2 class="flex flex-none items-center justify-between gap-x-3">
-        {{ title }}
+    <div class="mt-6 mb-4 flex items-center justify-between gap-x-3 border-t border-separator pt-2">
+        <!-- The prose heading's rule and spacing move to this row so the actions align with the title; '!' is needed
+             because the unlayered '.dpuse-prose h2' rules otherwise beat Tailwind's utilities. -->
+        <h2 class="m-0! border-t-0! p-0!">{{ title }}</h2>
         <slot name="titleActions" />
-    </h2>
+    </div>
 
     <p>{{ description }}</p>
 
@@ -42,7 +44,7 @@ function handleToggleItem(itemId: string): void {
         :description="item.description"
         :is-expanded="expandedItemId === item.id"
         :label="item.label"
-        @edit="$emit('edit')"
+        @edit="$emit('edit', item)"
         @toggle="handleToggleItem(item.id)"
     >
         <template #actions>

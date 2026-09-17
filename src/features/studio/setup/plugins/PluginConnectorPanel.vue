@@ -3,13 +3,13 @@
 import { computed } from 'vue';
 
 // ── DPUse Framework
-import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import { type ConnectorConfig, constructConnectorCategoryConfig } from '@dpuse/dpuse-shared/component/module/connector';
 
 // ── Local Framework
 import type { SetupOptionConfig } from '@/utilities/index.ts';
 import { T } from './PluginConnectorPanel_.json';
-import { t } from '@/state/locale';
+import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import PluginPanel from '@/features/studio/setup/plugins/_components/PluginPanel.vue';
@@ -48,13 +48,14 @@ const authMethods = computed(() => [
             .filter((id) => id !== 'disabled')
     )
 ]);
+const connectorCategoryLabel = computed(() => constructConnectorCategoryConfig(pluginLocalisedConfig.categoryId, localeId.value).label);
 </script>
 
 <template>
     <!-- 'close' reaches 'PluginPanel' by attribute fallthrough, so this must stay single-root. -->
     <PluginPanel :plugin-localised-config="pluginLocalisedConfig" :setup-option-localised-config="setupOptionLocalisedConfig">
         <template #tags>
-            <Tag :text="pluginLocalisedConfig.categoryId" />
+            <Tag :text="connectorCategoryLabel" />
         </template>
 
         <!-- Usage -->

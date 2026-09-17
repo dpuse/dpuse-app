@@ -1,16 +1,15 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { type Component, computed, type ShallowRef, shallowRef, watch } from 'vue';
+import { type Component, computed, type ShallowRef } from 'vue';
 
 // ── DPUse Framework
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import type { DataSource } from '@/composables/useDataWindow';
 import { T } from './PluginList_.json';
-import { useSetupRoute } from '../../useSetupRoute';
+import { useSetupSelection } from '../../useSetupSelection';
+import { assertDefined, defineAsyncPanel, type PluginConfig, type SetupOptionConfig } from '@/utilities/index.ts';
 import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/session';
-import { defineAsyncPanel, type PluginConfig, type SetupOptionConfig } from '@/utilities/index.ts';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -27,7 +26,7 @@ const PluginToolPanel = defineAsyncPanel(() => import('@/features/studio/setup/p
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const TAB_CONFIGS: Record<string, { configs: ShallowRef<PluginConfig[]>; panel: Component; selectKey: keyof typeof T }> = {
+const TAB_CONFIGS: Partial<Record<string, { configs: ShallowRef<PluginConfig[]>; panel: Component; selectKey: keyof typeof T }>> = {
     connectors: { configs: connectorConfigs, panel: PluginConnectorPanel, selectKey: 'selectConnector.text' },
     cookbooks: { configs: cookbookConfigs, panel: PluginCookbookPanel, selectKey: 'selectCookbook.text' },
     presenters: { configs: presenterConfigs, panel: PluginPresenterPanel, selectKey: 'selectPresenter.text' },
@@ -38,44 +37,20 @@ const TAB_CONFIGS: Record<string, { configs: ShallowRef<PluginConfig[]>; panel: 
 
 const { setupOptionLocalisedConfig } = defineProps<{ setupOptionLocalisedConfig: LocalisedConfig<SetupOptionConfig> }>();
 
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const pluginLocalisedConfigs = shallowRef<LocalisedConfig<PluginConfig>[]>([]);
-const { routeId, setRouteId } = useSetupRoute();
-
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const pluginLocalisedConfigActive = computed(
-    () => (routeId.value === undefined ? undefined : pluginLocalisedConfigs.value.find((config) => config.id === routeId.value)) // Use route so tabs clicks also register (clear selection).
-);
-const tabActiveConfig = computed(() => TAB_CONFIGS[setupOptionLocalisedConfig.id]);
-const pluginLocalisedConfigsDataSource = computed<DataSource<LocalisedConfig<PluginConfig>>>(() => ({
-    rowCount: configRetrievalSucceeded.value || configRetrievalFailed.value ? pluginLocalisedConfigs.value.length : undefined, // Set count on success or failure, not pending.
-    getRows: (start, end): Promise<{ rows: LocalisedConfig<PluginConfig>[] }> => Promise.resolve({ rows: pluginLocalisedConfigs.value.slice(start, end) })
-}));
-
-// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-watch(
-    () => tabActiveConfig.value.configs.value,
-    (newConfigs) => (pluginLocalisedConfigs.value = localiseConfigs<PluginConfig>(newConfigs, localeId.value, true)),
-    { immediate: true }
-);
-
-watch(
-    pluginLocalisedConfigs,
-    (newConfigs) => {
-        if (routeId.value === undefined) return; // Exit if no plugin identifier in url.
-        if (newConfigs.some((config) => config.id === routeId.value)) return; // Exit if valid plugin identifier in url.
-        if (configRetrievalSucceeded.value || configRetrievalFailed.value) setRouteId(undefined); // Only clear invalid plugin identifier from url once retrieval is finalised.
-    },
-    { immediate: true }
-);
+const pluginLocalisedConfigs = computed(() => localiseConfigs<PluginConfig>(tabActiveConfig.value.configs.value, localeId.value, true)); // Derived, so a language switch re-localises.
+const tabActiveConfig = computed(() => assertDefined(TAB_CONFIGS[setupOptionLocalisedConfig.id], `Expected a plugin tab config with id '${setupOptionLocalisedConfig.id}'.`));
+const {
+    activeItem: pluginLocalisedConfigActive,
+    dataSource: pluginLocalisedConfigsDataSource,
+    selectItem
+} = useSetupSelection(pluginLocalisedConfigs, () => configRetrievalSucceeded.value || configRetrievalFailed.value);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleSelectPlugin(localisedConfig: LocalisedConfig<PluginConfig> | undefined): void {
-    setRouteId(pluginLocalisedConfigActive.value?.id === localisedConfig?.id ? undefined : localisedConfig?.id);
+function handleSelectPlugin(localisedConfig: LocalisedConfig<PluginConfig>): void {
+    selectItem(localisedConfig);
 }
 </script>
 
@@ -92,7 +67,7 @@ function handleSelectPlugin(localisedConfig: LocalisedConfig<PluginConfig> | und
         :row-height="16 + 16 + 28 + 16"
     >
         <template #item="{ item }">
-            <ConfigCard v-if="item" :config="item" :selected="item.id === pluginLocalisedConfigActive?.id" @click="handleSelectPlugin(item)" />
+            <ConfigCard :config="item" :selected="item.id === pluginLocalisedConfigActive?.id" @click="handleSelectPlugin(item)" />
         </template>
 
         <template #detail="{ item, close }">

@@ -7,13 +7,12 @@ import { HomeIcon } from '@lucide/vue';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { assertDefined } from '@/utilities/index.ts';
 import { navigationPendingDepth } from '@/router';
-import type { SetupOptionConfig } from '@/utilities/index.ts';
 import { T } from './SetupLayout_.json';
 import { t } from '@/state/locale';
 import { useSetupOptions } from './useSetupOptions';
 import { useSetupRoute } from './useSetupRoute';
+import { assertDefined, type SetupOptionConfig } from '@/utilities/index.ts';
 
 // ── Static Components
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
@@ -40,7 +39,7 @@ const setupOptionPanelIsLoading = computed(() => navigationPendingDepth.value ==
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleTabSelect(setupOptionLocalisedConfig: LocalisedConfig<SetupOptionConfig>): void {
+function handleSelectTab(setupOptionLocalisedConfig: LocalisedConfig<SetupOptionConfig>): void {
     if (setupOptionLocalisedConfig.id !== activeSetupOptionLocalisedConfig.value.id || routeId.value === undefined) return; // Exit if setup option id has changed or route context/plugin id is undefined.
     setRouteId(undefined); // Active tab clicked again - remove context/plugin id from path to clear active selection.
 }
@@ -52,7 +51,7 @@ function handleTabSelect(setupOptionLocalisedConfig: LocalisedConfig<SetupOption
         <StudioHeader :overline="t(T, 'studio.label')" :title="t(T, 'manageSetup.title')" to="studio" />
 
         <!-- Tab Bar -->
-        <TabBar :active-id="activeSetupOptionLocalisedConfig.id" :items="setupOptionLocalisedConfigs" @select="handleTabSelect">
+        <TabBar :active-id="activeSetupOptionLocalisedConfig.id" :items="setupOptionLocalisedConfigs" @select="handleSelectTab">
             <template #default="{ item }">
                 <HomeIcon v-if="item.id === 'home'" class="size-4.75! [&>path]:stroke-2" />
                 <div v-else class="text-sm">{{ item.label }}</div>

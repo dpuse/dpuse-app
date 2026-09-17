@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed } from 'vue';
+import { type Component, computed } from 'vue';
 import { ExternalLinkIcon, GlobeIcon, InfoIcon, UserRoundIcon } from '@lucide/vue';
 
 // ── DPUse Framework
@@ -9,7 +9,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { T } from './PluginPanel_.json';
-import { t } from '@/state/locale';
+import { localeId, t } from '@/state/locale';
 import type { PluginConfig, SetupOptionConfig } from '@/utilities/index.ts';
 
 // ── Static Components
@@ -19,6 +19,25 @@ import StudioDetailPanel from '@/features/studio/_components/StudioDetailPanel.v
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+interface VendorLink {
+    getURL: (config: LocalisedConfig<PluginConfig>) => string | null;
+    icon: Component;
+    id: string;
+    labelKey: keyof typeof T;
+}
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The GitHub link is kept out of this list: it always shows, builds its URL from the plugin id, and places its logo
+// inside the link.
+const VENDOR_LINKS: VendorLink[] = [
+    { getURL: (config) => config.vendorHomeURL, icon: GlobeIcon, id: 'website', labelKey: 'website.label' },
+    { getURL: (config) => config.vendorDocumentationURL, icon: InfoIcon, id: 'documentation', labelKey: 'documentation.label' },
+    { getURL: (config) => config.vendorAccountURL, icon: UserRoundIcon, id: 'signIn', labelKey: 'signIn.label' }
+];
+
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { pluginLocalisedConfig, setupOptionLocalisedConfig } = defineProps<{
@@ -26,11 +45,22 @@ const { pluginLocalisedConfig, setupOptionLocalisedConfig } = defineProps<{
     setupOptionLocalisedConfig: LocalisedConfig<SetupOptionConfig>;
 }>();
 
+defineSlots<{
+    default?(): unknown; // Rendered between the description and the links.
+    tags?(): unknown; // Rendered before the version and status tags.
+}>();
+
 defineEmits<{ close: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const pluginStatus = computed(() => (pluginLocalisedConfig.statusId ? getComponentStatus(pluginLocalisedConfig.statusId) : undefined));
+const pluginStatus = computed(() => (pluginLocalisedConfig.statusId ? getComponentStatus(pluginLocalisedConfig.statusId, localeId.value) : undefined));
+const vendorLinks = computed(() =>
+    VENDOR_LINKS.flatMap((vendorLink) => {
+        const url = vendorLink.getURL(pluginLocalisedConfig);
+        return url === null || url === '' ? [] : [{ ...vendorLink, url }];
+    })
+);
 </script>
 
 <template>
@@ -47,7 +77,8 @@ const pluginStatus = computed(() => (pluginLocalisedConfig.statusId ? getCompone
                 <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
                     <slot name="tags" />
                     <Tag :text="`v${pluginLocalisedConfig.version}`" />
-                    <Tag v-if="pluginStatus" :text="pluginLocalisedConfig.statusId ?? ''" :color="pluginStatus.color" />
+                    <!-- General availability has no label, so shows no tag. -->
+                    <Tag v-if="pluginStatus?.label" :text="pluginStatus.label" :color="pluginStatus.color" />
                 </div>
 
                 <!-- Description -->
@@ -59,29 +90,10 @@ const pluginStatus = computed(() => (pluginLocalisedConfig.statusId ? getCompone
                 <!-- Links -->
                 <h2>{{ t(T, 'links.title') }}</h2>
                 <ul>
-                    <li v-if="pluginLocalisedConfig.vendorHomeURL" class="flex items-center gap-x-2">
-                        <GlobeIcon class="size-4" />
-                        <a :href="pluginLocalisedConfig.vendorHomeURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            {{ pluginLocalisedConfig.label }}
-                            {{ t(T, 'website.label') }}
-                            <ExternalLinkIcon class="size-4" />
-                        </a>
-                    </li>
-
-                    <li v-if="pluginLocalisedConfig.vendorDocumentationURL" class="flex items-center gap-x-2">
-                        <InfoIcon class="size-4" />
-                        <a :href="pluginLocalisedConfig.vendorDocumentationURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            {{ pluginLocalisedConfig.label }}
-                            {{ t(T, 'documentation.label') }}
-                            <ExternalLinkIcon class="size-4" />
-                        </a>
-                    </li>
-
-                    <li v-if="pluginLocalisedConfig.vendorAccountURL" class="flex items-center gap-x-2">
-                        <UserRoundIcon class="size-4" />
-                        <a :href="pluginLocalisedConfig.vendorAccountURL" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            {{ pluginLocalisedConfig.label }}
-                            {{ t(T, 'signIn.label') }}
+                    <li v-for="vendorLink in vendorLinks" :key="vendorLink.id" class="flex items-center gap-x-2">
+                        <component :is="vendorLink.icon" class="size-4" />
+                        <a :href="vendorLink.url" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
+                            {{ t(T, vendorLink.labelKey, { label: pluginLocalisedConfig.label }) }}
                             <ExternalLinkIcon class="size-4" />
                         </a>
                     </li>

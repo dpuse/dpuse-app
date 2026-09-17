@@ -1,17 +1,21 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { SquarePenIcon } from '@lucide/vue';
-import { ref, shallowRef, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
 import type { ComponentBaseConfig } from '@dpuse/dpuse-shared/component';
 import type { ContextModelConfig } from '@dpuse/dpuse-shared/component/context/model';
+import type { ContextModelDimensionConfig } from '@dpuse/dpuse-shared/component/context/model/dimension';
+import type { ContextModelEntityConfig } from '@dpuse/dpuse-shared/component/context/model/entity';
+import type { ContextModelSecondaryMeasureConfig } from '@dpuse/dpuse-shared/component/context/model/secondaryMeasure';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import type { ContextModelDimensionHierarchyConfig, ContextModelDimensionHierarchyNodeConfig } from '@dpuse/dpuse-shared/component/context/model/dimension/hierarchy';
 
 // ── Local Framework
-import { defineAsyncPanel } from '@/utilities';
-import type { LocalisedDimension, LocalisedDimensionHierarchy, LocalisedDimensionHierarchyNode, LocalisedEntity, LocalisedModel, LocalisedSecondaryMeasure } from './_context';
+import { T } from './ContextModelPanel_.json';
+import { assertDefined, defineAsyncPanel } from '@/utilities';
+import { localeId, t } from '@/state/locale';
+import { localiseModel, localiseText } from './_context';
 import { purifyText, useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Data
@@ -24,35 +28,74 @@ import ContextEntityList from './ContextEntityList.vue';
 import ContextSecondaryMeasureList from './ContextSecondaryMeasureList.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
-import type { GridListItem } from './ContextModelList.vue';
 
 // ── Dynamic Components
 const ContextDescriptorsPanel = defineAsyncPanel(() => import('./_components/ContextDescriptorsPanel.vue'), 'ContextDescriptorsPanel');
 const ContextDimensionDiagramPanel = defineAsyncPanel(() => import('./ContextDimensionDiagramPanel.vue'), 'ContextDimensionDiagramPanel');
 const ContextEntityDiagramPanel = defineAsyncPanel(() => import('./ContextEntityDiagramPanel.vue'), 'ContextEntityDiagramPanel');
 
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+type DialogId = 'descriptors' | 'dimensionDiagram' | 'erdDiagram';
+
+type ItemCollectionId = 'dimensions' | 'entities' | 'secondaryMeasures';
+
+type ItemConfig = ContextModelDimensionConfig | ContextModelEntityConfig | ContextModelSecondaryMeasureConfig;
+
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { modelReference } = defineProps<{ modelReference: GridListItem<LocalisedConfig<ComponentBaseConfig>> }>();
+const { modelReference } = defineProps<{ modelReference: LocalisedConfig<ComponentBaseConfig> }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
+const activeModelConfig = ref<ContextModelConfig>(); // Deep, so an edit to one item's descriptors re-localises the model.
+const descriptorsSubjectLabel = ref(''); // Taken when the dialog opens, so its title holds steady while the label is edited.
+const editedItemConfig = shallowRef<ItemConfig>(); // Unset while the dialog is editing the model's own descriptors.
 const modelReferenceDescription = ref('');
 const modelReferenceLabel = ref('');
-const activeModel = shallowRef<LocalisedModel | undefined>();
-const modelDescriptorsDialogIsOpen = ref(false);
-const modelDimensionDiagramDialogIsOpen = ref(false);
-const modelErdDiagramDialogIsOpen = ref(false);
+const openDialogId = ref<DialogId>(); // One id rather than a flag per dialog, since only one can be open at a time.
+const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const activeModel = computed(() => (activeModelConfig.value ? localiseModel(activeModelConfig.value, localeId.value) : undefined)); // Derived, not stored, so a language switch re-localises the loaded model.
+
+// TODO: An item's edits go into its entry for the current language, leaving its other translations as they were.
+// TODO: Also edits are not saved to backend.
+const descriptorsDescription = computed({
+    get: () => (editedItemConfig.value ? localiseText(editedItemConfig.value.description, localeId.value) : modelReferenceDescription.value),
+    set: (newDescription: string) => {
+        if (editedItemConfig.value) editedItemConfig.value.description[localeId.value] = newDescription;
+        else modelReferenceDescription.value = newDescription;
+    }
+});
+// TODO: An item's edits go into its entry for the current language, leaving its other translations as they were.
+// TODO: Also edits are not saved to backend.
+const descriptorsLabel = computed({
+    get: () => (editedItemConfig.value ? localiseText(editedItemConfig.value.label, localeId.value) : modelReferenceLabel.value),
+    set: (newLabel: string) => {
+        if (editedItemConfig.value) editedItemConfig.value.label[localeId.value] = newLabel;
+        else modelReferenceLabel.value = newLabel;
+    }
+});
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 watch(
     () => modelReference,
-    async (newModelReference) => {
+    (newModelReference) => {
         modelReferenceDescription.value = newModelReference.description;
         modelReferenceLabel.value = newModelReference.label;
-        activeModel.value = localiseModel(await loadModel(newModelReference.id));
+    },
+    { immediate: true }
+);
+
+// Keyed on the id alone: a language switch hands over a new reference object for the same model, which 'activeModel'
+// re-localises without a reload.
+watch(
+    () => modelReference.id,
+    async (newModelId) => {
+        activeModelConfig.value = await loadModel(newModelId);
         if (!markedTool.value) await initialiseMarkedTool();
     },
     { immediate: true }
@@ -60,87 +103,41 @@ watch(
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
+function handleCloseDialog(): void {
+    openDialogId.value = undefined;
+}
+
+function handleEditItem(itemCollectionId: ItemCollectionId, item: { id: string; label: string }): void {
+    const itemConfigs: ItemConfig[] = assertDefined(activeModelConfig.value, 'Expected a loaded model before editing one of its items.')[itemCollectionId];
+    editedItemConfig.value = assertDefined(
+        itemConfigs.find((itemConfig) => itemConfig.id === item.id),
+        `Expected a model item with id '${item.id}'.`
+    );
+    descriptorsSubjectLabel.value = item.label;
+    openDialogId.value = 'descriptors';
+}
+
+function handleEditModel(): void {
+    editedItemConfig.value = undefined;
+    descriptorsSubjectLabel.value = modelReference.label;
+    openDialogId.value = 'descriptors';
+}
+
+function handleOpenDialog(dialogId: DialogId): void {
+    openDialogId.value = dialogId;
+}
+
 function handleRetryMarkedTool(): void {
     void initialiseMarkedTool();
 }
 
-function handleShowDimensionTreeDiagram(): void {
-    modelDimensionDiagramDialogIsOpen.value = true;
-}
-
-function handleShowErdDiagram(): void {
-    modelErdDiagramDialogIsOpen.value = true;
-}
-
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function loadModel(modelId: string): Promise<ContextModelConfig> {
-    // Future: return (await fetch(`/api/model-configs/${modelId}`)).json() as Promise<ContextModelConfig>;
+async function loadModel(modelId: string): Promise<ContextModelConfig | undefined> {
+    // Future: return (await fetch(`/api/model-configs/${modelId}`)).json() as Promise<ContextModelConfig | undefined>;
     await new Promise((resolve) => setTimeout(resolve, 400)); // Simulates the network latency the real fetch above will have.
-    return (modelConfigsData as unknown as Record<string, ContextModelConfig>)[modelId];
-}
-
-function localiseModel(model: ContextModelConfig): LocalisedModel {
-    const localisedEntities: LocalisedEntity[] = Array.from(model.entities, (entity) => ({
-        ...entity,
-        label: localiseText(entity.label),
-        description: localiseText(entity.description),
-        dataItems: Array.from(entity.dataItems, (dataItem) => ({ ...dataItem, label: localiseText(dataItem.label), description: localiseText(dataItem.description) })),
-        events: Array.from(entity.events, (event) => ({
-            ...event,
-            labelAction: localiseText(event.labelAction),
-            labelState: event.labelState ? localiseText(event.labelState) : undefined,
-            description: localiseText(event.description)
-        })),
-        primaryMeasures: Array.from(entity.primaryMeasures, (measure) => ({ ...measure, label: localiseText(measure.label), description: localiseText(measure.description) }))
-    }));
-    const localisedDimensions: LocalisedDimension[] = Array.from(model.dimensions, (dimension) => ({
-        ...dimension,
-        label: localiseText(dimension.label),
-        description: localiseText(dimension.description),
-        hierarchies: Array.from(dimension.hierarchies, localiseHierarchy)
-    }));
-    const localisedSecondaryMeasures: LocalisedSecondaryMeasure[] = Array.from(model.secondaryMeasures, (measure) => ({
-        ...measure,
-        label: localiseText(measure.label),
-        description: localiseText(measure.description)
-    }));
-    return {
-        ...model,
-        label: localiseText(model.label),
-        description: localiseText(model.description),
-        entities: localisedEntities,
-        dimensions: localisedDimensions,
-        secondaryMeasures: localisedSecondaryMeasures
-    };
-}
-
-function localiseHierarchy(hierarchy: ContextModelDimensionHierarchyConfig): LocalisedDimensionHierarchy {
-    return {
-        ...hierarchy,
-        label: localiseText(hierarchy.label),
-        description: localiseText(hierarchy.description),
-        levels: Array.from(hierarchy.levels, (level) => ({ ...level, label: localiseText(level.label), description: localiseText(level.description) })),
-        children: Array.from(hierarchy.children, localiseHierarchyNode)
-    };
-}
-
-// Recursive to match 'ContextModelDimensionHierarchyNodeConfig' — a hierarchy nests arbitrarily deep (the age
-// hierarchy's leaves are individual years), so there is no fixed depth to unroll.
-function localiseHierarchyNode(node: ContextModelDimensionHierarchyNodeConfig): LocalisedDimensionHierarchyNode {
-    return {
-        ...node,
-        label: localiseText(node.label),
-        description: localiseText(node.description),
-        children: node.children ? Array.from(node.children, localiseHierarchyNode) : undefined
-    };
-}
-
-// 'label'/'description' are locale maps, but not always: some primary measures (e.g. 'personLanguage') give a plain
-// string instead. 'description' can also be absent entirely on data items, events, and primary measures whose type
-// declares it optional — this still has to cope with that being 'undefined' at runtime.
-function localiseText(value: string | Partial<Record<string, string>> | undefined): string {
-    return typeof value === 'string' ? value : (value?.en ?? '');
+    const modelConfig = (modelConfigsData as unknown as Record<string, ContextModelConfig | undefined>)[modelId];
+    return modelConfig ? structuredClone(modelConfig) : undefined; // A copy, as a fetch would return, so edits don't write into the imported JSON.
 }
 </script>
 
@@ -153,45 +150,39 @@ function localiseText(value: string | Partial<Record<string, string>> | undefine
     <div v-else class="dpuse-prose flex-1 overflow-y-auto overscroll-y-none px-4 pb-(--vertical-scroll-bottom-screen-inset)">
         <div class="max-w-prose">
             <!-- Header -->
-            <h1 class="flex flex-none items-center justify-between gap-x-3 pt-6">
-                {{ modelReference.label }} Model
-                <ActionWrapper class="mr-4" @click="modelDescriptorsDialogIsOpen = true">
+            <div class="flex items-center justify-between gap-x-3 pt-6">
+                <h1>{{ t(T, 'model.title', { label: modelReference.label }) }}</h1>
+                <ActionWrapper :aria-label="t(T, 'edit.aria', { label: modelReference.label })" class="mr-4" @click="handleEditModel">
                     <SquarePenIcon class="size-5" stroke-width="1.5" />
                 </ActionWrapper>
-            </h1>
+            </div>
 
             <!-- Description -->
             <div v-html="purifyText(modelReferenceDescription)" />
 
-            <ContextEntityList :entities="activeModel?.entities ?? []" @edit="modelDescriptorsDialogIsOpen = true" @show-erd-diagram="handleShowErdDiagram" />
+            <ContextEntityList :entities="activeModel?.entities ?? []" @edit="handleEditItem('entities', $event)" @show-erd-diagram="handleOpenDialog('erdDiagram')" />
 
             <ContextDimensionList
                 :dimensions="activeModel?.dimensions ?? []"
-                @edit="modelDescriptorsDialogIsOpen = true"
-                @show-tree-diagram="handleShowDimensionTreeDiagram"
+                @edit="handleEditItem('dimensions', $event)"
+                @show-tree-diagram="handleOpenDialog('dimensionDiagram')"
             />
 
-            <ContextSecondaryMeasureList :secondary-measures="activeModel?.secondaryMeasures ?? []" @edit="modelDescriptorsDialogIsOpen = true" />
+            <ContextSecondaryMeasureList :secondary-measures="activeModel?.secondaryMeasures ?? []" @edit="handleEditItem('secondaryMeasures', $event)" />
         </div>
 
+        <!-- Only the descriptors panel takes a 'title': both diagram panels render their own 'DialogHeader'. -->
         <Dialog
-            :is-open="modelDescriptorsDialogIsOpen"
+            :is-open="openDialogId !== undefined"
             max-width="90vw"
             min-height="90vh"
             sizing="full"
-            :title="`${modelReference.label} Descriptors`"
-            @close="modelDescriptorsDialogIsOpen = false"
+            :title="openDialogId === 'descriptors' ? t(T, 'descriptors.title', { label: descriptorsSubjectLabel }) : undefined"
+            @close="handleCloseDialog"
         >
-            <ContextDescriptorsPanel v-if="modelDescriptorsDialogIsOpen" v-model:label="modelReferenceLabel" v-model:description="modelReferenceDescription" />
-        </Dialog>
-
-        <!-- No 'title' passed through: both diagram panels render their own 'DialogHeader', unlike 'ContextDescriptorsPanel' above. -->
-        <Dialog :is-open="modelDimensionDiagramDialogIsOpen" max-width="90vw" min-height="90vh" sizing="full" @close="modelDimensionDiagramDialogIsOpen = false">
-            <ContextDimensionDiagramPanel v-if="modelDimensionDiagramDialogIsOpen" />
-        </Dialog>
-
-        <Dialog :is-open="modelErdDiagramDialogIsOpen" max-width="90vw" min-height="90vh" sizing="full" @close="modelErdDiagramDialogIsOpen = false">
-            <ContextEntityDiagramPanel v-if="modelErdDiagramDialogIsOpen" />
+            <ContextDescriptorsPanel v-if="openDialogId === 'descriptors'" v-model:label="descriptorsLabel" v-model:description="descriptorsDescription" />
+            <ContextDimensionDiagramPanel v-else-if="openDialogId === 'dimensionDiagram'" />
+            <ContextEntityDiagramPanel v-else-if="openDialogId === 'erdDiagram'" />
         </Dialog>
     </div>
 </template>

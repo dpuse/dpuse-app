@@ -1,9 +1,9 @@
 {
     "T": {
-        "documentation.label": { "en": "Documentation", "es": "Documentación" },
+        "documentation.label": { "en": "{label} Documentation", "es": "Documentación de {label}" },
         "gitHubRepository.label": { "en": "GitHub Repository", "es": "Repositorio de GitHub" },
         "links.title": { "en": "Links", "es": "Enlaces" },
-        "signIn.label": { "en": "Sign in", "es": "Iniciar sesión" },
-        "website.label": { "en": "Website", "es": "Sitio web" }
+        "signIn.label": { "en": "{label} Sign in", "es": "Iniciar sesión en {label}" },
+        "website.label": { "en": "{label} Website", "es": "Sitio web de {label}" }
     }
 }
