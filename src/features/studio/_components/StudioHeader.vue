@@ -13,7 +13,7 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
 
 <template>
     <header
-        class="mt-[env(safe-area-inset-top)] flex h-13.75 flex-none flex-col justify-center border-t border-t-boundary"
+        class="mt-[env(safe-area-inset-top)] flex h-13.75 flex-none flex-col justify-center"
         :class="viewportIsWide ? (assistantPaneIsVisible ? 'pr-0 pl-4' : 'pr-16 pl-4') : 'px-16'"
         data-region="StudioHeader"
     >

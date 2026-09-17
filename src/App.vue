@@ -22,7 +22,7 @@ import {
     viewportIsWide
 } from '@/state/appLayout';
 import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors';
-import { debounce, defineAsyncPanel } from '@/utilities/index.ts';
+import { debounce, defineAsyncPanel, isSafariBrowser } from '@/utilities/index.ts';
 
 // ── Static Components
 import AssistantPaneToggle from '@/features/assistant/_components/AssistantPaneToggle.vue'; // Always visible.
@@ -53,6 +53,13 @@ const { activeDialogConfig, activeDialogId, closeDialog } = useDialogs();
 
 const paneSplitterPercent = ref(establishPaneSplitterPercent());
 const studioOptionBarIsVisible = ref(false); // Narrow displays only; on a wide one the option bar is always in the pane.
+
+// ── Derived State - Environment ──────────────────────────────────────────────────────────────────────────────────────
+
+// Safari tints its toolbar to match the page, and the installed app runs under a translucent status bar, so neither
+// shows where the page starts without a line of its own. Chrome and Edge draw their own toolbar edge. The installed app
+// is checked separately because it leaves Safari out of its user agent.
+const hasTopEdgeLine = isPWA || isSafariBrowser();
 
 // ── Derived State - Failures ─────────────────────────────────────────────────────────────────────────────────────────
 
@@ -211,6 +218,9 @@ function syncPaneQuery(): void {
             @dismiss="clearAppFailures"
             @retry="retryAppFailures"
         />
+
+        <!-- Top Edge Line - Fixed across the full width, below the status bar in the installed app. -->
+        <div v-if="hasTopEdgeLine" class="pointer-events-none fixed inset-x-0 top-[env(safe-area-inset-top)] z-50 h-px bg-separator" />
 
         <!-- Studio Pane Toggle - Fixed in top left corner above option bar or panes and always visible. -->
         <StudioPaneToggle @click="handleToggleStudioPane" />

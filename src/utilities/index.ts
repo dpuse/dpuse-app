@@ -135,6 +135,12 @@ export function defineAsyncPanel(loader: AsyncComponentLoader, name: string, opt
     });
 }
 
+// Read from the user agent because no feature test tells Safari apart. iPadOS Safari reports itself as macOS, and every
+// iOS browser also names Safari, so the other browsers are excluded by their own tokens.
+export function isSafariBrowser(): boolean {
+    return /^(?:(?!chrome|chromium|android|crios|edgios|fxios).)*safari/i.test(navigator.userAgent);
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // A slow or failing chunk is the one thing about this that cannot be reproduced on a fast local connection, so the
