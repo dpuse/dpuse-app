@@ -45,6 +45,23 @@ describe('defineAsyncPanel load failure', () => {
         expect(reportAppError).toHaveBeenCalledOnce();
     });
 
+    it('failureOwnsScreen shows an overlay’s failure as a dismissible modal rather than in its place', async () => {
+        history.replaceState({}, '', '/');
+        const onDismiss = vi.fn();
+        const panel = defineAsyncPanel(() => Promise.resolve(defineComponent({ template: '<div />' })), 'OverlayPanel', {
+            failureOwnsScreen: { onDismiss },
+            simulation: { failsToLoad: true }
+        });
+        const wrapper = mount(defineComponent({ render: () => h(panel) }), { attachTo: document.body });
+        await settle();
+
+        expect(wrapper.find('.owns-screen').exists()).toBe(true);
+        expect(wrapper.find('.notice-badge').exists()).toBe(false);
+        wrapper.find('dialog').element.dispatchEvent(new Event('close'));
+        expect(onDismiss).toHaveBeenCalledOnce();
+        wrapper.unmount();
+    });
+
     it('pre-existing simulation option works too', async () => {
         history.replaceState({}, '', '/');
         const wrapper = await render(defineAsyncPanel(() => Promise.resolve(defineComponent({ template: '<div />' })), 'SimPanel', { simulation: { failsToLoad: true } }));

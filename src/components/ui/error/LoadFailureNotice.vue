@@ -21,7 +21,8 @@ import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 // mounted with that prop alone. 'name' and 'retry' are supplied by 'defineAsyncPanel', which is also why 'retry' can
 // remount the panel for a genuine second attempt where Vue's own hook could not. Both stay optional so this still
 // renders if it is ever used by hand, where the reload is the only recovery left.
-const { error, name, retry } = defineProps<{ error: unknown; name?: string; retry?: () => void }>();
+const { error, name, ownsScreen, retry } = defineProps<{ error: unknown; name?: string; ownsScreen?: boolean; retry?: () => void }>();
+const emit = defineEmits<{ dismiss: [] }>();
 
 // There is no root element to receive attributes until a failure has been captured, so anything falling through would
 // have nowhere to land.
@@ -62,6 +63,14 @@ function handleRetry(): void {
 
 <template>
     <!-- Covers the region: this stands in for a panel that never arrived, so the space it would have occupied is
-         exactly what has failed. -->
-    <ErrorNotice v-if="loadFailure" covers-region :failures="[loadFailure]" @retry="handleRetry" />
+         exactly what has failed. An overlay has no such space, so its failure takes the screen instead. -->
+    <ErrorNotice
+        v-if="loadFailure"
+        :covers-region="!ownsScreen"
+        :failures="[loadFailure]"
+        :is-dismissible="ownsScreen"
+        :owns-screen="ownsScreen"
+        @dismiss="emit('dismiss')"
+        @retry="handleRetry"
+    />
 </template>

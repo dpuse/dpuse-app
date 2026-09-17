@@ -12,7 +12,10 @@ import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 
 // ── Dynamic Components
-const SessionMenu = defineAsyncPanel(() => import('@/features/session/SessionMenu.vue'), 'SessionMenu', { hasPlaceholder: false });
+const SessionMenu = defineAsyncPanel(() => import('@/features/session/SessionMenu.vue'), 'SessionMenu', {
+    failureOwnsScreen: { onDismiss: () => (sessionMenuIsOpen.value = false) },
+    hasPlaceholder: false
+});
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

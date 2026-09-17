@@ -25,6 +25,10 @@ export const VISIBLE_DELAY_MS = 150;
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface AsyncPanelOptions {
+    // For an overlay, which has no region for its failure to stand in: in its place the failure would squeeze into
+    // whatever the overlay is anchored to, which is a badge at best. It is shown as a modal instead, and dismissing it
+    // calls 'onDismiss' so the overlay's open state closes with it.
+    failureOwnsScreen?: { onDismiss: () => void };
     // Overlays and layout chrome — dialogs, menus, the pane splitter — must not be stood in for while they load. The
     // spinner sits in the normal flow, so in their place it either appears where an overlay never would or, for the
     // splitter, claims a full flex share and shoves the panes it divides. They are invisible until ready instead.
@@ -84,7 +88,7 @@ export function debounce<Arguments extends unknown[]>(function_: (...arguments_:
 // 'defineAsyncComponent' passes its error component only the error — not the 'retry' its own options document — so
 // the retry offered to the user is built here instead.
 export function defineAsyncPanel(loader: AsyncComponentLoader, name: string, options: AsyncPanelOptions = {}): Component {
-    const { hasPlaceholder = true, simulation } = options;
+    const { failureOwnsScreen, hasPlaceholder = true, simulation } = options;
 
     // Bumping this remounts the panel, which is what makes a retry actually fetch again: Vue drops its cached request
     // as soon as a load fails, so a fresh mount is a fresh attempt rather than a replay of the failure. The failure
@@ -96,7 +100,7 @@ export function defineAsyncPanel(loader: AsyncComponentLoader, name: string, opt
     // reads correctly and is silently inert: Vue takes 'setup' from the component's own definition, and 'extends' does
     // not put it there, so the base's template was inherited while none of its script ran — no display, no report.
     // Forwarding the props by hand is what makes the failure component actually run.
-    const errorComponent = (failureProperties: { error: unknown }): VNode => h(LoadFailureNotice, { ...failureProperties, name, retry: () => attempt.value++ });
+    const errorComponent = (failureProperties: { error: unknown }): VNode => h(LoadFailureNotice, { ...failureProperties, name, onDismiss: failureOwnsScreen?.onDismiss, ownsScreen: failureOwnsScreen != null, retry: () => attempt.value++ });
 
     // 'delay' is stated rather than left to defineAsyncComponent's own default of 200ms, which is a number this app
     // never chose. A failure is always shown, even where the load itself is not: it is the one thing the user has to

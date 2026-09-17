@@ -7,7 +7,6 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { activeStudioOptionConfig } from '@/state/activeStudioOption';
-import { isPWA } from '@/state/appLayout';
 import { t } from '@/state/locale';
 import { type StudioOptionConfig, useStudioOptions } from './useStudioOptions';
 
@@ -62,8 +61,7 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
 <template>
     <nav
         aria-label="Studio options"
-        class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-t border-r border-r-separator bg-backdrop pt-13.5 pb-[calc(var(--vertical-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
-        :class="isPWA ? 'border-t-separator' : 'border-t-transparent'"
+        class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-t border-r border-t-boundary border-r-separator bg-backdrop pt-13.5 pb-[calc(var(--vertical-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
         data-region="OptionPanel"
     >
         <!-- Separator -->
