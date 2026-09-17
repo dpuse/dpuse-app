@@ -4,8 +4,8 @@ import { ChevronRightIcon, SquarePenIcon } from '@lucide/vue';
 
 // ── Local Framework
 import { purifyText } from '@/services/useMarkedTool';
-import { T } from './ContextDisclosure_.json';
 import { t } from '@/state/locale';
+import { TEXT } from './ContextDisclosure_.json';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -42,7 +42,7 @@ defineEmits<{ edit: []; toggle: [] }>();
             <!-- Actions -->
             <div class="flex items-center">
                 <slot name="actions" />
-                <ActionWrapper :aria-label="t(T, 'edit.aria', { label })" @click="$emit('edit')">
+                <ActionWrapper :aria-label="t(TEXT, 'edit.aria', { label })" @click="$emit('edit')">
                     <SquarePenIcon class="size-5" stroke-width="1.5" />
                 </ActionWrapper>
             </div>

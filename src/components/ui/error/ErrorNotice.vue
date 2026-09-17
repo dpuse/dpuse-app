@@ -48,7 +48,7 @@ const emit = defineEmits<{ dismiss: []; retry: [] }>();
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const T = {
+const TEXT = {
     'detail.aria': { en: 'Show error details', es: 'Mostrar detalles del error' },
     'dismiss.aria': { en: 'Dismiss', es: 'Descartar' },
     'reload.label': { en: 'Reload', es: 'Recargar' },
@@ -126,7 +126,7 @@ function handleShowDetail(): void {
         <template v-if="!ownsScreen">
             <!-- Badge - the container is too narrow for prose, so the body moves to a dialog. -->
             <button
-                :aria-label="t(T, 'detail.aria')"
+                :aria-label="t(TEXT, 'detail.aria')"
                 class="notice-badge items-center justify-center rounded-md border border-warning-ring/20 bg-warning p-1.5 text-warning-text hover:bg-warning-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring active:bg-warning-active"
                 :title="mainSerialisedError.message"
                 type="button"
@@ -157,7 +157,7 @@ function handleShowDetail(): void {
         <dialog v-else ref="screenDialogReference" class="screen-dialog" @cancel="emit('dismiss')" @close="emit('dismiss')">
             <div class="relative">
                 <ErrorBody :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
-                <CloseButton v-if="isDismissible" :aria-label="t(T, 'dismiss.aria')" class="absolute top-2 right-2" @click="screenDialog?.close()" />
+                <CloseButton v-if="isDismissible" :aria-label="t(TEXT, 'dismiss.aria')" class="absolute top-2 right-2" @click="screenDialog?.close()" />
             </div>
         </dialog>
     </div>

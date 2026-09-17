@@ -6,8 +6,8 @@ import { computed, ref, useId } from 'vue';
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
 import type { LocalisedEntity } from './_context';
-import { T } from './ContextEntityList_.json';
 import { t } from '@/state/locale';
+import { TEXT } from './ContextEntityList_.json';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -18,7 +18,7 @@ import ContextDocument from './_components/ContextDocument.vue';
 interface EntityTab {
     getItems: (entity: LocalisedEntity) => { id: string; label: string }[];
     id: EntityTabId;
-    labelKey: keyof typeof T;
+    labelKey: keyof typeof TEXT;
 }
 
 type EntityTabId = 'dataItems' | 'events' | 'parents' | 'primaryMeasures';
@@ -87,9 +87,9 @@ function createEntityTabPanelElementId(entityId: string): string {
 </script>
 
 <template>
-    <ContextDocument :description="t(T, 'entities.text')" :items="entities" :title="t(T, 'entities.title')" @edit="$emit('edit', $event)">
+    <ContextDocument :description="t(TEXT, 'entities.text')" :items="entities" :title="t(TEXT, 'entities.title')" @edit="$emit('edit', $event)">
         <template #titleActions>
-            <ActionWrapper :aria-label="t(T, 'erdDiagram.aria')" class="mr-4" @click="$emit('showErdDiagram')">
+            <ActionWrapper :aria-label="t(TEXT, 'erdDiagram.aria')" class="mr-4" @click="$emit('showErdDiagram')">
                 <NetworkIcon class="size-5" stroke-width="1.5" />
             </ActionWrapper>
         </template>
@@ -97,7 +97,7 @@ function createEntityTabPanelElementId(entityId: string): string {
         <template #default="{ item: entity }">
             <!-- Entity Tabs -->
             <div
-                :aria-label="t(T, 'entityTabs.aria', { label: entity.label })"
+                :aria-label="t(TEXT, 'entityTabs.aria', { label: entity.label })"
                 class="flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator"
                 role="tablist"
             >
@@ -113,7 +113,7 @@ function createEntityTabPanelElementId(entityId: string): string {
                         @click="expandedEntityTabId = entityTab.id"
                         @keydown="handleNavigateEntityTabs($event, entityTabIndex)"
                     >
-                        <div>{{ t(T, entityTab.labelKey) }}</div>
+                        <div>{{ t(TEXT, entityTab.labelKey) }}</div>
                     </ActionWrapper>
                 </template>
             </div>
@@ -126,7 +126,7 @@ function createEntityTabPanelElementId(entityId: string): string {
                 role="tabpanel"
                 tabindex="0"
             >
-                <!-- TODO: show a 'none' message from 'T' when the selected tab has no items; the panel is otherwise blank but still focusable. -->
+                <!-- TODO: show a 'none' message from 'TEXT' when the selected tab has no items; the panel is otherwise blank but still focusable. -->
                 <div v-for="entityTabItem in expandedEntityTab.getItems(entity)" :key="entityTabItem.id">{{ entityTabItem.label }}</div>
             </div>
         </template>

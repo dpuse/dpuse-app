@@ -40,7 +40,7 @@ import StudioListPanel from '@/features/studio/_components/StudioListPanel.vue';
 // ── Dynamic Components
 const EmptyPlaceholder = defineAsyncPanel(() => import('~/src/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');
 
-const T = {
+const TEXT = {
     'dataView.label': { en: 'Data View', es: 'Vista de Datos' },
     'dataView.one.text': { en: 'data view', es: 'vista de datos' },
     'dataView.other.text': { en: 'data views', es: 'vistas de datos' }
@@ -192,9 +192,9 @@ function updateDataViewIdParameter(dataViewId?: string): void {
 
             <template #no-items>
                 <EmptyPlaceholder
-                    :message-item-label="t(T, 'dataView.other.text')"
-                    :description-item-label="t(T, 'dataView.one.text')"
-                    :action-item-label="t(T, 'dataView.label')"
+                    :message-item-label="t(TEXT, 'dataView.other.text')"
+                    :description-item-label="t(TEXT, 'dataView.one.text')"
+                    :action-item-label="t(TEXT, 'dataView.label')"
                 />
             </template>
 

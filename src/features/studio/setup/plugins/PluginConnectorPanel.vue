@@ -8,7 +8,7 @@ import { type ConnectorConfig, constructConnectorCategoryConfig } from '@dpuse/d
 
 // ── Local Framework
 import type { SetupOptionConfig } from '@/utilities/index.ts';
-import { T } from './PluginConnectorPanel_.json';
+import { TEXT } from './PluginConnectorPanel_.json';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -62,12 +62,12 @@ const connectorCategoryLabel = computed(() => constructConnectorCategoryConfig(p
         <p>{{ CONNECTOR_USAGE_DESCRIPTIONS[pluginLocalisedConfig.usageId ?? 'unknown'] }}</p>
 
         <!-- Authentication -->
-        <h2>{{ t(T, 'authentication.title') }}</h2>
+        <h2>{{ t(TEXT, 'authentication.title') }}</h2>
         <p v-for="method in authMethods" :key="method">
             {{ AUTH_METHOD_DESCRIPTIONS[method] ?? method }}
         </p>
 
         <!-- Connections -->
-        <h2>{{ t(T, 'connections.title') }}</h2>
+        <h2>{{ t(TEXT, 'connections.title') }}</h2>
     </PluginPanel>
 </template>

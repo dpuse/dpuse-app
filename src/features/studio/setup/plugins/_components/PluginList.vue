@@ -6,7 +6,7 @@ import { type Component, computed, type ShallowRef } from 'vue';
 import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { T } from './PluginList_.json';
+import { TEXT } from './PluginList_.json';
 import { useSetupSelection } from '../../useSetupSelection';
 import { assertDefined, defineAsyncPanel, type PluginConfig, type SetupOptionConfig } from '@/utilities/index.ts';
 import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/session';
@@ -26,7 +26,7 @@ const PluginToolPanel = defineAsyncPanel(() => import('@/features/studio/setup/p
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const TAB_CONFIGS: Partial<Record<string, { configs: ShallowRef<PluginConfig[]>; panel: Component; selectKey: keyof typeof T }>> = {
+const TAB_CONFIGS: Partial<Record<string, { configs: ShallowRef<PluginConfig[]>; panel: Component; selectKey: keyof typeof TEXT }>> = {
     connectors: { configs: connectorConfigs, panel: PluginConnectorPanel, selectKey: 'selectConnector.text' },
     cookbooks: { configs: cookbookConfigs, panel: PluginCookbookPanel, selectKey: 'selectCookbook.text' },
     presenters: { configs: presenterConfigs, panel: PluginPresenterPanel, selectKey: 'selectPresenter.text' },
@@ -75,7 +75,7 @@ function handleSelectPlugin(localisedConfig: LocalisedConfig<PluginConfig>): voi
         </template>
 
         <template #no-selection>
-            <SelectPlaceholder :message="t(T, tabActiveConfig.selectKey)" />
+            <SelectPlaceholder :message="t(TEXT, tabActiveConfig.selectKey)" />
         </template>
     </GridDetailPanel>
 </template>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { useRoute } from 'vue-router';
 import { nextTick, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
@@ -16,12 +15,14 @@ import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 
 // Wraps a region so a failure inside it costs only that region. 'name' identifies the region in the reported error;
 // it is not shown to the user, whose message comes from the error itself.
-const { name } = defineProps<{ name: string }>();
+const { name, resetKey } = defineProps<{
+    name: string;
+    resetKey?: unknown; // A change clears the error, e.g. the route's full path, so it clears on navigation.
+}>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const capturedFailure = shallowRef<AppFailure | undefined>();
-const route = useRoute();
 const slotIsMounted = ref(true); // Cleared for one tick on retry, which is what forces the slot to remount.
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -41,9 +42,9 @@ onErrorCaptured((error, _instance, info) => {
     return false;
 });
 
-// An error belongs to the view that produced it; navigating away should not leave it stranded over the new one.
+// An error belongs to the view that produced it; moving on should not leave it stranded over the new one.
 watch(
-    () => route.fullPath,
+    () => resetKey,
     () => {
         if (capturedFailure.value) void handleRetry();
     }

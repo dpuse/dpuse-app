@@ -1,13 +1,14 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { ArrowLeftIcon } from '@lucide/vue';
+import type { RouteLocationRaw } from 'vue-router';
 
 // ── Local Framework
 import { assistantPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { overline, title, to } = defineProps<{ overline?: string; title: string; to?: string }>();
+const { overline, title, to } = defineProps<{ overline?: string; title: string; to?: RouteLocationRaw }>();
 </script>
 
 <template>
@@ -20,10 +21,10 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
              NOTE: If width of logos changes, the above settings need to be adjusted accordingly. -->
 
         <component
-            :is="to && to !== $route.name ? 'RouterLink' : 'div'"
+            :is="to ? 'RouterLink' : 'div'"
             class="min-w-0 text-content"
-            :class="{ 'text-center': !viewportIsWide, 'group cursor-pointer': to && to !== $route.name }"
-            :to="{ name: to, query: $route.query }"
+            :class="{ 'text-center': !viewportIsWide, 'group cursor-pointer': to }"
+            :to="to"
         >
             <!-- Overline -->
             <div

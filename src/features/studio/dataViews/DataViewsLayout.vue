@@ -20,7 +20,7 @@ import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const T = {
+const TEXT = {
     'establishDataViews.title': { en: 'Establish Data Views', es: 'Establecer Vistas de Datos' },
     'studio.label': { en: 'Studio', es: 'Estudio' }
 };
@@ -52,11 +52,15 @@ const taskLocalisedConfigsWithDisabled = computed((): LocalisedConfig<TaskConfig
 // layout itself, which is what keeps the header and task bar in place through a panel swap.
 const panelIsLoading = computed(() => navigationPendingDepth.value === 1);
 
+const taskBarItems = computed(() =>
+    taskLocalisedConfigsWithDisabled.value.map((config) => ({ ...config, to: config.disabled === true ? undefined : { name: config.id, query: route.query } }))
+);
+
 const activeTaskLocalisedConfig = computed(() => taskLocalisedConfigsWithDisabled.value.find((config) => config.id === route.name));
 const navigateBackRouteName = computed(() => (route.name === 'dataViews' ? 'studio' : 'dataViews'));
-const headerOverline = computed(() => t(T, activeTaskLocalisedConfig.value ? 'establishDataViews.title' : 'studio.label'));
+const headerOverline = computed(() => t(TEXT, activeTaskLocalisedConfig.value ? 'establishDataViews.title' : 'studio.label'));
 const headerTitle = computed(() => {
-    if (!activeTaskLocalisedConfig.value) return t(T, 'establishDataViews.title');
+    if (!activeTaskLocalisedConfig.value) return t(TEXT, 'establishDataViews.title');
     return activeDataViewConfig.value ? localiseConfig(activeDataViewConfig.value, localeId.value).label : 'Loading...';
 });
 
@@ -98,10 +102,10 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
 <template>
     <StudioLayout>
         <!-- Header -->
-        <StudioHeader class="flex-none px-4" :overline="headerOverline" :title="headerTitle" :to="navigateBackRouteName" />
+        <StudioHeader class="flex-none px-4" :overline="headerOverline" :title="headerTitle" :to="{ name: navigateBackRouteName, query: route.query }" />
 
         <!-- Task Bar -->
-        <TaskBar v-if="activeTaskLocalisedConfig" :active-task-id="activeTaskLocalisedConfig.id" class="flex flex-none" :items="taskLocalisedConfigsWithDisabled" />
+        <TaskBar v-if="activeTaskLocalisedConfig" :active-id="activeTaskLocalisedConfig.id" :items="taskBarItems" />
 
         <!-- Data View List or Active Task Panel -->
         <RouterView v-slot="{ Component }">

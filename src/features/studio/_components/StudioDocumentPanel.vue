@@ -39,7 +39,10 @@ const panesAreSplit = inject(gridDetailIsSplitKey, ref(false));
 
                 <!-- Icon/Title -->
                 <div class="mr-9! flex min-w-0 items-start gap-x-2">
-                    <ConfigIcon class="mt-1 h-8 w-7" :icon="icon" :icon-dark="iconDark" />
+                    <!-- One title line tall, so the icon centres on the first line however the title wraps. -->
+                    <div class="flex h-10 flex-none items-center">
+                        <ConfigIcon class="h-6" :icon="icon" :icon-dark="iconDark" />
+                    </div>
                     <h1 class="min-w-0 py-1 text-left leading-8! wrap-break-word whitespace-normal">
                         {{ title }}
                     </h1>

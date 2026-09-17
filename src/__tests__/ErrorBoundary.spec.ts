@@ -3,7 +3,6 @@ import { mount } from '@vue/test-utils';
 import { reportAppError } from '@/observability/errorTracking';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { appFailures, clearAppFailures } from '@/state/errors';
-import { createMemoryHistory, createRouter } from 'vue-router';
 import { defineComponent, nextTick } from 'vue';
 
 vi.mock('@/observability/errorTracking', () => ({ reportAppError: vi.fn(() => Promise.resolve(true)) }));
@@ -24,20 +23,10 @@ function buildChild(message: string, failureCount = Infinity): { component: Retu
     return { component, renderCount: (): number => state.renders };
 }
 
-async function mountBoundary(component: ReturnType<typeof defineComponent>): Promise<{ router: ReturnType<typeof createRouter>; wrapper: ReturnType<typeof mount> }> {
-    const router = createRouter({
-        history: createMemoryHistory(),
-        routes: [
-            { path: '/', component: { template: '<div />' } },
-            { path: '/elsewhere', component: { template: '<div />' } }
-        ]
-    });
-    await router.push('/');
-    await router.isReady();
-
-    const wrapper = mount(ErrorBoundary, { global: { plugins: [router] }, props: { name: 'TestRegion' }, slots: { default: component } });
+async function mountBoundary(component: ReturnType<typeof defineComponent>): Promise<{ wrapper: ReturnType<typeof mount> }> {
+    const wrapper = mount(ErrorBoundary, { props: { name: 'TestRegion', resetKey: '/' }, slots: { default: component } });
     await nextTick();
-    return { router, wrapper };
+    return { wrapper };
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -72,12 +61,12 @@ describe('ErrorBoundary', () => {
         expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(false);
     });
 
-    it('clears the error on navigation, so it does not outlive the view that produced it', async () => {
+    it('clears the error when the reset key changes, so it does not outlive the view that produced it', async () => {
         const { component } = buildChild('Failed to render.', 1);
-        const { router, wrapper } = await mountBoundary(component);
+        const { wrapper } = await mountBoundary(component);
         expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(true);
 
-        await router.push('/elsewhere');
+        await wrapper.setProps({ resetKey: '/elsewhere' });
         await nextTick();
         await nextTick();
 

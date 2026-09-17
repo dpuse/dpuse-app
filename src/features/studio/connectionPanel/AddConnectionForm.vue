@@ -11,8 +11,8 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { accountId } from '@/state/session';
-import T from './AddConnectionForm.json';
 import { t } from '@/state/locale';
+import { TEXT } from './AddConnectionForm_.json';
 import { useEngine } from '@/services/useEngine';
 
 // ── Static Components

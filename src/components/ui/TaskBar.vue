@@ -1,20 +1,16 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
-import { nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
+import type { RouteLocationRaw } from 'vue-router';
 
-// ── Local Framework
+// ── DPUse Framework
 import type { LocaleDescription, LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
+import ScrollRow from '@/components/ui/scroll/ScrollRow.vue';
 
-// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-interface Properties {
-    activeTaskId?: string;
-    items?: LocalisedConfig<TaskConfig>[];
-}
 export interface TaskConfig {
     id: string;
     label: LocaleLabel;
@@ -24,120 +20,43 @@ export interface TaskConfig {
     number: number;
     verb?: LocaleLabel;
 }
-const { activeTaskId, items = [] } = defineProps<Properties>();
 
-defineSlots<{ default(properties: { item: LocalisedConfig<TaskConfig> }): unknown }>();
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-defineEmits<{ select: [stepConfig: LocalisedConfig<TaskConfig>] }>();
-
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const rowElement = ref<HTMLElement | null>(null);
-const resizeObserver = shallowRef<ResizeObserver>();
-const rowCanScrollLeft = ref(false);
-const rowCanScrollRight = ref(false);
-
-// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-onMounted(() => {
-    handleUpdateScrollState();
-    resizeObserver.value = new ResizeObserver(handleUpdateScrollState);
-    if (rowElement.value) resizeObserver.value.observe(rowElement.value);
-});
-
-watch(
-    () => items,
-    () => nextTick(handleUpdateScrollState)
-);
-
-onBeforeUnmount(() => {
-    resizeObserver.value?.disconnect();
-});
-
-// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-function handleScrollButtonClicked(direction: 'left' | 'right'): void {
-    const row = rowElement.value;
-    if (!row) return;
-    const children = [...row.children] as HTMLElement[];
-
-    if (direction === 'right') {
-        const visibleRight = row.scrollLeft + row.clientWidth;
-        const nextItem = children.find((child) => child.offsetLeft + child.offsetWidth > visibleRight + 1);
-        row.scrollTo({ left: nextItem ? nextItem.offsetLeft + nextItem.offsetWidth - row.clientWidth : row.scrollWidth, behavior: 'smooth' });
-    } else {
-        const nextItem = children.findLast((child) => child.offsetLeft < row.scrollLeft - 1);
-        row.scrollTo({ left: nextItem ? nextItem.offsetLeft : 0, behavior: 'smooth' });
-    }
-}
-
-function handleUpdateScrollState(): void {
-    const row = rowElement.value;
-    if (!row) return;
-    rowCanScrollLeft.value = row.scrollLeft > 0;
-    rowCanScrollRight.value = row.scrollLeft + row.clientWidth < row.scrollWidth - 1;
-}
+const { activeId, items = [] } = defineProps<{ activeId?: string; items?: (LocalisedConfig<TaskConfig> & { to?: RouteLocationRaw })[] }>();
 </script>
 
 <template>
-    <div class="@container relative" data-region="TaskBar">
-        <div ref="rowElement" class="flex min-w-0 flex-1 gap-x-1 overflow-x-auto overscroll-x-none border-b border-separator px-4" @scroll="handleUpdateScrollState">
-            <component
-                :is="item.disabled ? 'div' : ActionWrapper"
-                v-for="item in items"
-                :key="item.id"
-                :aria-selected="activeTaskId === item.id"
-                class="border-y-2 border-b-transparent py-1"
-                :class="{
-                    'border-t-accent': activeTaskId === item.id || !item.disabled,
-                    'border-t-zinc-300 dark:border-t-zinc-500': item.disabled
-                }"
-                role="tab"
-                :to="!item.disabled && item.id != null ? { name: item.id, query: $route.query } : undefined"
-                @click="$emit('select', item)"
-            >
+    <ScrollRow class="@container flex-none" data-region="TaskBar" row-class="gap-x-1">
+        <component
+            :is="item.disabled ? 'div' : ActionWrapper"
+            v-for="item in items"
+            :key="item.id"
+            :aria-selected="activeId === item.id"
+            class="flex flex-col gap-y-1 py-1 text-sm"
+            :class="item.disabled ? 'text-muted' : 'text-accent'"
+            role="tab"
+            :to="item.to"
+        >
+            <!-- Step line with the number on it. The line is drawn through the middle of the number, so the number is
+                 never cut off by the top of the tab. -->
+            <div class="relative flex h-4 items-center">
+                <div class="absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2" :class="item.disabled ? 'bg-muted' : 'bg-accent'" />
                 <div
-                    class="flex items-center gap-x-1.5 pr-2 text-sm"
-                    :class="{
-                        'text-accent': activeTaskId === item.id || !item.disabled,
-                        'text-subtle': item.disabled
-                    }"
+                    class="relative flex size-4 items-center justify-center rounded-full text-xs font-bold text-surface"
+                    :class="item.disabled ? 'bg-muted' : 'bg-accent'"
                 >
-                    <div
-                        class="flex size-5 items-center justify-center rounded-full border-2 text-xs font-bold"
-                        :class="{ 'border-accent': activeTaskId === item.id || !item.disabled, 'border-zinc-300 text-subtle dark:border-zinc-500': item.disabled }"
-                    >
-                        {{ item.number }}
-                    </div>
-
-                    <!-- Verb and label share a line once the bar itself is wide enough, which is not the same question
-                         as the viewport being wide: the bar sits in an app pane the splitter resizes. -->
-                    <div class="flex flex-col leading-none @min-[40rem]:flex-row @min-[40rem]:gap-x-1">
-                        <span>{{ item.verb }}</span>
-                        <span>{{ item.label }}</span>
-                    </div>
+                    <!-- 'text-box' trims the font's empty space above and below the digits, so they sit in the middle of the circle. -->
+                    <span class="[text-box:trim-both_cap_alphabetic]">{{ item.number }}</span>
                 </div>
-            </component>
-        </div>
+            </div>
 
-        <button
-            v-if="rowCanScrollLeft"
-            aria-label="Scroll left"
-            class="absolute inset-y-0 left-0 flex items-center bg-linear-to-r from-surface to-transparent py-2 pr-4 pl-1"
-            type="button"
-            @click="handleScrollButtonClicked('left')"
-        >
-            <ChevronLeftIcon class="size-5 rounded-full text-content hover:bg-zinc-100 dark:hover:bg-zinc-300/25" />
-        </button>
-
-        <button
-            v-if="rowCanScrollRight"
-            aria-label="Scroll right"
-            class="absolute inset-y-0 right-0 flex items-center bg-linear-to-l from-surface to-transparent py-2 pr-1 pl-4"
-            type="button"
-            @click="handleScrollButtonClicked('right')"
-        >
-            <ChevronRightIcon class="size-5 rounded-full text-content hover:bg-zinc-100 dark:hover:bg-zinc-300/25" />
-        </button>
-    </div>
+            <!-- Verb and label share a line once the bar itself is wide enough, which is not the same question
+                 as the viewport being wide: the bar sits in an app pane the splitter resizes. -->
+            <div class="flex flex-col pr-2 leading-none @min-[40rem]:flex-row @min-[40rem]:gap-x-1">
+                <span>{{ item.verb }}</span>
+                <span>{{ item.label }}</span>
+            </div>
+        </component>
+    </ScrollRow>
 </template>

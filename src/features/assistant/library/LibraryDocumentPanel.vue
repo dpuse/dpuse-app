@@ -16,7 +16,7 @@ import Tag from '@/components/ui/Tag.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const T = {
+const TEXT = {
     'close.aria': { en: 'Close the document', es: 'Cerrar el documento' }
 };
 
@@ -77,6 +77,6 @@ defineEmits<{ close: [] }>();
 
         <!-- Pinned rather than carried in the heading, which now scrolls away: a document that cannot be dismissed
              without scrolling back to the top is a trap. Same treatment as the pane toggles it sits among. -->
-        <CloseButton :aria-label="t(T, 'close.aria')" class="absolute top-3 right-3 bg-surface shadow-md" @click="$emit('close')" />
+        <CloseButton :aria-label="t(TEXT, 'close.aria')" class="absolute top-3 right-3 bg-surface shadow-md" @click="$emit('close')" />
     </div>
 </template>

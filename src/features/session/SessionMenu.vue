@@ -25,7 +25,7 @@ import Separator from '@/components/ui/Separator.vue';
 
 const APPEARANCE_KEY = 'dpuse-appearance';
 
-const T = {
+const TEXT = {
     'appearance.label': { en: 'Appearance', es: 'Apariencia' },
     'collapse.label': { en: 'Collapse', es: 'Contraer' },
     'dark.label': { en: 'Dark', es: 'Oscura' },
@@ -182,16 +182,16 @@ async function toggleFullscreen(): Promise<void> {
                     <div class="flex flex-1 flex-col">
                         <div class="flex flex-col">
                             <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
-                            <div class="text-sm font-semibold text-muted">{{ t(T, 'appearance.label') }}</div>
+                            <div class="text-sm font-semibold text-muted">{{ t(TEXT, 'appearance.label') }}</div>
                             <!-- <div class="border-boundary h-px flex-1 border-t" /> -->
                             <Separator class="mt-1 mb-2.25 flex-none" />
                         </div>
                         <div class="flex gap-x-2">
                             <IconButton
-                                :accessible-label="t(T, 'system.label')"
+                                :accessible-label="t(TEXT, 'system.label')"
                                 class="flex-1"
                                 :is-active="currentAppearance === 'auto'"
-                                :label="t(T, 'system.label')"
+                                :label="t(TEXT, 'system.label')"
                                 size="sm"
                                 @click="handleSetAppearance('auto')"
                             >
@@ -199,10 +199,10 @@ async function toggleFullscreen(): Promise<void> {
                             </IconButton>
 
                             <IconButton
-                                :accessible-label="t(T, 'light.label')"
+                                :accessible-label="t(TEXT, 'light.label')"
                                 class="flex-1"
                                 :is-active="currentAppearance === 'light'"
-                                :label="t(T, 'light.label')"
+                                :label="t(TEXT, 'light.label')"
                                 size="sm"
                                 @click="handleSetAppearance('light')"
                             >
@@ -210,10 +210,10 @@ async function toggleFullscreen(): Promise<void> {
                             </IconButton>
 
                             <IconButton
-                                :accessible-label="t(T, 'dark.label')"
+                                :accessible-label="t(TEXT, 'dark.label')"
                                 class="flex-1"
                                 :is-active="currentAppearance === 'dark'"
-                                :label="t(T, 'dark.label')"
+                                :label="t(TEXT, 'dark.label')"
                                 size="sm"
                                 @click="handleSetAppearance('dark')"
                             >
@@ -223,11 +223,11 @@ async function toggleFullscreen(): Promise<void> {
                     </div>
 
                     <div v-if="isFullScreenSupported" class="flex flex-none flex-col">
-                        <div class="text-sm font-semibold text-muted">{{ t(T, 'fullScreen.label') }}</div>
+                        <div class="text-sm font-semibold text-muted">{{ t(TEXT, 'fullScreen.label') }}</div>
                         <Separator class="mt-1 mb-2.25 flex-none" />
                         <IconButton
-                            :accessible-label="screenIsFullscreen ? t(T, 'collapse.label') : t(T, 'expand.label')"
-                            :label="screenIsFullscreen ? t(T, 'collapse.label') : t(T, 'expand.label')"
+                            :accessible-label="screenIsFullscreen ? t(TEXT, 'collapse.label') : t(TEXT, 'expand.label')"
+                            :label="screenIsFullscreen ? t(TEXT, 'collapse.label') : t(TEXT, 'expand.label')"
                             size="sm"
                             @click="handleToggleWindowExpansion"
                         >
@@ -238,7 +238,7 @@ async function toggleFullscreen(): Promise<void> {
                 </div>
 
                 <!-- Languages -->
-                <div class="mt-4 text-sm font-semibold text-muted">{{ t(T, 'language.label') }}</div>
+                <div class="mt-4 text-sm font-semibold text-muted">{{ t(TEXT, 'language.label') }}</div>
                 <Separator class="mt-1 mb-1.25" />
                 <ItemButton
                     v-for="lang in SUPPORTED_LANGUAGES"
@@ -264,16 +264,16 @@ async function toggleFullscreen(): Promise<void> {
                 </template> -->
 
                 <!-- Manage Account -->
-                <RectangleButton v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" @click="handleManageAccount">{{ t(T, 'manageAccount.label') }}</RectangleButton>
+                <RectangleButton v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" @click="handleManageAccount">{{ t(TEXT, 'manageAccount.label') }}</RectangleButton>
 
                 <!-- Reload -->
-                <RectangleButton v-if="isPWA" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApp">{{ t(T, 'reload.label') }}</RectangleButton>
+                <RectangleButton v-if="isPWA" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApp">{{ t(TEXT, 'reload.label') }}</RectangleButton>
 
                 <!-- Sign In / Sign Out -->
                 <RectangleButton v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{
-                    t(T, 'signOut.label')
+                    t(TEXT, 'signOut.label')
                 }}</RectangleButton>
-                <RectangleButton v-else class="mt-2 min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(T, 'signInRegister.label') }}</RectangleButton>
+                <RectangleButton v-else class="mt-2 min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(TEXT, 'signInRegister.label') }}</RectangleButton>
             </div>
         </ScrollAreaFit>
     </dialog>

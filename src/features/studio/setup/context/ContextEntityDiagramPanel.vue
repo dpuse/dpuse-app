@@ -3,8 +3,8 @@
 import type { Tool as D3Tool, ErdDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
-import { T } from './ContextEntityDiagramPanel_.json';
 import { t } from '@/state/locale';
+import { TEXT } from './ContextEntityDiagramPanel_.json';
 
 // ── Static Components
 import ContextDiagramPanel from './_components/ContextDiagramPanel.vue';
@@ -59,5 +59,5 @@ function renderErdDiagram(d3Tool: D3Tool, element: HTMLElement): Promise<unknown
 </script>
 
 <template>
-    <ContextDiagramPanel :render="renderErdDiagram" :title="t(T, 'sampleErdDiagram.title')" />
+    <ContextDiagramPanel :render="renderErdDiagram" :title="t(TEXT, 'sampleErdDiagram.title')" />
 </template>

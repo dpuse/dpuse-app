@@ -21,7 +21,7 @@ import Tag from '@/components/ui/Tag.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const T = {
+const TEXT = {
     'capabilities.label': { en: 'Capabilities', es: 'Capacidades' },
     'configuration.text': {
         en: 'Add connection-specific fields here as this workflow evolves.',

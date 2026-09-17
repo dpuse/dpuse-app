@@ -1,10 +1,13 @@
 <script setup lang="ts">
+// ── External Dependencies & Registrations
+import type { RouteLocationRaw } from 'vue-router';
+
 // ── Local Framework
 import { studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { overline, title, to } = defineProps<{ overline?: string; title: string; to?: string }>();
+const { overline, title, to } = defineProps<{ overline?: string; title: string; to?: RouteLocationRaw }>();
 </script>
 
 <template>
@@ -17,13 +20,13 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
              NOTE: If width of logos changes, the following settings need to be adjusted accordingly. -->
 
         <component
-            :is="to && to !== $route.name ? 'RouterLink' : 'div'"
+            :is="to ? 'RouterLink' : 'div'"
             class="min-w-0"
             :class="{
                 'text-center': !viewportIsWide,
-                'cursor-pointer text-accent hover:text-accent-hover hover:underline hover:decoration-accent-hover/40 hover:underline-offset-2': to && to !== $route.name
+                'cursor-pointer text-accent hover:text-accent-hover hover:underline hover:decoration-accent-hover/40 hover:underline-offset-2': to
             }"
-            :to="{ name: to, query: $route.query }"
+            :to="to"
         >
             <!-- Overline -->
             <div v-if="overline" class="truncate text-sm leading-tight">

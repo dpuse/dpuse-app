@@ -8,13 +8,13 @@ import ToggleButton from '@/components/ui/action/ToggleButton.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const T = {
+const TEXT = {
     'toggle.aria': { en: 'Toggle assistant panel', es: 'Alternar el panel asistente' }
 };
 </script>
 
 <template>
-    <ToggleButton :accessible-label="t(T, 'toggle.aria')" class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20" data-region="AssistantPaneToggle">
+    <ToggleButton :accessible-label="t(TEXT, 'toggle.aria')" class="fixed top-(--safe-top-offset) right-(--safe-right-offset) z-20" data-region="AssistantPaneToggle">
         <AssistantLogo />
     </ToggleButton>
 </template>

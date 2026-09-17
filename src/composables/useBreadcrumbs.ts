@@ -1,4 +1,5 @@
 // ── External Dependencies & Registrations
+import type { RouteLocationRaw } from 'vue-router';
 import { ref, type Ref } from 'vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -7,7 +8,7 @@ export interface BreadcrumbConfig {
     id: string;
     label: string;
     icon?: unknown;
-    to?: string;
+    to?: RouteLocationRaw;
 }
 
 interface Breadcrumbs<T extends BreadcrumbConfig> {

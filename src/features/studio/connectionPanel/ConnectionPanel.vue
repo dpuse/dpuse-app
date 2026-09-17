@@ -10,7 +10,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import T from './ConnectionPanel.json';
+import { TEXT } from './ConnectionPanel_.json';
 import { useDialogs } from '@/state/dialogs';
 import { viewportIsWide } from '@/state/appLayout';
 import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs } from '@/state/session';
@@ -113,7 +113,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 </script>
 
 <template>
-    <DialogHeader class="flex-none" :title="t(T, 'manageConnection.title')" />
+    <DialogHeader class="flex-none" :title="t(TEXT, 'manageConnection.title')" />
 
     <!-- No connectors arrived, so there is nothing here to add a connection with. Covers the region rather than
          leaving an empty picker with no explanation. -->
@@ -126,12 +126,12 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 
         <template #detail="{ item }">
             <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
-                <ConfigIcon class="mt-1 size-7" :icon="item.icon" :icon-dark="item.iconDark" />
+                <ConfigIcon class="mt-1 h-7" :icon="item.icon" :icon-dark="item.iconDark" />
                 <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
             </div>
 
             <div class="relative min-h-0 flex-1">
-                <ErrorBoundary name="ConnectionDetail">
+                <ErrorBoundary name="ConnectionDetail" :reset-key="route.fullPath">
                     <AddConnectionForm :connector-localised-config="item" />
                     <PillButton :icon="ArrowRightIcon" label="Select" @commit="handleCommitDetail" />
                 </ErrorBoundary>

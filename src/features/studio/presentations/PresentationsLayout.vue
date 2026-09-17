@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import { useRoute } from 'vue-router';
 import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
@@ -28,7 +29,7 @@ import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const T = {
+const TEXT = {
     'explorePresentations.title': { en: 'Explore Presentations', es: 'Explorar Presentaciones' },
     'workflow.label': { en: 'Workflow', es: 'Flujo de Trabajo' }
 };
@@ -44,6 +45,8 @@ const presenterByPresentationReference = new WeakMap<LocalisedReference<Componen
 
 // A render failure is confined to the detail pane, so it is held separately and presented there.
 const renderFailure = shallowRef<AppFailure | undefined>();
+
+const route = useRoute();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -140,7 +143,7 @@ async function loadPresenters(): Promise<void> {
 <template>
     <StudioLayout>
         <!-- Header -->
-        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'explorePresentations.title')" to="studio" />
+        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(TEXT, 'explorePresentations.title')" :to="{ name: 'studio', query: route.query }" />
 
         <!-- Body -->
         <Separator />

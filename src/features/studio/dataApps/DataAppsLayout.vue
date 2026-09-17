@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// ── External Dependencies & Registrations
+import { useRoute } from 'vue-router';
+
 // ── Local Framework
 import { t } from '@/state/locale';
 
@@ -10,14 +13,18 @@ import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const T = {
+const TEXT = {
     'buildDataApps.title': { en: 'Build Data Apps', es: 'Crear Aplicaciones de Datos' }
 };
+
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const route = useRoute();
 </script>
 
 <template>
     <StudioLayout>
-        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(T, 'buildDataApps.title')" to="studio" />
+        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(TEXT, 'buildDataApps.title')" :to="{ name: 'studio', query: route.query }" />
 
         <Separator />
 

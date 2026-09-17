@@ -47,7 +47,7 @@ defineEmits<{ cancel: []; reload: []; retry: [] }>();
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const T = {
+const TEXT = {
     'cancel.label': { en: 'Cancel', es: 'Cancelar' },
     'cause.label': { en: 'Cause', es: 'Causa' },
     'console.text': { en: 'See the browser console for more details.', es: 'Consulte la consola del navegador para obtener más detalles.' },
@@ -95,7 +95,7 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
             <p class="mt-2 text-sm font-semibold wrap-anywhere text-warning-text">{{ entry.main.message }}</p>
 
             <p v-if="entry.cause" class="mt-2 text-sm wrap-anywhere text-warning-text/80">
-                <span class="text-sm font-semibold">{{ t(T, 'cause.label') }}</span
+                <span class="text-sm font-semibold">{{ t(TEXT, 'cause.label') }}</span
                 >: {{ entry.cause.message }}
             </p>
 
@@ -108,7 +108,7 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
                 <summary
                     class="flex w-fit cursor-pointer list-none items-center gap-1 text-sm font-semibold text-warning-text/80 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring [&::-webkit-details-marker]:hidden"
                 >
-                    {{ t(T, 'trace.label') }}:
+                    {{ t(TEXT, 'trace.label') }}:
                     <ChevronDownIcon class="size-4 transition-transform group-open:rotate-180" />
                 </summary>
 
@@ -124,13 +124,13 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
             </details>
 
             <p class="mt-2 mb-0! text-xs leading-snug! text-warning-text/80">
-                <span v-if="entry.failure.wasReported.value == null">{{ t(T, 'reporting.pending.text') }}</span>
-                <span v-else-if="entry.failure.wasReported.value">{{ t(T, 'reporting.succeeded.text') }}</span>
-                <span v-else class="font-semibold">{{ t(T, 'reporting.failed.text') }}</span>
+                <span v-if="entry.failure.wasReported.value == null">{{ t(TEXT, 'reporting.pending.text') }}</span>
+                <span v-else-if="entry.failure.wasReported.value">{{ t(TEXT, 'reporting.succeeded.text') }}</span>
+                <span v-else class="font-semibold">{{ t(TEXT, 'reporting.failed.text') }}</span>
             </p>
         </div>
 
-        <p v-if="needsReload" class="mt-4 text-sm text-warning-text/80">{{ t(T, 'staleDeploy.text') }}</p>
+        <p v-if="needsReload" class="mt-4 text-sm text-warning-text/80">{{ t(TEXT, 'staleDeploy.text') }}</p>
 
         <!-- Reload stands apart on the left and in the danger colour: it is the heaviest thing offered here, costing
              the whole page and anything unsaved on it, so it is kept away from the buttons the user reaches for first
@@ -138,13 +138,13 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
         <div class="mt-6 flex flex-wrap items-center justify-between gap-2">
             <RectangleButton class="flex items-center" variant="destructive" @click="$emit('reload')">
                 <RefreshCwIcon class="mr-1.5 size-4" />
-                {{ t(T, 'reload.label') }}
+                {{ t(TEXT, 'reload.label') }}
             </RectangleButton>
 
             <div class="flex flex-wrap items-center gap-2">
                 <!-- Only in the dialog, where it is the close action in words rather than a second way out: the body
                      rendered in place has nothing to close, and an error must not be dismissable into thin air. -->
-                <RectangleButton v-if="canCancel" variant="outline" @click="$emit('cancel')">{{ t(T, 'cancel.label') }}</RectangleButton>
+                <RectangleButton v-if="canCancel" variant="outline" @click="$emit('cancel')">{{ t(TEXT, 'cancel.label') }}</RectangleButton>
 
                 <!-- Edged, which no 'guarded' button elsewhere needs: this one is filled with the same token as the
                      body behind it, and in light mode that token is opaque, so the two are the same colour and the
@@ -155,11 +155,11 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
                      visibly larger than the one beside it. -->
                 <RectangleButton v-if="canRetry" class="flex items-center inset-ring inset-ring-warning-ring/40" variant="guarded" @click="$emit('retry')">
                     <RepeatIcon class="mr-1.5 size-4" />
-                    {{ t(T, 'retry.label') }}
+                    {{ t(TEXT, 'retry.label') }}
                 </RectangleButton>
             </div>
         </div>
 
-        <p class="mt-2 mb-0! border-t border-warning-ring/30 pt-2 text-xs leading-snug! text-warning-text">{{ t(T, 'console.text') }}</p>
+        <p class="mt-2 mb-0! border-t border-warning-ring/30 pt-2 text-xs leading-snug! text-warning-text">{{ t(TEXT, 'console.text') }}</p>
     </div>
 </template>

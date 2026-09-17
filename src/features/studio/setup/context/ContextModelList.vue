@@ -8,7 +8,7 @@ import { type LocalisedConfig, localiseReference } from '@dpuse/dpuse-shared/loc
 
 // ── Local Framework
 import type { GridListItem } from './_context';
-import { T } from './ContextModelList_.json';
+import { TEXT } from './ContextModelList_.json';
 import { useSetupSelection } from '../useSetupSelection';
 import { contextConfig, contextConfigRetrievalFailed, contextConfigRetrievalFailure, contextConfigRetrievalSucceeded } from '@/state/session';
 import { localeId, t } from '@/state/locale';
@@ -67,7 +67,7 @@ function handleSelectModel(modelReference: GridListItem<LocalisedConfig<Componen
         </template>
 
         <template #no-selection>
-            <SelectPlaceholder :message="t(T, 'selectFocus.text')" />
+            <SelectPlaceholder :message="t(TEXT, 'selectFocus.text')" />
         </template>
     </GridDetailPanel>
 </template>

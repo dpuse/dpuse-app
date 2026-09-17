@@ -12,7 +12,7 @@ import type { ContextModelSecondaryMeasureConfig } from '@dpuse/dpuse-shared/com
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { T } from './ContextModelPanel_.json';
+import { TEXT } from './ContextModelPanel_.json';
 import { assertDefined, defineAsyncPanel } from '@/utilities';
 import { localeId, t } from '@/state/locale';
 import { localiseModel, localiseText } from './_context';
@@ -158,12 +158,12 @@ async function loadModel(modelId: string): Promise<ContextModelConfig | undefine
                 class="max-w-prose"
                 :icon="modelReference.icon"
                 :icon-dark="modelReference.iconDark"
-                :overline="t(T, 'models.label')"
+                :overline="t(TEXT, 'models.label')"
                 :title="modelReference.label"
                 @close="$emit('close')"
             >
                 <template #actions>
-                    <ActionWrapper :aria-label="t(T, 'edit.aria', { label: modelReference.label })" @click="handleEditModel">
+                    <ActionWrapper :aria-label="t(TEXT, 'edit.aria', { label: modelReference.label })" @click="handleEditModel">
                         <SquarePenIcon class="size-5" stroke-width="1.5" />
                     </ActionWrapper>
                 </template>
@@ -189,7 +189,7 @@ async function loadModel(modelId: string): Promise<ContextModelConfig | undefine
             max-width="90vw"
             min-height="90vh"
             sizing="full"
-            :title="openDialogId === 'descriptors' ? t(T, 'descriptors.title', { label: descriptorsSubjectLabel }) : undefined"
+            :title="openDialogId === 'descriptors' ? t(TEXT, 'descriptors.title', { label: descriptorsSubjectLabel }) : undefined"
             @close="handleCloseDialog"
         >
             <ContextDescriptorsPanel v-if="openDialogId === 'descriptors'" v-model:label="descriptorsLabel" v-model:description="descriptorsDescription" />

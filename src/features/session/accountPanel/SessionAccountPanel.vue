@@ -7,7 +7,7 @@ import { type Component, shallowRef, watch } from 'vue';
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities';
 import { t } from '@/state/locale';
-import T from './SessionAccountPanel.json';
+import { TEXT } from './SessionAccountPanel_.json';
 import { viewportIsWide } from '@/state/appLayout';
 
 // ── Static Components
@@ -99,7 +99,7 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
 </script>
 
 <template>
-    <DialogHeader class="flex-none" :title="t(T, 'manageAccount.title')" />
+    <DialogHeader class="flex-none" :title="t(TEXT, 'manageAccount.title')" />
 
     <div class="flex min-h-0 flex-1">
         <div v-if="viewportIsWide || !activeOptionConfig" class="flex flex-1 flex-col gap-y-1 pl-4">
@@ -119,17 +119,17 @@ function initialiseActiveOptionConfig(): OptionLocalisedConfig | undefined {
                     </template>
                 </div>
 
-                <!-- <div class="text-muted mt-2 text-xs font-medium">{{ t(T, 'criticalActions.label') }}</div> -->
+                <!-- <div class="text-muted mt-2 text-xs font-medium">{{ t(TEXT, 'criticalActions.label') }}</div> -->
 
                 <!-- <RectangleButton class="min-w-50 justify-start" :to="{ name: 'deleteAccount', query: route.query }" variant="destructive">
-                          {{ t(T, 'deleteAccount.label') }}
+                          {{ t(TEXT, 'deleteAccount.label') }}
                         </RectangleButton> -->
             </ScrollArea>
         </div>
 
         <div v-if="viewportIsWide || activeOptionConfig" class="flex flex-1 flex-col px-4">
             <div class="flex h-12 flex-none items-center gap-x-1 border-b border-separator">
-                <IconButton v-if="!viewportIsWide" :accessible-label="t(T, 'back.label')" size="sm" @click="handleBack">
+                <IconButton v-if="!viewportIsWide" :accessible-label="t(TEXT, 'back.label')" size="sm" @click="handleBack">
                     <ArrowBigLeftIcon stroke-width="1.25" />
                 </IconButton>
                 {{ activeOptionConfig!.title }}

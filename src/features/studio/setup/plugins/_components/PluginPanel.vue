@@ -8,7 +8,7 @@ import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { T } from './PluginPanel_.json';
+import { TEXT } from './PluginPanel_.json';
 import { localeId, t } from '@/state/locale';
 import type { PluginConfig, SetupOptionConfig } from '@/utilities/index.ts';
 
@@ -25,7 +25,7 @@ interface VendorLink {
     getURL: (config: LocalisedConfig<PluginConfig>) => string | null;
     icon: Component;
     id: string;
-    labelKey: keyof typeof T;
+    labelKey: keyof typeof TEXT;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -88,12 +88,12 @@ const vendorLinks = computed(() =>
                 <slot />
 
                 <!-- Links -->
-                <h2>{{ t(T, 'links.title') }}</h2>
+                <h2>{{ t(TEXT, 'links.title') }}</h2>
                 <ul>
                     <li v-for="vendorLink in vendorLinks" :key="vendorLink.id" class="flex items-center gap-x-2">
                         <component :is="vendorLink.icon" class="size-4" />
                         <a :href="vendorLink.url" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            {{ t(T, vendorLink.labelKey, { label: pluginLocalisedConfig.label }) }}
+                            {{ t(TEXT, vendorLink.labelKey, { label: pluginLocalisedConfig.label }) }}
                             <ExternalLinkIcon class="size-4" />
                         </a>
                     </li>
@@ -101,7 +101,7 @@ const vendorLinks = computed(() =>
                     <li class="flex items-center gap-x-2">
                         <a :href="`https://github.com/dpuse/${pluginLocalisedConfig.id}`" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
                             <GitHubLogo class="size-4" />
-                            {{ t(T, 'gitHubRepository.label') }}
+                            {{ t(TEXT, 'gitHubRepository.label') }}
                             <ExternalLinkIcon class="size-4" />
                         </a>
                     </li>

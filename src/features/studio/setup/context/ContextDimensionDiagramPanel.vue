@@ -3,8 +3,8 @@
 import type { Tool as D3Tool, TreeDiagramNode } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
-import { T } from './ContextDimensionDiagramPanel_.json';
 import { t } from '@/state/locale';
+import { TEXT } from './ContextDimensionDiagramPanel_.json';
 
 // ── Static Components
 import ContextDiagramPanel from './_components/ContextDiagramPanel.vue';
@@ -43,5 +43,5 @@ function renderTreeDiagram(d3Tool: D3Tool, element: HTMLElement): Promise<unknow
 </script>
 
 <template>
-    <ContextDiagramPanel :render="renderTreeDiagram" :title="t(T, 'sampleDimensionTreeDiagram.title')" />
+    <ContextDiagramPanel :render="renderTreeDiagram" :title="t(TEXT, 'sampleDimensionTreeDiagram.title')" />
 </template>

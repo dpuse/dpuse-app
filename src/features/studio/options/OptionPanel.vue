@@ -19,7 +19,7 @@ import StudioHomeIcon from '@/components/icons/StudioHomeIcon.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const T = {
+const TEXT = {
     'home.aria': { en: 'Home', es: 'Inicio' }
 };
 
@@ -73,7 +73,7 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
         <ScrollArea class="flex-1" :scroll-area-padding-right="0">
             <div class="flex flex-col items-center gap-y-2 py-2">
                 <IconButton
-                    :accessible-label="t(T, 'home.aria')"
+                    :accessible-label="t(TEXT, 'home.aria')"
                     :to="{ name: 'studio', query: $route.query }"
                     @click="handleComplete({ id: 'home', label: '', description: '', icon: '', iconDark: null, step: 0, tasks: [] })"
                 >

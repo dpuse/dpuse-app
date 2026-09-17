@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // ── Local Framework
 import type { LocalisedSecondaryMeasure } from './_context';
-import { T } from './ContextSecondaryMeasureList_.json'; // TODO: replace the placeholder 'secondaryMeasures.text' copy, in both 'en' and 'es'.
 import { t } from '@/state/locale';
+import { TEXT } from './ContextSecondaryMeasureList_.json'; // TODO: replace the placeholder 'secondaryMeasures.text' copy, in both 'en' and 'es'.
 
 // ── Static Components
 import ContextDocument from './_components/ContextDocument.vue';
@@ -15,5 +15,5 @@ defineEmits<{ edit: [secondaryMeasure: LocalisedSecondaryMeasure] }>();
 </script>
 
 <template>
-    <ContextDocument :description="t(T, 'secondaryMeasures.text')" :items="secondaryMeasures" :title="t(T, 'secondaryMeasures.title')" @edit="$emit('edit', $event)" />
+    <ContextDocument :description="t(TEXT, 'secondaryMeasures.text')" :items="secondaryMeasures" :title="t(TEXT, 'secondaryMeasures.title')" @edit="$emit('edit', $event)" />
 </template>

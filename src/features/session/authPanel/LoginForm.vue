@@ -17,7 +17,7 @@ import TextInput from '@/components/ui/text/TextInput.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const T = {
+const TEXT = {
     'continue.label': { en: 'Continue', es: 'Continuar' },
     'email.label': { en: 'Email address', es: 'Dirección de correo electrónico' },
     'noAccount.text': { en: "Don't have an account?", es: 'No tengo una cuenta' },
@@ -49,25 +49,25 @@ function handleSubmit(): void {
 
 <template>
     <div class="flex flex-col gap-y-3">
-        <h2 class="text-2xl font-normal">{{ t(T, 'signIn.title') }}</h2>
+        <h2 class="text-2xl font-normal">{{ t(TEXT, 'signIn.title') }}</h2>
 
         <!-- 'novalidate' suppresses the browser's own error bubbles; the fields render the messages themselves. -->
         <form ref="formReference" class="mt-2 flex flex-col gap-y-3" novalidate @submit.prevent="handleSubmit">
-            <TextInput v-model="identifier" autocomplete="email" required type="email" :label="t(T, 'email.label')" :placeholder="t(T, 'email.label')" />
-            <RectangleButton type="submit" variant="primary">{{ t(T, 'continue.label') }}</RectangleButton>
+            <TextInput v-model="identifier" autocomplete="email" required type="email" :label="t(TEXT, 'email.label')" :placeholder="t(TEXT, 'email.label')" />
+            <RectangleButton type="submit" variant="primary">{{ t(TEXT, 'continue.label') }}</RectangleButton>
         </form>
 
-        <Separator :text="t(T, 'or.label')" />
+        <Separator :text="t(TEXT, 'or.label')" />
 
         <div class="flex flex-col gap-y-3">
-            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><UserRoundKeyIcon class="size-5" />{{ t(T, 'signInPasskey.label') }}</RectangleButton>
-            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><AppleLogo class="size-5" />{{ t(T, 'signInApple.label') }}</RectangleButton>
-            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><GoogleLogo class="size-5" />{{ t(T, 'signInGoogle.label') }}</RectangleButton>
-            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><GitHubLogo class="size-5" />{{ t(T, 'signInGitHub.label') }}</RectangleButton>
-            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><MicrosoftLogo class="size-5" />{{ t(T, 'signInMicrosoft.label') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><UserRoundKeyIcon class="size-5" />{{ t(TEXT, 'signInPasskey.label') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><AppleLogo class="size-5" />{{ t(TEXT, 'signInApple.label') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><GoogleLogo class="size-5" />{{ t(TEXT, 'signInGoogle.label') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><GitHubLogo class="size-5" />{{ t(TEXT, 'signInGitHub.label') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><MicrosoftLogo class="size-5" />{{ t(TEXT, 'signInMicrosoft.label') }}</RectangleButton>
         </div>
 
         <Separator class="mt-3 mb-2" />
-        <div class="text-center text-muted">{{ t(T, 'noAccount.text') }} {{ t(T, 'signUp.label') }}</div>
+        <div class="text-center text-muted">{{ t(TEXT, 'noAccount.text') }} {{ t(TEXT, 'signUp.label') }}</div>
     </div>
 </template>
