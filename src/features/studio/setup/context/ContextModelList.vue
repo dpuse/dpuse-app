@@ -60,10 +60,10 @@ function handleSelectModel(modelReference: GridListItem<LocalisedConfig<Componen
             <ConfigCard v-else :is-compact="true" :config="item" :selected="item.id === activeModelReference?.id" @click="handleSelectModel(item)" />
         </template>
 
-        <template #detail="{ item }">
+        <template #detail="{ item, close }">
             <!-- Headers are never selectable, so 'v-if' always passes; it is here to narrow the row's type. Keyed so each model
                  starts from a fresh panel, rather than showing the previous model's content and open rows while it loads. -->
-            <ContextModelPanel v-if="!item.isHeader" :key="item.id" :model-reference="item" />
+            <ContextModelPanel v-if="!item.isHeader" :key="item.id" :model-reference="item" @close="close" />
         </template>
 
         <template #no-selection>

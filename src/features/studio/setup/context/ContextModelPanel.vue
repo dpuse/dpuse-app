@@ -28,6 +28,9 @@ import ContextEntityList from './ContextEntityList.vue';
 import ContextSecondaryMeasureList from './ContextSecondaryMeasureList.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
+import StudioDetailPanel from '@/features/studio/_components/StudioDetailPanel.vue';
+import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 
 // ── Dynamic Components
 const ContextDescriptorsPanel = defineAsyncPanel(() => import('./_components/ContextDescriptorsPanel.vue'), 'ContextDescriptorsPanel');
@@ -45,6 +48,8 @@ type ItemConfig = ContextModelDimensionConfig | ContextModelEntityConfig | Conte
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { modelReference } = defineProps<{ modelReference: LocalisedConfig<ComponentBaseConfig> }>();
+
+defineEmits<{ close: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -147,29 +152,36 @@ async function loadModel(modelId: string): Promise<ContextModelConfig | undefine
          measure-limited for reading and would otherwise inset the failure from the region it is meant to fill. -->
     <ErrorNotice v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
-    <div v-else class="dpuse-prose flex-1 overflow-y-auto overscroll-y-none px-4 pb-(--vertical-scroll-bottom-screen-inset)">
-        <div class="max-w-prose">
-            <!-- Header -->
-            <div class="flex items-center justify-between gap-x-3 pt-6">
-                <h1>{{ t(T, 'model.title', { label: modelReference.label }) }}</h1>
-                <ActionWrapper :aria-label="t(T, 'edit.aria', { label: modelReference.label })" class="mr-4" @click="handleEditModel">
-                    <SquarePenIcon class="size-5" stroke-width="1.5" />
-                </ActionWrapper>
-            </div>
+    <StudioDetailPanel v-else data-region="ContextModelPanel">
+        <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
+            <StudioDocumentPanel
+                class="max-w-prose"
+                :icon="modelReference.icon"
+                :icon-dark="modelReference.iconDark"
+                :overline="t(T, 'models.label')"
+                :title="modelReference.label"
+                @close="$emit('close')"
+            >
+                <template #actions>
+                    <ActionWrapper :aria-label="t(T, 'edit.aria', { label: modelReference.label })" @click="handleEditModel">
+                        <SquarePenIcon class="size-5" stroke-width="1.5" />
+                    </ActionWrapper>
+                </template>
 
-            <!-- Description -->
-            <div v-html="purifyText(modelReferenceDescription)" />
+                <!-- Description -->
+                <div v-html="purifyText(modelReferenceDescription)" />
 
-            <ContextEntityList :entities="activeModel?.entities ?? []" @edit="handleEditItem('entities', $event)" @show-erd-diagram="handleOpenDialog('erdDiagram')" />
+                <ContextEntityList :entities="activeModel?.entities ?? []" @edit="handleEditItem('entities', $event)" @show-erd-diagram="handleOpenDialog('erdDiagram')" />
 
-            <ContextDimensionList
-                :dimensions="activeModel?.dimensions ?? []"
-                @edit="handleEditItem('dimensions', $event)"
-                @show-tree-diagram="handleOpenDialog('dimensionDiagram')"
-            />
+                <ContextDimensionList
+                    :dimensions="activeModel?.dimensions ?? []"
+                    @edit="handleEditItem('dimensions', $event)"
+                    @show-tree-diagram="handleOpenDialog('dimensionDiagram')"
+                />
 
-            <ContextSecondaryMeasureList :secondary-measures="activeModel?.secondaryMeasures ?? []" @edit="handleEditItem('secondaryMeasures', $event)" />
-        </div>
+                <ContextSecondaryMeasureList :secondary-measures="activeModel?.secondaryMeasures ?? []" @edit="handleEditItem('secondaryMeasures', $event)" />
+            </StudioDocumentPanel>
+        </ScrollArea>
 
         <!-- Only the descriptors panel takes a 'title': both diagram panels render their own 'DialogHeader'. -->
         <Dialog
@@ -184,5 +196,5 @@ async function loadModel(modelId: string): Promise<ContextModelConfig | undefine
             <ContextDimensionDiagramPanel v-else-if="openDialogId === 'dimensionDiagram'" />
             <ContextEntityDiagramPanel v-else-if="openDialogId === 'erdDiagram'" />
         </Dialog>
-    </div>
+    </StudioDetailPanel>
 </template>

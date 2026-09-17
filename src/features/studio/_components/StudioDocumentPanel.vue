@@ -14,6 +14,11 @@ import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 
 const { icon, iconDark, overline, title } = defineProps<{ icon?: string | null; iconDark?: string | null; overline?: string; title: string }>();
 
+defineSlots<{
+    actions?(): unknown; // Rendered at the right of the title row.
+    default?(): unknown; // Rendered below the header.
+}>();
+
 defineEmits<{ close: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -24,21 +29,29 @@ const panesAreSplit = inject(gridDetailIsSplitKey, ref(false));
 <template>
     <div class="dpuse-prose relative pt-4" data-region="StudioDocumentPanel">
         <!-- Header -->
-        <ActionWrapper class="group block w-full min-w-0 cursor-pointer text-left" :class="{ 'pointer-events-none': panesAreSplit }" @click="$emit('close')">
-            <!-- Overline with optional back icon. -->
-            <div class="mr-9 flex min-w-0 items-center gap-x-0.5 text-sm leading-tight text-muted group-hover:text-blue-500">
-                <ArrowLeftIcon v-if="!panesAreSplit" class="size-4 flex-none" />
-                <span class="min-w-0 truncate">{{ overline }} </span>
-            </div>
+        <div class="relative">
+            <ActionWrapper class="group block w-full min-w-0 cursor-pointer text-left" :class="{ 'pointer-events-none': panesAreSplit }" @click="$emit('close')">
+                <!-- Overline with optional back icon. -->
+                <div class="mr-9 flex min-w-0 items-center gap-x-0.5 text-sm leading-tight text-muted group-hover:text-blue-500">
+                    <ArrowLeftIcon v-if="!panesAreSplit" class="size-4 flex-none" />
+                    <span class="min-w-0 truncate">{{ overline }} </span>
+                </div>
 
-            <!-- Icon/Title -->
-            <div class="mr-9! flex min-w-0 items-start gap-x-2">
-                <ConfigIcon class="mt-1 h-8 w-7" :icon="icon" :icon-dark="iconDark" />
-                <h1 class="min-w-0 py-1 text-left leading-8! wrap-break-word whitespace-normal">
-                    {{ title }}
-                </h1>
+                <!-- Icon/Title -->
+                <div class="mr-9! flex min-w-0 items-start gap-x-2">
+                    <ConfigIcon class="mt-1 h-8 w-7" :icon="icon" :icon-dark="iconDark" />
+                    <h1 class="min-w-0 py-1 text-left leading-8! wrap-break-word whitespace-normal">
+                        {{ title }}
+                    </h1>
+                </div>
+            </ActionWrapper>
+
+            <!-- Actions — beside the header button rather than inside it, because a button may not contain buttons. They sit in
+                 the right margin the header keeps clear, and are centred on the title row whatever the overline's height. -->
+            <div v-if="$slots.actions" class="absolute right-0 bottom-0 flex h-10 items-center">
+                <slot name="actions" />
             </div>
-        </ActionWrapper>
+        </div>
 
         <!-- Content -->
         <slot />
