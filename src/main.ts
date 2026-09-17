@@ -24,6 +24,14 @@ try {
     // a worker message — costs the user exactly what one thrown inside it does, and there is no region that could have
     // caught either.
     addEventListener('error', (event): void => {
+        // No error object and no file means a script from another origin threw, with its details hidden by the browser.
+        // Safari's share sheet causes this on iOS and iPadOS: it and its extensions run their own scripts in the page.
+        // The app's own scripts always give a file, so this is never an app failure.
+        if (event.error == null && !event.filename) {
+            console.warn('[dpuse:app] Ignored an error from a script outside the app.', event.message);
+            return;
+        }
+
         // 'colno', 'filename' and 'lineno' are captured even when an error object came with the event: a cross-origin
         // script gives no error object and only a bare 'Script error.' message, leaving no stack, so they are then
         // the only thing locating the failure.
