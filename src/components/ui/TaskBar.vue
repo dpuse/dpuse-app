@@ -34,7 +34,7 @@ const { activeId, items = [] } = defineProps<{ activeId?: string; items?: (Local
             v-for="item in items"
             :key="item.id"
             :aria-selected="activeId === item.id"
-            class="flex flex-col gap-y-1 py-1 text-sm"
+            class="flex flex-col gap-y-1 pt-1 pb-2 text-sm"
             :class="item.disabled ? 'text-muted' : 'text-accent'"
             role="tab"
             :to="item.to"
@@ -44,7 +44,7 @@ const { activeId, items = [] } = defineProps<{ activeId?: string; items?: (Local
             <div class="relative flex h-4 items-center">
                 <div class="absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2" :class="item.disabled ? 'bg-muted' : 'bg-accent'" />
                 <div
-                    class="relative flex size-4 items-center justify-center rounded-full text-xs font-bold text-surface"
+                    class="relative flex size-4 items-center justify-center rounded-full text-[0.6875rem] font-bold text-surface"
                     :class="item.disabled ? 'bg-muted' : 'bg-accent'"
                 >
                     <!-- 'text-box' trims the font's empty space above and below the digits, so they sit in the middle of the circle. -->
