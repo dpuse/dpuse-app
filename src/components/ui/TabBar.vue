@@ -16,7 +16,8 @@ defineEmits<{ select: [item: T] }>();
 </script>
 
 <template>
-    <ScrollRow class="flex-none" data-region="TabBar" row-class="items-center gap-x-3">
+    <!-- '-mt-1.5' pulls the bar up into the empty space at the bottom of the header above it. -->
+    <ScrollRow class="-mt-1.5 flex-none" data-region="TabBar" row-class="items-center gap-x-3">
         <ActionWrapper
             v-for="item in items"
             :key="item.id"

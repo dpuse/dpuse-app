@@ -27,7 +27,8 @@ const { activeId, items = [] } = defineProps<{ activeId?: string; items?: (Local
 </script>
 
 <template>
-    <ScrollRow class="@container flex-none" data-region="TaskBar" row-class="gap-x-1">
+    <!-- '-mt-1.5' pulls the bar up into the empty space at the bottom of the header above it. -->
+    <ScrollRow class="@container -mt-1.5 flex-none" data-region="TaskBar" row-class="gap-x-1">
         <component
             :is="item.disabled ? 'div' : ActionWrapper"
             v-for="item in items"
