@@ -16,7 +16,7 @@ import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 const { description, isExpanded, label } = defineProps<{ description: string; isExpanded: boolean; label: string }>();
 
 defineSlots<{
-    actions(): unknown; // Rendered in the header before the edit button, above the toggle so it stays clickable.
+    actions(): unknown; // Rendered in the header before the edit button.
     default(): unknown; // Rendered below the description while expanded.
 }>();
 
@@ -26,22 +26,21 @@ defineEmits<{ edit: []; toggle: [] }>();
 <template>
     <div class="mt-2 max-w-prose rounded-md border" :class="isExpanded ? 'border-separator' : 'border-backdrop'">
         <!-- Header -->
-        <div class="relative flex items-center gap-x-2 bg-backdrop py-2 pr-4 pl-2" :class="isExpanded ? 'rounded-t-md' : 'rounded-md'">
-            <!-- Toggle, stretched over the header rather than wrapping it, because a button may not contain the action
-                 buttons; they stay clickable by sitting above it in stacking order. -->
-            <ActionWrapper
-                :aria-expanded="isExpanded"
-                :aria-label="t(T, 'details.aria', { label })"
-                class="absolute inset-0 z-10"
-                :class="isExpanded ? 'rounded-t-md' : 'rounded-md'"
-                @click="$emit('toggle')"
-            />
-
-            <ChevronRightIcon class="size-5 transition-transform" :class="{ 'rotate-90': isExpanded }" stroke-width="1.5" />
-            <div class="flex-1">{{ label }}</div>
+        <div class="flex items-center gap-x-2 bg-backdrop pr-4" :class="isExpanded ? 'rounded-t-md' : 'rounded-md'">
+            <h3 class="min-w-0 flex-1 text-base! font-normal! tracking-normal!">
+                <ActionWrapper
+                    :aria-expanded="isExpanded"
+                    class="flex w-full items-center gap-x-2 py-2 pl-2 text-left"
+                    :class="isExpanded ? 'rounded-tl-md' : 'rounded-l-md'"
+                    @click="$emit('toggle')"
+                >
+                    <ChevronRightIcon class="size-5 flex-none transition-transform" :class="{ 'rotate-90': isExpanded }" stroke-width="1.5" />
+                    <span>{{ label }}</span>
+                </ActionWrapper>
+            </h3>
 
             <!-- Actions -->
-            <div class="relative z-20 flex items-center">
+            <div class="flex items-center">
                 <slot name="actions" />
                 <ActionWrapper :aria-label="t(T, 'edit.aria', { label })" @click="$emit('edit')">
                     <SquarePenIcon class="size-5" stroke-width="1.5" />
