@@ -7,6 +7,8 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { activeStudioOptionConfig } from '@/state/activeStudioOption';
+import { isPWA } from '@/state/appLayout';
+import { isSafariBrowser } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 import { type StudioOptionConfig, useStudioOptions } from './useStudioOptions';
 
@@ -31,6 +33,13 @@ const emit = defineEmits<{ continue: [] }>();
 const homeMenuIsOpen = ref(false);
 const homeMenuReference = useTemplateRef<ComponentPublicInstance>('homeMenuReference');
 const workflowOptionConfigs = useStudioOptions();
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Safari tints its toolbar to match the page, and the installed app runs under a translucent status bar, so neither
+// shows where the page starts without a line of its own. Chrome and Edge draw their own toolbar edge. The installed app
+// is checked separately because it leaves Safari out of its user agent.
+const hasTopEdgeLine = isPWA || isSafariBrowser();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -61,7 +70,8 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
 <template>
     <nav
         aria-label="Studio options"
-        class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-r border-r-separator bg-backdrop pt-13.75 pb-[calc(var(--vertical-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
+        class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-t border-r border-r-separator bg-backdrop pt-13.5 pb-[calc(var(--vertical-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
+        :class="hasTopEdgeLine ? 'border-t-separator' : 'border-t-transparent'"
         data-region="OptionPanel"
     >
         <!-- Separator -->

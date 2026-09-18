@@ -56,12 +56,11 @@ const studioOptionBarIsVisible = ref(false); // Narrow displays only; on a wide 
 
 // ── Derived State - Environment ──────────────────────────────────────────────────────────────────────────────────────
 
-// Safari tints its toolbars to match the page, and the installed app runs under a translucent status bar, so neither
-// shows where the page starts without a line of its own. Chrome and Edge draw their own toolbar edge. The installed app
-// is checked separately because it leaves Safari out of its user agent. Safari's toolbar can sit at the bottom, which
-// the installed app has none of; where it cannot be placed there, the bottom line only marks the edge of the screen.
+// Safari tints its toolbars to match the page, so nothing shows where the page ends without a line of its own; Chrome
+// and Edge draw their own toolbar edge. The toolbar can sit at the bottom, which the installed app has none of. Where it
+// cannot be placed there, the line only marks the edge of the screen. The top line is drawn by the option panel and the
+// pane headers.
 const hasBottomEdgeLine = !isPWA && isSafariBrowser();
-const hasTopEdgeLine = isPWA || isSafariBrowser();
 
 // ── Derived State - Failures ─────────────────────────────────────────────────────────────────────────────────────────
 
@@ -220,9 +219,6 @@ function syncPaneQuery(): void {
             @dismiss="clearAppFailures"
             @retry="retryAppFailures"
         />
-
-        <!-- Top Edge Line - Fixed across the full width, below the status bar in the installed app. -->
-        <div v-if="hasTopEdgeLine" class="pointer-events-none fixed inset-x-0 top-[env(safe-area-inset-top)] z-50 h-px bg-separator" />
 
         <!-- Bottom Edge Line - Fixed across the full width, against Safari's bottom toolbar. -->
         <div v-if="hasBottomEdgeLine" class="pointer-events-none fixed inset-x-0 bottom-0 z-50 h-px bg-separator" />
