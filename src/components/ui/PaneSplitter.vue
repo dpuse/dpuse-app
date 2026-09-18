@@ -5,7 +5,7 @@
 
 // ── External Dependencies & Registrations
 import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
-import { computed, onMounted, onUnmounted, ref, shallowRef } from 'vue';
+import { computed, onMounted, onUnmounted, ref, shallowRef, useTemplateRef } from 'vue';
 
 import { t } from '@/state/locale';
 import { TEXT } from './PaneSplitter_.json';
@@ -27,6 +27,9 @@ const PRESET_TOLERANCE_PERCENT = 0.5; // A drag rarely lands exactly on a preset
 // Model
 const splitterLeftPanePercent = defineModel<number>({ default: BALANCED_PERCENT });
 
+// Template
+const paneSplitterElement = useTemplateRef<HTMLDivElement>('paneSplitter');
+
 // Drag — only meaningful while a drag is in progress. Refs rather than plain variables because the lint rules forbid
 // reassigning a top-level variable from inside a function.
 const previousBodyUserSelect = ref(''); // Text selection is switched off page-wide while dragging; this restores it.
@@ -46,18 +49,30 @@ onMounted(() => {
     // storage, which a stale key or a hand edit can put out of range. The bounds are defined here, so the correction
     // belongs here too: every other way the value moves is already clamped, and this closes the one way in that is not.
     splitterLeftPanePercent.value = clampPercent(splitterLeftPanePercent.value);
+    // Capture phase, so a press elsewhere is seen even if its target stops the event.
+    document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
 });
 
 onUnmounted(() => {
     // Safety net only. A drag holds the pointer, so nothing should be able to remove the splitter before it ends, but
     // if that ever happened the page would be left unselectable.
     endDrag();
+    document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleDoubleClick(): void {
     splitterLeftPanePercent.value = splitterLeftPanePercent.value === BALANCED_PERCENT ? EXPANDED_PERCENT : BALANCED_PERCENT;
+}
+
+function handleDocumentPointerDown(event: PointerEvent): void {
+    // iPad Safari keeps focus when plain content or empty space is tapped, which would leave the pill showing.
+    const focusedElement = document.activeElement;
+    const paneSplitter = paneSplitterElement.value;
+    if (paneSplitter === null || !(focusedElement instanceof HTMLElement) || !paneSplitter.contains(focusedElement)) return;
+    if (event.target instanceof Node && paneSplitter.contains(event.target)) return;
+    focusedElement.blur();
 }
 
 function handleKeyDown(event: KeyboardEvent): void {
@@ -139,7 +154,7 @@ function endDrag(): void {
 <template>
     <!-- The pill sits beside the separator rather than inside it, so its buttons are not nested in another control and
          pressing one does not start a drag. -->
-    <div class="group/splitter relative z-10 flex w-(--pane-splitter-width) flex-none self-stretch" data-region="PaneSplitter">
+    <div ref="paneSplitter" class="group/splitter relative z-10 flex w-(--pane-splitter-width) flex-none self-stretch" data-region="PaneSplitter">
         <!--
           An ARIA window splitter: 'separator' plus a tab stop, which is what makes arrow keys expected here.
           'select-none' stops a touch press-and-hold selecting text before the drag starts; the page-wide switch only
