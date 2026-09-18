@@ -20,8 +20,9 @@ interface Properties {
     maxDetailWidth?: string;
     maxGridWidth?: string;
     rowHeight?: number; // Row height in px. Default: 48, matching 'Grid'.
+    scrollAreaPaddingTop?: number | string;
 }
-const { activeItem, addLabel, dataSource, isCompact, maxDetailWidth, maxGridWidth, rowHeight = 48 } = defineProps<Properties>();
+const { activeItem, addLabel, dataSource, isCompact, maxDetailWidth, maxGridWidth, rowHeight = 48, scrollAreaPaddingTop } = defineProps<Properties>();
 
 defineSlots<{
     header(properties: { isSplit: boolean }): unknown;
@@ -77,6 +78,7 @@ watch(
                 :data-source="dataSource"
                 :is-compact="isCompact"
                 :row-height="rowHeight"
+                :scroll-area-padding-top="scrollAreaPaddingTop"
                 :style="{ maxWidth: isSplit ? maxGridWidth : undefined }"
                 :target-column-width="250"
                 @add="$emit('add')"

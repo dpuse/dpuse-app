@@ -12,12 +12,13 @@ import { TEXT } from './PaneSplitter_.json';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Shown on hover, or while the splitter has focus, which pressing it gives, so a tap reveals them on touch screens.
-// Hidden buttons ignore the pointer, so they cannot be pressed unseen. 44px on touch is Apple's minimum target. The
-// background is frosted rather than plain translucent, so the chevrons stay legible over busy content.
+// Half pills butting onto the bar, so with it they read as one pill and the pointer never crosses a gap that would end
+// hover. Shown on hover, or while the splitter has focus, which pressing it gives, so a tap reveals them on touch
+// screens. Hidden buttons ignore the pointer, so they cannot be pressed unseen. 44px on touch is Apple's minimum target.
+// The background is translucent, so the content behind shows through.
 const ARROW_BUTTON_CLASS = [
-    'pointer-events-none absolute top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-boundary',
-    'bg-surface/70 text-content opacity-0 backdrop-blur-sm transition-opacity pointer-coarse:size-11',
+    'pointer-events-none absolute top-1/2 flex size-7 -translate-y-1/2 items-center justify-center border border-boundary',
+    'bg-surface/70 text-content opacity-0 transition-opacity pointer-coarse:size-11',
     'group-focus-within/splitter:pointer-events-auto group-focus-within/splitter:opacity-100',
     'group-hover/splitter:pointer-events-auto group-hover/splitter:opacity-100',
     'hover:bg-zinc-100 dark:hover:bg-zinc-300/25 disabled:text-content/40 disabled:hover:bg-surface/70'
@@ -39,6 +40,7 @@ const splitterLeftPanePercent = defineModel<number>({ default: BALANCED_PERCENT 
 
 // Template
 const paneSplitterElement = useTemplateRef<HTMLDivElement>('paneSplitter');
+const separatorElement = useTemplateRef<HTMLDivElement>('separator');
 
 // Drag — only meaningful while a drag is in progress. Refs rather than plain variables because the lint rules forbid
 // reassigning a top-level variable from inside a function.
@@ -109,11 +111,11 @@ function handleKeyDown(event: KeyboardEvent): void {
 }
 
 function handleMoveLeft(): void {
-    if (previousPresetPercent.value !== undefined) splitterLeftPanePercent.value = previousPresetPercent.value;
+    if (previousPresetPercent.value !== undefined) moveToPreset(previousPresetPercent.value);
 }
 
 function handleMoveRight(): void {
-    if (nextPresetPercent.value !== undefined) splitterLeftPanePercent.value = nextPresetPercent.value;
+    if (nextPresetPercent.value !== undefined) moveToPreset(nextPresetPercent.value);
 }
 
 function handlePointerCancel(): void {
@@ -159,6 +161,14 @@ function endDrag(): void {
     document.body.style.userSelect = previousBodyUserSelect.value;
     document.body.style.setProperty('-webkit-user-select', previousBodyWebkitUserSelect.value);
 }
+
+function moveToPreset(percent: number): void {
+    splitterLeftPanePercent.value = percent;
+    // The bar moves out from under the pointer, losing hover; focus keeps the arrows showing for the next press. Focus
+    // already inside means a keyboard user is on an arrow, and it stays there so they can press it again.
+    if (paneSplitterElement.value?.contains(document.activeElement) === true) return;
+    separatorElement.value?.focus({ preventScroll: true });
+}
 </script>
 
 <template>
@@ -171,6 +181,7 @@ function endDrag(): void {
           takes over once 'pointerdown' fires.
           -->
         <div
+            ref="separator"
             :aria-label="t(TEXT, 'splitter.aria')"
             :aria-valuemax="MAXIMUM_PERCENT"
             :aria-valuemin="MINIMUM_PERCENT"
@@ -211,11 +222,10 @@ function endDrag(): void {
             </div>
         </div>
 
-        <!-- Either side of the grip, pointing the way each one moves the bar. The gap from the bar leaves it draggable at
-             the grip. -->
+        <!-- Either side of the grip, pointing the way each one moves the bar. -->
         <button
             :aria-label="t(TEXT, 'moveLeft.aria')"
-            :class="[ARROW_BUTTON_CLASS, 'right-full mr-1']"
+            :class="[ARROW_BUTTON_CLASS, 'right-full rounded-l-full border-r-0']"
             :disabled="previousPresetPercent === undefined"
             type="button"
             @click="handleMoveLeft"
@@ -225,7 +235,7 @@ function endDrag(): void {
         </button>
         <button
             :aria-label="t(TEXT, 'moveRight.aria')"
-            :class="[ARROW_BUTTON_CLASS, 'left-full ml-1']"
+            :class="[ARROW_BUTTON_CLASS, 'left-full rounded-r-full border-l-0']"
             :disabled="nextPresetPercent === undefined"
             type="button"
             @click="handleMoveRight"

@@ -22,6 +22,7 @@ interface Properties {
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
     rowHeight?: number; // Row height in px. Default: 48.
     scrollAreaPaddingBottom?: number | string;
+    scrollAreaPaddingTop?: number | string;
     targetColumnWidth?: number; // When set, multiple items are shown per row based on available width.
 }
 const {
@@ -33,6 +34,7 @@ const {
     maxBlocksInCache,
     rowHeight = 48,
     scrollAreaPaddingBottom = 'var(--vertical-scroll-bottom-screen-inset)',
+    scrollAreaPaddingTop,
     targetColumnWidth
 } = defineProps<Properties>();
 
@@ -116,11 +118,11 @@ function getRowHeight(item: T | undefined): number {
         <Transition mode="out-in" name="action-fade">
             <BusyBar v-if="state === 'busy'" class="mx-4" />
 
-            <ScrollArea v-else-if="state === 'empty'" class="flex-1" :scroll-area-padding-bottom="scrollAreaPaddingBottom">
+            <ScrollArea v-else-if="state === 'empty'" class="flex-1" :scroll-area-padding-bottom="scrollAreaPaddingBottom" :scroll-area-padding-top="scrollAreaPaddingTop">
                 <slot name="no-items" />
             </ScrollArea>
 
-            <ScrollArea v-else class="flex-1" role="list" :row-count="rowCount" :scroll-area-padding-bottom="scrollAreaPaddingBottom" @initialised="handleScrollAreaInitialised">
+            <ScrollArea v-else class="flex-1" role="list" :row-count="rowCount" :scroll-area-padding-bottom="scrollAreaPaddingBottom" :scroll-area-padding-top="scrollAreaPaddingTop" @initialised="handleScrollAreaInitialised">
                 <!-- <div :class="{ 'mt-2': isCompact }" :style="{ height: totalSize + 'px', position: 'relative' }"> -->
                 <div :style="{ height: totalSize + 'px', position: 'relative' }">
                     <div

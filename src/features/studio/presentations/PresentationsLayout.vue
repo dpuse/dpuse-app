@@ -153,6 +153,7 @@ async function loadPresenters(): Promise<void> {
             :data-source="presentationReferencesDataSource"
             :is-compact="true"
             max-grid-width="350px"
+            scroll-area-padding-top="8px"
         >
             <template #item="{ item }">
                 <ConfigCard v-if="item" :config="item" :is-compact="true" @click="handleSelectPresentation(item)" />
