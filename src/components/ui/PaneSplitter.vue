@@ -185,15 +185,16 @@ function endDrag(): void {
             </div>
         </div>
 
-        <!-- Centred on the 55px pane header. Hidden pills ignore the pointer, so they cannot be clicked unseen; touch has no
-             hover to reveal them, so there they always show. -->
+        <!-- Centred on the line below the 55px pane headers, so it clears their titles. Hidden pills ignore the pointer, so
+             they cannot be clicked unseen; touch has no hover to reveal them, so there they always show, with buttons
+             padded to 32px for a fingertip. -->
         <div
-            class="pointer-events-none absolute top-[27.5px] left-1/2 flex -translate-1/2 rounded-full border border-boundary bg-surface p-0.5 opacity-0 transition-opacity group-focus-within/splitter:pointer-events-auto group-focus-within/splitter:opacity-100 group-hover/splitter:pointer-events-auto group-hover/splitter:opacity-100 pointer-coarse:pointer-events-auto pointer-coarse:opacity-100"
+            class="pointer-events-none absolute top-14 left-1/2 flex -translate-1/2 rounded-full border border-boundary bg-surface p-0.5 opacity-0 transition-opacity group-focus-within/splitter:pointer-events-auto group-focus-within/splitter:opacity-100 group-hover/splitter:pointer-events-auto group-hover/splitter:opacity-100 pointer-coarse:pointer-events-auto pointer-coarse:opacity-100"
         >
             <button
                 :aria-label="t(TEXT, 'moveLeft.aria')"
                 :disabled="previousPresetPercent === undefined"
-                class="rounded-full text-content hover:bg-zinc-100 disabled:opacity-40 disabled:hover:bg-transparent dark:hover:bg-zinc-300/25"
+                class="rounded-full text-content hover:bg-zinc-100 disabled:opacity-40 disabled:hover:bg-transparent dark:hover:bg-zinc-300/25 pointer-coarse:p-2"
                 type="button"
                 @click="handleMoveLeft"
             >
@@ -202,7 +203,7 @@ function endDrag(): void {
             <button
                 :aria-label="t(TEXT, 'moveRight.aria')"
                 :disabled="nextPresetPercent === undefined"
-                class="rounded-full text-content hover:bg-zinc-100 disabled:opacity-40 disabled:hover:bg-transparent dark:hover:bg-zinc-300/25"
+                class="rounded-full text-content hover:bg-zinc-100 disabled:opacity-40 disabled:hover:bg-transparent dark:hover:bg-zinc-300/25 pointer-coarse:p-2"
                 type="button"
                 @click="handleMoveRight"
             >
