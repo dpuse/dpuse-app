@@ -148,8 +148,9 @@ function endDrag(): void {
 
         <!-- Widens the grab area equally over both panes without affecting layout. The parent's z-index keeps it above
              them. A splitter's width on each side, so the target is three times what is drawn — a size chosen for the
-             pointer rather than tied to the divider, which is why it repeats the value instead of sharing it. -->
-        <div class="absolute -inset-x-(--pane-splitter-width) inset-y-0" />
+             pointer rather than tied to the divider, which is why it repeats the value instead of sharing it. On touch
+             screens a fingertip needs more, so it fills the 16px gutter each side, close to Apple's 44pt minimum. -->
+        <div class="absolute -inset-x-(--pane-splitter-width) inset-y-0 pointer-coarse:-inset-x-4" />
 
         <div class="pointer-events-none absolute top-1/2 left-1/2 flex -translate-1/2 flex-col gap-0.75">
             <span
