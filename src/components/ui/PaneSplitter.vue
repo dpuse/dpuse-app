@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Vertical divider between the two app panes. The model value is the left pane's width as a percentage of the row
 // holding both panes. It can be dragged with the pointer, nudged with the arrow keys, or double-clicked to toggle
-// between an even split and a wider left pane. A pill of two arrows at the top steps it between preset widths.
+// between an even split and a wider left pane. Arrow buttons either side of the grip step it between preset widths.
 
 // ── External Dependencies & Registrations
 import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
@@ -12,6 +12,16 @@ import { TEXT } from './PaneSplitter_.json';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Shown on hover, or while the splitter has focus, which pressing it gives, so a tap reveals them on touch screens.
+// Hidden buttons ignore the pointer, so they cannot be pressed unseen. 44px on touch is Apple's minimum target. The
+// background is frosted rather than plain translucent, so the chevrons stay legible over busy content.
+const ARROW_BUTTON_CLASS = [
+    'pointer-events-none absolute top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-boundary',
+    'bg-surface/70 text-content opacity-0 backdrop-blur-sm transition-opacity pointer-coarse:size-11',
+    'group-focus-within/splitter:pointer-events-auto group-focus-within/splitter:opacity-100',
+    'group-hover/splitter:pointer-events-auto group-hover/splitter:opacity-100',
+    'hover:bg-zinc-100 dark:hover:bg-zinc-300/25 disabled:text-content/40 disabled:hover:bg-surface/70'
+].join(' ');
 const BALANCED_PERCENT = 50; // Even split — the default, and one half of the double-click toggle.
 const EXPANDED_PERCENT = 75; // Left pane favoured — the other half of the double-click toggle.
 const GRIP_DOT_COUNT = 3;
@@ -19,7 +29,7 @@ const KEYBOARD_STEP_PERCENT = 1;
 const KEYBOARD_STEP_PERCENT_LARGE = 10;
 const MAXIMUM_PERCENT = 80;
 const MINIMUM_PERCENT = 20;
-const PRESET_PERCENTS = [25, 50, 75]; // Ascending — the pill arrows step through these.
+const PRESET_PERCENTS = [25, 50, 75]; // Ascending — the arrow buttons step through these.
 const PRESET_TOLERANCE_PERCENT = 0.5; // A drag rarely lands exactly on a preset; this close counts as on it.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -67,7 +77,7 @@ function handleDoubleClick(): void {
 }
 
 function handleDocumentPointerDown(event: PointerEvent): void {
-    // iPad Safari keeps focus when plain content or empty space is tapped, which would leave the pill showing.
+    // iPad Safari keeps focus when plain content or empty space is tapped, which would leave the arrows showing.
     const focusedElement = document.activeElement;
     const paneSplitter = paneSplitterElement.value;
     if (paneSplitter === null || !(focusedElement instanceof HTMLElement) || !paneSplitter.contains(focusedElement)) return;
@@ -121,7 +131,7 @@ function handlePointerDown(event: PointerEvent): void {
     document.body.style.setProperty('-webkit-user-select', 'none');
     splitterIsDragging.value = true;
     splitter.setPointerCapture(event.pointerId);
-    splitter.focus({ preventScroll: true }); // Focus reveals the pill; a tap on a touch screen does not reliably give it.
+    splitter.focus({ preventScroll: true }); // Focus reveals the arrows; a tap on a touch screen does not reliably give it.
 }
 
 function handlePointerMove(event: PointerEvent): void {
@@ -152,7 +162,7 @@ function endDrag(): void {
 </script>
 
 <template>
-    <!-- The pill sits beside the separator rather than inside it, so its buttons are not nested in another control and
+    <!-- The arrows sit beside the separator rather than inside it, so they are not nested in another control and
          pressing one does not start a drag. -->
     <div ref="paneSplitter" class="group/splitter relative z-10 flex w-(--pane-splitter-width) flex-none self-stretch" data-region="PaneSplitter">
         <!--
@@ -201,32 +211,27 @@ function endDrag(): void {
             </div>
         </div>
 
-        <!-- Centred on the line below the 55px pane headers, so it clears their titles. Shown on hover, or while the splitter
-             has focus, which pressing it gives, so a tap reveals it on touch screens. A hidden pill ignores the pointer, so
-             it cannot be clicked unseen. Buttons are padded to 32px on touch for a fingertip. -->
-        <div
-            class="pointer-events-none absolute top-14 left-1/2 flex -translate-1/2 rounded-full border border-boundary bg-surface p-0.5 opacity-0 transition-opacity group-focus-within/splitter:pointer-events-auto group-focus-within/splitter:opacity-100 group-hover/splitter:pointer-events-auto group-hover/splitter:opacity-100"
+        <!-- Either side of the grip, pointing the way each one moves the bar. The gap from the bar leaves it draggable at
+             the grip. -->
+        <button
+            :aria-label="t(TEXT, 'moveLeft.aria')"
+            :class="[ARROW_BUTTON_CLASS, 'right-full mr-1']"
+            :disabled="previousPresetPercent === undefined"
+            type="button"
+            @click="handleMoveLeft"
+            @mousedown.prevent
         >
-            <button
-                :aria-label="t(TEXT, 'moveLeft.aria')"
-                :disabled="previousPresetPercent === undefined"
-                class="rounded-full text-content hover:bg-zinc-100 disabled:opacity-40 disabled:hover:bg-transparent dark:hover:bg-zinc-300/25 pointer-coarse:p-2"
-                type="button"
-                @click="handleMoveLeft"
-                @mousedown.prevent
-            >
-                <ChevronLeftIcon class="size-4" />
-            </button>
-            <button
-                :aria-label="t(TEXT, 'moveRight.aria')"
-                :disabled="nextPresetPercent === undefined"
-                class="rounded-full text-content hover:bg-zinc-100 disabled:opacity-40 disabled:hover:bg-transparent dark:hover:bg-zinc-300/25 pointer-coarse:p-2"
-                type="button"
-                @click="handleMoveRight"
-                @mousedown.prevent
-            >
-                <ChevronRightIcon class="size-4" />
-            </button>
-        </div>
+            <ChevronLeftIcon class="size-4 pointer-coarse:size-5" />
+        </button>
+        <button
+            :aria-label="t(TEXT, 'moveRight.aria')"
+            :class="[ARROW_BUTTON_CLASS, 'left-full ml-1']"
+            :disabled="nextPresetPercent === undefined"
+            type="button"
+            @click="handleMoveRight"
+            @mousedown.prevent
+        >
+            <ChevronRightIcon class="size-4 pointer-coarse:size-5" />
+        </button>
     </div>
 </template>
