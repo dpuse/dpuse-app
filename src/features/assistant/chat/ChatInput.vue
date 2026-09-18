@@ -53,9 +53,7 @@ const inputElement = useTemplateRef<HTMLElement>('inputElement');
 // rather than reading it from 'IconButton', which now has a single, unfilled look. '!' forces each utility over that
 // look's own background/hover/active classes, the same way 'IconButton' already does for its active state.
 const sendButtonClasses = computed(() =>
-    responseIsRunning
-        ? 'bg-danger! hover:bg-danger-hover! active:bg-danger-active! text-danger-text!'
-        : 'bg-info! hover:bg-info-hover! active:bg-info-active! text-info-text!'
+    responseIsRunning ? 'bg-danger! hover:bg-danger-hover! active:bg-danger-active! text-danger-text!' : 'bg-info! hover:bg-info-hover! active:bg-info-active! text-info-text!'
 );
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────

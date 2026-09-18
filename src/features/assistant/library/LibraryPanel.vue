@@ -3,14 +3,16 @@
 // flat result list while a search is running. There is no mode switch — the query decides, so the two can never
 // disagree about which is showing.
 //
-// The field and the trail are the index's own header, at the top of the page and inside its scroller, rather than
-// chrome floating above it. Each is shown where it is the thing being used: the field at the top level, where starting
-// a search is what the pane is for, and the trail wherever there is a position in the index to describe. Opening a
-// folder is a commitment to browsing, so it takes the field away and leaves the trail as the way back to it.
+// The field is pinned to the top of the pane and the list scrolls up behind it, the mirror of the chat composer pinned
+// to the bottom of its thread. The trail is part of the page and scrolls with it. Each is shown where it is the thing
+// being used: the field at the top level, where starting a search is what the pane is for, and the trail wherever there
+// is a position in the index to describe. Opening a folder is a commitment to browsing, so it takes the field away and
+// leaves the trail as the way back to it.
 
 // ── External Dependencies & Registrations
 import { HouseIcon } from '@lucide/vue';
-import { computed, shallowRef } from 'vue';
+import { useElementSize } from '@vueuse/core';
+import { computed, shallowRef, useTemplateRef } from 'vue';
 
 // ── Local Framework
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
@@ -88,18 +90,13 @@ const SAMPLE_DOCUMENTS: LibraryDocument[] = [
     { id: 'r8', type: 'document', title: 'Renewable Energy Briefing', snippet: 'Summary of the latest developments in renewable energy for Q3.', source: 'Library' }
 ];
 
-// The band the pane's two toggles float in, and the gap beneath it. The page starts below the band rather than dodging
-// it sideways, which is what lets the header and the list share one column instead of the header carrying insets the
-// list does not.
-// Spelled as its three terms rather than as one number, because only the middle one can move: the toggles' own 'top-2'
-// offset, the 36px a 'sm' icon 'Button' measures ('p-1.75' around a 20px glyph, plus its border), and the same 16px gap
-// the lists leave beneath anything above them. Change the toggles' size and this is the line to follow it — it is a
-// constant because they are a fixed size, not because the size is arbitrary.
-const TOGGLE_BAND_PX = 8 + 36 + 16;
+const CONTENT_GAP_PX = 16; // The gap the page leaves beneath anything above it: the assistant header, then the field.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const { path, query, searchIsActive, setPath } = useAssistantLibrary();
+const searchFieldElement = useTemplateRef<HTMLElement>('searchFieldElement');
+const { height: searchFieldHeight } = useElementSize(searchFieldElement, undefined, { box: 'border-box' });
 
 // The document a row opened, or nothing. Held here rather than by the layout because the panel that shows it covers
 // this pane alone.
@@ -141,6 +138,10 @@ const indexFolders = computed(() => DOCUMENT_FOLDERS.map((folder) => ({ ...folde
 // search, because while one is running this is the only way to read, edit or clear the query.
 const searchFieldIsVisible = computed(() => activeTypeId.value === undefined);
 
+// The field floats over the page, so the page starts below it. Measured rather than stated, so it follows the field
+// whatever its font size; it reads 0 while the field is hidden, which leaves just the gap.
+const scrollPaddingTop = computed(() => CONTENT_GAP_PX + (searchFieldIsVisible.value ? searchFieldHeight.value + CONTENT_GAP_PX : 0));
+
 const searchResults = computed<LibraryDocument[]>(() => {
     const trimmedQuery = query.value.trim().toLowerCase();
     return SAMPLE_DOCUMENTS.filter((document) => document.title.toLowerCase().includes(trimmedQuery) || document.snippet.toLowerCase().includes(trimmedQuery));
@@ -171,18 +172,16 @@ function handleSelectBreadcrumb(index: number): void {
              its content's minimum, not zero. Without it a long row widens the panel rather than scrolling inside it,
              and the pane overflows the split. -->
 
-        <!-- One scroller for the whole pane, header included, so the field and the trail scroll with the list they
-             describe rather than sitting over it. The top reservation is the toggles' own band, which is why it is a
-             constant here and no longer a height this pane has to measure and be told about. -->
-        <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-top="TOGGLE_BAND_PX">
-            <!-- Header and list are one column, declared once and on one element, which is also what keeps it one
+        <!-- One scroller for the whole pane. The trail scrolls with the list it describes; the field floats over the
+             top of it, below. -->
+        <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-top="scrollPaddingTop">
+            <!-- Trail and list are one column, declared once and on one element, which is also what keeps it one
                  width: 'max-w-prose' is 65ch, and 'ch' resolves against the font size of whatever element carries it,
-                 so the same class on a 'text-sm' row would yield a narrower column than on the field above it.
+                 so the same class on a 'text-sm' row would yield a narrower column than on the trail above it.
+                 The pinned field repeats the same class on a wrapper of its own, at the same font size.
                  The rows carry no right padding of their own — the scroller reserves 16px there for its thumb, which
                  mirrors the 'pl-4' on this side and leaves the column centred on the pane. -->
             <div class="mx-auto max-w-prose">
-                <LibrarySearchInput v-if="searchFieldIsVisible" class="mb-3" />
-
                 <!-- The way back to the top level once a folder has taken the field away, which is the whole of its
                      job here — hence its absence at the top level, where there is nothing to go back to. -->
                 <Breadcrumbs v-if="breadcrumbsAreVisible" class="pb-3 text-xs" disable-last :items="breadcrumbs" @select="handleSelectBreadcrumb" />
@@ -237,7 +236,15 @@ function handleSelectBreadcrumb(index: number): void {
             </div>
         </ScrollArea>
 
-        <!-- Covers this pane and the toggle floating over it, but stops at the pane's edge: the chat beside it is
+        <!-- Search field - Pinned over the top of the page, in the same column. The right half of 'px-4' mirrors the 16px the
+             scroller reserves on the right for its thumb. -->
+        <div v-if="searchFieldIsVisible" class="absolute inset-x-0 top-4 z-20 px-4">
+            <div ref="searchFieldElement" class="mx-auto max-w-prose">
+                <LibrarySearchInput />
+            </div>
+        </div>
+
+        <!-- Covers this pane, but stops at its edge: the chat beside it is
              untouched, and the document carries its own close. -->
         <LibraryDocumentPanel
             v-if="activeDocument"

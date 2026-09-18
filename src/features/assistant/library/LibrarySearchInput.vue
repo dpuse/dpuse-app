@@ -45,14 +45,7 @@ function handleClear(): void {
             type="search"
         />
 
-        <IconButton
-            v-if="query.length > 0"
-            accessible-label="Clear the search"
-            class="absolute top-1/2 right-1.5 -translate-y-1/2"
-            rounded
-            size="sm"
-            @click="handleClear"
-        >
+        <IconButton v-if="query.length > 0" accessible-label="Clear the search" class="absolute top-1/2 right-1.5 -translate-y-1/2" rounded size="sm" @click="handleClear">
             <XIcon class="size-3.5!" :stroke-width="1.5" />
         </IconButton>
     </div>

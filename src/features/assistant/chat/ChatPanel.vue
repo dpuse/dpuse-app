@@ -20,12 +20,7 @@ import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A control floats over each end of the thread, so the scroller reserves their space by hand. Both reservations are the
-// same sum — the control's own offset from the pane's edge, its height, and one shared gap — which is what brings the
-// thread to rest the same distance from each.
-const CONTENT_GAP_PX = 16;
-const TOGGLE_HEIGHT_PX = 36; // 'ChatPaneToggle' is a 'size="sm"' icon button: 'py-2' either side of a 20px glyph.
-const TOGGLE_TOP_INSET_PX = 8; // 'top-2' on that same toggle.
+const CONTENT_GAP_PX = 16; // Between the thread and whatever bounds it: the header above, the composer below.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -76,9 +71,7 @@ const responseIsPending = computed(() => {
 // The composer grows with the text typed into it, so its share of this is measured and reported rather than stated.
 const scrollPaddingBottom = computed(() => `${String(composerHeight.value + CONTENT_GAP_PX)}px`);
 
-// The mirror of the padding above. Stated rather than measured, because the toggle is a fixed shape owned by the layout
-// rather than by this panel, and plumbing a measurement across that boundary would cost more than the constants do.
-const scrollPaddingTop = `${String(TOGGLE_TOP_INSET_PX + TOGGLE_HEIGHT_PX + CONTENT_GAP_PX)}px`;
+const scrollPaddingTop = `${String(CONTENT_GAP_PX)}px`;
 
 // Only the thread's last message can still be running; everything above it is settled.
 function isResponseStreaming(message: AssistantChatMessage): boolean {

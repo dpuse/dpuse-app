@@ -15,8 +15,7 @@ import { ASSISTANT_MODEL_CONFIGS, type AssistantModelConfig } from '../chat/mode
 
 // ── Static Components
 import AssistantHeader from './AssistantHeader.vue';
-import ChatPaneToggle from '../chat/ChatPaneToggle.vue';
-import LibraryPaneToggle from '../library/LibraryPaneToggle.vue';
+import AssistantToolbar from './AssistantToolbar.vue';
 import PaneSplitter from '@/components/ui/PaneSplitter.vue';
 import Separator from '@/components/ui/Separator.vue';
 
@@ -50,8 +49,9 @@ const splitterPercent = useLocalStorage(SPLITTER_PERCENT_KEY, SPLITTER_DEFAULT_P
 
 const { paneIsOpen: libraryIsOpen, searchIsActive } = useAssistantLibrary();
 const { width: layoutWidth } = useElementSize(layoutElement);
+const paneIsWide = computed(() => layoutWidth.value >= WIDE_PANE_THRESHOLD_PX);
 const { activePaneId, isPaneActive, isPaneVisible, wasPaneActivated, splitterIsVisible, setPaneActiveState } = useSplitPanes(['chat', 'library'] as const, {
-    containerIsWide: computed(() => layoutWidth.value >= WIDE_PANE_THRESHOLD_PX),
+    containerIsWide: paneIsWide,
     initialPaneId: 'chat'
 });
 
@@ -103,23 +103,13 @@ function handlePaneActivate(paneId: 'chat' | 'library'): void {
     activePaneId.value = paneId;
 }
 
-function handleToggleChat(): void {
-    togglePane('chat');
-}
-
-function handleToggleLibrary(): void {
-    togglePane('library');
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
 // Keyed to what is on screen rather than to what is merely open. On a narrow pane a pane can be active and still behind
 // the other, and there the toggle has to bring it forward — closing something the user cannot see would read as the
 // button doing nothing. Opening brings it to the front, which 'setPaneActiveState' settles.
 //
 // The last visible pane will not close, the guard 'App.vue' puts on its own two toggles: an assistant showing neither
 // chat nor library is an empty pane the user has no way out of, since both toggles live inside it.
-function togglePane(paneId: 'chat' | 'library'): void {
+function handleTogglePane(paneId: 'chat' | 'library'): void {
     const otherPaneId = paneId === 'chat' ? 'library' : 'chat';
     if (isPaneVisible(paneId) && !isPaneVisible(otherPaneId)) return;
 
@@ -133,18 +123,16 @@ function togglePane(paneId: 'chat' | 'library'): void {
              containment also makes this a stacking context, so the splitter's 'z-10' and the search bar's 'z-20' are
              sealed in here rather than competing with the app-level ladder in 'App.vue'. -->
 
-        <AssistantHeader class="mx-4 flex-none" :title="'Assistant'" />
+        <AssistantHeader class="mx-4 flex-none" :title="'Assistant'" :toolbar-placement="paneIsWide ? 'end' : 'title'">
+            <template #toolbar>
+                <AssistantToolbar :chat-is-visible="isPaneVisible('chat')" :is-switch="!paneIsWide" :library-is-visible="isPaneVisible('library')" @toggle="handleTogglePane" />
+            </template>
+        </AssistantHeader>
 
         <Separator />
 
         <!-- The row the splitter measures itself against, and the containing block the search bar floats over. -->
         <div class="relative flex min-h-0 flex-1">
-            <!-- Outside the panes because each has to outlive the one it opens. The search box the library toggle
-                 reveals is inside the library, where it belongs. -->
-            <ChatPaneToggle :is-open="isPaneVisible('chat')" @click="handleToggleChat" />
-
-            <LibraryPaneToggle :is-open="isPaneVisible('library')" @click="handleToggleLibrary" />
-
             <div
                 v-show="isPaneVisible('chat')"
                 class="flex min-h-0"

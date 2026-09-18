@@ -29,10 +29,8 @@ defineEmits<{ close: [] }>();
 
 <template>
     <div class="absolute inset-0 z-30 flex flex-col bg-surface" data-region="LibraryDocumentPanel">
-        <!-- 'z-30' clears the library's own toggle at 'z-20', which floats over this pane and would otherwise sit on
-             top of the document. The toggle is a sibling of the pane rather than a child, so the value has to beat it
-             rather than merely stack above it. All of it is sealed into the layout's '@container' stacking context,
-             clear of the app-level ladder. -->
+        <!-- 'z-30' clears the library's search field at 'z-20', which floats over the page this covers. Sealed into the
+             layout's '@container' stacking context, clear of the app-level ladder. -->
 
         <!-- Full width of the pane, so its scrollbar sits at the pane's edge rather than beside the article. -->
         <ScrollArea class="min-h-0 flex-1">
@@ -76,7 +74,7 @@ defineEmits<{ close: [] }>();
         </ScrollArea>
 
         <!-- Pinned rather than carried in the heading, which now scrolls away: a document that cannot be dismissed
-             without scrolling back to the top is a trap. Same treatment as the pane toggles it sits among. -->
+             without scrolling back to the top is a trap. -->
         <CloseButton :aria-label="t(TEXT, 'close.aria')" class="absolute top-3 right-3 bg-surface shadow-md" @click="$emit('close')" />
     </div>
 </template>

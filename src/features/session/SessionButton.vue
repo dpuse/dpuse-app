@@ -4,6 +4,7 @@ import { LoaderCircleIcon } from '@lucide/vue';
 import { computed, ref } from 'vue';
 
 // ── Local Framework
+import { PRESS_CLASSES } from '@/components/ui/action/action';
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { expiresIn, lifetime, sessionIsAuthenticated } from '@/state/session';
 import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
@@ -76,10 +77,18 @@ function onMenuAfterLeave(): void {
             <SessionMenu v-if="sessionMenuIsOpen" @continue="handleClose" />
         </Transition>
 
+        <!-- The picture fills the button, so its states show as a ring around it rather than as a fill. Open looks like
+             hover, which cannot clash: while the menu is open its backdrop covers the button. -->
         <ActionWrapper
+            :aria-expanded="sessionMenuIsOpen"
+            aria-haspopup="dialog"
             aria-label="Toggle session panel"
-            class="relative size-10 rounded-full border border-separator ring-2 ring-transparent ring-offset-0 hover:ring-zinc-300 active:ring-zinc-400 dark:border-zinc-400 dark:hover:ring-zinc-600 dark:active:ring-zinc-500 [&_img]:rounded-full"
-            :class="{ 'bg-surface shadow-md': !viewportIsWide && !studioOptionBarIsVisible }"
+            class="relative size-10 rounded-full border border-separator ring-2 active:ring-zinc-400 dark:border-zinc-400 dark:active:ring-zinc-500"
+            :class="[
+                PRESS_CLASSES,
+                sessionMenuIsOpen ? 'ring-zinc-300 dark:ring-zinc-600' : 'ring-transparent hover:ring-zinc-300 dark:hover:ring-zinc-600',
+                { 'bg-surface shadow-md': !viewportIsWide && !studioOptionBarIsVisible }
+            ]"
             @click="sessionMenuIsOpen = !sessionMenuIsOpen"
         >
             <Transition name="fade">
