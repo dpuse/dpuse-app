@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import { promiseTimeout } from '@vueuse/core';
 import { SquarePenIcon } from '@lucide/vue';
 import { computed, ref, shallowRef, watch } from 'vue';
 
@@ -140,7 +141,7 @@ function handleRetryMarkedTool(): void {
 
 async function loadModel(modelId: string): Promise<ContextModelConfig | undefined> {
     // Future: return (await fetch(`/api/model-configs/${modelId}`)).json() as Promise<ContextModelConfig | undefined>;
-    await new Promise((resolve) => setTimeout(resolve, 400)); // Simulates the network latency the real fetch above will have.
+    await promiseTimeout(400); // Simulates the network latency the real fetch above will have.
     const modelConfig = (modelConfigsData as unknown as Record<string, ContextModelConfig | undefined>)[modelId];
     return modelConfig ? structuredClone(modelConfig) : undefined; // A copy, as a fetch would return, so edits don't write into the imported JSON.
 }

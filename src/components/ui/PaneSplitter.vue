@@ -4,6 +4,7 @@
 // between an even split and a wider left pane. Arrow buttons either side of the grip step it between preset widths.
 
 // ── External Dependencies & Registrations
+import { onClickOutside } from '@vueuse/core';
 import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
 import { computed, onMounted, onUnmounted, ref, shallowRef, useTemplateRef } from 'vue';
 
@@ -61,30 +62,24 @@ onMounted(() => {
     // storage, which a stale key or a hand edit can put out of range. The bounds are defined here, so the correction
     // belongs here too: every other way the value moves is already clamped, and this closes the one way in that is not.
     splitterLeftPanePercent.value = clampPercent(splitterLeftPanePercent.value);
-    // Capture phase, so a press elsewhere is seen even if its target stops the event.
-    document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
 });
 
 onUnmounted(() => {
     // Safety net only. A drag holds the pointer, so nothing should be able to remove the splitter before it ends, but
     // if that ever happened the page would be left unselectable.
     endDrag();
-    document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
+});
+
+// iPad Safari keeps focus when plain content or empty space is tapped, which would leave the arrows showing.
+onClickOutside(paneSplitterElement, () => {
+    const focusedElement = document.activeElement;
+    if (focusedElement instanceof HTMLElement && paneSplitterElement.value?.contains(focusedElement) === true) focusedElement.blur();
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleDoubleClick(): void {
     splitterLeftPanePercent.value = splitterLeftPanePercent.value === BALANCED_PERCENT ? EXPANDED_PERCENT : BALANCED_PERCENT;
-}
-
-function handleDocumentPointerDown(event: PointerEvent): void {
-    // iPad Safari keeps focus when plain content or empty space is tapped, which would leave the arrows showing.
-    const focusedElement = document.activeElement;
-    const paneSplitter = paneSplitterElement.value;
-    if (paneSplitter === null || !(focusedElement instanceof HTMLElement) || !paneSplitter.contains(focusedElement)) return;
-    if (event.target instanceof Node && paneSplitter.contains(event.target)) return;
-    focusedElement.blur();
 }
 
 function handleKeyDown(event: KeyboardEvent): void {

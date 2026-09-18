@@ -1,8 +1,9 @@
 <script setup lang="ts" generic="T extends Record<string, number | string | null | undefined>">
 // ── External Dependencies & Registrations
+import { useEventListener } from '@vueuse/core';
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, type ColumnVisibilityState, useTable } from '@tanstack/vue-table';
-import { computed, onBeforeUnmount, onMounted, shallowRef, useId, useTemplateRef } from 'vue';
+import { computed, shallowRef, useId, useTemplateRef } from 'vue';
 
 // ── Local Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
@@ -129,15 +130,8 @@ const virtualColumns = computed(() => (columnVirtualisationIsRequired.value ? co
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(() => {
-    scrollElement.value?.addEventListener('wheel', handleBodyWheel, { passive: true });
-    innerScrollElement.value?.addEventListener('scroll', syncHeaderScroll, { passive: true });
-});
-
-onBeforeUnmount(() => {
-    scrollElement.value?.removeEventListener('wheel', handleBodyWheel);
-    innerScrollElement.value?.removeEventListener('scroll', syncHeaderScroll);
-});
+useEventListener(innerScrollElement, 'scroll', syncHeaderScroll, { passive: true });
+useEventListener(scrollElement, 'wheel', handleBodyWheel, { passive: true });
 
 // ── Scroll Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────
 

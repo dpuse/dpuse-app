@@ -1,5 +1,6 @@
 // ── External Dependencies & Registrations
-import { type Ref, watch } from 'vue';
+import type { Ref } from 'vue';
+import { until } from '@vueuse/core';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -10,14 +11,6 @@ import { type Ref, watch } from 'vue';
 //
 // Resolves rather than rejects on failure — a caller cannot recover from a failed retrieval, and each retrieval
 // surfaces its own failure to the user, so awaiting code simply proceeds and lets its own load attempt fail naturally.
-export function whenRetrievalSettles(retrievalSucceeded: Ref<boolean>, retrievalFailed: Ref<boolean>): Promise<void> {
-    if (retrievalSucceeded.value || retrievalFailed.value) return Promise.resolve();
-
-    return new Promise<void>((resolve) => {
-        const stopWatching = watch([retrievalSucceeded, retrievalFailed], ([newRetrievalSucceeded, newRetrievalFailed]) => {
-            if (!newRetrievalSucceeded && !newRetrievalFailed) return;
-            stopWatching();
-            resolve();
-        });
-    });
+export async function whenRetrievalSettles(retrievalSucceeded: Ref<boolean>, retrievalFailed: Ref<boolean>): Promise<void> {
+    await until(() => retrievalSucceeded.value || retrievalFailed.value).toBe(true);
 }

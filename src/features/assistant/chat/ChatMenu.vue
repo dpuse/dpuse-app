@@ -9,7 +9,8 @@
 
 // ── External Dependencies & Registrations
 import { GalleryVerticalEndIcon } from '@lucide/vue';
-import { onUnmounted, ref, useTemplateRef } from 'vue';
+import { onClickOutside } from '@vueuse/core';
+import { ref, useTemplateRef } from 'vue';
 
 // ── Static Components
 import IconButton from '@/components/ui/action/IconButton.vue';
@@ -43,21 +44,11 @@ const menuReference = useTemplateRef<HTMLElement>('menuReference');
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Captured rather than bubbled, so a control that stops propagation cannot leave this open behind it.
-document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
-
-onUnmounted(() => {
-    document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
+onClickOutside(menuReference, () => {
+    menuIsOpen.value = false;
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-function handleDocumentPointerDown(event: PointerEvent): void {
-    if (!menuIsOpen.value) return;
-    const target = event.target as Element;
-    if (menuReference.value?.contains(target) === true) return;
-    menuIsOpen.value = false;
-}
 
 // TODO: Open the chat this names. Nothing is switched yet — there is one session, so there is nothing to switch to.
 function handleSelectChat(): void {

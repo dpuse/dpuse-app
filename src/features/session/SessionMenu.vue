@@ -1,7 +1,8 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, useTemplateRef } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from '@lucide/vue';
+import { useEventListener, useFullscreen } from '@vueuse/core';
 
 // ── DPUse Framework
 import { formatNumberAsDuration } from '@dpuse/dpuse-shared/utilities';
@@ -10,7 +11,7 @@ import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 // ── Local Framework
 import { useDialogs } from '@/state/dialogs';
 import { expiresIn, lifetime, sessionIsAuthenticated, setSessionExpiryTimer, signOut } from '@/state/session';
-import { isPWA, viewportIsWide } from '@/state/appLayout';
+import { appearance, isPWA, viewportIsWide } from '@/state/appLayout';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -22,8 +23,6 @@ import ScrollAreaFit from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const APPEARANCE_KEY = 'dpuse-appearance';
 
 const TEXT = {
     'appearance.label': { en: 'Appearance', es: 'Apariencia' },
@@ -47,11 +46,11 @@ const emit = defineEmits<{ continue: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const currentAppearance = ref(localStorage.getItem(APPEARANCE_KEY) ?? 'auto');
 const dialogElement = useTemplateRef<HTMLDialogElement>('dialogReference');
-const isFullScreenSupported = document.fullscreenEnabled;
-const screenIsFullscreen = ref(!!document.fullscreenElement);
+const isFullScreenSupported = document.fullscreenEnabled; // Stricter than 'useFullscreen', which only checks the API exists: this is also false where the page may not go fullscreen.
 const { openDialog } = useDialogs();
+const { store: currentAppearance } = appearance;
+const { isFullscreen: screenIsFullscreen, toggle: toggleFullscreen } = useFullscreen();
 
 const elapsed = computed(() => {
     if (lifetime.value == null || lifetime.value === 0) return 0;
@@ -71,16 +70,15 @@ setSessionExpiryTimer(true);
 // rest of the document marked inert — none of which is reimplemented here.
 onMounted(() => {
     dialogElement.value?.showModal();
-    // Bound here rather than in the template because a click on the backdrop reports the dialog itself as its target,
-    // and the accessibility lint reads a click handler on a 'dialog' as one put on a static element. Dismissal by
-    // pointer belongs beside dismissal by Escape in any case.
-    dialogElement.value?.addEventListener('click', handleClick);
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
 });
+
+// Bound here rather than in the template because a click on the backdrop reports the dialog itself as its target, and
+// the accessibility lint reads a click handler on a 'dialog' as one put on a static element. Dismissal by pointer
+// belongs beside dismissal by Escape in any case.
+useEventListener(dialogElement, 'click', handleClick);
 
 onUnmounted(() => {
     setSessionExpiryTimer();
-    document.removeEventListener('fullscreenchange', handleFullscreenChange);
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -99,10 +97,6 @@ function handleClick(event: MouseEvent): void {
     emit('continue');
 }
 
-function handleFullscreenChange(): void {
-    screenIsFullscreen.value = !!document.fullscreenElement;
-}
-
 async function handleManageAccount(): Promise<void> {
     await openDialog('account'); // Awaited so the menu closes only once the URL carries the dialog.
     emit('continue');
@@ -113,11 +107,7 @@ function handleReloadApp(): void {
 }
 
 async function handleSetAppearance(mode: 'dark' | 'light' | 'auto'): Promise<void> {
-    const isPrefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = mode === 'dark' || (mode === 'auto' && isPrefersDark);
-    localStorage.setItem(APPEARANCE_KEY, mode);
-    currentAppearance.value = mode;
-    document.documentElement.classList.toggle('dark', isDark);
+    appearance.value = mode;
     await nextTick();
     emit('continue');
 }
@@ -140,10 +130,6 @@ async function handleSignOut(): Promise<void> {
 async function handleToggleWindowExpansion(): Promise<void> {
     await toggleFullscreen();
     emit('continue');
-}
-
-async function toggleFullscreen(): Promise<void> {
-    await (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen());
 }
 </script>
 <template>

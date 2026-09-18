@@ -3,7 +3,7 @@
 import { computed } from 'vue';
 
 // ── Local Framework
-import { type ButtonSize, ICON_SIZE_CLASSES } from './action';
+import { type ButtonSize, ICON_SIZE_CLASSES, PRESS_CLASSES, SELECTED_CLASSES, UNSELECTED_CLASSES } from './action';
 
 // ── Static Components
 import ActionWrapper from './ActionWrapper.vue';
@@ -20,14 +20,14 @@ const { accessibleLabel, isOpen, isFloating, size = 'lg' } = defineProps<Propert
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const classes = computed(() => [ICON_SIZE_CLASSES[size], isFloating ? 'shadow-md' : '', isOpen ? 'bg-blue-50! dark:bg-zinc-300/25!' : undefined]);
+const classes = computed(() => [ICON_SIZE_CLASSES[size], PRESS_CLASSES, isFloating ? 'shadow-md' : '', isOpen ? SELECTED_CLASSES : UNSELECTED_CLASSES]);
 </script>
 
 <template>
     <ActionWrapper
         :aria-expanded="isOpen"
         :aria-label="accessibleLabel"
-        class="inline-flex items-center justify-center rounded-full border border-transparent hover:border-separator hover:bg-zinc-100 active:bg-zinc-200 dark:hover:bg-zinc-300/25 dark:active:bg-zinc-300/35"
+        class="inline-flex items-center justify-center rounded-full border border-transparent"
         :class="classes"
         data-region="ToggleButton"
     >

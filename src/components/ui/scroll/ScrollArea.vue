@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, onMounted, onUnmounted, useId, useTemplateRef } from 'vue';
+import { useEventListener } from '@vueuse/core';
+import { computed, onMounted, useId, useTemplateRef } from 'vue';
 
 // ── Static Components
 import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from './ScrollThumb.vue';
@@ -39,16 +40,10 @@ const paddingTop = computed(() => toLength(scrollAreaPaddingTop));
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
-    const element = scrollElement.value;
-    const inner = innerScrollElement.value;
-    if (!element || !inner) return;
-    element.addEventListener('wheel', handleContentWheel, { passive: true });
-    emit('initialised', element);
+    if (scrollElement.value) emit('initialised', scrollElement.value);
 });
 
-onUnmounted(() => {
-    scrollElement.value?.removeEventListener('wheel', handleContentWheel);
-});
+useEventListener(scrollElement, 'wheel', handleContentWheel, { passive: true });
 
 // ── Wheel Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

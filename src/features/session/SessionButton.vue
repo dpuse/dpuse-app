@@ -78,7 +78,7 @@ function onMenuAfterLeave(): void {
 
         <ActionWrapper
             aria-label="Toggle session panel"
-            class="dpuse-outside-click-ignore relative size-10 rounded-full border border-separator ring-2 ring-transparent ring-offset-0 hover:ring-zinc-300 active:ring-zinc-400 dark:border-zinc-400 dark:hover:ring-zinc-600 dark:active:ring-zinc-500 [&_img]:rounded-full"
+            class="relative size-10 rounded-full border border-separator ring-2 ring-transparent ring-offset-0 hover:ring-zinc-300 active:ring-zinc-400 dark:border-zinc-400 dark:hover:ring-zinc-600 dark:active:ring-zinc-500 [&_img]:rounded-full"
             :class="{ 'bg-surface shadow-md': !viewportIsWide && !studioOptionBarIsVisible }"
             @click="sessionMenuIsOpen = !sessionMenuIsOpen"
         >

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { type ComponentPublicInstance, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
@@ -30,36 +31,20 @@ const emit = defineEmits<{ continue: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const homeMenuIsOpen = ref(false);
-const homeMenuReference = useTemplateRef<ComponentPublicInstance>('homeMenuReference');
+const route = useRoute();
 const workflowOptionConfigs = useStudioOptions();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Taken from the first path segment rather than the exact route, so an option stays selected on the pages beneath it.
+const selectedOptionId = computed(() => route.path.split('/', 2)[1] || 'home');
 
 // Safari tints its toolbar to match the page, and the installed app runs under a translucent status bar, so neither
 // shows where the page starts without a line of its own. Chrome and Edge draw their own toolbar edge. The installed app
 // is checked separately because it leaves Safari out of its user agent.
 const hasTopEdgeLine = isPWA || isSafariBrowser();
 
-// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-onMounted(() => {
-    document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
-});
-
-onUnmounted(() => {
-    document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
-});
-
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-const handleDocumentPointerDown = (event: PointerEvent): void => {
-    if (!homeMenuIsOpen.value) return;
-    const target = event.target as Element;
-    if ((homeMenuReference.value?.$el as Element | undefined)?.contains(target) === true) return;
-    if (target.closest('.dpuse-outside-click-ignore')) return;
-    homeMenuIsOpen.value = false;
-};
 
 function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
     if (config != null) activeStudioOptionConfig.value = config;
@@ -82,6 +67,8 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
             <div class="flex flex-col items-center gap-y-2 py-2">
                 <IconButton
                     :accessible-label="t(TEXT, 'home.aria')"
+                    :aria-current="selectedOptionId === 'home' ? 'page' : undefined"
+                    :is-active="selectedOptionId === 'home'"
                     :to="{ name: 'studio', query: $route.query }"
                     @click="handleComplete({ id: 'home', label: '', description: '', icon: '', iconDark: null, step: 0, tasks: [] })"
                 >
@@ -89,7 +76,13 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
                 </IconButton>
 
                 <template v-for="config in workflowOptionConfigs" :key="config.id">
-                    <IconButton :accessible-label="config.label" :to="{ name: config.id, query: $route.query }" @click="handleComplete(config)">
+                    <IconButton
+                        :accessible-label="config.label"
+                        :aria-current="selectedOptionId === config.id ? 'page' : undefined"
+                        :is-active="selectedOptionId === config.id"
+                        :to="{ name: config.id, query: $route.query }"
+                        @click="handleComplete(config)"
+                    >
                         <div aria-hidden="true" v-html="config.icon" />
                     </IconButton>
                 </template>

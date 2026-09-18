@@ -74,10 +74,8 @@
 
 // ── External Dependencies & Registrations
 import { computed, type ComputedRef, ref, type ShallowRef, watch } from 'vue';
+import { promiseTimeout, watchDebounced } from '@vueuse/core';
 import { useVirtualizer, type VirtualItem } from '@tanstack/vue-virtual';
-
-// ── Local Framework
-import { debounce } from '@/utilities/index.ts';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -222,7 +220,7 @@ export function useDataWindow<T>({
     // since only the final settled `items` (whatever's visible once scrolling pauses) is ever passed through.
     // fetchBlock also updates LRU for cached blocks. getDataIndexes maps a virtual row index to one or more data
     // indexes (default 1:1; Grid passes N:1).
-    watch(virtualRows, debounce(fetchVisibleBlocks, fetchDebounceMs()));
+    watchDebounced(virtualRows, fetchVisibleBlocks, { debounce: fetchDebounceMs });
 
     // Row Virtualizer: Helpers ────────────────────────────────────────────────────────────────────────────────────────
 
@@ -289,7 +287,7 @@ export function useDataWindow<T>({
             } catch (error) {
                 if (generation !== fetchGeneration || attempt >= FETCH_MAX_RETRIES) throw error;
                 const delayMs = FETCH_RETRY_BASE_DELAY_MS * 2 ** attempt;
-                await sleep(delayMs);
+                await promiseTimeout(delayMs);
             }
         }
     }
@@ -324,8 +322,4 @@ export function useDataWindow<T>({
         rowCount: computed(() => knownRowCount.value ?? cacheBlockSize()),
         knownRowCount: computed(() => knownRowCount.value)
     };
-}
-
-function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
 }

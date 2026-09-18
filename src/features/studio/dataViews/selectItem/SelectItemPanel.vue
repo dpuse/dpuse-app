@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
+import { until } from '@vueuse/core';
 import { ArrowRightIcon, HomeIcon } from '@lucide/vue';
 import { computed, markRaw, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -47,22 +48,11 @@ const ITEM_ACTIONS = [
 // needs a generous timeout as a last-resort bail-out for the case where neither ever happens.
 const ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS = 20_000;
 
-function waitForActiveConnectionConfig(): Promise<LocalisedConfig<ConnectionConfig>> {
-    if (activeConnectionConfig.value != null) return Promise.resolve(activeConnectionConfig.value);
-
-    return new Promise((resolve, reject) => {
-        const timeoutId = setTimeout(() => {
-            stopWatching();
-            reject(new Error('Timed out waiting for an active connection config.'));
-        }, ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS);
-
-        const stopWatching = watch(activeConnectionConfig, (newActiveConnectionConfig) => {
-            if (newActiveConnectionConfig == null) return;
-            clearTimeout(timeoutId);
-            stopWatching();
-            resolve(newActiveConnectionConfig);
-        });
-    });
+// Read again after waiting rather than taken from 'until', which resolves on the timeout too.
+async function waitForActiveConnectionConfig(): Promise<LocalisedConfig<ConnectionConfig>> {
+    await until(activeConnectionConfig).toBeTruthy({ timeout: ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS });
+    if (activeConnectionConfig.value == null) throw new Error('Timed out waiting for an active connection config.');
+    return activeConnectionConfig.value;
 }
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

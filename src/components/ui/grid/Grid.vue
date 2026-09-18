@@ -1,7 +1,8 @@
 <script setup lang="ts" generic="T extends object">
 // ── External Dependencies & Registrations
 import { PlusIcon } from '@lucide/vue';
-import { computed, onUnmounted, ref, shallowRef } from 'vue';
+import { useResizeObserver } from '@vueuse/core';
+import { computed, ref, shallowRef } from 'vue';
 
 // ── Local Framework
 import { type DataSource, DEFAULT_CACHE_BLOCK_SIZE, useDataWindow } from '@/composables/useDataWindow';
@@ -46,16 +47,6 @@ defineEmits<{ add: []; select: [item: T | undefined] }>();
 
 const columnCount = ref(1);
 const columnWidth = ref(0);
-const resizeObserver = new ResizeObserver((entries) => {
-    const width = entries[0].contentRect.width;
-    if (isCompact || targetColumnWidth == null) {
-        columnCount.value = 1;
-        columnWidth.value = width;
-    } else {
-        columnCount.value = Math.max(Math.floor(width / targetColumnWidth), 1);
-        columnWidth.value = Math.floor(width / columnCount.value);
-    }
-});
 const scrollElement = shallowRef<HTMLElement | null>(null);
 // Grid needs its own `count` override to divide the item count by columnCount for its N-per-row layout, which
 // means useDataWindow's built-in self-correcting row count is bypassed for the virtualizer unless we mirror it
@@ -92,16 +83,21 @@ const state = computed<'busy' | 'empty' | 'rows'>(() => {
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onUnmounted(() => {
-    resizeObserver.disconnect();
+useResizeObserver(scrollElement, ([entry]) => {
+    const width = entry.contentRect.width;
+    if (isCompact || targetColumnWidth == null) {
+        columnCount.value = 1;
+        columnWidth.value = width;
+    } else {
+        columnCount.value = Math.max(Math.floor(width / targetColumnWidth), 1);
+        columnWidth.value = Math.floor(width / columnCount.value);
+    }
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleScrollAreaInitialised(viewport: HTMLElement): void {
-    resizeObserver.disconnect();
     scrollElement.value = viewport;
-    resizeObserver.observe(viewport);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

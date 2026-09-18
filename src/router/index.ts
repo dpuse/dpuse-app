@@ -1,4 +1,5 @@
 // ── External Dependencies & Registrations
+import { promiseTimeout } from '@vueuse/core';
 import { type Component, shallowRef } from 'vue';
 import { createRouter, createWebHistory, isNavigationFailure, NavigationFailureType, type Router, type RouteRecordRaw, type RouterScrollBehavior } from 'vue-router';
 
@@ -214,7 +215,7 @@ async function loadRouteComponent(label: string, loader: () => Promise<Component
         }
         if (simulation && import.meta.env.DEV) {
             const { delayMs = 0, failsToLoad = false } = simulation;
-            if (delayMs > 0) await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
+            if (delayMs > 0) await promiseTimeout(delayMs);
             if (failsToLoad) throw new TypeError('Failed to fetch dynamically imported module: simulated route load failure.');
         }
         return await loader();

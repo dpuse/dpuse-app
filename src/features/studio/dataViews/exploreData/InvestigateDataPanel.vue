@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
+import { promiseTimeout } from '@vueuse/core';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -23,19 +24,16 @@ const COLUMN_DEFINITIONS: ColumnDef<TableFeatureSet, Record<string, number | str
 
 const DATA_SOURCE: DataSource<{ id: number; name: string; category: string; value: string }> = {
     rowCount: TOTAL_ROWS,
-    getRows(startRow: number, endRow: number) {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
-                    rows: Array.from({ length: endRow - startRow }, (_, index) => ({
-                        id: startRow + index + 1,
-                        name: `Record ${String(startRow + index + 1)}`,
-                        category: CATEGORIES[(startRow + index) % CATEGORIES.length],
-                        value: ((startRow + index + 1) * 1.618).toFixed(2)
-                    }))
-                });
-            }, 300);
-        });
+    async getRows(startRow: number, endRow: number) {
+        await promiseTimeout(300);
+        return {
+            rows: Array.from({ length: endRow - startRow }, (_, index) => ({
+                id: startRow + index + 1,
+                name: `Record ${String(startRow + index + 1)}`,
+                category: CATEGORIES[(startRow + index) % CATEGORIES.length],
+                value: ((startRow + index + 1) * 1.618).toFixed(2)
+            }))
+        };
     }
 };
 </script>

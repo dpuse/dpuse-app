@@ -1,7 +1,8 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { ChevronDownIcon } from '@lucide/vue';
-import { onUnmounted, ref, useTemplateRef } from 'vue';
+import { onClickOutside } from '@vueuse/core';
+import { ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
 import type { AssistantModelConfig } from '../chat/modelConfigs';
@@ -23,20 +24,11 @@ const menuReference = useTemplateRef<HTMLElement>('menuReference');
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-document.addEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
-
-onUnmounted(() => {
-    document.removeEventListener('pointerdown', handleDocumentPointerDown, { capture: true });
+onClickOutside(menuReference, () => {
+    menuIsOpen.value = false;
 });
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-function handleDocumentPointerDown(event: PointerEvent): void {
-    if (!menuIsOpen.value) return;
-    const target = event.target as Element;
-    if (menuReference.value?.contains(target) === true) return;
-    menuIsOpen.value = false;
-}
 
 function handleSelect(newModelConfig: AssistantModelConfig): void {
     menuIsOpen.value = false;

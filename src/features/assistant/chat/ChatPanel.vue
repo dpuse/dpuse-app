@@ -1,7 +1,8 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { useMutationObserver } from '@vueuse/core';
+import { computed, onMounted, ref } from 'vue';
 
 // ── Local Framework
 import type { AssistantChatMessage } from './assistantChat';
@@ -48,8 +49,6 @@ const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool
 // The model is passed as a getter so a change reaches the live session rather than rebuilding it, which would start
 // the conversation again from nothing.
 const { messages, status, sendFailure, unansweredQuestionIds, sendMessage, stop } = useChatSession(() => modelConfig);
-
-const state: { scrollObserver: MutationObserver | null } = { scrollObserver: null };
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -104,9 +103,14 @@ onMounted(() => {
     void initialiseMarkedTool();
 });
 
-onUnmounted(() => {
-    state.scrollObserver?.disconnect();
-});
+// Keeps the thread pinned to its newest content as messages arrive and stream in.
+useMutationObserver(
+    scrollElement,
+    () => {
+        if (scrollElement.value) scrollElement.value.scrollTop = scrollElement.value.scrollHeight;
+    },
+    { characterData: true, childList: true, subtree: true }
+);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -124,10 +128,6 @@ function handleSendMessage(): void {
 
 function handleScrollAreaInitialised(element: HTMLElement): void {
     scrollElement.value = element;
-    state.scrollObserver = new MutationObserver(() => {
-        element.scrollTop = element.scrollHeight;
-    });
-    state.scrollObserver.observe(element, { childList: true, subtree: true, characterData: true });
 }
 
 function handleRetryMarkedTool(): void {

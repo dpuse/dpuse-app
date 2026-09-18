@@ -1,8 +1,9 @@
 <script setup lang="ts" generic="T extends RowData">
 // ── External Dependencies & Registrations
 import { ChevronDown } from '@lucide/vue';
+import { onClickOutside } from '@vueuse/core';
 import type { Header, RowData } from '@tanstack/vue-table';
-import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 
 // ── Static Components
 import type { TableFeatureSet } from './tableFeatures';
@@ -22,22 +23,9 @@ const menuOpen = ref(false);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(() => {
-    document.addEventListener('click', onDocumentClick);
+onClickOutside(menuElement, () => {
+    menuOpen.value = false;
 });
-
-onBeforeUnmount(() => {
-    document.removeEventListener('click', onDocumentClick);
-});
-
-// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-// Close menu when clicking outside.
-function onDocumentClick(event: MouseEvent): void {
-    if (menuElement.value && !menuElement.value.contains(event.target as Node)) {
-        menuOpen.value = false;
-    }
-}
 </script>
 
 <template>

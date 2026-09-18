@@ -1,3 +1,7 @@
+// ── External Dependencies & Registrations
+import { ref } from 'vue';
+import { useEventListener, useIntervalFn } from '@vueuse/core';
+
 // ── Local Framework
 import { version } from '~/package.json';
 
@@ -13,10 +17,10 @@ const FLUSH_INTERVAL_SUBSEQUENT = 30_000;
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const state: { activeSessionId: string | undefined; activeUserId: string | undefined; flushInterval: number } = {
+const flushInterval = ref(FLUSH_INTERVAL_INITIAL);
+const state: { activeSessionId: string | undefined; activeUserId: string | undefined } = {
     activeSessionId: undefined, // Tracked session identity for event attribution.
-    activeUserId: undefined, // Tracked user identity for event attribution.
-    flushInterval: FLUSH_INTERVAL_INITIAL
+    activeUserId: undefined // Tracked user identity for event attribution.
 };
 const pendingEvents: Record<string, unknown>[] = [];
 
@@ -24,13 +28,17 @@ const pendingEvents: Record<string, unknown>[] = [];
 
 // This module is an app-lifetime singleton: the flush timer and visibility listener are registered once at import
 // and shared by every consumer, not tied to any one component's lifecycle, so they intentionally live at the top level.
+//
+// The first flush is 5 seconds after load and later ones every 30 seconds; 'useIntervalFn' restarts on the new interval.
 // eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
-setInterval(flushEvents, state.flushInterval);
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
-document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) return;
+useIntervalFn(() => {
     flushEvents();
-    state.flushInterval = FLUSH_INTERVAL_SUBSEQUENT; // First check is 5secs after load, subsequent checks are every 30secs.
+    flushInterval.value = FLUSH_INTERVAL_SUBSEQUENT;
+}, flushInterval);
+// A hidden tab may never come back, so whatever is queued is sent while it still can be.
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
+useEventListener(document, 'visibilitychange', () => {
+    if (document.hidden) flushEvents();
 });
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────

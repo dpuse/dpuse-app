@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 
 // ── Local Framework
-import { type ButtonSize, ICON_SIZE_CLASSES, VARIANT_CLASSES } from './action';
+import { type ButtonSize, ICON_SIZE_CLASSES, PRESS_CLASSES, SELECTED_CLASSES, UNSELECTED_CLASSES } from './action';
 
 // ── Static Components
 import ActionWrapper from './ActionWrapper.vue';
@@ -27,8 +27,9 @@ const { accessibleLabel, disabled, isActive, label, rounded, size = 'lg', to } =
 const classes = computed(() => [
     rounded ? 'rounded-full' : 'rounded-md',
     ICON_SIZE_CLASSES[size],
-    VARIANT_CLASSES.ghost,
-    isActive ? 'bg-blue-50! dark:bg-zinc-300/25!' : undefined
+    PRESS_CLASSES,
+    'dark:text-content',
+    isActive ? SELECTED_CLASSES : UNSELECTED_CLASSES
 ]);
 </script>
 

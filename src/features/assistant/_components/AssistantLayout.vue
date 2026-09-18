@@ -4,12 +4,12 @@
 // this pane's width changes whenever the app-level splitter moves, and no media query ever reports that.
 
 // ── External Dependencies & Registrations
-import { computed, ref, useTemplateRef, watch } from 'vue';
+import { computed, useTemplateRef, watch } from 'vue';
+import { useElementSize, useLocalStorage } from '@vueuse/core';
 
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { useAssistantLibrary } from '@/state/assistantLibrary';
-import { useElementIsWide } from '@/composables/useElementIsWide';
 import { useSplitPanes } from '@/composables/useSplitPanes';
 import { ASSISTANT_MODEL_CONFIGS, type AssistantModelConfig } from '../chat/modelConfigs';
 
@@ -43,13 +43,15 @@ const { studioPaneIsHidden } = defineProps<{ studioPaneIsHidden: boolean }>();
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const layoutElement = useTemplateRef<HTMLElement>('layoutElement');
-const modelId = ref(establishModelId());
-const splitterPercent = ref(establishSplitterPercent());
+const modelId = useLocalStorage(MODEL_ID_KEY, ASSISTANT_MODEL_CONFIGS[0].id); // An id no longer offered falls back in 'activeModelConfig'.
+const splitterPercent = useLocalStorage(SPLITTER_PERCENT_KEY, SPLITTER_DEFAULT_PERCENT, {
+    serializer: { read: (value) => Number(value) || SPLITTER_DEFAULT_PERCENT, write: String }
+});
 
 const { paneIsOpen: libraryIsOpen, searchIsActive } = useAssistantLibrary();
-const { isWide: paneIsWide } = useElementIsWide(layoutElement, WIDE_PANE_THRESHOLD_PX);
+const { width: layoutWidth } = useElementSize(layoutElement);
 const { activePaneId, isPaneActive, isPaneVisible, wasPaneActivated, splitterIsVisible, setPaneActiveState } = useSplitPanes(['chat', 'library'] as const, {
-    containerIsWide: paneIsWide,
+    containerIsWide: computed(() => layoutWidth.value >= WIDE_PANE_THRESHOLD_PX),
     initialPaneId: 'chat'
 });
 
@@ -80,10 +82,6 @@ if (libraryIsOpen.value || searchIsActive.value) setPaneActiveState('library', t
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-watch(modelId, (newModelId) => {
-    localStorage.setItem(MODEL_ID_KEY, newModelId);
-});
-
 // One direction only: the pane model is the truth while the app runs, and the URL is where it is written down so a
 // reload can restore it. Reading it back here would fight the toggle.
 watch(
@@ -92,16 +90,6 @@ watch(
         libraryIsOpen.value = newLibraryIsActive;
     }
 );
-
-watch(splitterPercent, (newSplitterPercent) => {
-    try {
-        localStorage.setItem(SPLITTER_PERCENT_KEY, String(newSplitterPercent));
-    } catch {
-        // Storage can refuse a write — Safari in private browsing, or a full quota. The split still works for this
-        // document, it just will not be remembered, and a throw here would escape the watcher and be raised as an
-        // app-level failure. Losing a preference is not worth a modal.
-    }
-});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -124,24 +112,6 @@ function handleToggleLibrary(): void {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function establishModelId(): string {
-    try {
-        const storedId = localStorage.getItem(MODEL_ID_KEY);
-        if (storedId != null && ASSISTANT_MODEL_CONFIGS.some((config) => config.id === storedId)) return storedId;
-    } catch {
-        // Ignore - fall back to the default model.
-    }
-    return ASSISTANT_MODEL_CONFIGS[0].id;
-}
-
-function establishSplitterPercent(): number {
-    try {
-        return Number(localStorage.getItem(SPLITTER_PERCENT_KEY)) || SPLITTER_DEFAULT_PERCENT;
-    } catch {
-        return SPLITTER_DEFAULT_PERCENT;
-    }
-}
 
 // Keyed to what is on screen rather than to what is merely open. On a narrow pane a pane can be active and still behind
 // the other, and there the toggle has to bring it forward — closing something the user cannot see would read as the

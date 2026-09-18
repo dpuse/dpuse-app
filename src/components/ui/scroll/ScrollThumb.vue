@@ -12,7 +12,8 @@ export const SCROLL_THUMB_CROSS_INSET = THUMB_THICKNESS + THUMB_EDGE_INSET;
 
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { ref, useTemplateRef, watch } from 'vue';
+import { useEventListener, useMutationObserver, useResizeObserver, useTimeoutFn } from '@vueuse/core';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -42,14 +43,13 @@ const scrollPercent = ref(0);
 const visible = ref(false);
 const thumbsShown = ref(false);
 
-const state: { hideTimer: ReturnType<typeof setTimeout> | null; resizeObserver: ResizeObserver; contentObserver: MutationObserver } = {
-    hideTimer: null,
-    resizeObserver: new ResizeObserver(updateThumb),
-    contentObserver: new MutationObserver(() => {
-        updateThumb();
-        if (alwaysVisible) thumbsShown.value = true;
-    })
-};
+const { start: startHideTimer } = useTimeoutFn(
+    () => {
+        thumbsShown.value = false;
+    },
+    HIDE_DELAY_MS,
+    { immediate: false }
+);
 
 defineExpose({ visible });
 
@@ -57,27 +57,28 @@ defineExpose({ visible });
 
 watch(
     () => scrollElement,
-    (element, previousElement) => {
-        previousElement?.removeEventListener('scroll', handleScroll);
-        state.resizeObserver.disconnect();
-        state.contentObserver.disconnect();
+    (element) => {
         if (!element) return;
-        element.addEventListener('scroll', handleScroll, { passive: true });
-        state.resizeObserver.observe(element);
-        for (const child of element.children) state.resizeObserver.observe(child);
-        state.contentObserver.observe(element, { childList: true, subtree: false });
         updateThumb();
         if (alwaysVisible) thumbsShown.value = true;
     },
     { immediate: true }
 );
 
-onUnmounted(() => {
-    scrollElement?.removeEventListener('scroll', handleScroll);
-    state.resizeObserver.disconnect();
-    state.contentObserver.disconnect();
-    if (state.hideTimer != null) clearTimeout(state.hideTimer);
-});
+// The children are watched as well as the element, because content growing inside it changes the scroll range without
+// changing the element's own size.
+useResizeObserver(() => (scrollElement ? [scrollElement, ...(scrollElement.children as HTMLCollectionOf<HTMLElement>)] : []), updateThumb);
+
+useMutationObserver(
+    () => scrollElement,
+    () => {
+        updateThumb();
+        if (alwaysVisible) thumbsShown.value = true;
+    },
+    { childList: true }
+);
+
+useEventListener(() => scrollElement, 'scroll', handleScroll, { passive: true });
 
 // ── Drag Handlers ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -108,11 +109,7 @@ function handleTouchStart(touchEvent: TouchEvent): void {
 
 function handleShowThumbs(): void {
     thumbsShown.value = true;
-    if (alwaysVisible) return;
-    if (state.hideTimer != null) clearTimeout(state.hideTimer);
-    state.hideTimer = setTimeout(() => {
-        thumbsShown.value = false;
-    }, HIDE_DELAY_MS);
+    if (!alwaysVisible) startHideTimer();
 }
 
 // ── Drag Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -143,22 +140,12 @@ function startDrag(dragStartEvent: PointerEvent | TouchEvent): void {
     }
 
     function handleDragEnd(): void {
-        if (isTouch) {
-            document.removeEventListener('touchmove', handleDragMove as EventListener);
-            document.removeEventListener('touchend', handleDragEnd);
-        } else {
-            document.removeEventListener('pointermove', handleDragMove as EventListener);
-            document.removeEventListener('pointerup', handleDragEnd);
-        }
+        for (const stopListener of stopListeners) stopListener();
     }
 
-    if (isTouch) {
-        document.addEventListener('touchmove', handleDragMove as EventListener, { passive: true });
-        document.addEventListener('touchend', handleDragEnd);
-    } else {
-        document.addEventListener('pointermove', handleDragMove as EventListener);
-        document.addEventListener('pointerup', handleDragEnd);
-    }
+    const stopListeners = isTouch
+        ? [useEventListener(document, 'touchmove', handleDragMove, { passive: true }), useEventListener(document, 'touchend', handleDragEnd)]
+        : [useEventListener(document, 'pointermove', handleDragMove), useEventListener(document, 'pointerup', handleDragEnd)];
 }
 
 // ── Scroll Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────

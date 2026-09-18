@@ -2,6 +2,7 @@
 // ── External Dependencies & Registrations
 import { computed, onMounted, ref, watch } from 'vue';
 import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router';
+import { useLocalStorage, watchDebounced } from '@vueuse/core';
 
 // ── Local Framework
 import { initialiseServices } from '@/state/session';
@@ -22,13 +23,13 @@ import {
     viewportIsWide
 } from '@/state/appLayout';
 import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors';
-import { debounce, defineAsyncPanel, isSafariBrowser } from '@/utilities/index.ts';
+import { defineAsyncPanel, isSafariBrowser } from '@/utilities/index.ts';
 
 // ── Static Components
 import AssistantPaneToggle from '@/features/assistant/_components/AssistantPaneToggle.vue'; // Always visible.
-import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue'; // Required immediately if there is a delay, cannot wait for it to load.
-import Dialog from '@/components/ui/dialog/Dialog.vue'; // Required immediately if a dialog is to be shown, cannot wait for it to load.
-import ErrorNotice from '@/components/ui/error/ErrorNotice.vue'; // Required immediately if there is an error, cannot wait for it to load.
+import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue'; // Static, so it can show while other chunks load.
+import Dialog from '@/components/ui/dialog/Dialog.vue'; // Static, so the frame opens while the dialog's own chunk loads.
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue'; // Static, so it can show even when a chunk fails to load.
 import SessionButton from '@/features/session/SessionButton.vue'; // Always visible.
 import StudioPaneToggle from '@/features/studio/_components/StudioPaneToggle.vue'; // Always visible.
 
@@ -45,28 +46,31 @@ const PANE_SPLITTER_PERCENT_SAVE_DEBOUNCE_MS = 250;
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const paneModelIsBootstrapped = ref(false); // Reading the URL counts as a change; see the watcher that records the panes.
+const paneModelIsBootstrapped = ref(false); // Stops the URL watcher writing back the panes it has just read.
 const route = useRoute();
 const router = useRouter();
 
 const { activeDialogConfig, activeDialogId, closeDialog } = useDialogs();
 
-const paneSplitterPercent = ref(establishPaneSplitterPercent());
-const studioOptionBarIsVisible = ref(false); // Narrow displays only; on a wide one the option bar is always in the pane.
+// Pane splitter — the stored value is saved only when a drag stops, and comes first because the live value starts
+// from it.
+const storedPaneSplitterPercent = useLocalStorage(PANE_SPLITTER_PERCENT_KEY, PANE_SPLITTER_DEFAULT_PERCENT, {
+    serializer: { read: (value) => Number(value) || PANE_SPLITTER_DEFAULT_PERCENT, write: String }
+});
+const paneSplitterPercent = ref(storedPaneSplitterPercent.value);
+
+const studioOptionBarIsVisible = ref(false); // Narrow displays only, because a wide one always shows the option bar.
 
 // ── Derived State - Environment ──────────────────────────────────────────────────────────────────────────────────────
 
-// Safari tints its toolbars to match the page, so nothing shows where the page starts or ends without a line of its
-// own; Chrome and Edge draw their own toolbar edge. The top line is for wide viewports, where the panes sit beside the
-// option bar, which draws its own. The toolbar can sit at the bottom, which the installed app has none of. Where it
-// cannot be placed there, the line only marks the edge of the screen.
+// Safari colours its toolbars to match the page, so without these lines nothing marks where the page starts or ends.
+// Chrome and Edge draw their own toolbar edges. The installed app has no bottom toolbar, so it gets no bottom line.
 const hasBottomEdgeLine = !isPWA && isSafariBrowser();
 const hasTopEdgeLine = isSafariBrowser();
 
 // ── Derived State - Failures ─────────────────────────────────────────────────────────────────────────────────────────
 
-// Most app-level failures carry nothing to run again — a service loaded once at startup, or an error no region ever
-// contained — and for those a fresh document is the only recovery there is. One that does is enough to offer retry.
+// Retry is offered if any failure can be retried; the others can only recover by reloading the page.
 const appFailuresCanRetry = computed(() => appFailures.value.some((failure) => failure.retry != null));
 
 // ── Derived State - Panes ────────────────────────────────────────────────────────────────────────────────────────────
@@ -78,14 +82,12 @@ const assistantPaneStyle = computed(() => {
 
 const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assistantPaneIsVisible.value);
 
-// This is the outermost 'RouterView', so it hosts level 0 and only shows a spinner when the studio layout itself is
-// being replaced. A panel changing inside the layout reports a deeper level and is covered by that layout instead.
+// This is the outermost 'RouterView', so it shows a spinner only while the studio layout itself loads. Panels inside
+// the layout show their own.
 const studioLayoutIsLoading = computed(() => navigationPendingDepth.value === 0);
 
-// What the transition below remounts on. Keyed to the shallowest matched record that actually renders something —
-// 'route.matched' runs root to leaf, so this is the depth-0 layout this 'RouterView' owns — so a genuine change of
-// layout plays the fade while a move between panels inside one layout, or a change of query parameter, leaves it
-// alone.
+// Keyed to the top-level layout, so the fade plays when the layout changes but not when a panel or query parameter
+// does.
 const studioLayoutKey = computed(() => route.matched.find((record) => record.components?.default)?.path);
 
 const studioPaneStyle = computed(() => {
@@ -101,8 +103,8 @@ router
     .isReady()
     // eslint-disable-next-line unicorn/prefer-await -- top-level await in <script setup> suspends the component; .then() keeps the mount non-blocking.
     .then(() => {
-        // The initial navigation has fully completed, so the URL can be read. Runs once, to bootstrap the pane model.
-        // The studio is the default pane: it opens unless the assistant was explicitly the one left showing.
+        // Runs once, after the first navigation, to set up the panes from the URL. The studio opens unless the URL has
+        // only the assistant open.
         setPaneActiveState('studio', route.query.studio === '1' || route.query.assistant !== '1');
         setPaneActiveState('assistant', route.query.assistant === '1');
         activeAppPaneId.value = establishActivePaneId();
@@ -110,7 +112,7 @@ router
     })
     // eslint-disable-next-line unicorn/prefer-await, unicorn/prefer-top-level-await -- top-level await in <script setup> suspends the component; .catch() keeps the mount non-blocking.
     .catch(() => {
-        // Router failed to initialise — fall back to showing the studio pane.
+        // If the router fails to start, the studio pane is shown.
         setPaneActiveState('studio', true);
         setPaneActiveState('assistant', false);
         paneModelIsBootstrapped.value = true;
@@ -121,25 +123,19 @@ onMounted(() => {
     initialiseServices();
 });
 
-// Records the layout in the URL whenever it actually changes, rather than from each handler that might have changed it.
-// Assigning a ref the value it already holds is not a change, so working within one pane writes nothing however much
-// the pointer moves; only a real switch does. Silent until the bootstrap above has run, because reading the URL sets
-// these too, and reacting to that would write the defaults straight back into a link that had none.
+// Writes the panes to the URL only when they change, so moving the pointer within a pane writes nothing. Waits until
+// the URL has been read, so the defaults are not written into a link that had none.
 watch([activeAppPaneId, assistantPaneIsActive, studioPaneIsActive], () => {
     if (paneModelIsBootstrapped.value) syncPaneQuery();
 });
 
-// Debounced: this fires on every pointermove while dragging, and only the value the drag settles on is worth
-// persisting.
-watch(
+// Debounced because this fires on every pointer move during a drag, and only the final value needs saving.
+watchDebounced(
     paneSplitterPercent,
-    debounce((newPaneSplitterPercent: number): void => {
-        try {
-            localStorage.setItem(PANE_SPLITTER_PERCENT_KEY, String(newPaneSplitterPercent)); // Remember pane splitter percent.
-        } catch {
-            // Storage can refuse a write (private browsing, or full quota). Split works but preference is not remembered.
-        }
-    }, PANE_SPLITTER_PERCENT_SAVE_DEBOUNCE_MS)
+    (newPaneSplitterPercent) => {
+        storedPaneSplitterPercent.value = newPaneSplitterPercent;
+    },
+    { debounce: PANE_SPLITTER_PERCENT_SAVE_DEBOUNCE_MS }
 );
 
 // ── Event Handlers - Panes ───────────────────────────────────────────────────────────────────────────────────────────
@@ -147,28 +143,29 @@ watch(
 function handleToggleAssistantPane(): void {
     if (viewportIsWide.value) {
         if (assistantPaneIsVisible.value && !studioPaneIsVisible.value) return; // Don't close the assistant pane if it's the only one visible.
-        setPaneActiveState('assistant', !assistantPaneIsActive.value); // Toggle assistant pane.
+        setPaneActiveState('assistant', !assistantPaneIsActive.value);
         return;
     }
 
-    if (assistantPaneIsVisible.value) return; // Viewport is narrow so ignore assistant pane toggle if already visible.
+    if (assistantPaneIsVisible.value) return; // Already in front on a narrow viewport, so there is nothing to do.
 
-    setPaneActiveState('assistant', true); // Show assistant pane.
+    setPaneActiveState('assistant', true);
 }
 
 function handleToggleStudioPane(): void {
     if (viewportIsWide.value) {
         if (studioPaneIsVisible.value && !assistantPaneIsVisible.value) return; // Don't close the studio pane if it's the only one visible.
-        setPaneActiveState('studio', !studioPaneIsActive.value); // Toggle studio pane.
+        setPaneActiveState('studio', !studioPaneIsActive.value);
         return;
     }
 
+    // On a narrow viewport with the studio already in front, the button opens and closes the option bar instead.
     if (studioPaneIsVisible.value) {
-        studioOptionBarIsVisible.value = !studioOptionBarIsVisible.value; // Toggle studio option bar.
-        return; // Viewport is narrow so ignore studio pane toggle if already visible.
+        studioOptionBarIsVisible.value = !studioOptionBarIsVisible.value;
+        return;
     }
 
-    setPaneActiveState('studio', true); // Show studio pane.
+    setPaneActiveState('studio', true);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -179,26 +176,14 @@ function establishActivePaneId(): AppPaneId {
     return route.query.pane === 'assistant' ? 'assistant' : 'studio';
 }
 
-function establishPaneSplitterPercent(): number {
-    try {
-        return Number(localStorage.getItem(PANE_SPLITTER_PERCENT_KEY)) || PANE_SPLITTER_DEFAULT_PERCENT;
-    } catch {
-        return PANE_SPLITTER_DEFAULT_PERCENT;
-    }
-}
-
-// Records which panes are open, so a reload or a shared link opens on the same layout. Open rather than showing: a
-// narrow display has room for only one at a time, and writing what is on screen would throw away the fact that the
-// other was open too, so widening after a reload would give back one pane where there had been two.
-// Driven by the watcher above rather than called from the handlers, which is what keeps it off the paths that change
-// nothing and guarantees the whole model has settled before any of it is written.
+// Saves which panes are open, not which are showing, so a reload or shared link restores both even when a narrow
+// display shows only one.
 function syncPaneQuery(): void {
     const query: LocationQueryRaw = {
         ...route.query,
         studio: studioPaneIsActive.value ? '1' : undefined,
         assistant: assistantPaneIsActive.value ? '1' : undefined,
-        // Which of the two is in front, needed only where both are open and the display can show just one. With a
-        // single pane open the flags above already say which, so it is left off rather than stated twice.
+        // Which pane is in front, only needed when both are open.
         pane: studioPaneIsActive.value && assistantPaneIsActive.value ? activeAppPaneId.value : undefined
     };
 
@@ -210,7 +195,7 @@ function syncPaneQuery(): void {
 
 <template>
     <div class="flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" :class="isPWA ? 'h-screen w-screen' : 'h-dvh w-dvw'" data-region="App">
-        <!-- Error Shell - Show uncaught errors, failed navigations and service load failures using fullscreen dialog. -->
+        <!-- App Failures - Uncaught errors, failed navigations and service load failures, shown full screen. -->
         <ErrorNotice
             v-if="appFailures.length > 0"
             :can-retry="appFailuresCanRetry"
@@ -221,17 +206,17 @@ function syncPaneQuery(): void {
             @retry="retryAppFailures"
         />
 
-        <!-- Top Edge Line - Fixed across the full width on wide viewports. Covers the option bar's own line exactly. -->
+        <!-- Top Edge Line - Full width on wide viewports, lying exactly over the option bar's own line. -->
         <div v-if="viewportIsWide && hasTopEdgeLine" class="pointer-events-none fixed inset-x-0 top-[env(safe-area-inset-top)] z-50 h-px bg-separator" />
 
         <!-- Bottom Edge Line - Fixed across the full width, against Safari's bottom toolbar. -->
         <div v-if="hasBottomEdgeLine" class="pointer-events-none fixed inset-x-0 bottom-0 z-50 h-px bg-separator" />
 
         <!-- Studio Pane Toggle - Fixed in top left corner above option bar or panes and always visible. -->
-        <StudioPaneToggle @click="handleToggleStudioPane" />
+        <StudioPaneToggle :is-open="studioPaneIsVisible" @click="handleToggleStudioPane" />
 
         <!-- Assistant Pane Toggle - Fixed in top right corner above panes and always visible. -->
-        <AssistantPaneToggle @click="handleToggleAssistantPane" />
+        <AssistantPaneToggle :is-open="assistantPaneIsVisible" @click="handleToggleAssistantPane" />
 
         <!-- Session Button - Fixed in bottom left corner and always visible. -->
         <SessionButton :studio-option-bar-is-visible="studioOptionBarIsVisible" />
@@ -239,7 +224,7 @@ function syncPaneQuery(): void {
         <!-- Studio Option Bar - Rendered here when viewport is narrow. -->
         <OptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="studioOptionBarIsVisible = false" />
 
-        <!-- Studio Pane - Rendered first time studio pane is activated and shown when pane is visible. Contains studio layout (via RouterView). -->
+        <!-- Studio Pane - Mounted the first time it opens, then hidden rather than removed, so it keeps its state. -->
         <div
             v-if="studioPaneWasActivated"
             v-show="studioPaneIsVisible"
@@ -254,8 +239,8 @@ function syncPaneQuery(): void {
             <!-- Studio Option Bar - Rendered here when viewport is wide. -->
             <OptionBar v-if="viewportIsWide" class="overflow-y-hidden" />
 
-            <!-- 'col-start-2' required to ensure content is placed in the 2nd grid column while the async option bar is
-                 still unresolved. Minimises the CLS WebVital metric. -->
+            <!-- 'col-start-2' keeps the content in the second column while the option bar is still loading, which
+                 avoids layout shift. -->
             <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="StudioContent">
                 <RouterView v-slot="{ Component }">
                     <!-- The spinner must stay outside the transition. -->
@@ -267,12 +252,12 @@ function syncPaneQuery(): void {
             </div>
         </div>
 
-        <!-- Pane Splitter (Vertical) - Only rendered when both panes are visible. Starts below the status bar, where the
-             pane headers start; the splitter stretches, so the margin shortens it rather than pushing it off screen. -->
+        <!-- Pane Splitter - Only when both panes are visible. The top margin starts it below the status bar, level with
+             the pane headers. -->
         <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" class="mt-[env(safe-area-inset-top)]" />
 
-        <!-- Assistant Pane - Rendered first time assistant pane is activated and shown when pane is visible. Contains
-             assistant layout. -->
+        <!-- Assistant Pane - Mounted the first time it opens, then hidden rather than removed, so it keeps its
+             state. -->
         <div
             v-if="assistantPaneWasActivated"
             v-show="assistantPaneIsVisible"
@@ -285,8 +270,8 @@ function syncPaneQuery(): void {
             <AssistantLayout :studio-pane-is-hidden="!studioPaneIsVisible" />
         </div>
 
-        <!-- Dialog Shell - Modal shell for all dialogs. Dialogs are activated by the URL 'dlg' parameter. Owned here
-             so it can appear immediately, while the dialog's own chunk is still loading. -->
+        <!-- Dialog - Opened by the URL 'dlg' parameter. Owned here so its frame appears at once, while the dialog's own
+             chunk loads. -->
         <Dialog
             v-if="activeDialogConfig"
             :key="activeDialogId"

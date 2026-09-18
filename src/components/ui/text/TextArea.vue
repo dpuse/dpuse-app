@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import { useEventListener } from '@vueuse/core';
 import { XIcon } from '@lucide/vue';
 import { useAttrs, useId, useTemplateRef } from 'vue';
 
@@ -24,17 +25,19 @@ const textAreaId = id ?? useId();
 const textValue = defineModel<string>({ default: '' });
 const textAreaElement = useTemplateRef<HTMLTextAreaElement>('textAreaElement');
 
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+useEventListener(window.visualViewport, 'resize', () => {
+    const isKeyboardVisible = (window.visualViewport?.height ?? window.innerHeight) < window.innerHeight;
+    if (isKeyboardVisible) textAreaElement.value?.focus();
+});
+
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleClear(): void {
     textValue.value = '';
     textAreaElement.value?.focus();
 }
-
-window.visualViewport?.addEventListener('resize', () => {
-    const isKeyboardVisible = (window.visualViewport?.height ?? window.innerHeight) < window.innerHeight;
-    if (isKeyboardVisible) textAreaElement.value?.focus();
-});
 </script>
 
 <template>

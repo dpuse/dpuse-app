@@ -1,7 +1,8 @@
 <script setup lang="ts" generic="T extends RowData">
 // ── External Dependencies & Registrations
+import { onClickOutside } from '@vueuse/core';
 import { Settings2Icon } from '@lucide/vue';
-import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 import type { RowData, Table } from '@tanstack/vue-table';
 
 // ── Static Components
@@ -18,21 +19,9 @@ const pickerElement = useTemplateRef<HTMLDivElement>('picker');
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-onMounted(() => {
-    document.addEventListener('click', onDocumentClick);
+onClickOutside(pickerElement, () => {
+    open.value = false;
 });
-
-onBeforeUnmount(() => {
-    document.removeEventListener('click', onDocumentClick);
-});
-
-// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-function onDocumentClick(event: MouseEvent): void {
-    if (pickerElement.value && !pickerElement.value.contains(event.target as Node)) {
-        open.value = false;
-    }
-}
 </script>
 
 <template>

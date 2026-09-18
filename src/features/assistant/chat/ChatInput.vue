@@ -8,8 +8,9 @@
 // the space it covers.
 
 // ── External Dependencies & Registrations
+import { useResizeObserver } from '@vueuse/core';
 import { ArrowUpIcon, PlusIcon, SquareIcon } from '@lucide/vue';
-import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue';
+import { computed, useTemplateRef } from 'vue';
 
 // ── Local Framework
 import type { AssistantModelConfig } from './modelConfigs';
@@ -46,8 +47,6 @@ const emit = defineEmits<{ heightChange: [height: number]; modelChange: [modelCo
 
 const inputElement = useTemplateRef<HTMLElement>('inputElement');
 
-const state: { resizeObserver: ResizeObserver | null } = { resizeObserver: null };
-
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The send button is the one filled control in the bar — see the comment above it — so it carries its own colour
@@ -62,16 +61,8 @@ const sendButtonClasses = computed(() =>
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Measured rather than stated: this grows with the text typed into it, so no constant could stand in for its height.
-onMounted(() => {
-    if (!inputElement.value) return;
-    reportHeight();
-    state.resizeObserver = new ResizeObserver(reportHeight);
-    state.resizeObserver.observe(inputElement.value);
-});
-
-onUnmounted(() => {
-    state.resizeObserver?.disconnect();
-});
+// The observer also reports once as it starts, which gives the first height.
+useResizeObserver(inputElement, reportHeight);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

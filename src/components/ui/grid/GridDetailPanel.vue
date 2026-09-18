@@ -1,10 +1,10 @@
 <script setup lang="ts" generic="T extends { id: string }">
 // ── External Dependencies & Registrations
+import { useElementSize } from '@vueuse/core';
 import { computed, provide, ref, useTemplateRef, watch } from 'vue';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import { useElementIsWide } from '@/composables/useElementIsWide';
 import { GRID_DETAIL_SPLIT_THRESHOLD_PX, gridDetailIsSplitKey } from '@/components/ui/grid/gridDetail';
 
 // ── Static Components
@@ -38,13 +38,14 @@ defineEmits<{ add: [] }>();
 
 const bodyElement = useTemplateRef<HTMLElement>('bodyElement');
 const detailIsOpen = ref(false); // Whether the detail has been opened and not since dismissed, which is intent rather than visibility.
-const { isWide: isSplit } = useElementIsWide(bodyElement, GRID_DETAIL_SPLIT_THRESHOLD_PX);
-provide(gridDetailIsSplitKey, isSplit);
+const { width: bodyWidth } = useElementSize(bodyElement);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const detailPaneIsVisible = computed(() => isSplit.value || detailIsOpen.value);
 const gridPaneIsVisible = computed(() => isSplit.value || !detailIsOpen.value);
+const isSplit = computed(() => bodyWidth.value >= GRID_DETAIL_SPLIT_THRESHOLD_PX);
+provide(gridDetailIsSplitKey, isSplit);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 

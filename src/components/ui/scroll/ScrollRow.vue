@@ -1,7 +1,8 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
-import { onBeforeUnmount, onMounted, onUpdated, ref, shallowRef, useTemplateRef } from 'vue';
+import { onMounted, onUpdated, ref, shallowRef, useTemplateRef } from 'vue';
+import { useEventListener, useResizeObserver } from '@vueuse/core';
 
 // ── Local Framework
 import { t } from '@/state/locale';
@@ -37,7 +38,6 @@ const revealedActiveItem = shallowRef<HTMLElement>(); // The active item last sc
 const rowCanScrollLeft = ref(false);
 const rowCanScrollRight = ref(false);
 const rowElement = useTemplateRef<HTMLDivElement>('row');
-const rowResizeObserver = shallowRef<ResizeObserver>();
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -50,14 +50,6 @@ onMounted(() => {
         revealedActiveItem.value = undefined;
         revealActiveItem('instant');
     });
-    rowResizeObserver.value = new ResizeObserver(updateScrollState);
-    if (!rowElement.value) return;
-    rowResizeObserver.value.observe(rowElement.value);
-    // The row listens for clicks and focus on the items inside it, which are the real buttons and links. The listeners
-    // are added here because a click listener on the row itself in the template is flagged as a control with no
-    // keyboard support. Focus covers the keyboard: tabbing to an item scrolls it into view too.
-    rowElement.value.addEventListener('click', handleRevealItem);
-    rowElement.value.addEventListener('focusin', handleRevealItem);
 });
 
 // The items can change without the row changing size, for example when an item is added, the language changes or a
@@ -67,11 +59,12 @@ onUpdated(() => {
     revealActiveItem('smooth');
 });
 
-onBeforeUnmount(() => {
-    rowResizeObserver.value?.disconnect();
-    rowElement.value?.removeEventListener('click', handleRevealItem);
-    rowElement.value?.removeEventListener('focusin', handleRevealItem);
-});
+useResizeObserver(rowElement, updateScrollState);
+
+// The row listens for clicks and focus on the items inside it, which are the real buttons and links. The listeners are
+// added here because a click listener on the row itself in the template is flagged as a control with no keyboard
+// support. Focus covers the keyboard: tabbing to an item scrolls it into view too.
+useEventListener(rowElement, ['click', 'focusin'], handleRevealItem);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

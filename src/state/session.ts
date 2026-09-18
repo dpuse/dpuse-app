@@ -1,6 +1,7 @@
 // ── External Dependencies & Registrations
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { computed, ref, shallowRef, watch } from 'vue';
+import { promiseTimeout, useDocumentVisibility, useEventListener, useIntervalFn } from '@vueuse/core';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
@@ -47,8 +48,8 @@ const emailIsPrimary = ref<boolean | undefined>();
 const emailIsVerified = ref<boolean | undefined>();
 export const expiresAt = ref<number | undefined>();
 export const expiresIn = ref<number | undefined>();
-const state: { expiryTimer: ReturnType<typeof setTimeout> | undefined; hankoInstance: Hanko | undefined; hankoFlowCleanupFunction: (() => void) | undefined } = {
-    expiryTimer: undefined, // Long-lived authenticated-session-scoped expiry timer.
+const expiryIntervalMs = ref(EXPIRE_INTERVAL_SLOW);
+const state: { hankoInstance: Hanko | undefined; hankoFlowCleanupFunction: (() => void) | undefined } = {
     hankoInstance: undefined, // Long-lived module-scoped Hanko instance reused across multiple authentication sessions.
     hankoFlowCleanupFunction: undefined // Short lived session scoped cleanup callback for the active Hanko flow.
 };
@@ -56,6 +57,8 @@ export const sessionIsAuthenticated = ref<boolean | undefined>(); // Undefined i
 export const lifetime = ref<number | undefined>();
 const sessionId = ref<string | undefined>();
 const updatesArePending = ref(false);
+
+const { pause: pauseExpiryTimer, resume: resumeExpiryTimer } = useIntervalFn(updateExpiresIn, expiryIntervalMs, { immediate: false });
 
 // ── State - Configuration ────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -117,13 +120,14 @@ export const activeMetaStoreConnectionConfig = computed(() => {
 
 // This module is an app-lifetime singleton: watchers are registered once at import and shared by every consumer,
 // not tied to any one component's lifecycle, so they intentionally live at the top level rather than in a hook.
+// Attached only while updates are pending, because the handler always asks the user to confirm leaving.
 // eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
-watch(updatesArePending, (newAreUpdatesPending) => {
-    if (newAreUpdatesPending) {
-        addEventListener('beforeunload', handleBeforeUnload);
-    } else {
-        removeEventListener('beforeunload', handleBeforeUnload);
-    }
+useEventListener(() => (updatesArePending.value ? globalThis : undefined), 'beforeunload', handleBeforeUnload);
+
+// A backgrounded tab has its timers throttled, so the countdown is brought up to date as soon as the tab is looked at.
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
+watch(useDocumentVisibility(), (visibility) => {
+    if (visibility === 'visible' && expiresAt.value != null) updateExpiresIn();
 });
 
 // eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
@@ -138,7 +142,6 @@ watch(
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function initialiseServices(): void {
-    document.addEventListener('visibilitychange', handleVisibilityChange);
     void initialiseHanko();
     void initialiseConfigMonitor();
     void initialiseContextConfig();
@@ -161,17 +164,9 @@ export function getLocalisedConnection(id: string | undefined, localeId: LocaleI
 }
 
 export function setSessionExpiryTimer(isRunQuickly = false): void {
-    clearSessionExpiryTimer();
-    if (isRunQuickly && expiresAt.value != null) {
-        expiresIn.value = Math.max(0, expiresAt.value - Date.now());
-    }
-    state.expiryTimer = setInterval(
-        () => {
-            expiresIn.value = Math.max(0, (expiresAt.value ?? 0) - Date.now());
-            if (expiresIn.value <= 0) clearSessionExpiryTimer();
-        },
-        isRunQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW
-    );
+    if (isRunQuickly && expiresAt.value != null) updateExpiresIn();
+    expiryIntervalMs.value = isRunQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW;
+    resumeExpiryTimer();
 }
 
 export async function signOut(): Promise<void> {
@@ -186,18 +181,8 @@ function handleBeforeUnload(event: BeforeUnloadEvent): void {
     event.returnValue = '';
 }
 
-function handleVisibilityChange(): void {
-    if (document.visibilityState !== 'visible' || expiresAt.value == null) return;
-    expiresIn.value = Math.max(0, expiresAt.value - Date.now());
-    if (expiresIn.value <= 0) clearSessionExpiryTimer();
-}
-
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function clearSessionExpiryTimer(): void {
-    clearInterval(state.expiryTimer);
-    state.expiryTimer = undefined;
-}
 
 async function initialiseHanko(): Promise<void> {
     let hankoModule;
@@ -265,7 +250,7 @@ async function initialiseConfigMonitor(): Promise<void> {
 // 'contextConfigData' and the artificial delay, which only stand in for that.
 async function initialiseContextConfig(): Promise<void> {
     try {
-        await new Promise((resolve) => setTimeout(resolve, 400)); // Simulates the network latency the real fetch above will have.
+        await promiseTimeout(400); // Simulates the network latency the real fetch above will have.
         contextConfig.value = contextConfigData as ContextConfig;
         contextConfigRetrievalSucceeded.value = true;
     } catch (error) {
@@ -357,7 +342,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
         if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  Authenticated session established (${actionId}).`);
     } else {
         forgetUser();
-        clearSessionExpiryTimer();
+        pauseExpiryTimer();
 
         void terminateAccountMonitor();
 
@@ -376,4 +361,10 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
         const icon = actionId === 'validationFailure' ? '⚠️ ' : 'ℹ️ ';
         if (import.meta.env.DEV) console.info(`[dpuse:app] ${icon} Unauthenticated session established (${actionId}).`);
     }
+}
+
+// The interval keeps running while the countdown is live and stops itself once the session has expired.
+function updateExpiresIn(): void {
+    expiresIn.value = Math.max(0, (expiresAt.value ?? 0) - Date.now());
+    if (expiresIn.value <= 0) pauseExpiryTimer();
 }

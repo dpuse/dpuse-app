@@ -1,4 +1,5 @@
 // ── External Dependencies & Registrations
+import { promiseTimeout } from '@vueuse/core';
 import { type AsyncComponentLoader, type Component, type ComponentPublicInstance, defineAsyncComponent, defineComponent, h, ref, type VNode } from 'vue';
 
 // ── DPUse Tools
@@ -59,28 +60,6 @@ export type PluginConfig = ConnectorConfig | CookbookConfig | PresenterConfig | 
 export function assertDefined<T>(value: T | null | undefined, message = 'Expected value to be defined.'): T {
     if (value == null) throw new Error(message);
     return value;
-}
-
-// Trailing-edge only: each call resets the timer, so only the last call within 'delayMs' of silence actually runs.
-// 'cancel' drops a pending call outright — call it from 'onUnmounted' when a caller keeps the debounced function
-// around past a single render.
-export function debounce<Arguments extends unknown[]>(function_: (...arguments_: Arguments) => void, delayMs: number): ((...arguments_: Arguments) => void) & { cancel: () => void } {
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
-
-    function debounced(...arguments_: Arguments): void {
-        if (timeoutId !== undefined) clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-            timeoutId = undefined;
-            function_(...arguments_);
-        }, delayMs);
-    }
-
-    debounced.cancel = (): void => {
-        if (timeoutId !== undefined) clearTimeout(timeoutId);
-        timeoutId = undefined;
-    };
-
-    return debounced;
 }
 
 // Replaces the Suspense + error/loading-spinner boilerplate with defineAsyncComponent's own
@@ -160,7 +139,7 @@ function buildLoader(loader: AsyncComponentLoader, name: string, simulation?: As
         if (!simulation) return loader();
 
         const { delayMs = 0, failsToLoad = false } = simulation;
-        if (delayMs > 0) await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
+        if (delayMs > 0) await promiseTimeout(delayMs);
         if (failsToLoad) throw new Error('Simulated component load error.');
         return loader();
     };

@@ -2,6 +2,7 @@
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
 import Squire from 'squire-rte';
+import { useResizeObserver } from '@vueuse/core';
 import { BoldIcon, ItalicIcon, LinkIcon, UnderlineIcon } from '@lucide/vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, useAttrs, useId, useTemplateRef, watch } from 'vue';
 
@@ -38,7 +39,7 @@ const internalUpdatePending = ref(false);
 const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
 const parentCanScroll = ref(true);
 const editorFailure = shallowRef<AppFailure | undefined>();
-const scrollableAncestorObserver = shallowRef<ResizeObserver>();
+const scrollableAncestorElement = shallowRef<HTMLElement | null>(null); // Found once the editor exists; see 'updateParentCanScroll'.
 const textValue = defineModel<string>({ default: '' });
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -68,14 +69,14 @@ watch(textValue, async (newValue) => {
         editor.value.setHTML(html);
     }
     await nextTick();
-    const ancestor = findScrollableAncestor(editorElement.value);
-    if (ancestor) updateParentCanScroll(ancestor);
+    updateParentCanScroll();
 });
 
 onBeforeUnmount(() => {
     editor.value?.destroy();
-    scrollableAncestorObserver.value?.disconnect();
 });
+
+useResizeObserver(scrollableAncestorElement, updateParentCanScroll);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -168,14 +169,7 @@ async function initialiseEditor(): Promise<void> {
             editor.value = newEditorInstance;
             editorInstance = newEditorInstance;
 
-            const ancestor = findScrollableAncestor(editorElement.value);
-            if (ancestor) {
-                updateParentCanScroll(ancestor);
-                scrollableAncestorObserver.value = new ResizeObserver(() => {
-                    updateParentCanScroll(ancestor);
-                });
-                scrollableAncestorObserver.value.observe(ancestor);
-            }
+            scrollableAncestorElement.value = findScrollableAncestor(editorElement.value);
         }
 
         const tool = await initialiseMarkedTool();
@@ -185,8 +179,9 @@ async function initialiseEditor(): Promise<void> {
     }
 }
 
-function updateParentCanScroll(ancestor: HTMLElement): void {
-    parentCanScroll.value = ancestor.scrollHeight > ancestor.clientHeight;
+function updateParentCanScroll(): void {
+    const ancestor = scrollableAncestorElement.value;
+    if (ancestor) parentCanScroll.value = ancestor.scrollHeight > ancestor.clientHeight;
 }
 </script>
 
