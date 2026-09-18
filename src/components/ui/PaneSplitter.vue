@@ -24,6 +24,7 @@ const splitterLeftPanePercent = defineModel<number>({ default: BALANCED_PERCENT 
 // Drag — only meaningful while a drag is in progress. Refs rather than plain variables because the lint rules forbid
 // reassigning a top-level variable from inside a function.
 const previousBodyUserSelect = ref(''); // Text selection is switched off page-wide while dragging; this restores it.
+const previousBodyWebkitUserSelect = ref(''); // Safari, including every iPad browser, only honours the prefixed form.
 const splitterContainerRect = shallowRef<DOMRect>(); // The row holding both panes, measured once as the drag starts.
 const splitterIsDragging = ref(false);
 
@@ -80,7 +81,9 @@ function handlePointerDown(event: PointerEvent): void {
     // The pane percentage is relative to the layout row, which is inset from the viewport by the safe areas.
     splitterContainerRect.value = (splitter.parentElement ?? splitter).getBoundingClientRect();
     previousBodyUserSelect.value = document.body.style.userSelect;
+    previousBodyWebkitUserSelect.value = document.body.style.getPropertyValue('-webkit-user-select');
     document.body.style.userSelect = 'none';
+    document.body.style.setProperty('-webkit-user-select', 'none');
     splitterIsDragging.value = true;
     splitter.setPointerCapture(event.pointerId);
 }
@@ -108,6 +111,7 @@ function endDrag(): void {
     splitterIsDragging.value = false;
     splitterContainerRect.value = undefined;
     document.body.style.userSelect = previousBodyUserSelect.value;
+    document.body.style.setProperty('-webkit-user-select', previousBodyWebkitUserSelect.value);
 }
 </script>
 
@@ -117,7 +121,7 @@ function endDrag(): void {
         :aria-valuemin="MINIMUM_PERCENT"
         :aria-valuenow="Math.round(splitterLeftPanePercent)"
         :class="[
-            'group relative z-10 w-(--pane-splitter-width) flex-none cursor-col-resize touch-none self-stretch border-x border-boundary transition-colors',
+            'group relative z-10 w-(--pane-splitter-width) flex-none cursor-col-resize touch-none self-stretch border-x border-boundary transition-colors select-none',
             // The handle is a few pixels wide, so it shows focus by lighting up rather than by being ringed. 'outline-hidden'
             // rather than 'outline-none': in Tailwind v4 the former keeps an outline in forced-colors mode, where this
             // background change is not rendered and would otherwise leave no indicator at all.
@@ -138,6 +142,8 @@ function endDrag(): void {
     >
         <!--
           The root is an ARIA window splitter: 'separator' plus a tab stop, which is what makes arrow keys expected here.
+          'select-none' on the root stops a touch press-and-hold selecting text before the drag starts; the page-wide
+          switch only takes over once 'pointerdown' fires.
           -->
 
         <!-- Widens the grab area equally over both panes without affecting layout. The parent's z-index keeps it above
