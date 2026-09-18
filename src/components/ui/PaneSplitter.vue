@@ -106,6 +106,7 @@ function handlePointerDown(event: PointerEvent): void {
     document.body.style.setProperty('-webkit-user-select', 'none');
     splitterIsDragging.value = true;
     splitter.setPointerCapture(event.pointerId);
+    splitter.focus({ preventScroll: true }); // Focus reveals the pill; a tap on a touch screen does not reliably give it.
 }
 
 function handlePointerMove(event: PointerEvent): void {
@@ -185,11 +186,11 @@ function endDrag(): void {
             </div>
         </div>
 
-        <!-- Centred on the line below the 55px pane headers, so it clears their titles. Hidden pills ignore the pointer, so
-             they cannot be clicked unseen; touch has no hover to reveal them, so there they always show, with buttons
-             padded to 32px for a fingertip. -->
+        <!-- Centred on the line below the 55px pane headers, so it clears their titles. Shown on hover, or while the splitter
+             has focus, which pressing it gives, so a tap reveals it on touch screens. A hidden pill ignores the pointer, so
+             it cannot be clicked unseen. Buttons are padded to 32px on touch for a fingertip. -->
         <div
-            class="pointer-events-none absolute top-14 left-1/2 flex -translate-1/2 rounded-full border border-boundary bg-surface p-0.5 opacity-0 transition-opacity group-focus-within/splitter:pointer-events-auto group-focus-within/splitter:opacity-100 group-hover/splitter:pointer-events-auto group-hover/splitter:opacity-100 pointer-coarse:pointer-events-auto pointer-coarse:opacity-100"
+            class="pointer-events-none absolute top-14 left-1/2 flex -translate-1/2 rounded-full border border-boundary bg-surface p-0.5 opacity-0 transition-opacity group-focus-within/splitter:pointer-events-auto group-focus-within/splitter:opacity-100 group-hover/splitter:pointer-events-auto group-hover/splitter:opacity-100"
         >
             <button
                 :aria-label="t(TEXT, 'moveLeft.aria')"
@@ -197,6 +198,7 @@ function endDrag(): void {
                 class="rounded-full text-content hover:bg-zinc-100 disabled:opacity-40 disabled:hover:bg-transparent dark:hover:bg-zinc-300/25 pointer-coarse:p-2"
                 type="button"
                 @click="handleMoveLeft"
+                @mousedown.prevent
             >
                 <ChevronLeftIcon class="size-4" />
             </button>
@@ -206,6 +208,7 @@ function endDrag(): void {
                 class="rounded-full text-content hover:bg-zinc-100 disabled:opacity-40 disabled:hover:bg-transparent dark:hover:bg-zinc-300/25 pointer-coarse:p-2"
                 type="button"
                 @click="handleMoveRight"
+                @mousedown.prevent
             >
                 <ChevronRightIcon class="size-4" />
             </button>
