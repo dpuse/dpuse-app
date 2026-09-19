@@ -49,7 +49,10 @@ export const PILL_FILL_CLASSES = 'bg-selected hover:bg-selected-hover';
 // Icon buttons size by padding around a glyph rather than by a fixed box, so a button is always its icon plus the same
 // margin whatever the icon is. The glyph size is set here too, or every call site would have to state it and they
 // would drift — four different glyph sizes across five buttons is where this started.
+// 'lg' holds identity icons (the studio options, the pane toggles' logos), which are cropped to their artwork, so they
+// are drawn smaller than a stock Lucide glyph and padded more, keeping the button 40px. 'sm' holds Lucide controls,
+// whose padding is built in.
 export const ICON_SIZE_CLASSES: Record<ButtonSize, string> = {
-    lg: 'p-1.75 [&_svg]:size-6.5',
+    lg: 'p-2.25 [&_svg]:size-5.5',
     sm: 'p-1.75 [&_svg]:size-5'
 };

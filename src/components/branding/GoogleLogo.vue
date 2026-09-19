@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <svg viewBox="0 0 16 17" fill="none" data-region="GoogleLogo">
+    <svg viewBox="0.5 1.16 14.7 15" fill="none" data-region="GoogleLogo">
         <g clip-path="url(#clip0_2000_52727)">
             <path
                 fill-rule="evenodd"
