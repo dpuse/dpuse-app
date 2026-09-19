@@ -9,7 +9,7 @@ import { LibraryIcon, MessageSquareIcon } from '@lucide/vue';
 // ── Local Framework
 import { t } from '@/state/locale';
 import { TEXT } from './AssistantToolbar_.json';
-import { PRESS_CLASSES, SELECTED_CLASSES, UNSELECTED_CLASSES } from '@/components/ui/action/action';
+import { PRESS_CLASSES, SEGMENT_SELECTED_CLASSES, UNSELECTED_CLASSES } from '@/components/ui/action/action';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -53,7 +53,7 @@ function isPaneVisible(paneId: AssistantPaneId): boolean {
             :key="pane.id"
             :aria-pressed="isPaneVisible(pane.id)"
             class="rounded-full px-3 py-1 text-sm"
-            :class="[PRESS_CLASSES, isPaneVisible(pane.id) ? SELECTED_CLASSES : UNSELECTED_CLASSES]"
+            :class="[PRESS_CLASSES, isPaneVisible(pane.id) ? SEGMENT_SELECTED_CLASSES : UNSELECTED_CLASSES]"
             @click="$emit('toggle', pane.id)"
         >
             {{ t(TEXT, pane.labelKey) }}
@@ -75,6 +75,7 @@ function isPaneVisible(paneId: AssistantPaneId): boolean {
             :key="pane.id"
             :accessible-label="t(TEXT, pane.labelKey)"
             :is-open="isPaneVisible(pane.id)"
+            is-segment
             size="sm"
             @click="$emit('toggle', pane.id)"
         >

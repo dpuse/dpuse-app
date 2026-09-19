@@ -6,6 +6,7 @@ import { ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
 import type { AssistantModelConfig } from '../chat/modelConfigs';
+import { UNSELECTED_CLASSES } from '@/components/ui/action/action';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -44,7 +45,8 @@ function handleSelect(newModelConfig: AssistantModelConfig): void {
             aria-haspopup="true"
             :aria-expanded="menuIsOpen"
             aria-label="Select model"
-            class="flex max-w-full min-w-0 items-center gap-x-1 rounded-full px-2.5 py-1 text-xs text-selected-text hover:bg-selected-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+            class="flex max-w-full min-w-0 items-center gap-x-1 rounded-full px-2.5 py-1 text-xs text-content focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+            :class="UNSELECTED_CLASSES"
             @click="menuIsOpen = !menuIsOpen"
         >
             <!-- The model alone. The provider is how the menu below groups its choices, but every model label already

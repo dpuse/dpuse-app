@@ -11,6 +11,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { TEXT } from './ConnectionPanel_.json';
+import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useDialogs } from '@/state/dialogs';
 import { viewportIsWide } from '@/state/appLayout';
 import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs } from '@/state/session';
@@ -63,6 +64,9 @@ const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initial
 const connectorLocalisedConfigs = shallowRef<LocalisedConfig<ConnectorConfig>[]>([]);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Cards here carry no badges or actions, so they are one row.
+const cardRowHeight = useCardRowHeight(false);
 
 const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectorConfig>>>(() => ({
     // Settled either way: an undefined count means 'not yet known' and leaves the grid busy, so checking only the
@@ -119,7 +123,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
          leaving an empty picker with no explanation. -->
     <ErrorNotice v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
 
-    <GridDetailPanel v-else :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" :row-height="80">
+    <GridDetailPanel v-else :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" :row-height="cardRowHeight">
         <template #item="{ item }">
             <ConfigCard v-if="item" :config="item" @click="handleSelectConnector(item)" />
         </template>

@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 
 // ── Local Framework
-import { type ButtonSize, ICON_SIZE_CLASSES, PRESS_CLASSES, SELECTED_CLASSES, UNSELECTED_CLASSES } from './action';
+import { type ButtonShape, type ButtonSize, ICON_SIZE_CLASSES, PRESS_CLASSES, SELECTED_CLASSES, UNSELECTED_CLASSES } from './action';
 
 // ── Static Components
 import ActionWrapper from './ActionWrapper.vue';
@@ -16,16 +16,16 @@ interface Properties {
     disabled?: boolean;
     isActive?: boolean;
     label?: string;
-    rounded?: boolean;
+    shape?: ButtonShape;
     size?: ButtonSize;
     to?: RouteLocationRaw;
 }
-const { accessibleLabel, disabled, isActive, label, rounded, size = 'lg', to } = defineProps<Properties>();
+const { accessibleLabel, disabled, isActive, label, shape = 'square', size = 'lg', to } = defineProps<Properties>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const classes = computed(() => [
-    rounded ? 'rounded-full' : 'rounded-md',
+    shape === 'square' ? 'rounded-lg' : 'rounded-full',
     ICON_SIZE_CLASSES[size],
     PRESS_CLASSES,
     'dark:text-content',

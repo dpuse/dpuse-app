@@ -10,9 +10,9 @@ import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection'
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import type { Action } from '@/components/ui/config/configCard';
 import type { DataSource } from '@/composables/useDataWindow';
 import { useDialogs } from '@/state/dialogs';
+import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
 import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
 import { activeMetaStoreConnectionConfig, configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded } from '@/state/session';
 import { type AppFailure, raiseFailure } from '@/state/errors';
@@ -53,6 +53,9 @@ const route = useRoute();
 const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Cards here carry actions, which take a second row.
+const cardRowHeight = useCardRowHeight(true);
 
 const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
     // Settled either way: an undefined count means 'not yet known' and leaves the grid busy, so checking only the
@@ -171,7 +174,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
         add-label="Connection"
         :data-source="connectionConfigsDataSource"
         max-detail-width="65ch"
-        :row-height="16 + 16 + 28 + 32 + 16"
+        :row-height="cardRowHeight"
         @add="handleAddConnection"
     >
         <template #item="{ item }">

@@ -156,7 +156,7 @@ async function loadPresenters(): Promise<void> {
             scroll-area-padding-top="8px"
         >
             <template #item="{ item }">
-                <ConfigCard v-if="item" :config="item" :is-compact="true" @click="handleSelectPresentation(item)" />
+                <ConfigCard v-if="item" :config="item" :is-compact="true" :selected="item.id === activePresentationReference?.id" @click="handleSelectPresentation(item)" />
             </template>
 
             <template #detail>

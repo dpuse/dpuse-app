@@ -14,7 +14,7 @@ const { accessibleLabel = 'Close' } = defineProps<Properties>();
 </script>
 
 <template>
-    <IconButton :accessible-label="accessibleLabel" data-region="CloseButton" rounded size="sm">
+    <IconButton :accessible-label="accessibleLabel" data-region="CloseButton" shape="round" size="sm">
         <XIcon class="size-5.5!" stroke-width="1.25" />
     </IconButton>
 </template>

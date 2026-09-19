@@ -15,6 +15,9 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { raiseAppFailure } from '@/state/errors';
 import { t } from '@/state/locale';
+import { TEXT } from './DataViewList_.json';
+import { type Badge, useCardRowHeight } from '@/components/ui/config/configCard';
+import { constructDataViewSteps, type DataViewStep, resolveCurrentDataViewStepId } from './dataViewSteps';
 import {
     dataViewConfigs,
     dataViewLocalisedConfigs,
@@ -35,16 +38,11 @@ import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
+import StepDots from '@/components/ui/StepDots.vue';
 import StudioListPanel from '@/features/studio/_components/StudioListPanel.vue';
 
 // ── Dynamic Components
 const EmptyPlaceholder = defineAsyncPanel(() => import('~/src/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');
-
-const TEXT = {
-    'dataView.label': { en: 'Data View', es: 'Vista de Datos' },
-    'dataView.one.text': { en: 'data view', es: 'vista de datos' },
-    'dataView.other.text': { en: 'data views', es: 'vistas de datos' }
-};
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -54,6 +52,9 @@ const route = useRoute();
 const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Cards here carry actions, which take a second row.
+const cardRowHeight = useCardRowHeight(true);
 
 // Constructs a computed data source wrapper for the data view configurations, which are retrieved by the meta store
 // connection watcher in '@/state/dataViews'.
@@ -123,26 +124,44 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
     if (!dataViewConfig) return;
 
     setActiveDataViewConfig(dataViewConfig);
-    if (dataViewConfig.connectionId == null) {
-        void router.push({ name: 'connections', params: { dataViewId: dataViewConfig.id }, query: route.query }).catch(() => {
-            // Already reported by 'router.onError'.
-        });
-    } else if (dataViewConfig.connectionNodeConfig == null) {
-        void router.push({ name: 'items', params: { dataViewId: dataViewConfig.id }, query: route.query }).catch(() => {
-            // Already reported by 'router.onError'.
-        });
-    } else if (dataViewConfig.contentAuditConfig == null) {
-        void router.push({ name: 'content', params: { dataViewId: dataViewConfig.id }, query: route.query }).catch(() => {
-            // Already reported by 'router.onError'.
-        });
-    } else {
-        void router.push({ name: 'data', params: { dataViewId: dataViewConfig.id }, query: route.query }).catch(() => {
-            // Already reported by 'router.onError'.
-        });
-    }
+    void router.push({ name: resolveCurrentDataViewStepId(dataViewConfig), params: { dataViewId: dataViewConfig.id }, query: route.query }).catch(() => {
+        // Already reported by 'router.onError'.
+    });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// TODO: Remove these sample badges, which exist only to test the card's badge row. Seeded by id so they hold across
+// renders, and varied so some cards have none, one, or enough to clip.
+function constructSampleBadges(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): Badge[] {
+    const samples: Badge[][] = [
+        [],
+        [{ id: 'shared', color: 'info', label: 'Shared' }],
+        [
+            { id: 'draft', color: 'warning', label: 'Draft' },
+            { id: 'refreshFailed', color: 'danger', label: 'Refresh failed' },
+            { id: 'owner', label: 'Owned by Finance' }
+        ]
+    ];
+    return samples[(dataViewLocalisedConfig.id.codePointAt(dataViewLocalisedConfig.id.length - 1) ?? 0) % samples.length] ?? [];
+}
+
+function constructStepDots(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): DataViewStep[] {
+    // TODO: Remove this test override, which marks a made-up number of steps done so green dots can be seen.
+    const testDoneCount = (dataViewLocalisedConfig.id.codePointAt(dataViewLocalisedConfig.id.length - 1) ?? 0) % 4; // Seeded by id so it holds across renders.
+    return constructDataViewSteps(dataViewLocalisedConfig).map((step, index) => ({
+        ...step,
+        state: index >= testDoneCount ? step.state : 'done'
+    }));
+}
+
+function resolveOpenLabel(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): string {
+    const steps = constructStepDots(dataViewLocalisedConfig);
+    const pendingStep = steps.find((step) => step.state === 'pending');
+    if (!pendingStep) return t(TEXT, 'open.complete.label', { name: dataViewLocalisedConfig.label });
+    const done = steps.filter((step) => step.state === 'done').length;
+    return t(TEXT, 'open.label', { done, name: dataViewLocalisedConfig.label, step: t(TEXT, `step.${pendingStep.id}.label`), total: steps.length });
+}
 
 // An explicit 'name' is required even though this stays on the same route: it is what makes an absent 'dataViewId'
 // actually clear the param instead of inheriting the one already in the URL — see 'router/index.ts' for why.
@@ -169,20 +188,25 @@ function updateDataViewIdParameter(dataViewId?: string): void {
             class="min-h-0 flex-1"
             :data-source="dataViewConfigsDataSource"
             max-detail-width="65ch"
-            :row-height="16 + 16 + 28 + 32 + 16"
+            :row-height="cardRowHeight"
             @add="handleAddDataView"
         >
             <template #item="{ item }">
                 <ConfigCard
                     :actions="[
                         { typeId: 'delete', onClick: handleDeleteDataView },
-                        { typeId: 'open', onClick: handleOpenDataView }
+                        { typeId: 'open', label: resolveOpenLabel(item), onClick: handleOpenDataView }
                     ]"
+                    :badges="constructSampleBadges(item)"
                     :config="item"
                     :selected="item.id === activeDataViewLocalisedConfig?.id"
-                    status-message="4 steps left"
                     @click="handleSelectDataView(item)"
-                />
+                >
+                    <!-- Only while a step is outstanding: a complete data view shows the plain open button. -->
+                    <template v-if="constructStepDots(item).some((step) => step.state === 'pending')" #status>
+                        <StepDots :steps="constructStepDots(item)" />
+                    </template>
+                </ConfigCard>
             </template>
 
             <template #detail="{ item, close }">

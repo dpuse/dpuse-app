@@ -7,6 +7,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/local
 
 // ── Local Framework
 import { TEXT } from './PluginList_.json';
+import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useSetupSelection } from '../../useSetupSelection';
 import { assertDefined, defineAsyncPanel, type PluginConfig, type SetupOptionConfig } from '@/utilities/index.ts';
 import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/session';
@@ -39,6 +40,9 @@ const { setupOptionLocalisedConfig } = defineProps<{ setupOptionLocalisedConfig:
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Cards here carry no badges or actions, so they are one row.
+const cardRowHeight = useCardRowHeight(false);
+
 const pluginLocalisedConfigs = computed(() => localiseConfigs<PluginConfig>(tabActiveConfig.value.configs.value, localeId.value, true)); // Derived, so a language switch re-localises.
 const tabActiveConfig = computed(() => assertDefined(TAB_CONFIGS[setupOptionLocalisedConfig.id], `Expected a plugin tab config with id '${setupOptionLocalisedConfig.id}'.`));
 const {
@@ -64,7 +68,7 @@ function handleSelectPlugin(localisedConfig: LocalisedConfig<PluginConfig>): voi
         class="min-h-0 flex-1"
         :data-source="pluginLocalisedConfigsDataSource"
         max-detail-width="65ch"
-        :row-height="16 + 16 + 28 + 16"
+        :row-height="cardRowHeight"
     >
         <template #item="{ item }">
             <ConfigCard :config="item" :selected="item.id === pluginLocalisedConfigActive?.id" @click="handleSelectPlugin(item)" />

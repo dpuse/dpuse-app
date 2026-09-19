@@ -12,6 +12,12 @@ import BusyBar from '@/components/ui/BusyBar.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Compact rows are plain one-line rows rather than boxed cards, so they sit closer together.
+const COMPACT_ROW_HEIGHT = 36;
+const ROW_HEIGHT = 48;
+
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
@@ -21,7 +27,7 @@ interface Properties {
     headerRowHeight?: number; // Row height for items with isHeader set, in px. Default: 24.
     isCompact?: boolean;
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
-    rowHeight?: number; // Row height in px. Default: 48.
+    rowHeight?: number; // Row height in px. Default: 48, or 36 when compact.
     scrollAreaPaddingBottom?: number | string;
     scrollAreaPaddingTop?: number | string;
     targetColumnWidth?: number; // When set, multiple items are shown per row based on available width.
@@ -33,7 +39,7 @@ const {
     headerRowHeight = 32,
     isCompact,
     maxBlocksInCache,
-    rowHeight = 48,
+    rowHeight,
     scrollAreaPaddingBottom = 'var(--vertical-scroll-bottom-screen-inset)',
     scrollAreaPaddingTop,
     targetColumnWidth
@@ -104,7 +110,7 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
 
 function getRowHeight(item: T | undefined): number {
     if ((item as { isHeader?: boolean } | undefined)?.isHeader === true) return headerRowHeight;
-    return rowHeight;
+    return rowHeight ?? (isCompact ? COMPACT_ROW_HEIGHT : ROW_HEIGHT);
 }
 </script>
 
@@ -130,7 +136,7 @@ function getRowHeight(item: T | undefined): number {
                         <template v-for="columnOffset in columnOffsets" :key="columnOffset">
                             <!-- Skip cells beyond the last data item (last row may be partially filled) -->
                             <div v-if="virtualRow.index * columnCount + columnOffset < rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
-                                <div class="h-full pl-4" :class="[isCompact ? 'pt-2' : 'pt-4']">
+                                <div class="h-full pl-4" :class="[isCompact ? 'pt-0.5' : 'pt-4']">
                                     <slot
                                         v-if="getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
                                         :item="getRow(virtualRow.index * columnCount + columnOffset) as T"

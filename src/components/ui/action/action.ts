@@ -3,6 +3,7 @@
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+export type ButtonShape = 'round' | 'square'; // 'square' for navigation and labelled tiles; 'round' for actions.
 export type ButtonSize = 'lg' | 'sm';
 export type ButtonType = 'button' | 'submit';
 export type ButtonVariant = 'destructive' | 'ghost' | 'guarded' | 'neutral' | 'outline' | 'primary';
@@ -27,14 +28,24 @@ export const VARIANT_CLASSES: Record<ButtonVariant, string> = {
 // double-tap zoom.
 export const PRESS_CLASSES = 'touch-manipulation duration-200 active:scale-[92%] active:duration-0';
 
-// Hover and press for an icon button that is not selected. Translucent for the same reason as 'SELECTED_CLASSES' below:
-// a solid grey that shows on white barely shows on the grey option bar.
+// Hover and press for an icon button that is not selected. Translucent, because a solid grey that shows on white barely
+// shows on the grey option bar.
 export const UNSELECTED_CLASSES = 'hover:bg-black/5 active:bg-black/14 dark:hover:bg-white/7 dark:active:bg-white/18';
 
 // Replaces the variant's fill rather than adding to it, because two 'hover:bg-*' classes are settled by stylesheet order,
-// not class order. Translucent, so one shade reads the same over the grey option bar and the white header. Darker than
-// hover, because the fill alone is what tells the two apart.
-export const SELECTED_CLASSES = 'bg-black/7 hover:bg-black/11 active:bg-black/18 dark:bg-white/10 dark:hover:bg-white/15 dark:active:bg-white/24';
+// not class order. A neutral grey, so it does not clash with multicoloured icons, and darker than hover, because the
+// fill alone is what tells the two apart. Translucent, so one shade reads the same over the grey rail and white panes.
+export const SELECTED_CLASSES = 'bg-black/10 hover:bg-black/13 active:bg-black/18 dark:bg-white/14 dark:hover:bg-white/18 dark:active:bg-white/26';
+
+// The selected option inside a grey pill track: a raised white segment, as in a segmented control. The track is
+// already grey, so a grey fill would barely show there.
+export const SEGMENT_SELECTED_CLASSES =
+    'bg-white shadow-xs inset-ring inset-ring-black/8 hover:bg-zinc-50 active:bg-zinc-100 dark:bg-white/14 dark:inset-ring-white/8 dark:hover:bg-white/18 dark:active:bg-white/26';
+
+// The blue pill of a primary action — open, select, add — wherever it appears, so the pill on a card and the button
+// at the foot of its detail panel, which do the same thing, look the same. Fill kept apart so a host can swap it.
+export const PILL_CLASSES = 'rounded-full border border-selected-border text-selected-text';
+export const PILL_FILL_CLASSES = 'bg-selected hover:bg-selected-hover';
 
 // Icon buttons size by padding around a glyph rather than by a fixed box, so a button is always its icon plus the same
 // margin whatever the icon is. The glyph size is set here too, or every call site would have to state it and they

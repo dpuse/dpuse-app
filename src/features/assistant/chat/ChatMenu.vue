@@ -59,7 +59,7 @@ function handleSelectChat(): void {
 <template>
     <div ref="menuReference" class="relative">
         <!-- Shaped like the composer's other round controls, so the bar reads as one row of actions. -->
-        <IconButton accessible-label="Show other chats" :aria-expanded="menuIsOpen" aria-haspopup="true" rounded size="sm" @click="menuIsOpen = !menuIsOpen">
+        <IconButton accessible-label="Show other chats" :aria-expanded="menuIsOpen" aria-haspopup="true" shape="round" size="sm" @click="menuIsOpen = !menuIsOpen">
             <GalleryVerticalEndIcon class="size-4!" stroke-width="2.5" />
         </IconButton>
 

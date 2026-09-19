@@ -95,7 +95,7 @@ function reportHeight(): void {
         ref="inputElement"
         :class="[
             'absolute bottom-0 mb-9.75 flex flex-none flex-col bg-surface shadow-md',
-            'rounded-lg border border-selected-border',
+            'rounded-lg border border-boundary',
             // Two separate questions, and one breakpoint used to answer both — which is what made this wrong once.
             //
             // Where the composer may start is about the session button, which is fixed to the viewport's bottom-left
@@ -117,12 +117,13 @@ function reportHeight(): void {
              makes the model label the one thing that gives way as the pane narrows, which is right — it is the only part of the bar
              that degrades to something still readable. -->
         <div
-            class="grid grid-cols-[max-content_max-content_minmax(0,auto)_max-content] items-center gap-x-2 rounded-b-lg border-t border-selected-border bg-selected px-2 py-1.5 text-selected-text"
+            class="grid grid-cols-[max-content_max-content_minmax(0,auto)_max-content] items-center gap-x-2 rounded-b-lg border-t border-separator bg-backdrop px-2 py-1.5 text-content"
         >
             <!-- The two conversation controls sit together at the left end: one starts a thread, the other returns to one. Shaped
                  like the send button at the other end of the row, so the bar reads as one set of actions. Neutral rather than
-                 tinted: sending is the thing this bar is for, and competing filled circles would put them on equal footing. -->
-            <IconButton accessible-label="Start a new chat" rounded size="sm" @click="handleStartChat">
+                 tinted: sending is the thing this bar is for, and competing filled circles would put them on equal footing. The bar
+                 itself is neutral for the same reason, so the send button is the only accent in the composer. -->
+            <IconButton accessible-label="Start a new chat" shape="round" size="sm" @click="handleStartChat">
                 <PlusIcon class="size-4!" stroke-width="2.5" />
             </IconButton>
 
@@ -134,7 +135,7 @@ function reportHeight(): void {
                 :accessible-label="responseIsRunning ? 'Stop the response' : 'Send the message'"
                 :class="sendButtonClasses"
                 :disabled="!responseIsRunning && draft.trim().length === 0"
-                rounded
+                shape="round"
                 size="sm"
                 @click="handleAction"
             >

@@ -11,8 +11,7 @@
 
 // ── External Dependencies & Registrations
 import { HouseIcon } from '@lucide/vue';
-import { useElementSize } from '@vueuse/core';
-import { computed, shallowRef, useTemplateRef } from 'vue';
+import { computed, shallowRef } from 'vue';
 
 // ── Local Framework
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
@@ -90,13 +89,9 @@ const SAMPLE_DOCUMENTS: LibraryDocument[] = [
     { id: 'r8', type: 'document', title: 'Renewable Energy Briefing', snippet: 'Summary of the latest developments in renewable energy for Q3.', source: 'Library' }
 ];
 
-const CONTENT_GAP_PX = 16; // The gap the page leaves beneath anything above it: the assistant header, then the field.
-
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const { path, query, searchIsActive, setPath } = useAssistantLibrary();
-const searchFieldElement = useTemplateRef<HTMLElement>('searchFieldElement');
-const { height: searchFieldHeight } = useElementSize(searchFieldElement, undefined, { box: 'border-box' });
 
 // The document a row opened, or nothing. Held here rather than by the layout because the panel that shows it covers
 // this pane alone.
@@ -138,10 +133,6 @@ const indexFolders = computed(() => DOCUMENT_FOLDERS.map((folder) => ({ ...folde
 // search, because while one is running this is the only way to read, edit or clear the query.
 const searchFieldIsVisible = computed(() => activeTypeId.value === undefined);
 
-// The field floats over the page, so the page starts below it. Measured rather than stated, so it follows the field
-// whatever its font size; it reads 0 while the field is hidden, which leaves just the gap.
-const scrollPaddingTop = computed(() => CONTENT_GAP_PX + (searchFieldIsVisible.value ? searchFieldHeight.value + CONTENT_GAP_PX : 0));
-
 const searchResults = computed<LibraryDocument[]>(() => {
     const trimmedQuery = query.value.trim().toLowerCase();
     return SAMPLE_DOCUMENTS.filter((document) => document.title.toLowerCase().includes(trimmedQuery) || document.snippet.toLowerCase().includes(trimmedQuery));
@@ -172,13 +163,20 @@ function handleSelectBreadcrumb(index: number): void {
              its content's minimum, not zero. Without it a long row widens the panel rather than scrolling inside it,
              and the pane overflows the split. -->
 
-        <!-- One scroller for the whole pane. The trail scrolls with the list it describes; the field floats over the
-             top of it, below. -->
-        <ScrollArea class="flex flex-1 flex-col pl-4" :scroll-area-padding-top="scrollPaddingTop">
+        <!-- One scroller for the whole pane. The trail scrolls with the list it describes; the field sticks to the top
+             and the list scrolls up behind it. -->
+        <ScrollArea class="flex flex-1 flex-col pl-4" scroll-area-padding-top="16px">
+            <!-- Sticky rather than floated over the pane, so it takes its own space and nothing has to measure it. -->
+            <template v-if="searchFieldIsVisible" #header>
+                <div class="sticky top-4 z-20 mx-auto mb-4 max-w-prose">
+                    <LibrarySearchInput />
+                </div>
+            </template>
+
             <!-- Trail and list are one column, declared once and on one element, which is also what keeps it one
                  width: 'max-w-prose' is 65ch, and 'ch' resolves against the font size of whatever element carries it,
                  so the same class on a 'text-sm' row would yield a narrower column than on the trail above it.
-                 The pinned field repeats the same class on a wrapper of its own, at the same font size.
+                 The sticky field repeats the same class on a wrapper of its own, at the same font size.
                  The rows carry no right padding of their own — the scroller reserves 16px there for its thumb, which
                  mirrors the 'pl-4' on this side and leaves the column centred on the pane. -->
             <div class="mx-auto max-w-prose">
@@ -235,14 +233,6 @@ function handleSelectBreadcrumb(index: number): void {
                 </div>
             </div>
         </ScrollArea>
-
-        <!-- Search field - Pinned over the top of the page, in the same column. The right half of 'px-4' mirrors the 16px the
-             scroller reserves on the right for its thumb. -->
-        <div v-if="searchFieldIsVisible" class="absolute inset-x-0 top-4 z-20 px-4">
-            <div ref="searchFieldElement" class="mx-auto max-w-prose">
-                <LibrarySearchInput />
-            </div>
-        </div>
 
         <!-- Covers this pane, but stops at its edge: the chat beside it is
              untouched, and the document carries its own close. -->

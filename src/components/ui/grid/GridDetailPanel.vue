@@ -19,10 +19,10 @@ interface Properties {
     isCompact?: boolean;
     maxDetailWidth?: string;
     maxGridWidth?: string;
-    rowHeight?: number; // Row height in px. Default: 48, matching 'Grid'.
+    rowHeight?: number; // Row height in px. Default: 'Grid''s own.
     scrollAreaPaddingTop?: number | string;
 }
-const { activeItem, addLabel, dataSource, isCompact, maxDetailWidth, maxGridWidth, rowHeight = 48, scrollAreaPaddingTop } = defineProps<Properties>();
+const { activeItem, addLabel, dataSource, isCompact, maxDetailWidth, maxGridWidth, rowHeight, scrollAreaPaddingTop } = defineProps<Properties>();
 
 defineSlots<{
     header(properties: { isSplit: boolean }): unknown;

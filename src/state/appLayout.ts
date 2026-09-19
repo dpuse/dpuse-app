@@ -13,6 +13,7 @@ export type AppPaneId = 'assistant' | 'studio';
 // which the production CSP blocks. Light mode sets no class of its own.
 export const appearance = useColorMode({ disableTransition: false, modes: { light: '' }, storageKey: 'dpuse-appearance' });
 export const isPWA = matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches;
+export const pointerIsCoarse = useMediaQuery('(pointer: coarse)'); // Tailwind's 'pointer-coarse:'; a template using it and a script reading this have to agree.
 export const viewportIsWide = useMediaQuery('(min-width: 768px)'); // 768px is Tailwind's 'md'; a template using 'md:' and a script reading 'viewportIsWide' have to agree.
 
 // ── State - Application Panes ────────────────────────────────────────────────────────────────────────────────────────

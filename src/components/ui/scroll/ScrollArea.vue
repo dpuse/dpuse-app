@@ -16,6 +16,11 @@ interface Properties {
 }
 const { scrollAreaPaddingBottom, scrollAreaPaddingRight, scrollAreaPaddingTop, scrollbarAlwaysVisible } = defineProps<Properties>();
 
+defineSlots<{
+    default(): unknown;
+    header?(): unknown; // Sits in the vertical scroller itself, not the horizontal one inside it, so 'sticky' holds it against vertical scrolling.
+}>();
+
 const emit = defineEmits<{ initialised: [scrollElement: HTMLElement] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -65,6 +70,7 @@ function toLength(value: number | string | undefined): string | undefined {
 <template>
     <div class="dpuse-scroll-area-wrapper" data-region="ScrollArea">
         <div :id="scrollElementId" ref="scrollElement" class="dpuse-scroll-area-v" :style="{ paddingBottom, paddingRight, paddingTop }">
+            <slot name="header" />
             <div :id="innerScrollElementId" ref="innerScrollElement" class="dpuse-scroll-area-h">
                 <slot />
             </div>
