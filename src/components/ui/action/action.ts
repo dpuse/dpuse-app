@@ -42,8 +42,7 @@ export const SELECTED_CLASSES = 'bg-black/10 hover:bg-black/13 active:bg-black/1
 export const SEGMENT_SELECTED_CLASSES =
     'bg-white shadow-xs inset-ring inset-ring-black/8 hover:bg-zinc-50 active:bg-zinc-100 dark:bg-white/14 dark:inset-ring-white/8 dark:hover:bg-white/18 dark:active:bg-white/26';
 
-// The blue pill of a primary action — open, select, add — wherever it appears, so the pill on a card and the button
-// at the foot of its detail panel, which do the same thing, look the same. Fill kept apart so a host can swap it.
+// The blue pill of a page's floating primary action — open, select, add. Fill kept apart so a host can swap it.
 export const PILL_CLASSES = 'rounded-full border border-selected-border text-selected-text';
 export const PILL_FILL_CLASSES = 'bg-selected hover:bg-selected-hover';
 

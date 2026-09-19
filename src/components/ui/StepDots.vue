@@ -16,7 +16,7 @@ const { steps } = defineProps<{
             v-for="step in steps"
             :key="step.id"
             class="flex size-3 items-center justify-center rounded-full"
-            :class="step.state === 'done' ? 'bg-blue-600 dark:bg-blue-400' : 'inset-ring inset-ring-blue-400 dark:inset-ring-blue-500'"
+            :class="step.state === 'done' ? 'bg-blue-500 dark:bg-blue-400' : 'inset-ring inset-ring-blue-500 dark:inset-ring-blue-400'"
         >
             <!-- Progress, not warning: done is solid with a check, to-do an empty outline, so the two differ by shape as well
                  as fill and amber stays free to mean a warning elsewhere on the card. -->

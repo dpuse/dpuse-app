@@ -4,6 +4,7 @@ import { ref } from 'vue';
 
 // ── Static Components
 import ContextDisclosure from './ContextDisclosure.vue';
+import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -29,28 +30,27 @@ function handleToggleItem(itemId: string): void {
 </script>
 
 <template>
-    <div class="mt-6 mb-4 flex items-center justify-between gap-x-3 border-t border-separator pt-2">
-        <!-- The prose heading's rule and spacing move to this row so the actions align with the title; '!' is needed
-             because the unlayered '.dpuse-prose h2' rules otherwise beat Tailwind's utilities. -->
-        <h2 class="m-0! border-t-0! p-0!">{{ title }}</h2>
-        <slot name="titleActions" />
-    </div>
-
-    <p>{{ description }}</p>
-
-    <ContextDisclosure
-        v-for="item in items"
-        :key="item.id"
-        :description="item.description"
-        :is-expanded="expandedItemId === item.id"
-        :label="item.label"
-        @edit="$emit('edit', item)"
-        @toggle="handleToggleItem(item.id)"
-    >
+    <StudioDocumentSection :title="title">
         <template #actions>
-            <slot name="itemActions" :item="item" />
+            <slot name="titleActions" />
         </template>
 
-        <slot :item="item" />
-    </ContextDisclosure>
+        <p>{{ description }}</p>
+
+        <ContextDisclosure
+            v-for="item in items"
+            :key="item.id"
+            :description="item.description"
+            :is-expanded="expandedItemId === item.id"
+            :label="item.label"
+            @edit="$emit('edit', item)"
+            @toggle="handleToggleItem(item.id)"
+        >
+            <template #actions>
+                <slot name="itemActions" :item="item" />
+            </template>
+
+            <slot :item="item" />
+        </ContextDisclosure>
+    </StudioDocumentSection>
 </template>

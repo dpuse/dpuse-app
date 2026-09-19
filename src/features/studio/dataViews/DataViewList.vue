@@ -6,6 +6,8 @@ import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
+import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
+import { constructConnectorCategoryConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
@@ -14,11 +16,10 @@ import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { raiseAppFailure } from '@/state/errors';
-import { t } from '@/state/locale';
 import { TEXT } from './DataViewList_.json';
-import { type Badge, useCardRowHeight } from '@/components/ui/config/configCard';
-import { constructDataViewSteps, type DataViewStep, resolveCurrentDataViewStepId } from './dataViewSteps';
+import { useCardRowHeight } from '@/components/ui/config/configCard';
 import {
+    connectionLocalisedConfigs,
     dataViewConfigs,
     dataViewLocalisedConfigs,
     dataViewRetrievalFailed,
@@ -29,6 +30,8 @@ import {
     retrieveDataViewConfigs,
     setActiveDataViewConfig
 } from '@/state/dataViews';
+import { constructDataViewSteps, type DataViewConnector, type DataViewStep, resolveCurrentDataViewStepId, resolveDataViewStepLabel } from './dataViewSummary';
+import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
@@ -53,8 +56,11 @@ const router = useRouter();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Cards here carry actions, which take a second row.
-const cardRowHeight = useCardRowHeight(true);
+// Cards here carry actions, which take a second row, and an overline naming the connector.
+const cardRowHeight = useCardRowHeight(true, true);
+
+// The connector behind each data view, keyed by data view id; undefined until a connection is chosen.
+const dataViewConnectorMap = computed(() => new Map(dataViewLocalisedConfigs.value.map((config) => [config.id, constructDataViewConnector(config)])));
 
 // Constructs a computed data source wrapper for the data view configurations, which are retrieved by the meta store
 // connection watcher in '@/state/dataViews'.
@@ -105,6 +111,10 @@ async function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<Dat
     }
 }
 
+function handleFilterByCategory(): void {
+    // TODO: Filter the list to the connector category of the data view whose category was clicked.
+}
+
 function handleRetryRetrieve(): void {
     if (activeMetaStoreConnectionConfig.value) void retrieveDataViewConfigs(activeMetaStoreConnectionConfig.value);
 }
@@ -131,28 +141,37 @@ function handleContinueDataView(dataViewLocalisedConfig: LocalisedConfig<DataVie
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// TODO: Remove these sample badges, which exist only to test the card's badge row. Seeded by id so they hold across
-// renders, and varied so some cards have none, one, or enough to clip.
-function constructSampleBadges(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): Badge[] {
-    const samples: Badge[][] = [
-        [],
-        [{ id: 'shared', color: 'info', label: 'Shared' }],
-        [
-            { id: 'draft', color: 'warning', label: 'Draft' },
-            { id: 'refreshFailed', color: 'danger', label: 'Refresh failed' },
-            { id: 'owner', label: 'Owned by Finance' }
-        ]
-    ];
-    return samples[(dataViewLocalisedConfig.id.codePointAt(dataViewLocalisedConfig.id.length - 1) ?? 0) % samples.length] ?? [];
+function constructDataViewConnector(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): DataViewConnector | undefined {
+    const connectionLocalisedConfig = resolveConnection(dataViewLocalisedConfig);
+    if (!connectionLocalisedConfig) return undefined;
+    return {
+        categoryLabel: constructConnectorCategoryConfig(connectionLocalisedConfig.connectorConfig.categoryId, localeId.value).label,
+        icon: connectionLocalisedConfig.icon,
+        iconDark: connectionLocalisedConfig.iconDark,
+        label: connectionLocalisedConfig.label
+    };
+}
+
+// TODO: Remove this sample pre-release tag, which exists only to test how the card shows one.
+function constructSamplePrereleaseLabel(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): string | undefined {
+    return resolveTestSeed(dataViewLocalisedConfig) % 3 === 2 ? 'Beta' : undefined;
 }
 
 function constructStepDots(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): DataViewStep[] {
-    // TODO: Remove this test override, which marks a made-up number of steps done so green dots can be seen.
-    const testDoneCount = (dataViewLocalisedConfig.id.codePointAt(dataViewLocalisedConfig.id.length - 1) ?? 0) % 4; // Seeded by id so it holds across renders.
+    // TODO: Remove this test override, which marks a made-up number of steps done so done dots can be seen.
+    const testDoneCount = resolveTestSeed(dataViewLocalisedConfig) % 4;
     return constructDataViewSteps(dataViewLocalisedConfig).map((step, index) => ({
         ...step,
         state: index >= testDoneCount ? step.state : 'done'
     }));
+}
+
+function resolveConnection(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): LocalisedConfig<ConnectionConfig> | undefined {
+    const connectionId = dataViewLocalisedConfig.connectionId;
+    if (connectionId != null) return connectionLocalisedConfigs.value.find((config) => config.id === connectionId);
+    // TODO: Remove this test fallback, which lends a data view a connection whenever its faked step dots claim one.
+    if (constructStepDots(dataViewLocalisedConfig)[0]?.state !== 'done') return undefined;
+    return connectionLocalisedConfigs.value[resolveTestSeed(dataViewLocalisedConfig) % Math.max(connectionLocalisedConfigs.value.length, 1)];
 }
 
 function resolveOpenLabel(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): string {
@@ -160,7 +179,12 @@ function resolveOpenLabel(dataViewLocalisedConfig: LocalisedConfig<DataViewConfi
     const pendingStep = steps.find((step) => step.state === 'pending');
     if (!pendingStep) return t(TEXT, 'open.complete.label', { name: dataViewLocalisedConfig.label });
     const done = steps.filter((step) => step.state === 'done').length;
-    return t(TEXT, 'open.label', { done, name: dataViewLocalisedConfig.label, step: t(TEXT, `step.${pendingStep.id}.label`), total: steps.length });
+    return t(TEXT, 'open.label', { done, name: dataViewLocalisedConfig.label, step: resolveDataViewStepLabel(pendingStep.id), total: steps.length });
+}
+
+// TODO: Remove with the test overrides above. Seeded by id so each card's made-up values hold across renders.
+function resolveTestSeed(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): number {
+    return dataViewLocalisedConfig.id.codePointAt(dataViewLocalisedConfig.id.length - 1) ?? 0;
 }
 
 // An explicit 'name' is required even though this stays on the same route: it is what makes an absent 'dataViewId'
@@ -197,9 +221,14 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                         { typeId: 'delete', onClick: handleDeleteDataView },
                         { typeId: 'open', label: resolveOpenLabel(item), onClick: handleOpenDataView }
                     ]"
-                    :badges="constructSampleBadges(item)"
+                    :category-label="dataViewConnectorMap.get(item.id)?.categoryLabel"
                     :config="item"
+                    :icon="dataViewConnectorMap.get(item.id)?.icon"
+                    :icon-dark="dataViewConnectorMap.get(item.id)?.iconDark"
+                    :overline="dataViewConnectorMap.get(item.id)?.label ?? t(TEXT, 'noConnection.label')"
+                    :prerelease-label="constructSamplePrereleaseLabel(item)"
                     :selected="item.id === activeDataViewLocalisedConfig?.id"
+                    @category-click="handleFilterByCategory"
                     @click="handleSelectDataView(item)"
                 >
                     <!-- Only while a step is outstanding: a complete data view shows the plain open button. -->
@@ -210,7 +239,12 @@ function updateDataViewIdParameter(dataViewId?: string): void {
             </template>
 
             <template #detail="{ item, close }">
-                <DataViewPanel :data-view-localised-config="item" @close="close" />
+                <DataViewPanel
+                    :data-view-connector="dataViewConnectorMap.get(item.id)"
+                    :data-view-localised-config="item"
+                    :data-view-steps="constructStepDots(item)"
+                    @close="close"
+                />
                 <PillButton :icon="ArrowRightIcon" label="Open" @click="handleOpenDataView(item)" />
             </template>
 

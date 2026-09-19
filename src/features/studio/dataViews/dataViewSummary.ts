@@ -1,10 +1,14 @@
-// The steps of establishing a data view. Held in one place so the list's step dots and its open action always agree on
-// which step a data view is at.
+// What a data view's list card and detail panel both show: its progress through the steps and the connector behind it.
+// Held in one place so the card, the panel and the open action always agree.
 
 // ── External Dependencies & Registrations ────────────────────────────────────────────────────────────────────────────
 
 // ── DPUse Framework
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
+
+// ── Local Framework
+import { t } from '@/state/locale';
+import { TEXT } from './dataViewSummary_.json';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -15,6 +19,14 @@ export type DataViewStepId = 'connections' | 'content' | 'data' | 'items'; // Ea
 export interface DataViewStep {
     id: DataViewStepId;
     state: 'done' | 'pending';
+}
+
+// The connector behind a data view's connection, already localised.
+export interface DataViewConnector {
+    categoryLabel: string;
+    icon?: null | string;
+    iconDark?: null | string;
+    label: string;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -31,4 +43,8 @@ export function constructDataViewSteps(dataViewConfig: DataViewProgress): DataVi
 // The first step still pending, or exploring once every step is done.
 export function resolveCurrentDataViewStepId(dataViewConfig: DataViewProgress): DataViewStepId {
     return constructDataViewSteps(dataViewConfig).find((step) => step.state === 'pending')?.id ?? 'data';
+}
+
+export function resolveDataViewStepLabel(stepId: DataViewStepId): string {
+    return t(TEXT, `step.${stepId}.label`);
 }

@@ -16,7 +16,8 @@ const { icon, iconDark, overline, title } = defineProps<{ icon?: string | null; 
 
 defineSlots<{
     actions?(): unknown; // Rendered at the right of the title row.
-    default?(): unknown; // Rendered below the header.
+    default?(): unknown; // Rendered below the header and tags.
+    tags?(): unknown; // Rendered as a wrapping row below the header.
 }>();
 
 defineEmits<{ close: [] }>();
@@ -41,7 +42,7 @@ const panesAreSplit = inject(gridDetailIsSplitKey, ref(false));
                 <div class="mr-9! flex min-w-0 items-start gap-x-2">
                     <!-- One title line tall, so the icon centres on the first line however the title wraps. -->
                     <div class="flex h-10 flex-none items-center">
-                        <ConfigIcon class="h-6" :icon="icon" :icon-dark="iconDark" />
+                        <ConfigIcon class="h-7":icon="icon" :icon-dark="iconDark" />
                     </div>
                     <h1 class="min-w-0 py-1 text-left leading-8! wrap-break-word whitespace-normal">
                         {{ title }}
@@ -54,6 +55,11 @@ const panesAreSplit = inject(gridDetailIsSplitKey, ref(false));
             <div v-if="$slots.actions" class="absolute right-0 bottom-0 flex h-10 items-center">
                 <slot name="actions" />
             </div>
+        </div>
+
+        <!-- Tags -->
+        <div v-if="$slots.tags" class="mt-3 mb-6 flex flex-wrap gap-1.5">
+            <slot name="tags" />
         </div>
 
         <!-- Content -->

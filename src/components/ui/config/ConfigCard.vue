@@ -1,15 +1,16 @@
 <script setup lang="ts" generic="T extends BaseConfig = BaseConfig">
 // ── External Dependencies & Registrations
 import type { RouteLocationRaw } from 'vue-router';
-import { ArrowRightIcon, InfoIcon, TrashIcon } from '@lucide/vue';
+import { ArrowRightIcon, FunnelIcon, InfoIcon, TrashIcon } from '@lucide/vue';
 
 // ── DPUse Framework
 import type { BaseConfig } from '@dpuse/dpuse-shared';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import type { Action, Badge, StatusColor } from './configCard';
-import { PILL_CLASSES, PILL_FILL_CLASSES } from '@/components/ui/action/action';
+import type { Action } from './configCard';
+import { t } from '@/state/locale';
+import { TEXT } from './ConfigCard_.json';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -17,33 +18,29 @@ import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Colour only where a badge needs attention: red for errors, amber for warnings. Everything else is a neutral grey,
-// so a card's colours point at problems rather than competing with its progress dots.
-const BADGE_DOT_CLASSES: Record<StatusColor | 'neutral', string> = {
-    danger: 'bg-red-500',
-    info: 'bg-zinc-400',
-    neutral: 'bg-zinc-400',
-    success: 'bg-zinc-400',
-    warning: 'bg-amber-400'
-};
-
-// The round buttons are the open pill's neutral twin: a border of the same weight, their own white fill and shadow so
-// they hold up on a hovered or selected card, and a darker fill on hover. 28px with a mouse, 34px on touch.
-const ROUND_ACTION_CLASSES =
-    'flex size-7 items-center justify-center rounded-full border border-zinc-300 bg-surface shadow-xs hover:bg-zinc-100 pointer-coarse:size-8.5 dark:border-zinc-600 dark:hover:bg-zinc-800';
+// A card's actions are neutral and flat: a grey border, their own white fill so they hold up on a hovered or selected
+// card, and a darker fill on hover. No shadow and no blue fill, both kept for the page's floating primary action, so
+// an action on one item never competes with it. 28px with a mouse, 34px on touch.
+const ACTION_CLASSES =
+    'flex h-7 items-center justify-center rounded-full border border-zinc-300 bg-surface hover:bg-zinc-100 pointer-coarse:h-8.5 dark:border-zinc-600 dark:hover:bg-zinc-800';
+const ROUND_ACTION_CLASSES = `${ACTION_CLASSES} w-7 pointer-coarse:w-8.5`;
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties<T extends BaseConfig> {
     actions?: Action<T>[];
-    badges?: Badge[];
+    categoryLabel?: string; // Bottom left, as muted text: what kind of thing the card is, for scanning and filtering.
     config: LocalisedConfig<T>;
+    icon?: null | string; // Replaces the config's own icon, e.g. with that of the connector behind it.
+    iconDark?: null | string;
     isCompact?: boolean;
-    overline?: string;
+    onCategoryClick?: (config: LocalisedConfig<T>) => void; // Declared as a prop so the card can tell whether '@category-click' is bound.
+    overline?: string; // Above the label, e.g. the kind of thing the card is: it is read before the name it classifies.
+    prereleaseLabel?: string; // Top right, as a small amber tag, e.g. 'Beta': a caution about the version.
     selected?: boolean;
     to?: RouteLocationRaw;
 }
-const { actions = [], badges = [], config, isCompact, overline, selected, to } = defineProps<Properties<T>>();
+const { actions = [], categoryLabel, config, icon, iconDark, isCompact, onCategoryClick, overline, prereleaseLabel, selected, to } = defineProps<Properties<T>>();
 
 defineSlots<{ status?: () => unknown }>();
 
@@ -54,8 +51,8 @@ defineOptions({ inheritAttrs: false });
 
 <template>
     <!-- A full-size card is a fixed height, so every card in a virtualised grid row matches: a title row, then a footer
-         row of badges and actions, each 'h-7' in 'p-3' with a 'gap-y-3' between. 'useCardRowHeight' in './configCard'
-         states the same numbers. Compact is a single plain list row. -->
+         row of category and actions, each 'h-7' in 'p-3' with a 'gap-y-3' between; an overline grows the title row to 'h-9' to fit its
+         second line. 'useCardRowHeight' in './configCard' states the same numbers. Compact is a single plain list row. -->
     <div
         class="relative flex size-full border"
         :class="[
@@ -87,9 +84,9 @@ defineOptions({ inheritAttrs: false });
         />
 
         <!-- Header - One line only: the label truncates rather than wraps, because the card cannot grow. -->
-        <div class="flex min-w-0 items-center gap-x-2" :class="isCompact ? 'flex-1' : 'h-7 flex-none'">
+        <div class="flex min-w-0 items-center gap-x-2" :class="isCompact ? 'flex-1' : overline ? 'h-9 flex-none' : 'h-7 flex-none'">
             <!-- Icon -->
-            <ConfigIcon :class="isCompact ? 'size-5' : 'size-7'" :icon="config.icon" :icon-dark="config.iconDark" />
+            <ConfigIcon :class="isCompact ? 'size-5' : 'size-7'" :icon="icon ?? config.icon" :icon-dark="iconDark ?? config.iconDark" />
 
             <div class="flex min-w-0 flex-col">
                 <!-- Overline -->
@@ -98,22 +95,40 @@ defineOptions({ inheritAttrs: false });
                 <!-- Label -->
                 <div class="min-w-0 truncate leading-tight text-muted">{{ config.label }}</div>
             </div>
+
+            <!-- Pre-release tag - Square-cornered and small, so it reads as a label rather than a button. Short, so it
+                 takes little from the title beside it. -->
+            <span
+                v-if="!isCompact && prereleaseLabel"
+                class="ml-auto flex-none self-start rounded-sm bg-warning px-1.5 py-0.5 text-[11px] leading-none font-medium tracking-wide text-warning-text uppercase"
+            >
+                {{ prereleaseLabel }}
+            </span>
         </div>
 
-        <!-- Footer - Badges on the left as a dot and text, so they read as information rather than as more buttons
-             beside the round actions. They wrap to two tight rows, which is what 'leading-3.5' fits in the row's 'h-7';
-             a third row is cut off, so the card keeps its height. A compact row has no footer: the wrapper
-             steps aside ('contents') and the actions join the end of the single row. -->
+        <!-- Footer - The category on the left and the actions on the right. A compact row has no footer: the wrapper steps
+             aside ('contents') and the actions join the end of the single row. -->
         <div
-            v-if="isCompact ? actions.length > 0 : badges.length > 0 || actions.length > 0"
+            v-if="isCompact ? actions.length > 0 : categoryLabel || actions.length > 0"
             :class="isCompact ? 'contents' : 'flex h-7 flex-none items-center gap-x-3 pointer-coarse:h-8.5'"
         >
-            <ul v-if="!isCompact && badges.length > 0" class="flex max-h-7 min-w-0 flex-1 flex-wrap items-center gap-x-3 overflow-hidden text-xs leading-3.5 whitespace-nowrap text-muted pointer-coarse:max-h-8.5">
-                <li v-for="badge in badges" :key="badge.id" class="flex flex-none items-center gap-x-1.5">
-                    <span aria-hidden="true" class="size-2 rounded-full" :class="BADGE_DOT_CLASSES[badge.color ?? 'neutral']" />
-                    {{ badge.label }}
-                </li>
-            </ul>
+            <!-- Category - Muted text, so it stays below the title in weight. When the host can filter by it, a pill: the
+                 actions' round shape but shorter, with a lighter border and no fill, so it reads as a button without
+                 outranking them. The border stays at rest because touch has no hover to reveal it. On hover it takes the
+                 actions' border and fill and shows a funnel. -->
+            <template v-if="!isCompact && categoryLabel">
+                <ActionWrapper
+                    v-if="onCategoryClick"
+                    :aria-label="t(TEXT, 'filterByCategory.label', { category: categoryLabel })"
+                    class="group relative z-20 flex h-6 min-w-0 items-center gap-x-1 rounded-full border border-zinc-200 px-2 text-xs text-muted hover:border-zinc-300 hover:bg-zinc-100 hover:text-content dark:border-zinc-700 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
+                    :title="t(TEXT, 'filterByCategory.label', { category: categoryLabel })"
+                    @click="onCategoryClick(config)"
+                >
+                    <span class="truncate">{{ categoryLabel }}</span>
+                    <FunnelIcon aria-hidden="true" class="hidden size-3 flex-none group-hover:block group-focus-visible:block" :stroke-width="1.5" />
+                </ActionWrapper>
+                <span v-else class="min-w-0 truncate text-xs text-muted">{{ categoryLabel }}</span>
+            </template>
 
             <!-- Actions, raised above the card-activation button by stacking order rather than nested inside it, so each
                  keeps its own click instead of the card's. -->
@@ -123,19 +138,18 @@ defineOptions({ inheritAttrs: false });
                         <TrashIcon aria-hidden="true" class="size-4 pointer-coarse:size-5" :stroke-width="1.25" />
                     </ActionWrapper>
 
-                    <!-- The same pill as the open button at the foot of the detail panel, because it does the same thing. With
-                         a status, it holds the status too, since opening is what takes the user to it. On a selected card,
-                         whose tint matches the pill's, it turns white so it still stands out. -->
+                    <!-- Open, shaped like the open button at the foot of the detail panel and ending in the same arrow, because
+                         it does the same thing; neutral rather than blue, because it ranks below the page's own action. With a
+                         status, it holds the status too, since opening is what takes the user to it. -->
                     <ActionWrapper
                         v-if="action.typeId === 'open'"
                         :aria-label="action.label ?? 'Open'"
-                        class="flex h-7 items-center justify-center gap-x-1.5 shadow-xs pointer-coarse:h-8.5"
-                        :class="[PILL_CLASSES, selected ? 'bg-surface hover:bg-selected' : PILL_FILL_CLASSES, $slots.status && !isCompact ? 'pr-1.5 pl-2' : 'w-7 pointer-coarse:w-8.5']"
+                        :class="$slots.status && !isCompact ? [ACTION_CLASSES, 'gap-x-1.5 pr-1.5 pl-2'] : ROUND_ACTION_CLASSES"
                         :title="$slots.status && !isCompact ? action.label : undefined"
                         @click="action.onClick(config)"
                     >
                         <slot v-if="!isCompact" name="status" />
-                        <ArrowRightIcon aria-hidden="true" class="size-4 pointer-coarse:size-5" :stroke-width="1.25" />
+                        <ArrowRightIcon aria-hidden="true" class="size-4 text-accent pointer-coarse:size-5" :stroke-width="2" />
                     </ActionWrapper>
 
                     <ActionWrapper v-if="action.typeId === 'info'" :aria-label="action.label ?? 'Information'" :class="ROUND_ACTION_CLASSES" @click="action.onClick(config)">

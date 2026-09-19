@@ -5,12 +5,14 @@ import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
+import { constructConnectorCategoryConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/component/module/engine';
 import { getComponentStatus } from '@dpuse/dpuse-shared/component';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { accountId } from '@/state/session';
+import { localeId } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 
 // ── Static Components
@@ -57,7 +59,8 @@ defineEmits<{ close: [] }>();
 
 const route = useRoute();
 const router = useRouter();
-const connectorStatus = computed(() => (connectionLocalisedConfig.statusId ? getComponentStatus(connectionLocalisedConfig.statusId) : undefined));
+const connectorCategoryLabel = computed(() => constructConnectorCategoryConfig(connectionLocalisedConfig.connectorConfig.categoryId, localeId.value).label);
+const connectorStatus = computed(() => (connectionLocalisedConfig.statusId ? getComponentStatus(connectionLocalisedConfig.statusId, localeId.value) : undefined));
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -82,13 +85,19 @@ async function testAuth(): Promise<void> {
 <template>
     <StudioDetailPanel data-region="SelectConnectionPanel">
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
-            <StudioDocumentPanel overline="Connections" :title="connectionLocalisedConfig.label" @close="$emit('close')">
-                <!-- Tags -->
-                <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
-                    <Tag :text="connectionLocalisedConfig.connectorConfig.categoryId" />
+            <StudioDocumentPanel
+                :icon="connectionLocalisedConfig.icon"
+                :icon-dark="connectionLocalisedConfig.iconDark"
+                overline="Connections"
+                :title="connectionLocalisedConfig.label"
+                @close="$emit('close')"
+            >
+                <template #tags>
+                    <Tag :text="connectorCategoryLabel" />
                     <Tag :text="`v${connectionLocalisedConfig.connectorConfig.version}`" />
-                    <Tag v-if="connectorStatus" :text="connectionLocalisedConfig.statusId ?? ''" :color="connectorStatus.color" />
-                </div>
+                    <!-- General availability has no label, so shows no tag. -->
+                    <Tag v-if="connectorStatus?.label" :text="connectorStatus.label" :color="connectorStatus.color" />
+                </template>
 
                 <!-- Description -->
                 <p v-if="connectionLocalisedConfig.description">{{ connectionLocalisedConfig.description }}</p>

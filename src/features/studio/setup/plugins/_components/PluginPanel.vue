@@ -17,6 +17,7 @@ import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import StudioDetailPanel from '@/features/studio/_components/StudioDetailPanel.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
+import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -73,13 +74,12 @@ const vendorLinks = computed(() =>
                 :title="pluginLocalisedConfig.label"
                 @close="$emit('close')"
             >
-                <!-- Tags -->
-                <div class="mt-3 mb-6 flex flex-wrap gap-1.5">
+                <template #tags>
                     <slot name="tags" />
                     <Tag :text="`v${pluginLocalisedConfig.version}`" />
                     <!-- General availability has no label, so shows no tag. -->
                     <Tag v-if="pluginStatus?.label" :text="pluginStatus.label" :color="pluginStatus.color" />
-                </div>
+                </template>
 
                 <!-- Description -->
                 <p>{{ pluginLocalisedConfig.description }}</p>
@@ -87,25 +87,25 @@ const vendorLinks = computed(() =>
                 <!-- Content -->
                 <slot />
 
-                <!-- Links -->
-                <h2>{{ t(TEXT, 'links.title') }}</h2>
-                <ul>
-                    <li v-for="vendorLink in vendorLinks" :key="vendorLink.id" class="flex items-center gap-x-2">
-                        <component :is="vendorLink.icon" class="size-4" />
-                        <a :href="vendorLink.url" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            {{ t(TEXT, vendorLink.labelKey, { label: pluginLocalisedConfig.label }) }}
-                            <ExternalLinkIcon class="size-4" />
-                        </a>
-                    </li>
+                <StudioDocumentSection :title="t(TEXT, 'links.title')">
+                    <ul>
+                        <li v-for="vendorLink in vendorLinks" :key="vendorLink.id" class="flex items-center gap-x-2">
+                            <component :is="vendorLink.icon" class="size-4" />
+                            <a :href="vendorLink.url" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
+                                {{ t(TEXT, vendorLink.labelKey, { label: pluginLocalisedConfig.label }) }}
+                                <ExternalLinkIcon class="size-4" />
+                            </a>
+                        </li>
 
-                    <li class="flex items-center gap-x-2">
-                        <a :href="`https://github.com/dpuse/${pluginLocalisedConfig.id}`" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
-                            <GitHubLogo class="size-4" />
-                            {{ t(TEXT, 'gitHubRepository.label') }}
-                            <ExternalLinkIcon class="size-4" />
-                        </a>
-                    </li>
-                </ul>
+                        <li class="flex items-center gap-x-2">
+                            <a :href="`https://github.com/dpuse/${pluginLocalisedConfig.id}`" class="inline-flex items-center gap-x-2" target="_blank" rel="noopener noreferrer">
+                                <GitHubLogo class="size-4" />
+                                {{ t(TEXT, 'gitHubRepository.label') }}
+                                <ExternalLinkIcon class="size-4" />
+                            </a>
+                        </li>
+                    </ul>
+                </StudioDocumentSection>
             </StudioDocumentPanel>
         </ScrollArea>
     </StudioDetailPanel>
