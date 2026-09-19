@@ -6,10 +6,6 @@
 // ── DPUse Framework
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 
-// ── Local Framework
-import { t } from '@/state/locale';
-import { TEXT } from './dataViewSummary_.json';
-
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 type DataViewProgress = Pick<DataViewConfig, 'connectionId' | 'connectionNodeConfig' | 'contentAuditConfig'>;
@@ -43,8 +39,4 @@ export function constructDataViewSteps(dataViewConfig: DataViewProgress): DataVi
 // The first step still pending, or exploring once every step is done.
 export function resolveCurrentDataViewStepId(dataViewConfig: DataViewProgress): DataViewStepId {
     return constructDataViewSteps(dataViewConfig).find((step) => step.state === 'pending')?.id ?? 'data';
-}
-
-export function resolveDataViewStepLabel(stepId: DataViewStepId): string {
-    return t(TEXT, `step.${stepId}.label`);
 }

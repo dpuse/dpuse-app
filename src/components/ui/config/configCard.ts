@@ -17,7 +17,8 @@ export type ActionTypeId = 'delete' | 'info' | 'open';
 
 export interface Action<T extends BaseConfig = BaseConfig> {
     typeId: ActionTypeId;
-    label?: string; // Replaces the generic screen-reader name, e.g. to say where 'open' leads.
+    description?: string; // Read after the name, after a pause, e.g. a data view's progress, so the name stays short.
+    label?: string; // Replaces the generic screen-reader name, e.g. to name the item it acts on.
     onClick: (item: LocalisedConfig<T>) => void;
 }
 

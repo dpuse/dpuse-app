@@ -4,7 +4,8 @@
         "dataView.one.text": { "en": "data view", "es": "vista de datos" },
         "dataView.other.text": { "en": "data views", "es": "vistas de datos" },
         "noConnection.label": { "en": "No connection", "es": "Sin conexión" },
-        "open.complete.label": { "en": "Open {name} to explore data", "es": "Abrir {name} para explorar datos" },
-        "open.label": { "en": "Open {name} at {step}, {done} of {total} steps complete", "es": "Abrir {name} en {step}, {done} de {total} pasos completados" }
+        "open.label": { "en": "Open {name}", "es": "Abrir {name}" },
+        "progress.complete.text": { "en": "All steps complete", "es": "Todos los pasos completados" },
+        "progress.text": { "en": "{done} of {total} steps complete", "es": "{done} de {total} pasos completados" }
     }
 }

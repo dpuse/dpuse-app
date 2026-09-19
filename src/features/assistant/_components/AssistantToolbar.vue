@@ -66,7 +66,7 @@ function isPaneVisible(paneId: AssistantPaneId): boolean {
     <div
         v-else
         :aria-label="t(TEXT, 'group.aria')"
-        class="mt-1.75 -mr-1 flex h-10.5 flex-none items-center gap-x-1 self-start rounded-full bg-black/4 pl-0.75 dark:bg-white/6"
+        class="mt-1.75 -mr-1 flex h-10 flex-none items-center gap-x-1 self-start rounded-full bg-black/4 pl-0.75 dark:bg-white/6"
         data-region="AssistantToolbar"
         role="group"
     >
@@ -81,6 +81,6 @@ function isPaneVisible(paneId: AssistantPaneId): boolean {
         >
             <component :is="pane.icon" :stroke-width="1.5" />
         </ToggleButton>
-        <div class="size-10.5 flex-none" />
+        <div class="size-10 flex-none" />
     </div>
 </template>

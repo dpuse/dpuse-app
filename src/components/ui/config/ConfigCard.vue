@@ -1,6 +1,7 @@
 <script setup lang="ts" generic="T extends BaseConfig = BaseConfig">
 // ── External Dependencies & Registrations
 import type { RouteLocationRaw } from 'vue-router';
+import { useId } from 'vue';
 import { ArrowRightIcon, FunnelIcon, InfoIcon, TrashIcon } from '@lucide/vue';
 
 // ── DPUse Framework
@@ -43,6 +44,10 @@ interface Properties<T extends BaseConfig> {
 const { actions = [], categoryLabel, config, icon, iconDark, isCompact, onCategoryClick, overline, prereleaseLabel, selected, to } = defineProps<Properties<T>>();
 
 defineSlots<{ status?: () => unknown }>();
+
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const cardId = useId(); // Prefixes the ids of the actions' descriptions, which must be unique on the page.
 
 // Listeners like '@click' from the host land on the card-activation button below rather than on the root, which
 // carries no interactive semantics of its own.
@@ -134,7 +139,11 @@ defineOptions({ inheritAttrs: false });
                  keeps its own click instead of the card's. -->
             <div v-if="actions.length > 0" class="relative z-20 ml-auto flex flex-none items-center gap-x-1">
                 <template v-for="action in actions" :key="action.typeId">
-                    <ActionWrapper v-if="action.typeId === 'delete'" :aria-label="action.label ?? 'Delete'" :class="ROUND_ACTION_CLASSES" @click="action.onClick(config)">
+                    <ActionWrapper
+                        v-if="action.typeId === 'delete'"
+                        :aria-describedby="action.description ? `${cardId}-${action.typeId}` : undefined"
+                        :aria-label="action.label ?? 'Delete'"
+                        :class="ROUND_ACTION_CLASSES" @click="action.onClick(config)">
                         <TrashIcon aria-hidden="true" class="size-4 pointer-coarse:size-5" :stroke-width="1.25" />
                     </ActionWrapper>
 
@@ -143,18 +152,28 @@ defineOptions({ inheritAttrs: false });
                          status, it holds the status too, since opening is what takes the user to it. -->
                     <ActionWrapper
                         v-if="action.typeId === 'open'"
+                        :aria-describedby="action.description ? `${cardId}-${action.typeId}` : undefined"
                         :aria-label="action.label ?? 'Open'"
                         :class="$slots.status && !isCompact ? [ACTION_CLASSES, 'gap-x-1.5 pr-1.5 pl-2'] : ROUND_ACTION_CLASSES"
-                        :title="$slots.status && !isCompact ? action.label : undefined"
+                        :title="$slots.status && !isCompact ? [action.label, action.description].filter(Boolean).join('\n') : undefined"
                         @click="action.onClick(config)"
                     >
                         <slot v-if="!isCompact" name="status" />
                         <ArrowRightIcon aria-hidden="true" class="size-4 text-accent pointer-coarse:size-5" :stroke-width="2" />
                     </ActionWrapper>
 
-                    <ActionWrapper v-if="action.typeId === 'info'" :aria-label="action.label ?? 'Information'" :class="ROUND_ACTION_CLASSES" @click="action.onClick(config)">
+                    <ActionWrapper
+                        v-if="action.typeId === 'info'"
+                        :aria-describedby="action.description ? `${cardId}-${action.typeId}` : undefined"
+                        :aria-label="action.label ?? 'Information'"
+                        :class="ROUND_ACTION_CLASSES" @click="action.onClick(config)">
                         <InfoIcon aria-hidden="true" class="size-4 pointer-coarse:size-5" :stroke-width="1.25" />
                     </ActionWrapper>
+                </template>
+
+                <!-- Descriptions for 'aria-describedby', which must point at an element in the page. -->
+                <template v-for="action in actions" :key="`${action.typeId}-description`">
+                    <span v-if="action.description" :id="`${cardId}-${action.typeId}`" class="sr-only">{{ action.description }}</span>
                 </template>
             </div>
         </div>

@@ -29,7 +29,7 @@ const classes = computed(() => [ICON_SIZE_CLASSES[size], PRESS_CLASSES, isFloati
     <ActionWrapper
         :aria-expanded="isOpen"
         :aria-label="accessibleLabel"
-        class="inline-flex items-center justify-center rounded-full border border-transparent"
+        class="inline-flex items-center justify-center rounded-full"
         :class="classes"
         data-region="ToggleButton"
     >

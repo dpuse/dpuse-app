@@ -30,7 +30,7 @@ import {
     retrieveDataViewConfigs,
     setActiveDataViewConfig
 } from '@/state/dataViews';
-import { constructDataViewSteps, type DataViewConnector, type DataViewStep, resolveCurrentDataViewStepId, resolveDataViewStepLabel } from './dataViewSummary';
+import { constructDataViewSteps, type DataViewConnector, type DataViewStep, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -174,12 +174,12 @@ function resolveConnection(dataViewLocalisedConfig: LocalisedConfig<DataViewConf
     return connectionLocalisedConfigs.value[resolveTestSeed(dataViewLocalisedConfig) % Math.max(connectionLocalisedConfigs.value.length, 1)];
 }
 
-function resolveOpenLabel(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): string {
+// Read after the open action's name, standing in for the step dots, which screen readers do not see.
+function resolveProgressDescription(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): string {
     const steps = constructStepDots(dataViewLocalisedConfig);
-    const pendingStep = steps.find((step) => step.state === 'pending');
-    if (!pendingStep) return t(TEXT, 'open.complete.label', { name: dataViewLocalisedConfig.label });
     const done = steps.filter((step) => step.state === 'done').length;
-    return t(TEXT, 'open.label', { done, name: dataViewLocalisedConfig.label, step: resolveDataViewStepLabel(pendingStep.id), total: steps.length });
+    if (done === steps.length) return t(TEXT, 'progress.complete.text');
+    return t(TEXT, 'progress.text', { done, total: steps.length });
 }
 
 // TODO: Remove with the test overrides above. Seeded by id so each card's made-up values hold across renders.
@@ -219,7 +219,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                 <ConfigCard
                     :actions="[
                         { typeId: 'delete', onClick: handleDeleteDataView },
-                        { typeId: 'open', label: resolveOpenLabel(item), onClick: handleOpenDataView }
+                        { typeId: 'open', description: resolveProgressDescription(item), label: t(TEXT, 'open.label', { name: item.label }), onClick: handleOpenDataView }
                     ]"
                     :category-label="dataViewConnectorMap.get(item.id)?.categoryLabel"
                     :config="item"

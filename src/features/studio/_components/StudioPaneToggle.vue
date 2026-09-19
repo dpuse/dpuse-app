@@ -18,7 +18,14 @@ const { isOpen } = defineProps<{ isOpen: boolean }>(); // Whether the pane is on
 </script>
 
 <template>
-    <ToggleButton :accessible-label="t(TEXT, 'toggle.aria')" class="fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40" data-region="StudioPaneToggle" :is-open="isOpen">
-        <DPUseLogo />
+    <!-- The logo is wide, so it takes the same height as the Assistant logo rather than the same square box, which would
+         leave it shorter; the side padding narrows to fit it, keeping the button a 40px circle. -->
+    <ToggleButton
+        :accessible-label="t(TEXT, 'toggle.aria')"
+        class="fixed top-(--safe-top-offset) left-(--safe-left-offset) z-40 px-1.5!"
+        data-region="StudioPaneToggle"
+        :is-open="isOpen"
+    >
+        <DPUseLogo class="h-5.5! w-auto!" />
     </ToggleButton>
 </template>

@@ -1,11 +1,14 @@
 {
     "TEXT": {
+        "columns.label": { "en": "Columns", "es": "Columnas" },
         "connection.text": { "en": "Retrieves data through the {connector} connector.", "es": "Obtiene datos a través del conector {connector}." },
         "connection.title": { "en": "Connection", "es": "Conexión" },
-        "establishDataViews.label": { "en": "Establish Data Views", "es": "Establecer Vistas de Datos" },
-        "noConnection.text": { "en": "No connection has been selected yet.", "es": "Todavía no se ha seleccionado ninguna conexión." },
-        "progress.title": { "en": "Progress", "es": "Progreso" },
-        "step.done.aria": { "en": "Done", "es": "Hecho" },
-        "step.pending.aria": { "en": "To do", "es": "Pendiente" }
+        "contentAudit.title": { "en": "Content audit", "es": "Auditoría de contenido" },
+        "done.text": { "en": "Done.", "es": "Hecho." },
+        "item.text": { "en": "Reads {item}.", "es": "Lee {item}." },
+        "item.title": { "en": "Item", "es": "Elemento" },
+        "noConnection.label": { "en": "No connection", "es": "Sin conexión" },
+        "notDone.text": { "en": "Not done yet.", "es": "Todavía no se ha hecho." },
+        "records.label": { "en": "Records", "es": "Registros" }
     }
 }

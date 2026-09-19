@@ -1,18 +1,17 @@
 <script setup lang="ts">
-// ── External Dependencies & Registrations
-import { CircleCheckIcon, CircleIcon } from '@lucide/vue';
-
 // ── DPUse Framework
 import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
-import { t } from '@/state/locale';
 import { TEXT } from './DataViewPanel_.json';
-import { type DataViewConnector, type DataViewStep, resolveDataViewStepLabel } from './dataViewSummary';
+import type { DataViewConnector, DataViewStep, DataViewStepId } from './dataViewSummary';
+import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
+import StepDot from '@/components/ui/StepDot.vue';
+import StepDots from '@/components/ui/StepDots.vue';
 import StudioDetailPanel from '../_components/StudioDetailPanel.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
@@ -26,6 +25,16 @@ const { dataViewConnector, dataViewLocalisedConfig, dataViewSteps } = defineProp
     dataViewSteps: DataViewStep[];
 }>();
 defineEmits<{ close: [] }>();
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function formatCount(count: number): string {
+    return new Intl.NumberFormat(localeId.value).format(count);
+}
+
+function resolveStepState(stepId: DataViewStepId): DataViewStep['state'] {
+    return dataViewSteps.find((step) => step.id === stepId)?.state ?? 'pending';
+}
 </script>
 
 <template>
@@ -34,32 +43,46 @@ defineEmits<{ close: [] }>();
             <StudioDocumentPanel
                 :icon="dataViewConnector?.icon ?? dataViewLocalisedConfig.icon"
                 :icon-dark="dataViewConnector?.iconDark ?? dataViewLocalisedConfig.iconDark"
-                :overline="t(TEXT, 'establishDataViews.label')"
+                :overline="dataViewConnector?.label ?? t(TEXT, 'noConnection.label')"
                 :title="dataViewLocalisedConfig.label"
                 @close="$emit('close')"
             >
-                <template v-if="dataViewConnector" #tags>
-                    <Tag :text="dataViewConnector.categoryLabel" />
+                <!-- The card's step dots beside the category, so the panel opens with the same summary the card shows. -->
+                <template #tags>
+                    <Tag v-if="dataViewConnector" :text="dataViewConnector.categoryLabel" />
+                    <StepDots class="h-6" :steps="dataViewSteps" />
                 </template>
 
                 <!-- Description -->
                 <p v-if="dataViewLocalisedConfig.description">{{ dataViewLocalisedConfig.description }}</p>
 
+                <!-- One section per step, each headed by the card's dot for that step and holding what the step produced. A
+                     step done without a result to show says so plainly. -->
                 <StudioDocumentSection :title="t(TEXT, 'connection.title')">
+                    <template #icon>
+                        <StepDot class="size-4" :state="resolveStepState('connections')" />
+                    </template>
                     <p v-if="dataViewConnector">{{ t(TEXT, 'connection.text', { connector: dataViewConnector.label }) }}</p>
-                    <p v-else>{{ t(TEXT, 'noConnection.text') }}</p>
+                    <p v-else>{{ t(TEXT, resolveStepState('connections') === 'done' ? 'done.text' : 'notDone.text') }}</p>
                 </StudioDocumentSection>
 
-                <!-- Same blues as the card's step dots, so the two read as the same progress. -->
-                <StudioDocumentSection :title="t(TEXT, 'progress.title')">
-                    <ul>
-                        <li v-for="step in dataViewSteps" :key="step.id" class="flex items-center gap-x-2">
-                            <CircleCheckIcon v-if="step.state === 'done'" aria-hidden="true" class="size-4 flex-none text-blue-500 dark:text-blue-400" />
-                            <CircleIcon v-else aria-hidden="true" class="size-4 flex-none text-blue-500 dark:text-blue-400" />
-                            <span class="sr-only">{{ t(TEXT, `step.${step.state}.aria`) }}:</span>
-                            {{ resolveDataViewStepLabel(step.id) }}
-                        </li>
+                <StudioDocumentSection :title="t(TEXT, 'item.title')">
+                    <template #icon>
+                        <StepDot class="size-4" :state="resolveStepState('items')" />
+                    </template>
+                    <p v-if="dataViewLocalisedConfig.connectionNodeConfig">{{ t(TEXT, 'item.text', { item: dataViewLocalisedConfig.connectionNodeConfig.label }) }}</p>
+                    <p v-else>{{ t(TEXT, resolveStepState('items') === 'done' ? 'done.text' : 'notDone.text') }}</p>
+                </StudioDocumentSection>
+
+                <StudioDocumentSection :title="t(TEXT, 'contentAudit.title')">
+                    <template #icon>
+                        <StepDot class="size-4" :state="resolveStepState('content')" />
+                    </template>
+                    <ul v-if="dataViewLocalisedConfig.contentAuditConfig">
+                        <li>{{ t(TEXT, 'records.label') }}: {{ formatCount(dataViewLocalisedConfig.contentAuditConfig.recordCount) }}</li>
+                        <li>{{ t(TEXT, 'columns.label') }}: {{ formatCount(dataViewLocalisedConfig.contentAuditConfig.columns.length) }}</li>
                     </ul>
+                    <p v-else>{{ t(TEXT, resolveStepState('content') === 'done' ? 'done.text' : 'notDone.text') }}</p>
                 </StudioDocumentSection>
             </StudioDocumentPanel>
         </ScrollArea>
