@@ -22,7 +22,8 @@ import StudioHomeIcon from '@/components/icons/StudioHomeIcon.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const TEXT = {
-    'home.aria': { en: 'Home', es: 'Inicio' }
+    'home.aria': { en: 'Home', es: 'Inicio' },
+    'studioOptions.aria': { en: 'Studio options', es: 'Opciones del estudio' }
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -54,7 +55,7 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
 
 <template>
     <nav
-        aria-label="Studio options"
+        :aria-label="t(TEXT, 'studioOptions.aria')"
         class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-t border-r border-r-separator bg-backdrop pt-13.5 pb-[calc(var(--vertical-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
         :class="hasTopEdgeLine ? 'border-t-separator' : 'border-t-transparent'"
         data-region="OptionPanel"

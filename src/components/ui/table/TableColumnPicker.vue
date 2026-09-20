@@ -5,6 +5,9 @@ import { Settings2Icon } from '@lucide/vue';
 import { ref, useTemplateRef } from 'vue';
 import type { RowData, Table } from '@tanstack/vue-table';
 
+import { t } from '@/state/locale';
+import { TEXT } from './TableColumnPicker_.json';
+
 // ── Static Components
 import type { TableFeatureSet } from './tableFeatures';
 
@@ -29,7 +32,7 @@ onClickOutside(pickerElement, () => {
         <div ref="picker" class="relative">
             <button class="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-muted hover:bg-card-hover" @click.stop="open = !open">
                 <Settings2Icon class="size-3.5" />
-                Columns
+                {{ t(TEXT, 'columns.label') }}
             </button>
 
             <div v-if="open" class="absolute top-full left-0 z-50 min-w-48 rounded border border-separator bg-card shadow-md">

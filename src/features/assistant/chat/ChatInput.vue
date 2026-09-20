@@ -12,6 +12,9 @@ import { useResizeObserver } from '@vueuse/core';
 import { ArrowUpIcon, PlusIcon, SquareIcon } from '@lucide/vue';
 import { computed, useTemplateRef } from 'vue';
 
+import { t } from '@/state/locale';
+import { TEXT } from './ChatInput_.json';
+
 // ── Local Framework
 import type { AssistantModelConfig } from './modelConfigs';
 
@@ -110,7 +113,7 @@ function reportHeight(): void {
         ]"
         data-region="ChatInput"
     >
-        <TextArea v-model="draft" class="max-h-40 rounded-t-lg" placeholder="Ask a question" @keydown.enter.exact.prevent="emit('send')" />
+        <TextArea v-model="draft" class="max-h-40 rounded-t-lg" :placeholder="t(TEXT, 'draft.placeholder')" @keydown.enter.exact.prevent="emit('send')" />
 
         <!-- Grid rather than flex: the conversation controls and the send button sit in max-content tracks they never give up or
              stretch into, while the model menu between them takes the rest and ellipsises once the bar genuinely runs short. That
@@ -123,7 +126,7 @@ function reportHeight(): void {
                  like the send button at the other end of the row, so the bar reads as one set of actions. Neutral rather than
                  tinted: sending is the thing this bar is for, and competing filled circles would put them on equal footing. The bar
                  itself is neutral for the same reason, so the send button is the only accent in the composer. -->
-            <IconButton accessible-label="Start a new chat" shape="round" size="sm" @click="handleStartChat">
+            <IconButton :accessible-label="t(TEXT, 'newChat.aria')" shape="round" size="sm" @click="handleStartChat">
                 <PlusIcon class="size-4!" stroke-width="2.5" />
             </IconButton>
 

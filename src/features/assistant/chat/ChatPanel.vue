@@ -4,6 +4,9 @@ import DOMPurify from 'dompurify';
 import { useMutationObserver } from '@vueuse/core';
 import { computed, onMounted, ref } from 'vue';
 
+import { t } from '@/state/locale';
+import { TEXT } from './ChatPanel_.json';
+
 // ── Local Framework
 import type { AssistantChatMessage } from './assistantChat';
 import type { AssistantModelConfig } from './modelConfigs';
@@ -158,16 +161,16 @@ function handleRetryMarkedTool(): void {
                         </div>
 
                         <div v-for="(errorText, errorIndex) in message.errors" :key="`${message.id}-error-${errorIndex}`" class="mx-auto mt-3 max-w-prose pb-4">
-                            <div class="mb-1 text-xs font-medium tracking-wide text-danger-text">Error</div>
+                            <div class="mb-1 text-xs font-medium tracking-wide text-danger-text">{{ t(TEXT, 'error.title') }}</div>
                             <div class="text-sm whitespace-pre-line text-danger-text">{{ errorText }}</div>
                         </div>
 
                         <!-- Sits with the question it belongs to, so it stays put once the conversation moves past it.
                              Carries the step label's own classes, so it lands where a real answer would have. -->
                         <div v-if="hasNoAnswer(message)" class="mx-auto mt-3 max-w-prose pb-4">
-                            <div class="mb-1 text-xs font-medium tracking-wide text-subtle">No answer</div>
+                            <div class="mb-1 text-xs font-medium tracking-wide text-subtle">{{ t(TEXT, 'noAnswer.title') }}</div>
                             <div class="text-sm text-subtle">
-                                The model returned nothing for this turn. It may have declined the request. Try rephrasing it, or pick a different model.
+                                {{ t(TEXT, 'noAnswer.text') }}
                             </div>
                         </div>
                     </template>
@@ -176,7 +179,7 @@ function handleRetryMarkedTool(): void {
                         <div class="mx-auto mt-3 max-w-prose">
                             <div v-for="step in getMessageSteps(message)" :key="step.type" class="pb-4">
                                 <template v-if="step.type === 'thinking'">
-                                    <div class="mb-3 text-xs font-medium tracking-wide text-subtle">Thinking</div>
+                                    <div class="mb-3 text-xs font-medium tracking-wide text-subtle">{{ t(TEXT, 'thinking.title') }}</div>
                                     <div v-for="part in step.parts" :key="part.content" class="text-sm text-subtle">{{ part.content }}</div>
                                 </template>
                                 <template v-else>
@@ -192,7 +195,7 @@ function handleRetryMarkedTool(): void {
                 <!-- Sits after the thread rather than inside it: a send that was refused never became a message, so
                      there is no message to key it to. Cleared by the next send, which is the attempt it describes. -->
                 <div v-if="sendFailure" class="mx-auto mt-3 max-w-prose pb-4">
-                    <div class="mb-1 text-xs font-medium tracking-wide text-danger-text">Error</div>
+                    <div class="mb-1 text-xs font-medium tracking-wide text-danger-text">{{ t(TEXT, 'error.title') }}</div>
                     <div class="text-sm whitespace-pre-line text-danger-text">{{ sendFailure }}</div>
                 </div>
 

@@ -4,6 +4,9 @@ import { ChevronDownIcon } from '@lucide/vue';
 import { onClickOutside } from '@vueuse/core';
 import { ref, useTemplateRef } from 'vue';
 
+import { t } from '@/state/locale';
+import { TEXT } from './AssistantModelMenu_.json';
+
 // ── Local Framework
 import type { AssistantModelConfig } from '../chat/modelConfigs';
 import { UNSELECTED_CLASSES } from '@/components/ui/action/action';
@@ -44,7 +47,7 @@ function handleSelect(newModelConfig: AssistantModelConfig): void {
         <ActionWrapper
             aria-haspopup="true"
             :aria-expanded="menuIsOpen"
-            aria-label="Select model"
+            :aria-label="t(TEXT, 'selectModel.aria')"
             class="flex max-w-full min-w-0 items-center gap-x-1 rounded-full px-2.5 py-1 text-xs text-content focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
             :class="UNSELECTED_CLASSES"
             @click="menuIsOpen = !menuIsOpen"

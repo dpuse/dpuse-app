@@ -24,6 +24,7 @@ import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const TEXT = {
+    'autoLayout.label': { en: 'Auto-layout', es: 'Diseño automático' },
     'contextualiseData.title': { en: 'Contextualise Data', es: 'Contextualizar Datos' },
     'eventQuery.label': { en: 'Event Query', es: 'Consulta de Eventos' },
     'eventQuery.other.text': { en: 'event queries', es: 'consultas de eventos' },
@@ -101,7 +102,7 @@ async function renderDiagram(): Promise<void> {
         <ErrorNotice v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
 
         <div v-show="!renderFailure" class="px-4 py-2">
-            <RectangleButton variant="outline" @click="handleAutoLayout">Auto-layout</RectangleButton>
+            <RectangleButton variant="outline" @click="handleAutoLayout">{{ t(TEXT, 'autoLayout.label') }}</RectangleButton>
         </div>
 
         <div v-show="!renderFailure" ref="container" class="w-full flex-1" />

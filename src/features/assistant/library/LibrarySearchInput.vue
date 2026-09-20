@@ -3,6 +3,9 @@
 import { useTemplateRef } from 'vue';
 import { SearchIcon, XIcon } from '@lucide/vue';
 
+import { t } from '@/state/locale';
+import { TEXT } from './LibrarySearchInput_.json';
+
 // ── Local Framework
 import { useAssistantLibrary } from '@/state/assistantLibrary';
 
@@ -38,14 +41,21 @@ function handleClear(): void {
         <input
             ref="inputElement"
             v-model="query"
-            aria-label="Search the library"
+            :aria-label="t(TEXT, 'search.aria')"
             class="w-full rounded-lg border border-boundary bg-surface py-2 pr-8 pl-9 text-sm text-muted shadow-md placeholder:text-subtle focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring [&::-webkit-search-cancel-button]:appearance-none"
             enterkeyhint="search"
-            placeholder="Search by keyword, topic…"
+            :placeholder="t(TEXT, 'search.placeholder')"
             type="search"
         />
 
-        <IconButton v-if="query.length > 0" accessible-label="Clear the search" class="absolute top-1/2 right-1.5 -translate-y-1/2" shape="round" size="sm" @click="handleClear">
+        <IconButton
+            v-if="query.length > 0"
+            :accessible-label="t(TEXT, 'clear.aria')"
+            class="absolute top-1/2 right-1.5 -translate-y-1/2"
+            shape="round"
+            size="sm"
+            @click="handleClear"
+        >
             <XIcon class="size-3.5!" :stroke-width="1.5" />
         </IconButton>
     </div>

@@ -17,6 +17,9 @@ import {
 } from '@lucide/vue';
 import { type Component, computed, ref } from 'vue';
 
+import { t } from '@/state/locale';
+import { TEXT } from './TransformDataPanel_.json';
+
 // ── Local Framework
 import { useSelectColumnSort } from './transformData/useSelectColumnSort.ts';
 
@@ -266,15 +269,15 @@ function typeIcon(name: string): Component {
                     <input
                         v-model="columnSearch"
                         class="dpuse-search-input w-full rounded-sm bg-card-hover px-2 py-1.5 pr-7 text-xs text-content placeholder:text-subtle focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring"
-                        placeholder="Search column names…"
+                        :placeholder="t(TEXT, 'searchColumns.placeholder')"
                         type="search"
-                        aria-label="Search column names"
+                        :aria-label="t(TEXT, 'searchColumns.aria')"
                     />
                     <button
                         v-if="columnSearch.length > 0"
                         class="absolute top-1/2 right-2 flex -translate-y-1/2 items-center justify-center p-0 text-subtle hover:text-content"
                         type="button"
-                        aria-label="Clear column search"
+                        :aria-label="t(TEXT, 'clearColumnSearch.aria')"
                         @click="columnSearch = ''"
                     >
                         <XIcon class="size-4" />
@@ -324,7 +327,7 @@ function typeIcon(name: string): Component {
                     <span v-if="query.where.length === 0" class="text-xs text-subtle">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
-                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add condition" @click="openPicker('where')">
+                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" :title="t(TEXT, 'addCondition.label')" @click="openPicker('where')">
                         <PlusIcon class="size-4 text-muted" />
                     </button>
                     <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.where = !clauseOpen.where">
@@ -355,14 +358,14 @@ function typeIcon(name: string): Component {
                     <div class="flex flex-col gap-2">
                         <select
                             v-model="whereDraft.column"
-                            aria-label="Column"
+                            :aria-label="t(TEXT, 'column.aria')"
                             class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
                         >
                             <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
                         </select>
                         <select
                             v-model="whereDraft.op"
-                            aria-label="Operator"
+                            :aria-label="t(TEXT, 'operator.aria')"
                             class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
                         >
                             <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
@@ -370,9 +373,9 @@ function typeIcon(name: string): Component {
                         <input
                             v-if="!['IS NULL', 'IS NOT NULL'].includes(whereDraft.op)"
                             v-model="whereDraft.value"
-                            aria-label="Value"
+                            :aria-label="t(TEXT, 'value.aria')"
                             class="h-9 w-full rounded-md border border-separator bg-white px-3 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
-                            placeholder="value…"
+                            :placeholder="t(TEXT, 'value.placeholder')"
                             type="text"
                         />
                     </div>
@@ -408,7 +411,7 @@ function typeIcon(name: string): Component {
                     <span v-if="query.groupBy.length === 0" class="text-xs text-subtle">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
-                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add grouping" @click="openPicker('groupBy')">
+                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" :title="t(TEXT, 'addGrouping.label')" @click="openPicker('groupBy')">
                         <PlusIcon class="size-4 text-muted" />
                     </button>
                     <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.groupBy = !clauseOpen.groupBy">
@@ -443,7 +446,7 @@ function typeIcon(name: string): Component {
                             <input
                                 type="checkbox"
                                 :checked="query.groupBy.includes(col.name)"
-                                aria-label="Group by column"
+                                :aria-label="t(TEXT, 'groupByColumn.aria')"
                                 class="size-4 flex-none cursor-pointer rounded accent-blue-500"
                                 @change="toggleGroupBy(col.name)"
                             />
@@ -478,7 +481,7 @@ function typeIcon(name: string): Component {
                     <span v-if="query.having.length === 0" class="text-xs text-subtle">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
-                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add having condition" @click="openPicker('having')">
+                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" :title="t(TEXT, 'addHavingCondition.label')" @click="openPicker('having')">
                         <PlusIcon class="size-4 text-muted" />
                     </button>
                     <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.having = !clauseOpen.having">
@@ -509,14 +512,14 @@ function typeIcon(name: string): Component {
                     <div class="flex flex-col gap-2">
                         <select
                             v-model="havingDraft.column"
-                            aria-label="Column"
+                            :aria-label="t(TEXT, 'column.aria')"
                             class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
                         >
                             <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
                         </select>
                         <select
                             v-model="havingDraft.op"
-                            aria-label="Operator"
+                            :aria-label="t(TEXT, 'operator.aria')"
                             class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
                         >
                             <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
@@ -524,9 +527,9 @@ function typeIcon(name: string): Component {
                         <input
                             v-if="!['IS NULL', 'IS NOT NULL'].includes(havingDraft.op)"
                             v-model="havingDraft.value"
-                            aria-label="Value"
+                            :aria-label="t(TEXT, 'value.aria')"
                             class="h-9 w-full rounded-md border border-separator bg-white px-3 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
-                            placeholder="value…"
+                            :placeholder="t(TEXT, 'value.placeholder')"
                             type="text"
                         />
                     </div>
@@ -562,7 +565,7 @@ function typeIcon(name: string): Component {
                     <span v-if="query.orderBy.length === 0" class="text-xs text-subtle">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
-                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" title="Add sort column" @click="openPicker('orderBy')">
+                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" :title="t(TEXT, 'addSortColumn.label')" @click="openPicker('orderBy')">
                         <PlusIcon class="size-4 text-muted" />
                     </button>
                     <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.orderBy = !clauseOpen.orderBy">

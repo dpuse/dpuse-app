@@ -9,6 +9,9 @@
 // ── Local Framework
 import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
 
+import { t } from '@/state/locale';
+import { TEXT } from './ChatEmptyState_.json';
+
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 
@@ -19,8 +22,8 @@ const workflowOptionConfigs = useStudioOptions();
 
 <template>
     <div class="mx-auto flex max-w-prose flex-col justify-center pt-4 pb-8" data-region="ChatEmptyState">
-        <h2 class="text-sm font-semibold text-accent">From data to understanding</h2>
-        <p class="mt-1 text-lg font-semibold tracking-tight text-pretty text-emphasis @md:text-xl">Ask about your data, or start with the workflow</p>
+        <h2 class="text-sm font-semibold text-accent">{{ t(TEXT, 'intro.title') }}</h2>
+        <p class="mt-1 text-lg font-semibold tracking-tight text-pretty text-emphasis @md:text-xl">{{ t(TEXT, 'intro.text') }}</p>
 
         <!-- One column until the pane is genuinely wide enough for two. A container query, not a viewport one: this sits
              inside a pane nested in another pane, so neither splitter's position is visible to a media query. -->

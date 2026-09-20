@@ -5,6 +5,9 @@ import { onClickOutside } from '@vueuse/core';
 import type { Header, RowData } from '@tanstack/vue-table';
 import { ref, useTemplateRef } from 'vue';
 
+import { t } from '@/state/locale';
+import { TEXT } from './TableHeaderCell_.json';
+
 // ── Static Components
 import type { TableFeatureSet } from './tableFeatures';
 
@@ -49,7 +52,7 @@ onClickOutside(menuElement, () => {
                         menuOpen = false;
                     "
                 >
-                    Pin Left
+                    {{ t(TEXT, 'pinLeft.label') }}
                 </button>
                 <button
                     v-if="header.column.getIsPinned() !== 'end'"
@@ -59,7 +62,7 @@ onClickOutside(menuElement, () => {
                         menuOpen = false;
                     "
                 >
-                    Pin Right
+                    {{ t(TEXT, 'pinRight.label') }}
                 </button>
                 <button
                     v-if="header.column.getIsPinned()"
@@ -69,7 +72,7 @@ onClickOutside(menuElement, () => {
                         menuOpen = false;
                     "
                 >
-                    Unpin
+                    {{ t(TEXT, 'unpin.label') }}
                 </button>
                 <button
                     v-if="header.column.getCanHide()"
@@ -79,7 +82,7 @@ onClickOutside(menuElement, () => {
                         menuOpen = false;
                     "
                 >
-                    Hide Column
+                    {{ t(TEXT, 'hideColumn.label') }}
                 </button>
             </div>
         </div>

@@ -17,7 +17,10 @@ import Tag from '@/components/ui/Tag.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const TEXT = {
-    'close.aria': { en: 'Close the document', es: 'Cerrar el documento' }
+    'close.aria': { en: 'Close the document', es: 'Cerrar el documento' },
+    'details.title': { en: 'Details', es: 'Detalles' },
+    'overview.title': { en: 'Overview', es: 'Resumen' },
+    'usage.title': { en: 'Usage', es: 'Uso' }
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -52,19 +55,19 @@ defineEmits<{ close: [] }>();
 
                     <!-- TODO: Placeholder body. Replace with the document's own content once the knowledge base serves
                          it; this exists so the panel can be laid out and read at a realistic length. -->
-                    <h3 class="mt-6 mb-1 font-medium text-emphasis">Overview</h3>
+                    <h3 class="mt-6 mb-1 font-medium text-emphasis">{{ t(TEXT, 'overview.title') }}</h3>
                     <p class="text-muted">
                         Quis tellus eget adipiscing convallis sit sit eget aliquet quis. Suspendisse eget egestas a elementum pulvinar et feugiat blandit at. In mi viverra elit
                         nunc.
                     </p>
 
-                    <h3 class="mt-6 mb-1 font-medium text-emphasis">Details</h3>
+                    <h3 class="mt-6 mb-1 font-medium text-emphasis">{{ t(TEXT, 'details.title') }}</h3>
                     <p class="text-muted">
                         Commodo nec sagittis tortor mauris sed. Turpis tortor quis scelerisque diam id accumsan nullam tempus. Pulvinar etiam lacus volutpat eu. Phasellus est
                         cursus egestas dolor sit amet sagittis.
                     </p>
 
-                    <h3 class="mt-6 mb-1 font-medium text-emphasis">Usage</h3>
+                    <h3 class="mt-6 mb-1 font-medium text-emphasis">{{ t(TEXT, 'usage.title') }}</h3>
                     <p class="text-muted">
                         Turpis tortor quis scelerisque diam id accumsan nullam tempus. Suspendisse eget egestas a elementum pulvinar et feugiat blandit at. Quis tellus eget
                         adipiscing convallis sit sit eget aliquet quis.

@@ -2,6 +2,9 @@
 // ── External Dependencies & Registrations
 import { ref } from 'vue';
 
+import { t } from '@/state/locale';
+import { TEXT } from './ExploreDataPanel_.json';
+
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
@@ -51,7 +54,7 @@ const activeOptionId = ref<'transform' | 'investigate'>('investigate');
                     :aria-pressed="activeOptionId === 'transform'"
                     @click="activeOptionId = 'transform'"
                 >
-                    Transform
+                    {{ t(TEXT, 'transform.label') }}
                 </button>
 
                 <button
@@ -65,7 +68,7 @@ const activeOptionId = ref<'transform' | 'investigate'>('investigate');
                     :aria-pressed="activeOptionId === 'investigate'"
                     @click="activeOptionId = 'investigate'"
                 >
-                    Investigate
+                    {{ t(TEXT, 'investigate.label') }}
                 </button>
             </span>
         </div>

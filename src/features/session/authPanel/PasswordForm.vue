@@ -18,6 +18,10 @@ const TEXT = {
     'enterPassword.title': { en: 'Enter password', es: 'Introducir contraseña' },
     'forgotPassword.label': { en: 'Forgot password?', es: '¿Olvidaste tu contraseña?' },
     'noAccount.text': { en: "Don't have an account?", es: 'No tengo una cuenta' },
+    'enterPassword.text': {
+        en: 'Enter the password for the account linked to your email address.',
+        es: 'Introduce la contraseña de la cuenta vinculada a tu dirección de correo electrónico.'
+    },
     'password.label': { en: 'Password', es: 'Contraseña' },
     'signUp.label': { en: 'Sign up', es: 'Inscribirse' }
 };
@@ -46,7 +50,7 @@ function handleSubmit(): void {
     <div class="flex flex-col gap-y-3">
         <h2 class="text-2xl font-normal">{{ t(TEXT, 'enterPassword.title') }}</h2>
 
-        <p>Enter the password for the account linked to the email address 'terrell.jm@gmail.com'.</p>
+        <p>{{ t(TEXT, 'enterPassword.text') }}</p>
 
         <!-- 'novalidate' suppresses the browser's own error bubbles; the fields render the messages themselves. -->
         <form ref="formReference" class="mt-2 flex flex-col gap-y-3" novalidate @submit.prevent="handleSubmit">

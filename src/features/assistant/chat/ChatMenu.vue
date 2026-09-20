@@ -12,6 +12,9 @@ import { GalleryVerticalEndIcon } from '@lucide/vue';
 import { onClickOutside } from '@vueuse/core';
 import { ref, useTemplateRef } from 'vue';
 
+import { t } from '@/state/locale';
+import { TEXT } from './ChatMenu_.json';
+
 // ── Static Components
 import IconButton from '@/components/ui/action/IconButton.vue';
 import ItemButton from '@/components/ui/action/ItemButton.vue';
@@ -59,7 +62,7 @@ function handleSelectChat(): void {
 <template>
     <div ref="menuReference" class="relative">
         <!-- Shaped like the composer's other round controls, so the bar reads as one row of actions. -->
-        <IconButton accessible-label="Show other chats" :aria-expanded="menuIsOpen" aria-haspopup="true" shape="round" size="sm" @click="menuIsOpen = !menuIsOpen">
+        <IconButton :accessible-label="t(TEXT, 'otherChats.aria')" :aria-expanded="menuIsOpen" aria-haspopup="true" shape="round" size="sm" @click="menuIsOpen = !menuIsOpen">
             <GalleryVerticalEndIcon class="size-4!" stroke-width="2.5" />
         </IconButton>
 

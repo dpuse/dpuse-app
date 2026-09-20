@@ -26,6 +26,7 @@ import Separator from '@/components/ui/Separator.vue';
 
 const TEXT = {
     'appearance.label': { en: 'Appearance', es: 'Apariencia' },
+    'session.title': { en: 'Session', es: 'Sesión' },
     'collapse.label': { en: 'Collapse', es: 'Contraer' },
     'dark.label': { en: 'Dark', es: 'Oscura' },
     'display.label': { en: 'Display', es: 'Pantalla' },
@@ -157,7 +158,7 @@ async function handleToggleWindowExpansion(): Promise<void> {
              The comments stay inside the root: above it they would be sibling root nodes, making this multi-root and
              costing the transition classes the parent applies here. -->
         <div class="flex items-center justify-between border-b border-b-boundary bg-card px-4 pt-3 pb-2">
-            <span class="text-lg">Session</span>
+            <span class="text-lg">{{ t(TEXT, 'session.title') }}</span>
             <CloseButton @click="emit('continue')" />
         </div>
 
@@ -250,7 +251,9 @@ async function handleToggleWindowExpansion(): Promise<void> {
                 </template> -->
 
                 <!-- Manage Account -->
-                <RectangleButton v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" @click="handleManageAccount">{{ t(TEXT, 'manageAccount.label') }}</RectangleButton>
+                <RectangleButton v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" @click="handleManageAccount">{{
+                    t(TEXT, 'manageAccount.label')
+                }}</RectangleButton>
 
                 <!-- Reload -->
                 <RectangleButton v-if="isPWA" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApp">{{ t(TEXT, 'reload.label') }}</RectangleButton>

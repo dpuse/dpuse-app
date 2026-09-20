@@ -1,0 +1,11 @@
+{
+    "TEXT": {
+        "error.title": { "en": "Error", "es": "Error" },
+        "noAnswer.text": {
+            "en": "The model returned nothing for this turn. It may have declined the request. Try rephrasing it, or pick a different model.",
+            "es": "El modelo no devolvió nada en este turno. Puede que haya rechazado la solicitud. Prueba a reformularla o elige otro modelo."
+        },
+        "noAnswer.title": { "en": "No answer", "es": "Sin respuesta" },
+        "thinking.title": { "en": "Thinking", "es": "Pensando" }
+    }
+}

@@ -13,6 +13,9 @@
 import { HouseIcon } from '@lucide/vue';
 import { computed, shallowRef } from 'vue';
 
+import { t } from '@/state/locale';
+import { TEXT } from './LibraryPanel_.json';
+
 // ── Local Framework
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import { LIBRARY_DOCUMENT_TYPE_LABELS, type LibraryDocument, type LibraryDocumentType, useAssistantLibrary } from '@/state/assistantLibrary';
@@ -201,7 +204,7 @@ function handleSelectBreadcrumb(index: number): void {
                         <p class="mt-1 text-xs text-subtle">{{ document.source }}</p>
                     </ActionWrapper>
 
-                    <div v-if="searchResults.length === 0" class="py-8 text-center text-sm text-muted">No results found.</div>
+                    <div v-if="searchResults.length === 0" class="py-8 text-center text-sm text-muted">{{ t(TEXT, 'noResults.text') }}</div>
                 </div>
 
                 <!-- Index - browse by folder, one level deep. -->

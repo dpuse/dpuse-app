@@ -3,6 +3,9 @@
 import { LoaderCircleIcon } from '@lucide/vue';
 import { computed, ref } from 'vue';
 
+import { t } from '@/state/locale';
+import { TEXT } from './SessionButton_.json';
+
 // ── Local Framework
 import { PRESS_CLASSES } from '@/components/ui/action/action';
 import { defineAsyncPanel } from '@/utilities/index.ts';
@@ -82,7 +85,7 @@ function onMenuAfterLeave(): void {
         <ActionWrapper
             :aria-expanded="sessionMenuIsOpen"
             aria-haspopup="dialog"
-            aria-label="Toggle session panel"
+            :aria-label="t(TEXT, 'toggle.aria')"
             class="relative size-10 rounded-full border border-separator ring-2 active:ring-zinc-400 dark:border-zinc-400 dark:active:ring-zinc-500"
             :class="[
                 PRESS_CLASSES,

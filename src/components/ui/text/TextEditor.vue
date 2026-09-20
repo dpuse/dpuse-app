@@ -6,6 +6,9 @@ import { useResizeObserver } from '@vueuse/core';
 import { BoldIcon, ItalicIcon, LinkIcon, UnderlineIcon } from '@lucide/vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, useAttrs, useId, useTemplateRef, watch } from 'vue';
 
+import { t } from '@/state/locale';
+import { TEXT } from './TextEditor_.json';
+
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared/errors';
 
@@ -201,16 +204,16 @@ function updateParentCanScroll(): void {
         >
             <!-- Toolbar -->
             <div class="flex flex-none gap-0.5 border-b border-boundary bg-backdrop">
-                <IconButton accessible-label="Bold" :is-active="activeFormats.bold" size="sm" @mousedown.prevent @click="handleToggleBold">
+                <IconButton :accessible-label="t(TEXT, 'bold.aria')" :is-active="activeFormats.bold" size="sm" @mousedown.prevent @click="handleToggleBold">
                     <BoldIcon class="size-4.5!" />
                 </IconButton>
-                <IconButton accessible-label="Italic" :is-active="activeFormats.italic" size="sm" @mousedown.prevent @click="handleToggleItalic">
+                <IconButton :accessible-label="t(TEXT, 'italic.aria')" :is-active="activeFormats.italic" size="sm" @mousedown.prevent @click="handleToggleItalic">
                     <ItalicIcon class="size-4.5!" />
                 </IconButton>
-                <IconButton accessible-label="Underline" :is-active="activeFormats.underline" size="sm" @mousedown.prevent @click="handleToggleUnderline">
+                <IconButton :accessible-label="t(TEXT, 'underline.aria')" :is-active="activeFormats.underline" size="sm" @mousedown.prevent @click="handleToggleUnderline">
                     <UnderlineIcon class="size-4.5!" />
                 </IconButton>
-                <IconButton accessible-label="Link" :is-active="activeFormats.link" size="sm" @mousedown.prevent @click="handleToggleLink">
+                <IconButton :accessible-label="t(TEXT, 'link.aria')" :is-active="activeFormats.link" size="sm" @mousedown.prevent @click="handleToggleLink">
                     <LinkIcon class="size-4.5!" />
                 </IconButton>
             </div>

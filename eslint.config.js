@@ -100,13 +100,48 @@ const config = defineConfigWithVueTs(
             'unicorn/prefer-top-level-await': 'warn',
 
             'vue/multi-word-component-names': ['warn', { ignores: ['Breadcrumbs', 'Button', 'Dialog', 'Grid', 'Input', 'Separator', 'Table', 'Tag'] }],
-            'vue/no-bare-strings-in-template': 'off',
+            'vue/no-bare-strings-in-template': 'error',
             'vue/no-v-html': ['error', { ignorePattern: String.raw`^(?:icon|.*\.icon|purified|purify|renderText\()` }],
             'vue/require-default-prop': 'off', // Too much noise for properties with undefined values.
 
             'vuejs-accessibility/label-has-for': ['error', { required: { some: ['id', 'nesting'] } }]
         }
     }),
+
+    // Unimplemented panels: their only content is a placeholder line naming what will go there, and
+    // `ManagePersonalDetailsPanel` is numbered filler for testing scrolling. Translating any of it would be work thrown
+    // away when the panel is built, so the rule is lifted until then.
+    {
+        files: [
+            'src/features/session/accountPanel/DeleteAccountPanel.vue',
+            'src/features/session/accountPanel/GenerateTokenPanel.vue',
+            'src/features/session/accountPanel/ManageAccessPanel.vue',
+            'src/features/session/accountPanel/ManageDataServiceTokensPanel.vue',
+            'src/features/session/accountPanel/ManagePersonalDetailsPanel.vue',
+            'src/features/session/accountPanel/ManageSessionsPanel.vue',
+            'src/features/session/accountPanel/ManageSubscriptionPanel.vue',
+            'src/features/session/accountPanel/ReviewActivityPanel.vue',
+            'src/features/studio/connectionPanel/ManageConnectionPanel.vue',
+            'src/features/studio/dataViews/auditContent/AuditContentPanel.vue'
+        ],
+        rules: {
+            'vue/no-bare-strings-in-template': 'off'
+        }
+    },
+
+    // `AddConnectionForm` dumps the connector's raw config field by field for diagnosis, and `LibraryDocumentPanel`
+    // shows sample copy that stands in for a real document. Neither is wording a user is meant to read as English.
+    // `ManagePreferencesPanel` names each language in that language, which is how language pickers are written.
+    {
+        files: [
+            'src/features/assistant/library/LibraryDocumentPanel.vue',
+            'src/features/session/accountPanel/ManagePreferencesPanel.vue',
+            'src/features/studio/connectionPanel/AddConnectionForm.vue'
+        ],
+        rules: {
+            'vue/no-bare-strings-in-template': 'off'
+        }
+    },
 
     // `StudioPaneSplitter` is an ARIA window splitter: a focusable `separator` carrying pointer and keyboard handlers, which
     // the rule does not recognise as interactive. Declared here rather than as a template comment above the root

@@ -4,6 +4,9 @@ import { useEventListener } from '@vueuse/core';
 import { XIcon } from '@lucide/vue';
 import { useAttrs, useId, useTemplateRef } from 'vue';
 
+import { t } from '@/state/locale';
+import { TEXT } from './TextArea_.json';
+
 // ── Static Components
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 
@@ -58,7 +61,7 @@ function handleClear(): void {
             <!-- Clear Action -->
             <RectangleButton
                 v-if="textValue.length > 0"
-                aria-label="Clear text"
+                :aria-label="t(TEXT, 'clear.aria')"
                 class="absolute top-1.5 right-1.5 rounded-full p-1 hover:bg-zinc-100 dark:hover:bg-zinc-300/20"
                 @click="handleClear"
             >
