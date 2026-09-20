@@ -27,6 +27,12 @@ export function logError(error: unknown): void {
     logErrorToConsole(serialisedError);
 }
 
+// The browser is too old to run the app at all, so the banner names what it needs instead of what went wrong. Nothing
+// is reported: there is no fault here, and the reporting path itself may depend on what this browser lacks.
+export function reportUnsupportedBrowser(): void {
+    displayFatalErrorBanner(`This browser is too old to run DPUse. It needs ${__SUPPORTED_BROWSERS_TEXT__} or later.`);
+}
+
 export function reportFatalError(error: unknown): void {
     displayFatalErrorBanner(`Application failed to load: ${error instanceof Error ? error.message : String(error)}`);
     logErrorToConsole(serialiseError(error));

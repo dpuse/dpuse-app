@@ -1,5 +1,6 @@
 // ── External Dependencies & Registrations
 import { dpuseBaseESLintConfig } from '@dpuse/eslint-config-dpuse';
+import pluginCompat from 'eslint-plugin-compat';
 import pluginPlaywright from 'eslint-plugin-playwright';
 import pluginTailwindCSS from 'eslint-plugin-tailwindcss';
 import pluginVitest from '@vitest/eslint-plugin';
@@ -35,6 +36,9 @@ const config = defineConfigWithVueTs(
     { ...pluginTailwindCSS.configs['recommended'], files: ['**/*.{vue,ts,mts,tsx,js,jsx}'] },
     { ...pluginPlaywright.configs['flat/recommended'], files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'] },
     { ...pluginVitest.configs.recommended, files: ['src/**/__tests__/*'] },
+    // Browser API support, checked against 'browserslist' in 'package.json'. Scoped to 'src' because the e2e specs
+    // and the config files run in Node, where the browser floor does not apply.
+    { ...pluginCompat.configs['flat/recommended'], files: ['src/**/*.{vue,ts,mts,tsx}'], ignores: ['src/**/__tests__/**'] },
     skipFormatting,
 
     // Shared DPUse base configuration: ignores, import-x/regexp/security/sonarjs/unicorn, and common rule overrides.

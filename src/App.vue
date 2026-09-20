@@ -1,12 +1,14 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed, onMounted, ref, watch } from 'vue';
+import { debounceFilter, useLocalStorage } from '@vueuse/core';
 import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router';
-import { useLocalStorage, watchDebounced } from '@vueuse/core';
 
 // ── Local Framework
 import { initialiseServices } from '@/state/session';
 import { navigationPendingDepth } from '@/router';
+import { t } from '@/state/locale';
+import { TEXT } from './App_.json';
 import { throwOnFault } from '@/observability/faultInjection';
 import { useDialogs } from '@/state/dialogs';
 import {
@@ -46,18 +48,17 @@ const PANE_SPLITTER_PERCENT_SAVE_DEBOUNCE_MS = 250;
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const paneModelIsBootstrapped = ref(false); // Stops the URL watcher writing back the panes it has just read.
 const route = useRoute();
 const router = useRouter();
 
 const { activeDialogConfig, activeDialogId, closeDialog } = useDialogs();
 
-// Pane splitter — the stored value is saved only when a drag stops, and comes first because the live value starts
-// from it.
-const storedPaneSplitterPercent = useLocalStorage(PANE_SPLITTER_PERCENT_KEY, PANE_SPLITTER_DEFAULT_PERCENT, {
+// Pane splitter — a drag fires on every pointer move, so the write to storage is debounced and only the value the
+// drag settles on is saved.
+const paneSplitterPercent = useLocalStorage(PANE_SPLITTER_PERCENT_KEY, PANE_SPLITTER_DEFAULT_PERCENT, {
+    eventFilter: debounceFilter(PANE_SPLITTER_PERCENT_SAVE_DEBOUNCE_MS),
     serializer: { read: (value) => Number(value) || PANE_SPLITTER_DEFAULT_PERCENT, write: String }
 });
-const paneSplitterPercent = ref(storedPaneSplitterPercent.value);
 
 const studioOptionBarIsVisible = ref(false); // Narrow displays only, because a wide one always shows the option bar.
 
@@ -108,14 +109,12 @@ router
         setPaneActiveState('studio', route.query.studio === '1' || route.query.assistant !== '1');
         setPaneActiveState('assistant', route.query.assistant === '1');
         activeAppPaneId.value = establishActivePaneId();
-        paneModelIsBootstrapped.value = true;
     })
     // eslint-disable-next-line unicorn/prefer-await, unicorn/prefer-top-level-await -- top-level await in <script setup> suspends the component; .catch() keeps the mount non-blocking.
     .catch(() => {
         // If the router fails to start, the studio pane is shown.
         setPaneActiveState('studio', true);
         setPaneActiveState('assistant', false);
-        paneModelIsBootstrapped.value = true;
     });
 
 onMounted(() => {
@@ -123,20 +122,8 @@ onMounted(() => {
     initialiseServices();
 });
 
-// Writes the panes to the URL only when they change, so moving the pointer within a pane writes nothing. Waits until
-// the URL has been read, so the defaults are not written into a link that had none.
-watch([activeAppPaneId, assistantPaneIsActive, studioPaneIsActive], () => {
-    if (paneModelIsBootstrapped.value) syncPaneQuery();
-});
-
-// Debounced because this fires on every pointer move during a drag, and only the final value needs saving.
-watchDebounced(
-    paneSplitterPercent,
-    (newPaneSplitterPercent) => {
-        storedPaneSplitterPercent.value = newPaneSplitterPercent;
-    },
-    { debounce: PANE_SPLITTER_PERCENT_SAVE_DEBOUNCE_MS }
-);
+// Writes the panes to the URL only when they change, so moving the pointer within a pane writes nothing.
+watch([activeAppPaneId, assistantPaneIsActive, studioPaneIsActive], syncPaneQuery);
 
 // ── Event Handlers - Panes ───────────────────────────────────────────────────────────────────────────────────────────
 
@@ -225,7 +212,7 @@ function syncPaneQuery(): void {
         <OptionBar v-if="!viewportIsWide" class="z-30" :is-visible="studioOptionBarIsVisible" @continue="studioOptionBarIsVisible = false" />
 
         <!-- Studio Pane - Mounted the first time it opens, then hidden rather than removed, so it keeps its state. -->
-        <div
+        <main
             v-if="studioPaneWasActivated"
             v-show="studioPaneIsVisible"
             class="@container grid h-full"
@@ -250,7 +237,7 @@ function syncPaneQuery(): void {
                     </Transition>
                 </RouterView>
             </div>
-        </div>
+        </main>
 
         <!-- Pane Splitter - Only when both panes are visible. The top margin starts it below the status bar, level with
              the pane headers. -->
@@ -258,9 +245,11 @@ function syncPaneQuery(): void {
 
         <!-- Assistant Pane - Mounted the first time it opens, then hidden rather than removed, so it keeps its
              state. -->
-        <div
+        <component
+            :is="studioPaneIsVisible ? 'aside' : 'main'"
             v-if="assistantPaneWasActivated"
             v-show="assistantPaneIsVisible"
+            :aria-label="t(TEXT, 'assistantPane.aria')"
             data-region="AssistantPane"
             :style="assistantPaneStyle"
             @focusin="activeAppPaneId = 'assistant'"
@@ -268,14 +257,14 @@ function syncPaneQuery(): void {
             @scroll.capture="activeAppPaneId = 'assistant'"
         >
             <AssistantLayout :studio-pane-is-hidden="!studioPaneIsVisible" />
-        </div>
+        </component>
 
         <!-- Dialog - Opened by the URL 'dlg' parameter. Owned here so its frame appears at once, while the dialog's own
              chunk loads. -->
         <Dialog
             v-if="activeDialogConfig"
             :key="activeDialogId"
-            :is-open="true"
+            is-open
             :max-width="activeDialogConfig.maxWidth"
             :min-height="activeDialogConfig.minHeight"
             :sizing="activeDialogConfig.sizing"

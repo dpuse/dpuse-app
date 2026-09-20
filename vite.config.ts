@@ -1,10 +1,35 @@
 // ── External Dependencies & Registrations
+import browserslist from 'browserslist';
 import { cloudflare } from '@cloudflare/vite-plugin';
 import { defineConfig } from 'vite';
+import { getUserAgentRegex } from 'browserslist-useragent-regexp';
 import Sonda from 'sonda/vite';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Only the engines worth naming to a user. 'ios_saf' is left out because it shares Safari's version number, and
+// showing both would read as two separate requirements.
+const BROWSER_DISPLAY_NAMES: Record<string, string | undefined> = { chrome: 'Chrome', edge: 'Edge', firefox: 'Firefox', safari: 'Safari' };
+
+// ── Derived Configuration ────────────────────────────────────────────────────────────────────────────────────────────
+
+// Everything below comes from 'browserslist' in 'package.json', so the build target, the check that runs in the
+// browser and the message the user reads cannot drift apart.
+const minimumVersions = new Map<string, number>();
+for (const entry of browserslist()) {
+    const [name, version] = entry.split(' ', 2);
+    const displayName = BROWSER_DISPLAY_NAMES[name];
+    if (displayName === undefined) continue;
+
+    const majorVersion = Number(version);
+    const lowestSoFar = minimumVersions.get(displayName);
+    if (lowestSoFar === undefined || majorVersion < lowestSoFar) minimumVersions.set(displayName, majorVersion);
+}
+
+const supportedBrowsersText = [...minimumVersions].map(([name, version]) => `${name} ${String(version)}`).join(', ');
 
 // ── Vite Configuration ───────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -13,7 +38,16 @@ export default defineConfig({
         rollupOptions: {
             plugins: [Sonda({ filename: 'index', format: 'json', brotli: true, gzip: false, open: false, outputDir: './bundle-analysis-reports/sonda' })]
         },
-        sourcemap: 'hidden'
+        sourcemap: 'hidden',
+        // Kept in step with 'browserslist' in 'package.json' and the Browser Support table in 'README.md'. Vite does
+        // not read 'browserslist', so without this it would transpile to its own lower default.
+        target: ['chrome123', 'edge123', 'firefox148', 'safari26', 'ios26']
+    },
+    define: {
+        __SUPPORTED_BROWSERS_TEXT__: JSON.stringify(supportedBrowsersText),
+        // Inlined as a regex literal, so nothing from 'browserslist-useragent-regexp' reaches the browser.
+        // 'allowHigherVersions' keeps browsers released after this build matching.
+        __SUPPORTED_BROWSER_REGEXP__: getUserAgentRegex({ allowHigherVersions: true }).toString()
     },
     plugins: [vue(), /*vueDevTools(),*/ tailwindcss(), cloudflare()],
     resolve: {
