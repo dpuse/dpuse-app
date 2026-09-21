@@ -1,8 +1,8 @@
+import type { AssistantModelConfig } from '@/features/assistant/chat/modelConfigs';
+import { useChatSession } from '@/services/useChatSession';
 import { defineComponent, h, nextTick, ref } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
-import type { AssistantModelConfig } from '@/features/assistant/chat/modelConfigs';
-import { useChatSession } from '@/services/useChatSession';
 
 const clientSpies = { attach: vi.fn(), dispose: vi.fn(), getStatus: vi.fn(() => 'ready'), updateOptions: vi.fn() };
 const constructed: Record<string, unknown>[] = [];

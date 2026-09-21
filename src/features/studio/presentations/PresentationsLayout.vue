@@ -12,7 +12,7 @@ import { type LocalisedReference, localiseReference } from '@dpuse/dpuse-shared/
 // ── Local Framework
 import { appearanceIsDark } from '@/state/appLayout';
 import type { DataSource } from '@/composables/useDataWindow';
-import { reportAppError } from '@/observability/errorTracking';
+import { hasReportedAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import { useConfigsReady } from '@/services/useConfigsReady';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
@@ -86,7 +86,7 @@ async function handleSelectPresentation(presentationReference: LocalisedReferenc
         await presenter.render(activePresentationReference.value, container.value);
     } catch (error) {
         const data = { presentationReferenceId: activePresentationReference.value.id };
-        renderFailure.value = raiseFailure(new AppError('Failed to render presentation.', 'dpuse.presentationsLayout.handleSelectPresentation', data, { cause: error }));
+        renderFailure.value = raiseFailure(new AppError('Failed to render presentation.', 'dpuse-app.PresentationsLayout.handleSelectPresentation', data, { cause: error }));
     }
 }
 
@@ -116,7 +116,7 @@ async function loadPresenters(): Promise<void> {
         } catch (error) {
             failedPresenterIds.push(presenterConfig.id);
             const data = { presenterConfigId: presenterConfig.id };
-            void reportAppError(new AppError('Failed to load presenter.', 'dpuse.presentationsLayout.loadPresenters', data, { cause: error }));
+            void hasReportedAppError(new AppError('Failed to load presenter.', 'dpuse-app.PresentationsLayout.loadPresenters', data, { cause: error }));
         }
     }
 
@@ -132,7 +132,7 @@ async function loadPresenters(): Promise<void> {
     raiseAppFailure(
         new AppError(
             `Failed to load ${String(failedPresenterIds.length)} of ${String(presenterConfigs.value.length)} presenters.`,
-            'dpuse.presentationsLayout.loadPresenters',
+            'dpuse-app.PresentationsLayout.loadPresenters',
             data
         ),
         { retry: () => void loadPresenters() }

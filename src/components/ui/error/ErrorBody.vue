@@ -102,11 +102,9 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
             <!-- 'overflow-wrap: anywhere' because a trace carries chunk URLs, which have no spaces to break at and
                  would otherwise push the body wider than the region holding it. -->
             <details v-if="entry.trace.length > 0" class="group my-3 text-left">
-                <!-- No focus box of any kind: a summary is focusable, so browsers draw their own, and inside a
-                     warning-coloured panel any box reads as a stray control. The chevron already turns to show the
-                     open state, which is the feedback that matters here. -->
+                <!-- Focus ring for keyboard users only. The dialog takes focus itself on open, so this shows only after Tab. -->
                 <summary
-                    class="flex w-fit cursor-pointer list-none items-center gap-1 text-sm font-semibold text-warning-text/80 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring [&::-webkit-details-marker]:hidden"
+                    class="flex w-fit cursor-pointer list-none items-center gap-1 rounded-md text-sm font-semibold text-warning-text/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring [&::-webkit-details-marker]:hidden"
                 >
                     {{ t(TEXT, 'trace.label') }}:
                     <ChevronDownIcon class="size-4 transition-transform group-open:rotate-180" />
@@ -116,9 +114,9 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
                      were already 'li' elements but sat unmarked, reading as wrapped prose rather than as a chain of
                      causes. -->
                 <ul class="list-disc pl-4! marker:text-warning-text/50">
-                    <li v-for="(serialisedError, index) in entry.trace" :key="index" class="text-sm leading-snug! wrap-anywhere text-warning-text/70">
+                    <li v-for="(serialisedError, index) in entry.trace" :key="index" class="text-sm leading-snug! wrap-anywhere text-warning-text/85">
                         {{ serialisedError.message }}
-                        <span class="text-warning-text/50">({{ serialisedError.name }})</span>
+                        <span class="text-warning-text/65">({{ serialisedError.name }}){{ serialisedError.locator ? ` [${serialisedError.locator}]` : '' }}</span>
                     </li>
                 </ul>
             </details>

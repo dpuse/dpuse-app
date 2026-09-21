@@ -1,11 +1,11 @@
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
+import { hasReportedAppError } from '@/observability/errorTracking';
 import { mount } from '@vue/test-utils';
-import { reportAppError } from '@/observability/errorTracking';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { appFailures, clearAppFailures } from '@/state/errors';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, nextTick } from 'vue';
 
-vi.mock('@/observability/errorTracking', () => ({ reportAppError: vi.fn(() => Promise.resolve(true)) }));
+vi.mock('@/observability/errorTracking', () => ({ hasReportedAppError: vi.fn(() => Promise.resolve(true)) }));
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -34,7 +34,7 @@ async function mountBoundary(component: ReturnType<typeof defineComponent>): Pro
 describe('ErrorBoundary', () => {
     beforeEach(() => {
         clearAppFailures();
-        vi.mocked(reportAppError).mockClear();
+        vi.mocked(hasReportedAppError).mockClear();
     });
 
     it('displays and reports an error thrown by its slot, in place of the slot', async () => {
@@ -43,7 +43,7 @@ describe('ErrorBoundary', () => {
 
         expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(true);
         expect(wrapper.find('[data-region="TestChild"]').exists()).toBe(false);
-        expect(reportAppError).toHaveBeenCalledOnce();
+        expect(hasReportedAppError).toHaveBeenCalledOnce();
         expect(appFailures.value).toStrictEqual([]); // Contained here, so the app-level strip stays out of it.
     });
 

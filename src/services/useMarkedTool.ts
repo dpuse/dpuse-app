@@ -65,7 +65,7 @@ function initialise(): Promise<MarkedTool | undefined> {
             await useConfigsReady();
             markedTool.value = await loadTool<MarkedTool>(toolConfigs.value, 'marked-markdown-parser');
         } catch (error) {
-            failure.value = raiseFailure(new AppError('Failed to load markdown formatter.', 'dpuse.useMarkedTool.initialise', { typeId: 'handled' }, { cause: error }));
+            failure.value = raiseFailure(new AppError('Failed to load markdown formatter.', 'dpuse-app.useMarkedTool.initialise', { typeId: 'handled' }, { cause: error }));
             loadPromise.value = undefined;
         }
         return markedTool.value;

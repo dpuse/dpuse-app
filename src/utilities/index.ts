@@ -13,8 +13,8 @@ import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 import { throwOnFault, throwOnStaleFault } from '@/observability/faultInjection';
 
 // ── Static Components
-import LoadFailureNotice from '@/components/ui/error/LoadFailureNotice.vue';
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
+import LoadFailureNotice from '@/components/ui/error/LoadFailureNotice.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

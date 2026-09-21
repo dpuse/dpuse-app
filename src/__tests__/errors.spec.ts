@@ -1,9 +1,9 @@
 import { AppError } from '@dpuse/dpuse-shared/errors';
-import { reportAppError } from '@/observability/errorTracking';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { hasReportedAppError } from '@/observability/errorTracking';
 import { appFailures, clearAppFailures, isStaleDeployError, markStaleDeployError, raiseAppFailure, raiseFailure, reportStaleDeployFailure, retryAppFailures } from '@/state/errors';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/observability/errorTracking', () => ({ reportAppError: vi.fn(() => Promise.resolve(true)) }));
+vi.mock('@/observability/errorTracking', () => ({ hasReportedAppError: vi.fn(() => Promise.resolve(true)) }));
 
 // Recognising a stale deployment is Vite's 'vite:preloadError' saying so, and nothing read from the error itself: its
 // wording is not something browsers promise, and the imports that event does not cover cannot go stale at all.
@@ -31,7 +31,7 @@ describe('isStaleDeployError', () => {
 describe('raiseFailure', () => {
     beforeEach(() => {
         clearAppFailures();
-        vi.mocked(reportAppError).mockClear();
+        vi.mocked(hasReportedAppError).mockClear();
     });
 
     it('reports the error and records that the report was delivered', async () => {
@@ -43,11 +43,11 @@ describe('raiseFailure', () => {
         await vi.waitFor(() => {
             expect(failure.wasReported.value).toBe(true);
         });
-        expect(reportAppError).toHaveBeenCalledWith(error);
+        expect(hasReportedAppError).toHaveBeenCalledWith(error);
     });
 
     it('records a failed delivery rather than claiming the error was logged', async () => {
-        vi.mocked(reportAppError).mockResolvedValueOnce(false);
+        vi.mocked(hasReportedAppError).mockResolvedValueOnce(false);
         const failure = raiseFailure(new AppError('Failed to render.', 'test'));
 
         await vi.waitFor(() => {
@@ -65,7 +65,7 @@ describe('raiseFailure', () => {
         await vi.waitFor(() => {
             expect(first.wasReported.value).toBe(true);
         });
-        expect(reportAppError).toHaveBeenCalledExactlyOnceWith(serviceError);
+        expect(hasReportedAppError).toHaveBeenCalledExactlyOnceWith(serviceError);
         expect(second.wasReported.value).toBe(true); // Delivered by the first report, so the display does not say otherwise.
     });
 
@@ -94,7 +94,7 @@ describe('raiseFailure', () => {
 describe('raiseAppFailure', () => {
     beforeEach(() => {
         clearAppFailures();
-        vi.mocked(reportAppError).mockClear();
+        vi.mocked(hasReportedAppError).mockClear();
     });
 
     it('shows a failure that has no region of its own', () => {
@@ -155,10 +155,10 @@ describe('reportStaleDeployFailure', () => {
         // Order-independent: the module-level guard may already be set by an earlier case, so this compares the
         // second call against the first rather than assuming a clean slate.
         reportStaleDeployFailure(new AppError('Failed to load part of the app.', 'test'));
-        vi.mocked(reportAppError).mockClear();
+        vi.mocked(hasReportedAppError).mockClear();
         reportStaleDeployFailure(new AppError('Failed to load another part of the app.', 'test'));
 
-        expect(reportAppError).not.toHaveBeenCalled();
+        expect(hasReportedAppError).not.toHaveBeenCalled();
     });
 
     it('shows nothing: a preload nobody asked for has cost the user no capability yet', () => {

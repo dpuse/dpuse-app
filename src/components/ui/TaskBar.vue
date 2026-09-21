@@ -3,7 +3,10 @@
 import type { RouteLocationRaw } from 'vue-router';
 
 // ── DPUse Framework
-import type { LocaleDescription, LocaleLabel, LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import { DEFAULT_LOCALE_ID, type LocaleDescription, type LocaleLabel, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+
+// ── Local Framework
+import { localeId } from '@/state/locale';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -11,19 +14,28 @@ import ScrollRow from '@/components/ui/scroll/ScrollRow.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// The label is also given split over two lines for a narrow bar. Each language sets its own split, because word order
+// differs between languages and the words cannot be joined or divided in code.
 export interface TaskConfig {
     id: string;
     label: LocaleLabel;
+    labelLine1: LocaleLabel;
+    labelLine2: LocaleLabel;
     description: LocaleDescription;
     disabled: boolean;
     enableUpTo: number;
     number: number;
-    verb?: LocaleLabel;
 }
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { activeId, items = [] } = defineProps<{ activeId?: string; items?: (LocalisedConfig<TaskConfig> & { to?: RouteLocationRaw })[] }>();
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function localiseLine(line: LocaleLabel): string {
+    return line[localeId.value] ?? line[DEFAULT_LOCALE_ID] ?? '';
+}
 </script>
 
 <template>
@@ -52,12 +64,13 @@ const { activeId, items = [] } = defineProps<{ activeId?: string; items?: (Local
                 </div>
             </div>
 
-            <!-- Verb and label share a line once the bar itself is wide enough, which is not the same question
-                 as the viewport being wide: the bar sits in an app pane the splitter resizes. -->
-            <div class="flex flex-col pr-2 leading-none @min-[40rem]:flex-row @min-[40rem]:gap-x-1">
-                <span>{{ item.verb }}</span>
-                <span>{{ item.label }}</span>
-            </div>
+            <!-- One line once the bar itself is wide enough, which is not the same as the viewport being wide: the bar
+                 sits in an app pane the splitter resizes. Only one version is displayed, so screen readers read one. -->
+            <span class="hidden pr-2 leading-none @min-[40rem]:inline">{{ item.label }}</span>
+            <span class="flex flex-col pr-2 leading-none @min-[40rem]:hidden">
+                <span>{{ localiseLine(item.labelLine1) }}</span>
+                <span>{{ localiseLine(item.labelLine2) }}</span>
+            </span>
         </component>
     </ScrollRow>
 </template>

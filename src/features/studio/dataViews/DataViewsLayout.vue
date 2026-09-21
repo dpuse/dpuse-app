@@ -8,6 +8,7 @@ import { localiseConfig, localiseConfigs, type LocalisedConfig } from '@dpuse/dp
 
 // ── Local Framework
 import { navigationPendingDepth } from '@/router';
+import { TEXT } from './DataViewsLayout_.json';
 import { accountConfigsAreRetrieved, configRetrievalSucceeded } from '@/state/session';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs } from '@/state/dataViews';
 import { localeId, t } from '@/state/locale';
@@ -20,16 +21,38 @@ import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const TEXT = {
-    'establishDataViews.title': { en: 'Establish Data Views', es: 'Establecer Vistas de Datos' },
-    'studio.label': { en: 'Studio', es: 'Estudio' }
-};
-
 const TASK_CONFIGS: TaskConfig[] = [
-    { id: 'connections', number: 1, label: { en: 'Connection' }, description: {}, disabled: true, enableUpTo: 1, verb: { en: 'Select' } },
-    { id: 'items', number: 2, label: { en: 'Item' }, description: {}, disabled: true, enableUpTo: 2, verb: { en: 'Select' } },
-    { id: 'content', number: 3, label: { en: 'Content' }, description: {}, disabled: true, enableUpTo: 3, verb: { en: 'Audit' } },
-    { id: 'data', number: 4, label: { en: 'Data' }, description: {}, disabled: true, enableUpTo: 4, verb: { en: 'Explore' } }
+    {
+        id: 'connections',
+        number: 1,
+        label: TEXT['connections.label'],
+        labelLine1: TEXT['connections.line1.label'],
+        labelLine2: TEXT['connections.line2.label'],
+        description: {},
+        disabled: true,
+        enableUpTo: 1
+    },
+    {
+        id: 'items',
+        number: 2,
+        label: TEXT['items.label'],
+        labelLine1: TEXT['items.line1.label'],
+        labelLine2: TEXT['items.line2.label'],
+        description: {},
+        disabled: true,
+        enableUpTo: 2
+    },
+    {
+        id: 'content',
+        number: 3,
+        label: TEXT['content.label'],
+        labelLine1: TEXT['content.line1.label'],
+        labelLine2: TEXT['content.line2.label'],
+        description: {},
+        disabled: true,
+        enableUpTo: 3
+    },
+    { id: 'data', number: 4, label: TEXT['data.label'], labelLine1: TEXT['data.line1.label'], labelLine2: TEXT['data.line2.label'], description: {}, disabled: true, enableUpTo: 4 }
 ];
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────

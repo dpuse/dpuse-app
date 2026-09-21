@@ -5,7 +5,7 @@ import { type Ref, ref, shallowRef } from 'vue';
 import { type AppError, serialiseError } from '@dpuse/dpuse-shared/errors';
 
 // ── Local Framework
-import { reportAppError } from '@/observability/errorTracking';
+import { hasReportedAppError } from '@/observability/errorTracking';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -157,7 +157,7 @@ export function raiseFailure(error: AppError, options: AppFailureOptions = {}): 
 export function reportStaleDeployFailure(error: AppError): void {
     if (state.staleDeployWasReported) return;
     state.staleDeployWasReported = true;
-    void reportAppError(error);
+    void hasReportedAppError(error);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -182,7 +182,7 @@ async function deliverReport(failure: AppFailure): Promise<void> {
     }
     for (const error of causeChain) reportedErrors.add(error);
 
-    failure.wasReported.value = await reportAppError(failure.error);
+    failure.wasReported.value = await hasReportedAppError(failure.error);
 }
 
 // Outermost first, stopping on a cycle the way 'serialiseError' does. Walks the real error objects rather than the

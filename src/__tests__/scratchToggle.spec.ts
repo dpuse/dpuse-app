@@ -1,7 +1,7 @@
 import App from '../App.vue';
 import { createAppRouter } from '@/router';
-import { flushPromises, mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
+import { flushPromises, mount } from '@vue/test-utils';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

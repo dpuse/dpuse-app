@@ -12,8 +12,8 @@ import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/prese
 import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 
 // ── Local Framework
-import { raiseFailure } from '@/state/errors';
 import { hasFault } from '@/observability/faultInjection';
+import { raiseFailure } from '@/state/errors';
 import { useMonitorSocket } from '@/observability/monitorSocket';
 import {
     configRetrievalFailed,

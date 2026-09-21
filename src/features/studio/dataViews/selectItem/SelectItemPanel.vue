@@ -117,7 +117,7 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
                 // Settled with an empty page as well as raised: the window is waiting on this promise, and a rejection
                 // would leave it loading behind the failure it is being told about.
                 const data = { folderPath, typeId: 'handled' };
-                engineFailure.value = raiseFailure(new AppError('Failed to list the items in this connection.', 'dpuse-app.selectItemPanel.listNodes', data, { cause: error }));
+                engineFailure.value = raiseFailure(new AppError('Failed to list the items in this connection.', 'dpuse-app.SelectItemPanel.getRows', data, { cause: error }));
                 return { rows: [], totalCount: 0 };
             }
         }
@@ -174,7 +174,7 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
     } catch (error) {
         if (currentRequestId !== previewRequestId.value) return; // A newer selection owns the panel now.
         const data = { typeId: 'handled' };
-        engineFailure.value = raiseFailure(new AppError('Failed to preview this item.', 'dpuse-app.selectItemPanel.previewObject', data, { cause: error }));
+        engineFailure.value = raiseFailure(new AppError('Failed to preview this item.', 'dpuse-app.SelectItemPanel', data, { cause: error }));
     }
 });
 
@@ -308,7 +308,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         console.log(infoWithoutChildren);
     } catch (error) {
         const data = { typeId: 'handled' };
-        engineFailure.value = raiseFailure(new AppError('Failed to read this item.', 'dpuse-app.selectItemPanel.getInfo', data, { cause: error }));
+        engineFailure.value = raiseFailure(new AppError('Failed to read this item.', 'dpuse-app.SelectItemPanel.getInfo', data, { cause: error }));
     }
 }
 </script>

@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest';
-import { ref } from 'vue';
 import { useSplitPanes } from '@/composables/useSplitPanes';
+import { describe, expect, it } from 'vitest';
+import { type Ref, ref } from 'vue';
 
 // The assistant's inner split runs this model, and a pane that is open but never in front is invisible on a narrow
 // container — so 'active' and 'visible' have to stay distinct, and the front pane has to follow every change.
-function build(isWide: boolean) {
+function build(isWide: boolean): { containerIsWide: Ref<boolean>; panes: ReturnType<typeof useSplitPanes<'chat' | 'library'>> } {
     const containerIsWide = ref(isWide);
     return { containerIsWide, panes: useSplitPanes(['chat', 'library'] as const, { containerIsWide, initialPaneId: 'chat' }) };
 }

@@ -1,15 +1,15 @@
 import { AppError } from '@dpuse/dpuse-shared/errors';
+import { defineAsyncPanel } from '@/utilities/index.ts';
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
-import { createMemoryHistory, createRouter } from 'vue-router';
-import { defineAsyncPanel } from '@/utilities/index.ts';
-import { flushPromises, mount } from '@vue/test-utils';
-import { reportAppError } from '@/observability/errorTracking';
+import { hasReportedAppError } from '@/observability/errorTracking';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { clearAppFailures, isComponentLoaderErrorInfo, raiseAppFailure } from '@/state/errors';
+import { createMemoryHistory, createRouter } from 'vue-router';
 import { defineComponent, h, nextTick } from 'vue';
+import { flushPromises, mount } from '@vue/test-utils';
 
-vi.mock('@/observability/errorTracking', () => ({ reportAppError: vi.fn(() => Promise.resolve(true)) }));
+vi.mock('@/observability/errorTracking', () => ({ hasReportedAppError: vi.fn(() => Promise.resolve(true)) }));
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -35,7 +35,7 @@ function buildPanel(name: string): ReturnType<typeof defineAsyncPanel> {
 }
 
 function reportedMessages(): string[] {
-    return vi.mocked(reportAppError).mock.calls.map((call) => call[0].message);
+    return vi.mocked(hasReportedAppError).mock.calls.map((call) => call[0].message);
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -43,7 +43,7 @@ function reportedMessages(): string[] {
 describe('error reporting hierarchy', () => {
     beforeEach(() => {
         clearAppFailures();
-        vi.mocked(reportAppError).mockClear();
+        vi.mocked(hasReportedAppError).mockClear();
     });
 
     it('recognises the info Vue sends for a lazy component load failure, in both its wordings', () => {

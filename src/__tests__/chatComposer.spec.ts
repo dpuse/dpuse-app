@@ -1,11 +1,12 @@
+import type { AssistantChatMessage } from '@/features/assistant/chat/assistantChat';
 import { defineComponent, nextTick, ref } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
-import type { AssistantChatMessage } from '@/features/assistant/chat/assistantChat';
 
 // The panel reads its session from the composable, so the spec drives that directly rather than standing up a fake
 // component: the refs below are the session, and the tests move them the way a real run would.
 vi.mock('@/services/useChatSession', async (importOriginal) => {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
     const actual = await importOriginal<typeof import('@/services/useChatSession')>();
     const { ref } = await import('vue');
     const session = {
@@ -19,7 +20,7 @@ vi.mock('@/services/useChatSession', async (importOriginal) => {
         stop: vi.fn()
     };
     // The run-state helper is real; only the session itself is stood in for.
-    return { ...actual, useChatSession: () => session, sessionForTest: session };
+    return { ...actual, useChatSession: (): typeof session => session, sessionForTest: session };
 });
 
 vi.mock('@/services/useMarkedTool', async () => {
@@ -27,7 +28,13 @@ vi.mock('@/services/useMarkedTool', async () => {
     // Real refs: a plain object is truthy in the template, which puts the panel into its load-failure branch.
     const markedTool = ref(undefined);
     const failure = ref(undefined);
-    return { useMarkedTool: () => ({ markedTool, failure, initialise: () => Promise.resolve(undefined) }) };
+    return {
+        useMarkedTool: (): { markedTool: typeof markedTool; failure: typeof failure; initialise: () => Promise<undefined> } => ({
+            markedTool,
+            failure,
+            initialise: (): Promise<undefined> => Promise.resolve(undefined)
+        })
+    };
 });
 
 interface SessionForTest {

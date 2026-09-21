@@ -3,164 +3,119 @@ import { type AppError, type SerialisedError, serialiseError } from '@dpuse/dpus
 
 // ── Local Framework
 import { hasFault } from '@/observability/faultInjection';
+import { t } from '@/state/locale';
+import { TEXT } from './errorTracking_.json';
 import { trackEventImmediately } from '@/observability/eventTracking';
-
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// Token fallbacks for the fatal error banner. The banner has to render when the application failed to bootstrap, which
-// includes the case where 'main.css' never loaded and no design token resolves — so every token below is read with a
-// literal fallback rather than trusted. Values mirror 'main.css'; keep them in step with it.
-const FATAL_BANNER_COLORS = {
-    dark: { buttonBackground: 'rgb(212 212 216 / 20%)', buttonText: '#d4d4d8', danger: 'rgb(248 113 113 / 10%)', dangerRing: '#f87171', dangerText: '#f87171', surface: '#09090b' },
-    light: { buttonBackground: '#f4f4f5', buttonText: '#3f3f46', danger: '#fef2f2', dangerRing: '#dc2626', dangerText: '#b91c1c', surface: '#ffffff' }
-};
-const FATAL_BANNER_FONT_FAMILY = "'Inter Variable', system-ui, -apple-system, sans-serif";
-
-// Lucide's 'triangle-alert', inlined so the banner needs no icon component.
-const FATAL_BANNER_ICON_ATTRIBUTES = { fill: 'none', stroke: 'currentColor', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '1.5', viewBox: '0 0 24 24' };
-const FATAL_BANNER_ICON_PATHS = ['m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3', 'M12 9v4', 'M12 17h.01'];
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Logs the error to the console and reports it to the DPUse API. Returns false if the report fails, so the error
+// message can say so.
+export async function hasReportedAppError(error: AppError): Promise<boolean> {
+    const serialisedErrors = serialiseError(error);
+    logErrorToConsole(serialisedErrors);
+    if (import.meta.env.DEV && hasFault('report-failure')) return false; // Fakes a failed report; combine with another fault, e.g. '?fault=panel,report-failure'.
+    return trackEventImmediately('error', { errors: serialisedErrors });
+}
+
+// Logs the error to the console only. It is not reported to the DPUse API.
 export function logError(error: unknown): void {
     const serialisedError = serialiseError(error);
     logErrorToConsole(serialisedError);
 }
 
-// The browser is too old to run the app at all, so the banner names what it needs instead of what went wrong. Nothing
-// is reported: there is no fault here, and the reporting path itself may depend on what this browser lacks.
-export function reportUnsupportedBrowser(): void {
-    displayFatalErrorBanner(`This browser is too old to run DPUse. It needs ${__SUPPORTED_BROWSERS_TEXT__} or later.`);
-}
-
+// Replaces the page with a message when the app fails to start, and logs the error to the console. It is not reported
+// to the DPUse API.
 export function reportFatalError(error: unknown): void {
-    displayFatalErrorBanner(`Application failed to load: ${error instanceof Error ? error.message : String(error)}`);
+    displayFatalErrorMessage(
+        [t(TEXT, 'loadFailed.text', { message: error instanceof Error ? error.message : String(error) }), t(TEXT, 'loadFailed.causes.text'), t(TEXT, 'loadFailed.actions.text')],
+        true
+    );
     logErrorToConsole(serialiseError(error));
 }
 
-// eslint-disable-next-line unicorn/consistent-boolean-name -- 'reportAppError' logs and delivers; the boolean is a secondary delivery-confirmation result, not this function's core purpose.
-export async function reportAppError(error: AppError): Promise<boolean> {
-    const serialisedErrors = serialiseError(error);
-    logErrorToConsole(serialisedErrors);
-    // Combine with any other fault to see how a display words an undelivered report.
-    if (import.meta.env.DEV && hasFault('report')) return false;
-    return trackEventImmediately('error', { errors: serialisedErrors });
-}
-
-// ── Helpers - Fatal Error Banner ─────────────────────────────────────────────────────────────────────────────────────
-
-// Deliberately raw DOM rather than a component: this runs because the application failed to bootstrap, so Vue may
-// never have mounted. It mirrors 'ServiceFailureBanner.vue' — a tab hanging from the top edge — but cannot share code
-// with it for the same reason. Styles are applied through CSSOM ('element.style') rather than an injected '<style>'
-// element or a 'style' attribute, both of which the production CSP blocks without a hash.
-function displayFatalErrorBanner(message: string): void {
-    // Set by an inline script in 'index.html' before this module runs, so it is readable even if nothing else loaded.
-    const colors = document.documentElement.classList.contains('dark') ? FATAL_BANNER_COLORS.dark : FATAL_BANNER_COLORS.light;
-
-    // Spans the viewport only to centre the tab, so it lets pointer events through to whatever did manage to render.
-    const row = document.createElement('div');
-    Object.assign(row.style, {
-        display: 'flex',
-        justifyContent: 'center',
-        left: '0',
-        paddingLeft: '1rem',
-        paddingRight: '1rem',
-        pointerEvents: 'none',
-        position: 'fixed',
-        right: '0',
-        top: 'env(safe-area-inset-top)',
-        zIndex: '9999'
-    });
-
-    const tint = `var(--danger, ${colors.danger})`;
-    const tab = document.createElement('div');
-    Object.assign(tab.style, {
-        alignItems: 'center',
-        // The tint is translucent in dark mode, so it is painted over an opaque surface rather than set as the
-        // background colour — otherwise the page behind it bleeds through. Same approach as 'ServiceFailureBanner'.
-        backgroundColor: `var(--surface, ${colors.surface})`,
-        backgroundImage: `linear-gradient(${tint}, ${tint})`,
-        // Longhands rather than 'border' plus a 'borderTop' reset: these are applied in key order, so any shorthand
-        // listed alphabetically after the reset would silently put the top edge back and close the tab off.
-        borderBottomLeftRadius: '0.75rem',
-        borderBottomRightRadius: '0.75rem',
-        borderBottomStyle: 'solid',
-        borderBottomWidth: '1px',
-        borderColor: `color-mix(in oklab, var(--danger-ring, ${colors.dangerRing}) 40%, transparent)`,
-        borderLeftStyle: 'solid',
-        borderLeftWidth: '1px',
-        borderRightStyle: 'solid',
-        borderRightWidth: '1px',
-        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-        color: `var(--danger-text, ${colors.dangerText})`,
-        display: 'flex',
-        fontFamily: FATAL_BANNER_FONT_FAMILY,
-        fontSize: '15px',
-        gap: '0.75rem',
-        maxWidth: '42rem',
-        padding: '0.5rem 1rem',
-        pointerEvents: 'auto'
-    });
-
-    const text = document.createElement('span');
-    text.style.minWidth = '0';
-    text.textContent = message;
-
-    tab.append(buildFatalErrorBannerIcon(), text, buildFatalErrorBannerRefreshButton(colors));
-    row.append(tab);
-    document.body.append(row);
-}
-
-// Built element by element rather than assigned as markup, so it works with no Trusted Types policy in place — the
-// policy is installed during the bootstrap this banner exists to report the failure of.
-function buildFatalErrorBannerIcon(): SVGSVGElement {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    for (const [name, value] of Object.entries(FATAL_BANNER_ICON_ATTRIBUTES)) svg.setAttribute(name, value);
-    Object.assign(svg.style, { flexShrink: '0', height: '2rem', width: '2rem' }); // Matches 'size-8' on the icon in 'ServiceFailureBanner.vue'.
-
-    for (const pathData of FATAL_BANNER_ICON_PATHS) {
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', pathData);
-        svg.append(path);
-    }
-    return svg;
-}
-
-function buildFatalErrorBannerRefreshButton(colors: (typeof FATAL_BANNER_COLORS)['light']): HTMLButtonElement {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = 'Refresh';
-    Object.assign(button.style, {
-        backgroundColor: colors.buttonBackground,
-        border: 'none',
-        borderRadius: '0.375rem',
-        color: colors.buttonText,
-        cursor: 'pointer',
-        flexShrink: '0',
-        fontFamily: FATAL_BANNER_FONT_FAMILY,
-        fontSize: '15px',
-        lineHeight: '1.5rem',
-        padding: '0.375rem 0.75rem'
-    });
-    button.addEventListener('click', () => {
-        location.reload();
-    });
-    return button;
+// Replaces the page with a message saying the browser is too old and which versions DPUse needs. Nothing is logged to
+// the console or reported to the DPUse API, as there is no fault to fix and reporting may need features this browser
+// lacks.
+export function reportUnsupportedBrowser(): void {
+    displayFatalErrorMessage(
+        [t(TEXT, 'browserUnsupported.text', { browsers: __SUPPORTED_BROWSERS_TEXT__ }), t(TEXT, 'browserUnsupported.reason.text'), t(TEXT, 'browserUnsupported.action.text')],
+        false
+    );
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Covers the page with a centred message and an optional reload button. Built with plain DOM and system colours, as
+// Vue and 'main.css' may not have loaded.
+function displayFatalErrorMessage(paragraphs: string[], hasReloadButton: boolean): void {
+    const overlay = document.createElement('div');
+    Object.assign(overlay.style, {
+        alignItems: 'center',
+        backgroundColor: 'Canvas',
+        bottom: '0',
+        color: 'CanvasText',
+        colorScheme: 'light dark',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: 'system-ui, sans-serif',
+        justifyContent: 'center',
+        left: '0',
+        padding: '1rem',
+        position: 'fixed',
+        right: '0',
+        textAlign: 'center',
+        top: '0',
+        zIndex: '9999'
+    });
+
+    // The first paragraph states the error and stands out; the rest explain it.
+    for (const [index, paragraph] of paragraphs.entries()) {
+        const text = document.createElement('p');
+        Object.assign(text.style, { margin: '0 0 0.75rem', maxWidth: '36rem' }, index === 0 ? { fontWeight: '600' } : { opacity: '0.75' });
+        text.textContent = paragraph;
+        overlay.append(text);
+    }
+
+    // Shown only where reloading might help. It cannot fix an unsupported browser.
+    if (hasReloadButton) {
+        const button = document.createElement('button');
+        // Styled as a bold link. Every style is set here, so it looks the same with or without 'main.css'.
+        Object.assign(button.style, {
+            background: 'none',
+            border: 'none',
+            color: 'inherit',
+            cursor: 'pointer',
+            font: 'inherit',
+            fontWeight: '600',
+            marginTop: '0.5rem',
+            padding: '0',
+            textDecoration: 'underline'
+        });
+        button.textContent = t(TEXT, 'reload.label');
+        button.type = 'button';
+        button.addEventListener('click', () => {
+            location.reload();
+        });
+        overlay.append(button);
+    }
+
+    document.body.append(overlay);
+}
+
+// Logs the error to the console, followed by each error that caused it.
 function logErrorToConsole(serialisedErrors: SerialisedError[]): void {
     console.error('[dpuse:app] ❌', formatTrace(serialisedErrors));
 }
 
+// Turns the errors into one block of text that is easy to read in the console.
 function formatTrace(serialisedErrors: SerialisedError[]): string {
     let message = '';
     let prefix = '';
     for (const serialisedError of serialisedErrors) {
         const responseValue = serialisedError.data == null ? `\n    {} --` : `\n    {} ${JSON.stringify(serialisedError.data)}`;
         const locator = serialisedError.locator ? `\n    in ${serialisedError.locator}` : `\n    in --`;
-        const stackOnly = serialisedError.stack?.replace(/^.*\n/, '') ?? '';
+        const stackOnly = serialisedError.stack?.replace(/^.*\n/, '') ?? ''; // Drops the first line, which repeats the message in Chromium.
         message += `${prefix}${serialisedError.name || 'Error'}: ${serialisedError.message}${responseValue}${locator}\n${stackOnly}`;
         prefix = `\nCaused by: `;
     }

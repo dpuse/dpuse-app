@@ -55,7 +55,7 @@
                         <mxPoint x="125" y="320" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="22" value="&lt;b&gt;observability&lt;/b&gt;&lt;div&gt;errorTracking.ts&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;reportAppError&lt;/span&gt;&lt;/div&gt;&lt;div&gt;reportFatalError&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
+                <mxCell id="22" value="&lt;b&gt;observability&lt;/b&gt;&lt;div&gt;errorTracking.ts&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;hasReportedAppError&lt;/span&gt;&lt;/div&gt;&lt;div&gt;reportFatalError&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
                     <mxGeometry x="250" y="180" width="150" height="90" as="geometry"/>
                 </mxCell>
                 <mxCell id="23" value="" style="endArrow=classic;startArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;startFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="7" target="22" edge="1">

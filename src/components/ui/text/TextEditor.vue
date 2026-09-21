@@ -14,8 +14,8 @@ import { AppError } from '@dpuse/dpuse-shared/errors';
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
-import { type AppFailure, raiseFailure } from '@/state/errors';
 import { useMarkedTool } from '@/services/useMarkedTool';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
@@ -178,7 +178,7 @@ async function initialiseEditor(): Promise<void> {
         const tool = await initialiseMarkedTool();
         if (tool) editorInstance.setHTML(tool.render(textValue.value));
     } catch (error) {
-        editorFailure.value = raiseFailure(new AppError('Failed to initialise text editor.', 'dpuse.textEditor.initialiseEditor', { typeId: 'handled' }, { cause: error }));
+        editorFailure.value = raiseFailure(new AppError('Failed to initialise text editor.', 'dpuse-app.TextEditor.initialiseEditor', { typeId: 'handled' }, { cause: error }));
     }
 }
 

@@ -23,9 +23,10 @@ import App from '@/App.vue';
 // Tor Browser and privacy-hardened Firefox report an older version than they really are, so a browser that fails the
 // version test gets a second chance: Trusted Types is the one thing the app cannot start without. That lets Chrome 83
 // to 122 in as well, which costs only 'field-sizing' — the text box stops growing as it is typed into.
-if (__SUPPORTED_BROWSER_REGEXP__.test(navigator.userAgent) || 'trustedTypes' in globalThis) {
+// '?fault=browser' fails the check, so the unsupported browser message can be seen in any browser.
+if (!(import.meta.env.DEV && hasFault('browser')) && (__SUPPORTED_BROWSER_REGEXP__.test(navigator.userAgent) || 'trustedTypes' in globalThis)) {
     try {
-        if (import.meta.env.DEV) throwOnFault('bootstrap'); // Thrown before mount, so the plain DOM fallback banner shows.
+        if (import.meta.env.DEV) throwOnFault('bootstrap'); // Thrown before mount, so the plain DOM fallback message shows.
 
         // Errors thrown outside Vue (timers, DOM listeners, worker messages) are shown as well as reported, because no
         // region exists that could catch them.
@@ -40,12 +41,12 @@ if (__SUPPORTED_BROWSER_REGEXP__.test(navigator.userAgent) || 'trustedTypes' in 
             // Position is kept because an error without a stack has nothing else to locate it.
             const data = { colno: event.colno, filename: event.filename, lineno: event.lineno, originalMessage: event.message, typeId: 'unhandledRuntime' };
             const cause = event.error instanceof Error ? event.error : new Error(event.message || 'Unknown error.');
-            raiseAppFailure(new AppError('Unhandled error.', 'dpuse.main', data, { cause }));
+            raiseAppFailure(new AppError('Unhandled error.', 'dpuse-app.main', data, { cause }));
         });
         addEventListener('unhandledrejection', (event): void => {
             const data = { typeId: 'unhandledPromiseRejection' };
             const cause = event.reason instanceof Error ? event.reason : new Error(String(event.reason ?? 'Unknown promise rejection error.'));
-            raiseAppFailure(new AppError('Unhandled promise rejection.', 'dpuse.main', data, { cause }));
+            raiseAppFailure(new AppError('Unhandled promise rejection.', 'dpuse-app.main', data, { cause }));
 
             // Stops the browser logging the rejection a second time. Production only, because devtools needs that log to
             // pause on the rejection.
@@ -64,7 +65,7 @@ if (__SUPPORTED_BROWSER_REGEXP__.test(navigator.userAgent) || 'trustedTypes' in 
             markStaleDeployError(event.payload);
 
             const data = { typeId: 'vitePreloadError' };
-            reportStaleDeployFailure(new AppError('Failed to load part of the app.', 'dpuse.main', data, { cause: event.payload }));
+            reportStaleDeployFailure(new AppError('Failed to load part of the app.', 'dpuse-app.main', data, { cause: event.payload }));
         });
 
         if (trustedTypes != null) {
@@ -91,7 +92,7 @@ if (__SUPPORTED_BROWSER_REGEXP__.test(navigator.userAgent) || 'trustedTypes' in 
             // No 'ErrorBoundary' caught the error, so the app-level strip reports it without covering the app.
             const data = { componentName: instance?.$.type.name ?? undefined, info, typeId: 'unhandledVueRuntime' };
             const cause = error instanceof Error ? error : new Error('Unknown Vue runtime error.', { cause: error });
-            raiseAppFailure(new AppError('Unhandled Vue error.', 'dpuse.main', data, { cause }));
+            raiseAppFailure(new AppError('Unhandled Vue error.', 'dpuse-app.main', data, { cause }));
         };
         app.use(createAppRouter());
         app.mount('#app');

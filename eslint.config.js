@@ -71,35 +71,57 @@ const config = defineConfigWithVueTs(
                 'warn',
                 {
                     whitelist: [
+                        'busy-bar-shimmer',
                         'ddp--detail',
                         'ddp-back',
                         'ddp-detail',
                         'ddp-list',
+                        'dialog-modal',
+                        'dialog-modal-content-height',
                         'dpuse-collaborative-editor',
                         'dpuse-horizontal-slide-ltr-element',
                         'dpuse-nav-progress-bar-shimmer',
                         'dpuse-outside-click-ignore',
+                        'dpuse-pending-letter',
                         'dpuse-scroll-area',
+                        'dpuse-scroll-area-h',
                         'dpuse-scroll-area-wrapper',
+                        'dpuse-scroll-area-v',
+                        'dpuse-search-input',
                         'dpuse-scrollbar-thumb',
                         'dpuse-scrollbar-track',
                         'dpuse-scrollbar-track-h',
                         'dpuse-scrollbar-track-v',
                         'dpuse-scrollbar-visible',
+                        'dpuse-table-scroll-h',
+                        'dpuse-table-scroll-v',
                         'dpuse-prose',
                         'dpuse-prose-overline',
                         'dpuse-studio-prose',
                         'pell-editor',
+                        'session-menu',
+                        'error-notice',
+                        'owns-screen',
+                        'is-region',
+                        'covers-region',
+                        'notice-badge',
+                        'notice-badge-body',
+                        'notice-card',
+                        'detail-dialog',
+                        'screen-dialog',
                         String.raw`.*stroke-1\.25` // Valid decimal stroke-width utility; the plugin's static class list doesn't recognise it.
                     ]
                 }
             ],
 
-            'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['__tests__', 'DPUseLogo.vue', 'ContextERDPanel.vue' /*'src/components/icon(?:/.*)?'*/] }],
+            'unicorn/filename-case': [
+                'error',
+                { cases: { camelCase: true, pascalCase: true }, ignore: ['__tests__', 'DPUseLogo.vue', 'ContextERDPanel.vue' /*'src/components/icon(?:/.*)?'*/] }
+            ],
             'unicorn/no-non-function-verb-prefix': 'off',
             'unicorn/prefer-top-level-await': 'warn',
 
-            'vue/multi-word-component-names': ['warn', { ignores: ['Breadcrumbs', 'Button', 'Dialog', 'Grid', 'Input', 'Separator', 'Table', 'Tag'] }],
+            'vue/multi-word-component-names': ['warn', { ignores: ['Breadcrumbs', 'Button', 'Dialog', 'Grid', 'Input', 'Pill', 'Separator', 'Table', 'Tag'] }],
             'vue/no-bare-strings-in-template': 'error',
             'vue/no-v-html': ['error', { ignorePattern: String.raw`^(?:icon|.*\.icon|purified|purify|renderText\()` }],
             'vue/require-default-prop': 'off', // Too much noise for properties with undefined values.
@@ -143,11 +165,10 @@ const config = defineConfigWithVueTs(
         }
     },
 
-    // `StudioPaneSplitter` is an ARIA window splitter: a focusable `separator` carrying pointer and keyboard handlers, which
-    // the rule does not recognise as interactive. Declared here rather than as a template comment above the root
-    // element, which would make the component multi-root and silently break attribute fallthrough.
+    // `PaneSplitter` is an ARIA window splitter: a focusable `separator` carrying pointer and keyboard handlers, which the
+    // rule does not recognise as interactive.
     {
-        files: ['src/features/studio/_components/StudioPaneSplitter.vue'],
+        files: ['src/components/ui/PaneSplitter.vue'],
         rules: {
             'vuejs-accessibility/no-static-element-interactions': 'off'
         }

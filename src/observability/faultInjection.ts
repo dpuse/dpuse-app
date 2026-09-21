@@ -11,13 +11,13 @@ import { markStaleDeployError } from '@/state/errors';
 //   Region        'panel' | 'panel-stale'                     'LoadFailureNotice' → 'ErrorNotice' in the region.
 //   App strip     'route' | 'vue' | the four service faults    Nothing owns these, so 'App.vue' shows them.
 //   Neither       'preload'                                    Reported only — proves nothing appears on screen.
-//   Pre-mount     'bootstrap'                                  The raw DOM banner, before Vue exists.
-//   Modifier      'report'                                     Makes delivery fail, so every body says so.
+//   Pre-mount     'bootstrap' | 'browser'                      The plain DOM message, before Vue exists.
+//   Modifier      'report-failure'                             Makes delivery fail, so every body says so.
 //
 // The four that name a component — the panel and route pairs — accept a target: '?fault=panel:ChatPanel' fails that
 // one and lets everything else load. Without a target they fail every panel or route at once, which cannot reach a
 // panel nested inside another: the outer one fails first and the inner one never loads.
-export type FaultId = 'account' | 'auth' | 'bootstrap' | 'config' | 'config-socket' | 'engine' | 'panel' | 'panel-stale' | 'preload' | 'report' | 'route' | 'route-stale' | 'vue';
+export type FaultId = 'account' | 'auth' | 'bootstrap' | 'browser' | 'config' | 'config-socket' | 'engine' | 'panel' | 'panel-stale' | 'preload' | 'report-failure' | 'route' | 'route-stale' | 'vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -27,8 +27,8 @@ const STALE_DEPLOY_MESSAGE = 'Failed to fetch dynamically imported module: simul
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// True when '?fault=<id>' names this fault. Several may be listed, comma separated, so a modifier such as 'report' can
-// be combined with the failure it modifies.
+// True when '?fault=<id>' names this fault. Several may be listed, comma separated, so a modifier such as
+// 'report-failure' can be combined with the failure it modifies.
 //
 // 'target' is the component the caller is loading, supplied wherever the same fault applies to many call sites. An
 // entry that names no target matches all of them; one that does matches only its own.

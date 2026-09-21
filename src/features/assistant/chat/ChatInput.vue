@@ -20,8 +20,8 @@ import type { AssistantModelConfig } from './modelConfigs';
 
 // ── Static Components
 import AssistantModelMenu from '../_components/AssistantModelMenu.vue';
-import IconButton from '@/components/ui/action/IconButton.vue';
 import ChatMenu from './ChatMenu.vue';
+import IconButton from '@/components/ui/action/IconButton.vue';
 import TextArea from '@/components/ui/text/TextArea.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

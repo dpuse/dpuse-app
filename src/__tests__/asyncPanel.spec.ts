@@ -1,10 +1,10 @@
 import { defineAsyncPanel } from '@/utilities/index.ts';
-import { flushPromises, mount } from '@vue/test-utils';
-import { reportAppError } from '@/observability/errorTracking';
-import { describe, expect, it, vi } from 'vitest';
+import { hasReportedAppError } from '@/observability/errorTracking';
 import { defineComponent, h, nextTick, ref } from 'vue';
+import { describe, expect, it, vi } from 'vitest';
+import { flushPromises, mount } from '@vue/test-utils';
 
-vi.mock('@/observability/errorTracking', () => ({ reportAppError: vi.fn(() => Promise.resolve(true)) }));
+vi.mock('@/observability/errorTracking', () => ({ hasReportedAppError: vi.fn(() => Promise.resolve(true)) }));
 
 async function render(panel: ReturnType<typeof defineAsyncPanel>): Promise<ReturnType<typeof mount>> {
     const wrapper = mount(defineComponent({ render: () => h(panel) }));
@@ -37,12 +37,12 @@ async function settle(): Promise<void> {
 describe('defineAsyncPanel load failure', () => {
     it('fault=panel shows and reports the failure in the panel’s place', async () => {
         history.replaceState({}, '', '/?fault=panel');
-        vi.mocked(reportAppError).mockClear();
+        vi.mocked(hasReportedAppError).mockClear();
         const wrapper = await render(defineAsyncPanel(() => Promise.resolve(defineComponent({ template: '<div />' })), 'FaultPanel'));
 
         expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(true);
         expect(wrapper.text()).toContain('Failed to load the FaultPanel component.');
-        expect(reportAppError).toHaveBeenCalledOnce();
+        expect(hasReportedAppError).toHaveBeenCalledOnce();
     });
 
     it('failureOwnsScreen shows an overlay’s failure as a dismissible modal rather than in its place', async () => {

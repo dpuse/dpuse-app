@@ -81,7 +81,9 @@ watch(
     async () => {
         if (!ownsScreen || failures.length === 0) return;
         await nextTick(); // The element is rendered by the same change that brings the failures, so it exists only after this.
-        if (!screenDialog.value?.open) screenDialog.value?.showModal();
+        if (screenDialog.value?.open === true) return;
+        screenDialog.value?.showModal();
+        screenDialog.value?.focus();
     },
     { immediate: true }
 );
@@ -116,14 +118,15 @@ function handleRequestCloseDetail(): void {
 function handleShowDetail(): void {
     detailIsVisible.value = true;
     detailDialog.value?.showModal();
+    detailDialog.value?.focus();
 }
 </script>
 
 <template>
     <div class="error-notice" :class="[ownsScreen ? 'owns-screen' : 'is-region', { 'covers-region': coversRegion }]" data-region="ErrorNotice">
-        <!-- Both dialogs take focus themselves rather than handing it to their first control, which is the trace toggle:
-             focus moved by script counts as keyboard focus, so the toggle was outlined on every open. 'outline-none'
-             because the dialog is never a tab stop, and the controls inside keep their own outlines. -->
+        <!-- Both dialogs focus themselves on open. Otherwise the browser focuses the first control, the trace toggle,
+             and shows its keyboard focus ring before the user has pressed a key. Chrome ignores 'autofocus' on a
+             dialog, so 'tabindex="-1"' and a 'focus()' call do it instead. Tabbing still shows each control's ring. -->
 
         <!-- The region's presentations, and the dialog the badge opens. A screen-owning failure has no use for any of them: it
              has no region to measure, and shows its body in its own modal below. -->
@@ -144,8 +147,7 @@ function handleShowDetail(): void {
                 <ErrorBody class="mx-auto my-8 w-[calc(100%-2rem)] max-w-sm" :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
             </div>
 
-            <!-- eslint-disable-next-line vuejs-accessibility/no-autofocus -- The rule is about focus jumping on page load; inside a dialog 'autofocus' is how the opening focus is chosen. -->
-            <dialog ref="detailDialogReference" autofocus class="detail-dialog outline-none" @cancel="handleCloseDetail" @close="handleCloseDetail">
+            <dialog ref="detailDialogReference" class="detail-dialog outline-none" tabindex="-1" @cancel="handleCloseDetail" @close="handleCloseDetail">
                 <!-- Closed from the corner rather than by a button under the body, which sat outside the panel and read
                      as belonging to the page behind it. Placed as 'Dialog' places its own, so a dialog opened from
                      here is dismissed the same way as every other one. -->
@@ -159,8 +161,7 @@ function handleShowDetail(): void {
         <!-- Screen - a failure no region owns, so the space it has lost is the screen. Opened by the failure rather
              than by a click, and closed by the corner button: an acknowledgement, not the dead end this app used to
              show, which suppressed every dialog for the rest of the session and had no way out at all. -->
-        <!-- eslint-disable-next-line vuejs-accessibility/no-autofocus -- The rule is about focus jumping on page load; inside a dialog 'autofocus' is how the opening focus is chosen. -->
-        <dialog v-else ref="screenDialogReference" autofocus class="screen-dialog outline-none" @cancel="emit('dismiss')" @close="emit('dismiss')">
+        <dialog v-else ref="screenDialogReference" class="screen-dialog outline-none" tabindex="-1" @cancel="emit('dismiss')" @close="emit('dismiss')">
             <div class="relative">
                 <ErrorBody :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
                 <CloseButton v-if="isDismissible" :aria-label="t(TEXT, 'dismiss.aria')" class="absolute top-2 right-2" @click="screenDialog?.close()" />

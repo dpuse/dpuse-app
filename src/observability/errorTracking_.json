@@ -1,0 +1,29 @@
+{
+    "TEXT": {
+        "browserUnsupported.action.text": {
+            "en": "Update this browser, or open DPUse in a different one.",
+            "es": "Actualiza este navegador o abre DPUse en otro."
+        },
+        "browserUnsupported.reason.text": {
+            "en": "DPUse relies on security protections and features that only recent browser versions provide.",
+            "es": "DPUse depende de protecciones de seguridad y funciones que solo ofrecen las versiones recientes de los navegadores."
+        },
+        "browserUnsupported.text": {
+            "en": "This browser is too old to run DPUse. It needs {browsers} or later.",
+            "es": "Este navegador es demasiado antiguo para ejecutar DPUse. Necesita {browsers} o posterior."
+        },
+        "loadFailed.actions.text": {
+            "en": "If reloading does not help, try a private window with extensions turned off. If it still fails, contact support with the error above; the browser console has the full details.",
+            "es": "Si recargar no lo soluciona, prueba en una ventana privada con las extensiones desactivadas. Si sigue fallando, contacta con soporte indicando el error anterior; la consola del navegador tiene todos los detalles."
+        },
+        "loadFailed.causes.text": {
+            "en": "This is usually a network interruption, a new version released while the page was open, or a browser extension, such as an ad blocker, blocking part of the app.",
+            "es": "Suele deberse a una interrupción de la red, a una nueva versión publicada mientras la página estaba abierta o a una extensión del navegador, como un bloqueador de anuncios, que bloquea parte de la aplicación."
+        },
+        "loadFailed.text": {
+            "en": "DPUse failed to load: {message}",
+            "es": "No se ha podido cargar DPUse: {message}"
+        },
+        "reload.label": { "en": "Reload the page", "es": "Recargar la página" }
+    }
+}

@@ -83,7 +83,7 @@ watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => {
     dataViewFailure.value = undefined;
     void getDataViewRecord(newLocalMetaStoreConnectionConfig, route).catch((error: unknown) => {
         dataViewFailure.value = raiseFailure(
-            new AppError('Failed to open this data view.', 'dpuse-app.selectConnectionList.getDataViewRecord', { typeId: 'handled' }, { cause: error })
+            new AppError('Failed to open this data view.', 'dpuse-app.SelectConnectionList', { typeId: 'handled' }, { cause: error })
         );
     });
 });
@@ -94,7 +94,7 @@ function handleRetryDataView(): void {
     dataViewFailure.value = undefined;
     void getDataViewRecord(activeMetaStoreConnectionConfig.value, route).catch((error: unknown) => {
         dataViewFailure.value = raiseFailure(
-            new AppError('Failed to open this data view.', 'dpuse-app.selectConnectionList.getDataViewRecord', { typeId: 'handled' }, { cause: error })
+            new AppError('Failed to open this data view.', 'dpuse-app.SelectConnectionList.handleRetryDataView', { typeId: 'handled' }, { cause: error })
         );
     });
 }

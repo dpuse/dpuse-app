@@ -7,8 +7,8 @@ import { t } from '@/state/locale';
 import { TEXT } from './SessionButton_.json';
 
 // ── Local Framework
-import { PRESS_CLASSES } from '@/components/ui/action/action';
 import { defineAsyncPanel } from '@/utilities/index.ts';
+import { PRESS_CLASSES } from '@/components/ui/action/action';
 import { expiresIn, lifetime, sessionIsAuthenticated } from '@/state/session';
 import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
 

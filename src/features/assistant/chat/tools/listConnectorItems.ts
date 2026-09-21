@@ -3,8 +3,8 @@ import { AppError, serialiseError } from '@dpuse/dpuse-shared/errors';
 
 // ── Local Framework
 import { getLocalisedConnection } from '@/state/session';
-import { raiseFailure } from '@/state/errors';
 import { localeId } from '@/state/locale';
+import { raiseFailure } from '@/state/errors';
 import { useEngine } from '@/services/useEngine';
 import type { ListNodesOptions, ListNodesResult } from '@dpuse/dpuse-shared/component/module/connector';
 
@@ -37,7 +37,7 @@ export async function executeListConnectorItems(
         };
     } catch (error) {
         const failure = raiseFailure(
-            new AppError(`Failed to list items for connection '${connectionId}'.`, 'dpuse-app.tools.listConnectorItems', { typeId: 'handled' }, { cause: error })
+            new AppError(`Failed to list items for connection '${connectionId}'.`, 'dpuse-app.listConnectorItems.executeListConnectorItems', { typeId: 'handled' }, { cause: error })
         );
         return { error: serialiseError(failure.error)[0].message };
     }

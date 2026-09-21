@@ -8,10 +8,10 @@ import { t } from '@/state/locale';
 
 // ── Static Components
 import AppleLogo from '@/components/branding/AppleLogo.vue';
-import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import GoogleLogo from '@/components/branding/GoogleLogo.vue';
 import MicrosoftLogo from '@/components/branding/MicrosoftLogo.vue';
+import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import Separator from '@/components/ui/Separator.vue';
 import TextInput from '@/components/ui/text/TextInput.vue';
 

@@ -10,15 +10,15 @@ import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
 import { useDialogs } from '@/state/dialogs';
-import { expiresIn, lifetime, sessionIsAuthenticated, setSessionExpiryTimer, signOut } from '@/state/session';
 import { appearance, isPWA, viewportIsWide } from '@/state/appLayout';
+import { expiresIn, lifetime, sessionIsAuthenticated, setSessionExpiryTimer, signOut } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
-import RectangleButton from '@/components/ui/action/RectangleButton.vue';
-import IconButton from '@/components/ui/action/IconButton.vue';
 import CloseButton from '@/components/ui/action/CloseButton.vue';
+import IconButton from '@/components/ui/action/IconButton.vue';
 import ItemButton from '@/components/ui/action/ItemButton.vue';
+import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ScrollAreaFit from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 

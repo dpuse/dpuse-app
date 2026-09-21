@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1870",
+    "version": "0.0.1871",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -45,6 +45,7 @@
         "build-only": "vite build",
         "type-check": "vue-tsc --build",
         "lint": "eslint . --fix --cache",
+        "lint:app": "eslint . --ignore-pattern 'scripts/**' --ignore-pattern '**/__tests__/**' --fix --cache",
         "format": "prettier --write --experimental-cli src/",
         "index:knowledge": "op run --env-file=.env -- node ./scripts/indexKnowledge.mjs",
         "test:knowledge": "op run --env-file=.env -- node ./scripts/testKnowledge.mjs",

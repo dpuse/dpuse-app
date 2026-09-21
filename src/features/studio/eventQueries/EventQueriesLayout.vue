@@ -15,8 +15,8 @@ import { useConfigsReady } from '@/services/useConfigsReady';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
-import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
+import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '@/features/studio/_components/StudioHeader.vue';
 import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
@@ -88,7 +88,7 @@ async function renderDiagram(): Promise<void> {
         state.view = null;
         if (container.value) state.view = await d3Tool.renderNetworkDiagram(data, container.value);
     } catch (error) {
-        renderFailure.value = raiseFailure(new AppError('Failed to render network diagram.', 'dpuse.eventQueriesLayout.renderDiagram', { typeId: 'handled' }, { cause: error }));
+        renderFailure.value = raiseFailure(new AppError('Failed to render network diagram.', 'dpuse-app.EventQueriesLayout.renderDiagram', { typeId: 'handled' }, { cause: error }));
     }
 }
 </script>

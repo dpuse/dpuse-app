@@ -16,8 +16,8 @@ import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 import { type LocaleId, localiseConfig, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
 
 // ── Local Framework
+import { hasReportedAppError } from '@/observability/errorTracking';
 import { localeId } from './locale';
-import { reportAppError } from '@/observability/errorTracking';
 import { throwOnFault } from '@/observability/faultInjection';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
@@ -183,7 +183,6 @@ function handleBeforeUnload(event: BeforeUnloadEvent): void {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-
 async function initialiseHanko(): Promise<void> {
     let hankoModule;
     try {
@@ -222,7 +221,7 @@ async function initialiseHanko(): Promise<void> {
     } catch (error) {
         // The same capability as a failed SDK load, and for the user the same loss: they cannot sign in. Named
         // alike so a session that is offline for both reasons is one entry rather than two.
-        raiseAppFailure(new AppError('Session validation failed.', 'dpuse.sessionStore.useSessionStore.initialiseServices', { typeId: 'handled' }, { cause: error }), {
+        raiseAppFailure(new AppError('Session validation failed.', 'dpuse-app.session.initialiseHanko', { typeId: 'handled' }, { cause: error }), {
             capability: 'authentication'
         });
         establishSession('validationFailure');
@@ -255,9 +254,12 @@ async function initialiseContextConfig(): Promise<void> {
         contextConfigRetrievalSucceeded.value = true;
     } catch (error) {
         contextConfigRetrievalFailed.value = true;
-        contextConfigRetrievalFailure.value = raiseFailure(new AppError('Failed to load the context configuration.', 'dpuse-app.session.initialiseContextConfig', { typeId: 'handled' }, { cause: error }), {
-            capability: 'context'
-        });
+        contextConfigRetrievalFailure.value = raiseFailure(
+            new AppError('Failed to load the context configuration.', 'dpuse-app.session.initialiseContextConfig', { typeId: 'handled' }, { cause: error }),
+            {
+                capability: 'context'
+            }
+        );
     }
 }
 
@@ -268,7 +270,7 @@ async function initialisePerformanceTracking(): Promise<void> {
         const performanceTrackingModule = await import('@/observability/performanceTracking');
         performanceTrackingModule.initialise();
     } catch (error) {
-        void reportAppError(new AppError('Failed to load performance tracking.', 'dpuse-app.session.initialisePerformanceTracking', { typeId: 'handled' }, { cause: error }));
+        void hasReportedAppError(new AppError('Failed to load performance tracking.', 'dpuse-app.session.initialisePerformanceTracking', { typeId: 'handled' }, { cause: error }));
     }
 }
 
@@ -292,7 +294,7 @@ async function terminateAccountMonitor(): Promise<void> {
         const accountMonitorModule = await import('@/observability/accountMonitor');
         accountMonitorModule.terminate();
     } catch (error) {
-        void reportAppError(new AppError('Failed to terminate the account service.', 'dpuse-app.session.terminateAccountMonitor', { typeId: 'handled' }, { cause: error }));
+        void hasReportedAppError(new AppError('Failed to terminate the account service.', 'dpuse-app.session.terminateAccountMonitor', { typeId: 'handled' }, { cause: error }));
     }
 }
 

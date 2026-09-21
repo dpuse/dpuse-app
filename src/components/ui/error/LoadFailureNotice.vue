@@ -41,11 +41,9 @@ const loadFailure = shallowRef<AppFailure | undefined>();
 watch(
     () => error,
     (newError) => {
-        // The locator and 'typeId' keep the old wording deliberately, though this component no longer carries it: they
-        // are the identifiers every report already sent to Axiom was filed under, and renaming them would split the
-        // history at the rename for no gain in what they identify.
+        // 'typeId' keeps its old name so past reports in Axiom stay grouped with new ones.
         const data = { componentName: name ?? 'Unknown', typeId: 'componentLoad' };
-        loadFailure.value = raiseFailure(new AppError(`Failed to load the ${name ?? 'unknown'} component.`, 'dpuse.componentLoadFailure', data, { cause: newError }));
+        loadFailure.value = raiseFailure(new AppError(`Failed to load the ${name ?? 'unknown'} component.`, 'dpuse-app.LoadFailureNotice', data, { cause: newError }));
     },
     { immediate: true }
 );
