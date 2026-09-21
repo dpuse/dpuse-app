@@ -53,6 +53,9 @@ const config = defineConfigWithVueTs(
             'n/no-unsupported-features/es-syntax': 'off',
             'n/no-unsupported-features/node-builtins': 'off',
 
+            // A disable at the very top of a file covers the whole file without a closing enable.
+            '@eslint-community/eslint-comments/disable-enable-pair': ['error', { allowWholeFile: true }],
+
             '@typescript-eslint/consistent-type-imports': 'warn',
             '@typescript-eslint/explicit-function-return-type': 'warn',
             '@typescript-eslint/no-explicit-any': 'warn',

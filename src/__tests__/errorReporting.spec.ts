@@ -1,3 +1,4 @@
+/* eslint-disable vue/one-component-per-file -- Test files can define several small components to mount. */
 import { AppError } from '@dpuse/dpuse-shared/errors';
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';

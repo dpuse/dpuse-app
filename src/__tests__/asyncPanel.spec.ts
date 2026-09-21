@@ -1,3 +1,4 @@
+/* eslint-disable vue/one-component-per-file -- Test files can define several small components to mount. */
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { hasReportedAppError } from '@/observability/errorTracking';
 import { defineComponent, h, nextTick, ref } from 'vue';

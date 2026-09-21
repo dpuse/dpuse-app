@@ -1,5 +1,5 @@
 import type { AssistantChatMessage } from '@/features/assistant/chat/assistantChat';
-import { defineComponent, nextTick, ref } from 'vue';
+import { nextTick } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
 
