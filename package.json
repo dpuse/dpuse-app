@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1873",
+    "version": "0.0.1874",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -15,8 +15,20 @@
     },
     "type": "module",
     "engines": {
-        "node": ">=23.11",
-        "npm": ">=11"
+        "node": ">=24",
+        "npm": ">=12"
+    },
+    "devEngines": {
+        "runtime": {
+            "name": "node",
+            "version": ">=24",
+            "onFail": "error"
+        },
+        "packageManager": {
+            "name": "npm",
+            "version": ">=12",
+            "onFail": "error"
+        }
     },
     "browserslist": [
         "chrome >= 123",
