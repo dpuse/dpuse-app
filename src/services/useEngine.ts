@@ -117,7 +117,7 @@ async function loadEngine(engineVersion: string | undefined): Promise<EngineWork
         // } satisfies ConnectionConfig;
         /** */
         // console.log('RETRIEVE RECORDS');
-        // const retrieveRecordsOptions: RetrieveRecordsOptions = { encodingId: 'utf8', path: FILE_PATH, valueDelimiterId: ',' };
+        // const retrieveRecordsOptions: RetrieveRecordsOptions = { encodingId: 'utf-8', path: FILE_PATH, valueDelimiterId: ',' };
         // const startTime1 = performance.now();
         // await engineWorker.processRequest('retrieveRecords', connectionConfig, retrieveRecordsOptions, (data: EngineCallbackData) => {
         //     if (data && data.typeId === 'complete') console.log('RETRIEVE RECORDS - RESULT', data.properties.summary);
@@ -141,7 +141,7 @@ async function loadEngine(engineVersion: string | undefined): Promise<EngineWork
         //     const startTime3 = performance.now();
         //     const auditObjectContentOptions: AuditObjectContentOptions = {
         //         chunkSize: 4096,
-        //         encodingId: 'utf8',
+        //         encodingId: 'utf-8',
         //         path: FILE_PATH,
         //         valueDelimiterId: ','
         //     };
@@ -154,7 +154,7 @@ async function loadEngine(engineVersion: string | undefined): Promise<EngineWork
         //     const startTime4 = performance.now();
         //     const auditObjectContentOptionsRust: AuditObjectContentOptions = {
         //         chunkSize: 4096,
-        //         encodingId: 'utf8',
+        //         encodingId: 'utf-8',
         //         parsingToolName: 'dpuse-tool-rust-csv-core-parser',
         //         path: FILE_PATH,
         //         valueDelimiterId: ','

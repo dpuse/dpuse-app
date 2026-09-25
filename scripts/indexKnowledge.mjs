@@ -2,7 +2,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { readFile } from 'node:fs/promises';
 
-async function main(): void {
+async function main() {
     const accountId = process.env['CLOUDFLARE_ACCOUNT_ID1'];
     const apiToken = process.env['CLOUDFLARE_AI_API_TOKEN1'];
     const vectorIndex = 'datapos-knowledge';
@@ -11,7 +11,7 @@ async function main(): void {
     const knowledgePath = path.resolve(process.cwd(), 'knowledge', 'module-states.md');
 
     // eslint-disable-next-line security/detect-non-literal-fs-filename --  Need to review approach.
-    const fileContent = await readFile(knowledgePath, 'utf8');
+    const fileContent = await readFile(knowledgePath, 'utf-8');
 
     // For this POC, treat the entire file as a single chunk.
     // You can later replace this with more advanced chunking.
@@ -98,7 +98,6 @@ async function main(): void {
 
     console.log('Indexed knowledge into Vectorize index:', vectorIndex);
 }
-
 
 main().catch((error) => {
     console.error(error);
