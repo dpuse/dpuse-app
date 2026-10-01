@@ -3,7 +3,7 @@
 import { nextTick, onErrorCaptured, ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
+import { AppError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { type AppFailure, isComponentLoaderErrorInfo, raiseFailure } from '@/state/errors';

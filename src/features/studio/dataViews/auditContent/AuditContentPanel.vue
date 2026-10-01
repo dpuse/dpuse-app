@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── DPUse Framework
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Static Components
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';

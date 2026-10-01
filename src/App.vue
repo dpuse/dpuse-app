@@ -77,8 +77,7 @@ const appFailuresCanRetry = computed(() => appFailures.value.some((failure) => f
 // ── Derived State - Panes ────────────────────────────────────────────────────────────────────────────────────────────
 
 const assistantPaneStyle = computed(() => {
-    if (assistantPaneIsVisible.value) return { minWidth: '0', flex: '1' };
-    return { width: '0' };
+    return assistantPaneIsVisible.value ? { minWidth: '0', flex: '1' } : { width: '0' };
 });
 
 const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assistantPaneIsVisible.value);
@@ -94,8 +93,7 @@ const studioLayoutKey = computed(() => route.matched.find((record) => record.com
 const studioPaneStyle = computed(() => {
     if (!studioPaneIsVisible.value) return { width: '0' };
     // Half the splitter comes off each pane, so an even split leaves the two the same width.
-    if (assistantPaneIsVisible.value) return { minWidth: '0', width: `calc(${String(paneSplitterPercent.value)}% - var(--pane-splitter-width) / 2)` };
-    return { minWidth: '0', flex: '1' };
+    return assistantPaneIsVisible.value ? { minWidth: '0', width: `calc(${String(paneSplitterPercent.value)}% - var(--pane-splitter-width) / 2)` } : { minWidth: '0', flex: '1' };
 });
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────

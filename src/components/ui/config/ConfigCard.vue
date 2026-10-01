@@ -5,8 +5,7 @@ import { useId } from 'vue';
 import { ArrowRightIcon, FunnelIcon, InfoIcon, TrashIcon } from '@lucide/vue';
 
 // ── DPUse Framework
-import type { BaseConfig } from '@dpuse/dpuse-shared';
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { BaseConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { Action } from './configCard';
@@ -80,13 +79,7 @@ defineOptions({ inheritAttrs: false });
              not contain other interactive content, and this is the one element here that is genuinely one — the
              actions below are real, independently focusable buttons, kept clickable by sitting above this in
              stacking order rather than inside it. The title shows the full label, which the row may truncate. -->
-        <ActionWrapper
-            :aria-label="overline ? `${overline}: ${config.label}` : config.label"
-            class="absolute inset-0 z-10"
-            :title="config.label"
-            :to="to"
-            v-bind="$attrs"
-        />
+        <ActionWrapper :aria-label="overline ? `${overline}: ${config.label}` : config.label" class="absolute inset-0 z-10" :title="config.label" :to="to" v-bind="$attrs" />
 
         <!-- Header - One line only: the label truncates rather than wraps, because the card cannot grow. -->
         <div class="flex min-w-0 items-center gap-x-2" :class="isCompact ? 'flex-1' : overline ? 'h-9 flex-none' : 'h-7 flex-none'">
@@ -143,7 +136,9 @@ defineOptions({ inheritAttrs: false });
                         v-if="action.typeId === 'delete'"
                         :aria-describedby="action.description ? `${cardId}-${action.typeId}` : undefined"
                         :aria-label="action.label ?? 'Delete'"
-                        :class="ROUND_ACTION_CLASSES" @click="action.onClick(config)">
+                        :class="ROUND_ACTION_CLASSES"
+                        @click="action.onClick(config)"
+                    >
                         <TrashIcon aria-hidden="true" class="size-4 pointer-coarse:size-5" :stroke-width="1.25" />
                     </ActionWrapper>
 
@@ -166,7 +161,9 @@ defineOptions({ inheritAttrs: false });
                         v-if="action.typeId === 'info'"
                         :aria-describedby="action.description ? `${cardId}-${action.typeId}` : undefined"
                         :aria-label="action.label ?? 'Information'"
-                        :class="ROUND_ACTION_CLASSES" @click="action.onClick(config)">
+                        :class="ROUND_ACTION_CLASSES"
+                        @click="action.onClick(config)"
+                    >
                         <InfoIcon aria-hidden="true" class="size-4 pointer-coarse:size-5" :stroke-width="1.25" />
                     </ActionWrapper>
                 </template>

@@ -4,7 +4,7 @@ import { type Component, shallowRef } from 'vue';
 import { createRouter, createWebHistory, isNavigationFailure, NavigationFailureType, type Router, type RouteRecordRaw, type RouterScrollBehavior } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
+import { AppError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { raiseAppFailure } from '@/state/errors';

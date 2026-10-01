@@ -3,7 +3,7 @@
 import { type Component, computed, type ShallowRef } from 'vue';
 
 // ── DPUse Framework
-import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { TEXT } from './PluginList_.json';

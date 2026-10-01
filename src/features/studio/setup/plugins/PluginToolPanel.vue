@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // ── DPUse Framework
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
+import type { LocalisedConfig, ToolConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { SetupOptionConfig } from '@/utilities/index.ts';

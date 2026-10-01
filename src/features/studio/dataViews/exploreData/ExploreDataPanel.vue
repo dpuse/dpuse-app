@@ -6,7 +6,7 @@ import { t } from '@/state/locale';
 import { TEXT } from './ExploreDataPanel_.json';
 
 // ── DPUse Framework
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Static Components
 import InvestigateDataPanel from './InvestigateDataPanel.vue';

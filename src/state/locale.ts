@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 
 // ── DPUse Framework
-import { DEFAULT_LOCALE_ID, type LocaleId, type LocaleLabel, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
+import { DEFAULT_LOCALE_ID, type LocaleId, type LocaleLabel, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -17,8 +17,7 @@ export function n(value: number, options?: Intl.NumberFormatOptions): string {
 type Translations = Record<string, LocaleLabel>;
 export function t(translations: Translations, id: keyof Translations, parameters?: Record<string, number | string>): string {
     const text = translations[id][localeId.value] ?? translations[id][DEFAULT_LOCALE_ID] ?? id;
-    if (parameters) return interpolateParameters(text, parameters);
-    return text;
+    return parameters ? interpolateParameters(text, parameters) : text;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

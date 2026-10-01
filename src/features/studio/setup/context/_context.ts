@@ -1,17 +1,19 @@
 // ── DPUse Framework
-import type { ContextModelConfig } from '@dpuse/dpuse-shared/component/context/model';
-import type { ContextModelDimensionConfig } from '@dpuse/dpuse-shared/component/context/model/dimension';
-import type { ContextModelEntityConfig } from '@dpuse/dpuse-shared/component/context/model/entity';
-import type { ContextModelEntityDataItemConfig } from '@dpuse/dpuse-shared/component/context/model/entity/dataItem';
-import type { ContextModelEntityEventConfig } from '@dpuse/dpuse-shared/component/context/model/entity/event';
-import type { ContextModelEntityPrimaryMeasureConfig } from '@dpuse/dpuse-shared/component/context/model/entity/primaryMeasure';
-import type { ContextModelSecondaryMeasureConfig } from '@dpuse/dpuse-shared/component/context/model/secondaryMeasure';
 import type {
+    ContextModelConfig,
+    ContextModelDimensionConfig,
     ContextModelDimensionHierarchyConfig,
     ContextModelDimensionHierarchyLevelConfig,
-    ContextModelDimensionHierarchyNodeConfig
-} from '@dpuse/dpuse-shared/component/context/model/dimension/hierarchy';
-import { DEFAULT_LOCALE_ID, type LocaleId, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+    ContextModelDimensionHierarchyNodeConfig,
+    ContextModelEntityConfig,
+    ContextModelEntityDataItemConfig,
+    ContextModelEntityEventConfig,
+    ContextModelEntityPrimaryMeasureConfig,
+    ContextModelSecondaryMeasureConfig,
+    LocaleId,
+    LocalisedConfig
+} from '@dpuse/dpuse-shared';
+import { DEFAULT_LOCALE_ID } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

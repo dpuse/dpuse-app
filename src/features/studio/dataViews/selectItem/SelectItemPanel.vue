@@ -7,12 +7,18 @@ import { computed, markRaw, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
-import type { PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
-import type { ConnectionConfig, ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
-import { formatNumberAsDecimalNumber, formatNumberAsStorageSize } from '@dpuse/dpuse-shared/utilities';
-import type { GetInfoOptions, GetInfoResult, ListNodesOptions, ListNodesResult, PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
+import { AppError, formatNumberAsDecimalNumber, formatNumberAsStorageSize } from '@dpuse/dpuse-shared';
+import type {
+    ConnectionConfig,
+    ConnectionNodeConfig,
+    GetInfoOptions,
+    GetInfoResult,
+    ListNodesOptions,
+    ListNodesResult,
+    LocalisedConfig,
+    PreviewConfig,
+    PreviewObjectOptions
+} from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
@@ -100,7 +106,7 @@ const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...c
 
 const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionNodeConfig>>>(() => {
     const folderPath = currentFolderPath.value; // Read synchronously so this computed (and useDataWindow's cache) resets on navigation.
-    void engineAttempt.value; // Read for the same reason: a retry has to produce a new data source for the window to refetch.
+    engineAttempt.value; // Read for the same reason: a retry has to produce a new data source for the window to refetch.
     return {
         rowCount: undefined, // Unknown until the first listNodes response reports totalCount — useDataWindow guarantees that fetch happens.
         getRows: async (start: number, end: number): Promise<{ rows: LocalisedConfig<ConnectionNodeConfig>[]; totalCount: number }> => {

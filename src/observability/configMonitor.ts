@@ -2,14 +2,8 @@
 import type { ShallowRef } from 'vue';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
-import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
-import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
-import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbook';
-import type { EngineConfig } from '@dpuse/dpuse-shared/component/module/engine';
-import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
-import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
-import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
+import { AppError } from '@dpuse/dpuse-shared';
+import type { ConnectionConfig, ConnectorConfig, CookbookConfig, EngineConfig, ModuleConfig, PresenterConfig, ToolConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { hasFault } from '@/observability/faultInjection';

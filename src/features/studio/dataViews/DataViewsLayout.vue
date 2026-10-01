@@ -4,7 +4,7 @@ import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { localiseConfig, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import { localiseConfig, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { navigationPendingDepth } from '@/router';
@@ -105,9 +105,7 @@ watch(
 // is active there until the user picks something.
 watch(connectionLocalisedConfigs, (newConnectionLocalisedConfigs) => {
     const active = activeConnectionConfig.value;
-    if (active == null) return;
-    if (!configRetrievalSucceeded.value || !accountConfigsAreRetrieved.value) return;
-    if (newConnectionLocalisedConfigs.some((config) => config.id === active.id)) return;
+    if (active == null || !configRetrievalSucceeded.value || !accountConfigsAreRetrieved.value || newConnectionLocalisedConfigs.some((config) => config.id === active.id)) return;
 
     activeConnectionConfig.value = undefined;
     void router.replace({ name: 'dataViews' }).catch(() => {

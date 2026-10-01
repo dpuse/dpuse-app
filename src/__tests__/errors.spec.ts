@@ -1,4 +1,4 @@
-import { AppError } from '@dpuse/dpuse-shared/errors';
+import { AppError } from '@dpuse/dpuse-shared';
 import { hasReportedAppError } from '@/observability/errorTracking';
 import { appFailures, clearAppFailures, isStaleDeployError, markStaleDeployError, raiseAppFailure, raiseFailure, reportStaleDeployFailure, retryAppFailures } from '@/state/errors';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

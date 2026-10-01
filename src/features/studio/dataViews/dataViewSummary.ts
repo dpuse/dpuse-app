@@ -4,7 +4,7 @@
 // ── External Dependencies & Registrations ────────────────────────────────────────────────────────────────────────────
 
 // ── DPUse Framework
-import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
+import type { DataViewConfig } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

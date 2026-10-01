@@ -1,5 +1,5 @@
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
+import { AppError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { markStaleDeployError } from '@/state/errors';
@@ -17,7 +17,8 @@ import { markStaleDeployError } from '@/state/errors';
 // The four that name a component — the panel and route pairs — accept a target: '?fault=panel:ChatPanel' fails that
 // one and lets everything else load. Without a target they fail every panel or route at once, which cannot reach a
 // panel nested inside another: the outer one fails first and the inner one never loads.
-export type FaultId = 'account' | 'auth' | 'bootstrap' | 'browser' | 'config' | 'config-socket' | 'engine' | 'panel' | 'panel-stale' | 'preload' | 'report-failure' | 'route' | 'route-stale' | 'vue';
+export type FaultId =
+    'account' | 'auth' | 'bootstrap' | 'browser' | 'config' | 'config-socket' | 'engine' | 'panel' | 'panel-stale' | 'preload' | 'report-failure' | 'route' | 'route-stale' | 'vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -45,8 +46,7 @@ export function hasFault(id: FaultId, target?: string): boolean {
         // Split by hand rather than destructuring: an entry with no ':' has to mean 'every call site', which a
         // destructured second element cannot express — the types say it is always a string.
         const separatorIndex = entry.indexOf(':');
-        if (separatorIndex === -1) return entry === id;
-        return entry.slice(0, separatorIndex) === id && entry.slice(separatorIndex + 1) === target;
+        return separatorIndex === -1 ? entry === id : entry.slice(0, separatorIndex) === id && entry.slice(separatorIndex + 1) === target;
     });
 }
 

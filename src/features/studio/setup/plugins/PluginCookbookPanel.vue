@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // ── DPUse Framework
-import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbook';
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { CookbookConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { SetupOptionConfig } from '@/utilities/index.ts';

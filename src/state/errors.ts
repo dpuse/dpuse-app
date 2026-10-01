@@ -2,7 +2,7 @@
 import { type Ref, ref, shallowRef } from 'vue';
 
 // ── DPUse Framework
-import { type AppError, serialiseError } from '@dpuse/dpuse-shared/errors';
+import { type AppError, serialiseError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { hasReportedAppError } from '@/observability/errorTracking';

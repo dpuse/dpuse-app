@@ -83,8 +83,7 @@ const columnOffsets = computed(() => Array.from({ length: columnCount.value }, (
 // only learns its count from a resolved fetch's totalCount, never writes it back to its own DataSource object).
 const state = computed<'busy' | 'empty' | 'rows'>(() => {
     if (knownRowCount.value === undefined) return 'busy';
-    if (knownRowCount.value === 0) return 'empty';
-    return 'rows';
+    return knownRowCount.value === 0 ? 'empty' : 'rows';
 });
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -3,7 +3,7 @@
 import { shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
+import { AppError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { type AppFailure, raiseFailure } from '@/state/errors';

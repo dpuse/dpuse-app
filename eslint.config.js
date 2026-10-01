@@ -23,7 +23,7 @@ const config = defineConfigWithVueTs(
             parserOptions: { projectService: true, tsconfigRootDir: process.cwd() }
         },
         settings: {
-            'import-x/core-modules': ['@dpuse/dpuse-shared/errors', 'eslint/config'],
+            'import-x/core-modules': ['@dpuse/dpuse-shared', 'eslint/config'],
             'import-x/resolver': { typescript: { project: ['./tsconfig.json'] } }
         }
     },

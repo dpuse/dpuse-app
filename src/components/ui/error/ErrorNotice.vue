@@ -4,7 +4,7 @@ import { TriangleAlertIcon } from '@lucide/vue';
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
-import { serialiseError } from '@dpuse/dpuse-shared/errors';
+import { serialiseError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { AppFailure } from '@/state/errors';

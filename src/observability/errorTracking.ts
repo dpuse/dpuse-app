@@ -1,5 +1,5 @@
 // ── DPUse Framework
-import { type AppError, type SerialisedError, serialiseError } from '@dpuse/dpuse-shared/errors';
+import { type AppError, type SerialisedError, serialiseError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { hasFault } from '@/observability/faultInjection';

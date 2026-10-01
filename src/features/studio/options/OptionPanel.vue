@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 // ── DPUse Framework
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { activeStudioOptionConfig } from '@/state/activeStudioOption';

@@ -3,11 +3,7 @@ import { promiseTimeout } from '@vueuse/core';
 import { type AsyncComponentLoader, type Component, type ComponentPublicInstance, defineAsyncComponent, defineComponent, h, ref, type VNode } from 'vue';
 
 // ── DPUse Tools
-import type { BaseConfig } from '@dpuse/dpuse-shared';
-import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
-import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbook';
-import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
-import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
+import type { BaseConfig, ConnectorConfig, CookbookConfig, PresenterConfig, ToolConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { throwOnFault, throwOnStaleFault } from '@/observability/faultInjection';
@@ -79,7 +75,8 @@ export function defineAsyncPanel(loader: AsyncComponentLoader, name: string, opt
     // reads correctly and is silently inert: Vue takes 'setup' from the component's own definition, and 'extends' does
     // not put it there, so the base's template was inherited while none of its script ran — no display, no report.
     // Forwarding the props by hand is what makes the failure component actually run.
-    const errorComponent = (failureProperties: { error: unknown }): VNode => h(LoadFailureNotice, { ...failureProperties, name, onDismiss: failureOwnsScreen?.onDismiss, ownsScreen: failureOwnsScreen != null, retry: () => attempt.value++ });
+    const errorComponent = (failureProperties: { error: unknown }): VNode =>
+        h(LoadFailureNotice, { ...failureProperties, name, onDismiss: failureOwnsScreen?.onDismiss, ownsScreen: failureOwnsScreen != null, retry: () => attempt.value++ });
 
     // 'delay' is stated rather than left to defineAsyncComponent's own default of 200ms, which is a number this app
     // never chose. A failure is always shown, even where the load itself is not: it is the one thing the user has to

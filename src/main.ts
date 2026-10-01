@@ -3,7 +3,7 @@ import '@fontsource-variable/inter';
 import { createApp } from 'vue';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
+import { AppError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import '@/assets/main.css';

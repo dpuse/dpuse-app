@@ -63,15 +63,17 @@ async function main(): void {
     console.log('Vectorize query response:', JSON.stringify(queryJson, null, 2));
 
     const matches = queryJson?.result?.matches ?? [];
-    if (matches.length > 0) {
-        console.log('\nMatch previews:');
-        for (const match of matches) {
-            console.log(`- ${match.id} (score: ${match.score?.toFixed?.(3) ?? match.score})`);
-            const text = match.metadata?.text;
-            if (typeof text === 'string' && text.length > 0) {
-                const preview = text.length > 200 ? `${text.slice(0, 200)}...` : text;
-                console.log(`  text: ${preview}`);
-            }
+    if (matches.length === 0) {
+        return;
+    }
+
+    console.log('\nMatch previews:');
+    for (const match of matches) {
+        console.log(`- ${match.id} (score: ${match.score?.toFixed?.(3) ?? match.score})`);
+        const text = match.metadata?.text;
+        if (typeof text === 'string' && text.length > 0) {
+            const preview = text.length > 200 ? `${text.slice(0, 200)}...` : text;
+            console.log(`  text: ${preview}`);
         }
     }
 }

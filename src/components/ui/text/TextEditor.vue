@@ -10,7 +10,7 @@ import { t } from '@/state/locale';
 import { TEXT } from './TextEditor_.json';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
+import { AppError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';

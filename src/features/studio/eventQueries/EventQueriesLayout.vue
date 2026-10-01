@@ -4,8 +4,7 @@ import { useRoute } from 'vue-router';
 import { onBeforeUnmount, onMounted, shallowRef, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
-import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
+import { AppError, loadTool } from '@dpuse/dpuse-shared';
 import type { D3NetworkView, Tool as D3Tool, NetworkDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
@@ -88,7 +87,9 @@ async function renderDiagram(): Promise<void> {
         state.view = null;
         if (container.value) state.view = await d3Tool.renderNetworkDiagram(data, container.value);
     } catch (error) {
-        renderFailure.value = raiseFailure(new AppError('Failed to render network diagram.', 'dpuse-app.EventQueriesLayout.renderDiagram', { typeId: 'handled' }, { cause: error }));
+        renderFailure.value = raiseFailure(
+            new AppError('Failed to render network diagram.', 'dpuse-app.EventQueriesLayout.renderDiagram', { typeId: 'handled' }, { cause: error })
+        );
     }
 }
 </script>

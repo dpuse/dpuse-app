@@ -1,11 +1,10 @@
 // ── DPUse Framework
-import { AppError, serialiseError } from '@dpuse/dpuse-shared/errors';
+import { AppError, serialiseError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { getLocalisedConnection } from '@/state/session';
 import { localeId } from '@/state/locale';
-import type { PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
-import type { PreviewObjectOptions } from '@dpuse/dpuse-shared/component/module/connector';
+import type { PreviewConfig, PreviewObjectOptions } from '@dpuse/dpuse-shared';
 import { raiseFailure } from '@/state/errors';
 import { useEngine } from '@/services/useEngine';
 
@@ -42,7 +41,9 @@ export async function executePreviewConnectorItem(arguments_: unknown): Promise<
             text: previewConfig.text
         };
     } catch (error) {
-        const failure = raiseFailure(new AppError(`Failed to preview '${path}'.`, 'dpuse-app.previewConnectorItem.executePreviewConnectorItem', { typeId: 'handled' }, { cause: error }));
+        const failure = raiseFailure(
+            new AppError(`Failed to preview '${path}'.`, 'dpuse-app.previewConnectorItem.executePreviewConnectorItem', { typeId: 'handled' }, { cause: error })
+        );
         return { error: serialiseError(failure.error)[0].message };
     }
 }

@@ -3,21 +3,24 @@ import type { RouteLocationNormalizedLoadedGeneric } from 'vue-router';
 import { computed, ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
-import type { EngineCallbackData } from '@dpuse/dpuse-shared/component/module/engine';
-import type { ConnectionConfig, ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
-import type { ContentAuditConfig, DataViewConfig, PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
+import { AppError, localiseConfigs } from '@dpuse/dpuse-shared';
 import type {
+    ConnectionConfig,
+    ConnectionNodeConfig,
+    ContentAuditConfig,
     CreateObjectOptions,
+    DataViewConfig,
+    EngineCallbackData,
     FindObjectOptions,
     FindObjectResult,
     GetRecordOptions,
     GetRecordResult,
+    LocalisedConfig,
+    PreviewConfig,
     RemoveRecordsOptions,
     RetrieveRecordsOptions,
     UpsertRecordsOptions
-} from '@dpuse/dpuse-shared/component/module/connector';
-import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+} from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { localeId } from '@/state/locale';

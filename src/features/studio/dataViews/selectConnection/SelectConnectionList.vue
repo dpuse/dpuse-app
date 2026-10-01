@@ -5,9 +5,8 @@ import { computed, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
-import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import { AppError } from '@dpuse/dpuse-shared';
+import type { ConnectionConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -82,9 +81,7 @@ watch(
 watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => {
     dataViewFailure.value = undefined;
     void getDataViewRecord(newLocalMetaStoreConnectionConfig, route).catch((error: unknown) => {
-        dataViewFailure.value = raiseFailure(
-            new AppError('Failed to open this data view.', 'dpuse-app.SelectConnectionList', { typeId: 'handled' }, { cause: error })
-        );
+        dataViewFailure.value = raiseFailure(new AppError('Failed to open this data view.', 'dpuse-app.SelectConnectionList', { typeId: 'handled' }, { cause: error }));
     });
 });
 

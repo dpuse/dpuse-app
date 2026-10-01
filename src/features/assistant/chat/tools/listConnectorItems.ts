@@ -1,12 +1,12 @@
 // ── DPUse Framework
-import { AppError, serialiseError } from '@dpuse/dpuse-shared/errors';
+import { AppError, serialiseError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { getLocalisedConnection } from '@/state/session';
 import { localeId } from '@/state/locale';
 import { raiseFailure } from '@/state/errors';
 import { useEngine } from '@/services/useEngine';
-import type { ListNodesOptions, ListNodesResult } from '@dpuse/dpuse-shared/component/module/connector';
+import type { ListNodesOptions, ListNodesResult } from '@dpuse/dpuse-shared';
 
 // ── Tools ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -37,7 +37,12 @@ export async function executeListConnectorItems(
         };
     } catch (error) {
         const failure = raiseFailure(
-            new AppError(`Failed to list items for connection '${connectionId}'.`, 'dpuse-app.listConnectorItems.executeListConnectorItems', { typeId: 'handled' }, { cause: error })
+            new AppError(
+                `Failed to list items for connection '${connectionId}'.`,
+                'dpuse-app.listConnectorItems.executeListConnectorItems',
+                { typeId: 'handled' },
+                { cause: error }
+            )
         );
         return { error: serialiseError(failure.error)[0].message };
     }

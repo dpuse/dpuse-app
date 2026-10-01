@@ -4,11 +4,8 @@ import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
-import { constructConnectorCategoryConfig } from '@dpuse/dpuse-shared/component/module/connector';
-import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/component/module/engine';
-import { getComponentStatus } from '@dpuse/dpuse-shared/component';
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { ConnectionConfig, EngineAuthActionOptions, LocalisedConfig } from '@dpuse/dpuse-shared';
+import { constructConnectorCategoryConfig, getComponentStatus } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { accountId } from '@/state/session';

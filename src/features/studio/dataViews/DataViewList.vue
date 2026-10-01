@@ -5,11 +5,8 @@ import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
-import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
-import { constructConnectorCategoryConfig } from '@dpuse/dpuse-shared/component/module/connector';
-import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import { AppError, constructConnectorCategoryConfig } from '@dpuse/dpuse-shared';
+import type { ConnectionConfig, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
@@ -170,16 +167,16 @@ function resolveConnection(dataViewLocalisedConfig: LocalisedConfig<DataViewConf
     const connectionId = dataViewLocalisedConfig.connectionId;
     if (connectionId != null) return connectionLocalisedConfigs.value.find((config) => config.id === connectionId);
     // TODO: Remove this test fallback, which lends a data view a connection whenever its faked step dots claim one.
-    if (constructStepDots(dataViewLocalisedConfig)[0]?.state !== 'done') return undefined;
-    return connectionLocalisedConfigs.value[resolveTestSeed(dataViewLocalisedConfig) % Math.max(connectionLocalisedConfigs.value.length, 1)];
+    return constructStepDots(dataViewLocalisedConfig)[0]?.state === 'done'
+        ? connectionLocalisedConfigs.value[resolveTestSeed(dataViewLocalisedConfig) % Math.max(connectionLocalisedConfigs.value.length, 1)]
+        : undefined;
 }
 
 // Read after the open action's name, standing in for the step dots, which screen readers do not see.
 function resolveProgressDescription(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): string {
     const steps = constructStepDots(dataViewLocalisedConfig);
     const done = steps.filter((step) => step.state === 'done').length;
-    if (done === steps.length) return t(TEXT, 'progress.complete.text');
-    return t(TEXT, 'progress.text', { done, total: steps.length });
+    return done === steps.length ? t(TEXT, 'progress.complete.text') : t(TEXT, 'progress.text', { done, total: steps.length });
 }
 
 // TODO: Remove with the test overrides above. Seeded by id so each card's made-up values hold across renders.

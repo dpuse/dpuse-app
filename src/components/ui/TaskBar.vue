@@ -3,7 +3,7 @@
 import type { RouteLocationRaw } from 'vue-router';
 
 // ── DPUse Framework
-import { DEFAULT_LOCALE_ID, type LocaleDescription, type LocaleLabel, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import { DEFAULT_LOCALE_ID, type LocaleDescription, type LocaleLabel, type LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { localeId } from '@/state/locale';

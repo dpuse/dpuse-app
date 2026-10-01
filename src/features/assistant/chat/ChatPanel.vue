@@ -89,8 +89,7 @@ function responseHeading(message: AssistantChatMessage): string {
 
 function renderText(text: string): string {
     // Formatter unavailable: fall back to sanitized plain text rather than blanking the message.
-    if (!markedTool.value) return DOMPurify.sanitize(text);
-    return DOMPurify.sanitize(markedTool.value.render(text));
+    return markedTool.value ? DOMPurify.sanitize(markedTool.value.render(text)) : DOMPurify.sanitize(text);
 }
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────

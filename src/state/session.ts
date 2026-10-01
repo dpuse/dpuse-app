@@ -4,16 +4,19 @@ import { computed, ref, shallowRef, watch } from 'vue';
 import { promiseTimeout, useDocumentVisibility, useEventListener, useIntervalFn } from '@vueuse/core';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
-import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
-import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
-import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
-import type { CookbookConfig } from '@dpuse/dpuse-shared/component/module/cookbook';
-import type { EngineConfig } from '@dpuse/dpuse-shared/component/module/engine';
-import type { EventQueryConfig } from '@dpuse/dpuse-shared/component/eventQuery';
-import type { PresenterConfig } from '@dpuse/dpuse-shared/component/module/presenter';
-import type { ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
-import { type LocaleId, localiseConfig, type LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import { AppError, localiseConfig } from '@dpuse/dpuse-shared';
+import type {
+    ConnectionConfig,
+    ConnectorConfig,
+    ContextConfig,
+    CookbookConfig,
+    EngineConfig,
+    EventQueryConfig,
+    LocaleId,
+    LocalisedConfig,
+    PresenterConfig,
+    ToolConfig
+} from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { hasReportedAppError } from '@/observability/errorTracking';

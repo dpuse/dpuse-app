@@ -8,10 +8,6 @@ export default {
     fetch(request: CfRequest): CfResponse {
         const url = new URL(request.url);
 
-        if (url.pathname.startsWith('/api/')) {
-            return Response.json({ name: 'Cloudflare' });
-        }
-
-        return new Response(null, { status: 404 });
+        return url.pathname.startsWith('/api/') ? Response.json({ name: 'Cloudflare' }) : new Response(null, { status: 404 });
     }
 } satisfies ExportedHandler<Environment>;

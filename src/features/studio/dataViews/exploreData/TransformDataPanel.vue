@@ -136,8 +136,7 @@ const { bindGridElement: bindSelectGridElement, sortEnabled: selectSortEnabled }
 // Open: all filtered columns. Closed: only selected columns in drag order.
 // Same key (col.name, no prefix) in both states so Vue can FLIP tiles when toggling.
 const selectVisibleItems = computed<string[]>(() => {
-    if (clauseOpen.value.select) return filteredColumns.value.map((c) => c.name);
-    return query.value.select;
+    return clauseOpen.value.select ? filteredColumns.value.map((c) => c.name) : query.value.select;
 });
 
 function makeDraft(): { column: string; op: string; value: string } {

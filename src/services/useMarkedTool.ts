@@ -3,8 +3,7 @@ import DOMPurify from 'dompurify';
 import { type ShallowRef, shallowRef } from 'vue';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
-import { loadTool } from '@dpuse/dpuse-shared/component/module/tool';
+import { AppError, loadTool } from '@dpuse/dpuse-shared';
 import type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
 
 // ── Local Framework
@@ -40,8 +39,7 @@ const loadPromise = shallowRef<Promise<MarkedTool | undefined>>(); // Ref rather
 // Starts the (idempotent) load itself, so a consumer that only wants rendered text never has to call 'initialise'.
 export function purifyText(text: string): string {
     void initialise();
-    if (!markedTool.value) return '';
-    return DOMPurify.sanitize(markedTool.value.render(text));
+    return markedTool.value ? DOMPurify.sanitize(markedTool.value.render(text)) : '';
 }
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────

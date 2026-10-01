@@ -5,8 +5,7 @@ import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from '@lucide/
 import { useEventListener, useFullscreen } from '@vueuse/core';
 
 // ── DPUse Framework
-import { formatNumberAsDuration } from '@dpuse/dpuse-shared/utilities';
-import { type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared/locale';
+import { formatNumberAsDuration, type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { useDialogs } from '@/state/dialogs';
@@ -54,8 +53,7 @@ const { store: currentAppearance } = appearance;
 const { isFullscreen: screenIsFullscreen, toggle: toggleFullscreen } = useFullscreen();
 
 const elapsed = computed(() => {
-    if (lifetime.value == null || lifetime.value === 0) return 0;
-    return ((lifetime.value - (expiresIn.value ?? 0)) / lifetime.value) * 100;
+    return lifetime.value == null || lifetime.value === 0 ? 0 : ((lifetime.value - (expiresIn.value ?? 0)) / lifetime.value) * 100;
 });
 
 const formattedExpiresIn = computed(() => formatNumberAsDuration(expiresIn.value, 'secs'));

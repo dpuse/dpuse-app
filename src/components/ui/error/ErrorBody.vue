@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import { ChevronDownIcon, RefreshCwIcon, RepeatIcon, TriangleAlertIcon } from '@lucide/vue';
 
 // ── DPUse Framework
-import { serialiseError } from '@dpuse/dpuse-shared/errors';
+import { serialiseError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { AppFailure } from '@/state/errors';

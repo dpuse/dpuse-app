@@ -2,7 +2,7 @@
 import { shallowRef } from 'vue';
 
 // ── DPUse Framework
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { StudioOptionConfig } from '@/features/studio/options/useStudioOptions';

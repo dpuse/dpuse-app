@@ -4,8 +4,8 @@ import { type Component, computed } from 'vue';
 import { ExternalLinkIcon, GlobeIcon, InfoIcon, UserRoundIcon } from '@lucide/vue';
 
 // ── DPUse Framework
-import { getComponentStatus } from '@dpuse/dpuse-shared/component';
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import { getComponentStatus } from '@dpuse/dpuse-shared';
+import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { TEXT } from './PluginPanel_.json';

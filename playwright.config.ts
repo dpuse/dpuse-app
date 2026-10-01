@@ -10,6 +10,11 @@ import { defineConfig, devices } from '@playwright/test';
 
 // ── Playwright Configuration ─────────────────────────────────────────────────────────────────────────────────────────
 
+// TODO: Add axe-core to the end-to-end tests (@axe-core/playwright). The ESLint accessibility rules only see plain
+// HTML elements in the template source; axe checks the page as the browser actually shows it, so it also covers
+// custom components, values bound at runtime, and colour contrast. Add a test that opens each main screen and fails on
+// any axe violation.
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */

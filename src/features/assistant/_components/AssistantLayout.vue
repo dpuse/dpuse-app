@@ -63,13 +63,11 @@ const activeModelConfig = computed<AssistantModelConfig>(() => ASSISTANT_MODEL_C
 const chatPaneStyle = computed(() => {
     if (!isPaneVisible('chat')) return { width: '0' };
     // Half the splitter comes off each pane, so an even split leaves the two the same width.
-    if (isPaneVisible('library')) return { minWidth: '0', width: `calc(${String(splitterPercent.value)}% - var(--pane-splitter-width) / 2)` };
-    return { minWidth: '0', flex: '1' };
+    return isPaneVisible('library') ? { minWidth: '0', width: `calc(${String(splitterPercent.value)}% - var(--pane-splitter-width) / 2)` } : { minWidth: '0', flex: '1' };
 });
 
 const libraryPaneStyle = computed(() => {
-    if (!isPaneVisible('library')) return { width: '0' };
-    return { minWidth: '0', flex: '1' };
+    return isPaneVisible('library') ? { minWidth: '0', flex: '1' } : { width: '0' };
 });
 
 // ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────

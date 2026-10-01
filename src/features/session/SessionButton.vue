@@ -35,8 +35,7 @@ const error = ref(false);
 
 const RING_CIRCUMFERENCE = 2 * Math.PI * 18; // r=18 on 40×40 viewBox
 const elapsed = computed(() => {
-    if (lifetime.value == null || lifetime.value === 0) return 0;
-    return ((lifetime.value - (expiresIn.value ?? 0)) / lifetime.value) * 100;
+    return lifetime.value == null || lifetime.value === 0 ? 0 : ((lifetime.value - (expiresIn.value ?? 0)) / lifetime.value) * 100;
 });
 
 const initials = computed(() => {

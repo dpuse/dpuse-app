@@ -5,12 +5,14 @@ import { SquarePenIcon } from '@lucide/vue';
 import { computed, ref, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
-import type { ComponentBaseConfig } from '@dpuse/dpuse-shared/component';
-import type { ContextModelConfig } from '@dpuse/dpuse-shared/component/context/model';
-import type { ContextModelDimensionConfig } from '@dpuse/dpuse-shared/component/context/model/dimension';
-import type { ContextModelEntityConfig } from '@dpuse/dpuse-shared/component/context/model/entity';
-import type { ContextModelSecondaryMeasureConfig } from '@dpuse/dpuse-shared/component/context/model/secondaryMeasure';
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type {
+    ComponentBaseConfig,
+    ContextModelConfig,
+    ContextModelDimensionConfig,
+    ContextModelEntityConfig,
+    ContextModelSecondaryMeasureConfig,
+    LocalisedConfig
+} from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { TEXT } from './ContextModelPanel_.json';

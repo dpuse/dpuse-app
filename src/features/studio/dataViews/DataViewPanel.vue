@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // ── DPUse Framework
-import type { DataViewConfig } from '@dpuse/dpuse-shared/component/dataView';
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { TEXT } from './DataViewPanel_.json';

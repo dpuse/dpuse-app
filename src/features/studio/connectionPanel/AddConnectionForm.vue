@@ -4,10 +4,7 @@ import { ArrowBigRightIcon } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import type { ConnectionConfig } from '@dpuse/dpuse-shared/component/connection';
-import type { ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
-import type { EngineAuthActionOptions } from '@dpuse/dpuse-shared/component/module/engine';
-import type { LocalisedConfig } from '@dpuse/dpuse-shared/locale';
+import type { ConnectionConfig, ConnectorConfig, EngineAuthActionOptions, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { accountId } from '@/state/session';

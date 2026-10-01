@@ -4,7 +4,7 @@ import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State 
 import { onMounted, onUnmounted, ref, shallowRef, useTemplateRef } from 'vue';
 
 // ── Local Framework
-import { AppError } from '@dpuse/dpuse-shared/errors';
+import { AppError } from '@dpuse/dpuse-shared';
 import { t } from '@/state/locale';
 import { useDialogs } from '@/state/dialogs';
 import { type AppFailure, raiseFailure } from '@/state/errors';
@@ -46,9 +46,7 @@ onMounted(async () => {
         });
         flowConstructed.value = true;
     } catch (error) {
-        signInFailure.value = raiseFailure(
-            new AppError('Failed to initialise sign in flow.', 'dpuse-app.SessionAuthPanel', { typeId: 'handled' }, { cause: error })
-        );
+        signInFailure.value = raiseFailure(new AppError('Failed to initialise sign in flow.', 'dpuse-app.SessionAuthPanel', { typeId: 'handled' }, { cause: error }));
     }
 });
 
@@ -187,7 +185,7 @@ function onEnter(element: Element): void {
     if (!container) return;
     const newHeight = (element as HTMLElement).offsetHeight;
     container.style.transition = 'height 0.25s ease-in-out';
-    void container.offsetHeight;
+    container.offsetHeight;
     container.style.height = `${String(newHeight)}px`;
 }
 
