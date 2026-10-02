@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1878",
+    "version": "0.0.1879",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -82,7 +82,7 @@
     "devDependencies": {
         "@cloudflare/vite-plugin": "1.62.5",
         "@cloudflare/workers-types": "^5.20261002.1",
-        "@dpuse/dpuse-development": "^0.3.816",
+        "@dpuse/dpuse-development": "^0.3.817",
         "@dpuse/dpuse-tool-d3-visualiser": "^0.0.52",
         "@dpuse/dpuse-tool-marked-markdown-parser": "^0.1.23",
         "@dpuse/eslint-config-dpuse": "^1.0.124",
