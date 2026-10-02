@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "0.0.1877",
+    "version": "0.0.1878",
     "private": true,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -67,8 +67,8 @@
         "@dpuse/dpuse-shared": "^0.3.868",
         "@fontsource-variable/inter": "^5.3.0",
         "@formkit/drag-and-drop": "^0.6.1",
-        "@tanstack/ai": "^0.63.0",
-        "@tanstack/ai-client": "^0.36.0",
+        "@tanstack/ai": "^0.64.0",
+        "@tanstack/ai-client": "^0.36.1",
         "@tanstack/vue-table": "^9.2.4",
         "@tanstack/vue-virtual": "^3.13.39",
         "@teamhanko/hanko-frontend-sdk": "^3.1.0",
@@ -80,13 +80,13 @@
         "web-vitals": "^6.2.2"
     },
     "devDependencies": {
-        "@cloudflare/vite-plugin": "1.62.4",
+        "@cloudflare/vite-plugin": "1.62.5",
         "@cloudflare/workers-types": "^5.20261002.1",
         "@dpuse/dpuse-development": "^0.3.816",
         "@dpuse/dpuse-tool-d3-visualiser": "^0.0.52",
         "@dpuse/dpuse-tool-marked-markdown-parser": "^0.1.23",
         "@dpuse/eslint-config-dpuse": "^1.0.124",
-        "@lucide/vue": "^1.49.0",
+        "@lucide/vue": "^1.50.0",
         "@playwright/test": "^1.63.0",
         "@tailwindcss/vite": "^4.3.3",
         "@tsconfig/node24": "^24.0.5",
@@ -120,6 +120,6 @@
         "vite": "^8.3.2",
         "vitest": "^5.0.3",
         "vue-tsc": "^3.3.12",
-        "wrangler": "4.146.0"
+        "wrangler": "4.147.0"
     }
 }
