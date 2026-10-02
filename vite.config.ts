@@ -8,6 +8,9 @@ import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
 
+// ── DPUse Framework
+import { recordShippedPackages } from '@dpuse/dpuse-development/vite';
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Only the engines worth naming to a user. 'ios_saf' is left out because it shares Safari's version number, and
@@ -49,7 +52,8 @@ export default defineConfig({
         // 'allowHigherVersions' keeps browsers released after this build matching.
         __SUPPORTED_BROWSER_REGEXP__: getUserAgentRegex({ allowHigherVersions: true }).toString()
     },
-    plugins: [vue(), /*vueDevTools(),*/ tailwindcss(), cloudflare()],
+    // 'recordShippedPackages' writes the record of what the build ships, which 'npm run document' lists licences from.
+    plugins: [vue(), /*vueDevTools(),*/ tailwindcss(), cloudflare(), recordShippedPackages()],
     resolve: {
         alias: {
             '~': fileURLToPath(new URL('.', import.meta.url)),

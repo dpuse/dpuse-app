@@ -1,0 +1,187 @@
+{
+    "@ag-ui/core@1.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/ag-ui-protocol/ag-ui",
+        "publisher": "Markus Ecker",
+        "email": "markus.ecker@gmail.com",
+        "path": "node_modules/@ag-ui/core",
+        "licenseFile": "downloads/@ag-ui/core@1.0.0-LICENSE.txt"
+    },
+    "@dpuse/dpuse-shared@0.3.868": {
+        "licenses": "MIT",
+        "repository": "https://github.com/dpuse/dpuse-shared",
+        "publisher": "Jonathan Terrell",
+        "email": "terrell.jm@gmail.com",
+        "path": "node_modules/@dpuse/dpuse-shared",
+        "licenseFile": "downloads/@dpuse/dpuse-shared@0.3.868-LICENSE.txt"
+    },
+    "@fontsource-variable/inter@5.3.0": {
+        "licenses": "OFL-1.1",
+        "repository": "https://github.com/fontsource/font-files",
+        "publisher": "Google Inc.",
+        "path": "node_modules/@fontsource-variable/inter",
+        "licenseFile": "downloads/@fontsource-variable/inter@5.3.0-LICENSE.txt"
+    },
+    "@formkit/drag-and-drop@0.6.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/formkit/drag-and-drop",
+        "publisher": "Sasha Milenkovic",
+        "email": "sasha@formkit.com",
+        "path": "node_modules/@formkit/drag-and-drop",
+        "licenseFile": "downloads/@formkit/drag-and-drop@0.6.1-LICENSE.txt"
+    },
+    "@lucide/vue@1.49.0": {
+        "licenses": "ISC",
+        "repository": "https://github.com/lucide-icons/lucide",
+        "publisher": "Eric Fennis",
+        "path": "node_modules/@lucide/vue",
+        "licenseFile": "downloads/@lucide/vue@1.49.0-LICENSE.txt"
+    },
+    "@tanstack/ai-client@0.36.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/TanStack/ai",
+        "publisher": "Tanner Linsley",
+        "path": "node_modules/@tanstack/ai-client",
+        "licenseFile": "downloads/@tanstack/ai-client@0.36.0-LICENSE.txt"
+    },
+    "@tanstack/ai@0.63.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/TanStack/ai",
+        "publisher": "Tanner Linsley",
+        "path": "node_modules/@tanstack/ai",
+        "licenseFile": "downloads/@tanstack/ai@0.63.0-LICENSE.txt"
+    },
+    "@tanstack/store@0.11.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/TanStack/store",
+        "publisher": "Tanner Linsley",
+        "path": "node_modules/@tanstack/store",
+        "licenseFile": "downloads/@tanstack/store@0.11.1-LICENSE.txt"
+    },
+    "@tanstack/table-core@9.2.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/TanStack/table",
+        "publisher": "Tanner Linsley",
+        "path": "node_modules/@tanstack/table-core",
+        "licenseFile": "downloads/@tanstack/table-core@9.2.4-LICENSE.txt"
+    },
+    "@tanstack/virtual-core@3.17.11": {
+        "licenses": "MIT",
+        "repository": "https://github.com/TanStack/virtual",
+        "publisher": "Tanner Linsley",
+        "path": "node_modules/@tanstack/virtual-core",
+        "licenseFile": "downloads/@tanstack/virtual-core@3.17.11-LICENSE.txt"
+    },
+    "@tanstack/vue-table@9.2.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/TanStack/table",
+        "publisher": "Tanner Linsley",
+        "path": "node_modules/@tanstack/vue-table",
+        "licenseFile": "downloads/@tanstack/vue-table@9.2.4-LICENSE.txt"
+    },
+    "@tanstack/vue-virtual@3.13.39": {
+        "licenses": "MIT",
+        "repository": "https://github.com/TanStack/virtual",
+        "publisher": "Tanner Linsley",
+        "path": "node_modules/@tanstack/vue-virtual",
+        "licenseFile": "downloads/@tanstack/vue-virtual@3.13.39-LICENSE.txt"
+    },
+    "@teamhanko/hanko-frontend-sdk@3.1.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/teamhanko/hanko",
+        "publisher": "Hanko GmbH",
+        "email": "developers@hanko.io",
+        "path": "node_modules/@teamhanko/hanko-frontend-sdk",
+        "licenseFile": "downloads/@teamhanko/hanko-frontend-sdk@3.1.0-LICENSE.txt"
+    },
+    "@vue/reactivity@3.5.43": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "node_modules/@vue/reactivity",
+        "licenseFile": "downloads/@vue/reactivity@3.5.43-LICENSE.txt"
+    },
+    "@vue/runtime-core@3.5.43": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "node_modules/@vue/runtime-core",
+        "licenseFile": "downloads/@vue/runtime-core@3.5.43-LICENSE.txt"
+    },
+    "@vue/runtime-dom@3.5.43": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "node_modules/@vue/runtime-dom",
+        "licenseFile": "downloads/@vue/runtime-dom@3.5.43-LICENSE.txt"
+    },
+    "@vue/shared@3.5.43": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/core",
+        "publisher": "Evan You",
+        "path": "node_modules/@vue/shared",
+        "licenseFile": "downloads/@vue/shared@3.5.43-LICENSE.txt"
+    },
+    "@vueuse/core@15.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vueuse/vueuse",
+        "publisher": "Anthony Fu",
+        "email": "https://github.com/antfu",
+        "path": "node_modules/@vueuse/core",
+        "licenseFile": "downloads/@vueuse/core@15.0.0-LICENSE.txt"
+    },
+    "@vueuse/shared@15.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vueuse/vueuse",
+        "publisher": "Anthony Fu",
+        "email": "https://github.com/antfu",
+        "path": "node_modules/@vueuse/shared",
+        "licenseFile": "downloads/@vueuse/shared@15.0.0-LICENSE.txt"
+    },
+    "dompurify@3.4.16": {
+        "licenses": "(MPL-2.0 OR Apache-2.0)",
+        "repository": "https://github.com/cure53/DOMPurify",
+        "publisher": "Dr.-Ing. Mario Heiderich, Cure53",
+        "email": "mario@cure53.de",
+        "path": "node_modules/dompurify",
+        "licenseFile": "downloads/dompurify@3.4.16-LICENSE.txt"
+    },
+    "partial-json@0.1.7": {
+        "licenses": "MIT",
+        "repository": "https://github.com/promplate/partial-json-parser-js",
+        "publisher": "Muspi Merol",
+        "email": "me@promplate.dev",
+        "path": "node_modules/partial-json",
+        "licenseFile": "downloads/partial-json@0.1.7-LICENSE.txt"
+    },
+    "squire-rte@2.4.9": {
+        "licenses": "MIT",
+        "repository": "https://github.com/neilj/Squire",
+        "publisher": "Neil Jenkins",
+        "path": "node_modules/squire-rte",
+        "licenseFile": "downloads/squire-rte@2.4.9-LICENSE.txt"
+    },
+    "valibot@1.5.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/open-circle/valibot",
+        "publisher": "Fabian Hiller",
+        "path": "node_modules/valibot",
+        "licenseFile": "downloads/valibot@1.5.0-LICENSE.txt"
+    },
+    "vue-router@5.3.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/vuejs/router",
+        "publisher": "Eduardo San Martin Morote",
+        "email": "posva13@gmail.com",
+        "path": "node_modules/vue-router",
+        "licenseFile": "downloads/vue-router@5.3.1-LICENSE.txt"
+    },
+    "web-vitals@6.2.2": {
+        "licenses": "Apache-2.0",
+        "repository": "https://github.com/GoogleChrome/web-vitals",
+        "publisher": "Philip Walton",
+        "email": "philip@philipwalton.com",
+        "path": "node_modules/web-vitals",
+        "licenseFile": "downloads/web-vitals@6.2.2-LICENSE.txt"
+    }
+}
