@@ -3,7 +3,7 @@
 // import type { ConnectionConfig, RetrieveRecordsOptions } from '@dpuse/dpuse-shared';
 // import type { AuditObjectContentOptions, ConnectionConfig, PreviewObjectOptions, RetrieveRecordsOptions } from '@dpuse/dpuse-shared';
 import { AppError } from '@dpuse/dpuse-shared';
-import type { EngineCallbackData, EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared';
+import type { EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { raiseFailure } from '@/state/errors';

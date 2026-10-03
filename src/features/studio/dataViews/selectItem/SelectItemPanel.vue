@@ -24,7 +24,7 @@ import type {
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { useEngine } from '@/services/useEngine';
-import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, setConnectionNodeConfig } from '@/state/dataViews';
+import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord } from '@/state/dataViews';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
@@ -106,6 +106,7 @@ const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...c
 
 const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionNodeConfig>>>(() => {
     const folderPath = currentFolderPath.value; // Read synchronously so this computed (and useDataWindow's cache) resets on navigation.
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- Read so Vue tracks it as a dependency.
     engineAttempt.value; // Read for the same reason: a retry has to produce a new data source for the window to refetch.
     return {
         rowCount: undefined, // Unknown until the first listNodes response reports totalCount — useDataWindow guarantees that fetch happens.

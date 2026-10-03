@@ -209,6 +209,7 @@ export function useDataWindow<T>({
     const virtualRows = computed(() => virtualizer.value.getVirtualItems());
     const totalSize = computed(() => virtualizer.value.getTotalSize());
     const visibleRowData = computed((): T[] => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- Read so Vue tracks it as a dependency.
         blockCacheVersion.value; // Only recomputes when `virtualRows` or `blockCacheVersion` changes — never on resize.
         return virtualRows.value.map((virtualRow) => getRow(virtualRow.index)) as T[];
     });
@@ -302,6 +303,7 @@ export function useDataWindow<T>({
         const source = dataSource();
         if ('rows' in source) return source.rows[dataIndex]; // Sync source: always available immediately, no fetch/cache involved.
         if (knownRowCount.value === undefined || dataIndex >= knownRowCount.value) return undefined;
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- Read so Vue tracks it as a dependency.
         blockCacheVersion.value;
         const blockIndex = getBlockIndex(dataIndex);
         const block = blockCacheMap.get(blockIndex);

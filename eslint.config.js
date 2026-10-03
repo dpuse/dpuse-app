@@ -119,7 +119,7 @@ const config = defineConfigWithVueTs(
 
             'unicorn/filename-case': [
                 'error',
-                { cases: { camelCase: true, pascalCase: true }, ignore: ['__tests__', 'DPUseLogo.vue', 'ContextERDPanel.vue' /*'src/components/icon(?:/.*)?'*/] }
+                { cases: { camelCase: true, pascalCase: true }, ignore: ['__tests__', 'DPUseLogo.vue', 'ContextERDPanel.vue', /PENDING\.vue$/ /*'src/components/icon(?:/.*)?'*/] } // 'PENDING' marks a parked component.
             ],
             'unicorn/no-non-function-verb-prefix': 'off',
             'unicorn/prefer-top-level-await': 'warn',

@@ -1,4 +1,5 @@
 // ── DPUse Framework
+import { DEFAULT_LOCALE_ID } from '@dpuse/dpuse-shared';
 import type {
     ContextModelConfig,
     ContextModelDimensionConfig,
@@ -13,7 +14,6 @@ import type {
     LocaleId,
     LocalisedConfig
 } from '@dpuse/dpuse-shared';
-import { DEFAULT_LOCALE_ID } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

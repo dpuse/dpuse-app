@@ -3,8 +3,8 @@ import DOMPurify from 'dompurify';
 import { type ShallowRef, shallowRef } from 'vue';
 
 // ── DPUse Framework
-import { AppError, loadTool } from '@dpuse/dpuse-shared';
 import type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
+import { AppError, loadTool } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { toolConfigs } from '@/state/session';

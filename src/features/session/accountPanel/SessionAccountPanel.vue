@@ -14,7 +14,6 @@ import { viewportIsWide } from '@/state/appLayout';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import IconButton from '@/components/ui/action/IconButton.vue';
 import ItemButton from '@/components/ui/action/ItemButton.vue';
-import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────

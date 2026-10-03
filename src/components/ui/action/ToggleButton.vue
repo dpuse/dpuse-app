@@ -26,13 +26,7 @@ const classes = computed(() => [ICON_SIZE_CLASSES[size], PRESS_CLASSES, isFloati
 </script>
 
 <template>
-    <ActionWrapper
-        :aria-expanded="isOpen"
-        :aria-label="accessibleLabel"
-        class="inline-flex items-center justify-center rounded-full"
-        :class="classes"
-        data-region="ToggleButton"
-    >
+    <ActionWrapper :aria-expanded="isOpen" :aria-label="accessibleLabel" class="inline-flex items-center justify-center rounded-full" :class="classes" data-region="ToggleButton">
         <slot />
     </ActionWrapper>
 </template>

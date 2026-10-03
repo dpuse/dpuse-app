@@ -3,8 +3,8 @@
 import { computed } from 'vue';
 
 // ── DPUse Framework
-import type { ConnectorConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 import { constructConnectorCategoryConfig } from '@dpuse/dpuse-shared';
+import type { ConnectorConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { SetupOptionConfig } from '@/utilities/index.ts';

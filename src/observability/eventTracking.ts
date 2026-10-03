@@ -49,7 +49,7 @@ export function forgetUser(): void {
 }
 
 // TODO: Change to 'accountId'?
-export function identifyUser(userId: string, sessionId: string, emailAddress?: string): void {
+export function identifyUser(userId: string, sessionId: string, _emailAddress?: string): void {
     state.activeUserId = userId;
     state.activeSessionId = sessionId;
 }

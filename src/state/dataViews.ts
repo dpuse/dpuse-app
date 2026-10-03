@@ -251,10 +251,10 @@ async function establishDataViewObject(metaStoreConnectionConfig: ConnectionConf
     const { processRequest } = await useEngine();
     const findObjectOptions: FindObjectOptions = { storeId: 'dpuMetaStore', nodeId: 'dataViews' };
     const findObjectResult = (await processRequest('findObject', metaStoreConnectionConfig, findObjectOptions)) as FindObjectResult;
-    if (findObjectResult.path == null) {
-        const createObjectOptions: CreateObjectOptions = { path: '/dpuMetaStore/dataViews', structure: 'id' };
-        await processRequest('createObject', metaStoreConnectionConfig, createObjectOptions);
-    }
+    if (findObjectResult.path != null) return;
+
+    const createObjectOptions: CreateObjectOptions = { path: '/dpuMetaStore/dataViews', structure: 'id' };
+    await processRequest('createObject', metaStoreConnectionConfig, createObjectOptions);
 }
 
 function getActiveDataViewConfig(): DataViewConfig {

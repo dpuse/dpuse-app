@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import type { Action, AnyState, ContinueWithLoginIdentifierInputs, Input, State } from '@teamhanko/hanko-frontend-sdk';
+import type { Action, AnyState, ContinueWithLoginIdentifierInputs, State } from '@teamhanko/hanko-frontend-sdk';
 import { onMounted, onUnmounted, ref, shallowRef, useTemplateRef } from 'vue';
 
 // ── Local Framework
@@ -137,7 +137,7 @@ async function handleLoginFlowMethodChooserState(state: State<'login_method_choo
     if (result.error) console.log(result.error, result);
 }
 
-function handleLoginFlowPasscodeState(state: State<'passcode_confirmation'>): void {
+function handleLoginFlowPasscodeState(_state: State<'passcode_confirmation'>): void {
     uiStateId.value = 'enterPasscode';
     // eslint-disable-next-line @typescript-eslint/require-await -- Code pending...
     handlePasswordEntered.value = async (parameter: unknown): Promise<void> => {
@@ -185,6 +185,7 @@ function onEnter(element: Element): void {
     if (!container) return;
     const newHeight = (element as HTMLElement).offsetHeight;
     container.style.transition = 'height 0.25s ease-in-out';
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- Reading the height forces a layout, so the transition starts from the current height.
     container.offsetHeight;
     container.style.height = `${String(newHeight)}px`;
 }

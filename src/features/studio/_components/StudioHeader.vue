@@ -20,12 +20,7 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
         <!-- Content indented from left and right to allow for logos when display is narrow.
              NOTE: If width of logos changes, the above settings need to be adjusted accordingly. -->
 
-        <component
-            :is="to ? 'RouterLink' : 'div'"
-            class="min-w-0 text-content"
-            :class="{ 'text-center': !viewportIsWide, 'group cursor-pointer': to }"
-            :to="to"
-        >
+        <component :is="to ? 'RouterLink' : 'div'" class="min-w-0 text-content" :class="{ 'text-center': !viewportIsWide, 'group cursor-pointer': to }" :to="to">
             <!-- Overline -->
             <div
                 v-if="overline"

@@ -115,7 +115,7 @@ function handleShowThumbs(): void {
 // ── Drag Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function getScrollOffsetFromPointer(pointerOffset: number, thumbLen: number, travel: number, scrollRange: number): number {
-    return scrollRange === 0 || travel === 0 ? 0 : clamp((pointerOffset - thumbLen / 2) / travel, 0, 1) * scrollRange;
+    return scrollRange === 0 || travel === 0 ? 0 : clampFromZero((pointerOffset - thumbLen / 2) / travel, 1) * scrollRange;
 }
 
 function startDrag(dragStartEvent: PointerEvent | TouchEvent): void {
@@ -215,11 +215,11 @@ function updateThumb(): void {
     const scrollRange = getScrollableRange(scrollSize, clientSize);
 
     thumbOffset.value = getThumbPosition(scrollOffset, scrollRange, travel);
-    scrollPercent.value = scrollRange === 0 ? 0 : clamp((scrollOffset / scrollRange) * 100, 0, 100);
+    scrollPercent.value = scrollRange === 0 ? 0 : clampFromZero((scrollOffset / scrollRange) * 100, 100);
 }
 
 function getThumbPosition(scrollOffset: number, scrollRange: number, travel: number): number {
-    return scrollRange === 0 || travel === 0 ? 0 : clamp((scrollOffset / scrollRange) * travel, 0, travel);
+    return scrollRange === 0 || travel === 0 ? 0 : clampFromZero((scrollOffset / scrollRange) * travel, travel);
 }
 
 function getTrackTravel(trackLength: number, thumbLen: number): number {
@@ -230,8 +230,8 @@ function getScrollableRange(scrollSize: number, clientSize: number): number {
     return Math.max(0, scrollSize - clientSize);
 }
 
-function clamp(value: number, min: number, max: number): number {
-    return Math.max(min, Math.min(value, max));
+function clampFromZero(value: number, max: number): number {
+    return Math.max(0, Math.min(value, max));
 }
 </script>
 

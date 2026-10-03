@@ -59,7 +59,7 @@ const pluginStatus = computed(() => (pluginLocalisedConfig.statusId ? getCompone
 const vendorLinks = computed(() =>
     VENDOR_LINKS.flatMap((vendorLink) => {
         const url = vendorLink.getURL(pluginLocalisedConfig);
-        return url === null || url === '' ? [] : [{ ...vendorLink, url }];
+        return url === null || url === '' ? [] : { ...vendorLink, url };
     })
 );
 </script>

@@ -99,7 +99,9 @@ async function main() {
     console.log('Indexed knowledge into Vectorize index:', vectorIndex);
 }
 
-main().catch((error) => {
+try {
+    await main();
+} catch (error) {
     console.error(error);
     process.exitCode = 1;
-});
+}

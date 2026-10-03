@@ -3,8 +3,8 @@
 import { onMounted, shallowRef, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
-import { AppError, loadTool } from '@dpuse/dpuse-shared';
 import type { Tool as D3Tool } from '@dpuse/dpuse-tool-d3-visualiser';
+import { AppError, loadTool } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { toolConfigs } from '@/state/session';

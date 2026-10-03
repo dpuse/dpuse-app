@@ -36,7 +36,7 @@ const supportedBrowsersText = [...minimumVersions].map(([name, version]) => `${n
 
 // ── Vite Configuration ───────────────────────────────────────────────────────────────────────────────────────────────
 
-export default defineConfig({
+const viteConfig = defineConfig({
     build: {
         rollupOptions: {
             plugins: [Sonda({ filename: 'index', format: 'json', brotli: false, gzip: true, open: false, outputDir: './bundle-analysis-reports/sonda' })]
@@ -94,3 +94,5 @@ export default defineConfig({
         format: 'es'
     }
 });
+
+export default viteConfig;

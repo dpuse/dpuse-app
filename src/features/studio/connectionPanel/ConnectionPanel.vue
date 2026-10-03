@@ -5,8 +5,8 @@ import { computed, shallowRef, watch } from 'vue';
 import { type RouteRecordNameGeneric, useRoute } from 'vue-router';
 
 // ── DPUse Framework
-import type { ConnectorConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 import { localiseConfigs } from '@dpuse/dpuse-shared';
+import type { ConnectorConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';

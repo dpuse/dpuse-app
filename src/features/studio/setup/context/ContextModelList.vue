@@ -3,8 +3,8 @@
 import { computed } from 'vue';
 
 // ── DPUse Framework
-import type { ComponentBaseConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 import { localiseReference } from '@dpuse/dpuse-shared';
+import type { ComponentBaseConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { GridListItem } from './_context';

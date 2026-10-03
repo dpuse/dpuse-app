@@ -71,15 +71,17 @@ async function main(): void {
     for (const match of matches) {
         console.log(`- ${match.id} (score: ${match.score?.toFixed?.(3) ?? match.score})`);
         const text = match.metadata?.text;
-        if (typeof text === 'string' && text.length > 0) {
-            const preview = text.length > 200 ? `${text.slice(0, 200)}...` : text;
-            console.log(`  text: ${preview}`);
-        }
+        if (typeof text !== 'string' || text.length === 0) continue;
+
+        const preview = text.length > 200 ? `${text.slice(0, 200)}...` : text;
+        console.log(`  text: ${preview}`);
     }
 }
 
 
-main().catch((error) => {
+try {
+    await main();
+} catch (error) {
     console.error(error);
     process.exitCode = 1;
-});
+}

@@ -106,7 +106,7 @@ function handleCommitDetail(): void {
     });
 }
 
-function handleDeleteDataView(connectionConfig: LocalisedConfig<ConnectionConfig>): void {
+function handleDeleteDataView(_connectionConfig: LocalisedConfig<ConnectionConfig>): void {
     // TODO
 }
 

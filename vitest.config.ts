@@ -21,7 +21,7 @@ import { configDefaults, defineConfig } from 'vitest/config';
 
 // ── Vitest Configuration ─────────────────────────────────────────────────────────────────────────────────────────────
 
-export default defineConfig({
+const config = defineConfig({
     plugins: [
         vue({
             template: {
@@ -44,3 +44,5 @@ export default defineConfig({
         root: fileURLToPath(new URL('./', import.meta.url))
     }
 });
+
+export default config;

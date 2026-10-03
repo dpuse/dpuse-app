@@ -4,14 +4,14 @@ import { type Ref, ref } from 'vue';
 
 // The assistant's inner split runs this model, and a pane that is open but never in front is invisible on a narrow
 // container — so 'active' and 'visible' have to stay distinct, and the front pane has to follow every change.
-function build(isWide: boolean): { containerIsWide: Ref<boolean>; panes: ReturnType<typeof useSplitPanes<'chat' | 'library'>> } {
-    const containerIsWide = ref(isWide);
+function build(): { containerIsWide: Ref<boolean>; panes: ReturnType<typeof useSplitPanes<'chat' | 'library'>> } {
+    const containerIsWide = ref(true);
     return { containerIsWide, panes: useSplitPanes(['chat', 'library'] as const, { containerIsWide, initialPaneId: 'chat' }) };
 }
 
 describe('split panes', () => {
     it('puts the pane just switched on in front, and the other one when a pane is switched off', () => {
-        const { panes } = build(true);
+        const { panes } = build();
 
         panes.setPaneActiveState('chat', true);
         expect(panes.activePaneId.value).toBe('chat');
@@ -24,7 +24,7 @@ describe('split panes', () => {
     });
 
     it('shows both active panes side by side while wide, and only the front one once narrow', () => {
-        const { containerIsWide, panes } = build(true);
+        const { containerIsWide, panes } = build();
         panes.setPaneActiveState('chat', true);
         panes.setPaneActiveState('library', true);
 
@@ -39,7 +39,7 @@ describe('split panes', () => {
     });
 
     it('mounts a splitter only where two active panes are both on screen', () => {
-        const { containerIsWide, panes } = build(true);
+        const { containerIsWide, panes } = build();
         panes.setPaneActiveState('chat', true);
         expect(panes.splitterIsVisible.value).toBe(false); // Nothing to divide with one pane open.
 
@@ -51,7 +51,7 @@ describe('split panes', () => {
     });
 
     it('latches activation so a closed pane keeps what the user left in it', () => {
-        const { panes } = build(true);
+        const { panes } = build();
         expect(panes.wasPaneActivated('library')).toBe(false);
 
         panes.setPaneActiveState('library', true);

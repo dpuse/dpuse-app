@@ -123,7 +123,15 @@ function getRowHeight(item: T | undefined): number {
                 <slot name="no-items" />
             </ScrollArea>
 
-            <ScrollArea v-else class="flex-1" role="list" :row-count="rowCount" :scroll-area-padding-bottom="scrollAreaPaddingBottom" :scroll-area-padding-top="scrollAreaPaddingTop" @initialised="handleScrollAreaInitialised">
+            <ScrollArea
+                v-else
+                class="flex-1"
+                role="list"
+                :row-count="rowCount"
+                :scroll-area-padding-bottom="scrollAreaPaddingBottom"
+                :scroll-area-padding-top="scrollAreaPaddingTop"
+                @initialised="handleScrollAreaInitialised"
+            >
                 <!-- <div :class="{ 'mt-2': isCompact }" :style="{ height: totalSize + 'px', position: 'relative' }"> -->
                 <div :style="{ height: totalSize + 'px', position: 'relative' }">
                     <div

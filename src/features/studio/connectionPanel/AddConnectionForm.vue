@@ -1,19 +1,13 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowBigRightIcon } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import type { ConnectionConfig, ConnectorConfig, EngineAuthActionOptions, LocalisedConfig } from '@dpuse/dpuse-shared';
+import type { ConnectorConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { accountId } from '@/state/session';
-import { t } from '@/state/locale';
-import { TEXT } from './AddConnectionForm_.json';
-import { useEngine } from '@/services/useEngine';
 
 // ── Static Components
-import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

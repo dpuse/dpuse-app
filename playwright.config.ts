@@ -18,7 +18,7 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-export default defineConfig({
+const config = defineConfig({
     testDir: './e2e',
     /*
     Maximum time one test can run for.
@@ -146,3 +146,5 @@ export default defineConfig({
         reuseExistingServer: process.env.CI == null
     }
 });
+
+export default config;
