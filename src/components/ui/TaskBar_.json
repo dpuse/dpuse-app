@@ -1,0 +1,8 @@
+{
+    "TEXT": {
+        "step.aria": { "en": "Step {number}: {label}", "es": "Paso {number}: {label}" },
+        "step.chosen.aria": { "en": "Step {number}: {label}, {detail}", "es": "Paso {number}: {label}, {detail}" },
+        "step.locked.aria": { "en": "Step {number}: {label} (not available yet)", "es": "Paso {number}: {label} (aún no disponible)" },
+        "steps.aria": { "en": "Steps", "es": "Pasos" }
+    }
+}

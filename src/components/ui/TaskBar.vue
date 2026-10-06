@@ -6,7 +6,8 @@ import type { RouteLocationRaw } from 'vue-router';
 import { DEFAULT_LOCALE_ID, type LocaleDescription, type LocaleLabel, type LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { localeId } from '@/state/locale';
+import { TEXT } from './TaskBar_.json';
+import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -29,9 +30,16 @@ export interface TaskConfig {
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { activeId, items = [] } = defineProps<{ activeId?: string; items?: (LocalisedConfig<TaskConfig> & { to?: RouteLocationRaw })[] }>();
+// 'detail' names what was chosen in a step, such as the connection, and is shown under its label when the bar is wide.
+const { activeId, items = [] } = defineProps<{ activeId?: string; items?: (LocalisedConfig<TaskConfig> & { detail?: string; to?: RouteLocationRaw })[] }>();
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function describeStep(item: LocalisedConfig<TaskConfig> & { detail?: string }): string {
+    const parameters = { detail: item.detail ?? '', label: item.label, number: item.number };
+    if (item.disabled) return t(TEXT, 'step.locked.aria', parameters);
+    return t(TEXT, item.detail == null ? 'step.aria' : 'step.chosen.aria', parameters);
+}
 
 function localiseLine(line: LocaleLabel): string {
     return line[localeId.value] ?? line[DEFAULT_LOCALE_ID] ?? '';
@@ -40,37 +48,52 @@ function localiseLine(line: LocaleLabel): string {
 
 <template>
     <!-- '-mt-1.5' pulls the bar up into the empty space at the bottom of the header above it. -->
-    <ScrollRow class="@container -mt-1.5 flex-none" data-region="TaskBar" keep-active-item-in-view row-class="gap-x-1">
-        <component
-            :is="item.disabled ? 'div' : ActionWrapper"
-            v-for="item in items"
-            :key="item.id"
-            :aria-selected="activeId === item.id"
-            class="flex flex-col gap-y-1 pt-1 pb-2 text-sm"
-            :class="item.disabled ? 'text-muted' : 'text-accent'"
-            role="tab"
-            :to="item.to"
-        >
-            <!-- Step line with the number on it. The line is drawn through the middle of the number, so the number is
-                 never cut off by the top of the tab. -->
-            <div class="relative flex h-4 items-center">
-                <div class="absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2" :class="item.disabled ? 'bg-muted' : 'bg-accent'" />
-                <div
-                    class="relative flex size-4 items-center justify-center rounded-full text-[0.6875rem] font-bold text-surface"
-                    :class="item.disabled ? 'bg-muted' : 'bg-accent'"
+    <nav :aria-label="t(TEXT, 'steps.aria')" class="@container -mt-1.5 flex-none" data-region="TaskBar">
+        <ScrollRow keep-active-item-in-view row-tag="ol">
+            <li v-for="(item, index) in items" :key="item.id">
+                <component
+                    :is="item.disabled ? 'div' : ActionWrapper"
+                    :aria-current="activeId === item.id ? 'step' : undefined"
+                    class="group flex flex-col gap-y-1 pt-1 pb-2 text-sm"
+                    :to="item.to"
                 >
-                    <!-- 'text-box' trims the font's empty space above and below the digits, so they sit in the middle of the circle. -->
-                    <span class="[text-box:trim-both_cap_alphabetic]">{{ item.number }}</span>
-                </div>
-            </div>
+                    <!-- Filled circle for the current step, outlined for the others: accent when it can be opened, muted
+                         when it is locked. The connector leads to the next step, so it takes that step's colour, and the
+                         last step has none. -->
+                    <div aria-hidden="true" class="flex h-5 items-center">
+                        <div
+                            class="flex size-5 flex-none items-center justify-center rounded-full border-2 text-xs font-semibold"
+                            :class="[
+                                activeId === item.id ? 'border-accent bg-accent text-surface' : 'bg-surface',
+                                activeId !== item.id && (item.disabled ? 'border-muted text-muted' : 'border-accent text-accent')
+                            ]"
+                        >
+                            <!-- 'text-box' trims the font's empty space above and below the digits, so they sit in the middle of the circle. -->
+                            <span class="[text-box:trim-both_cap_alphabetic]">{{ item.number }}</span>
+                        </div>
+                        <div v-if="index < items.length - 1" class="mx-1 h-0.5 min-w-4 flex-1 rounded-full" :class="items[index + 1]?.disabled ? 'bg-muted/50' : 'bg-accent'" />
+                    </div>
 
-            <!-- One line once the bar itself is wide enough, which is not the same as the viewport being wide: the bar
-                 sits in an app pane the splitter resizes. Only one version is displayed, so screen readers read one. -->
-            <span class="hidden pr-2 leading-none @min-[40rem]:inline">{{ item.label }}</span>
-            <span class="flex flex-col pr-2 leading-none @min-[40rem]:hidden">
-                <span>{{ localiseLine(item.labelLine1) }}</span>
-                <span>{{ localiseLine(item.labelLine2) }}</span>
-            </span>
-        </component>
-    </ScrollRow>
+                    <!-- One line once the bar itself is wide enough, which is not the same as the viewport being wide: the
+                         bar sits in an app pane the splitter resizes. Screen readers get the whole step from the hidden
+                         text instead, so they hear the number and whether it is locked. -->
+                    <span
+                        aria-hidden="true"
+                        class="leading-none"
+                        :class="[index < items.length - 1 && 'pr-3', activeId === item.id ? 'text-accent' : item.disabled ? 'text-muted' : 'group-hover:text-accent']"
+                    >
+                        <span class="hidden flex-col gap-y-1 @min-[40rem]:flex">
+                            <span>{{ item.label }}</span>
+                            <span v-if="item.detail" class="max-w-48 truncate text-xs text-muted">{{ item.detail }}</span>
+                        </span>
+                        <span class="flex flex-col @min-[40rem]:hidden">
+                            <span>{{ localiseLine(item.labelLine1) }}</span>
+                            <span>{{ localiseLine(item.labelLine2) }}</span>
+                        </span>
+                    </span>
+                    <span class="sr-only">{{ describeStep(item) }}</span>
+                </component>
+            </li>
+        </ScrollRow>
+    </nav>
 </template>

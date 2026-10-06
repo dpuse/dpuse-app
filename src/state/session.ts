@@ -40,7 +40,7 @@ export interface ConnectionAccountConfig {
 
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 const EXPIRE_INTERVAL_SLOW = 60_000; // Milliseconds (1 minute).
-const HANKO_API_URL = import.meta.env.PROD ? import.meta.env.VITE_HANKO_API_URL_PROD : import.meta.env.VITE_HANKO_API_URL_DEV;
+const HANKO_API_URL = import.meta.env.PROD ? 'https://auth.dpuse.app' : 'https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io'; // Public addresses, kept here so a build needs no '.env'.
 const LOCAL_META_NODE_CONNECTOR_ID = 'dpuse-connector-dexie-js';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────

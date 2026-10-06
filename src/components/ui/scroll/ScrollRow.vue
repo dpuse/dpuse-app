@@ -19,16 +19,24 @@ const ARROW_BUTTON_WIDTH = 40;
 // The rest of the button is a fade that you can still see through, so an item under only the fade counts as visible.
 const ARROW_COVER_WIDTH = 24;
 
+// Marks the active item, or an element inside it.
+const ACTIVE_ITEM_SELECTOR = '[aria-selected="true"], [aria-current="step"]';
+
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { keepActiveItemInView, rowClass } = defineProps<{
+const {
+    keepActiveItemInView,
+    rowClass,
+    rowTag = 'div'
+} = defineProps<{
     keepActiveItemInView?: boolean; // Scrolls the active item into view when the row first shows and whenever it changes.
     rowClass?: string; // Extra classes for the row, such as the gap between items.
+    rowTag?: 'div' | 'ol'; // 'ol' for items in a set order, such as steps. Each item must then be an 'li'.
 }>();
 
 defineSlots<{
-    // The items. Each one must be its own element, because the arrows scroll one item at a time. Mark the active item
-    // with 'aria-selected="true"' so 'keepActiveItemInView' can find it.
+    // The items. Each one must be its own element, because the arrows scroll one item at a time. Mark the active item,
+    // or an element inside it, with 'aria-selected="true"' or 'aria-current="step"' so 'keepActiveItemInView' can find it.
     default(): unknown;
 }>();
 
@@ -37,7 +45,7 @@ defineSlots<{
 const revealedActiveItem = shallowRef<HTMLElement>(); // The active item last scrolled into view, so it only scrolls again when it changes.
 const rowCanScrollLeft = ref(false);
 const rowCanScrollRight = ref(false);
-const rowElement = useTemplateRef<HTMLDivElement>('row');
+const rowElement = useTemplateRef<HTMLElement>('row');
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -131,7 +139,7 @@ function measureItemContent(item: HTMLElement): { left: number; right: number } 
 function revealActiveItem(behavior: ScrollBehavior): void {
     const row = rowElement.value;
     if (!keepActiveItemInView || !row) return;
-    const activeItem = row.querySelector<HTMLElement>(':scope > [aria-selected="true"]') ?? undefined;
+    const activeItem = ([...row.children] as HTMLElement[]).find((item) => item.matches(ACTIVE_ITEM_SELECTOR) || item.querySelector(ACTIVE_ITEM_SELECTOR) !== null);
     if (!activeItem || activeItem === revealedActiveItem.value) return;
     revealedActiveItem.value = activeItem;
     revealItem(row, activeItem, behavior);
@@ -163,7 +171,8 @@ function updateScrollState(): void {
     <div class="relative flex" data-region="ScrollRow">
         <!-- 'overscroll-x-none' stops a swipe that reaches either end from moving the page, for example going back a page.
              The scrollbar is hidden because the arrow buttons replace it. People can still swipe to scroll. -->
-        <div
+        <component
+            :is="rowTag"
             ref="row"
             class="flex min-w-0 flex-1 scrollbar-none overflow-x-auto overscroll-x-none border-b border-separator px-4"
             :class="rowClass"
@@ -171,7 +180,7 @@ function updateScrollState(): void {
             @scroll="handleScroll"
         >
             <slot />
-        </div>
+        </component>
 
         <!-- 'bottom-px' leaves out the row's 1px bottom border, so each arrow is centred on the items. -->
         <button
