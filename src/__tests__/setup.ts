@@ -54,6 +54,10 @@ Object.defineProperties(globalThis, {
     IntersectionObserver: { configurable: true, writable: true, value: ObserverStub }
 });
 
+// jsdom has no 'document.fonts'. Components that measure text wait on 'document.fonts.ready' as they mount, so a font
+// set that is already loaded stands in for it.
+Object.defineProperty(document, 'fonts', { configurable: true, value: { ready: Promise.resolve() } });
+
 // jsdom implements '<dialog>' but not 'showModal'/'close', which is what the app uses to promote a dialog to the top
 // layer. Modelled just closely enough for the open state to be observable.
 

@@ -135,7 +135,7 @@ function reportHeight(): void {
             <AssistantModelMenu class="min-w-0 justify-self-start" :model-config="modelConfig" :model-configs="modelConfigs" @select="handleSelectModel" />
 
             <IconButton
-                :accessible-label="responseIsRunning ? 'Stop the response' : 'Send the message'"
+                :accessible-label="t(TEXT, responseIsRunning ? 'stop.aria' : 'send.aria')"
                 :class="sendButtonClasses"
                 :disabled="!responseIsRunning && draft.trim().length === 0"
                 shape="round"

@@ -70,7 +70,7 @@ const viteConfig = defineConfig({
                 " form-action 'none';" +
                 " frame-ancestors 'none';" +
                 " frame-src 'none';" +
-                " img-src 'self' blob: https://gravatar.com;" +
+                " img-src 'self' blob: data: https://gravatar.com;" +
                 " manifest-src 'self';" +
                 " object-src 'none';" +
                 " script-src 'self' https://engine-eu.dpuse.app 'wasm-unsafe-eval' 'sha256-HSvgr//xBF8qoKsX1FPA79evG6rtxroRm2NegRE7MHs=';" +

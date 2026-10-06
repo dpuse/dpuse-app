@@ -87,12 +87,15 @@ describe('chat composer send/stop button', () => {
         session.sendMessage.mockClear();
         session.status.value = 'ready';
         const wrapper = await mountPanel();
-        const button = composerButton(wrapper);
 
-        expect(button.attributes('aria-label')).toBe('Send the message');
-        await button.trigger('click');
+        // Nothing to send yet, so the button waits for a draft.
+        expect(composerButton(wrapper).attributes('aria-label')).toBe('Send the message');
+        expect(composerButton(wrapper).attributes('disabled')).toBeDefined();
 
-        expect(session.sendMessage).toHaveBeenCalledOnce();
+        await wrapper.get('textarea').setValue('Hello');
+        await composerButton(wrapper).trigger('click');
+
+        expect(session.sendMessage).toHaveBeenCalledExactlyOnceWith('Hello');
     });
 
     it('becomes a stop button while a response is running, and cancels rather than sending', async () => {
@@ -106,10 +109,10 @@ describe('chat composer send/stop button', () => {
 
         const button = composerButton(wrapper);
         expect(button.attributes('aria-label')).toBe('Stop the response');
-        // The tokens the composer's two states resolve to, not the raw colours: the button takes 'destructive' while a
-        // run is cancellable and 'primary' otherwise, so the assertion follows the variant rather than a hex.
-        expect(button.classes()).toContain('bg-danger');
-        expect(button.classes()).not.toContain('bg-info');
+        // The tokens the composer's two states resolve to, not the raw colours: 'danger' while a run is cancellable and
+        // 'info' otherwise. The trailing '!' is Tailwind's important flag, which puts them over the button's own look.
+        expect(button.classes()).toContain('bg-danger!');
+        expect(button.classes()).not.toContain('bg-info!');
 
         await button.trigger('click');
         expect(session.stop).toHaveBeenCalledOnce();
