@@ -14,6 +14,7 @@ import { TEXT } from './ChatEmptyState_.json';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
+import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -35,7 +36,7 @@ const workflowOptionConfigs = useStudioOptions();
                 :to="{ name: config.id, query: $route.query }"
             >
                 <dt class="flex items-center gap-x-2 text-sm font-semibold text-emphasis">
-                    <div aria-hidden="true" class="size-6 flex-none" v-html="config.icon" />
+                    <ConfigIcon class="size-6" :icon="config.icon" :icon-dark="config.iconDark" />
                     {{ config.label }}
                 </dt>
                 <dd class="mt-1 text-sm text-muted">{{ config.description }}</dd>

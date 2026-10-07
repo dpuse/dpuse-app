@@ -1,10 +1,10 @@
 {
-  "version": "1.0.104",
+  "version": "1.0.105",
   "name": "dpuse-app",
   "dependencies": {
     "@cloudflare/vite-plugin": {
-      "version": "1.62.5",
-      "resolved": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.62.5.tgz",
+      "version": "1.63.0",
+      "resolved": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.63.0.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/unenv-preset": {
@@ -16,13 +16,13 @@
               "version": "2.0.0-rc.24"
             },
             "workerd": {
-              "version": "1.20261001.1"
+              "version": "1.20261006.1"
             }
           }
         },
         "miniflare": {
-          "version": "5.20261001.0-alpha",
-          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261001.0-alpha.tgz",
+          "version": "5.20261006.0-alpha",
+          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261006.0-alpha.tgz",
           "overridden": false,
           "dependencies": {
             "@cspotcode/source-map-support": {
@@ -54,7 +54,7 @@
               "overridden": false
             },
             "workerd": {
-              "version": "1.20261001.1"
+              "version": "1.20261006.1"
             },
             "ws": {
               "version": "8.21.0"
@@ -141,14 +141,14 @@
           "version": "8.3.3"
         },
         "workerd": {
-          "version": "1.20261001.1",
-          "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261001.1.tgz",
+          "version": "1.20261006.1",
+          "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261006.1.tgz",
           "overridden": false,
           "dependencies": {
             "@cloudflare/workerd-darwin-64": {},
             "@cloudflare/workerd-darwin-arm64": {
-              "version": "1.20261001.1",
-              "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261001.1.tgz",
+              "version": "1.20261006.1",
+              "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261006.1.tgz",
               "overridden": false
             },
             "@cloudflare/workerd-linux-64": {},
@@ -157,7 +157,7 @@
           }
         },
         "wrangler": {
-          "version": "4.147.0"
+          "version": "4.148.0"
         },
         "ws": {
           "version": "8.21.0",
@@ -171,8 +171,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261006.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261006.1.tgz",
+      "version": "5.20261007.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261007.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -1396,8 +1396,8 @@
       }
     },
     "@dpuse/dpuse-tool-d3-visualiser": {
-      "version": "1.0.106",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-d3-visualiser/-/dpuse-tool-d3-visualiser-1.0.106.tgz",
+      "version": "1.0.107",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-d3-visualiser/-/dpuse-tool-d3-visualiser-1.0.107.tgz",
       "overridden": false,
       "dependencies": {
         "@dagrejs/dagre": {
@@ -1415,177 +1415,9 @@
         "@dpuse/dpuse-shared": {
           "version": "1.0.116"
         },
-        "@observablehq/plot": {
-          "version": "0.6.17",
-          "resolved": "https://registry.npmjs.org/@observablehq/plot/-/plot-0.6.17.tgz",
-          "overridden": false,
-          "dependencies": {
-            "d3": {
-              "version": "7.9.0",
-              "resolved": "https://registry.npmjs.org/d3/-/d3-7.9.0.tgz",
-              "overridden": false,
-              "dependencies": {
-                "d3-array": {
-                  "version": "3.2.4"
-                },
-                "d3-axis": {
-                  "version": "3.0.0"
-                },
-                "d3-brush": {
-                  "version": "3.0.0"
-                },
-                "d3-chord": {
-                  "version": "3.0.1"
-                },
-                "d3-color": {
-                  "version": "3.1.0"
-                },
-                "d3-contour": {
-                  "version": "4.0.2"
-                },
-                "d3-delaunay": {
-                  "version": "6.0.4"
-                },
-                "d3-dispatch": {
-                  "version": "3.0.1"
-                },
-                "d3-drag": {
-                  "version": "3.0.0"
-                },
-                "d3-dsv": {
-                  "version": "3.0.1",
-                  "resolved": "https://registry.npmjs.org/d3-dsv/-/d3-dsv-3.0.1.tgz",
-                  "overridden": false,
-                  "dependencies": {
-                    "commander": {
-                      "version": "7.2.0",
-                      "resolved": "https://registry.npmjs.org/commander/-/commander-7.2.0.tgz",
-                      "overridden": false
-                    },
-                    "iconv-lite": {
-                      "version": "0.6.3",
-                      "resolved": "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.6.3.tgz",
-                      "overridden": false,
-                      "dependencies": {
-                        "safer-buffer": {
-                          "version": "2.1.2",
-                          "resolved": "https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz",
-                          "overridden": false
-                        }
-                      }
-                    },
-                    "rw": {
-                      "version": "1.3.3",
-                      "resolved": "https://registry.npmjs.org/rw/-/rw-1.3.3.tgz",
-                      "overridden": false
-                    }
-                  }
-                },
-                "d3-ease": {
-                  "version": "3.0.1"
-                },
-                "d3-fetch": {
-                  "version": "3.0.1",
-                  "resolved": "https://registry.npmjs.org/d3-fetch/-/d3-fetch-3.0.1.tgz",
-                  "overridden": false,
-                  "dependencies": {
-                    "d3-dsv": {
-                      "version": "3.0.1"
-                    }
-                  }
-                },
-                "d3-force": {
-                  "version": "3.0.0"
-                },
-                "d3-format": {
-                  "version": "3.1.2"
-                },
-                "d3-geo": {
-                  "version": "3.1.1"
-                },
-                "d3-hierarchy": {
-                  "version": "3.1.2"
-                },
-                "d3-interpolate": {
-                  "version": "3.0.1"
-                },
-                "d3-path": {
-                  "version": "3.1.0"
-                },
-                "d3-polygon": {
-                  "version": "3.0.1",
-                  "resolved": "https://registry.npmjs.org/d3-polygon/-/d3-polygon-3.0.1.tgz",
-                  "overridden": false
-                },
-                "d3-quadtree": {
-                  "version": "3.0.1"
-                },
-                "d3-random": {
-                  "version": "3.0.1",
-                  "resolved": "https://registry.npmjs.org/d3-random/-/d3-random-3.0.1.tgz",
-                  "overridden": false
-                },
-                "d3-scale-chromatic": {
-                  "version": "3.1.0",
-                  "resolved": "https://registry.npmjs.org/d3-scale-chromatic/-/d3-scale-chromatic-3.1.0.tgz",
-                  "overridden": false,
-                  "dependencies": {
-                    "d3-color": {
-                      "version": "3.1.0"
-                    },
-                    "d3-interpolate": {
-                      "version": "3.0.1"
-                    }
-                  }
-                },
-                "d3-scale": {
-                  "version": "4.0.2"
-                },
-                "d3-selection": {
-                  "version": "3.0.0"
-                },
-                "d3-shape": {
-                  "version": "3.2.0"
-                },
-                "d3-time-format": {
-                  "version": "4.1.0"
-                },
-                "d3-time": {
-                  "version": "3.1.0"
-                },
-                "d3-timer": {
-                  "version": "3.0.1"
-                },
-                "d3-transition": {
-                  "version": "3.0.1"
-                },
-                "d3-zoom": {
-                  "version": "3.0.0"
-                }
-              }
-            },
-            "interval-tree-1d": {
-              "version": "1.0.4",
-              "resolved": "https://registry.npmjs.org/interval-tree-1d/-/interval-tree-1d-1.0.4.tgz",
-              "overridden": false,
-              "dependencies": {
-                "binary-search-bounds": {
-                  "version": "2.0.5",
-                  "resolved": "https://registry.npmjs.org/binary-search-bounds/-/binary-search-bounds-2.0.5.tgz",
-                  "overridden": false
-                }
-              }
-            },
-            "isoformat": {
-              "version": "0.2.1",
-              "resolved": "https://registry.npmjs.org/isoformat/-/isoformat-0.2.1.tgz",
-              "overridden": false
-            }
-          }
-        },
         "@tanstack/charts": {
-          "version": "0.18.0",
-          "resolved": "https://registry.npmjs.org/@tanstack/charts/-/charts-0.18.0.tgz",
+          "version": "1.0.0",
+          "resolved": "https://registry.npmjs.org/@tanstack/charts/-/charts-1.0.0.tgz",
           "overridden": false,
           "dependencies": {
             "@angular/core": {},
@@ -2535,7 +2367,9 @@
               "version": "3.2.4"
             },
             "d3-axis": {
-              "version": "3.0.0"
+              "version": "3.0.0",
+              "resolved": "https://registry.npmjs.org/d3-axis/-/d3-axis-3.0.0.tgz",
+              "overridden": false
             },
             "d3-brush": {
               "version": "3.0.0"
@@ -2661,7 +2495,148 @@
               "version": "3.0.0"
             },
             "d3": {
-              "version": "7.9.0"
+              "version": "7.9.0",
+              "resolved": "https://registry.npmjs.org/d3/-/d3-7.9.0.tgz",
+              "overridden": false,
+              "dependencies": {
+                "d3-array": {
+                  "version": "3.2.4"
+                },
+                "d3-axis": {
+                  "version": "3.0.0"
+                },
+                "d3-brush": {
+                  "version": "3.0.0"
+                },
+                "d3-chord": {
+                  "version": "3.0.1"
+                },
+                "d3-color": {
+                  "version": "3.1.0"
+                },
+                "d3-contour": {
+                  "version": "4.0.2"
+                },
+                "d3-delaunay": {
+                  "version": "6.0.4"
+                },
+                "d3-dispatch": {
+                  "version": "3.0.1"
+                },
+                "d3-drag": {
+                  "version": "3.0.0"
+                },
+                "d3-dsv": {
+                  "version": "3.0.1",
+                  "resolved": "https://registry.npmjs.org/d3-dsv/-/d3-dsv-3.0.1.tgz",
+                  "overridden": false,
+                  "dependencies": {
+                    "commander": {
+                      "version": "7.2.0",
+                      "resolved": "https://registry.npmjs.org/commander/-/commander-7.2.0.tgz",
+                      "overridden": false
+                    },
+                    "iconv-lite": {
+                      "version": "0.6.3",
+                      "resolved": "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.6.3.tgz",
+                      "overridden": false,
+                      "dependencies": {
+                        "safer-buffer": {
+                          "version": "2.1.2",
+                          "resolved": "https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz",
+                          "overridden": false
+                        }
+                      }
+                    },
+                    "rw": {
+                      "version": "1.3.3",
+                      "resolved": "https://registry.npmjs.org/rw/-/rw-1.3.3.tgz",
+                      "overridden": false
+                    }
+                  }
+                },
+                "d3-ease": {
+                  "version": "3.0.1"
+                },
+                "d3-fetch": {
+                  "version": "3.0.1",
+                  "resolved": "https://registry.npmjs.org/d3-fetch/-/d3-fetch-3.0.1.tgz",
+                  "overridden": false,
+                  "dependencies": {
+                    "d3-dsv": {
+                      "version": "3.0.1"
+                    }
+                  }
+                },
+                "d3-force": {
+                  "version": "3.0.0"
+                },
+                "d3-format": {
+                  "version": "3.1.2"
+                },
+                "d3-geo": {
+                  "version": "3.1.1"
+                },
+                "d3-hierarchy": {
+                  "version": "3.1.2"
+                },
+                "d3-interpolate": {
+                  "version": "3.0.1"
+                },
+                "d3-path": {
+                  "version": "3.1.0"
+                },
+                "d3-polygon": {
+                  "version": "3.0.1",
+                  "resolved": "https://registry.npmjs.org/d3-polygon/-/d3-polygon-3.0.1.tgz",
+                  "overridden": false
+                },
+                "d3-quadtree": {
+                  "version": "3.0.1"
+                },
+                "d3-random": {
+                  "version": "3.0.1",
+                  "resolved": "https://registry.npmjs.org/d3-random/-/d3-random-3.0.1.tgz",
+                  "overridden": false
+                },
+                "d3-scale-chromatic": {
+                  "version": "3.1.0",
+                  "resolved": "https://registry.npmjs.org/d3-scale-chromatic/-/d3-scale-chromatic-3.1.0.tgz",
+                  "overridden": false,
+                  "dependencies": {
+                    "d3-color": {
+                      "version": "3.1.0"
+                    },
+                    "d3-interpolate": {
+                      "version": "3.0.1"
+                    }
+                  }
+                },
+                "d3-scale": {
+                  "version": "4.0.2"
+                },
+                "d3-selection": {
+                  "version": "3.0.0"
+                },
+                "d3-shape": {
+                  "version": "3.2.0"
+                },
+                "d3-time-format": {
+                  "version": "4.1.0"
+                },
+                "d3-time": {
+                  "version": "3.1.0"
+                },
+                "d3-timer": {
+                  "version": "3.0.1"
+                },
+                "d3-transition": {
+                  "version": "3.0.1"
+                },
+                "d3-zoom": {
+                  "version": "3.0.0"
+                }
+              }
             },
             "elkjs": {
               "version": "0.10.2",
@@ -2875,65 +2850,6 @@
             }
           }
         },
-        "billboard.js": {
-          "version": "4.1.1",
-          "resolved": "https://registry.npmjs.org/billboard.js/-/billboard.js-4.1.1.tgz",
-          "overridden": false,
-          "dependencies": {
-            "@types/d3-selection": {
-              "version": "3.0.12"
-            },
-            "@types/d3-transition": {
-              "version": "3.0.9"
-            },
-            "d3-axis": {
-              "version": "3.0.0"
-            },
-            "d3-brush": {
-              "version": "3.0.0"
-            },
-            "d3-drag": {
-              "version": "3.0.0"
-            },
-            "d3-hierarchy": {
-              "version": "3.1.2"
-            },
-            "d3-interpolate": {
-              "version": "3.0.1"
-            },
-            "d3-scale": {
-              "version": "4.0.2"
-            },
-            "d3-selection": {
-              "version": "3.0.0"
-            },
-            "d3-shape": {
-              "version": "3.2.0"
-            },
-            "d3-time-format": {
-              "version": "4.1.0",
-              "resolved": "https://registry.npmjs.org/d3-time-format/-/d3-time-format-4.1.0.tgz",
-              "overridden": false,
-              "dependencies": {
-                "d3-time": {
-                  "version": "3.1.0"
-                }
-              }
-            },
-            "d3-transition": {
-              "version": "3.0.1"
-            },
-            "d3-zoom": {
-              "version": "3.0.0"
-            },
-            "react": {}
-          }
-        },
-        "d3-axis": {
-          "version": "3.0.0",
-          "resolved": "https://registry.npmjs.org/d3-axis/-/d3-axis-3.0.0.tgz",
-          "overridden": false
-        },
         "d3-drag": {
           "version": "3.0.0",
           "resolved": "https://registry.npmjs.org/d3-drag/-/d3-drag-3.0.0.tgz",
@@ -3020,7 +2936,14 @@
               "version": "3.0.1"
             },
             "d3-time-format": {
-              "version": "4.1.0"
+              "version": "4.1.0",
+              "resolved": "https://registry.npmjs.org/d3-time-format/-/d3-time-format-4.1.0.tgz",
+              "overridden": false,
+              "dependencies": {
+                "d3-time": {
+                  "version": "3.1.0"
+                }
+              }
             },
             "d3-time": {
               "version": "3.1.0",
@@ -6921,8 +6844,8 @@
       "overridden": false
     },
     "wrangler": {
-      "version": "4.147.0",
-      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.147.0.tgz",
+      "version": "4.148.0",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.148.0.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/kv-asset-handler": {
@@ -6934,7 +6857,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261006.1"
+          "version": "5.20261007.1"
         },
         "blake3-wasm": {
           "version": "2.1.5",
@@ -6948,7 +6871,7 @@
           "version": "2.3.3"
         },
         "miniflare": {
-          "version": "5.20261001.0-alpha"
+          "version": "5.20261006.0-alpha"
         },
         "path-to-regexp": {
           "version": "6.3.0",
@@ -6959,7 +6882,7 @@
           "version": "2.0.0-rc.24"
         },
         "workerd": {
-          "version": "1.20261001.1"
+          "version": "1.20261006.1"
         }
       }
     }

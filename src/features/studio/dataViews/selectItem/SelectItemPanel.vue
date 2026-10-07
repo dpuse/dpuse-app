@@ -30,6 +30,7 @@ import { type AppFailure, raiseFailure } from '@/state/errors';
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
+import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
@@ -340,8 +341,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         <template #detail="{ item }">
             <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
                 <div class="flex size-7 items-center justify-center">
-                    <div v-if="item.icon" aria-hidden="true" class="block w-6 dark:hidden" v-html="item.icon" />
-                    <div v-if="item.icon" aria-hidden="true" class="hidden w-6 dark:block" v-html="item.icon" />
+                    <ConfigIcon class="size-6" :icon="item.icon" :icon-dark="item.iconDark" />
                 </div>
                 <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
             </div>

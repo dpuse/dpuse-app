@@ -14,6 +14,7 @@ import { t } from '@/state/locale';
 import { type StudioOptionConfig, useStudioOptions } from './useStudioOptions';
 
 // ── Static Components
+import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import IconButton from '@/components/ui/action/IconButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
@@ -84,7 +85,7 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
                         :to="{ name: config.id, query: $route.query }"
                         @click="handleComplete(config)"
                     >
-                        <div aria-hidden="true" v-html="config.icon" />
+                        <ConfigIcon class="size-5.5" :icon="config.icon" :icon-dark="config.iconDark" />
                     </IconButton>
                 </template>
             </div>
