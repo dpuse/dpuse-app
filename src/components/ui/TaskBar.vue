@@ -53,14 +53,14 @@ function localiseLine(line: LocaleLabel): string {
                 <component
                     :is="item.disabled ? 'div' : ActionWrapper"
                     :aria-current="activeId === item.id ? 'step' : undefined"
-                    class="group flex items-start gap-x-2 pt-1 pb-2 text-sm"
+                    class="group flex items-start gap-x-1.5 pt-1 pb-2 text-sm"
                     :to="item.to"
                 >
                     <!-- Marker beside the label rather than above it, which keeps the bar to two lines. Filled circle for
                          the current step, outlined for the others: accent when it can be opened, muted when it is locked. -->
                     <div
                         aria-hidden="true"
-                        class="flex size-5 flex-none items-center justify-center rounded-full border-2 text-xs font-semibold"
+                        class="flex size-5 flex-none items-center justify-center rounded-full border-[1.5px] text-xs font-semibold"
                         :class="[
                             activeId === item.id ? 'border-accent bg-accent text-surface' : 'bg-surface',
                             activeId !== item.id && (item.disabled ? 'border-muted text-muted' : 'border-accent text-accent')
@@ -85,7 +85,7 @@ function localiseLine(line: LocaleLabel): string {
                                 <span class="@min-[40rem]:hidden">{{ localiseLine(item.labelLine2) }}</span>
                             </span>
                             <!-- The connector leads to the next step, so it takes that step's colour, and the last step has none. -->
-                            <span v-if="index < items.length - 1" class="mx-2 h-0.5 w-8 flex-none rounded-full" :class="items[index + 1]?.disabled ? 'bg-muted/50' : 'bg-accent'" />
+                            <span v-if="index < items.length - 1" class="mx-0.5 h-[1.5px] w-8 flex-none rounded-full" :class="items[index + 1]?.disabled ? 'bg-muted/50' : 'bg-accent'" />
                         </span>
                         <!-- Always there, empty until something is chosen, so choosing does not push the panel below down.
                              'w-0 min-w-full' takes its width from the label and connector above rather than adding to it,

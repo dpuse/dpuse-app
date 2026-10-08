@@ -1,5 +1,5 @@
 // ── External Dependencies & Registrations
-import '@fontsource-variable/inter';
+import '@fontsource-variable/inter/opsz.css'; // Includes the optical-size axis, which sharpens small text.
 import { createApp } from 'vue';
 
 // ── DPUse Framework
