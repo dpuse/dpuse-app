@@ -15,9 +15,7 @@ import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 //   'full'      A set size, independent of content. The size itself is a parameter: the wide dialogs and the
 //               near-fullscreen diagrams are the same mode with different numbers.
 //   'reserved'  Starts at 'minHeight' and grows with its content — what a multi-step body needs.
-//   'fit'       Sized entirely by content, and a floating box even on a phone, since a body that small has no use for
-//               the whole screen. Only safe for a body that is statically imported, since nothing else can know the
-//               size before the chunk arrives.
+// Below 'md' both modes take the whole screen.
 //
 // 'isOpen' is required rather than defaulting: a dialog that silently fails to open looks identical to a click that
 // did nothing, so the caller has to say. URL-driven dialogs are mounted only while open and pass a literal true.
@@ -27,7 +25,7 @@ const {
     minHeight,
     sizing = 'full',
     title
-} = defineProps<{ isOpen: boolean; maxWidth?: string; minHeight?: string; sizing?: 'fit' | 'full' | 'reserved'; title?: string }>();
+} = defineProps<{ isOpen: boolean; maxWidth?: string; minHeight?: string; sizing?: 'full' | 'reserved'; title?: string }>();
 const emit = defineEmits<{ close: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -71,14 +69,10 @@ function handleRequestClose(): void {
         ref="dialogReference"
         :class="[
             'dialog-modal hidden flex-col overflow-y-hidden bg-surface text-content open:flex',
-            sizing === 'fit'
-                ? 'mx-auto mt-6 mb-auto h-fit max-h-[calc(100%-48px)] w-auto max-w-[min(var(--dialog-modal-max-width),calc(100vw-2rem))] rounded-lg'
-                : [
-                      'm-0 size-full max-h-full max-w-full',
-                      'pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))]',
-                      'md:mx-auto md:mt-6 md:mb-auto md:max-h-[calc(100%-48px)] md:w-(--dialog-modal-max-width) md:max-w-[calc(100vw-2rem)] md:rounded-lg',
-                      sizing === 'full' ? '' : 'dialog-modal-content-height'
-                  ]
+            'm-0 size-full max-h-full max-w-full',
+            'pt-[calc(env(safe-area-inset-top))] pr-[calc(env(safe-area-inset-right))] pl-[calc(env(safe-area-inset-left))]',
+            'md:mx-auto md:mt-6 md:mb-auto md:max-h-[calc(100%-48px)] md:w-(--dialog-modal-max-width) md:max-w-[calc(100vw-2rem)] md:rounded-lg',
+            sizing === 'full' ? '' : 'dialog-modal-content-height'
         ]"
         data-region="Dialog"
         :style="{ 'container-type': 'inline-size', '--dialog-modal-max-width': maxWidth, '--dialog-modal-min-height': minHeight ?? '0px' }"
@@ -90,8 +84,7 @@ function handleRequestClose(): void {
         <slot />
 
         <CloseButton
-            class="absolute"
-            :class="sizing === 'fit' ? 'top-3 right-3' : 'top-[calc(env(safe-area-inset-top)+12px)] right-(--safe-right-offset) md:top-3 md:right-3'"
+            class="absolute top-[calc(env(safe-area-inset-top)+12px)] right-(--safe-right-offset) md:top-3 md:right-3"
             @click="handleRequestClose"
         />
     </dialog>

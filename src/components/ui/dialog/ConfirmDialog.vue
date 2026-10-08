@@ -32,7 +32,7 @@ function handleConfirm(): void {
 </script>
 
 <template>
-    <Dialog :is-open="isOpen" max-width="28rem" sizing="fit" :title="title" @close="handleClose">
+    <Dialog :is-open="isOpen" max-width="28rem" sizing="reserved" :title="title" @close="handleClose">
         <p class="p-4">{{ message }}</p>
 
         <!-- Cancel comes first so it, not the destructive button, takes focus when the dialog opens. -->

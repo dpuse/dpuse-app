@@ -1,5 +1,5 @@
 {
-  "version": "1.0.112",
+  "version": "1.0.113",
   "name": "dpuse-app",
   "dependencies": {
     "@cloudflare/vite-plugin": {
@@ -4929,8 +4929,8 @@
       }
     },
     "@tanstack/ai-client": {
-      "version": "0.38.0",
-      "resolved": "https://registry.npmjs.org/@tanstack/ai-client/-/ai-client-0.38.0.tgz",
+      "version": "0.39.0",
+      "resolved": "https://registry.npmjs.org/@tanstack/ai-client/-/ai-client-0.39.0.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/ai-event-client": {
@@ -4951,13 +4951,13 @@
           "overridden": false
         },
         "@tanstack/ai": {
-          "version": "0.65.1"
+          "version": "0.66.0"
         }
       }
     },
     "@tanstack/ai": {
-      "version": "0.65.1",
-      "resolved": "https://registry.npmjs.org/@tanstack/ai/-/ai-0.65.1.tgz",
+      "version": "0.66.0",
+      "resolved": "https://registry.npmjs.org/@tanstack/ai/-/ai-0.66.0.tgz",
       "overridden": false,
       "dependencies": {
         "@ag-ui/core": {
