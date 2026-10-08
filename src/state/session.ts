@@ -327,7 +327,7 @@ function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'termina
             emailIsPrimary.value = claims.email.is_primary;
             emailIsVerified.value = claims.email.is_verified;
         } else {
-            emailAddress.value = emailAddress.value;
+            emailAddress.value = undefined;
             emailIsPrimary.value = undefined;
             emailIsVerified.value = undefined;
         }

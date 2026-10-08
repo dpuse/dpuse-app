@@ -160,7 +160,7 @@ function doRegister(
             logIt('Connector', moduleConfig);
             return;
         }
-        case 'cookbook':
+        case 'cookbook': {
             registrationState.isCookbookRegistered = true;
             const index = pendingCookbookConfigs.findIndex((cookbookConfig) => cookbookConfig.id === moduleConfig.id);
             if (index === -1) {
@@ -170,6 +170,7 @@ function doRegister(
             }
             logIt('Cookbook', moduleConfig);
             return;
+        }
         case 'presenter': {
             registrationState.isPresenterRegistered = true;
             const index = pendingPresenterConfigs.findIndex((presenterConfig) => presenterConfig.id === moduleConfig.id);
