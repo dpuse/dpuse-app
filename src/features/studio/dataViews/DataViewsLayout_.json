@@ -1,18 +1,45 @@
 {
+    "TASK_CONFIGS": [
+        {
+            "id": "connection",
+            "number": 1,
+            "label": { "en": "Select Connection", "es": "Seleccionar Conexión" },
+            "labelLine1": { "en": "Select", "es": "Seleccionar" },
+            "labelLine2": { "en": "Connection", "es": "Conexión" },
+            "description": {},
+            "enableUpTo": 1
+        },
+        {
+            "id": "item",
+            "number": 2,
+            "label": { "en": "Select Item", "es": "Seleccionar Elemento" },
+            "labelLine1": { "en": "Select", "es": "Seleccionar" },
+            "labelLine2": { "en": "Item", "es": "Elemento" },
+            "description": {},
+            "enableUpTo": 2
+        },
+        {
+            "id": "content",
+            "number": 3,
+            "label": { "en": "Audit Content", "es": "Auditar Contenido" },
+            "labelLine1": { "en": "Audit", "es": "Auditar" },
+            "labelLine2": { "en": "Content", "es": "Contenido" },
+            "description": {},
+            "enableUpTo": 3
+        },
+        {
+            "id": "data",
+            "number": 4,
+            "label": { "en": "Explore Data", "es": "Explorar Datos" },
+            "labelLine1": { "en": "Explore", "es": "Explorar" },
+            "labelLine2": { "en": "Data", "es": "Datos" },
+            "description": {},
+            "enableUpTo": 4
+        }
+    ],
     "TEXT": {
-        "connections.label": { "en": "Select Connection", "es": "Seleccionar Conexión" },
-        "connections.line1.label": { "en": "Select", "es": "Seleccionar" },
-        "connections.line2.label": { "en": "Connection", "es": "Conexión" },
-        "content.label": { "en": "Audit Content", "es": "Auditar Contenido" },
-        "content.line1.label": { "en": "Audit", "es": "Auditar" },
-        "content.line2.label": { "en": "Content", "es": "Contenido" },
-        "data.label": { "en": "Explore Data", "es": "Explorar Datos" },
-        "data.line1.label": { "en": "Explore", "es": "Explorar" },
-        "data.line2.label": { "en": "Data", "es": "Datos" },
+        "dataView.pending.title": { "en": "Loading…", "es": "Cargando…" },
         "establishDataViews.title": { "en": "Establish Data Views", "es": "Establecer Vistas de Datos" },
-        "items.label": { "en": "Select Item", "es": "Seleccionar Elemento" },
-        "items.line1.label": { "en": "Select", "es": "Seleccionar" },
-        "items.line2.label": { "en": "Item", "es": "Elemento" },
         "studio.label": { "en": "Studio", "es": "Estudio" }
     }
 }

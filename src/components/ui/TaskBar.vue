@@ -23,7 +23,6 @@ export interface TaskConfig {
     labelLine1: LocaleLabel;
     labelLine2: LocaleLabel;
     description: LocaleDescription;
-    disabled: boolean;
     enableUpTo: number;
     number: number;
 }
@@ -31,11 +30,11 @@ export interface TaskConfig {
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 // 'detail' names what was chosen in a step, such as the connection, and is shown under its label when the bar is wide.
-const { activeId, items = [] } = defineProps<{ activeId?: string; items?: (LocalisedConfig<TaskConfig> & { detail?: string; to?: RouteLocationRaw })[] }>();
+const { activeId, items = [] } = defineProps<{ activeId?: string; items?: (LocalisedConfig<TaskConfig> & { detail?: string; disabled: boolean; to?: RouteLocationRaw })[] }>();
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function describeStep(item: LocalisedConfig<TaskConfig> & { detail?: string }): string {
+function describeStep(item: LocalisedConfig<TaskConfig> & { detail?: string; disabled: boolean }): string {
     const parameters = { detail: item.detail ?? '', label: item.label, number: item.number };
     if (item.disabled) return t(TEXT, 'step.locked.aria', parameters);
     return t(TEXT, item.detail == null ? 'step.aria' : 'step.chosen.aria', parameters);

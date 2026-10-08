@@ -10,7 +10,7 @@ import type { DataViewConfig } from '@dpuse/dpuse-shared';
 
 type DataViewProgress = Pick<DataViewConfig, 'connectionId' | 'connectionNodeConfig' | 'contentAuditConfig'>;
 
-export type DataViewStepId = 'connections' | 'content' | 'data' | 'items'; // Each id is also the route name of its step.
+export type DataViewStepId = 'connection' | 'content' | 'data' | 'item'; // Each id is also the route name of its step.
 
 export interface DataViewStep {
     id: DataViewStepId;
@@ -30,8 +30,8 @@ export interface DataViewConnector {
 // Exploring is left out: it never has to be finished, so it is never outstanding.
 export function constructDataViewSteps(dataViewConfig: DataViewProgress): DataViewStep[] {
     return [
-        { id: 'connections', state: dataViewConfig.connectionId == null ? 'pending' : 'done' },
-        { id: 'items', state: dataViewConfig.connectionNodeConfig == null ? 'pending' : 'done' },
+        { id: 'connection', state: dataViewConfig.connectionId == null ? 'pending' : 'done' },
+        { id: 'item', state: dataViewConfig.connectionNodeConfig == null ? 'pending' : 'done' },
         { id: 'content', state: dataViewConfig.contentAuditConfig == null ? 'pending' : 'done' }
     ];
 }

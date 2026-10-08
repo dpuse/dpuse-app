@@ -1,13 +1,24 @@
 // ── External Dependencies & Registrations
 import { dpuseBaseESLintConfig } from '@dpuse/eslint-config-dpuse';
 import pluginCompat from 'eslint-plugin-compat';
+import pluginCSS from '@eslint/css';
+import pluginJS from '@eslint/js';
+import pluginJSON from '@eslint/json';
 import pluginPlaywright from 'eslint-plugin-playwright';
 import pluginTailwindCSS from 'eslint-plugin-tailwindcss';
 import pluginVitest from '@vitest/eslint-plugin';
 import pluginVue from 'eslint-plugin-vue';
 import pluginVueA11y from 'eslint-plugin-vuejs-accessibility';
+import process from 'node:process';
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting';
+import { tailwind4 } from 'tailwind-csstree';
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Everything except code files, for 'ignores'. Limiting by 'ignores' rather than 'files' keeps rules off other languages
+// without also telling ESLint to lint code files it otherwise would not.
+const NON_CODE_FILES = ['**/*', '!**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx,vue}'];
 
 // ── ESLint Configuration ─────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -15,6 +26,9 @@ import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescri
 @type {import('eslint').Linter.Config[]}
 */
 const config = defineConfigWithVueTs(
+    // ESLint's own recommended rules. Before the TypeScript configs, which switch off the ones TypeScript checks better.
+    pluginJS.configs.recommended,
+
     // Linting scope and module resolver. TypeScript parser is handled by defineConfigWithVueTs.
     {
         name: 'app/files-to-lint',
@@ -41,10 +55,11 @@ const config = defineConfigWithVueTs(
     { ...pluginCompat.configs['flat/recommended'], files: ['src/**/*.{vue,ts,mts,tsx}'], ignores: ['src/**/__tests__/**'] },
     skipFormatting,
 
-    // Shared DPUse base configuration: ignores, import-x/regexp/security/sonarjs/unicorn, and common rule overrides.
+    // Shared DPUse base configuration: ignores, import-x/jsdoc/regexp/security/sonarjs/unicorn, Markdown, and common rule
+    // overrides.
     ...dpuseBaseESLintConfig({
         files: ['**/*.{vue,ts,mts,tsx}'],
-        ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**', 'pwa.assets.config.ts'],
+        ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**', 'playwright-report/**', 'pwa.assets.config.ts', 'test-results/**'],
         rules: {
             'no-empty': 'warn',
             'prefer-const': 'warn',
@@ -133,6 +148,40 @@ const config = defineConfigWithVueTs(
         }
     }),
 
+    // CSS files. Only '.css' files are checked, not the '<style>' blocks in Vue files. 'tailwind4' teaches the parser
+    // Tailwind's at-rules ('@theme', '@utility', …), which it would otherwise report as invalid.
+    {
+        files: ['**/*.css'],
+        plugins: { css: pluginCSS },
+        language: 'css/css',
+        languageOptions: { customSyntax: tailwind4 },
+        rules: {
+            ...pluginCSS.configs.recommended.rules,
+            'css/no-invalid-properties': ['error', { allowUnknownVariables: true }], // Variables come from Tailwind's import or are declared further down the file.
+            'css/use-baseline': ['error', { allowProperties: ['overscroll-behavior', 'overscroll-behavior-x'] }] // Not Baseline because of older Safari; the Safari 26 floor in 'browserslist' supports them.
+        }
+    },
+
+    // Locale files, one per component. Their 'TEXT' keys are kept alphabetical so each table reads like an index, and a
+    // key entered twice would silently lose its first value.
+    {
+        files: ['src/**/*_.json'],
+        plugins: { json: pluginJSON },
+        language: 'json/json',
+        rules: {
+            ...pluginJSON.configs.recommended.rules,
+            'json/sort-keys': 'error'
+        }
+    },
+
+    // `DataViewsLayout`'s `TASK_CONFIGS` is a list of tasks, each reading id first, so its keys are not sorted.
+    {
+        files: ['src/features/studio/dataViews/DataViewsLayout_.json'],
+        rules: {
+            'json/sort-keys': 'off'
+        }
+    },
+
     // Unimplemented panels: their only content is a placeholder line naming what will go there, and
     // `ManagePersonalDetailsPanel` is numbered filler for testing scrolling. Translating any of it would be work thrown
     // away when the panel is built, so the rule is lifted until then.
@@ -187,6 +236,17 @@ const config = defineConfigWithVueTs(
             }
         }
     }
-);
+).map((entry) => limitToCodeFiles(entry));
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+/** Limits a config that applies to every linted file to code files, as ESLint refuses to run JavaScript rules on CSS,
+JSON or Markdown. The Vue and TypeScript presets are written this way; blocks naming their own files are left alone. The
+code-file patterns go first, because a later pattern wins, and a config may already narrow itself further (e.g. to
+TypeScript). */
+function limitToCodeFiles(config) {
+    const isGlobalIgnores = Object.keys(config).every((key) => key === 'ignores' || key === 'name');
+    return isGlobalIgnores || config.files !== undefined ? config : { ...config, ignores: [...NON_CODE_FILES, ...(config.ignores ?? [])] };
+}
 
 export default config;

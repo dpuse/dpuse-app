@@ -9,6 +9,7 @@ import { constructConnectorCategoryConfig, getComponentStatus } from '@dpuse/dpu
 
 // ── Local Framework
 import { accountId } from '@/state/session';
+import { ignoreReportedNavigationFailure } from '@/router';
 import { localeId } from '@/state/locale';
 import { useEngine } from '@/services/useEngine';
 
@@ -62,9 +63,7 @@ const connectorStatus = computed(() => (connectionLocalisedConfig.statusId ? get
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleSubmit(): void {
-    void router.push({ name: 'items', query: route.query }).catch(() => {
-        // Already reported by 'router.onError'.
-    });
+    void ignoreReportedNavigationFailure(router.push({ name: 'item', query: route.query }));
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

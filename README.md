@@ -160,13 +160,13 @@ License data is updated each time `npm run document` is run, using [license-chec
 | [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)           | 1.0.116 | MIT                     | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.116-LICENSE.txt)         |
 | [@fontsource-variable/inter](https://github.com/fontsource/font-files) |  5.3.0  | OFL-1.1                 | [LICENSE](licenses/downloads/@fontsource-variable/inter@5.3.0-LICENSE.txt)    |
 | [@formkit/drag-and-drop](https://github.com/formkit/drag-and-drop)     |  0.6.1  | MIT                     | [LICENSE](licenses/downloads/@formkit/drag-and-drop@0.6.1-LICENSE.txt)        |
-| [@lucide/vue](https://github.com/lucide-icons/lucide)                  | 1.52.0  | ISC                     | [LICENSE](licenses/downloads/@lucide/vue@1.52.0-LICENSE.txt)                  |
-| [@tanstack/ai](https://github.com/TanStack/ai)                         | 0.65.0  | MIT                     | [LICENSE](licenses/downloads/@tanstack/ai@0.65.0-LICENSE.txt)                 |
-| [@tanstack/ai-client](https://github.com/TanStack/ai)                  | 0.37.0  | MIT                     | [LICENSE](licenses/downloads/@tanstack/ai-client@0.37.0-LICENSE.txt)          |
+| [@lucide/vue](https://github.com/lucide-icons/lucide)                  | 1.53.0  | ISC                     | [LICENSE](licenses/downloads/@lucide/vue@1.53.0-LICENSE.txt)                  |
+| [@tanstack/ai](https://github.com/TanStack/ai)                         | 0.65.1  | MIT                     | [LICENSE](licenses/downloads/@tanstack/ai@0.65.1-LICENSE.txt)                 |
+| [@tanstack/ai-client](https://github.com/TanStack/ai)                  | 0.38.0  | MIT                     | [LICENSE](licenses/downloads/@tanstack/ai-client@0.38.0-LICENSE.txt)          |
 | [@tanstack/store](https://github.com/TanStack/store)                   | 0.11.2  | MIT                     | [LICENSE](licenses/downloads/@tanstack/store@0.11.2-LICENSE.txt)              |
 | [@tanstack/table-core](https://github.com/TanStack/table)              |  9.2.6  | MIT                     | [LICENSE](licenses/downloads/@tanstack/table-core@9.2.6-LICENSE.txt)          |
 | [@tanstack/virtual-core](https://github.com/TanStack/virtual)          | 3.17.11 | MIT                     | [LICENSE](licenses/downloads/@tanstack/virtual-core@3.17.11-LICENSE.txt)      |
-| [@tanstack/vue-table](https://github.com/TanStack/table)               |  9.2.6  | MIT                     | [LICENSE](licenses/downloads/@tanstack/vue-table@9.2.6-LICENSE.txt)           |
+| [@tanstack/vue-table](https://github.com/TanStack/table)               |  9.2.7  | MIT                     | [LICENSE](licenses/downloads/@tanstack/vue-table@9.2.7-LICENSE.txt)           |
 | [@tanstack/vue-virtual](https://github.com/TanStack/virtual)           | 3.13.39 | MIT                     | [LICENSE](licenses/downloads/@tanstack/vue-virtual@3.13.39-LICENSE.txt)       |
 | [@teamhanko/hanko-frontend-sdk](https://github.com/teamhanko/hanko)    |  3.1.0  | MIT                     | [LICENSE](licenses/downloads/@teamhanko/hanko-frontend-sdk@3.1.0-LICENSE.txt) |
 | [@vue/reactivity](https://github.com/vuejs/core)                       | 3.5.43  | MIT                     | [LICENSE](licenses/downloads/@vue/reactivity@3.5.43-LICENSE.txt)              |
@@ -180,7 +180,7 @@ License data is updated each time `npm run document` is run, using [license-chec
 | [partial-json](https://github.com/promplate/partial-json-parser-js)    |  0.1.7  | MIT                     | [LICENSE](licenses/downloads/partial-json@0.1.7-LICENSE.txt)                  |
 | [squire-rte](https://github.com/neilj/Squire)                          |  2.4.9  | MIT                     | [LICENSE](licenses/downloads/squire-rte@2.4.9-LICENSE.txt)                    |
 | [valibot](https://github.com/open-circle/valibot)                      |  1.5.0  | MIT                     | [LICENSE](licenses/downloads/valibot@1.5.0-LICENSE.txt)                       |
-| [vue-router](https://github.com/vuejs/router)                          |  5.3.1  | MIT                     | [LICENSE](licenses/downloads/vue-router@5.3.1-LICENSE.txt)                    |
+| [vue-router](https://github.com/vuejs/router)                          |  5.4.0  | MIT                     | [LICENSE](licenses/downloads/vue-router@5.4.0-LICENSE.txt)                    |
 | [web-vitals](https://github.com/GoogleChrome/web-vitals)               |  6.2.3  | Apache-2.0              | [LICENSE](licenses/downloads/web-vitals@6.2.3-LICENSE.txt)                    |
 
 ### Dependency Tree
@@ -191,13 +191,13 @@ The dependency tree below shows how each package in the table above is reached �
     - **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — this month: 2026-09-09
 - **[@fontsource-variable/inter](https://github.com/fontsource/font-files)** 5.3.0 — 2 mths ago: 2026-07-19
 - **[@formkit/drag-and-drop](https://github.com/formkit/drag-and-drop)** 0.6.1 — 3 mths ago: 2026-06-15
-- **[@tanstack/ai-client](https://github.com/TanStack/ai)** 0.37.0 — this month: 2026-10-06
-    - **[@tanstack/ai](https://github.com/TanStack/ai)** 0.65.0 — this month: 2026-10-06
-- **[@tanstack/ai](https://github.com/TanStack/ai)** 0.65.0 — this month: 2026-10-06
+- **[@tanstack/ai-client](https://github.com/TanStack/ai)** 0.38.0 — this month: 2026-10-07
+    - **[@tanstack/ai](https://github.com/TanStack/ai)** 0.65.1 — this month: 2026-10-07
+- **[@tanstack/ai](https://github.com/TanStack/ai)** 0.65.1 — this month: 2026-10-07
     - **[@ag-ui/core](https://github.com/ag-ui-protocol/ag-ui)** 1.0.0 — this month: 2026-09-17 → latest: 1.0.2 — this month: 2026-10-05 ❗
     - **[fast-json-patch](https://github.com/Starcounter-Jack/JSON-Patch)** 3.1.1 — 54 mths ago: 2022-03-24 ⚠️
     - **[partial-json](https://github.com/promplate/partial-json-parser-js)** 0.1.7 — 28 mths ago: 2024-05-14 ⚠️
-- **[@tanstack/vue-table](https://github.com/TanStack/table)** 9.2.6 — this month: 2026-10-04
+- **[@tanstack/vue-table](https://github.com/TanStack/table)** 9.2.7 — this month: 2026-10-07
     - **[@tanstack/store](https://github.com/TanStack/store)** 0.11.2 — this month: 2026-09-29
     - **[@tanstack/table-core](https://github.com/TanStack/table)** 9.2.6 — this month: 2026-10-04
         - **[@tanstack/store](https://github.com/TanStack/store)** 0.11.2 — this month: 2026-09-29
@@ -208,7 +208,7 @@ The dependency tree below shows how each package in the table above is reached �
     - **[@vueuse/shared](https://github.com/vueuse/vueuse)** 15.0.0 — this month: 2026-09-16
 - **[dompurify](https://github.com/cure53/DOMPurify)** 3.4.16 — this month: 2026-09-23
 - **[squire-rte](https://github.com/neilj/Squire)** 2.4.9 — this month: 2026-09-15
-- **[vue-router](https://github.com/vuejs/router)** 5.3.1 — 1 mth ago: 2026-09-02
+- **[vue-router](https://github.com/vuejs/router)** 5.4.0 — this month: 2026-10-07
     - **[@vue/shared](https://github.com/vuejs/core)** 3.5.43 — this month: 2026-09-17
 - **[@vue/runtime-dom](https://github.com/vuejs/core)** 3.5.43 — this month: 2026-09-17
     - **[@vue/reactivity](https://github.com/vuejs/core)** 3.5.43 — this month: 2026-09-17
@@ -218,7 +218,7 @@ The dependency tree below shows how each package in the table above is reached �
         - **[@vue/shared](https://github.com/vuejs/core)** 3.5.43 — this month: 2026-09-17
     - **[@vue/shared](https://github.com/vuejs/core)** 3.5.43 — this month: 2026-09-17
 - **[web-vitals](https://github.com/GoogleChrome/web-vitals)** 6.2.3 — this month: 2026-10-05
-- **[@lucide/vue](https://github.com/lucide-icons/lucide)** 1.52.0 — this month: 2026-10-04
+- **[@lucide/vue](https://github.com/lucide-icons/lucide)** 1.53.0 — this month: 2026-10-08
 
 <!-- DEPENDENCY_LICENSES_END -->
 
@@ -230,315 +230,322 @@ This report is updated with each release, from the bundle the release builds, us
 
 _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._
 
-| Chunk/Module/File                                                            | Composition                                  |
-| :--------------------------------------------------------------------------- | :------------------------------------------- |
-| **dist/client/assets/ChatPanel-CvHHpQYL.js**                                 | 196.9 kB · gzip 53.4 kB · 22.8% of the build |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/ai-client                                  | `█████████░░░░░░░░░░░` 43.0% · 84.6 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/ai                                         | `████████░░░░░░░░░░░░` 38.4% · 75.7 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `██░░░░░░░░░░░░░░░░░░` 10.0% · 19.7 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;fast-json-patch                                      | `█░░░░░░░░░░░░░░░░░░░` 5.1% · 10.1 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;partial-json                                         | `░░░░░░░░░░░░░░░░░░░░` 1.8% · 3.6 kB         |
-| &nbsp;&nbsp;&nbsp;&nbsp;@ag-ui/core → dist/version-CTNE2I0_.mjs              | `░░░░░░░░░░░░░░░░░░░░` 0.6% · 1.1 kB         |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue                                          | `░░░░░░░░░░░░░░░░░░░░` 0.4% · 830 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `░░░░░░░░░░░░░░░░░░░░` 0.7% · 1.3 kB         |
-| **dist/client/assets/ContextDescriptorsPanel-D_ZLlLwF.js**                   | 64.3 kB · gzip 20.1 kB · 7.4% of the build   |
-| &nbsp;&nbsp;&nbsp;&nbsp;squire-rte → dist/squire.mjs                         | `██████████████████░░` 91.1% · 58.6 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `█░░░░░░░░░░░░░░░░░░░` 6.1% · 4.0 kB         |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue                                          | `░░░░░░░░░░░░░░░░░░░░` 1.2% · 802 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `░░░░░░░░░░░░░░░░░░░░` 1.5% · 1010 B         |
-| **dist/client/assets/runtime-core.esm-bundler-BaJsNFUd.js**                  | 63.3 kB · gzip 24.4 kB · 7.3% of the build   |
-| &nbsp;&nbsp;&nbsp;&nbsp;@vue/runtime-core → dist/runtime-core.esm-bundler.js | `██████████████░░░░░░` 67.7% · 42.8 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@vue/reactivity → dist/reactivity.esm-bundler.js     | `█████░░░░░░░░░░░░░░░` 26.5% · 16.8 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@vue/shared → dist/shared.esm-bundler.js             | `█░░░░░░░░░░░░░░░░░░░` 5.8% · 3.7 kB         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `░░░░░░░░░░░░░░░░░░░░` 0.0% · 0 B            |
-| **dist/client/assets/index-CHuhmjFr.js**                                     | 63.0 kB · gzip 22.0 kB · 7.3% of the build   |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `███████████░░░░░░░░░` 55.1% · 34.7 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@vue/runtime-dom → dist/runtime-dom.esm-bundler.js   | `█████░░░░░░░░░░░░░░░` 24.9% · 15.7 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue                                          | `░░░░░░░░░░░░░░░░░░░░` 1.5% · 948 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████░░░░░░░░░░░░░░░░` 18.6% · 11.7 kB       |
-| **dist/client/assets/ExploreDataPanel-BnaJ-Mpw.js**                          | 58.2 kB · gzip 15.8 kB · 6.7% of the build   |
-| &nbsp;&nbsp;&nbsp;&nbsp;@formkit/drag-and-drop                               | `██████████░░░░░░░░░░` 50.6% · 29.5 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `█████████░░░░░░░░░░░` 44.6% · 26.0 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue                                          | `█░░░░░░░░░░░░░░░░░░░` 3.5% · 2.0 kB         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `░░░░░░░░░░░░░░░░░░░░` 1.2% · 742 B          |
-| **dist/client/assets/Table-Bt7W7yiQ.js**                                     | 52.1 kB · gzip 13.7 kB · 6.0% of the build   |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/table-core                                 | `███████████████░░░░░` 75.3% · 39.2 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `███░░░░░░░░░░░░░░░░░` 17.4% · 9.1 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/vue-table                                  | `█░░░░░░░░░░░░░░░░░░░` 4.6% · 2.4 kB         |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/store → dist/shallow.js                    | `░░░░░░░░░░░░░░░░░░░░` 1.3% · 676 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/settings-2.mjs          | `░░░░░░░░░░░░░░░░░░░░` 0.4% · 212 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `░░░░░░░░░░░░░░░░░░░░` 1.0% · 551 B          |
-| **dist/client/assets/ContextModelList-D973u4Um.js**                          | 45.1 kB · gzip 11.1 kB · 5.2% of the build   |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `███████████████████░` 94.1% · 42.4 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue                                          | `░░░░░░░░░░░░░░░░░░░░` 2.1% · 957 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█░░░░░░░░░░░░░░░░░░░` 3.9% · 1.7 kB         |
-| **dist/client/assets/useMarkedTool-imQn6pqf.js**                             | 28.1 kB · gzip 11.1 kB · 3.3% of the build   |
-| &nbsp;&nbsp;&nbsp;&nbsp;dompurify → dist/purify.es.mjs                       | `███████████████████░` 97.2% · 27.3 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → useMarkedTool.ts                               | `░░░░░░░░░░░░░░░░░░░░` 1.7% · 491 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `░░░░░░░░░░░░░░░░░░░░` 1.1% · 324 B          |
-| **dist/client/assets/sdk.modern-BA6sl1Hr.js**                                | 27.5 kB · gzip 8.1 kB · 3.2% of the build    |
-| &nbsp;&nbsp;&nbsp;&nbsp;@teamhanko/hanko-frontend-sdk → dist/sdk.modern.js   | `████████████████████` 100.0% · 27.5 kB      |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `░░░░░░░░░░░░░░░░░░░░` 0.0% · 1 B            |
-| **dist/client/assets/useDataWindow-Qv0YIQPm.js**                             | 25.2 kB · gzip 7.7 kB · 2.9% of the build    |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/virtual-core                               | `██████████████████░░` 90.4% · 22.7 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → useDataWindow.ts                               | `██░░░░░░░░░░░░░░░░░░` 7.5% · 1.9 kB         |
-| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/vue-virtual → dist/esm/index.js            | `░░░░░░░░░░░░░░░░░░░░` 1.5% · 378 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `░░░░░░░░░░░░░░░░░░░░` 0.6% · 151 B          |
-| **dist/client/assets/ActionWrapper-CSy4evZQ.js**                             | 22.3 kB · gzip 8.9 kB · 2.6% of the build    |
-| &nbsp;&nbsp;&nbsp;&nbsp;vue-router                                           | `███████████████████░` 96.9% · 21.6 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ActionWrapper.vue                              | `░░░░░░░░░░░░░░░░░░░░` 1.6% · 368 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `░░░░░░░░░░░░░░░░░░░░` 1.5% · 336 B          |
-| **dist/client/assets/dist-1fS7wwTN.js**                                      | 17.4 kB · gzip 6.8 kB · 2.0% of the build    |
-| &nbsp;&nbsp;&nbsp;&nbsp;@vueuse/core → dist/index.js                         | `███████████████░░░░░` 74.2% · 12.9 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@vueuse/shared → dist/index.js                       | `█████░░░░░░░░░░░░░░░` 24.8% · 4.3 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `░░░░░░░░░░░░░░░░░░░░` 1.1% · 191 B          |
-| **dist/client/assets/locale-DVh8tOlR.js**                                    | 13.2 kB · gzip 5.2 kB · 1.5% of the build    |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js        | `█████████████████░░░` 85.7% · 11.3 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → locale.ts                                      | `█░░░░░░░░░░░░░░░░░░░` 3.8% · 511 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██░░░░░░░░░░░░░░░░░░` 10.6% · 1.4 kB        |
-| **dist/client/assets/SessionAuthPanel-BcQUTmEI.js**                          | 12.4 kB · gzip 4.9 kB · 1.4% of the build    |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `██████████████████░░` 92.1% · 11.4 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/user-round-key.mjs      | `█░░░░░░░░░░░░░░░░░░░` 3.1% · 398 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█░░░░░░░░░░░░░░░░░░░` 4.7% · 597 B          |
-| **dist/client/assets/AssistantLayout-CzkhULeY.js**                           | 9.6 kB · gzip 3.8 kB · 1.1% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `████████████████░░░░` 78.6% · 7.5 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue                                          | `█░░░░░░░░░░░░░░░░░░░` 3.8% · 377 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████░░░░░░░░░░░░░░░░` 17.6% · 1.7 kB        |
-| **dist/client/assets/DataViewList-CYjoNRO2.js**                              | 9.3 kB · gzip 3.5 kB · 1.1% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `████████████████░░░░` 81.5% · 7.5 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████░░░░░░░░░░░░░░░░` 18.5% · 1.7 kB        |
-| **dist/client/assets/performanceTracking-CoFR7lVN.js**                       | 8.6 kB · gzip 3.2 kB · 1.0% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;web-vitals → dist/web-vitals.js                      | `███████████████████░` 97.2% · 8.4 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → performanceTracking.ts                         | `░░░░░░░░░░░░░░░░░░░░` 2.2% · 195 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `░░░░░░░░░░░░░░░░░░░░` 0.5% · 48 B           |
-| **dist/client/assets/LibraryPanel-DU3k5zSr.js**                              | 8.3 kB · gzip 3.3 kB · 1.0% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `█████████████████░░░` 84.3% · 7.0 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███░░░░░░░░░░░░░░░░░` 15.7% · 1.3 kB        |
-| **dist/client/assets/SessionMenu-DuSbnEVG.js**                               | 6.9 kB · gzip 2.7 kB · 0.8% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → SessionMenu.vue                                | `█████████████░░░░░░░` 63.7% · 4.4 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue                                          | `██████░░░░░░░░░░░░░░` 27.7% · 1.9 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██░░░░░░░░░░░░░░░░░░` 8.6% · 606 B          |
-| **dist/client/assets/SetupLayout-DdLXUQIr.js**                               | 6.8 kB · gzip 2.3 kB · 0.8% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `██████████████████░░` 90.2% · 6.2 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██░░░░░░░░░░░░░░░░░░` 9.8% · 690 B          |
-| **dist/client/assets/SelectItemPanel-DZiKXXmi.js**                           | 6.3 kB · gzip 2.8 kB · 0.7% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `█████████████████░░░` 84.1% · 5.3 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███░░░░░░░░░░░░░░░░░` 15.9% · 1022 B        |
-| **dist/client/assets/ConfigCard-CumWLqXa.js**                                | 5.8 kB · gzip 2.1 kB · 0.7% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ConfigCard.vue                                 | `██████████████░░░░░░` 71.0% · 4.1 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue                                          | `█████░░░░░░░░░░░░░░░` 23.1% · 1.3 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█░░░░░░░░░░░░░░░░░░░` 5.9% · 353 B          |
-| **dist/client/assets/GridDetailPanel-JkcCQNvd.js**                           | 5.8 kB · gzip 2.4 kB · 0.7% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `██████████████████░░` 90.7% · 5.2 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██░░░░░░░░░░░░░░░░░░` 9.3% · 548 B          |
-| **dist/client/assets/ConnectionPanel-DhLJ_9qt.js**                           | 5.7 kB · gzip 2.2 kB · 0.7% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `████████████████░░░░` 80.0% · 4.6 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████░░░░░░░░░░░░░░░░` 20.0% · 1.1 kB        |
-| **dist/client/assets/DataViewsLayout-DWhcTDD7.js**                           | 5.6 kB · gzip 2.2 kB · 0.6% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `█████████████░░░░░░░` 64.3% · 3.6 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███████░░░░░░░░░░░░░` 35.7% · 2.0 kB        |
-| **dist/client/assets/SessionAccountPanel-Dc5giyWC.js**                       | 5.5 kB · gzip 2.0 kB · 0.6% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → SessionAccountPanel.vue                        | `████████████░░░░░░░░` 59.3% · 3.2 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/arrow-big-left.mjs      | `███░░░░░░░░░░░░░░░░░` 16.8% · 939 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█████░░░░░░░░░░░░░░░` 24.0% · 1.3 kB        |
-| **dist/client/assets/ScrollArea-BSO0B5pc.js**                                | 5.0 kB · gzip 1.9 kB · 0.6% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `██████████████████░░` 90.2% · 4.5 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██░░░░░░░░░░░░░░░░░░` 9.8% · 499 B          |
-| **dist/client/assets/errors-C7y0HFN7.js**                                    | 4.7 kB · gzip 2.2 kB · 0.5% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `█████████████░░░░░░░` 62.8% · 3.0 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███████░░░░░░░░░░░░░` 37.2% · 1.8 kB        |
-| **dist/client/assets/PaneSplitter-DmTZhqOB.js**                              | 4.4 kB · gzip 1.9 kB · 0.5% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → PaneSplitter.vue                               | `████████████████░░░░` 78.3% · 3.5 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████░░░░░░░░░░░░░░░░` 21.7% · 980 B         |
-| **dist/client/assets/useStudioOptions-DNCdWzNH.js**                          | 4.3 kB · gzip 1.3 kB · 0.5% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → useStudioOptions.ts                            | `████████████████████` 97.6% · 4.2 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `░░░░░░░░░░░░░░░░░░░░` 2.4% · 107 B          |
-| **dist/client/assets/SelectConnectionList-D46Ceme3.js**                      | 4.3 kB · gzip 1.8 kB · 0.5% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `████████████████░░░░` 78.2% · 3.3 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████░░░░░░░░░░░░░░░░` 21.8% · 947 B         |
-| **dist/client/assets/PluginList-DgsCTZqS.js**                                | 4.1 kB · gzip 1.6 kB · 0.5% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → PluginList.vue                                 | `██████████░░░░░░░░░░` 47.6% · 1.9 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██████████░░░░░░░░░░` 52.4% · 2.1 kB        |
-| **dist/client/assets/dataViews-DVjdH-i-.js**                                 | 3.6 kB · gzip 1.2 kB · 0.4% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → dataViews.ts                                   | `██████████████████░░` 91.2% · 3.3 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██░░░░░░░░░░░░░░░░░░` 8.8% · 320 B          |
-| **dist/client/assets/StudioHomePanel-KosHSNZr.js**                           | 3.4 kB · gzip 1.1 kB · 0.4% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → StudioHomePanel.vue                            | `███████░░░░░░░░░░░░░` 32.8% · 1.1 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█████████████░░░░░░░` 67.2% · 2.3 kB        |
-| **dist/client/assets/PluginPanel-CdofCn0P.js**                               | 3.4 kB · gzip 1.5 kB · 0.4% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → PluginPanel.vue                                | `███████████░░░░░░░░░` 53.7% · 1.8 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue                                          | `██████░░░░░░░░░░░░░░` 30.6% · 1.0 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███░░░░░░░░░░░░░░░░░` 15.7% · 552 B         |
-| **dist/client/assets/ScrollRow-Bv2Ldn9Y.js**                                 | 3.3 kB · gzip 1.6 kB · 0.4% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ScrollRow.vue                                  | `█████████████████░░░` 82.8% · 2.7 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███░░░░░░░░░░░░░░░░░` 17.2% · 576 B         |
-| **dist/client/assets/OptionBar-BRX-M0Lf.js**                                 | 3.3 kB · gzip 1.6 kB · 0.4% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `█████████████████░░░` 85.0% · 2.8 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███░░░░░░░░░░░░░░░░░` 15.0% · 504 B         |
-| **dist/client/assets/PresentationsLayout-DEwSSTN-.js**                       | 3.2 kB · gzip 1.6 kB · 0.4% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → PresentationsLayout.vue                        | `███████████████░░░░░` 77.0% · 2.4 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█████░░░░░░░░░░░░░░░` 23.0% · 741 B         |
-| **dist/client/assets/createLucideIcon-Cl6DWzJb.js**                          | 2.5 kB · gzip 1.2 kB · 0.3% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue                                          | `███████████████████░` 97.4% · 2.4 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█░░░░░░░░░░░░░░░░░░░` 2.6% · 66 B           |
-| **dist/client/assets/EventQueriesLayout-CeV9e4rv.js**                        | 2.2 kB · gzip 1.1 kB · 0.3% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → EventQueriesLayout.vue                         | `███████████████░░░░░` 74.1% · 1.6 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█████░░░░░░░░░░░░░░░` 25.9% · 584 B         |
-| **dist/client/assets/GitHubLogo-Dp5nxvZU.js**                                | 2.1 kB · gzip 1.1 kB · 0.2% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → GitHubLogo.vue                                 | `██████████████████░░` 89.9% · 1.9 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██░░░░░░░░░░░░░░░░░░` 10.1% · 212 B         |
-| **dist/client/assets/TextInput-CPOwKKZr.js**                                 | 2.0 kB · gzip 1.1 kB · 0.2% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → TextInput.vue                                  | `███████████████░░░░░` 72.5% · 1.5 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█████░░░░░░░░░░░░░░░` 27.5% · 571 B         |
-| **dist/client/assets/configMonitor-C0Lxkhke.js**                             | 1.9 kB · gzip 895 B · 0.2% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → configMonitor.ts                               | `██████████████████░░` 88.9% · 1.7 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██░░░░░░░░░░░░░░░░░░` 11.1% · 219 B         |
-| **dist/client/assets/StudioDocumentPanel-BfW0Ix8y.js**                       | 1.9 kB · gzip 1002 B · 0.2% of the build     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `████████████████░░░░` 79.6% · 1.5 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████░░░░░░░░░░░░░░░░` 20.4% · 389 B         |
-| **dist/client/assets/PluginConnectorPanel-YrCgDqKC.js**                      | 1.7 kB · gzip 887 B · 0.2% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → PluginConnectorPanel.vue                       | `██████████████░░░░░░` 71.6% · 1.3 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██████░░░░░░░░░░░░░░` 28.4% · 507 B         |
-| **dist/client/assets/ContextEntityDiagramPanel-BM4KeuQF.js**                 | 1.7 kB · gzip 625 B · 0.2% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ContextEntityDiagramPanel.vue                  | `████████████████░░░░` 81.9% · 1.4 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████░░░░░░░░░░░░░░░░` 18.1% · 313 B         |
-| **dist/client/assets/monitorSocket-B8ujI19O.js**                             | 1.6 kB · gzip 859 B · 0.2% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → monitorSocket.ts                               | `██████████████████░░` 92.5% · 1.5 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██░░░░░░░░░░░░░░░░░░` 7.5% · 126 B          |
-| **dist/client/assets/EmptyPlaceholder-Dnygp0o8.js**                          | 1.6 kB · gzip 834 B · 0.2% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → EmptyPlaceholder.vue                           | `████████░░░░░░░░░░░░` 41.8% · 674 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████████████░░░░░░░░` 58.2% · 938 B         |
-| **dist/client/assets/action-36s1Q_w1.js**                                    | 1.4 kB · gzip 498 B · 0.2% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → action.ts                                      | `████████████████████` 100.0% · 1.4 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `░░░░░░░░░░░░░░░░░░░░` 0.0% · 0 B            |
-| **dist/client/assets/ItemButton-DDwv1o10.js**                                | 1.4 kB · gzip 600 B · 0.2% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ItemButton.vue                                 | `████████████████░░░░` 82.1% · 1.1 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████░░░░░░░░░░░░░░░░` 17.9% · 254 B         |
-| **dist/client/assets/Breadcrumbs-Du5vLvXJ.js**                               | 1.3 kB · gzip 765 B · 0.2% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → Breadcrumbs.vue                                | `█████████████░░░░░░░` 65.9% · 897 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███████░░░░░░░░░░░░░` 34.1% · 464 B         |
-| **dist/client/assets/StudioLayout-6lo3ogkc.js**                              | 1.3 kB · gzip 747 B · 0.1% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `██████████████░░░░░░` 68.9% · 886 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██████░░░░░░░░░░░░░░` 31.1% · 399 B         |
-| **dist/client/assets/ManagePersonalDetailsPanel-7GBmHkoq.js**                | 1.2 kB · gzip 328 B · 0.1% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ManagePersonalDetailsPanel.vue                 | `██████████████████░░` 90.4% · 1.1 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██░░░░░░░░░░░░░░░░░░` 9.6% · 122 B          |
-| **dist/client/assets/ContextDiagramPanel-WhjdCJ8u.js**                       | 1.1 kB · gzip 654 B · 0.1% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ContextDiagramPanel.vue                        | `███████████░░░░░░░░░` 57.2% · 617 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█████████░░░░░░░░░░░` 42.8% · 461 B         |
-| **dist/client/assets/useEngine-Bv7UORfZ.js**                                 | 1.0 kB · gzip 563 B · 0.1% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → useEngine.ts                                   | `█████████████████░░░` 87.1% · 922 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███░░░░░░░░░░░░░░░░░` 12.9% · 136 B         |
-| **dist/client/assets/eventTracking-C-chXM58.js**                             | 1.0 kB · gzip 587 B · 0.1% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → eventTracking.ts                               | `██████████████████░░` 88.4% · 933 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██░░░░░░░░░░░░░░░░░░` 11.6% · 122 B         |
-| **dist/client/assets/SelectPlaceholder-Cgqk6wly.js**                         | 1000 B · gzip 603 B · 0.1% of the build      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `█████████████░░░░░░░` 66.8% · 668 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███████░░░░░░░░░░░░░` 33.2% · 332 B         |
-| **dist/client/assets/useApi-BPuI6ZR9-BDNL8IOL.js**                           | 985 B · gzip 537 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;vue-router → dist/useApi-BPuI6ZR9.js                 | `███████████████████░` 94.0% · 926 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█░░░░░░░░░░░░░░░░░░░` 6.0% · 59 B           |
-| **dist/client/assets/DataAppsLayout-C6bBDPry.js**                            | 906 B · gzip 548 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → DataAppsLayout.vue                             | `███████████░░░░░░░░░` 53.1% · 481 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█████████░░░░░░░░░░░` 46.9% · 425 B         |
-| **dist/client/assets/ConfigIcon-BhAbr30t.js**                                | 858 B · gzip 502 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ConfigIcon.vue                                 | `█████████████░░░░░░░` 67.1% · 576 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███████░░░░░░░░░░░░░` 32.9% · 282 B         |
-| **dist/client/assets/ContextDimensionDiagramPanel-kHYZczMy.js**              | 824 B · gzip 454 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ContextDimensionDiagramPanel.vue               | `███████████░░░░░░░░░` 56.7% · 467 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█████████░░░░░░░░░░░` 43.3% · 357 B         |
-| **dist/client/assets/SetupHomePanel-qgw6IaOg.js**                            | 740 B · gzip 496 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → SetupHomePanel.vue                             | `██████████░░░░░░░░░░` 49.9% · 369 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██████████░░░░░░░░░░` 50.1% · 371 B         |
-| **dist/client/assets/Tag-8EW1J3ip.js**                                       | 708 B · gzip 408 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → Tag.vue                                        | `████████████████░░░░` 78.5% · 556 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████░░░░░░░░░░░░░░░░` 21.5% · 152 B         |
-| **dist/client/assets/Separator-Bq4gE0Ox.js**                                 | 557 B · gzip 328 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → Separator.vue                                  | `████████░░░░░░░░░░░░` 39.3% · 219 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████████████░░░░░░░░` 60.7% · 338 B         |
-| **dist/client/assets/ManagePreferencesPanel-m3g9jCKD.js**                    | 528 B · gzip 357 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ManagePreferencesPanel.vue                     | `████████░░░░░░░░░░░░` 41.9% · 221 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████████████░░░░░░░░` 58.1% · 307 B         |
-| **dist/client/assets/AuditContentPanel-VuYfS8qZ.js**                         | 525 B · gzip 374 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → AuditContentPanel.vue                          | `██████████░░░░░░░░░░` 50.1% · 263 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██████████░░░░░░░░░░` 49.9% · 262 B         |
-| **dist/client/assets/StudioDocumentSection-COSmmlsc.js**                     | 505 B · gzip 340 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → StudioDocumentSection.vue                      | `██████░░░░░░░░░░░░░░` 30.7% · 155 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██████████████░░░░░░` 69.3% · 350 B         |
-| **dist/client/assets/useSetupSelection-CBFBuzxX.js**                         | 489 B · gzip 329 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → useSetupSelection.ts                           | `███████████████░░░░░` 76.7% · 375 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█████░░░░░░░░░░░░░░░` 23.3% · 114 B         |
-| **dist/client/assets/accountMonitor-QrZQuvlP.js**                            | 476 B · gzip 337 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → accountMonitor.ts                              | `████████████████░░░░` 78.6% · 374 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████░░░░░░░░░░░░░░░░` 21.4% · 102 B         |
-| **dist/client/assets/PluginPresenterPanel-CPAqgsP2.js**                      | 458 B · gzip 259 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → PluginPresenterPanel.vue                       | `█████████░░░░░░░░░░░` 46.7% · 214 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███████████░░░░░░░░░` 53.3% · 244 B         |
-| **dist/client/assets/PluginCookbookPanel-DGU1xdL1.js**                       | 457 B · gzip 261 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → PluginCookbookPanel.vue                        | `█████████░░░░░░░░░░░` 46.8% · 214 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███████████░░░░░░░░░` 53.2% · 243 B         |
-| **dist/client/assets/PluginToolPanel-B_UDi99F.js**                           | 453 B · gzip 259 B · 0.1% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → PluginToolPanel.vue                            | `█████████░░░░░░░░░░░` 47.2% · 214 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███████████░░░░░░░░░` 52.8% · 239 B         |
-| **dist/client/assets/useSetupRoute-DFgchkr1.js**                             | 365 B · gzip 271 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → useSetupRoute.ts                               | `██████████████░░░░░░` 68.2% · 249 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██████░░░░░░░░░░░░░░` 31.8% · 116 B         |
-| **dist/client/assets/house-B_d0g3hS.js**                                     | 318 B · gzip 241 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/house.mjs               | `█████████████████░░░` 84.0% · 267 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███░░░░░░░░░░░░░░░░░` 16.0% · 51 B          |
-| **dist/client/assets/ManageSubscriptionPanel-CeE8bEIX.js**                   | 303 B · gzip 247 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ManageSubscriptionPanel.vue                    | `████████████░░░░░░░░` 62.0% · 188 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████████░░░░░░░░░░░░` 38.0% · 115 B         |
-| **dist/client/assets/ManageDataServiceTokensPanel-BRrBD51W.js**              | 300 B · gzip 245 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ManageDataServiceTokensPanel.vue               | `████████████░░░░░░░░` 61.7% · 185 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████████░░░░░░░░░░░░` 38.3% · 115 B         |
-| **dist/client/assets/GenerateTokenPanel-BcdSFC6r.js**                        | 289 B · gzip 237 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → GenerateTokenPanel.vue                         | `████████████░░░░░░░░` 60.2% · 174 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████████░░░░░░░░░░░░` 39.8% · 115 B         |
-| **dist/client/assets/ManageSessionsPanel-Bdlx3dKz.js**                       | 289 B · gzip 238 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ManageSessionsPanel.vue                        | `████████████░░░░░░░░` 60.2% · 174 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████████░░░░░░░░░░░░` 39.8% · 115 B         |
-| **dist/client/assets/ReviewActivityPanel-CWuGYU6v.js**                       | 289 B · gzip 238 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ReviewActivityPanel.vue                        | `████████████░░░░░░░░` 60.2% · 174 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████████░░░░░░░░░░░░` 39.8% · 115 B         |
-| **dist/client/assets/DeleteAccountPanel-zFgUFERX.js**                        | 288 B · gzip 237 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → DeleteAccountPanel.vue                         | `████████████░░░░░░░░` 60.1% · 173 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████████░░░░░░░░░░░░` 39.9% · 115 B         |
-| **dist/client/assets/ManageAccessPanel-Cgty96gT.js**                         | 287 B · gzip 237 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → ManageAccessPanel.vue                          | `████████████░░░░░░░░` 59.9% · 172 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████████░░░░░░░░░░░░` 40.1% · 115 B         |
-| **dist/client/assets/configCard-BM7e8REq.js**                                | 245 B · gzip 207 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → configCard.ts                                  | `████████████░░░░░░░░` 59.6% · 146 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `████████░░░░░░░░░░░░` 40.4% · 99 B          |
-| **dist/client/assets/search-CWoTWsu\_.js**                                   | 194 B · gzip 182 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/search.mjs              | `███████████████░░░░░` 73.7% · 143 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█████░░░░░░░░░░░░░░░` 26.3% · 51 B          |
-| **dist/client/assets/useConfigsReady-BOeyyH5\_.js**                          | 189 B · gzip 166 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                  | `███████████░░░░░░░░░` 54.5% · 103 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `█████████░░░░░░░░░░░` 45.5% · 86 B          |
-| **dist/client/assets/arrow-left-CXg51yIp.js**                                | 185 B · gzip 177 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/arrow-left.mjs          | `██████████████░░░░░░` 72.4% · 134 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██████░░░░░░░░░░░░░░` 27.6% · 51 B          |
-| **dist/client/assets/x-d2-AkLXL.js**                                         | 174 B · gzip 166 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/x.mjs                   | `██████████████░░░░░░` 70.7% · 123 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██████░░░░░░░░░░░░░░` 29.3% · 51 B          |
-| **dist/client/assets/plus-Cz_e8naS.js**                                      | 173 B · gzip 165 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/plus.mjs                | `██████████████░░░░░░` 70.5% · 122 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `██████░░░░░░░░░░░░░░` 29.5% · 51 B          |
-| **dist/client/assets/chevron-left-B9_cLrGu.js**                              | 150 B · gzip 159 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/chevron-left.mjs        | `█████████████░░░░░░░` 66.0% · 99 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███████░░░░░░░░░░░░░` 34.0% · 51 B          |
-| **dist/client/assets/chevron-right-Df7Y2Njj.js**                             | 150 B · gzip 156 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/chevron-right.mjs       | `█████████████░░░░░░░` 66.0% · 99 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███████░░░░░░░░░░░░░` 34.0% · 51 B          |
-| **dist/client/assets/chevron-down-DFo6vNR9.js**                              | 148 B · gzip 154 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/chevron-down.mjs        | `█████████████░░░░░░░` 65.5% · 97 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███████░░░░░░░░░░░░░` 34.5% · 51 B          |
-| **dist/client/assets/check-1jYqLY6W.js**                                     | 144 B · gzip 156 B · 0.0% of the build       |
-| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/check.mjs               | `█████████████░░░░░░░` 64.6% · 93 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                  | `███████░░░░░░░░░░░░░` 35.4% · 51 B          |
+| Chunk/Module/File                                                                                                                                                  | Composition                                                                                    |
+| :----------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
+| **dist/client/assets/ChatPanel-D8HjG3_b.js**                                                                                                                       | 197.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;53.6&nbsp;kB&nbsp;·&nbsp;22.8%&nbsp;of&nbsp;the&nbsp;build |
+| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/ai-client → dist/esm/chat-client.js + 12 more                                                                                    | `█████████░░░░░░░░░░░`&nbsp;43.2%&nbsp;·&nbsp;85.4&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/ai → <abbr title="dist/esm/activities/chat/stream/processor.js">…ivities/chat/stream/processor.js</abbr> + 26 more               | `████████░░░░░░░░░░░░`&nbsp;38.3%&nbsp;·&nbsp;75.7&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → tanstackClientTools.ts + 16 more                                                                                                     | `██░░░░░░░░░░░░░░░░░░`&nbsp;10.0%&nbsp;·&nbsp;19.7&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;fast-json-patch → module/core.mjs + 3 more                                                                                                 | `█░░░░░░░░░░░░░░░░░░░`&nbsp;5.1%&nbsp;·&nbsp;10.1&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;partial-json → dist/index.js + 1 more                                                                                                      | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.8%&nbsp;·&nbsp;3.6&nbsp;kB                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;@ag-ui/core → dist/version-CTNE2I0_.mjs                                                                                                    | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.6%&nbsp;·&nbsp;1.1&nbsp;kB                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/square.mjs + 2 more                                                                                           | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.4%&nbsp;·&nbsp;830&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.7%&nbsp;·&nbsp;1.4&nbsp;kB                                       |
+| **<abbr title="dist/client/assets/ContextDescriptorsPanel-CpBZv7r9.js">…ient/assets/ContextDescriptorsPanel-CpBZv7r9.js</abbr>**                                   | 64.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;20.1&nbsp;kB&nbsp;·&nbsp;7.4%&nbsp;of&nbsp;the&nbsp;build   |
+| &nbsp;&nbsp;&nbsp;&nbsp;squire-rte → dist/squire.mjs                                                                                                               | `██████████████████░░`&nbsp;91.0%&nbsp;·&nbsp;58.6&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → TextEditor.vue + 1 more                                                                                                              | `█░░░░░░░░░░░░░░░░░░░`&nbsp;6.1%&nbsp;·&nbsp;4.0&nbsp;kB                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/underline.mjs + 3 more                                                                                        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.2%&nbsp;·&nbsp;802&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.6%&nbsp;·&nbsp;1.1&nbsp;kB                                       |
+| **<abbr title="dist/client/assets/runtime-core.esm-bundler-BaJsNFUd.js">…ent/assets/runtime-core.esm-bundler-BaJsNFUd.js</abbr>**                                  | 63.3&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;24.4&nbsp;kB&nbsp;·&nbsp;7.3%&nbsp;of&nbsp;the&nbsp;build   |
+| &nbsp;&nbsp;&nbsp;&nbsp;@vue/runtime-core → <abbr title="dist/runtime-core.esm-bundler.js">…runtime-core.esm-bundler.js</abbr>                                     | `██████████████░░░░░░`&nbsp;67.7%&nbsp;·&nbsp;42.8&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;@vue/reactivity → dist/reactivity.esm-bundler.js                                                                                           | `█████░░░░░░░░░░░░░░░`&nbsp;26.5%&nbsp;·&nbsp;16.8&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;@vue/shared → dist/shared.esm-bundler.js                                                                                                   | `█░░░░░░░░░░░░░░░░░░░`&nbsp;5.8%&nbsp;·&nbsp;3.7&nbsp;kB                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.0%&nbsp;·&nbsp;0&nbsp;B                                          |
+| **dist/client/assets/ExploreDataPanel-D7HjlQ6R.js**                                                                                                                | 58.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;15.8&nbsp;kB&nbsp;·&nbsp;6.7%&nbsp;of&nbsp;the&nbsp;build   |
+| &nbsp;&nbsp;&nbsp;&nbsp;@formkit/drag-and-drop → index.mjs + 1 more                                                                                                | `██████████░░░░░░░░░░`&nbsp;50.6%&nbsp;·&nbsp;29.5&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → TransformDataPanel.vue + 4 more                                                                                                      | `█████████░░░░░░░░░░░`&nbsp;44.6%&nbsp;·&nbsp;26.0&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/calendar-clock.mjs + 8 more                                                                                   | `█░░░░░░░░░░░░░░░░░░░`&nbsp;3.5%&nbsp;·&nbsp;2.0&nbsp;kB                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.3%&nbsp;·&nbsp;754&nbsp;B                                        |
+| **dist/client/assets/index-C1BUJyYs.js**                                                                                                                           | 52.7&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;18.6&nbsp;kB&nbsp;·&nbsp;6.1%&nbsp;of&nbsp;the&nbsp;build   |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts + 13 more                                                                                                                   | `██████████░░░░░░░░░░`&nbsp;47.8%&nbsp;·&nbsp;25.2&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;@vue/runtime-dom → <abbr title="dist/runtime-dom.esm-bundler.js">…t/runtime-dom.esm-bundler.js</abbr>                                      | `██████░░░░░░░░░░░░░░`&nbsp;29.7%&nbsp;·&nbsp;15.7&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████░░░░░░░░░░░░░░░░`&nbsp;22.4%&nbsp;·&nbsp;11.8&nbsp;kB                                     |
+| **dist/client/assets/Table-DDDL5TqG.js**                                                                                                                           | 52.1&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;13.7&nbsp;kB&nbsp;·&nbsp;6.0%&nbsp;of&nbsp;the&nbsp;build   |
+| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/table-core → <abbr title="dist/features/column-pinning/columnPinningFeature.utils.js">…nPinningFeature.utils.js</abbr> + 35 more | `███████████████░░░░░`&nbsp;75.2%&nbsp;·&nbsp;39.2&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → Table.vue + 4 more                                                                                                                   | `███░░░░░░░░░░░░░░░░░`&nbsp;17.4%&nbsp;·&nbsp;9.1&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/vue-table → dist/useTable.js + 2 more                                                                                            | `█░░░░░░░░░░░░░░░░░░░`&nbsp;4.6%&nbsp;·&nbsp;2.4&nbsp;kB                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/store → dist/shallow.js                                                                                                          | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.3%&nbsp;·&nbsp;676&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/settings-2.mjs                                                                                                | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.4%&nbsp;·&nbsp;212&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.1%&nbsp;·&nbsp;592&nbsp;B                                        |
+| **dist/client/assets/ContextModelList-CgR6Zesh.js**                                                                                                                | 45.3&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;11.2&nbsp;kB&nbsp;·&nbsp;5.2%&nbsp;of&nbsp;the&nbsp;build   |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → _context.ts + 7 more                                                                                                                 | `███████████████████░`&nbsp;93.7%&nbsp;·&nbsp;42.5&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/square-pen.mjs + 1 more                                                                                       | `░░░░░░░░░░░░░░░░░░░░`&nbsp;2.1%&nbsp;·&nbsp;957&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█░░░░░░░░░░░░░░░░░░░`&nbsp;4.3%&nbsp;·&nbsp;1.9&nbsp;kB                                       |
+| **dist/client/assets/useMarkedTool-CiAE5F3W.js**                                                                                                                   | 28.1&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;11.1&nbsp;kB&nbsp;·&nbsp;3.2%&nbsp;of&nbsp;the&nbsp;build   |
+| &nbsp;&nbsp;&nbsp;&nbsp;dompurify → dist/purify.es.mjs                                                                                                             | `███████████████████░`&nbsp;97.2%&nbsp;·&nbsp;27.3&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → useMarkedTool.ts                                                                                                                     | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.7%&nbsp;·&nbsp;491&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.1%&nbsp;·&nbsp;324&nbsp;B                                        |
+| **dist/client/assets/sdk.modern-BA6sl1Hr.js**                                                                                                                      | 27.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;8.1&nbsp;kB&nbsp;·&nbsp;3.2%&nbsp;of&nbsp;the&nbsp;build    |
+| &nbsp;&nbsp;&nbsp;&nbsp;@teamhanko/hanko-frontend-sdk → <abbr title="dist/sdk.modern.js">…t/sdk.modern.js</abbr>                                                   | `████████████████████`&nbsp;100.0%&nbsp;·&nbsp;27.5&nbsp;kB                                    |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.0%&nbsp;·&nbsp;1&nbsp;B                                          |
+| **dist/client/assets/useDataWindow-BF0Yi75t.js**                                                                                                                   | 25.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.7&nbsp;kB&nbsp;·&nbsp;2.9%&nbsp;of&nbsp;the&nbsp;build    |
+| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/virtual-core → dist/esm/index.js + 2 more                                                                                        | `██████████████████░░`&nbsp;90.4%&nbsp;·&nbsp;22.7&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → useDataWindow.ts                                                                                                                     | `██░░░░░░░░░░░░░░░░░░`&nbsp;7.5%&nbsp;·&nbsp;1.9&nbsp;kB                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;@tanstack/vue-virtual → dist/esm/index.js                                                                                                  | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.5%&nbsp;·&nbsp;378&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.6%&nbsp;·&nbsp;151&nbsp;B                                        |
+| **dist/client/assets/ActionWrapper-CRRA3u5W.js**                                                                                                                   | 22.7&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;9.0&nbsp;kB&nbsp;·&nbsp;2.6%&nbsp;of&nbsp;the&nbsp;build    |
+| &nbsp;&nbsp;&nbsp;&nbsp;vue-router → dist/vue-router.js + 1 more                                                                                                   | `███████████████████░`&nbsp;96.9%&nbsp;·&nbsp;22.0&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ActionWrapper.vue                                                                                                                    | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.6%&nbsp;·&nbsp;368&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.5%&nbsp;·&nbsp;352&nbsp;B                                        |
+| **dist/client/assets/dist-fs2wuPC8.js**                                                                                                                            | 17.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.0&nbsp;kB&nbsp;·&nbsp;2.1%&nbsp;of&nbsp;the&nbsp;build    |
+| &nbsp;&nbsp;&nbsp;&nbsp;@vueuse/core → dist/index.js                                                                                                               | `███████████████░░░░░`&nbsp;73.8%&nbsp;·&nbsp;13.2&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;@vueuse/shared → dist/index.js                                                                                                             | `█████░░░░░░░░░░░░░░░`&nbsp;25.1%&nbsp;·&nbsp;4.5&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.0%&nbsp;·&nbsp;191&nbsp;B                                        |
+| **dist/client/assets/locale-DVh8tOlR.js**                                                                                                                          | 13.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;5.2&nbsp;kB&nbsp;·&nbsp;1.5%&nbsp;of&nbsp;the&nbsp;build    |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js                                                                                              | `█████████████████░░░`&nbsp;85.7%&nbsp;·&nbsp;11.3&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → locale.ts                                                                                                                            | `█░░░░░░░░░░░░░░░░░░░`&nbsp;3.8%&nbsp;·&nbsp;511&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██░░░░░░░░░░░░░░░░░░`&nbsp;10.6%&nbsp;·&nbsp;1.4&nbsp;kB                                      |
+| **dist/client/assets/SessionAuthPanel-BDNAcSBH.js**                                                                                                                | 12.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;5.0&nbsp;kB&nbsp;·&nbsp;1.4%&nbsp;of&nbsp;the&nbsp;build    |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → SessionAuthPanel.vue + 5 more                                                                                                        | `██████████████████░░`&nbsp;91.2%&nbsp;·&nbsp;11.4&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/user-round-key.mjs                                                                                            | `█░░░░░░░░░░░░░░░░░░░`&nbsp;3.1%&nbsp;·&nbsp;398&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█░░░░░░░░░░░░░░░░░░░`&nbsp;5.7%&nbsp;·&nbsp;726&nbsp;B                                        |
+| **dist/client/assets/DataViewList-BSM4VgiC.js**                                                                                                                    | 10.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.9&nbsp;kB&nbsp;·&nbsp;1.2%&nbsp;of&nbsp;the&nbsp;build    |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → DataViewList.vue + 6 more                                                                                                            | `████████████████░░░░`&nbsp;77.9%&nbsp;·&nbsp;8.2&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████░░░░░░░░░░░░░░░░`&nbsp;22.1%&nbsp;·&nbsp;2.3&nbsp;kB                                      |
+| **dist/client/assets/AssistantLayout-C2Brj_Kb.js**                                                                                                                 | 9.7&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.9&nbsp;kB&nbsp;·&nbsp;1.1%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → AssistantLayout.vue + 5 more                                                                                                         | `███████████████░░░░░`&nbsp;77.2%&nbsp;·&nbsp;7.5&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/library.mjs + 1 more                                                                                          | `█░░░░░░░░░░░░░░░░░░░`&nbsp;3.8%&nbsp;·&nbsp;379&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████░░░░░░░░░░░░░░░░`&nbsp;19.0%&nbsp;·&nbsp;1.8&nbsp;kB                                      |
+| **dist/client/assets/ErrorNotice-DxlTRMGi.js**                                                                                                                     | 8.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.5&nbsp;kB&nbsp;·&nbsp;1.0%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ErrorBody.vue + 3 more                                                                                                               | `█████████████████░░░`&nbsp;83.6%&nbsp;·&nbsp;7.4&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/triangle-alert.mjs + 2 more                                                                                   | `██░░░░░░░░░░░░░░░░░░`&nbsp;10.8%&nbsp;·&nbsp;976&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█░░░░░░░░░░░░░░░░░░░`&nbsp;5.7%&nbsp;·&nbsp;515&nbsp;B                                        |
+| **<abbr title="dist/client/assets/performanceTracking-LktXVM4y.js">…t/client/assets/performanceTracking-LktXVM4y.js</abbr>**                                       | 8.6&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.2&nbsp;kB&nbsp;·&nbsp;1.0%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;web-vitals → dist/web-vitals.js                                                                                                            | `███████████████████░`&nbsp;97.2%&nbsp;·&nbsp;8.4&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → performanceTracking.ts                                                                                                               | `░░░░░░░░░░░░░░░░░░░░`&nbsp;2.2%&nbsp;·&nbsp;195&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.5%&nbsp;·&nbsp;48&nbsp;B                                         |
+| **dist/client/assets/LibraryPanel-BxVMBK8W.js**                                                                                                                    | 8.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.3&nbsp;kB&nbsp;·&nbsp;1.0%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → LibraryPanel.vue + 2 more                                                                                                            | `█████████████████░░░`&nbsp;84.0%&nbsp;·&nbsp;7.0&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███░░░░░░░░░░░░░░░░░`&nbsp;16.0%&nbsp;·&nbsp;1.3&nbsp;kB                                      |
+| **dist/client/assets/SessionMenu-BEm9ampU.js**                                                                                                                     | 7.0&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;2.7&nbsp;kB&nbsp;·&nbsp;0.8%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → SessionMenu.vue                                                                                                                      | `████████████░░░░░░░░`&nbsp;62.5%&nbsp;·&nbsp;4.4&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/sun.mjs + 4 more                                                                                              | `█████░░░░░░░░░░░░░░░`&nbsp;27.2%&nbsp;·&nbsp;1.9&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██░░░░░░░░░░░░░░░░░░`&nbsp;10.4%&nbsp;·&nbsp;746&nbsp;B                                       |
+| **dist/client/assets/SetupLayout-BNn_etZa.js**                                                                                                                     | 6.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;2.3&nbsp;kB&nbsp;·&nbsp;0.8%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → useSetupOptions.ts + 2 more                                                                                                          | `██████████████████░░`&nbsp;89.7%&nbsp;·&nbsp;6.2&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██░░░░░░░░░░░░░░░░░░`&nbsp;10.3%&nbsp;·&nbsp;727&nbsp;B                                       |
+| **dist/client/assets/SelectItemPanel-C3nyOdoy.js**                                                                                                                 | 6.3&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;2.8&nbsp;kB&nbsp;·&nbsp;0.7%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → SelectItemPanel.vue + 1 more                                                                                                         | `█████████████████░░░`&nbsp;83.4%&nbsp;·&nbsp;5.3&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███░░░░░░░░░░░░░░░░░`&nbsp;16.6%&nbsp;·&nbsp;1.0&nbsp;kB                                      |
+| **dist/client/assets/GridDetailPanel-DZdkVqt8.js**                                                                                                                 | 5.8&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;2.5&nbsp;kB&nbsp;·&nbsp;0.7%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → Grid.vue + 4 more                                                                                                                    | `██████████████████░░`&nbsp;89.8%&nbsp;·&nbsp;5.2&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██░░░░░░░░░░░░░░░░░░`&nbsp;10.2%&nbsp;·&nbsp;609&nbsp;B                                       |
+| **dist/client/assets/ConfigCard-BVcRJ36h.js**                                                                                                                      | 5.8&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;2.1&nbsp;kB&nbsp;·&nbsp;0.7%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ConfigCard.vue                                                                                                                       | `██████████████░░░░░░`&nbsp;71.0%&nbsp;·&nbsp;4.1&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/trash.mjs + 3 more                                                                                            | `█████░░░░░░░░░░░░░░░`&nbsp;23.1%&nbsp;·&nbsp;1.3&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█░░░░░░░░░░░░░░░░░░░`&nbsp;5.9%&nbsp;·&nbsp;353&nbsp;B                                        |
+| **dist/client/assets/ConnectionPanel-BnxADmrH.js**                                                                                                                 | 5.8&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;2.3&nbsp;kB&nbsp;·&nbsp;0.7%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ConnectionPanel.vue + 2 more                                                                                                         | `████████████████░░░░`&nbsp;79.5%&nbsp;·&nbsp;4.6&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████░░░░░░░░░░░░░░░░`&nbsp;20.5%&nbsp;·&nbsp;1.2&nbsp;kB                                      |
+| **dist/client/assets/DataViewsLayout-BwjpqNc8.js**                                                                                                                 | 5.1&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;2.2&nbsp;kB&nbsp;·&nbsp;0.6%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → TaskBar.vue + 1 more                                                                                                                 | `████████████░░░░░░░░`&nbsp;57.7%&nbsp;·&nbsp;3.0&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████████░░░░░░░░░░░░`&nbsp;42.3%&nbsp;·&nbsp;2.2&nbsp;kB                                      |
+| **<abbr title="dist/client/assets/SessionAccountPanel-Daj1unNc.js">…t/client/assets/SessionAccountPanel-Daj1unNc.js</abbr>**                                       | 5.1&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;2.0&nbsp;kB&nbsp;·&nbsp;0.6%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → SessionAccountPanel.vue                                                                                                              | `████████████░░░░░░░░`&nbsp;58.7%&nbsp;·&nbsp;3.0&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/arrow-big-left.mjs                                                                                            | `████░░░░░░░░░░░░░░░░`&nbsp;17.9%&nbsp;·&nbsp;939&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████░░░░░░░░░░░░░░░`&nbsp;23.5%&nbsp;·&nbsp;1.2&nbsp;kB                                      |
+| **dist/client/assets/ScrollArea-XSC-MMyh.js**                                                                                                                      | 5.0&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;2.0&nbsp;kB&nbsp;·&nbsp;0.6%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ScrollThumb.vue + 1 more                                                                                                             | `██████████████████░░`&nbsp;89.9%&nbsp;·&nbsp;4.5&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██░░░░░░░░░░░░░░░░░░`&nbsp;10.1%&nbsp;·&nbsp;519&nbsp;B                                       |
+| **dist/client/assets/errors-DOhnbpfV.js**                                                                                                                          | 4.7&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;2.2&nbsp;kB&nbsp;·&nbsp;0.5%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → errorTracking.ts + 1 more                                                                                                            | `█████████████░░░░░░░`&nbsp;62.8%&nbsp;·&nbsp;3.0&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███████░░░░░░░░░░░░░`&nbsp;37.2%&nbsp;·&nbsp;1.8&nbsp;kB                                      |
+| **<abbr title="dist/client/assets/SelectConnectionList-NWlZUJtH.js">…/client/assets/SelectConnectionList-NWlZUJtH.js</abbr>**                                      | 4.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.9&nbsp;kB&nbsp;·&nbsp;0.5%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → SelectConnectionList.vue + 1 more                                                                                                    | `███████████████░░░░░`&nbsp;74.2%&nbsp;·&nbsp;3.4&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████░░░░░░░░░░░░░░░`&nbsp;25.8%&nbsp;·&nbsp;1.2&nbsp;kB                                      |
+| **dist/client/assets/PaneSplitter-43MI6RWz.js**                                                                                                                    | 4.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.9&nbsp;kB&nbsp;·&nbsp;0.5%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → PaneSplitter.vue                                                                                                                     | `████████████████░░░░`&nbsp;78.3%&nbsp;·&nbsp;3.5&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████░░░░░░░░░░░░░░░░`&nbsp;21.7%&nbsp;·&nbsp;979&nbsp;B                                       |
+| **dist/client/assets/useStudioOptions-DNCdWzNH.js**                                                                                                                | 4.3&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.3&nbsp;kB&nbsp;·&nbsp;0.5%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → useStudioOptions.ts                                                                                                                  | `████████████████████`&nbsp;97.6%&nbsp;·&nbsp;4.2&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `░░░░░░░░░░░░░░░░░░░░`&nbsp;2.4%&nbsp;·&nbsp;107&nbsp;B                                        |
+| **dist/client/assets/PluginList-B3a2znBc.js**                                                                                                                      | 4.3&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.7&nbsp;kB&nbsp;·&nbsp;0.5%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → PluginList.vue                                                                                                                       | `█████████░░░░░░░░░░░`&nbsp;45.9%&nbsp;·&nbsp;2.0&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███████████░░░░░░░░░`&nbsp;54.1%&nbsp;·&nbsp;2.3&nbsp;kB                                      |
+| **dist/client/assets/dataViews-DvUE0kzf.js**                                                                                                                       | 3.6&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.2&nbsp;kB&nbsp;·&nbsp;0.4%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → dataViews.ts                                                                                                                         | `██████████████████░░`&nbsp;91.2%&nbsp;·&nbsp;3.3&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██░░░░░░░░░░░░░░░░░░`&nbsp;8.8%&nbsp;·&nbsp;320&nbsp;B                                        |
+| **dist/client/assets/StudioHomePanel-DMFSC7ab.js**                                                                                                                 | 3.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.1&nbsp;kB&nbsp;·&nbsp;0.4%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → StudioHomePanel.vue                                                                                                                  | `███████░░░░░░░░░░░░░`&nbsp;32.8%&nbsp;·&nbsp;1.1&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████████████░░░░░░░`&nbsp;67.2%&nbsp;·&nbsp;2.3&nbsp;kB                                      |
+| **dist/client/assets/PluginPanel-a8L2yxl6.js**                                                                                                                     | 3.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.5&nbsp;kB&nbsp;·&nbsp;0.4%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → PluginPanel.vue                                                                                                                      | `███████████░░░░░░░░░`&nbsp;53.7%&nbsp;·&nbsp;1.8&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/user-round.mjs + 2 more                                                                                       | `██████░░░░░░░░░░░░░░`&nbsp;30.6%&nbsp;·&nbsp;1.0&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███░░░░░░░░░░░░░░░░░`&nbsp;15.7%&nbsp;·&nbsp;552&nbsp;B                                       |
+| **dist/client/assets/OptionBar-B97CwrMX.js**                                                                                                                       | 3.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.6&nbsp;kB&nbsp;·&nbsp;0.4%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → OptionPanel.vue + 3 more                                                                                                             | `████████████████░░░░`&nbsp;81.8%&nbsp;·&nbsp;2.8&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████░░░░░░░░░░░░░░░░`&nbsp;18.2%&nbsp;·&nbsp;633&nbsp;B                                       |
+| **dist/client/assets/ScrollRow-D0ke4stZ.js**                                                                                                                       | 3.3&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.6&nbsp;kB&nbsp;·&nbsp;0.4%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ScrollRow.vue                                                                                                                        | `█████████████████░░░`&nbsp;82.8%&nbsp;·&nbsp;2.7&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███░░░░░░░░░░░░░░░░░`&nbsp;17.2%&nbsp;·&nbsp;576&nbsp;B                                       |
+| **<abbr title="dist/client/assets/PresentationsLayout-DesNxvsx.js">…t/client/assets/PresentationsLayout-DesNxvsx.js</abbr>**                                       | 3.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.6&nbsp;kB&nbsp;·&nbsp;0.4%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → PresentationsLayout.vue                                                                                                              | `███████████████░░░░░`&nbsp;74.9%&nbsp;·&nbsp;2.4&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████░░░░░░░░░░░░░░░`&nbsp;25.1%&nbsp;·&nbsp;832&nbsp;B                                       |
+| **dist/client/assets/createLucideIcon-Cl6DWzJb.js**                                                                                                                | 2.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.2&nbsp;kB&nbsp;·&nbsp;0.3%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → <abbr title="dist/esm/shared/src/build/buildLucideIconNode.mjs">…src/build/buildLucideIconNode.mjs</abbr> + 8 more           | `███████████████████░`&nbsp;97.4%&nbsp;·&nbsp;2.4&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█░░░░░░░░░░░░░░░░░░░`&nbsp;2.6%&nbsp;·&nbsp;66&nbsp;B                                         |
+| **<abbr title="dist/client/assets/EventQueriesLayout-PxlPbu5N.js">…st/client/assets/EventQueriesLayout-PxlPbu5N.js</abbr>**                                        | 2.3&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.1&nbsp;kB&nbsp;·&nbsp;0.3%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → EventQueriesLayout.vue                                                                                                               | `██████████████░░░░░░`&nbsp;71.6%&nbsp;·&nbsp;1.6&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██████░░░░░░░░░░░░░░`&nbsp;28.4%&nbsp;·&nbsp;665&nbsp;B                                       |
+| **dist/client/assets/utilities-DD_UHY5d.js**                                                                                                                       | 2.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.2&nbsp;kB&nbsp;·&nbsp;0.3%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts + 2 more                                                                                                                    | `████████████████░░░░`&nbsp;77.5%&nbsp;·&nbsp;1.7&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/loader-circle.mjs                                                                                             | `██░░░░░░░░░░░░░░░░░░`&nbsp;8.2%&nbsp;·&nbsp;188&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███░░░░░░░░░░░░░░░░░`&nbsp;14.2%&nbsp;·&nbsp;325&nbsp;B                                       |
+| **dist/client/assets/GitHubLogo-Dp5nxvZU.js**                                                                                                                      | 2.1&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.1&nbsp;kB&nbsp;·&nbsp;0.2%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → GitHubLogo.vue                                                                                                                       | `██████████████████░░`&nbsp;89.9%&nbsp;·&nbsp;1.9&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██░░░░░░░░░░░░░░░░░░`&nbsp;10.1%&nbsp;·&nbsp;212&nbsp;B                                       |
+| **dist/client/assets/TextInput-DA9zL4q3.js**                                                                                                                       | 2.0&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.1&nbsp;kB&nbsp;·&nbsp;0.2%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → TextInput.vue                                                                                                                        | `███████████████░░░░░`&nbsp;72.6%&nbsp;·&nbsp;1.5&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████░░░░░░░░░░░░░░░`&nbsp;27.4%&nbsp;·&nbsp;570&nbsp;B                                       |
+| **dist/client/assets/configMonitor-D2GlNtVU.js**                                                                                                                   | 1.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;895&nbsp;B&nbsp;·&nbsp;0.2%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → configMonitor.ts                                                                                                                     | `██████████████████░░`&nbsp;88.9%&nbsp;·&nbsp;1.7&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██░░░░░░░░░░░░░░░░░░`&nbsp;11.1%&nbsp;·&nbsp;219&nbsp;B                                       |
+| **dist/client/assets/RectangleButton-DCZTJ0np.js**                                                                                                                 | 1.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;818&nbsp;B&nbsp;·&nbsp;0.2%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → action.ts + 1 more                                                                                                                   | `██████████████████░░`&nbsp;92.2%&nbsp;·&nbsp;1.7&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██░░░░░░░░░░░░░░░░░░`&nbsp;7.8%&nbsp;·&nbsp;151&nbsp;B                                        |
+| **<abbr title="dist/client/assets/StudioDocumentPanel-s79S4F0W.js">…t/client/assets/StudioDocumentPanel-s79S4F0W.js</abbr>**                                       | 1.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1014&nbsp;B&nbsp;·&nbsp;0.2%&nbsp;of&nbsp;the&nbsp;build     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → StudioDetailPanel.vue + 1 more                                                                                                       | `████████████████░░░░`&nbsp;78.8%&nbsp;·&nbsp;1.5&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████░░░░░░░░░░░░░░░░`&nbsp;21.2%&nbsp;·&nbsp;409&nbsp;B                                       |
+| **<abbr title="dist/client/assets/PluginConnectorPanel-Dm0KywQd.js">…/client/assets/PluginConnectorPanel-Dm0KywQd.js</abbr>**                                      | 1.7&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;888&nbsp;B&nbsp;·&nbsp;0.2%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → PluginConnectorPanel.vue                                                                                                             | `██████████████░░░░░░`&nbsp;71.6%&nbsp;·&nbsp;1.3&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██████░░░░░░░░░░░░░░`&nbsp;28.4%&nbsp;·&nbsp;507&nbsp;B                                       |
+| **<abbr title="dist/client/assets/ContextEntityDiagramPanel-DsjPU9NJ.js">…nt/assets/ContextEntityDiagramPanel-DsjPU9NJ.js</abbr>**                                 | 1.7&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;625&nbsp;B&nbsp;·&nbsp;0.2%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ContextEntityDiagramPanel.vue                                                                                                        | `████████████████░░░░`&nbsp;81.9%&nbsp;·&nbsp;1.4&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████░░░░░░░░░░░░░░░░`&nbsp;18.1%&nbsp;·&nbsp;313&nbsp;B                                       |
+| **dist/client/assets/monitorSocket-CFHqRGMN.js**                                                                                                                   | 1.6&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;859&nbsp;B&nbsp;·&nbsp;0.2%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → monitorSocket.ts                                                                                                                     | `██████████████████░░`&nbsp;92.5%&nbsp;·&nbsp;1.5&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██░░░░░░░░░░░░░░░░░░`&nbsp;7.5%&nbsp;·&nbsp;126&nbsp;B                                        |
+| **dist/client/assets/EmptyPlaceholder-Dnygp0o8.js**                                                                                                                | 1.6&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;834&nbsp;B&nbsp;·&nbsp;0.2%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → EmptyPlaceholder.vue                                                                                                                 | `████████░░░░░░░░░░░░`&nbsp;41.8%&nbsp;·&nbsp;674&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████████████░░░░░░░░`&nbsp;58.2%&nbsp;·&nbsp;938&nbsp;B                                       |
+| **dist/client/assets/ItemButton-C5VPLoA-.js**                                                                                                                      | 1.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;600&nbsp;B&nbsp;·&nbsp;0.2%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ItemButton.vue                                                                                                                       | `████████████████░░░░`&nbsp;82.1%&nbsp;·&nbsp;1.1&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████░░░░░░░░░░░░░░░░`&nbsp;17.9%&nbsp;·&nbsp;254&nbsp;B                                       |
+| **dist/client/assets/Breadcrumbs-CUboSTNs.js**                                                                                                                     | 1.3&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;765&nbsp;B&nbsp;·&nbsp;0.2%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → Breadcrumbs.vue                                                                                                                      | `█████████████░░░░░░░`&nbsp;65.9%&nbsp;·&nbsp;897&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███████░░░░░░░░░░░░░`&nbsp;34.1%&nbsp;·&nbsp;464&nbsp;B                                       |
+| **dist/client/assets/StudioLayout-DDIOH4Jh.js**                                                                                                                    | 1.3&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;773&nbsp;B&nbsp;·&nbsp;0.2%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → StudioHeader.vue + 1 more                                                                                                            | `█████████████░░░░░░░`&nbsp;66.2%&nbsp;·&nbsp;886&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███████░░░░░░░░░░░░░`&nbsp;33.8%&nbsp;·&nbsp;452&nbsp;B                                       |
+| **<abbr title="dist/client/assets/ManagePersonalDetailsPanel-DPXUxiJD.js">…t/assets/ManagePersonalDetailsPanel-DPXUxiJD.js</abbr>**                                | 1.3&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;340&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ManagePersonalDetailsPanel.vue                                                                                                       | `██████████████████░░`&nbsp;89.0%&nbsp;·&nbsp;1.1&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██░░░░░░░░░░░░░░░░░░`&nbsp;11.0%&nbsp;·&nbsp;142&nbsp;B                                       |
+| **<abbr title="dist/client/assets/ContextDiagramPanel-CVSzfSLK.js">…t/client/assets/ContextDiagramPanel-CVSzfSLK.js</abbr>**                                       | 1.1&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;670&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ContextDiagramPanel.vue                                                                                                              | `███████████░░░░░░░░░`&nbsp;55.3%&nbsp;·&nbsp;617&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████████░░░░░░░░░░░`&nbsp;44.7%&nbsp;·&nbsp;499&nbsp;B                                       |
+| **dist/client/assets/useEngine-BoAU-YAO.js**                                                                                                                       | 1.0&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;561&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → useEngine.ts                                                                                                                         | `█████████████████░░░`&nbsp;87.1%&nbsp;·&nbsp;922&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███░░░░░░░░░░░░░░░░░`&nbsp;12.9%&nbsp;·&nbsp;136&nbsp;B                                       |
+| **dist/client/assets/eventTracking-c6UjCTHy.js**                                                                                                                   | 1.0&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;588&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → eventTracking.ts                                                                                                                     | `██████████████████░░`&nbsp;88.4%&nbsp;·&nbsp;933&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██░░░░░░░░░░░░░░░░░░`&nbsp;11.6%&nbsp;·&nbsp;122&nbsp;B                                       |
+| **dist/client/assets/useApi-CUWMwLLw-BulLC0Q6.js**                                                                                                                 | 1005&nbsp;B&nbsp;·&nbsp;gzip&nbsp;543&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;vue-router → dist/useApi-CUWMwLLw.js                                                                                                       | `███████████████████░`&nbsp;94.1%&nbsp;·&nbsp;946&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█░░░░░░░░░░░░░░░░░░░`&nbsp;5.9%&nbsp;·&nbsp;59&nbsp;B                                         |
+| **dist/client/assets/SelectPlaceholder-Cgqk6wly.js**                                                                                                               | 1000&nbsp;B&nbsp;·&nbsp;gzip&nbsp;603&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → MousePointerClickRotatedIcon.vue + 1 more                                                                                            | `█████████████░░░░░░░`&nbsp;66.8%&nbsp;·&nbsp;668&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███████░░░░░░░░░░░░░`&nbsp;33.2%&nbsp;·&nbsp;332&nbsp;B                                       |
+| **dist/client/assets/DataAppsLayout-B34LH2hd.js**                                                                                                                  | 906&nbsp;B&nbsp;·&nbsp;gzip&nbsp;549&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → DataAppsLayout.vue                                                                                                                   | `███████████░░░░░░░░░`&nbsp;53.1%&nbsp;·&nbsp;481&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████████░░░░░░░░░░░`&nbsp;46.9%&nbsp;·&nbsp;425&nbsp;B                                       |
+| **dist/client/assets/ConfigIcon-BhAbr30t.js**                                                                                                                      | 858&nbsp;B&nbsp;·&nbsp;gzip&nbsp;502&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ConfigIcon.vue                                                                                                                       | `█████████████░░░░░░░`&nbsp;67.1%&nbsp;·&nbsp;576&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███████░░░░░░░░░░░░░`&nbsp;32.9%&nbsp;·&nbsp;282&nbsp;B                                       |
+| **<abbr title="dist/client/assets/ContextDimensionDiagramPanel-BKyoeF6g.js">…assets/ContextDimensionDiagramPanel-BKyoeF6g.js</abbr>**                              | 824&nbsp;B&nbsp;·&nbsp;gzip&nbsp;455&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ContextDimensionDiagramPanel.vue                                                                                                     | `███████████░░░░░░░░░`&nbsp;56.7%&nbsp;·&nbsp;467&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████████░░░░░░░░░░░`&nbsp;43.3%&nbsp;·&nbsp;357&nbsp;B                                       |
+| **dist/client/assets/SetupHomePanel-DgvRr0hZ.js**                                                                                                                  | 740&nbsp;B&nbsp;·&nbsp;gzip&nbsp;496&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → SetupHomePanel.vue                                                                                                                   | `██████████░░░░░░░░░░`&nbsp;49.9%&nbsp;·&nbsp;369&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██████████░░░░░░░░░░`&nbsp;50.1%&nbsp;·&nbsp;371&nbsp;B                                       |
+| **dist/client/assets/Tag-8EW1J3ip.js**                                                                                                                             | 708&nbsp;B&nbsp;·&nbsp;gzip&nbsp;408&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → Tag.vue                                                                                                                              | `████████████████░░░░`&nbsp;78.5%&nbsp;·&nbsp;556&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████░░░░░░░░░░░░░░░░`&nbsp;21.5%&nbsp;·&nbsp;152&nbsp;B                                       |
+| **dist/client/assets/Separator-Bq4gE0Ox.js**                                                                                                                       | 557&nbsp;B&nbsp;·&nbsp;gzip&nbsp;328&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → Separator.vue                                                                                                                        | `████████░░░░░░░░░░░░`&nbsp;39.3%&nbsp;·&nbsp;219&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████████████░░░░░░░░`&nbsp;60.7%&nbsp;·&nbsp;338&nbsp;B                                       |
+| **<abbr title="dist/client/assets/ManagePreferencesPanel-BMjTzQB9.js">…lient/assets/ManagePreferencesPanel-BMjTzQB9.js</abbr>**                                    | 538&nbsp;B&nbsp;·&nbsp;gzip&nbsp;366&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ManagePreferencesPanel.vue                                                                                                           | `████████░░░░░░░░░░░░`&nbsp;41.1%&nbsp;·&nbsp;221&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████████████░░░░░░░░`&nbsp;58.9%&nbsp;·&nbsp;317&nbsp;B                                       |
+| **dist/client/assets/AuditContentPanel-VuYfS8qZ.js**                                                                                                               | 525&nbsp;B&nbsp;·&nbsp;gzip&nbsp;374&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → AuditContentPanel.vue                                                                                                                | `██████████░░░░░░░░░░`&nbsp;50.1%&nbsp;·&nbsp;263&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██████████░░░░░░░░░░`&nbsp;49.9%&nbsp;·&nbsp;262&nbsp;B                                       |
+| **<abbr title="dist/client/assets/StudioDocumentSection-COSmmlsc.js">…client/assets/StudioDocumentSection-COSmmlsc.js</abbr>**                                     | 505&nbsp;B&nbsp;·&nbsp;gzip&nbsp;340&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → StudioDocumentSection.vue                                                                                                            | `██████░░░░░░░░░░░░░░`&nbsp;30.7%&nbsp;·&nbsp;155&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██████████████░░░░░░`&nbsp;69.3%&nbsp;·&nbsp;350&nbsp;B                                       |
+| **dist/client/assets/useSetupSelection-WM5oFGwx.js**                                                                                                               | 489&nbsp;B&nbsp;·&nbsp;gzip&nbsp;331&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → useSetupSelection.ts                                                                                                                 | `███████████████░░░░░`&nbsp;76.7%&nbsp;·&nbsp;375&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████░░░░░░░░░░░░░░░`&nbsp;23.3%&nbsp;·&nbsp;114&nbsp;B                                       |
+| **dist/client/assets/accountMonitor-l33oMvrt.js**                                                                                                                  | 476&nbsp;B&nbsp;·&nbsp;gzip&nbsp;339&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → accountMonitor.ts                                                                                                                    | `████████████████░░░░`&nbsp;78.6%&nbsp;·&nbsp;374&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████░░░░░░░░░░░░░░░░`&nbsp;21.4%&nbsp;·&nbsp;102&nbsp;B                                       |
+| **<abbr title="dist/client/assets/PluginPresenterPanel-CBaHfJd4.js">…/client/assets/PluginPresenterPanel-CBaHfJd4.js</abbr>**                                      | 458&nbsp;B&nbsp;·&nbsp;gzip&nbsp;262&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → PluginPresenterPanel.vue                                                                                                             | `█████████░░░░░░░░░░░`&nbsp;46.7%&nbsp;·&nbsp;214&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███████████░░░░░░░░░`&nbsp;53.3%&nbsp;·&nbsp;244&nbsp;B                                       |
+| **<abbr title="dist/client/assets/PluginCookbookPanel-Bgjr_8_b.js">…t/client/assets/PluginCookbookPanel-Bgjr_8_b.js</abbr>**                                       | 457&nbsp;B&nbsp;·&nbsp;gzip&nbsp;265&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → PluginCookbookPanel.vue                                                                                                              | `█████████░░░░░░░░░░░`&nbsp;46.8%&nbsp;·&nbsp;214&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███████████░░░░░░░░░`&nbsp;53.2%&nbsp;·&nbsp;243&nbsp;B                                       |
+| **dist/client/assets/PluginToolPanel-BRaQcYs7.js**                                                                                                                 | 453&nbsp;B&nbsp;·&nbsp;gzip&nbsp;261&nbsp;B&nbsp;·&nbsp;0.1%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → PluginToolPanel.vue                                                                                                                  | `█████████░░░░░░░░░░░`&nbsp;47.2%&nbsp;·&nbsp;214&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███████████░░░░░░░░░`&nbsp;52.8%&nbsp;·&nbsp;239&nbsp;B                                       |
+| **dist/client/assets/useSetupRoute-D0BSB5jK.js**                                                                                                                   | 394&nbsp;B&nbsp;·&nbsp;gzip&nbsp;285&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → useSetupRoute.ts                                                                                                                     | `████████████░░░░░░░░`&nbsp;60.4%&nbsp;·&nbsp;238&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████████░░░░░░░░░░░░`&nbsp;39.6%&nbsp;·&nbsp;156&nbsp;B                                       |
+| **<abbr title="dist/client/assets/ManageSubscriptionPanel-B_l_tJWl.js">…ient/assets/ManageSubscriptionPanel-B_l_tJWl.js</abbr>**                                   | 323&nbsp;B&nbsp;·&nbsp;gzip&nbsp;260&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ManageSubscriptionPanel.vue                                                                                                          | `████████████░░░░░░░░`&nbsp;58.2%&nbsp;·&nbsp;188&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████████░░░░░░░░░░░░`&nbsp;41.8%&nbsp;·&nbsp;135&nbsp;B                                       |
+| **<abbr title="dist/client/assets/ManageDataServiceTokensPanel-CBL6JOja.js">…assets/ManageDataServiceTokensPanel-CBL6JOja.js</abbr>**                              | 320&nbsp;B&nbsp;·&nbsp;gzip&nbsp;257&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ManageDataServiceTokensPanel.vue                                                                                                     | `████████████░░░░░░░░`&nbsp;57.8%&nbsp;·&nbsp;185&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████████░░░░░░░░░░░░`&nbsp;42.2%&nbsp;·&nbsp;135&nbsp;B                                       |
+| **dist/client/assets/house-B_d0g3hS.js**                                                                                                                           | 318&nbsp;B&nbsp;·&nbsp;gzip&nbsp;241&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/house.mjs                                                                                                     | `█████████████████░░░`&nbsp;84.0%&nbsp;·&nbsp;267&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███░░░░░░░░░░░░░░░░░`&nbsp;16.0%&nbsp;·&nbsp;51&nbsp;B                                        |
+| **<abbr title="dist/client/assets/GenerateTokenPanel-hb6vCQ15.js">…st/client/assets/GenerateTokenPanel-hb6vCQ15.js</abbr>**                                        | 309&nbsp;B&nbsp;·&nbsp;gzip&nbsp;250&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → GenerateTokenPanel.vue                                                                                                               | `███████████░░░░░░░░░`&nbsp;56.3%&nbsp;·&nbsp;174&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████████░░░░░░░░░░░`&nbsp;43.7%&nbsp;·&nbsp;135&nbsp;B                                       |
+| **<abbr title="dist/client/assets/ManageSessionsPanel-BfQeJByi.js">…t/client/assets/ManageSessionsPanel-BfQeJByi.js</abbr>**                                       | 309&nbsp;B&nbsp;·&nbsp;gzip&nbsp;250&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ManageSessionsPanel.vue                                                                                                              | `███████████░░░░░░░░░`&nbsp;56.3%&nbsp;·&nbsp;174&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████████░░░░░░░░░░░`&nbsp;43.7%&nbsp;·&nbsp;135&nbsp;B                                       |
+| **<abbr title="dist/client/assets/ReviewActivityPanel-BO_lraOo.js">…t/client/assets/ReviewActivityPanel-BO_lraOo.js</abbr>**                                       | 309&nbsp;B&nbsp;·&nbsp;gzip&nbsp;251&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ReviewActivityPanel.vue                                                                                                              | `███████████░░░░░░░░░`&nbsp;56.3%&nbsp;·&nbsp;174&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████████░░░░░░░░░░░`&nbsp;43.7%&nbsp;·&nbsp;135&nbsp;B                                       |
+| **<abbr title="dist/client/assets/DeleteAccountPanel-BrJoYeXV.js">…st/client/assets/DeleteAccountPanel-BrJoYeXV.js</abbr>**                                        | 308&nbsp;B&nbsp;·&nbsp;gzip&nbsp;249&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → DeleteAccountPanel.vue                                                                                                               | `███████████░░░░░░░░░`&nbsp;56.2%&nbsp;·&nbsp;173&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████████░░░░░░░░░░░`&nbsp;43.8%&nbsp;·&nbsp;135&nbsp;B                                       |
+| **dist/client/assets/ManageAccessPanel-DNLym4C6.js**                                                                                                               | 307&nbsp;B&nbsp;·&nbsp;gzip&nbsp;249&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → ManageAccessPanel.vue                                                                                                                | `███████████░░░░░░░░░`&nbsp;56.0%&nbsp;·&nbsp;172&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████████░░░░░░░░░░░`&nbsp;44.0%&nbsp;·&nbsp;135&nbsp;B                                       |
+| **dist/client/assets/x-CoE-hfLp.js**                                                                                                                               | 269&nbsp;B&nbsp;·&nbsp;gzip&nbsp;206&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/x.mjs + 1 more                                                                                                | `████████████████░░░░`&nbsp;81.0%&nbsp;·&nbsp;218&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████░░░░░░░░░░░░░░░░`&nbsp;19.0%&nbsp;·&nbsp;51&nbsp;B                                        |
+| **dist/client/assets/configCard-ySHsQ3ZC.js**                                                                                                                      | 245&nbsp;B&nbsp;·&nbsp;gzip&nbsp;208&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → configCard.ts                                                                                                                        | `████████████░░░░░░░░`&nbsp;59.6%&nbsp;·&nbsp;146&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `████████░░░░░░░░░░░░`&nbsp;40.4%&nbsp;·&nbsp;99&nbsp;B                                        |
+| **dist/client/assets/search-CWoTWsu\_.js**                                                                                                                         | 194&nbsp;B&nbsp;·&nbsp;gzip&nbsp;182&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/search.mjs                                                                                                    | `███████████████░░░░░`&nbsp;73.7%&nbsp;·&nbsp;143&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████░░░░░░░░░░░░░░░`&nbsp;26.3%&nbsp;·&nbsp;51&nbsp;B                                        |
+| **dist/client/assets/useConfigsReady-BTjJkQFV.js**                                                                                                                 | 189&nbsp;B&nbsp;·&nbsp;gzip&nbsp;165&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → retrievalReady.ts + 1 more                                                                                                           | `███████████░░░░░░░░░`&nbsp;54.5%&nbsp;·&nbsp;103&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `█████████░░░░░░░░░░░`&nbsp;45.5%&nbsp;·&nbsp;86&nbsp;B                                        |
+| **dist/client/assets/arrow-left-CXg51yIp.js**                                                                                                                      | 185&nbsp;B&nbsp;·&nbsp;gzip&nbsp;177&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/arrow-left.mjs                                                                                                | `██████████████░░░░░░`&nbsp;72.4%&nbsp;·&nbsp;134&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██████░░░░░░░░░░░░░░`&nbsp;27.6%&nbsp;·&nbsp;51&nbsp;B                                        |
+| **dist/client/assets/plus-Cz_e8naS.js**                                                                                                                            | 173&nbsp;B&nbsp;·&nbsp;gzip&nbsp;165&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/plus.mjs                                                                                                      | `██████████████░░░░░░`&nbsp;70.5%&nbsp;·&nbsp;122&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `██████░░░░░░░░░░░░░░`&nbsp;29.5%&nbsp;·&nbsp;51&nbsp;B                                        |
+| **dist/client/assets/chevron-left-B9_cLrGu.js**                                                                                                                    | 150&nbsp;B&nbsp;·&nbsp;gzip&nbsp;159&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/chevron-left.mjs                                                                                              | `█████████████░░░░░░░`&nbsp;66.0%&nbsp;·&nbsp;99&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███████░░░░░░░░░░░░░`&nbsp;34.0%&nbsp;·&nbsp;51&nbsp;B                                        |
+| **dist/client/assets/chevron-right-Df7Y2Njj.js**                                                                                                                   | 150&nbsp;B&nbsp;·&nbsp;gzip&nbsp;156&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/chevron-right.mjs                                                                                             | `█████████████░░░░░░░`&nbsp;66.0%&nbsp;·&nbsp;99&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███████░░░░░░░░░░░░░`&nbsp;34.0%&nbsp;·&nbsp;51&nbsp;B                                        |
+| **dist/client/assets/check-1jYqLY6W.js**                                                                                                                           | 144&nbsp;B&nbsp;·&nbsp;gzip&nbsp;156&nbsp;B&nbsp;·&nbsp;0.0%&nbsp;of&nbsp;the&nbsp;build       |
+| &nbsp;&nbsp;&nbsp;&nbsp;@lucide/vue → dist/esm/icons/check.mjs                                                                                                     | `█████████████░░░░░░░`&nbsp;64.6%&nbsp;·&nbsp;93&nbsp;B                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                                                                                        | `███████░░░░░░░░░░░░░`&nbsp;35.4%&nbsp;·&nbsp;51&nbsp;B                                        |
+| **<abbr title="dist/client/assets/_plugin-vue_export-helper-BDNMzG2s.js">…nt/assets/\_plugin-vue_export-helper-BDNMzG2s.js</abbr>**                                | 84&nbsp;B&nbsp;·&nbsp;gzip&nbsp;99&nbsp;B                                                      |
 
 Bars show each row's share of its output file.
+
+- n more = the row also holds n more files from the same package or folder, each no larger than the one named. A package can appear under several output files, each holding different files, never the same file twice.
 
 (bundler output, whitespace & JSON) = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as `config.json`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.
 

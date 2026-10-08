@@ -10,6 +10,9 @@ import type { ConnectionConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
+import { ignoreReportedNavigationFailure } from '@/router';
+import { t } from '@/state/locale';
+import { TEXT } from './SelectConnectionList_.json';
 import { useDialogs } from '@/state/dialogs';
 import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
 import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
@@ -28,7 +31,7 @@ import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const ACTION_CONFIGS: Action<ConnectionConfig>[] = [
-    { typeId: 'delete', onClick: handleDeleteDataView },
+    { typeId: 'delete', onClick: handleDeleteConnection },
     {
         typeId: 'open',
         onClick: (connectionConfig): void => {
@@ -101,12 +104,10 @@ function handleAddConnection(): void {
 }
 
 function handleCommitDetail(): void {
-    void router.push({ name: 'items', query: route.query }).catch(() => {
-        // Already reported by 'router.onError'.
-    });
+    void ignoreReportedNavigationFailure(router.push({ name: 'item', query: route.query }));
 }
 
-function handleDeleteDataView(_connectionConfig: LocalisedConfig<ConnectionConfig>): void {
+function handleDeleteConnection(_connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
     // TODO
 }
 
@@ -118,9 +119,7 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
     const query = { ...route.query };
     if (activeConnectionConfig.value) query.connectionId = activeConnectionConfig.value.id;
     else delete query.connectionId;
-    void router.replace({ query }).catch(() => {
-        // Already reported by 'router.onError'.
-    });
+    void ignoreReportedNavigationFailure(router.replace({ query }));
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -168,7 +167,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
     <GridDetailPanel
         v-else
         :active-item="activeConnectionConfig"
-        add-label="Connection"
+        :add-label="t(TEXT, 'connection.label')"
         :data-source="connectionConfigsDataSource"
         max-detail-width="65ch"
         :row-height="cardRowHeight"
@@ -180,11 +179,11 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
 
         <template #detail="{ item, close }">
             <SelectConnectionPanel :connection-localised-config="item" @close="close" />
-            <PillButton :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
+            <PillButton :icon="ArrowRightIcon" :label="t(TEXT, 'detail.select.label')" @click="handleCommitDetail" />
         </template>
 
         <template #no-selection>
-            <SelectPlaceholder :message="'Select a connection from the list.'" />
+            <SelectPlaceholder :message="t(TEXT, 'noSelection.text')" />
         </template>
     </GridDetailPanel>
 </template>

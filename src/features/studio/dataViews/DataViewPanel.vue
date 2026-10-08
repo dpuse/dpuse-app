@@ -59,18 +59,18 @@ function resolveStepState(stepId: DataViewStepId): DataViewStep['state'] {
                      step done without a result to show says so plainly. -->
                 <StudioDocumentSection :title="t(TEXT, 'connection.title')">
                     <template #icon>
-                        <StepDot class="size-4" :state="resolveStepState('connections')" />
+                        <StepDot class="size-4" :state="resolveStepState('connection')" />
                     </template>
                     <p v-if="dataViewConnector">{{ t(TEXT, 'connection.text', { connector: dataViewConnector.label }) }}</p>
-                    <p v-else>{{ t(TEXT, resolveStepState('connections') === 'done' ? 'done.text' : 'notDone.text') }}</p>
+                    <p v-else>{{ t(TEXT, resolveStepState('connection') === 'done' ? 'done.text' : 'notDone.text') }}</p>
                 </StudioDocumentSection>
 
                 <StudioDocumentSection :title="t(TEXT, 'item.title')">
                     <template #icon>
-                        <StepDot class="size-4" :state="resolveStepState('items')" />
+                        <StepDot class="size-4" :state="resolveStepState('item')" />
                     </template>
                     <p v-if="dataViewLocalisedConfig.connectionNodeConfig">{{ t(TEXT, 'item.text', { item: dataViewLocalisedConfig.connectionNodeConfig.label }) }}</p>
-                    <p v-else>{{ t(TEXT, resolveStepState('items') === 'done' ? 'done.text' : 'notDone.text') }}</p>
+                    <p v-else>{{ t(TEXT, resolveStepState('item') === 'done' ? 'done.text' : 'notDone.text') }}</p>
                 </StudioDocumentSection>
 
                 <StudioDocumentSection :title="t(TEXT, 'contentAudit.title')">

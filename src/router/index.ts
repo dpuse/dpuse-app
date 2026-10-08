@@ -55,8 +55,8 @@ export const APP_ROUTES = [
                     {
                         path: ':dataViewId',
                         children: [
-                            { name: 'connections', path: 'connections', component: SelectConnectionList },
-                            { name: 'items', path: 'items', component: SelectItemPanel },
+                            { name: 'connection', path: 'connections', component: SelectConnectionList },
+                            { name: 'item', path: 'items', component: SelectItemPanel },
                             { name: 'content', path: 'content', component: AuditContentPanel },
                             { name: 'data', path: 'data', component: ExploreDataPanel }
                         ]
@@ -150,6 +150,18 @@ export const createAppRouter = (): Router => {
 
     return router;
 };
+
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A failed navigation is already reported by 'router.onError' above, so a caller only needs to stop the rejection being
+// reported a second time as unhandled. Never rejects, so it can be awaited or left to run.
+export async function ignoreReportedNavigationFailure(navigation: Promise<unknown>): Promise<void> {
+    try {
+        await navigation;
+    } catch {
+        // Already reported by 'router.onError'.
+    }
+}
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

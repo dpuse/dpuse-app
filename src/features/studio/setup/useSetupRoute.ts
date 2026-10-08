@@ -2,6 +2,9 @@
 import { computed, type ComputedRef } from 'vue';
 import { type RouteRecordNameGeneric, useRoute, useRouter } from 'vue-router';
 
+// ── Local Framework
+import { ignoreReportedNavigationFailure } from '@/router';
+
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface SetupRoute {
@@ -22,9 +25,7 @@ export function useSetupRoute(): SetupRoute {
     const routeName = computed(() => route.name);
 
     function setRouteId(id?: string): void {
-        void router.replace({ name: route.name ?? undefined, params: { id }, query: route.query }).catch(() => {
-            // Already reported by 'router.onError'.
-        });
+        void ignoreReportedNavigationFailure(router.replace({ name: route.name ?? undefined, params: { id }, query: route.query }));
     }
 
     return { routeId, routeName, setRouteId };

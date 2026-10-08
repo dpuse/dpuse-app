@@ -23,6 +23,7 @@ import type {
 // ── Local Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
+import { ignoreReportedNavigationFailure } from '@/router';
 import { useEngine } from '@/services/useEngine';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord } from '@/state/dataViews';
 import { type AppFailure, raiseFailure } from '@/state/errors';
@@ -147,9 +148,7 @@ watch(
 
         const dataViewConfig = await getDataViewRecord(newLocalMetaStoreConnectionConfig, route);
         if (dataViewConfig.connectionId == null) {
-            void router.replace({ name: 'connections', query: route.query }).catch(() => {
-                // Already reported by 'router.onError'.
-            });
+            void ignoreReportedNavigationFailure(router.replace({ name: 'connection', query: route.query }));
         } else {
             activeConnectionConfig.value = connectionLocalisedConfigs.value.find((localisedConnectionConfig) => localisedConnectionConfig.id == dataViewConfig.connectionId);
         }
@@ -230,9 +229,7 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
 
 function handleCommitDetail(): void {
     emit('task-completed', taskLocalisedConfig);
-    void router.push({ name: 'content', query: route.query }).catch(() => {
-        // Already reported by 'router.onError'.
-    });
+    void ignoreReportedNavigationFailure(router.push({ name: 'content', query: route.query }));
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -243,9 +240,7 @@ function updateItemIdQuery(itemId?: string): void {
     const query = { ...route.query };
     if (typeof itemId === 'string') query.itemId = itemId;
     else delete query.itemId;
-    void router.replace({ query }).catch(() => {
-        // Already reported by 'router.onError'.
-    });
+    void ignoreReportedNavigationFailure(router.replace({ query }));
 }
 
 function buildObjectPath(connectionNodeConfig: ConnectionNodeConfig): string {

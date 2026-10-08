@@ -6,7 +6,6 @@ import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 import { initialiseServices } from '@/state/session';
-import { navigationPendingDepth } from '@/router';
 import { t } from '@/state/locale';
 import { TEXT } from './App_.json';
 import { throwOnFault } from '@/observability/faultInjection';
@@ -26,6 +25,7 @@ import {
 } from '@/state/appLayout';
 import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors';
 import { defineAsyncPanel, isSafariBrowser } from '@/utilities/index.ts';
+import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
 
 // ── Static Components
 import AssistantPaneToggle from '@/features/assistant/_components/AssistantPaneToggle.vue'; // Always visible.
@@ -172,9 +172,7 @@ function syncPaneQuery(): void {
         pane: studioPaneIsActive.value && assistantPaneIsActive.value ? activeAppPaneId.value : undefined
     };
 
-    void router.replace({ query }).catch(() => {
-        // Already reported by 'router.onError'.
-    });
+    void ignoreReportedNavigationFailure(router.replace({ query }));
 }
 </script>
 

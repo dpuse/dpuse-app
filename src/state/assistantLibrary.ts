@@ -2,6 +2,9 @@
 import { computed, type ComputedRef, type WritableComputedRef } from 'vue';
 import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router';
 
+// ── Local Framework
+import { ignoreReportedNavigationFailure } from '@/router';
+
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export type LibraryDocumentType = 'connector' | 'context' | 'dataView' | 'document';
@@ -84,9 +87,7 @@ export function useAssistantLibrary(): AssistantLibrary {
     }
 
     function replaceQuery(changes: LocationQueryRaw): void {
-        void router.replace({ query: { ...route.query, ...changes } }).catch(() => {
-            // Already reported by 'router.onError'.
-        });
+        void ignoreReportedNavigationFailure(router.replace({ query: { ...route.query, ...changes } }));
     }
 
     return { paneIsOpen, path, query, searchIsActive, setPath };

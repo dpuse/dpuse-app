@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 import { defineAsyncPanel } from '@/utilities/index.ts';
+import { ignoreReportedNavigationFailure } from '@/router';
 
 // ── Dynamic Components
 // Every dialog body is loaded on demand. The frame is rendered from the URL alone, so the body arrives behind its own
@@ -68,19 +69,13 @@ export function useDialogs(): Dialogs {
 
         const query = { ...route.query };
         delete query.dlg;
-        void router.push({ query }).catch(() => {
-            // Already reported by 'router.onError'.
-        });
+        void ignoreReportedNavigationFailure(router.push({ query }));
     }
 
     // Awaitable, because a menu that opens a dialog should close only once the URL carries it. The failure is caught
     // here rather than at the call site so that the caller still gets its turn either way.
     async function openDialog(dialogId: DialogId): Promise<void> {
-        try {
-            await router.replace({ query: { ...route.query, dlg: dialogId } });
-        } catch {
-            // Already reported by 'router.onError'.
-        }
+        await ignoreReportedNavigationFailure(router.replace({ query: { ...route.query, dlg: dialogId } }));
     }
 
     return { activeDialogConfig, activeDialogId, closeDialog, openDialog };

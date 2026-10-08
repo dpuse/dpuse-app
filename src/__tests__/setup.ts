@@ -54,6 +54,26 @@ Object.defineProperties(globalThis, {
     IntersectionObserver: { configurable: true, writable: true, value: ObserverStub }
 });
 
+// Mounting the app opens the config monitor's WebSocket to the live API. Unstubbed, the socket comes from undici, and
+// when it connects before a spec finishes it hands a Node 'Event' to jsdom's 'dispatchEvent', which rejects it as an
+// uncaught error that fails the run. Whether it connects in time depends on the network, so CI fails where a local run
+// passes. This one never connects: no spec depends on a live socket.
+class WebSocketStub {
+    onclose = null;
+    onerror = null;
+    onmessage = null;
+    onopen = null;
+    readyState = 0;
+    close(): void {
+        // Never opened, so there is nothing to close.
+    }
+    send(): void {
+        // As above.
+    }
+}
+
+Object.defineProperty(globalThis, 'WebSocket', { configurable: true, writable: true, value: WebSocketStub });
+
 // jsdom has no 'document.fonts'. Components that measure text wait on 'document.fonts.ready' as they mount, so a font
 // set that is already loaded stands in for it.
 Object.defineProperty(document, 'fonts', { configurable: true, value: { ready: Promise.resolve() } });
