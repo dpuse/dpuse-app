@@ -48,7 +48,8 @@ function localiseLine(line: LocaleLabel): string {
 <template>
     <!-- '-mt-1.5' pulls the bar up into the empty space at the bottom of the header above it. -->
     <nav :aria-label="t(TEXT, 'steps.aria')" class="@container -mt-1.5 flex-none" data-region="TaskBar">
-        <ScrollRow keep-active-item-in-view row-tag="ol">
+        <!-- The arrows sit level with the number and label line, not centred on the bar, which also holds the detail line. -->
+        <ScrollRow arrow-align-class="items-start pt-1" keep-active-item-in-view row-tag="ol">
             <li v-for="(item, index) in items" :key="item.id">
                 <component
                     :is="item.disabled ? 'div' : ActionWrapper"

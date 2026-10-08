@@ -25,10 +25,12 @@ const ACTIVE_ITEM_SELECTOR = '[aria-selected="true"], [aria-current="step"]';
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const {
+    arrowAlignClass = 'items-center py-2',
     keepActiveItemInView,
     rowClass,
     rowTag = 'div'
 } = defineProps<{
+    arrowAlignClass?: string; // Where the arrow sits in the row's height. Centred by default; e.g. 'items-start pt-1' for two-line items.
     keepActiveItemInView?: boolean; // Scrolls the active item into view when the row first shows and whenever it changes.
     rowClass?: string; // Extra classes for the row, such as the gap between items.
     rowTag?: 'div' | 'ol'; // 'ol' for items in a set order, such as steps. Each item must then be an 'li'.
@@ -114,22 +116,28 @@ function findHiddenItem(row: HTMLElement, direction: 'left' | 'right'): HTMLElem
 }
 
 // Measures the left and right edges of an item's text and icons. Empty padding is left out, so an item whose empty
-// edge is under an arrow button still counts as visible.
+// edge is under an arrow button still counts as visible. Text and icons that are not on screen are left out too:
+// hidden ones measure as an empty box at the page's left edge, and screen-reader-only ('sr-only') text measures at its
+// full unclipped width, running far past the item. Either would make an item that is in view look hidden.
 function measureItemContent(item: HTMLElement): { left: number; right: number } {
     const boxes: DOMRect[] = [];
     const range = document.createRange();
-    const walker = document.createTreeWalker(item, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+    const walker = document.createTreeWalker(item, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, (node) =>
+        node instanceof Element && node.classList.contains('sr-only') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+    );
     let node = walker.nextNode();
     while (node) {
+        let box: DOMRect | undefined;
         if (node instanceof Text && node.data.trim() !== '') {
             range.selectNodeContents(node);
-            boxes.push(range.getBoundingClientRect());
+            box = range.getBoundingClientRect();
         } else if (node instanceof SVGSVGElement) {
-            boxes.push(node.getBoundingClientRect());
+            box = node.getBoundingClientRect();
         }
+        if (box && (box.width > 0 || box.height > 0)) boxes.push(box);
         node = walker.nextNode();
     }
-    if (boxes.length === 0) return item.getBoundingClientRect(); // An item with no text or icons is measured as a whole.
+    if (boxes.length === 0) return item.getBoundingClientRect(); // An item with no visible text or icons is measured as a whole.
     return { left: Math.min(...boxes.map((box) => box.left)), right: Math.max(...boxes.map((box) => box.right)) };
 }
 
@@ -186,7 +194,8 @@ function updateScrollState(): void {
         <button
             v-if="rowCanScrollLeft"
             :aria-label="t(TEXT, 'scrollLeft.aria')"
-            class="absolute top-0 bottom-px left-0 flex items-center bg-linear-to-r from-surface to-transparent py-2 pr-4 pl-1"
+            class="absolute top-0 bottom-px left-0 flex bg-linear-to-r from-surface to-transparent pr-4 pl-1"
+            :class="arrowAlignClass"
             type="button"
             @click="handleScrollRow('left')"
         >
@@ -196,7 +205,8 @@ function updateScrollState(): void {
         <button
             v-if="rowCanScrollRight"
             :aria-label="t(TEXT, 'scrollRight.aria')"
-            class="absolute top-0 right-0 bottom-px flex items-center bg-linear-to-l from-surface to-transparent py-2 pr-1 pl-4"
+            class="absolute top-0 right-0 bottom-px flex bg-linear-to-l from-surface to-transparent pr-1 pl-4"
+            :class="arrowAlignClass"
             type="button"
             @click="handleScrollRow('right')"
         >
