@@ -10,7 +10,6 @@ import { localeId, t } from '@/state/locale';
 // ── Static Components
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import StepDot from '@/components/ui/StepDot.vue';
-import StepDots from '@/components/ui/StepDots.vue';
 import StudioDetailPanel from '../_components/StudioDetailPanel.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
@@ -46,10 +45,8 @@ function resolveStepState(stepId: DataViewStepId): DataViewStep['state'] {
                 :title="dataViewLocalisedConfig.label"
                 @close="$emit('close')"
             >
-                <!-- The card's step dots beside the category, so the panel opens with the same summary the card shows. -->
-                <template #tags>
-                    <Tag v-if="dataViewConnector" :text="dataViewConnector.categoryLabel" />
-                    <StepDots class="h-6" :steps="dataViewSteps" />
+                <template v-if="dataViewConnector" #tags>
+                    <Tag :text="dataViewConnector.categoryLabel" />
                 </template>
 
                 <!-- Description -->

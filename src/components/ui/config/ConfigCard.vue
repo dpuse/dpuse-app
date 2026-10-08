@@ -42,7 +42,7 @@ interface Properties<T extends BaseConfig> {
 }
 const { actions = [], categoryLabel, config, icon, iconDark, isCompact, onCategoryClick, overline, prereleaseLabel, selected, to } = defineProps<Properties<T>>();
 
-defineSlots<{ status?: () => unknown }>();
+defineSlots<{ status?: () => unknown }>(); // Small and quiet, at the end of the overline, e.g. progress dots.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -87,8 +87,11 @@ defineOptions({ inheritAttrs: false });
             <ConfigIcon :class="isCompact ? 'size-5' : 'size-7'" :icon="icon ?? config.icon" :icon-dark="iconDark ?? config.iconDark" />
 
             <div class="flex min-w-0 flex-col">
-                <!-- Overline -->
-                <div v-if="!isCompact && overline" class="min-w-0 truncate text-xs leading-tight text-muted">{{ overline }}</div>
+                <!-- Overline, with the status after it on the same line so it adds no height. -->
+                <div v-if="!isCompact && overline" class="flex min-w-0 items-center gap-x-1.5 text-xs leading-tight text-muted">
+                    <span class="min-w-0 truncate">{{ overline }}</span>
+                    <slot name="status" />
+                </div>
 
                 <!-- Label -->
                 <div class="min-w-0 truncate leading-tight text-muted">{{ config.label }}</div>
@@ -142,18 +145,15 @@ defineOptions({ inheritAttrs: false });
                         <TrashIcon aria-hidden="true" class="size-4 pointer-coarse:size-5" :stroke-width="1.25" />
                     </ActionWrapper>
 
-                    <!-- Open, shaped like the open button at the foot of the detail panel and ending in the same arrow, because
-                         it does the same thing; neutral rather than blue, because it ranks below the page's own action. With a
-                         status, it holds the status too, since opening is what takes the user to it. -->
+                    <!-- Open, ending in the same arrow as the open button at the foot of the detail panel, because it does the
+                         same thing; neutral rather than blue, because it ranks below the page's own action. -->
                     <ActionWrapper
                         v-if="action.typeId === 'open'"
                         :aria-describedby="action.description ? `${cardId}-${action.typeId}` : undefined"
                         :aria-label="action.label ?? 'Open'"
-                        :class="$slots.status && !isCompact ? [ACTION_CLASSES, 'gap-x-1.5 pr-1.5 pl-2'] : ROUND_ACTION_CLASSES"
-                        :title="$slots.status && !isCompact ? [action.label, action.description].filter(Boolean).join('\n') : undefined"
+                        :class="ROUND_ACTION_CLASSES"
                         @click="action.onClick(config)"
                     >
-                        <slot v-if="!isCompact" name="status" />
                         <ArrowRightIcon aria-hidden="true" class="size-4 text-accent pointer-coarse:size-5" :stroke-width="2" />
                     </ActionWrapper>
 

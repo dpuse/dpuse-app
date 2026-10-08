@@ -60,7 +60,7 @@ function localiseLine(line: LocaleLabel): string {
                          the current step, outlined for the others: accent when it can be opened, muted when it is locked. -->
                     <div
                         aria-hidden="true"
-                        class="flex size-5 flex-none items-center justify-center rounded-full border-[1.5px] text-xs font-semibold"
+                        class="flex size-5 flex-none items-center justify-center rounded-full border-[1.25px] text-xs font-semibold"
                         :class="[
                             activeId === item.id ? 'border-accent bg-accent text-surface' : 'bg-surface',
                             activeId !== item.id && (item.disabled ? 'border-muted text-muted' : 'border-accent text-accent')

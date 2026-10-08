@@ -10,8 +10,9 @@ const { steps } = defineProps<{
 </script>
 
 <template>
-    <!-- Hidden from screen readers: the dots sit inside a control whose label already states the progress. -->
-    <div aria-hidden="true" class="flex items-center gap-x-1">
-        <StepDot v-for="step in steps" :key="step.id" class="size-3" :state="step.state" />
+    <!-- Hidden from screen readers: the host states the progress in words, e.g. in its open button's description.
+         Small enough to sit on a line of small text, where a check would not read, so done is shown by the fill alone. -->
+    <div aria-hidden="true" class="flex flex-none items-center gap-x-0.75">
+        <StepDot v-for="step in steps" :key="step.id" class="size-1.5 [&>svg]:hidden" :state="step.state" />
     </div>
 </template>

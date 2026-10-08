@@ -238,10 +238,11 @@ html {
     --boundary-hover: var(--color-zinc-300);
     --separator: var(--color-zinc-200);
     --overlay: color-mix(in srgb, var(--color-zinc-200) 75%, transparent);
-    --content: var(--color-zinc-600); /* NOTE: Also 'index.html'. */
+    /* Primary text near-black (about 15:1 on white) and emphasis a step darker; muted is the secondary step down. */
+    --content: var(--color-zinc-800); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-500);
     --subtle: var(--color-zinc-400);
-    --emphasis: var(--color-zinc-700);
+    --emphasis: var(--color-zinc-900);
     --accent: var(--color-blue-600);
     --accent-hover: var(--color-blue-700);
     --accent-ring: var(--color-blue-300);
@@ -294,10 +295,10 @@ html {
     --boundary-hover: var(--color-zinc-600);
     --separator: var(--color-zinc-700);
     --overlay: color-mix(in srgb, var(--color-zinc-700) 75%, transparent);
-    --content: var(--color-zinc-300); /* NOTE: Also 'index.html'. */
+    --content: var(--color-zinc-200); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-400);
     --subtle: var(--color-zinc-500);
-    --emphasis: var(--color-zinc-200);
+    --emphasis: var(--color-zinc-100);
     --accent: var(--color-blue-300);
     --accent-hover: var(--color-blue-200);
     --accent-ring: var(--color-blue-500);

@@ -187,8 +187,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                     @category-click="handleFilterByCategory"
                     @click="handleSelectDataView(item)"
                 >
-                    <!-- Only while a step is outstanding: a complete data view shows the plain open button. -->
-                    <template v-if="dataViewStepsById.get(item.id)?.some((step) => step.state === 'pending')" #status>
+                    <template #status>
                         <StepDots :steps="dataViewStepsById.get(item.id) ?? []" />
                     </template>
                 </ConfigCard>
