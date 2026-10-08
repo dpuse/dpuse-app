@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { nextTick, onErrorCaptured, ref, shallowRef, watch } from 'vue';
+import { nextTick, onErrorCaptured, ref, watch } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
@@ -20,9 +20,12 @@ const { name, resetKey } = defineProps<{
     resetKey?: unknown; // A change clears the error, e.g. the route's full path, so it clears on navigation.
 }>();
 
+// The failure on show, if any. A model so the parent can react to it, e.g. by hiding an action that belongs to the
+// failed region but sits outside it.
+const capturedFailure = defineModel<AppFailure | undefined>('failure');
+
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const capturedFailure = shallowRef<AppFailure | undefined>();
 const slotIsMounted = ref(true); // Cleared for one tick on retry, which is what forces the slot to remount.
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────

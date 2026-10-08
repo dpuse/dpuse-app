@@ -1,4 +1,9 @@
 <script setup lang="ts">
+// Template Notes — TODO: Revisit later. These belong beside their elements in the template, but a comment at the
+// template's root breaks the fade between route views in development: Vue never reports the old view as gone, so the
+// next one never appears. Production builds strip comments, so only development is affected.
+// - Error notice: failed to retrieve context/plugin configuration.
+
 // ── External Dependencies & Registrations
 import { type Component, computed, type ShallowRef } from 'vue';
 
@@ -59,7 +64,6 @@ function handleSelectPlugin(localisedConfig: LocalisedConfig<PluginConfig>): voi
 </script>
 
 <template>
-    <!-- Error Notice - Failed to retrieve context/plugin configuration. -->
     <ErrorNotice v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
 
     <GridDetailPanel

@@ -1,4 +1,12 @@
 <script setup lang="ts">
+// Template Notes — TODO: Revisit later. These belong beside their elements in the template, but a comment at the
+// template's root breaks the fade between route views in development: Vue never reports the old view as gone, so the
+// next one never appears. Production builds strip comments, so only development is affected.
+// - Root element: a single root element is required. DataViewsLayout passes class="min-h-0 flex-1" plus the props/emit
+//   above via fallthrough, and Vue can only auto-apply fallthrough attrs when a component has exactly one root node — a
+//   fragment root (this used to have three: TransformDataPanel, InvestigateDataPanel, the option selector) silently
+//   drops them instead, which was also leaving this panel without its flex sizing.
+
 // ── External Dependencies & Registrations
 import { ref } from 'vue';
 
@@ -28,10 +36,6 @@ const activeOptionId = ref<'transform' | 'investigate'>('investigate');
 </script>
 
 <template>
-    <!-- Single root element required: DataViewsLayout passes class="min-h-0 flex-1" plus the props/emit
-         above via fallthrough, and Vue can only auto-apply fallthrough attrs when a component has exactly one
-         root node — a fragment root (this used to have three: TransformDataPanel, InvestigateDataPanel, the option selector)
-         silently drops them instead, which was also leaving this panel without its flex sizing. -->
     <div class="relative flex flex-col">
         <!-- Transform Panel -->
         <TransformDataPanel v-if="activeOptionId === 'transform'" />

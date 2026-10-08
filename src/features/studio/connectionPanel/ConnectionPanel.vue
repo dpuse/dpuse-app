@@ -9,6 +9,7 @@ import { localiseConfigs } from '@dpuse/dpuse-shared';
 import type { ConnectorConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import type { AppFailure } from '@/state/errors';
 import type { DataSource } from '@/composables/useDataWindow';
 import { TEXT } from './ConnectionPanel_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
@@ -62,6 +63,7 @@ const route = useRoute();
 const activeConnectorConfig = shallowRef<LocalisedConfig<ConnectorConfig> | undefined>();
 const activeOptionConfig = shallowRef<OptionLocalisedConfig | undefined>(initialiseActiveOptionConfig(route.name)); // TODO: Use route to set this!
 const connectorLocalisedConfigs = shallowRef<LocalisedConfig<ConnectorConfig>[]>([]);
+const connectionFormFailure = shallowRef<AppFailure | undefined>(); // Set by the form's error boundary.
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -135,11 +137,15 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
             </div>
 
             <div class="relative min-h-0 flex-1">
-                <ErrorBoundary name="ConnectionDetail" :reset-key="route.fullPath">
+                <ErrorBoundary v-model:failure="connectionFormFailure" name="ConnectionDetail" :reset-key="route.fullPath">
                     <AddConnectionForm :connector-localised-config="item" />
-                    <PillButton :icon="ArrowRightIcon" label="Select" @commit="handleCommitDetail" />
                 </ErrorBoundary>
             </div>
+        </template>
+
+        <!-- Hidden while the form has failed, as there is nothing to commit. -->
+        <template #detail-action>
+            <PillButton v-if="!connectionFormFailure" :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
         </template>
     </GridDetailPanel>
 </template>

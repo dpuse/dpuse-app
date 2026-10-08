@@ -1,4 +1,9 @@
 <script setup lang="ts">
+// Template Notes — TODO: Revisit later. These belong beside their elements in the template, but a comment at the
+// template's root breaks the fade between route views in development: Vue never reports the old view as gone, so the
+// next one never appears. Production builds strip comments, so only development is affected.
+// - Engine error notice: covers the region, because without the engine there is nothing to list, preview or open here.
+
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
 import { until } from '@vueuse/core';
@@ -317,7 +322,6 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 </script>
 
 <template>
-    <!-- Covers the region: without the engine there is nothing to list, preview or open here. -->
     <ErrorNotice v-if="engineFailure" covers-region :failures="[engineFailure]" @retry="handleRetryEngine" />
 
     <GridDetailPanel v-else :active-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="400px">
@@ -348,8 +352,11 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     <div class="absolute inset-y-0 left-0 bg-success" :style="{ width: `${previewPercentage}%` }"></div>
                     <div class="relative pl-1">{{ previewMessage }}</div>
                 </div>
-                <PillButton :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
             </div>
+        </template>
+
+        <template #detail-action>
+            <PillButton :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
         </template>
 
         <template #no-selection>

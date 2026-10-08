@@ -89,3 +89,10 @@ A template comment may sit above a component's root element. It does not make th
 development Vue skips comments when it looks for the single root to pass attributes to, and production builds strip
 comments altogether, so attribute fallthrough still works (verified on Vue 3.5). What does break fallthrough is a
 second element or text node at the root.
+
+A root comment does break `<Transition mode="out-in">` in development. When a component with a comment beside its root
+leaves the transition, Vue never reports it as gone, so the next view never appears (verified on Vue 3.5;
+production is unaffected because the comments are stripped). Any component shown through `RouterViewTransition` must
+therefore have no comment at its template root. Until this is revisited, those comments go in a `Template Notes` block
+at the top of the script instead — see
+[SelectConnectionList.vue](src/features/studio/dataViews/selectConnection/SelectConnectionList.vue).

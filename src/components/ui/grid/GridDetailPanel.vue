@@ -29,6 +29,7 @@ defineSlots<{
     item(properties: { item: T }): unknown;
     'no-items'(): unknown;
     detail(properties: { item: T; close: () => void }): unknown;
+    'detail-action'(properties: { item: T }): unknown;
     'no-selection'(): unknown;
 }>();
 
@@ -95,19 +96,24 @@ watch(
 
             <!-- Detail (Right) Pane -->
             <div
-                class="@container min-w-0 flex-1 border-separator"
+                class="@container relative min-w-0 flex-1 border-separator"
                 :class="[detailPaneIsVisible ? 'block' : 'hidden', { 'border-l': isSplit }]"
                 :style="{ maxWidth: isSplit ? maxDetailWidth : undefined }"
             >
-                <!-- Active Item -->
-                <div v-if="activeItem" class="relative flex h-full min-h-0 flex-col">
-                    <slot name="detail" :item="activeItem" :close="() => (detailIsOpen = false)" />
-                </div>
+                <!-- Active Item, or No Selection - Keyed on the item, so each new selection fades in. Fade in only, like the
+                     route views: the card's highlight changes on the click, so the old detail must not linger beside it.
+                     The comments stay out here because a comment between the branches would sit inside the transition. -->
+                <Transition name="action-fade-in" mode="out-in">
+                    <div v-if="activeItem" :key="activeItem.id" class="relative flex h-full min-h-0 flex-col">
+                        <slot name="detail" :item="activeItem" :close="() => (detailIsOpen = false)" />
+                    </div>
+                    <div v-else key="noSelection" class="mx-4 mt-6">
+                        <slot name="no-selection" />
+                    </div>
+                </Transition>
 
-                <!-- No Selection -->
-                <div v-else class="mx-4 mt-6">
-                    <slot name="no-selection" />
-                </div>
+                <!-- Detail Action - Outside the transition, so the button stays put while the item's details fade in. -->
+                <slot v-if="activeItem" name="detail-action" :item="activeItem" />
             </div>
         </div>
     </div>

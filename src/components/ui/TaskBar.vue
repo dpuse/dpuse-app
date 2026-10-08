@@ -53,42 +53,44 @@ function localiseLine(line: LocaleLabel): string {
                 <component
                     :is="item.disabled ? 'div' : ActionWrapper"
                     :aria-current="activeId === item.id ? 'step' : undefined"
-                    class="group flex flex-col gap-y-1 pt-1 pb-2 text-sm"
+                    class="group flex items-start gap-x-2 pt-1 pb-2 text-sm"
                     :to="item.to"
                 >
-                    <!-- Filled circle for the current step, outlined for the others: accent when it can be opened, muted
-                         when it is locked. The connector leads to the next step, so it takes that step's colour, and the
-                         last step has none. -->
-                    <div aria-hidden="true" class="flex h-5 items-center">
-                        <div
-                            class="flex size-5 flex-none items-center justify-center rounded-full border-2 text-xs font-semibold"
-                            :class="[
-                                activeId === item.id ? 'border-accent bg-accent text-surface' : 'bg-surface',
-                                activeId !== item.id && (item.disabled ? 'border-muted text-muted' : 'border-accent text-accent')
-                            ]"
-                        >
-                            <!-- 'text-box' trims the font's empty space above and below the digits, so they sit in the middle of the circle. -->
-                            <span class="[text-box:trim-both_cap_alphabetic]">{{ item.number }}</span>
-                        </div>
-                        <div v-if="index < items.length - 1" class="mx-1 h-0.5 min-w-4 flex-1 rounded-full" :class="items[index + 1]?.disabled ? 'bg-muted/50' : 'bg-accent'" />
+                    <!-- Marker beside the label rather than above it, which keeps the bar to two lines. Filled circle for
+                         the current step, outlined for the others: accent when it can be opened, muted when it is locked. -->
+                    <div
+                        aria-hidden="true"
+                        class="flex size-5 flex-none items-center justify-center rounded-full border-2 text-xs font-semibold"
+                        :class="[
+                            activeId === item.id ? 'border-accent bg-accent text-surface' : 'bg-surface',
+                            activeId !== item.id && (item.disabled ? 'border-muted text-muted' : 'border-accent text-accent')
+                        ]"
+                    >
+                        <!-- 'text-box' trims the font's empty space above and below the digits, so they sit in the middle of the circle. -->
+                        <span class="[text-box:trim-both_cap_alphabetic]">{{ item.number }}</span>
                     </div>
 
-                    <!-- One line once the bar itself is wide enough, which is not the same as the viewport being wide: the
-                         bar sits in an app pane the splitter resizes. Screen readers get the whole step from the hidden
-                         text instead, so they hear the number and whether it is locked. -->
+                    <!-- The full label once the bar itself is wide enough, which is not the same as the viewport being
+                         wide: the bar sits in an app pane the splitter resizes. Narrower, the verb is dropped and only the
+                         noun stays. Screen readers get the whole step from the hidden text instead, so they hear the
+                         number and whether it is locked. -->
                     <span
                         aria-hidden="true"
-                        class="leading-none"
-                        :class="[index < items.length - 1 && 'pr-3', activeId === item.id ? 'text-accent' : item.disabled ? 'text-muted' : 'group-hover:text-accent']"
+                        class="flex flex-col"
+                        :class="activeId === item.id ? 'text-accent' : item.disabled ? 'text-muted' : 'group-hover:text-accent'"
                     >
-                        <span class="hidden flex-col gap-y-1 @min-[40rem]:flex">
-                            <span>{{ item.label }}</span>
-                            <span v-if="item.detail" class="max-w-48 truncate text-xs text-muted">{{ item.detail }}</span>
+                        <span class="flex items-center">
+                            <span class="leading-5 whitespace-nowrap">
+                                <span class="hidden @min-[40rem]:inline">{{ item.label }}</span>
+                                <span class="@min-[40rem]:hidden">{{ localiseLine(item.labelLine2) }}</span>
+                            </span>
+                            <!-- The connector leads to the next step, so it takes that step's colour, and the last step has none. -->
+                            <span v-if="index < items.length - 1" class="mx-2 h-0.5 w-8 flex-none rounded-full" :class="items[index + 1]?.disabled ? 'bg-muted/50' : 'bg-accent'" />
                         </span>
-                        <span class="flex flex-col @min-[40rem]:hidden">
-                            <span>{{ localiseLine(item.labelLine1) }}</span>
-                            <span>{{ localiseLine(item.labelLine2) }}</span>
-                        </span>
+                        <!-- Always there, empty until something is chosen, so choosing does not push the panel below down.
+                             'w-0 min-w-full' takes its width from the label and connector above rather than adding to it,
+                             so a value appearing or going never moves the steps sideways; a longer value is cut short. -->
+                        <span class="h-4 w-0 min-w-full truncate text-xs leading-4 text-muted">{{ item.detail }}</span>
                     </span>
                     <span class="sr-only">{{ describeStep(item) }}</span>
                 </component>

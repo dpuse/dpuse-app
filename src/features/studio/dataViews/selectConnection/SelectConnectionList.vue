@@ -1,4 +1,13 @@
 <script setup lang="ts">
+// Template Notes — TODO: Revisit later. These belong beside their elements in the template, but a comment at the
+// template's root breaks the fade between route views in development: Vue never reports the old view as gone, so the
+// next one never appears. Production builds strip comments, so only development is affected.
+// - Configuration error notice: the list is empty because the configurations never arrived, not because there are no
+//   connections. Covers the region: there is nothing to pick here, and no way to add one either, until the connection
+//   is back.
+// - Data view error notice: covers the region, because the data view behind this connection is what the list exists to
+//   open, so there is nothing useful left to pick from.
+
 // ── External Dependencies & Registrations
 import { ArrowRightIcon } from '@lucide/vue';
 import { computed, shallowRef, watch } from 'vue';
@@ -156,12 +165,8 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
 </script>
 
 <template>
-    <!-- The list is empty because the configurations never arrived, not because there are no connections. Covers the
-         region: there is nothing to pick here, and no way to add one either, until the connection is back. -->
     <ErrorNotice v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
 
-    <!-- Covers the region: the data view behind this connection is what the list exists to open, so there is nothing
-         useful left to pick from. -->
     <ErrorNotice v-else-if="dataViewFailure" covers-region :failures="[dataViewFailure]" @retry="handleRetryDataView" />
 
     <GridDetailPanel
@@ -179,6 +184,9 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
 
         <template #detail="{ item, close }">
             <SelectConnectionPanel :connection-localised-config="item" @close="close" />
+        </template>
+
+        <template #detail-action>
             <PillButton :icon="ArrowRightIcon" :label="t(TEXT, 'detail.select.label')" @click="handleCommitDetail" />
         </template>
 

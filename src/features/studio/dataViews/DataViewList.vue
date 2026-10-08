@@ -201,6 +201,9 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                     :data-view-steps="dataViewStepsById.get(item.id) ?? []"
                     @close="close"
                 />
+            </template>
+
+            <template #detail-action="{ item }">
                 <PillButton :icon="ArrowRightIcon" :label="t(TEXT, 'detail.open.label')" @click="handleOpenDataView(item)" />
             </template>
 

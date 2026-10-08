@@ -124,6 +124,22 @@ html {
     }
 }
 
+/* Fade in only: the leaving element is hidden as soon as it starts to leave. */
+.action-fade-in-enter-active {
+    transition: opacity 0.25s ease;
+}
+.action-fade-in-enter-from {
+    opacity: 0;
+}
+.action-fade-in-leave-active {
+    display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+    .action-fade-in-enter-active {
+        transition: none;
+    }
+}
+
 .dp-tab-bar {
     column-gap: 8px;
     display: flex;
