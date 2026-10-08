@@ -1,5 +1,5 @@
 {
-  "version": "1.0.107",
+  "version": "1.0.108",
   "name": "dpuse-app",
   "dependencies": {
     "@cloudflare/vite-plugin": {
@@ -138,7 +138,7 @@
           }
         },
         "vite": {
-          "version": "8.3.3"
+          "version": "8.3.4"
         },
         "workerd": {
           "version": "1.20261006.1",
@@ -3021,8 +3021,8 @@
       }
     },
     "@dpuse/eslint-config-dpuse": {
-      "version": "1.0.137",
-      "resolved": "https://registry.npmjs.org/@dpuse/eslint-config-dpuse/-/eslint-config-dpuse-1.0.137.tgz",
+      "version": "1.0.138",
+      "resolved": "https://registry.npmjs.org/@dpuse/eslint-config-dpuse/-/eslint-config-dpuse-1.0.138.tgz",
       "overridden": false,
       "dependencies": {
         "@eslint-community/eslint-plugin-eslint-comments": {
@@ -4924,7 +4924,7 @@
           "version": "4.3.3"
         },
         "vite": {
-          "version": "8.3.3"
+          "version": "8.3.4"
         }
       }
     },
@@ -5306,7 +5306,7 @@
           "overridden": false
         },
         "vite": {
-          "version": "8.3.3"
+          "version": "8.3.4"
         },
         "vue": {
           "version": "3.5.43"
@@ -6091,18 +6091,18 @@
               "version": "7.1.6"
             },
             "postcss": {
-              "version": "8.5.28"
+              "version": "8.5.29"
             }
           }
         },
         "postcss": {
-          "version": "8.5.28",
-          "resolved": "https://registry.npmjs.org/postcss/-/postcss-8.5.28.tgz",
+          "version": "8.5.29",
+          "resolved": "https://registry.npmjs.org/postcss/-/postcss-8.5.29.tgz",
           "overridden": false,
           "dependencies": {
             "nanoid": {
-              "version": "3.3.18",
-              "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-3.3.18.tgz",
+              "version": "3.3.20",
+              "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-3.3.20.tgz",
               "overridden": false
             },
             "picocolors": {
@@ -7174,8 +7174,8 @@
       "overridden": false
     },
     "vite": {
-      "version": "8.3.3",
-      "resolved": "https://registry.npmjs.org/vite/-/vite-8.3.3.tgz",
+      "version": "8.3.4",
+      "resolved": "https://registry.npmjs.org/vite/-/vite-8.3.4.tgz",
       "overridden": false,
       "dependencies": {
         "@types/node": {
@@ -7259,7 +7259,7 @@
           "overridden": false
         },
         "postcss": {
-          "version": "8.5.28"
+          "version": "8.5.29"
         },
         "rolldown": {
           "version": "1.2.12",
@@ -7397,7 +7397,7 @@
             },
             "msw": {},
             "vite": {
-              "version": "8.3.3"
+              "version": "8.3.4"
             }
           }
         },
@@ -7462,7 +7462,7 @@
           "version": "0.2.17"
         },
         "vite": {
-          "version": "8.3.3"
+          "version": "8.3.4"
         },
         "why-is-node-running": {
           "version": "3.2.1",
@@ -7569,7 +7569,7 @@
               "version": "0.30.21"
             },
             "postcss": {
-              "version": "8.5.28"
+              "version": "8.5.29"
             },
             "source-map-js": {
               "version": "1.2.2"
@@ -7835,7 +7835,7 @@
             "rollup": {},
             "unloader": {},
             "vite": {
-              "version": "8.3.3"
+              "version": "8.3.4"
             },
             "webpack-virtual-modules": {
               "version": "0.6.2",
@@ -7846,7 +7846,7 @@
           }
         },
         "vite": {
-          "version": "8.3.3"
+          "version": "8.3.4"
         },
         "vue": {
           "version": "3.5.43"

@@ -14,7 +14,7 @@ import { localeId, t } from '@/state/locale';
 import { TASK_CONFIGS, TEXT } from './DataViewsLayout_.json';
 
 // ── Static Components
-import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
+import RouterViewTransition from '@/components/ui/RouterViewTransition.vue';
 import StudioHeader from '@/features/studio/_components/StudioHeader.vue';
 import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
 import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
@@ -25,9 +25,8 @@ const route = useRoute();
 const router = useRouter();
 const unlockedUpToTaskNumber = ref(0);
 
-// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State - Task Localised Configuration ─────────────────────────────────────────────────────────────────────
 
-// Task Localised Configuration
 const taskLocalisedConfigs = computed((): (LocalisedConfig<TaskConfig> & { disabled: boolean })[] =>
     localiseConfigs<TaskConfig>(TASK_CONFIGS, localeId.value).map((taskLocalisedConfig) => ({
         ...taskLocalisedConfig,
@@ -36,7 +35,8 @@ const taskLocalisedConfigs = computed((): (LocalisedConfig<TaskConfig> & { disab
 );
 const activeTaskLocalisedConfig = computed(() => taskLocalisedConfigs.value.find((config) => config.id === route.name));
 
-// Header
+// ── Derived State - Header ───────────────────────────────────────────────────────────────────────────────────────────
+
 const headerBackRouteName = computed(() => (route.name === 'dataViews' ? 'studio' : 'dataViews'));
 const headerOverline = computed(() => t(TEXT, activeTaskLocalisedConfig.value ? 'establishDataViews.title' : 'studio.label'));
 const headerTitle = computed(() => {
@@ -44,8 +44,10 @@ const headerTitle = computed(() => {
     return activeDataViewConfig.value ? localiseConfig(activeDataViewConfig.value, localeId.value).label : t(TEXT, 'dataView.pending.title');
 });
 
-// Task Bar — What was chosen in each step is shown under its label. The label is looked up again so it follows a change
-// of language.
+// ── Derived State - Task Bar ─────────────────────────────────────────────────────────────────────────────────────────
+
+// What was chosen in each step is shown under its label. The label is looked up again so it follows a change of
+// language.
 const taskBarUnderlineLabels = computed((): Record<string, string | undefined> => ({
     connection: connectionLocalisedConfigs.value.find((config) => config.id === activeConnectionConfig.value?.id)?.label
     // TODO: Add 'item' once the chosen item is in shared state — see item 10 in 'useDataWindow.ts'.
@@ -58,8 +60,10 @@ const taskBarLocalisedItems = computed(() =>
     }))
 );
 
-// List or Task Panel — This layout hosts the 'RouterView' one level in, so it shows the spinner for its own panel. 'App.vue'
-// covers the layout itself, which is what keeps the header and task bar in place through a panel swap.
+// ── Derived State - List or Task Panel ───────────────────────────────────────────────────────────────────────────────
+
+// This layout hosts the 'RouterView' one level in, so it shows the spinner for its own panel. 'App.vue' covers the
+// layout itself, which is what keeps the header and task bar in place through a panel swap.
 const taskPanelIsLoading = computed(() => navigationPendingDepth.value === 1);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -107,10 +111,9 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
         <TaskBar v-if="activeTaskLocalisedConfig" :active-id="activeTaskLocalisedConfig.id" :items="taskBarLocalisedItems" />
 
         <!-- List or Task Panel -->
-        <RouterView v-slot="{ Component }">
-            <ComponentLoadingSpinner v-if="taskPanelIsLoading" class="min-h-0 flex-1" />
-            <component :is="Component" v-else-if="route.name === 'dataViews'" class="min-h-0 flex-1" />
-            <component :is="Component" v-else class="min-h-0 flex-1" :task-localised-config="activeTaskLocalisedConfig" @task-completed="handleTaskCompleted" />
-        </RouterView>
+        <RouterViewTransition v-slot="{ component }" class="min-h-0 flex-1" :is-loading="taskPanelIsLoading">
+            <component :is="component" v-if="route.name === 'dataViews'" key="dataViews" class="min-h-0 flex-1" />
+            <component :is="component" v-else :key="route.name" class="min-h-0 flex-1" :task-localised-config="activeTaskLocalisedConfig" @task-completed="handleTaskCompleted" />
+        </RouterViewTransition>
     </StudioLayout>
 </template>

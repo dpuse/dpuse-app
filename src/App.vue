@@ -29,9 +29,9 @@ import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/route
 
 // ── Static Components
 import AssistantPaneToggle from '@/features/assistant/_components/AssistantPaneToggle.vue'; // Always visible.
-import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue'; // Static, so it can show while other chunks load.
 import Dialog from '@/components/ui/dialog/Dialog.vue'; // Static, so the frame opens while the dialog's own chunk loads.
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue'; // Static, so it can show even when a chunk fails to load.
+import RouterViewTransition from '@/components/ui/RouterViewTransition.vue'; // Static, so its spinner can show while other chunks load.
 import SessionButton from '@/features/session/SessionButton.vue'; // Always visible.
 import StudioPaneToggle from '@/features/studio/_components/StudioPaneToggle.vue'; // Always visible.
 
@@ -225,13 +225,9 @@ function syncPaneQuery(): void {
             <!-- 'col-start-2' keeps the content in the second column while the option bar is still loading, which
                  avoids layout shift. -->
             <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="StudioContent">
-                <RouterView v-slot="{ Component }">
-                    <!-- The spinner must stay outside the transition. -->
-                    <ComponentLoadingSpinner v-if="studioLayoutIsLoading" />
-                    <Transition v-else name="action-fade" mode="out-in">
-                        <component :is="Component" :key="studioLayoutKey" />
-                    </Transition>
-                </RouterView>
+                <RouterViewTransition v-slot="{ component }" :is-loading="studioLayoutIsLoading">
+                    <component :is="component" :key="studioLayoutKey" />
+                </RouterViewTransition>
             </div>
         </main>
 
