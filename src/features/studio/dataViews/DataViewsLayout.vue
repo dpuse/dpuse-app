@@ -7,6 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { localiseConfig, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { constructItemPath } from './dataViewSummary';
 import { accountConfigsAreRetrieved, configRetrievalSucceeded } from '@/state/session';
 import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs } from '@/state/dataViews';
 import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
@@ -51,14 +52,18 @@ const headerBackRouteName = computed(() => (route.name === 'dataViews' ? 'studio
 
 // What was chosen in each step is shown under its label. The label is looked up again so it follows a change of
 // language.
-const taskBarUnderlineLabels = computed((): Record<string, string | undefined> => ({
-    connection: connectionLocalisedConfigs.value.find((config) => config.id === activeConnectionConfig.value?.id)?.label
-    // TODO: Add 'item' once the chosen item is in shared state — see item 10 in 'useDataWindow.ts'.
-}));
+const taskBarUnderlineLabels = computed((): Record<string, string | undefined> => {
+    const itemConfig = activeDataViewConfig.value?.connectionNodeConfig;
+    return {
+        connection: connectionLocalisedConfigs.value.find((config) => config.id === activeConnectionConfig.value?.id)?.label,
+        item: itemConfig ? constructItemPath(itemConfig) : undefined
+    };
+});
 const taskBarLocalisedItems = computed(() =>
     taskLocalisedConfigs.value.map((config) => ({
         ...config,
         detail: taskBarUnderlineLabels.value[config.id],
+        detailIsPath: config.id === 'item',
         to: config.disabled ? undefined : { name: config.id, query: route.query }
     }))
 );

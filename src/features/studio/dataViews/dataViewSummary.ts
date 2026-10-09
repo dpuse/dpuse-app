@@ -4,7 +4,7 @@
 // ── External Dependencies & Registrations ────────────────────────────────────────────────────────────────────────────
 
 // ── DPUse Framework
-import type { DataViewConfig, getComponentStatus } from '@dpuse/dpuse-shared';
+import type { ConnectionNodeConfig, DataViewConfig, getComponentStatus } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -31,6 +31,12 @@ export interface DataViewConnection {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The item's full path within its connection, as the engine takes it.
+export function constructItemPath(connectionNodeConfig: ConnectionNodeConfig): string {
+    const extension = connectionNodeConfig.extension == null ? '' : `.${connectionNodeConfig.extension}`;
+    return `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}${extension}`;
+}
 
 // Exploring is left out: it never has to be finished, so it is never outstanding.
 export function constructDataViewSteps(dataViewConfig: DataViewProgress): DataViewStep[] {

@@ -54,31 +54,11 @@
 //      candidate) — enough data points to confirm the query-key shape generalizes before committing to either.
 //
 // Related, outside this file (dpuse-app / dpuse-engine), surfaced while building this:
-// 10. SelectItemPanel.vue: `setConnectionNodeConfig(newActiveItem)` is commented out, leaving the "Details" tab
-//     permanently empty — this is where `getInfo` output (see dpuse-connector-dbnomics) was meant to land, and the
-//     select-vs-drill-down / per-row info-icon UI design was discussed and agreed but never implemented.
-//     The same 'connectionNodeConfig' would let DataViewsLayout.vue show the chosen item under the 'Select Item'
-//     step, as it already does for the connection. The chosen item lives only in SelectItemPanel
-//     ('activeConnectionObjectConfig'), so nothing outside the panel can read it. To add it:
-//     a. Keep it in shared state. 'activeDataViewConfig.connectionNodeConfig' is the intended home, and
-//        'setConnectionNodeConfig' in '@/state/dataViews' already clears the later steps' configs with it.
-//     b. Make that setter reactive. 'activeDataViewConfig' is a 'shallowRef' and the setters change the object in
-//        place, so nothing watching it updates. Assign a new object instead ('{ ...value, connectionNodeConfig }'), as
-//        'resetActiveDataViewConfig' in 'SelectConnectionList' already does, and do the same in the other setters.
-//     c. Set it in 'SelectItemPanel.handleSelectConnectionNode' when a non-folder row is picked, and clear it on every
-//        path that already calls 'updateItemIdQuery()' with no id: clearing the selection, opening a folder, and
-//        choosing a breadcrumb. Set it on pick rather than on 'Continue', to match the connection, which shows as soon
-//        as it is picked.
-//     d. Make it survive a reload. Today the URL keeps only 'itemId', and the panel cannot get from an id back to its
-//        folder (see the note above 'updateItemIdQuery'). Either put the item's path in the query (the one
-//        'buildObjectPath' produces), so the panel can reopen its folder and the label can be read without a lookup,
-//        or, once data views are saved, read 'connectionNodeConfig' from the stored record that 'getDataViewRecord'
-//        returns. Until then the line under the step is simply absent after a reload, which is acceptable.
-//     e. Add 'item: activeDataViewConfig.value?.connectionNodeConfig?.label' to 'taskBarUnderlineLabels' in
-//        DataViewsLayout.vue. 'label' comes from the connector and is not localised, so it needs no lookup. Fall back
-//        to 'name' if a connector leaves 'label' empty.
-//     f. Changing the connection already clears the item: 'resetActiveDataViewConfig' sets 'connectionNodeConfig' to
-//        undefined. Check that the line under 'Select Item' disappears when the connection changes.
+// 10. SelectItemPanel.vue: the "Details" tab is still empty — this is where `getInfo` output (see
+//     dpuse-connector-dbnomics) was meant to land, and the select-vs-drill-down / per-row info-icon UI design was
+//     discussed and agreed but never implemented. Also, a reload does not reselect the saved item in the list: the
+//     panel cannot get from an id back to its folder (see the note above 'updateItemIdQuery'). The task bar does show
+//     it, from the saved data view's 'connectionNodeConfig'.
 // 11. SelectItemPanel.vue: minor pre-existing issues from the original review, still not addressed — the duplicate
 //     light/dark icon divs (`ConnectionNodeConfig` has no `iconDark` field, so one is dead markup), the
 //     `activeConnectionConfig.value!` non-null assertion, and the preview status bar's byte-size messaging not

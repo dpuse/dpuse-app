@@ -10,11 +10,11 @@ import type { DataTypeId, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-s
 
 // ── Local Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
-import type { DataViewConnection } from './dataViewSummary';
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { purifyText } from '@/services/useMarkedTool';
 import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './DataViewPanel_.json'; // TODO: 'item.title' names every kind of item until each connector says which one it provides.
+import { constructItemPath, type DataViewConnection } from './dataViewSummary';
 import { dataViewConfigs, saveDataViewRecord } from '@/state/dataViews';
 import { localeId, t } from '@/state/locale';
 
@@ -67,12 +67,7 @@ const editedSubjectLabel = ref(''); // Taken when the dialog opens, so its title
 const connectionTextParts = computed(() => t(TEXT, 'connection.text').split('{connector}'));
 
 // Item
-const itemPath = computed(() => {
-    const connectionNodeConfig = dataViewLocalisedConfig.connectionNodeConfig;
-    if (connectionNodeConfig == null) return;
-    const extension = connectionNodeConfig.extension == null ? '' : `.${connectionNodeConfig.extension}`;
-    return `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}${extension}`;
-});
+const itemPath = computed(() => (dataViewLocalisedConfig.connectionNodeConfig ? constructItemPath(dataViewLocalisedConfig.connectionNodeConfig) : undefined));
 
 // Schema and Data — both read from the preview saved with the item. Its first record is the header row, as SelectItemPanel
 // treats it.

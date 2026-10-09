@@ -30,7 +30,11 @@ export interface TaskConfig {
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 // 'detail' names what was chosen in a step, such as the connection, and is shown under its label when the bar is wide.
-const { activeId, items = [] } = defineProps<{ activeId?: string; items?: (LocalisedConfig<TaskConfig> & { detail?: string; disabled: boolean; to?: RouteLocationRaw })[] }>();
+// 'detailIsPath' cuts a long detail short at its start rather than its end, so a path keeps its file name.
+const { activeId, items = [] } = defineProps<{
+    activeId?: string;
+    items?: (LocalisedConfig<TaskConfig> & { detail?: string; detailIsPath?: boolean; disabled: boolean; to?: RouteLocationRaw })[];
+}>();
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -75,23 +79,27 @@ function localiseLine(line: LocaleLabel): string {
                          wide: the bar sits in an app pane the splitter resizes. Narrower, the verb is dropped and only the
                          noun stays. Screen readers get the whole step from the hidden text instead, so they hear the
                          number and whether it is locked. -->
-                    <span
-                        aria-hidden="true"
-                        class="flex flex-col"
-                        :class="activeId === item.id ? 'text-accent' : item.disabled ? 'text-muted' : 'group-hover:text-accent'"
-                    >
+                    <span aria-hidden="true" class="flex flex-col" :class="activeId === item.id ? 'text-accent' : item.disabled ? 'text-muted' : 'group-hover:text-accent'">
                         <span class="flex items-center">
                             <span class="leading-5 whitespace-nowrap">
                                 <span class="hidden @min-[40rem]:inline">{{ item.label }}</span>
                                 <span class="@min-[40rem]:hidden">{{ localiseLine(item.labelLine2) }}</span>
                             </span>
                             <!-- The connector leads to the next step, so it takes that step's colour, and the last step has none. -->
-                            <span v-if="index < items.length - 1" class="mx-0.5 h-[1.5px] w-8 flex-none rounded-full" :class="items[index + 1]?.disabled ? 'bg-muted/50' : 'bg-accent'" />
+                            <span
+                                v-if="index < items.length - 1"
+                                class="mx-0.5 h-[1.5px] w-8 flex-none rounded-full"
+                                :class="items[index + 1]?.disabled ? 'bg-muted/50' : 'bg-accent'"
+                            />
                         </span>
                         <!-- Always there, empty until something is chosen, so choosing does not push the panel below down.
                              'w-0 min-w-full' takes its width from the label and connector above rather than adding to it,
                              so a value appearing or going never moves the steps sideways; a longer value is cut short. -->
-                        <span class="h-4 w-0 min-w-full truncate text-xs leading-4 text-muted">{{ item.detail }}</span>
+                        <!-- A path is laid out right to left so the ellipsis falls at its start; 'bdi' keeps the path itself in
+                             reading order. -->
+                        <span class="h-4 w-0 min-w-full truncate text-left text-xs leading-4 text-muted" :class="{ '[direction:rtl]': item.detailIsPath }">
+                            <bdi>{{ item.detail }}</bdi>
+                        </span>
                     </span>
                     <span class="sr-only">{{ describeStep(item) }}</span>
                 </component>

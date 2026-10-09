@@ -65,7 +65,7 @@ watch(
 <template>
     <div class="flex h-full flex-col" data-region="GridDetailPanel">
         <!-- Header -->
-        <header class="mx-4 flex-none">
+        <header class="flex-none">
             <slot name="header" :is-split="isSplit" />
         </header>
 

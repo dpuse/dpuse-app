@@ -27,6 +27,7 @@ import type {
 
 // ── Local Framework
 import { activeMetaStoreConnectionConfig } from '@/state/session';
+import { constructItemPath } from '../dataViewSummary';
 import type { DataSource } from '@/composables/useDataWindow';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { useEngine } from '@/services/useEngine';
@@ -182,7 +183,7 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
         const { processRequest } = await useEngine();
         if (!activeConnectionConfig.value) return;
 
-        const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: buildObjectPath(newActiveItem) };
+        const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: constructItemPath(newActiveItem) };
         const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewConfig;
         if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
 
@@ -206,6 +207,7 @@ function handleRetryEngine(): void {
 function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): void {
     activeConnectionObjectConfig.value = undefined;
     updateItemIdQuery();
+    resetActiveDataViewItem();
     if (index <= 0) {
         currentFolderNodes.value = [];
         loadFolderNodes(activeConnectionConfig.value, '');
@@ -221,6 +223,7 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
         // Clear the selection.
         activeConnectionObjectConfig.value = undefined;
         updateItemIdQuery();
+        resetActiveDataViewItem();
         return;
     }
 
@@ -228,12 +231,14 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
         currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
         activeConnectionObjectConfig.value = undefined;
         updateItemIdQuery();
+        resetActiveDataViewItem();
         loadFolderNodes(activeConnectionConfig.value, `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`);
         return;
     }
 
     activeConnectionObjectConfig.value = connectionNodeConfig;
     updateItemIdQuery(connectionNodeConfig.id);
+    resetActiveDataViewItem(connectionNodeConfig);
 }
 
 // Saved before moving on, so a reload restores the item, and the data view document can show its structure and data.
@@ -246,7 +251,7 @@ async function handleCommitDetail(): Promise<void> {
     try {
         const savedDataViewConfig = await saveDataViewRecord(activeMetaStoreConnectionConfig.value, {
             ...activeDataViewConfig.value,
-            connectionNodeConfig: { ...connectionNodeConfig, childNodes: [], handle: undefined }, // A file handle cannot be stored, and children are listed afresh.
+            connectionNodeConfig: constructStorableNodeConfig(connectionNodeConfig),
             previewConfig: {
                 ...previewConfig,
                 inferenceRecords: previewConfig.inferenceRecords.slice(0, SAVED_PREVIEW_RECORD_COUNT),
@@ -277,9 +282,22 @@ function updateItemIdQuery(itemId?: string): void {
     void ignoreReportedNavigationFailure(router.replace({ query }));
 }
 
-function buildObjectPath(connectionNodeConfig: ConnectionNodeConfig): string {
-    const extension = connectionNodeConfig.extension == null ? '' : `.${connectionNodeConfig.extension}`;
-    return `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}${extension}`;
+// Set on pick rather than on commit, as the connection is, so the task bar shows the item as soon as it is picked. The
+// later steps are cleared with it, because they were worked out from the item it replaces.
+function resetActiveDataViewItem(connectionNodeConfig?: ConnectionNodeConfig): void {
+    if (activeDataViewConfig.value == null) return;
+    activeDataViewConfig.value = {
+        ...activeDataViewConfig.value,
+        connectionNodeConfig: connectionNodeConfig ? constructStorableNodeConfig(connectionNodeConfig) : undefined,
+        previewConfig: undefined,
+        contentAuditConfig: undefined,
+        relationshipsAuditConfig: undefined
+    };
+}
+
+// A file handle cannot be stored, and children are listed afresh.
+function constructStorableNodeConfig(connectionNodeConfig: ConnectionNodeConfig): ConnectionNodeConfig {
+    return { ...connectionNodeConfig, childNodes: [], handle: undefined };
 }
 
 function resetPreviewState(): void {
@@ -339,7 +357,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
     try {
         const activeConnection = await waitForActiveConnectionConfig();
         const { processRequest } = await useEngine();
-        const options: GetInfoOptions = { path: buildObjectPath(connectionNodeConfig) };
+        const options: GetInfoOptions = { path: constructItemPath(connectionNodeConfig) };
         const { info } = (await processRequest('getInfo', activeConnection, options)) as GetInfoResult;
         const infoWithoutChildren = { ...info };
         delete infoWithoutChildren.children;
@@ -357,7 +375,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
     <GridDetailPanel v-else :active-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="400px">
         <template #header="{ isSplit }">
-            <div class="flex h-full min-w-0 items-center border-b border-separator text-sm">
+            <div class="flex h-full min-w-0 items-center border-b border-separator px-4 text-sm">
                 <!-- The last crumb is the item on show. It leads back to the list, so it stays live only while the list
                      is hidden; 'isSplit' comes from the panel below so the two cannot disagree about that. -->
                 <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="isSplit || activeConnectionObjectConfig == null" @select="handleSelectBreadcrumb" />
@@ -365,7 +383,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         </template>
 
         <template #item="{ item }">
-            <ConfigCard v-if="item" :actions="[{ typeId: 'info', onClick: () => getInfo(item) }]" :config="item" :is-compact="true" @click="handleSelectConnectionNode(item)" />
+            <!-- <ConfigCard v-if="item" :actions="[{ typeId: 'info', onClick: () => getInfo(item) }]" :config="item" :is-compact="true" @click="handleSelectConnectionNode(item)" /> -->
+            <ConfigCard v-if="item" :config="item" :is-compact="true" @click="handleSelectConnectionNode(item)" />
         </template>
 
         <template #detail="{ item }">
