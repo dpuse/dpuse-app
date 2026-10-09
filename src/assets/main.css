@@ -177,9 +177,7 @@ html {
     /* TODO: Turn on tabular figures ('tabular-nums') wherever numbers sit in columns or change in place: tables,
        counts, version numbers, progress percentages. Inter supports them, but they are off by default. See:
        https://madegooddesigns.com/best-fonts-for-dashboards/. */
-    /* TEMP: reflow test on iOS Safari. Restore the line below afterwards. */
-    /* --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; */
-    --font-sans: -apple-system;
+    --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
     /* Tailwind spacing tokens for scroll area bottom insets. */
     --spacing-vertical-scroll-bottom-embedded-inset: var(--vertical-scroll-bottom-embedded-inset);

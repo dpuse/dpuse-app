@@ -24,6 +24,10 @@
         <!-- NOTE: zinc-950, same as dark 'surface' in main.css. Uncertain as to support for 'oklch' as of May, 2026. -->
         <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
 
+        <!-- Fetched before the app mounts, so Inter is usually ready by first paint. Must stay the same file 'opsz.css'
+             (imported in 'main.ts') uses for Latin text, or it downloads twice. -->
+        <link rel="preload" href="/node_modules/@fontsource-variable/inter/files/inter-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin />
+
         <link rel="manifest" href="/manifest.webmanifest" />
 
         <link rel="icon" href="/favicon.ico" sizes="48x48" />
