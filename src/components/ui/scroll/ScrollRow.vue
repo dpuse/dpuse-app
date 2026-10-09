@@ -160,8 +160,14 @@ function revealItem(row: HTMLElement, item: HTMLElement, behavior: ScrollBehavio
     const visibleRight = rowBox.right - (rowCanScrollRight.value ? ARROW_BUTTON_WIDTH : 0);
 
     // Each check allows 1px, because item positions can be fractions of a pixel.
-    if (itemBox.left < visibleLeft - 1) row.scrollBy({ behavior, left: itemBox.left - visibleLeft });
-    else if (itemBox.right > visibleRight + 1) row.scrollBy({ behavior, left: itemBox.right - visibleRight });
+    if (itemBox.left < visibleLeft - 1) scrollRowTo(row, row.scrollLeft + itemBox.left - visibleLeft, behavior);
+    else if (itemBox.right > visibleRight + 1) scrollRowTo(row, row.scrollLeft + itemBox.right - visibleRight, behavior);
+}
+
+// Clamped to the row's ends, because clearing the arrow for the first or last item asks for a position past the end.
+// Desktop browsers clamp that themselves, but iOS Safari scrolls into the bounce area and stays there until touched.
+function scrollRowTo(row: HTMLElement, left: number, behavior: ScrollBehavior): void {
+    row.scrollTo({ behavior, left: Math.min(Math.max(left, 0), row.scrollWidth - row.clientWidth) });
 }
 
 function updateScrollState(): void {
