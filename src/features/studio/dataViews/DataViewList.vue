@@ -2,11 +2,11 @@
 // ── External Dependencies & Registrations
 import { ArrowRightIcon } from '@lucide/vue';
 import { useConfirmDialog } from '@vueuse/core';
-import { computed, shallowRef, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError, constructConnectorCategoryConfig } from '@dpuse/dpuse-shared';
+import { AppError, constructConnectorCategoryConfig, getComponentStatus, localiseConfig } from '@dpuse/dpuse-shared';
 import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
@@ -19,17 +19,17 @@ import { TEXT } from './DataViewList_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
 import {
     connectionLocalisedConfigs,
+    createDataViewRecord,
     dataViewConfigs,
     dataViewLocalisedConfigs,
     dataViewRetrievalFailed,
     dataViewRetrievalFailure,
     dataViewRetrievalSucceeded,
-    NEW_DATA_VIEW_ID,
     removeDataViewRecord,
     retrieveDataViewConfigs,
     setActiveDataViewConfig
 } from '@/state/dataViews';
-import { constructDataViewSteps, type DataViewConnector, resolveCurrentDataViewStepId } from './dataViewSummary';
+import { constructDataViewSteps, type DataViewConnection, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -47,16 +47,13 @@ import StudioListPanel from '@/features/studio/_components/StudioListPanel.vue';
 // ── Dynamic Components
 const EmptyPlaceholder = defineAsyncPanel(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');
 
-// ── State - Route ────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();
 
-// ── State - Data View Localised Configuration ────────────────────────────────────────────────────────────────────────
-
 const activeDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig> | undefined>();
-
-// ── State - Dialog ───────────────────────────────────────────────────────────────────────────────────────────────────
+const dataViewIsAdding = ref(false); // Stops a second click creating a second data view while the first is saving.
 
 const { cancel: cancelDelete, confirm: confirmDelete, isRevealed: deleteConfirmIsOpen, reveal: revealDeleteConfirm } = useConfirmDialog();
 const deletingDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig>>(); // Kept after the dialog closes, so its text does not blank while it fades out.
@@ -75,7 +72,7 @@ const cardRowHeight = useCardRowHeight(true, true);
 // ── Derived State - Data View Summary ────────────────────────────────────────────────────────────────────────────────
 
 // The connector behind each data view, keyed by data view id; undefined until a connection is chosen.
-const dataViewConnectorsById = computed(() => new Map(dataViewLocalisedConfigs.value.map((config) => [config.id, constructDataViewConnector(config)])));
+const dataViewConnectionsById = computed(() => new Map(dataViewLocalisedConfigs.value.map((config) => [config.id, constructDataViewConnection(config)])));
 
 const dataViewStepsById = computed(() => new Map(dataViewLocalisedConfigs.value.map((config) => [config.id, constructDataViewSteps(config)]))); // Each card reads its steps in several places.
 
@@ -97,9 +94,19 @@ function handleRetryRetrieval(): void {
     if (activeMetaStoreConnectionConfig.value) void retrieveDataViewConfigs(activeMetaStoreConnectionConfig.value);
 }
 
-function handleAddDataView(): void {
-    setActiveDataViewConfig();
-    void ignoreReportedNavigationFailure(router.push({ name: 'connection', params: { dataViewId: NEW_DATA_VIEW_ID }, query: route.query }));
+async function handleAddDataView(): Promise<void> {
+    if (dataViewIsAdding.value) return;
+
+    dataViewIsAdding.value = true;
+    try {
+        const dataViewConfig = await createDataViewRecord(activeMetaStoreConnectionConfig.value);
+        void ignoreReportedNavigationFailure(router.push({ name: 'connection', params: { dataViewId: dataViewConfig.id }, query: route.query }));
+    } catch (error) {
+        // Announced rather than shown in the list: nothing was added, so the list is unchanged and still works.
+        raiseAppFailure(new AppError('Failed to add data view.', 'dpuse-app.DataViewList.handleAddDataView', { typeId: 'handled' }, { cause: error }));
+    } finally {
+        dataViewIsAdding.value = false;
+    }
 }
 
 function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
@@ -135,14 +142,19 @@ function handleFilterByCategory(): void {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function constructDataViewConnector(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): DataViewConnector | undefined {
+function constructDataViewConnection(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): DataViewConnection | undefined {
     const connectionLocalisedConfig = connectionLocalisedConfigs.value.find((config) => config.id === dataViewLocalisedConfig.connectionId);
     if (!connectionLocalisedConfig) return undefined;
+    const { connectorConfig } = connectionLocalisedConfig;
     return {
-        categoryLabel: constructConnectorCategoryConfig(connectionLocalisedConfig.connectorConfig.categoryId, localeId.value).label,
+        categoryLabel: constructConnectorCategoryConfig(connectorConfig.categoryId, localeId.value).label,
+        connectorId: connectorConfig.id,
+        connectorLabel: localiseConfig(connectorConfig, localeId.value).label,
         icon: connectionLocalisedConfig.icon,
         iconDark: connectionLocalisedConfig.iconDark,
-        label: connectionLocalisedConfig.label
+        label: connectionLocalisedConfig.label,
+        status: connectorConfig.statusId ? getComponentStatus(connectorConfig.statusId, localeId.value) : undefined,
+        version: connectorConfig.version
     };
 }
 
@@ -182,15 +194,12 @@ function updateDataViewIdParameter(dataViewId?: string): void {
         >
             <template #item="{ item }">
                 <ConfigCard
-                    :actions="[
-                        { typeId: 'delete', onClick: handleDeleteDataView },
-                        { typeId: 'open', description: resolveProgressDescription(item), label: t(TEXT, 'open.label', { name: item.label }), onClick: handleOpenDataView }
-                    ]"
-                    :category-label="dataViewConnectorsById.get(item.id)?.categoryLabel"
+                    :actions="[{ typeId: 'open', description: resolveProgressDescription(item), label: t(TEXT, 'open.label', { name: item.label }), onClick: handleOpenDataView }]"
+                    :category-label="dataViewConnectionsById.get(item.id)?.categoryLabel"
                     :config="item"
-                    :icon="dataViewConnectorsById.get(item.id)?.icon"
-                    :icon-dark="dataViewConnectorsById.get(item.id)?.iconDark"
-                    :overline="dataViewConnectorsById.get(item.id)?.label ?? t(TEXT, 'noConnection.label')"
+                    :icon="dataViewConnectionsById.get(item.id)?.icon"
+                    :icon-dark="dataViewConnectionsById.get(item.id)?.iconDark"
+                    :overline="dataViewConnectionsById.get(item.id)?.label ?? t(TEXT, 'noConnection.label')"
                     :selected="item.id === activeDataViewLocalisedConfig?.id"
                     @category-click="handleFilterByCategory"
                     @click="handleSelectDataView(item)"
@@ -203,10 +212,10 @@ function updateDataViewIdParameter(dataViewId?: string): void {
 
             <template #detail="{ item, close }">
                 <DataViewPanel
-                    :data-view-connector="dataViewConnectorsById.get(item.id)"
+                    :data-view-connection="dataViewConnectionsById.get(item.id)"
                     :data-view-localised-config="item"
-                    :data-view-steps="dataViewStepsById.get(item.id) ?? []"
                     @close="close"
+                    @delete="handleDeleteDataView(item)"
                 />
             </template>
 

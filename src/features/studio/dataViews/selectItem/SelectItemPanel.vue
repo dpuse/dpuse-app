@@ -30,8 +30,8 @@ import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { useEngine } from '@/services/useEngine';
-import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord } from '@/state/dataViews';
-import { type AppFailure, raiseFailure } from '@/state/errors';
+import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, saveDataViewRecord } from '@/state/dataViews';
+import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
@@ -60,6 +60,10 @@ const ITEM_ACTIONS = [
 // job, not this function's — it redirects away (unmounting this component) once that's confirmed, so this only
 // needs a generous timeout as a last-resort bail-out for the case where neither ever happens.
 const ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS = 20_000;
+
+// The header record and ten data records: enough for the data view document to show the item's data, without storing
+// the whole preview in every data view record.
+const SAVED_PREVIEW_RECORD_COUNT = 11;
 
 // Read again after waiting rather than taken from 'until', which resolves on the timeout too.
 async function waitForActiveConnectionConfig(): Promise<LocalisedConfig<ConnectionConfig>> {
@@ -90,6 +94,8 @@ const currentFolderNodes = shallowRef<ConnectionNodeConfig[]>([]);
 const currentFolderPath = ref('');
 
 const previewRequestId = ref(0);
+const activePreviewConfig = shallowRef<PreviewConfig>(); // Kept so the commit can save it with the item.
+const dataViewIsSaving = ref(false); // Stops a second commit while the first is still saving.
 
 const previewPercentage = ref(0);
 const previewMessage = ref<string>();
@@ -142,10 +148,8 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
 
 // Re-establish the data view when local metastore connection config changes (for example, after a reload or if the metastore connector is reloaded).
 // Immediate so a direct deep-link/refresh into this panel (where activeConnectionConfig was never set this
-// session) still resolves it — but skipped when a connection is already set in memory: for a brand new,
-// unsaved data view, getDataViewRecord's NEW_DATA_VIEW_ID branch calls setActiveDataViewConfig() with no
-// argument, which resets activeDataViewConfig (including connectionId) to a blank default — re-running that
-// on every mount would wipe out the connection SelectConnectionList just set in memory before navigating here.
+// session) still resolves it from the saved record — but skipped when a connection is already set in memory, which
+// is the one SelectConnectionList just saved, so there is nothing to fetch.
 watch(
     activeMetaStoreConnectionConfig,
     async (newLocalMetaStoreConnectionConfig) => {
@@ -232,9 +236,34 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
     updateItemIdQuery(connectionNodeConfig.id);
 }
 
-function handleCommitDetail(): void {
-    emit('task-completed', taskLocalisedConfig);
-    void ignoreReportedNavigationFailure(router.push({ name: 'content', query: route.query }));
+// Saved before moving on, so a reload restores the item, and the data view document can show its structure and data.
+async function handleCommitDetail(): Promise<void> {
+    const connectionNodeConfig = activeConnectionObjectConfig.value;
+    const previewConfig = activePreviewConfig.value;
+    if (connectionNodeConfig == null || previewConfig == null || dataViewIsSaving.value || activeDataViewConfig.value == null) return;
+
+    dataViewIsSaving.value = true;
+    try {
+        const savedDataViewConfig = await saveDataViewRecord(activeMetaStoreConnectionConfig.value, {
+            ...activeDataViewConfig.value,
+            connectionNodeConfig: { ...connectionNodeConfig, childNodes: [], handle: undefined }, // A file handle cannot be stored, and children are listed afresh.
+            previewConfig: {
+                ...previewConfig,
+                inferenceRecords: previewConfig.inferenceRecords.slice(0, SAVED_PREVIEW_RECORD_COUNT),
+                parsedRecords: previewConfig.parsedRecords.slice(0, SAVED_PREVIEW_RECORD_COUNT),
+                text: undefined // The raw text is the whole preview again, so it is not kept.
+            },
+            contentAuditConfig: undefined,
+            relationshipsAuditConfig: undefined
+        });
+        emit('task-completed', taskLocalisedConfig);
+        void ignoreReportedNavigationFailure(router.push({ name: 'content', params: { dataViewId: savedDataViewConfig.id }, query: route.query }));
+    } catch (error) {
+        // Announced rather than shown in the panel: the save did not happen, so the item is still here to commit again.
+        raiseAppFailure(new AppError('Failed to save data view.', 'dpuse-app.SelectItemPanel.handleCommitDetail', { typeId: 'handled' }, { cause: error }));
+    } finally {
+        dataViewIsSaving.value = false;
+    }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -254,6 +283,7 @@ function buildObjectPath(connectionNodeConfig: ConnectionNodeConfig): string {
 }
 
 function resetPreviewState(): void {
+    activePreviewConfig.value = undefined;
     previewPercentage.value = 0;
     previewMessage.value = undefined;
     previewTableColumnDefinitions.value = [];
@@ -265,6 +295,7 @@ function resetPreviewState(): void {
 }
 
 function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewConfig: PreviewConfig): void {
+    activePreviewConfig.value = previewConfig;
     const previewSize = previewConfig.size ?? 0;
     const nodeSize = connectionNodeConfig.size ?? 0;
     previewPercentage.value = nodeSize > 0 ? (previewSize / nodeSize) * 100 : 0;
@@ -356,7 +387,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         </template>
 
         <template #detail-action>
-            <PillButton :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
+            <!-- Disabled until the preview arrives, because the preview is what the commit saves with the item. -->
+            <PillButton :disabled="activePreviewConfig == null || dataViewIsSaving" :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
         </template>
 
         <template #no-selection>

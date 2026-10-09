@@ -20,8 +20,8 @@ const { icon, iconIsLeading, label } = defineProps<Properties>();
 
 <template>
     <ActionWrapper
-        class="absolute right-3 bottom-(--safe-bottom-offset) inline-flex h-9 items-center gap-x-1 shadow-md"
-        :class="[PILL_CLASSES, PILL_FILL_CLASSES, iconIsLeading ? 'pr-3 pl-2' : 'pr-2 pl-3']"
+        class="absolute right-3 bottom-(--safe-bottom-offset) inline-flex h-10 items-center gap-x-1 shadow-md"
+        :class="[PILL_CLASSES, PILL_FILL_CLASSES, iconIsLeading ? 'pr-4 pl-3' : 'pr-3 pl-4']"
         data-region="PillButton"
     >
         <component :is="icon" v-if="iconIsLeading" class="size-5" :stroke-width="1.25" />

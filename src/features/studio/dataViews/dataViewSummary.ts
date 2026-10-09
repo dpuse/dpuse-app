@@ -1,10 +1,10 @@
-// What a data view's list card and detail panel both show: its progress through the steps and the connector behind it.
+// What a data view's list card and detail panel both show: its progress through the steps and the connection behind it.
 // Held in one place so the card, the panel and the open action always agree.
 
 // ── External Dependencies & Registrations ────────────────────────────────────────────────────────────────────────────
 
 // ── DPUse Framework
-import type { DataViewConfig } from '@dpuse/dpuse-shared';
+import type { DataViewConfig, getComponentStatus } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -17,12 +17,17 @@ export interface DataViewStep {
     state: 'done' | 'pending';
 }
 
-// The connector behind a data view's connection, already localised.
-export interface DataViewConnector {
-    categoryLabel: string;
+// A data view's connection, already localised. A connector such as Dropbox can have several connections ('Personal',
+// 'Work'), so the connection's own name leads, and the connector's details describe what kind of connection it is.
+export interface DataViewConnection {
+    categoryLabel: string; // The connector's.
+    connectorId: string; // Links to the connector in Setup.
+    connectorLabel: string;
     icon?: null | string;
     iconDark?: null | string;
     label: string;
+    status: ReturnType<typeof getComponentStatus> | undefined; // The connector's; undefined for general availability, which has no label.
+    version: string; // The connector's.
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

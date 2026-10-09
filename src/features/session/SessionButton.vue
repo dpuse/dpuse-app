@@ -101,9 +101,10 @@ function onMenuAfterLeave(): void {
                 </div>
 
                 <!-- Session is NOT authenticated. Show user silhouette. Cropped to its artwork and set against the bottom of the
-                     circle, which clips its shoulders, so it fills the button as a signed-in photo does. -->
+                     circle, which clips its shoulders, so it fills the button as a signed-in photo does. Drawn in a light
+                     grey, so it reads as an empty placeholder rather than a bold icon. -->
                 <div v-else-if="sessionIsAuthenticated === false" class="absolute inset-0 flex items-end justify-center overflow-hidden rounded-full bg-surface">
-                    <svg viewBox="3.75 1.5 16.5 21" fill="currentColor" class="h-8.5 text-content">
+                    <svg viewBox="3.75 1.5 16.5 21" fill="currentColor" class="h-7.5 text-muted">
                         <path
                             fill-rule="evenodd"
                             d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"

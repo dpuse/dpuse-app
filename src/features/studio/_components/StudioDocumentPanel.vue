@@ -1,7 +1,8 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { ArrowLeftIcon } from '@lucide/vue';
-import { inject, ref } from 'vue';
+import { useElementSize } from '@vueuse/core';
+import { computed, inject, ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
 import { gridDetailIsSplitKey } from '@/components/ui/grid/gridDetail';
@@ -24,7 +25,13 @@ defineEmits<{ close: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const actionsElement = useTemplateRef<HTMLElement>('actionsElement');
 const panesAreSplit = inject(gridDetailIsSplitKey, ref(false));
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const { width: actionsWidth } = useElementSize(actionsElement);
+const headerMarginRight = computed(() => `${String(Math.max(36, actionsWidth.value + 8))}px`); // Keeps the title clear of however many actions there are; 36px is the space one action has always had.
 </script>
 
 <template>
@@ -33,13 +40,13 @@ const panesAreSplit = inject(gridDetailIsSplitKey, ref(false));
         <div class="relative">
             <ActionWrapper class="group block w-full min-w-0 cursor-pointer text-left" :class="{ 'pointer-events-none': panesAreSplit }" @click="$emit('close')">
                 <!-- Overline with optional back icon. -->
-                <div class="mr-9 flex min-w-0 items-center gap-x-0.5 text-sm leading-tight text-muted group-hover:text-blue-500">
+                <div class="flex min-w-0 items-center gap-x-0.5 text-sm leading-tight text-muted group-hover:text-blue-500" :style="{ marginRight: headerMarginRight }">
                     <ArrowLeftIcon v-if="!panesAreSplit" class="size-4 flex-none" />
                     <span class="min-w-0 truncate">{{ overline }} </span>
                 </div>
 
                 <!-- Icon/Title -->
-                <div class="mr-9! flex min-w-0 items-start gap-x-2">
+                <div class="flex min-w-0 items-start gap-x-2" :style="{ marginRight: headerMarginRight }">
                     <!-- One title line tall, so the icon centres on the first line however the title wraps. -->
                     <div class="flex h-10 flex-none items-center">
                         <ConfigIcon class="h-7" :icon="icon" :icon-dark="iconDark" />
@@ -52,7 +59,7 @@ const panesAreSplit = inject(gridDetailIsSplitKey, ref(false));
 
             <!-- Actions — beside the header button rather than inside it, because a button may not contain buttons. They sit in
                  the right margin the header keeps clear, and are centred on the title row whatever the overline's height. -->
-            <div v-if="$slots.actions" class="absolute right-0 bottom-0 flex h-10 items-center">
+            <div v-if="$slots.actions" ref="actionsElement" class="absolute right-0 bottom-0 flex h-10 items-center gap-x-2">
                 <slot name="actions" />
             </div>
         </div>

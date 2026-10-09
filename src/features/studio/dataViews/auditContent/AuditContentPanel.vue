@@ -1,15 +1,38 @@
 <script setup lang="ts">
+// ── External Dependencies & Registrations
+import { ArrowRightIcon } from '@lucide/vue';
+import { useRoute, useRouter } from 'vue-router';
+
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 
+// ── Local Framework
+import { ignoreReportedNavigationFailure } from '@/router';
+import { t } from '@/state/locale';
+import { TEXT } from './AuditContentPanel_.json';
+
 // ── Static Components
+import PillButton from '@/components/ui/action/PillButton.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
-defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+const emit = defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const route = useRoute();
+const router = useRouter();
+
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+// TODO: Import the audited records into a DPUse store, so Explore Data can show them, before moving on.
+function handleCommitDetail(): void {
+    emit('task-completed', taskLocalisedConfig);
+    void ignoreReportedNavigationFailure(router.push({ name: 'data', query: route.query }));
+}
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -26,9 +49,7 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 </script>
 
 <template>
-    <div class="px-4 pt-1">
-        <div>Audit content...</div>
-
-        <RouterLink :to="{ name: 'data', query: $route.query }" @click="$emit('task-completed', taskLocalisedConfig)">Next...</RouterLink>
+    <div class="relative flex min-h-0 flex-1 flex-col" data-region="AuditContentPanel">
+        <PillButton :icon="ArrowRightIcon" :label="t(TEXT, 'import.label')" @click="handleCommitDetail" />
     </div>
 </template>

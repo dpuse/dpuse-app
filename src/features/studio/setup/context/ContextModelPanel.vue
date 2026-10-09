@@ -36,9 +36,9 @@ import StudioDetailPanel from '@/features/studio/_components/StudioDetailPanel.v
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 
 // ── Dynamic Components
-const ContextDescriptorsPanel = defineAsyncPanel(() => import('./_components/ContextDescriptorsPanel.vue'), 'ContextDescriptorsPanel');
 const ContextDimensionDiagramPanel = defineAsyncPanel(() => import('./ContextDimensionDiagramPanel.vue'), 'ContextDimensionDiagramPanel');
 const ContextEntityDiagramPanel = defineAsyncPanel(() => import('./ContextEntityDiagramPanel.vue'), 'ContextEntityDiagramPanel');
+const StudioDescriptorsPanel = defineAsyncPanel(() => import('@/features/studio/_components/StudioDescriptorsPanel.vue'), 'StudioDescriptorsPanel');
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -195,7 +195,7 @@ async function loadModel(modelId: string): Promise<ContextModelConfig | undefine
             :title="openDialogId === 'descriptors' ? t(TEXT, 'descriptors.title', { label: descriptorsSubjectLabel }) : undefined"
             @close="handleCloseDialog"
         >
-            <ContextDescriptorsPanel v-if="openDialogId === 'descriptors'" v-model:label="descriptorsLabel" v-model:description="descriptorsDescription" />
+            <StudioDescriptorsPanel v-if="openDialogId === 'descriptors'" v-model:label="descriptorsLabel" v-model:description="descriptorsDescription" />
             <ContextDimensionDiagramPanel v-else-if="openDialogId === 'dimensionDiagram'" />
             <ContextEntityDiagramPanel v-else-if="openDialogId === 'erdDiagram'" />
         </Dialog>

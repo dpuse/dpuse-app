@@ -29,50 +29,9 @@ import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
 import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
-const options: UpsertRecordsOptions = {
-    path: '/dpuMetaStore/dataViews',
-    records: [
-        {
-            id: '1',
-            label: { en: 'Data View 1' },
-            description: {
-                en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
-            }
-        },
-        {
-            id: '2',
-            label: { en: 'Data View 2' },
-            description: {
-                en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
-            }
-        },
-        {
-            id: '3',
-            label: { en: 'Data View 3' },
-            description: {
-                en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
-            }
-        },
-        {
-            id: '4',
-            label: { en: 'Data View 4' },
-            description: {
-                en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
-            }
-        },
-        {
-            id: '5',
-            label: { en: 'Data View 5' },
-            description: {
-                en: 'This is a description that is clamped to two lines so we can test how it is truncated. This is a second sentence just to make absolutely certain it will be truncated.'
-            }
-        }
-    ]
-};
-
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const NEW_DATA_VIEW_ID = '_new_';
+const UNTITLED_DATA_VIEW_LABEL = { en: 'Untitled Data View', es: 'Vista de Datos sin Título' }; // Stored with the record, so it carries every language rather than reading the current one.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -137,10 +96,6 @@ export async function retrieveDataViewConfigs(metaStoreConnectionConfig: Connect
 
         const { processRequest } = await useEngine();
 
-        await processRequest('upsertRecords', metaStoreConnectionConfig, options, (data: EngineCallbackData) => {
-            console.log('UPSERT RECORDS', data);
-        });
-
         const pendingDataViewConfigs: DataViewConfig[] = [];
         const retrieveRecordOptions: RetrieveRecordsOptions = { encodingId: '', path: '/dpuMetaStore/dataViews', valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
         await processRequest('retrieveRecords', metaStoreConnectionConfig, retrieveRecordOptions, (data: EngineCallbackData) => {
@@ -167,37 +122,20 @@ export async function getDataViewRecord(metaStoreConnectionConfig: ConnectionCon
         await establishDataViewObject(metaStoreConnectionConfig);
 
         const dataViewId = route.params.dataViewId as string;
-
-        if (dataViewId === NEW_DATA_VIEW_ID) {
-            return setActiveDataViewConfig();
-        }
         const { processRequest } = await useEngine();
         const getRecordOptions: GetRecordOptions = { path: '/dpuMetaStore/dataViews', id: dataViewId }; // TODO: Implement paging.
         const getRecordResult = (await processRequest('getRecord', metaStoreConnectionConfig, getRecordOptions)) as GetRecordResult;
         return setActiveDataViewConfig(getRecordResult.record as unknown as DataViewConfig);
     } catch (error) {
-        throw new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error });
+        throw new AppError('Failed to retrieve data view.', 'dpuse-app.dataViews.getDataViewRecord', { typeId: 'handled' }, { cause: error });
     }
 }
 
-export async function removeDataViewRecord(metaStoreConnectionConfig: ConnectionConfig | undefined, id: string): Promise<void> {
-    try {
-        if (metaStoreConnectionConfig == null) throw new Error('Unable to establish Data View, no connection configuration.');
-
-        await establishDataViewObject(metaStoreConnectionConfig);
-
-        const { processRequest } = await useEngine();
-        const removeRecordOptions: RemoveRecordsOptions = { path: '/dpuMetaStore/dataViews', keys: [id] }; // TODO: Implement paging.
-        await processRequest('removeRecords', metaStoreConnectionConfig, removeRecordOptions);
-    } catch (error) {
-        throw new AppError('Failed to remove data view.', 'dpuse-app.dataViews.removeDataViewRecord', { typeId: 'handled' }, { cause: error });
-    }
-}
-
-export function setActiveDataViewConfig(dataViewConfig?: DataViewConfig): DataViewConfig {
-    activeDataViewConfig.value = dataViewConfig ?? {
-        id: NEW_DATA_VIEW_ID,
-        label: { en: 'My New Data View' },
+// Saved as soon as it is added, so every step's URL holds a real id and a reload always has a record to restore.
+export async function createDataViewRecord(metaStoreConnectionConfig: ConnectionConfig | undefined): Promise<DataViewConfig> {
+    const dataViewConfig = await saveDataViewRecord(metaStoreConnectionConfig, {
+        id: crypto.randomUUID(),
+        label: UNTITLED_DATA_VIEW_LABEL,
         description: {},
         icon: null,
         iconDark: null,
@@ -211,8 +149,52 @@ export function setActiveDataViewConfig(dataViewConfig?: DataViewConfig): DataVi
         statusId: null,
         firstCreatedAt: null,
         lastUpdatedAt: null
-    };
-    return activeDataViewConfig.value;
+    });
+    return setActiveDataViewConfig(dataViewConfig);
+}
+
+// Saves the data view as each step is committed or after an edit, so a reload restores it from the store.
+export async function saveDataViewRecord(metaStoreConnectionConfig: ConnectionConfig | undefined, dataViewConfig: DataViewConfig): Promise<DataViewConfig> {
+    try {
+        if (metaStoreConnectionConfig == null) throw new Error('Unable to establish Data View, no connection configuration.');
+
+        await establishDataViewObject(metaStoreConnectionConfig);
+
+        const { processRequest } = await useEngine();
+        const upsertRecordsOptions: UpsertRecordsOptions = { path: '/dpuMetaStore/dataViews', records: [{ ...dataViewConfig, icon: null, iconDark: null }] }; // The icon is added on retrieval, so it is not stored.
+        await processRequest('upsertRecords', metaStoreConnectionConfig, upsertRecordsOptions);
+
+        if (activeDataViewConfig.value?.id === dataViewConfig.id) activeDataViewConfig.value = dataViewConfig; // A data view edited from the list leaves the one being built alone.
+        const listedDataViewConfig = { ...dataViewConfig, icon: dataViewIcon };
+        dataViewConfigs.value = dataViewConfigs.value.some((config) => config.id === dataViewConfig.id)
+            ? dataViewConfigs.value.map((config) => (config.id === dataViewConfig.id ? listedDataViewConfig : config))
+            : [...dataViewConfigs.value, listedDataViewConfig];
+        return dataViewConfig;
+    } catch (error) {
+        throw new AppError('Failed to save data view.', 'dpuse-app.dataViews.saveDataViewRecord', { typeId: 'handled' }, { cause: error });
+    }
+}
+
+export async function removeDataViewRecord(metaStoreConnectionConfig: ConnectionConfig | undefined, id: string): Promise<void> {
+    try {
+        if (metaStoreConnectionConfig == null) throw new Error('Unable to establish Data View, no connection configuration.');
+
+        await establishDataViewObject(metaStoreConnectionConfig);
+
+        const { processRequest } = await useEngine();
+        const removeRecordOptions: RemoveRecordsOptions = { path: '/dpuMetaStore/dataViews', keys: [id] }; // TODO: Implement paging.
+        await processRequest('removeRecords', metaStoreConnectionConfig, removeRecordOptions);
+
+        dataViewConfigs.value = dataViewConfigs.value.filter((config) => config.id !== id);
+        if (activeDataViewConfig.value?.id === id) activeDataViewConfig.value = undefined;
+    } catch (error) {
+        throw new AppError('Failed to remove data view.', 'dpuse-app.dataViews.removeDataViewRecord', { typeId: 'handled' }, { cause: error });
+    }
+}
+
+export function setActiveDataViewConfig(dataViewConfig: DataViewConfig): DataViewConfig {
+    activeDataViewConfig.value = dataViewConfig;
+    return dataViewConfig;
 }
 
 export function setConnectionId(connectionId?: string): void {

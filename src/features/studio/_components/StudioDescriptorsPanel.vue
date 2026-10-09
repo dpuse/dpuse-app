@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── Local Framework
 import { t } from '@/state/locale';
-import { TEXT } from './ContextDescriptorsPanel_.json';
+import { TEXT } from './StudioDescriptorsPanel_.json';
 
 // ── Static Components
 import TextEditor from '@/components/ui/text/TextEditor.vue';

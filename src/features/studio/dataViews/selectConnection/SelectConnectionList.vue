@@ -10,7 +10,7 @@
 
 // ── External Dependencies & Registrations
 import { ArrowRightIcon } from '@lucide/vue';
-import { computed, shallowRef, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -24,9 +24,9 @@ import { t } from '@/state/locale';
 import { TEXT } from './SelectConnectionList_.json';
 import { useDialogs } from '@/state/dialogs';
 import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
-import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, NEW_DATA_VIEW_ID } from '@/state/dataViews';
+import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, saveDataViewRecord } from '@/state/dataViews';
 import { activeMetaStoreConnectionConfig, configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded } from '@/state/session';
-import { type AppFailure, raiseFailure } from '@/state/errors';
+import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
@@ -41,38 +41,34 @@ import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 
 const ACTION_CONFIGS: Action<ConnectionConfig>[] = [
     { typeId: 'delete', onClick: handleDeleteConnection },
-    {
-        typeId: 'open',
-        onClick: (connectionConfig): void => {
-            handleSelectConnection(connectionConfig);
-            handleCommitDetail();
-        }
-    }
+    { typeId: 'open', onClick: handleOpenConnection }
 ];
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
+defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
 defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const dataViewFailure = shallowRef<AppFailure | undefined>();
-const { openDialog } = useDialogs();
 const route = useRoute();
 const router = useRouter();
+
+const dataViewFailure = shallowRef<AppFailure | undefined>();
+const dataViewIsSaving = ref(false); // Stops a second commit while the first is still saving.
+
+const { openDialog } = useDialogs();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Cards here carry actions, which take a second row.
 const cardRowHeight = useCardRowHeight(true);
 
-const connectionConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
-    // Settled either way: an undefined count means 'not yet known' and leaves the grid busy, so checking only the
-    // success flag left it spinning for the rest of the session when retrieval failed.
+const connectionLocalisedConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
+    // Known once retrieval has finished, whether or not it worked: an undefined count keeps the grid busy.
     rowCount: configRetrievalSucceeded.value || configRetrievalFailed.value ? connectionLocalisedConfigs.value.length : undefined,
-    getRows: (start, end): Promise<{ rows: LocalisedConfig<ConnectionConfig>[] }> => Promise.resolve({ rows: connectionLocalisedConfigs.value.slice(start, end) })
+    rows: connectionLocalisedConfigs.value
 }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -83,7 +79,7 @@ watch(
     (newConfigs) => {
         if (activeConnectionConfig.value != null || typeof route.query.connectionId !== 'string') return;
         const restoredConnectionConfig = newConfigs.find((config) => config.id === route.query.connectionId);
-        if (restoredConnectionConfig) handleSelectConnection(restoredConnectionConfig);
+        if (restoredConnectionConfig) selectConnection(restoredConnectionConfig);
     },
     { immediate: true }
 );
@@ -112,55 +108,61 @@ function handleAddConnection(): void {
     void openDialog('connection');
 }
 
-function handleCommitDetail(): void {
-    void ignoreReportedNavigationFailure(router.push({ name: 'item', query: route.query }));
+// Saved before moving on, so a reload on the next step restores the connection from the store.
+async function handleCommitDetail(): Promise<void> {
+    if (activeDataViewConfig.value == null || dataViewIsSaving.value) return;
+
+    dataViewIsSaving.value = true;
+    try {
+        const savedDataViewConfig = await saveDataViewRecord(activeMetaStoreConnectionConfig.value, activeDataViewConfig.value);
+        void ignoreReportedNavigationFailure(router.push({ name: 'item', params: { dataViewId: savedDataViewConfig.id }, query: route.query }));
+    } catch (error) {
+        // Announced rather than shown in the list: the save did not happen, so the selection is still here to commit
+        // again, and there is no space here this failure has taken.
+        raiseAppFailure(new AppError('Failed to save data view.', 'dpuse-app.SelectConnectionList.handleCommitDetail', { typeId: 'handled' }, { cause: error }));
+    } finally {
+        dataViewIsSaving.value = false;
+    }
 }
 
 function handleDeleteConnection(_connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
     // TODO
 }
 
-function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
-    activeConnectionConfig.value = activeConnectionConfig.value === connectionLocalisedConfig ? undefined : connectionLocalisedConfig;
-    activeConnectionNodeConfigs.value = [];
-    resetActiveDataViewConfig(connectionLocalisedConfig);
+// Opening never deselects, and leaves an already-selected connection alone so the data view keeps its later steps.
+function handleOpenConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
+    if (activeConnectionConfig.value?.id !== connectionLocalisedConfig.id) selectConnection(connectionLocalisedConfig);
+    void handleCommitDetail();
+}
 
-    const query = { ...route.query };
-    if (activeConnectionConfig.value) query.connectionId = activeConnectionConfig.value.id;
-    else delete query.connectionId;
-    void ignoreReportedNavigationFailure(router.replace({ query }));
+function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
+    selectConnection(activeConnectionConfig.value?.id === connectionLocalisedConfig.id ? undefined : connectionLocalisedConfig);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
+    activeConnectionConfig.value = connectionLocalisedConfig;
+    activeConnectionNodeConfigs.value = [];
+    resetActiveDataViewConfig(connectionLocalisedConfig);
+
+    const query = { ...route.query };
+    if (connectionLocalisedConfig) query.connectionId = connectionLocalisedConfig.id;
+    else delete query.connectionId;
+    void ignoreReportedNavigationFailure(router.replace({ query }));
+}
+
+// Does nothing while the data view is still loading; the selection alone is kept until it arrives.
 function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<ConnectionConfig>): void {
-    activeDataViewConfig.value =
-        activeDataViewConfig.value == null
-            ? {
-                  id: NEW_DATA_VIEW_ID,
-                  label: { en: 'New Data View' },
-                  description: { en: 'A new data view.' },
-                  firstCreatedAt: null,
-                  icon: null,
-                  iconDark: null,
-                  lastUpdatedAt: null,
-                  status: null,
-                  statusId: null,
-                  typeId: 'dataView',
-                  connectionId: connectionLocalisedConfig?.id,
-                  connectionNodeConfig: undefined,
-                  previewConfig: undefined,
-                  contentAuditConfig: undefined,
-                  relationshipsAuditConfig: undefined
-              }
-            : {
-                  ...activeDataViewConfig.value,
-                  connectionId: connectionLocalisedConfig?.id,
-                  connectionNodeConfig: undefined,
-                  previewConfig: undefined,
-                  contentAuditConfig: undefined,
-                  relationshipsAuditConfig: undefined
-              };
+    if (activeDataViewConfig.value == null) return;
+    activeDataViewConfig.value = {
+        ...activeDataViewConfig.value,
+        connectionId: connectionLocalisedConfig?.id,
+        connectionNodeConfig: undefined,
+        previewConfig: undefined,
+        contentAuditConfig: undefined,
+        relationshipsAuditConfig: undefined
+    };
 }
 </script>
 
@@ -173,7 +175,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
         v-else
         :active-item="activeConnectionConfig"
         :add-label="t(TEXT, 'connection.label')"
-        :data-source="connectionConfigsDataSource"
+        :data-source="connectionLocalisedConfigsDataSource"
         max-detail-width="65ch"
         :row-height="cardRowHeight"
         @add="handleAddConnection"
