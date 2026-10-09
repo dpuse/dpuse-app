@@ -316,7 +316,7 @@ html {
     --boundary-hover: var(--color-zinc-600);
     --separator: var(--color-zinc-700);
     --overlay: color-mix(in srgb, var(--color-zinc-700) 75%, transparent);
-    --content: var(--color-zinc-200); /* NOTE: Also 'index.html'. */
+    --content: var(--color-zinc-300); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-400);
     --subtle: var(--color-zinc-500);
     --emphasis: var(--color-zinc-100);
