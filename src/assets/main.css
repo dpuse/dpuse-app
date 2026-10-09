@@ -6,6 +6,8 @@ html {
     font-size: 1rem; /* 16px is default */
 }
 
+/* Sized for a document shown inside a workspace pane, not a full reading page: tighter headings and line height, and
+   rem throughout so the text follows the user's browser font size. */
 .dpuse-prose h1,
 .dpuse-prose h2,
 .dpuse-prose h3,
@@ -16,43 +18,62 @@ html {
 .dpuse-prose p {
     overflow-wrap: break-word;
 }
-.dpuse-prose h1 {
-    font-size: 32px;
+.dpuse-prose h1,
+.dpuse-prose h2,
+.dpuse-prose h3,
+.dpuse-prose h4,
+.dpuse-prose h5,
+.dpuse-prose h6 {
     font-weight: 600;
+}
+.dpuse-prose h1 {
+    font-size: 1.375rem;
     letter-spacing: -0.02em;
-    line-height: 40px;
+    line-height: 1.875rem;
 }
 .dpuse-prose h2 {
     border-top: 1px solid var(--separator);
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 32px;
-    margin-bottom: 16px;
-    margin-top: 24px;
-    padding-top: 8px;
+    font-size: 1.125rem;
+    letter-spacing: -0.01em;
+    line-height: 1.625rem;
+    margin-bottom: 1rem; /* Matched by the heading row in 'StudioDocumentSection.vue'. */
+    margin-top: 1.5rem;
+    padding-top: 0.5rem;
 }
 .dpuse-prose h3 {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    line-height: 28px;
+    font-size: 1.0625rem;
+    line-height: 1.5rem;
+}
+/* Below h3 the size stops changing, so weight alone marks the heading (Tailwind's reset would leave them as body text). */
+.dpuse-prose h4,
+.dpuse-prose h5,
+.dpuse-prose h6 {
+    font-size: 1rem;
+    line-height: 1.5rem;
+}
+.dpuse-prose > :is(h1, h2, h3, h4, h5, h6):first-child {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+}
+.dpuse-prose blockquote,
+.dpuse-prose li,
+.dpuse-prose p {
+    line-height: 1.5rem;
+    max-width: 65ch; /* Keeps lines readable when the pane is wide. */
 }
 .dpuse-prose li {
-    margin-bottom: 4px;
-    margin-top: 4px;
-    line-height: 28px;
-    max-width: 65ch;
+    margin-bottom: 0.25rem;
+    margin-top: 0.25rem;
 }
 .dpuse-prose p {
-    margin-bottom: 12px;
-    margin-top: 12px;
-    line-height: 28px;
+    margin-bottom: 0.75rem;
+    margin-top: 0.75rem;
 }
 .dpuse-prose ol,
 .dpuse-prose ul {
     margin: 0;
-    padding-left: 24px;
+    padding-left: 1.5rem;
 }
 .dpuse-prose ol {
     list-style: decimal;
@@ -69,14 +90,14 @@ html {
 .dpuse-prose a {
     color: var(--color-accent);
     &:hover {
-        color: var(--color-blue-300);
+        color: var(--color-accent-hover);
         text-decoration-line: underline;
     }
 }
 .dpuse-prose blockquote {
-    color: var(--muted);
+    color: var(--color-muted);
     border-left: 3px solid var(--separator);
-    padding-left: 12px;
+    padding-left: 0.75rem;
     margin: 0;
 }
 .dpuse-prose .dpuse-prose-overline {
@@ -330,10 +351,10 @@ html {
     --info-ring: color-mix(in srgb, var(--color-blue-400) 30%, transparent);
 
     /* Dark mode selected state. */
-    --selected: var(--color-blue-950);
-    --selected-hover: var(--color-blue-900);
-    --selected-text: var(--color-blue-300);
-    --selected-border: var(--color-blue-800);
+    --selected: var(--color-blue-900);
+    --selected-hover: var(--color-blue-800);
+    --selected-text: var(--color-blue-200);
+    --selected-border: var(--color-blue-700);
     --selected-ring: var(--color-blue-500);
 }
 

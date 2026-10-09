@@ -1,10 +1,10 @@
 {
-  "version": "1.0.113",
+  "version": "1.0.114",
   "name": "dpuse-app",
   "dependencies": {
     "@cloudflare/vite-plugin": {
-      "version": "1.63.0",
-      "resolved": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.63.0.tgz",
+      "version": "1.63.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.63.1.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/unenv-preset": {
@@ -21,8 +21,8 @@
           }
         },
         "miniflare": {
-          "version": "5.20261006.0-alpha",
-          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261006.0-alpha.tgz",
+          "version": "5.20261006.1-alpha",
+          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261006.1-alpha.tgz",
           "overridden": false,
           "dependencies": {
             "@cspotcode/source-map-support": {
@@ -46,7 +46,7 @@
               }
             },
             "sharp": {
-              "version": "0.35.4"
+              "version": "0.35.5"
             },
             "undici": {
               "version": "7.29.1",
@@ -157,7 +157,7 @@
           }
         },
         "wrangler": {
-          "version": "4.148.0"
+          "version": "4.149.0"
         },
         "ws": {
           "version": "8.21.0",
@@ -171,8 +171,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261008.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261008.1.tgz",
+      "version": "5.20261009.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261009.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -3021,8 +3021,8 @@
       }
     },
     "@dpuse/eslint-config-dpuse": {
-      "version": "1.0.138",
-      "resolved": "https://registry.npmjs.org/@dpuse/eslint-config-dpuse/-/eslint-config-dpuse-1.0.138.tgz",
+      "version": "1.0.139",
+      "resolved": "https://registry.npmjs.org/@dpuse/eslint-config-dpuse/-/eslint-config-dpuse-1.0.139.tgz",
       "overridden": false,
       "dependencies": {
         "@eslint-community/eslint-plugin-eslint-comments": {
@@ -4120,8 +4120,8 @@
           }
         },
         "eslint-plugin-jsdoc": {
-          "version": "65.2.0",
-          "resolved": "https://registry.npmjs.org/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-65.2.0.tgz",
+          "version": "65.2.1",
+          "resolved": "https://registry.npmjs.org/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-65.2.1.tgz",
           "overridden": false,
           "dependencies": {
             "@es-joy/jsdoccomment": {
@@ -4807,8 +4807,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.53.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.53.0.tgz",
+      "version": "1.54.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.54.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -4993,8 +4993,8 @@
       }
     },
     "@tanstack/vue-table": {
-      "version": "9.2.7",
-      "resolved": "https://registry.npmjs.org/@tanstack/vue-table/-/vue-table-9.2.7.tgz",
+      "version": "9.2.8",
+      "resolved": "https://registry.npmjs.org/@tanstack/vue-table/-/vue-table-9.2.8.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/store": {
@@ -5003,8 +5003,8 @@
           "overridden": false
         },
         "@tanstack/table-core": {
-          "version": "9.2.6",
-          "resolved": "https://registry.npmjs.org/@tanstack/table-core/-/table-core-9.2.6.tgz",
+          "version": "9.2.8",
+          "resolved": "https://registry.npmjs.org/@tanstack/table-core/-/table-core-9.2.8.tgz",
           "overridden": false,
           "dependencies": {
             "@tanstack/store": {
@@ -5184,13 +5184,13 @@
               "overridden": false
             },
             "sharp": {
-              "version": "0.35.4"
+              "version": "0.35.5"
             }
           }
         },
         "sharp": {
-          "version": "0.35.4",
-          "resolved": "https://registry.npmjs.org/sharp/-/sharp-0.35.4.tgz",
+          "version": "0.35.5",
+          "resolved": "https://registry.npmjs.org/sharp/-/sharp-0.35.5.tgz",
           "overridden": false,
           "dependencies": {
             "@img/colour": {
@@ -5199,20 +5199,20 @@
               "overridden": false
             },
             "@img/sharp-darwin-arm64": {
-              "version": "0.35.4",
-              "resolved": "https://registry.npmjs.org/@img/sharp-darwin-arm64/-/sharp-darwin-arm64-0.35.4.tgz",
+              "version": "0.35.5",
+              "resolved": "https://registry.npmjs.org/@img/sharp-darwin-arm64/-/sharp-darwin-arm64-0.35.5.tgz",
               "overridden": false,
               "dependencies": {
                 "@img/sharp-libvips-darwin-arm64": {
-                  "version": "1.3.3"
+                  "version": "1.3.4"
                 }
               }
             },
             "@img/sharp-darwin-x64": {},
             "@img/sharp-freebsd-wasm32": {},
             "@img/sharp-libvips-darwin-arm64": {
-              "version": "1.3.3",
-              "resolved": "https://registry.npmjs.org/@img/sharp-libvips-darwin-arm64/-/sharp-libvips-darwin-arm64-1.3.3.tgz",
+              "version": "1.3.4",
+              "resolved": "https://registry.npmjs.org/@img/sharp-libvips-darwin-arm64/-/sharp-libvips-darwin-arm64-1.3.4.tgz",
               "overridden": false
             },
             "@img/sharp-libvips-darwin-x64": {},
@@ -7183,8 +7183,8 @@
         },
         "@vitejs/devtools": {},
         "esbuild": {
-          "version": "0.28.1",
-          "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.28.1.tgz",
+          "version": "0.28.2",
+          "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.28.2.tgz",
           "overridden": false,
           "dependencies": {
             "@esbuild/aix-ppc64": {},
@@ -7192,8 +7192,8 @@
             "@esbuild/android-arm64": {},
             "@esbuild/android-x64": {},
             "@esbuild/darwin-arm64": {
-              "version": "0.28.1",
-              "resolved": "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.28.1.tgz",
+              "version": "0.28.2",
+              "resolved": "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.28.2.tgz",
               "overridden": false
             },
             "@esbuild/darwin-x64": {},
@@ -7822,7 +7822,7 @@
             "@rspack/core": {},
             "bun-types-no-globals": {},
             "esbuild": {
-              "version": "0.28.1"
+              "version": "0.28.2"
             },
             "picomatch": {
               "version": "4.0.7",
@@ -7990,8 +7990,8 @@
       "overridden": false
     },
     "wrangler": {
-      "version": "4.148.0",
-      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.148.0.tgz",
+      "version": "4.149.0",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.149.0.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/kv-asset-handler": {
@@ -8003,7 +8003,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261008.1"
+          "version": "5.20261009.1"
         },
         "blake3-wasm": {
           "version": "2.1.5",
@@ -8011,13 +8011,13 @@
           "overridden": false
         },
         "esbuild": {
-          "version": "0.28.1"
+          "version": "0.28.2"
         },
         "fsevents": {
           "version": "2.3.3"
         },
         "miniflare": {
-          "version": "5.20261006.0-alpha"
+          "version": "5.20261006.1-alpha"
         },
         "path-to-regexp": {
           "version": "6.3.0",

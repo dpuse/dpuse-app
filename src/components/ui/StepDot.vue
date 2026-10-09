@@ -15,7 +15,7 @@ const { state } = defineProps<{ state: 'done' | 'pending' }>();
     <span
         aria-hidden="true"
         class="flex flex-none items-center justify-center rounded-full"
-        :class="state === 'done' ? 'bg-blue-500 dark:bg-blue-400' : 'inset-ring inset-ring-blue-500 dark:inset-ring-blue-400'"
+        :class="state === 'done' ? 'bg-blue-500 dark:bg-blue-400' : 'inset-ring inset-ring-blue-500 dark:inset-ring-blue-300'"
     >
         <CheckIcon v-if="state === 'done'" class="size-2/3 text-white dark:text-zinc-900" :stroke-width="4" />
     </span>

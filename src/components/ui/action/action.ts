@@ -35,7 +35,7 @@ export const UNSELECTED_CLASSES = 'hover:bg-black/5 active:bg-black/14 dark:hove
 // Replaces the variant's fill rather than adding to it, because two 'hover:bg-*' classes are settled by stylesheet order,
 // not class order. A neutral grey, so it does not clash with multicoloured icons, and darker than hover, because the
 // fill alone is what tells the two apart. Translucent, so one shade reads the same over the grey rail and white panes.
-export const SELECTED_CLASSES = 'bg-black/10 hover:bg-black/13 active:bg-black/18 dark:bg-white/14 dark:hover:bg-white/18 dark:active:bg-white/26';
+export const SELECTED_CLASSES = 'bg-black/6 hover:bg-black/12 active:bg-black/18 dark:bg-white/14 dark:hover:bg-white/18 dark:active:bg-white/26';
 
 // The selected option inside a grey pill track: a raised white segment, as in a segmented control. The track is
 // already grey, so a grey fill would barely show there.

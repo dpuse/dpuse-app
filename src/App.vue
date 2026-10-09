@@ -46,41 +46,47 @@ const PANE_SPLITTER_DEFAULT_PERCENT = 50;
 const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
 const PANE_SPLITTER_PERCENT_SAVE_DEBOUNCE_MS = 250;
 
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State - Route ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();
 
-const { activeDialogConfig, activeDialogId, closeDialog } = useDialogs();
+// ── State - Studio Option Bar ────────────────────────────────────────────────────────────────────────────────────────
 
-// Pane splitter — a drag fires on every pointer move, so the write to storage is debounced and only the value the
-// drag settles on is saved.
+const studioOptionBarIsVisible = ref(false); // Narrow displays only, because a wide one always shows the option bar.
+
+// ── State - Pane Splitter ────────────────────────────────────────────────────────────────────────────────────────────
+
+// A drag fires on every pointer move, so the write to storage is debounced and only the value the drag settles on is
+// saved.
 const paneSplitterPercent = useLocalStorage(PANE_SPLITTER_PERCENT_KEY, PANE_SPLITTER_DEFAULT_PERCENT, {
     eventFilter: debounceFilter(PANE_SPLITTER_PERCENT_SAVE_DEBOUNCE_MS),
     serializer: { read: (value) => Number(value) || PANE_SPLITTER_DEFAULT_PERCENT, write: String }
 });
 
-const studioOptionBarIsVisible = ref(false); // Narrow displays only, because a wide one always shows the option bar.
+// ── State - Dialogs ──────────────────────────────────────────────────────────────────────────────────────────────────
 
-// ── Derived State - Environment ──────────────────────────────────────────────────────────────────────────────────────
-
-// Safari colours its toolbars to match the page, so without these lines nothing marks where the page starts or ends.
-// Chrome and Edge draw their own toolbar edges. The installed app has no bottom toolbar, so it gets no bottom line.
-const hasBottomEdgeLine = !isPWA && isSafariBrowser();
-const hasTopEdgeLine = isSafariBrowser();
+const { activeDialogConfig, activeDialogId, closeDialog } = useDialogs();
 
 // ── Derived State - Failures ─────────────────────────────────────────────────────────────────────────────────────────
 
 // Retry is offered if any failure can be retried; the others can only recover by reloading the page.
 const appFailuresCanRetry = computed(() => appFailures.value.some((failure) => failure.retry != null));
 
+// ── Derived State - Viewport ─────────────────────────────────────────────────────────────────────────────────────────
+
+// Safari colours its toolbars to match the page, so without these lines nothing marks where the page starts or ends.
+// Chrome and Edge draw their own toolbar edges. The installed app has no bottom toolbar, so it gets no bottom line.
+const viewportRequiresTopEdgeLine = isSafariBrowser();
+const viewportRequiresBottomEdgeLine = !isPWA && isSafariBrowser();
+
 // ── Derived State - Panes ────────────────────────────────────────────────────────────────────────────────────────────
 
-const assistantPaneStyle = computed(() => {
-    return assistantPaneIsVisible.value ? { minWidth: '0', flex: '1' } : { width: '0' };
+const studioPaneStyle = computed(() => {
+    if (!studioPaneIsVisible.value) return { width: '0' };
+    // Half the splitter comes off each pane, so an even split leaves the two the same width.
+    return assistantPaneIsVisible.value ? { minWidth: '0', width: `calc(${String(paneSplitterPercent.value)}% - var(--pane-splitter-width) / 2)` } : { minWidth: '0', flex: '1' };
 });
-
-const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assistantPaneIsVisible.value);
 
 // This is the outermost 'RouterView', so it shows a spinner only while the studio layout itself loads. Panels inside
 // the layout show their own.
@@ -90,10 +96,10 @@ const studioLayoutIsLoading = computed(() => navigationPendingDepth.value === 0)
 // does.
 const studioLayoutKey = computed(() => route.matched.find((record) => record.components?.default)?.path);
 
-const studioPaneStyle = computed(() => {
-    if (!studioPaneIsVisible.value) return { width: '0' };
-    // Half the splitter comes off each pane, so an even split leaves the two the same width.
-    return assistantPaneIsVisible.value ? { minWidth: '0', width: `calc(${String(paneSplitterPercent.value)}% - var(--pane-splitter-width) / 2)` } : { minWidth: '0', flex: '1' };
+const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assistantPaneIsVisible.value);
+
+const assistantPaneStyle = computed(() => {
+    return assistantPaneIsVisible.value ? { minWidth: '0', flex: '1' } : { width: '0' };
 });
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -190,10 +196,10 @@ function syncPaneQuery(): void {
         />
 
         <!-- Top Edge Line - Full width on wide viewports, lying exactly over the option bar's own line. -->
-        <div v-if="viewportIsWide && hasTopEdgeLine" class="pointer-events-none fixed inset-x-0 top-[env(safe-area-inset-top)] z-50 h-px bg-separator" />
+        <div v-if="viewportIsWide && viewportRequiresTopEdgeLine" class="pointer-events-none fixed inset-x-0 top-[env(safe-area-inset-top)] z-50 h-px bg-separator" />
 
         <!-- Bottom Edge Line - Fixed across the full width, against Safari's bottom toolbar. -->
-        <div v-if="hasBottomEdgeLine" class="pointer-events-none fixed inset-x-0 bottom-0 z-50 h-px bg-separator" />
+        <div v-if="viewportRequiresBottomEdgeLine" class="pointer-events-none fixed inset-x-0 bottom-0 z-50 h-px bg-separator" />
 
         <!-- Studio Pane Toggle - Fixed in top left corner above option bar or panes and always visible. -->
         <StudioPaneToggle :is-open="studioPaneIsVisible" @click="handleToggleStudioPane" />

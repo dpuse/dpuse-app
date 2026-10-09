@@ -47,15 +47,21 @@ import StudioListPanel from '@/features/studio/_components/StudioListPanel.vue';
 // ── Dynamic Components
 const EmptyPlaceholder = defineAsyncPanel(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');
 
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State - Route ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();
-const activeDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig> | undefined>();
-const deletingDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig>>(); // Kept after the dialog closes, so its text does not blank while it fades out.
-const { cancel: cancelDelete, confirm: confirmDelete, isRevealed: deleteConfirmIsOpen, reveal: revealDeleteConfirm } = useConfirmDialog();
 
-// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State - Data View Localised Configuration ────────────────────────────────────────────────────────────────────────
+
+const activeDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig> | undefined>();
+
+// ── State - Dialog ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+const { cancel: cancelDelete, confirm: confirmDelete, isRevealed: deleteConfirmIsOpen, reveal: revealDeleteConfirm } = useConfirmDialog();
+const deletingDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig>>(); // Kept after the dialog closes, so its text does not blank while it fades out.
+
+// ── Derived State - Grid ─────────────────────────────────────────────────────────────────────────────────────────────
 
 // 'rowCount' stays undefined, which keeps the grid busy, until retrieval settles either way; 0 means confirmed empty.
 const dataViewDataSource = computed((): DataSource<LocalisedConfig<DataViewConfig>> => ({
@@ -65,6 +71,8 @@ const dataViewDataSource = computed((): DataSource<LocalisedConfig<DataViewConfi
 
 // Cards here carry actions, which take a second row, and an overline naming the connector.
 const cardRowHeight = useCardRowHeight(true, true);
+
+// ── Derived State - Data View Summary ────────────────────────────────────────────────────────────────────────────────
 
 // The connector behind each data view, keyed by data view id; undefined until a connection is chosen.
 const dataViewConnectorsById = computed(() => new Map(dataViewLocalisedConfigs.value.map((config) => [config.id, constructDataViewConnector(config)])));

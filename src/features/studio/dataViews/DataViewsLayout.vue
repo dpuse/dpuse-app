@@ -19,10 +19,13 @@ import StudioHeader from '@/features/studio/_components/StudioHeader.vue';
 import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
 import TaskBar, { type TaskConfig } from '@/components/ui/TaskBar.vue';
 
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State - Route ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();
+
+// ── State - Task Bar ─────────────────────────────────────────────────────────────────────────────────────────────────
+
 const unlockedUpToTaskNumber = ref(0);
 
 // ── Derived State - Task Localised Configuration ─────────────────────────────────────────────────────────────────────
@@ -37,12 +40,12 @@ const activeTaskLocalisedConfig = computed(() => taskLocalisedConfigs.value.find
 
 // ── Derived State - Header ───────────────────────────────────────────────────────────────────────────────────────────
 
-const headerBackRouteName = computed(() => (route.name === 'dataViews' ? 'studio' : 'dataViews'));
 const headerOverline = computed(() => t(TEXT, activeTaskLocalisedConfig.value ? 'establishDataViews.title' : 'studio.label'));
 const headerTitle = computed(() => {
     if (!activeTaskLocalisedConfig.value) return t(TEXT, 'establishDataViews.title');
     return activeDataViewConfig.value ? localiseConfig(activeDataViewConfig.value, localeId.value).label : t(TEXT, 'dataView.pending.title');
 });
+const headerBackRouteName = computed(() => (route.name === 'dataViews' ? 'studio' : 'dataViews'));
 
 // ── Derived State - Task Bar ─────────────────────────────────────────────────────────────────────────────────────────
 
@@ -60,7 +63,7 @@ const taskBarLocalisedItems = computed(() =>
     }))
 );
 
-// ── Derived State - List or Task Panel ───────────────────────────────────────────────────────────────────────────────
+// ── Derived State - List and Task Panel ──────────────────────────────────────────────────────────────────────────────
 
 // This layout hosts the 'RouterView' one level in, so it shows the spinner for its own panel. 'App.vue' covers the
 // layout itself, which is what keeps the header and task bar in place through a panel swap.
@@ -110,7 +113,7 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
         <!-- Task Bar -->
         <TaskBar v-if="activeTaskLocalisedConfig" :active-id="activeTaskLocalisedConfig.id" :items="taskBarLocalisedItems" />
 
-        <!-- List or Task Panel -->
+        <!-- List and Task Panel -->
         <RouterViewTransition v-slot="{ component }" class="min-h-0 flex-1" :is-loading="taskPanelIsLoading">
             <component :is="component" v-if="route.name === 'dataViews'" key="dataViews" class="min-h-0 flex-1" />
             <component :is="component" v-else :key="route.name" class="min-h-0 flex-1" :task-localised-config="activeTaskLocalisedConfig" @task-completed="handleTaskCompleted" />

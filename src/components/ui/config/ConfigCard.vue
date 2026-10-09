@@ -67,11 +67,11 @@ defineOptions({ inheritAttrs: false });
             // card's fill is lighter than the lightest blue step, so it tints the card without weighing it down.
             isCompact
                 ? selected
-                    ? 'border-transparent bg-selected-hover hover:bg-blue-200/70 dark:hover:bg-blue-800'
+                    ? 'border-transparent bg-selected-hover hover:bg-blue-200/70 dark:hover:bg-blue-700/70'
                     : 'border-transparent hover:bg-card-hover active:bg-card-hover'
                 : selected
                   ? 'border-selected-border bg-selected/60 hover:bg-selected'
-                  : 'border-separator bg-card hover:border-boundary-hover hover:bg-card-hover active:bg-card-hover'
+                  : 'border-separator bg-card hover:border-boundary-hover hover:bg-card-hover active:bg-card-hover dark:border-zinc-600 dark:hover:border-zinc-500'
         ]"
         data-region="ConfigCard"
     >
@@ -94,7 +94,7 @@ defineOptions({ inheritAttrs: false });
                 </div>
 
                 <!-- Label -->
-                <div class="min-w-0 truncate leading-tight text-muted">{{ config.label }}</div>
+                <div class="min-w-0 truncate leading-tight text-content">{{ config.label }}</div>
             </div>
 
             <!-- Pre-release tag - Square-cornered and small, so it reads as a label rather than a button. Short, so it

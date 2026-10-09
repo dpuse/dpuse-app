@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "1.0.114",
+    "version": "1.0.115",
     "private": false,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -38,10 +38,10 @@
         "ios_saf >= 26"
     ],
     "allowScripts": {
-        "esbuild@0.28.1": true,
         "fsevents": true,
         "unrs-resolver@1.12.2": true,
-        "workerd@1.20261006.1": true
+        "workerd@1.20261006.1": true,
+        "esbuild@0.28.2": true
     },
     "scripts": {
         "audit": "node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
@@ -71,7 +71,7 @@
         "@formkit/drag-and-drop": "^0.6.1",
         "@tanstack/ai": "^0.66.0",
         "@tanstack/ai-client": "^0.39.0",
-        "@tanstack/vue-table": "^9.2.7",
+        "@tanstack/vue-table": "^9.2.8",
         "@tanstack/vue-virtual": "^3.13.39",
         "@teamhanko/hanko-frontend-sdk": "^3.1.0",
         "@vueuse/core": "^15.0.0",
@@ -82,16 +82,16 @@
         "web-vitals": "^6.2.3"
     },
     "devDependencies": {
-        "@cloudflare/vite-plugin": "1.63.0",
-        "@cloudflare/workers-types": "^5.20261008.1",
+        "@cloudflare/vite-plugin": "1.63.1",
+        "@cloudflare/workers-types": "^5.20261009.1",
         "@dpuse/dpuse-development": "^1.0.123",
         "@dpuse/dpuse-tool-d3-visualiser": "^1.0.112",
         "@dpuse/dpuse-tool-marked-markdown-parser": "^1.0.106",
-        "@dpuse/eslint-config-dpuse": "^1.0.138",
+        "@dpuse/eslint-config-dpuse": "^1.0.139",
         "@eslint/css": "^2.0.0",
         "@eslint/js": "^10.0.1",
         "@eslint/json": "^2.1.1",
-        "@lucide/vue": "^1.53.0",
+        "@lucide/vue": "^1.54.0",
         "@playwright/test": "^1.64.0",
         "@tailwindcss/vite": "^4.3.3",
         "@tsconfig/node24": "^24.0.5",
@@ -126,6 +126,6 @@
         "vite": "^8.3.4",
         "vitest": "^5.0.3",
         "vue-tsc": "^3.3.12",
-        "wrangler": "4.148.0"
+        "wrangler": "4.149.0"
     }
 }
