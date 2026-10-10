@@ -16,6 +16,7 @@ import { AppError, formatNumberAsDecimalNumber, formatNumberAsStorageSize } from
 import type {
     ConnectionConfig,
     ConnectionNodeConfig,
+    DataViewConfig,
     GetInfoOptions,
     GetInfoResult,
     ListNodesOptions,
@@ -26,15 +27,14 @@ import type {
 } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { activeMetaStoreConnectionConfig } from '@/state/session';
 import { constructItemPath } from '../dataViewSummary';
 import type { DataSource } from '@/composables/useDataWindow';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { t } from '@/state/locale';
 import { TEXT } from './SelectItemPanel_.json';
 import { useEngine } from '@/services/useEngine';
-import { activeConnectionConfig, activeDataViewConfig, saveDataViewRecord } from '@/state/dataViews';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
+import { connectionLocalisedConfigs, useDataView, useUpdateDataView } from '@/state/dataViews';
 
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
@@ -56,8 +56,7 @@ const ITEM_ACTIONS = [
 
 // useDataWindow's retry-with-backoff (~900ms total) is tuned for transient blips, not a cold app boot — on a fresh
 // deploy in particular, downloading new bundles, waking configMonitor/accountMonitor's Durable Objects, and then
-// resolving the active connection via getDataViewRecord's own engine round-trip (SelectItemPanel watcher above)
-// can easily take longer than that. So instead of a short fixed retry, wait directly on the value itself.
+// resolving the active connection via the data view's own engine round-trip can easily take longer than that. So instead of a short fixed retry, wait directly on the value itself.
 // Deciding whether the connection has genuinely disappeared (vs. just not resolved yet) is DataViewsLayout's
 // job, not this function's — it redirects away (unmounting this component) once that's confirmed, so this only
 // needs a generous timeout as a last-resort bail-out for the case where neither ever happens.
@@ -67,18 +66,14 @@ const ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS = 20_000;
 // the whole preview in every data view record.
 const SAVED_PREVIEW_RECORD_COUNT = 11;
 
-// Read again after waiting rather than taken from 'until', which resolves on the timeout too.
-async function waitForActiveConnectionConfig(): Promise<LocalisedConfig<ConnectionConfig>> {
-    await until(activeConnectionConfig).toBeTruthy({ timeout: ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS });
-    if (activeConnectionConfig.value == null) throw new Error('Timed out waiting for an active connection config.');
-    return activeConnectionConfig.value;
-}
-
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
-const emit = defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+const emit = defineEmits<{
+    'choice-changed': [choiceDataViewConfig: DataViewConfig | undefined]; // The data view as the pick would leave it, shown above the step until it is saved.
+    'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>];
+}>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -97,7 +92,6 @@ const currentFolderPath = ref('');
 
 const previewRequestId = ref(0);
 const activePreviewConfig = shallowRef<PreviewConfig>(); // Kept so the commit can save it with the item.
-const dataViewIsSaving = ref(false); // Stops a second commit while the first is still saving.
 
 const previewPercentage = ref(0);
 const previewMessage = ref<string>();
@@ -110,12 +104,20 @@ const previewTableDataSource = shallowRef<DataSource<Record<string, string | nul
 const route = useRoute();
 const router = useRouter();
 
+// Data View — 'isPending' stops a second commit while the first is still saving.
+const { data: dataViewConfig } = useDataView(() => (typeof route.params.dataViewId === 'string' ? route.params.dataViewId : undefined));
+const { isPending: dataViewIsSaving, mutateAsync: updateDataView } = useUpdateDataView();
+
 const text = ref<string | undefined>();
 
 // TODO: Fix this icon data type compatibility issue.
 const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as unknown as ConnectionNodeConfig;
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The saved connection, which this step lists the items of. Looked up again from the list, so it follows a change of
+// language.
+const activeConnectionConfig = computed(() => connectionLocalisedConfigs.value.find((config) => config.id === dataViewConfig.value?.connectionId));
 
 const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...currentFolderNodes.value]);
 
@@ -154,7 +156,7 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
 watch(
     () => activeConnectionConfig.value?.id,
     () => {
-        const savedItemConfig = activeDataViewConfig.value?.connectionNodeConfig;
+        const savedItemConfig = dataViewConfig.value?.connectionNodeConfig;
         currentFolderNodes.value = savedItemConfig ? constructFolderNodeConfigs(savedItemConfig.folderPath) : [];
         activeConnectionObjectConfig.value = savedItemConfig;
         loadFolderNodes(activeConnectionConfig.value, savedItemConfig?.folderPath ?? '');
@@ -193,8 +195,7 @@ function handleRetryEngine(): void {
 }
 
 function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): void {
-    activeConnectionObjectConfig.value = undefined;
-    resetActiveDataViewItem();
+    pickItem();
     if (index <= 0) {
         currentFolderNodes.value = [];
         loadFolderNodes(activeConnectionConfig.value, '');
@@ -207,34 +208,29 @@ function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionN
 
 function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig | undefined): void {
     if (connectionNodeConfig == null) {
-        // Clear the selection.
-        activeConnectionObjectConfig.value = undefined;
-        resetActiveDataViewItem();
+        pickItem(); // Clears the selection.
         return;
     }
 
     if (connectionNodeConfig.typeId === 'folder') {
         currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
-        activeConnectionObjectConfig.value = undefined;
-        resetActiveDataViewItem();
+        pickItem();
         loadFolderNodes(activeConnectionConfig.value, `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`);
         return;
     }
 
-    activeConnectionObjectConfig.value = connectionNodeConfig;
-    resetActiveDataViewItem(connectionNodeConfig);
+    pickItem(connectionNodeConfig);
 }
 
 // Saved before moving on, so a reload restores the item, and the data view document can show its structure and data.
 async function handleCommitDetail(): Promise<void> {
     const connectionNodeConfig = activeConnectionObjectConfig.value;
     const previewConfig = activePreviewConfig.value;
-    if (connectionNodeConfig == null || previewConfig == null || dataViewIsSaving.value || activeDataViewConfig.value == null) return;
+    if (connectionNodeConfig == null || previewConfig == null || dataViewIsSaving.value || dataViewConfig.value == null) return;
 
-    dataViewIsSaving.value = true;
     try {
-        const savedDataViewConfig = await saveDataViewRecord(activeMetaStoreConnectionConfig.value, {
-            ...activeDataViewConfig.value,
+        const savedDataViewConfig = await updateDataView({
+            ...dataViewConfig.value,
             connectionNodeConfig: constructStorableNodeConfig(connectionNodeConfig),
             previewConfig: {
                 ...previewConfig,
@@ -250,24 +246,30 @@ async function handleCommitDetail(): Promise<void> {
     } catch (error) {
         // Announced rather than shown in the panel: the save did not happen, so the item is still here to commit again.
         raiseAppFailure(new AppError('Failed to save data view.', 'dpuse-app.SelectItemPanel.handleCommitDetail', { typeId: 'handled' }, { cause: error }));
-    } finally {
-        dataViewIsSaving.value = false;
     }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Set on pick rather than on commit, as the connection is, so the task bar shows the item as soon as it is picked. The
-// later steps are cleared with it, because they were worked out from the item it replaces.
-function resetActiveDataViewItem(connectionNodeConfig?: ConnectionNodeConfig): void {
-    if (activeDataViewConfig.value == null) return;
-    activeDataViewConfig.value = {
-        ...activeDataViewConfig.value,
+// Read again after waiting rather than taken from 'until', which resolves on the timeout too.
+async function waitForActiveConnectionConfig(): Promise<LocalisedConfig<ConnectionConfig>> {
+    await until(activeConnectionConfig).toBeTruthy({ timeout: ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS });
+    if (activeConnectionConfig.value == null) throw new Error('Timed out waiting for an active connection config.');
+    return activeConnectionConfig.value;
+}
+
+// The pick is saved only when it is committed. It is reported as soon as it is made, so the summary above the step
+// shows it; the later steps are cleared in what is reported, because they were worked out from the item it replaces.
+function pickItem(connectionNodeConfig?: ConnectionNodeConfig): void {
+    activeConnectionObjectConfig.value = connectionNodeConfig;
+    if (dataViewConfig.value == null) return;
+    emit('choice-changed', {
+        ...dataViewConfig.value,
         connectionNodeConfig: connectionNodeConfig ? constructStorableNodeConfig(connectionNodeConfig) : undefined,
         previewConfig: undefined,
         contentAuditConfig: undefined,
         relationshipsAuditConfig: undefined
-    };
+    });
 }
 
 // The breadcrumb trail down to a folder, rebuilt from its path because only the item itself is saved. Each crumb's
@@ -406,7 +408,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     scroll-area-padding-bottom="calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))"
                 />
                 <TextViewer v-show="activeItemAction === 'text'" class="flex-1" :text="text" />
-                <div v-show="activeItemAction === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
+                <div v-show="activeItemAction === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionObjectConfig }}</div>
                 <!-- How much of the item the preview read, as a thin accent line along the top edge over a neutral bar. A meter
                      rather than a progress bar, because it shows a settled amount, not work under way. -->
                 <div

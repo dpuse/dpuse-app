@@ -1,6 +1,7 @@
 // ── External Dependencies & Registrations
 import '@fontsource-variable/inter/opsz.css'; // Includes the optical-size axis, which sharpens small text.
 import { createApp } from 'vue';
+import { VueQueryPlugin } from '@tanstack/vue-query';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
@@ -8,6 +9,7 @@ import { AppError } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import '@/assets/main.css';
 import { createAppRouter } from '@/router';
+import { queryClient } from '@/services/queryClient';
 import { hasFault, throwOnFault } from '@/observability/faultInjection';
 import { isComponentLoaderErrorInfo, markStaleDeployError, raiseAppFailure, reportStaleDeployFailure } from '@/state/errors';
 import { reportFatalError, reportUnsupportedBrowser } from '@/observability/errorTracking';
@@ -95,6 +97,7 @@ if (!(import.meta.env.DEV && hasFault('browser')) && (__SUPPORTED_BROWSER_REGEXP
             raiseAppFailure(new AppError('Unhandled Vue error.', 'dpuse-app.main', data, { cause }));
         };
         app.use(createAppRouter());
+        app.use(VueQueryPlugin, { queryClient });
         app.mount('#app');
 
         // Simulates a Vite preload failure after mount, to check that nothing appears on screen.

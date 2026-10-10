@@ -9,14 +9,13 @@ import { AppError, formatNumberAsStorageSize } from '@dpuse/dpuse-shared';
 import type { DataTypeId, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { activeMetaStoreConnectionConfig } from '@/state/session';
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { purifyText } from '@/services/useMarkedTool';
 import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './DataViewPanel_.json'; // TODO: 'item.title' names every kind of item until each connector says which one it provides.
 import { constructItemPath, type DataViewConnection } from './dataViewSummary';
-import { dataViewConfigs, saveDataViewRecord } from '@/state/dataViews';
 import { localeId, t } from '@/state/locale';
+import { useDataView, useUpdateDataView } from '@/state/dataViews';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -52,6 +51,10 @@ defineEmits<{ close: []; delete: [] }>();
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
+
+// Data View — the stored record behind the localised one shown, which an edit changes for one language only.
+const { data: dataViewConfig } = useDataView(() => dataViewLocalisedConfig.id);
+const { mutateAsync: updateDataView } = useUpdateDataView();
 
 // Edit Dialog — the edits are held here while the dialog is open and saved when it closes, as the context descriptors
 // are applied when theirs closes.
@@ -91,15 +94,15 @@ async function handleCloseEditDialog(): Promise<void> {
     const label = editedLabel.value.trim();
     if ((label === '' || label === dataViewLocalisedConfig.label) && editedDescription.value === dataViewLocalisedConfig.description) return; // An emptied label keeps the old one, since a data view must have a name.
 
-    const dataViewConfig = dataViewConfigs.value.find((config) => config.id === dataViewLocalisedConfig.id);
-    if (!dataViewConfig) return;
+    const storedDataViewConfig = dataViewConfig.value;
+    if (!storedDataViewConfig) return;
 
     // The edits go into the entry for the current language, leaving the other translations as they were.
     try {
-        await saveDataViewRecord(activeMetaStoreConnectionConfig.value, {
-            ...dataViewConfig,
-            label: label === '' ? dataViewConfig.label : { ...dataViewConfig.label, [localeId.value]: label },
-            description: { ...dataViewConfig.description, [localeId.value]: editedDescription.value }
+        await updateDataView({
+            ...storedDataViewConfig,
+            label: label === '' ? storedDataViewConfig.label : { ...storedDataViewConfig.label, [localeId.value]: label },
+            description: { ...storedDataViewConfig.description, [localeId.value]: editedDescription.value }
         });
     } catch (error) {
         // Announced rather than shown in the panel: the panel still shows the saved data view, which is still correct.

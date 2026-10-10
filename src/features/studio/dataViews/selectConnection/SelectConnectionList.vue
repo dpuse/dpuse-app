@@ -8,12 +8,12 @@
 
 // ── External Dependencies & Registrations
 import { ArrowRightIcon } from '@lucide/vue';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
-import type { ConnectionConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
+import type { ConnectionConfig, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -23,8 +23,8 @@ import { t } from '@/state/locale';
 import { TEXT } from './SelectConnectionList_.json';
 import { useDialogs } from '@/state/dialogs';
 import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
-import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, saveDataViewRecord } from '@/state/dataViews';
-import { activeMetaStoreConnectionConfig, configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded } from '@/state/session';
+import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded } from '@/state/session';
+import { connectionLocalisedConfigs, useDataView, useUpdateDataView } from '@/state/dataViews';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
@@ -46,18 +46,28 @@ const ACTION_CONFIGS: Action<ConnectionConfig>[] = [
 
 defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
-defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
+const emit = defineEmits<{
+    'choice-changed': [choiceDataViewConfig: DataViewConfig | undefined]; // The data view as the pick would leave it, shown above the step until it is saved.
+    'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>];
+}>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
 const router = useRouter();
 
-const dataViewIsSaving = ref(false); // Stops a second commit while the first is still saving.
-
 const { openDialog } = useDialogs();
 
+// Data View — 'isPending' stops a second commit while the first is still saving.
+const { data: dataViewConfig } = useDataView(() => (typeof route.params.dataViewId === 'string' ? route.params.dataViewId : undefined));
+const { isPending: dataViewIsSaving, mutateAsync: updateDataView } = useUpdateDataView();
+
+// Choice — the connection picked in this step, saved only when it is committed. Starts as the saved one.
+const pickedConnectionId = ref<string>();
+
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const pickedConnectionLocalisedConfig = computed(() => connectionLocalisedConfigs.value.find((config) => config.id === pickedConnectionId.value));
 
 // Cards here carry actions, which take a second row.
 const cardRowHeight = useCardRowHeight(true);
@@ -70,26 +80,34 @@ const connectionLocalisedConfigsDataSource = computed<DataSource<LocalisedConfig
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Taken from the data view once it arrives, so a reload or a return to this step shows the saved connection picked.
+watch(
+    () => dataViewConfig.value?.id,
+    () => {
+        pickedConnectionId.value = dataViewConfig.value?.connectionId;
+    },
+    { immediate: true }
+);
+
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleAddConnection(): void {
     void openDialog('connection');
 }
 
-// Saved before moving on, so a reload on the next step restores the connection from the store.
+// Saved before moving on, so a reload on the next step restores the connection from the store. The saved connection
+// picked again is not saved, so the data view keeps the later steps worked out from it.
 async function handleCommitDetail(): Promise<void> {
-    if (activeDataViewConfig.value == null || dataViewIsSaving.value) return;
+    if (dataViewConfig.value == null || pickedConnectionId.value == null || dataViewIsSaving.value) return;
 
-    dataViewIsSaving.value = true;
     try {
-        const savedDataViewConfig = await saveDataViewRecord(activeMetaStoreConnectionConfig.value, activeDataViewConfig.value);
-        void ignoreReportedNavigationFailure(router.push({ name: 'item', params: { dataViewId: savedDataViewConfig.id }, query: route.query }));
+        const choiceDataViewConfig = constructChoiceDataViewConfig(dataViewConfig.value, pickedConnectionId.value);
+        if (choiceDataViewConfig !== dataViewConfig.value) await updateDataView(choiceDataViewConfig);
+        void ignoreReportedNavigationFailure(router.push({ name: 'item', params: { dataViewId: choiceDataViewConfig.id }, query: route.query }));
     } catch (error) {
         // Announced rather than shown in the list: the save did not happen, so the selection is still here to commit
         // again, and there is no space here this failure has taken.
         raiseAppFailure(new AppError('Failed to save data view.', 'dpuse-app.SelectConnectionList.handleCommitDetail', { typeId: 'handled' }, { cause: error }));
-    } finally {
-        dataViewIsSaving.value = false;
     }
 }
 
@@ -97,34 +115,37 @@ function handleDeleteConnection(_connectionLocalisedConfig: LocalisedConfig<Conn
     // TODO
 }
 
-// Opening never deselects, and leaves an already-selected connection alone so the data view keeps its later steps.
+// Opening never deselects.
 function handleOpenConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
-    if (activeConnectionConfig.value?.id !== connectionLocalisedConfig.id) selectConnection(connectionLocalisedConfig);
+    pickConnection(connectionLocalisedConfig.id);
     void handleCommitDetail();
 }
 
 function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
-    selectConnection(activeConnectionConfig.value?.id === connectionLocalisedConfig.id ? undefined : connectionLocalisedConfig);
+    pickConnection(pickedConnectionId.value === connectionLocalisedConfig.id ? undefined : connectionLocalisedConfig.id);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
-    activeConnectionNodeConfigs.value = [];
-    resetActiveDataViewConfig(connectionLocalisedConfig);
-}
-
-// Does nothing while the data view is still loading, because the selection is the data view's connection.
-function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<ConnectionConfig>): void {
-    if (activeDataViewConfig.value == null) return;
-    activeDataViewConfig.value = {
-        ...activeDataViewConfig.value,
-        connectionId: connectionLocalisedConfig?.id,
+// The saved data view itself when the connection is unchanged. A different one clears the later steps, because they were
+// worked out from the connection it replaces.
+function constructChoiceDataViewConfig(savedDataViewConfig: DataViewConfig, connectionId: string | undefined): DataViewConfig {
+    if (connectionId === savedDataViewConfig.connectionId) return savedDataViewConfig;
+    return {
+        ...savedDataViewConfig,
+        connectionId,
         connectionNodeConfig: undefined,
         previewConfig: undefined,
         contentAuditConfig: undefined,
         relationshipsAuditConfig: undefined
     };
+}
+
+// Does nothing while the data view is still loading, because the pick is a choice for that data view.
+function pickConnection(connectionId: string | undefined): void {
+    if (dataViewConfig.value == null) return;
+    pickedConnectionId.value = connectionId;
+    emit('choice-changed', constructChoiceDataViewConfig(dataViewConfig.value, connectionId));
 }
 </script>
 
@@ -133,7 +154,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
 
     <GridDetailPanel
         v-else
-        :active-item="activeConnectionConfig"
+        :active-item="pickedConnectionLocalisedConfig"
         :add-label="t(TEXT, 'connection.label')"
         :data-source="connectionLocalisedConfigsDataSource"
         max-detail-width="65ch"
@@ -141,7 +162,7 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
         @add="handleAddConnection"
     >
         <template #item="{ item }">
-            <ConfigCard v-if="item" :actions="ACTION_CONFIGS" :config="item" :selected="item.id === activeConnectionConfig?.id" @click="handleSelectConnection(item)" />
+            <ConfigCard v-if="item" :actions="ACTION_CONFIGS" :config="item" :selected="item.id === pickedConnectionId" @click="handleSelectConnection(item)" />
         </template>
 
         <template #detail="{ item, close }">

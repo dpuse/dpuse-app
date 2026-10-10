@@ -1,5 +1,5 @@
 {
-  "version": "1.0.127",
+  "version": "1.0.128",
   "name": "dpuse-app",
   "dependencies": {
     "@cloudflare/vite-plugin": {
@@ -4989,6 +4989,50 @@
           "version": "0.1.7",
           "resolved": "https://registry.npmjs.org/partial-json/-/partial-json-0.1.7.tgz",
           "overridden": false
+        }
+      }
+    },
+    "@tanstack/vue-query": {
+      "version": "5.104.1",
+      "resolved": "https://registry.npmjs.org/@tanstack/vue-query/-/vue-query-5.104.1.tgz",
+      "overridden": false,
+      "dependencies": {
+        "@tanstack/match-sorter-utils": {
+          "version": "9.2.6",
+          "resolved": "https://registry.npmjs.org/@tanstack/match-sorter-utils/-/match-sorter-utils-9.2.6.tgz",
+          "overridden": false,
+          "dependencies": {
+            "remove-accents": {
+              "version": "0.5.0",
+              "resolved": "https://registry.npmjs.org/remove-accents/-/remove-accents-0.5.0.tgz",
+              "overridden": false
+            }
+          }
+        },
+        "@tanstack/query-core": {
+          "version": "5.104.1",
+          "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.104.1.tgz",
+          "overridden": false
+        },
+        "@vue/composition-api": {},
+        "@vue/devtools-api": {
+          "version": "6.6.4",
+          "resolved": "https://registry.npmjs.org/@vue/devtools-api/-/devtools-api-6.6.4.tgz",
+          "overridden": false
+        },
+        "vue-demi": {
+          "version": "0.14.10",
+          "resolved": "https://registry.npmjs.org/vue-demi/-/vue-demi-0.14.10.tgz",
+          "overridden": false,
+          "dependencies": {
+            "@vue/composition-api": {},
+            "vue": {
+              "version": "3.5.43"
+            }
+          }
+        },
+        "vue": {
+          "version": "3.5.43"
         }
       }
     },

@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "1.0.128",
+    "version": "1.0.129",
     "private": false,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -41,7 +41,8 @@
         "fsevents": true,
         "unrs-resolver@1.12.2": true,
         "workerd@1.20261006.1": true,
-        "esbuild@0.28.2": true
+        "esbuild@0.28.2": true,
+        "vue-demi": false
     },
     "scripts": {
         "audit": "node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
@@ -71,6 +72,7 @@
         "@formkit/drag-and-drop": "^0.6.1",
         "@tanstack/ai": "^0.66.0",
         "@tanstack/ai-client": "^0.39.0",
+        "@tanstack/vue-query": "^5.104.1",
         "@tanstack/vue-table": "^9.2.8",
         "@tanstack/vue-virtual": "^3.13.39",
         "@teamhanko/hanko-frontend-sdk": "^3.1.0",

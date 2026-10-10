@@ -2,33 +2,22 @@
 // ── External Dependencies & Registrations
 import { ArrowRightIcon } from '@lucide/vue';
 import { useConfirmDialog } from '@vueuse/core';
-import { computed, ref, shallowRef, watch } from 'vue';
+import { computed, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError, constructConnectorCategoryConfig, getComponentStatus, localiseConfig } from '@dpuse/dpuse-shared';
+import { AppError, constructConnectorCategoryConfig, getComponentStatus, localiseConfig, localiseConfigs } from '@dpuse/dpuse-shared';
 import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { activeMetaStoreConnectionConfig } from '@/state/session';
 import type { DataSource } from '@/composables/useDataWindow';
 import { defineAsyncPanel } from '@/utilities/index.ts';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './DataViewList_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
-import {
-    connectionLocalisedConfigs,
-    createDataViewRecord,
-    dataViewConfigs,
-    dataViewLocalisedConfigs,
-    dataViewRetrievalFailed,
-    dataViewRetrievalFailure,
-    dataViewRetrievalSucceeded,
-    removeDataViewRecord,
-    retrieveDataViewConfigs,
-    setActiveDataViewConfig
-} from '@/state/dataViews';
+import { useQueryFailure } from '@/services/queryClient';
+import { connectionLocalisedConfigs, useCreateDataView, useDataViews, useDeleteDataView } from '@/state/dataViews';
 import { constructDataViewSteps, type DataViewConnection, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
 
@@ -53,10 +42,19 @@ const route = useRoute();
 const router = useRouter();
 
 const activeDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig> | undefined>();
-const dataViewIsAdding = ref(false); // Stops a second click creating a second data view while the first is saving.
+
+// Data Views — 'isPending' on each change stops a second click starting a second one while the first is saving.
+const { data: dataViewConfigs, error: dataViewRetrievalError, isError: dataViewRetrievalFailed, isSuccess: dataViewRetrievalSucceeded, refetch: refetchDataViews } = useDataViews();
+const { isPending: dataViewIsAdding, mutateAsync: createDataView } = useCreateDataView();
+const { isPending: dataViewIsDeleting, mutateAsync: deleteDataView } = useDeleteDataView();
 
 const { cancel: cancelDelete, confirm: confirmDelete, isRevealed: deleteConfirmIsOpen, reveal: revealDeleteConfirm } = useConfirmDialog();
 const deletingDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig>>(); // Kept after the dialog closes, so its text does not blank while it fades out.
+
+// ── Derived State - Data Views ───────────────────────────────────────────────────────────────────────────────────────
+
+const dataViewLocalisedConfigs = computed((): LocalisedConfig<DataViewConfig>[] => localiseConfigs<DataViewConfig>(dataViewConfigs.value ?? [], localeId.value));
+const dataViewRetrievalFailure = useQueryFailure(dataViewRetrievalError);
 
 // ── Derived State - Grid ─────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -91,21 +89,18 @@ watch(
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleRetryRetrieval(): void {
-    if (activeMetaStoreConnectionConfig.value) void retrieveDataViewConfigs(activeMetaStoreConnectionConfig.value);
+    void refetchDataViews();
 }
 
 async function handleAddDataView(): Promise<void> {
     if (dataViewIsAdding.value) return;
 
-    dataViewIsAdding.value = true;
     try {
-        const dataViewConfig = await createDataViewRecord(activeMetaStoreConnectionConfig.value);
+        const dataViewConfig = await createDataView();
         void ignoreReportedNavigationFailure(router.push({ name: 'connection', params: { dataViewId: dataViewConfig.id }, query: route.query }));
     } catch (error) {
         // Announced rather than shown in the list: nothing was added, so the list is unchanged and still works.
         raiseAppFailure(new AppError('Failed to add data view.', 'dpuse-app.DataViewList.handleAddDataView', { typeId: 'handled' }, { cause: error }));
-    } finally {
-        dataViewIsAdding.value = false;
     }
 }
 
@@ -113,21 +108,21 @@ function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewC
     updateDataViewIdParameter(activeDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id ? undefined : dataViewLocalisedConfig.id);
 }
 
+// The step opens on the list's copy of the data view, so it is not read from the store again.
 function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
-    const dataViewConfig = dataViewConfigs.value.find((config) => config.id === dataViewLocalisedConfig.id);
-    if (!dataViewConfig) return;
-
-    setActiveDataViewConfig(dataViewConfig);
-    void ignoreReportedNavigationFailure(router.push({ name: resolveCurrentDataViewStepId(dataViewConfig), params: { dataViewId: dataViewConfig.id }, query: route.query }));
+    const routeName = resolveCurrentDataViewStepId(dataViewLocalisedConfig);
+    void ignoreReportedNavigationFailure(router.push({ name: routeName, params: { dataViewId: dataViewLocalisedConfig.id }, query: route.query }));
 }
 
 async function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): Promise<void> {
+    if (dataViewIsDeleting.value) return;
+
     deletingDataViewLocalisedConfig.value = dataViewLocalisedConfig;
     const { isCanceled } = await revealDeleteConfirm();
     if (isCanceled) return;
 
     try {
-        await removeDataViewRecord(activeMetaStoreConnectionConfig.value, dataViewLocalisedConfig.id);
+        await deleteDataView(dataViewLocalisedConfig.id);
         if (activeDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id) updateDataViewIdParameter();
     } catch (error) {
         // Announced rather than shown in the list: the delete did not happen, so the row and everything around it are

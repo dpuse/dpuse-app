@@ -4,7 +4,7 @@ import { until } from '@vueuse/core';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Shared body of the retrieval 'ready' composables ('useConfigsReady', 'useDataViewsReady'): resolves once a retrieval
+// Shared body of the retrieval 'ready' composables (such as 'useConfigsReady'): resolves once a retrieval
 // has either succeeded or failed, then stops watching. Callers await one of those composables before reading a
 // configuration collection, since every collection starts empty and an empty collection is indistinguishable from one
 // that legitimately contains no entries.

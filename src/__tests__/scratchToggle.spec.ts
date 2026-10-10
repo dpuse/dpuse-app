@@ -1,5 +1,7 @@
 import App from '../App.vue';
 import { createAppRouter } from '@/router';
+import { queryClient } from '@/services/queryClient';
+import { VueQueryPlugin } from '@tanstack/vue-query';
 import { describe, expect, it } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
 
@@ -18,7 +20,7 @@ async function clickStudioToggle(entryUrl: string): Promise<{ endedAt: string; e
     }
     await router.isReady();
 
-    const wrapper = mount(App, { attachTo: document.body, global: { plugins: [router] } });
+    const wrapper = mount(App, { attachTo: document.body, global: { plugins: [router, [VueQueryPlugin, { queryClient }]] } }); // Registered as 'main.ts' does.
     await flushPromises();
 
     const landedAt = router.currentRoute.value.fullPath;
