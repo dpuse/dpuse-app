@@ -236,19 +236,19 @@ html {
 /* Variables and light mode colors. */
 :root {
     --safe-bottom-offset: calc(
-        max(env(safe-area-inset-bottom), 21px) + 24px
-    ); /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '21px' for optional status bar; '24px' for horizontal scroll bar. */
+        max(env(safe-area-inset-bottom), 24px) + 24px
+    ); /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '24px' for optional status bar; '24px' for horizontal scroll bar. */
     --safe-top-offset: calc(env(safe-area-inset-top) + 7px); /* Floating button screen top offset: 'safe-area-inset-top'; '7px' for gutter. */
     --safe-left-offset: calc(env(safe-area-inset-left) + 12px); /* Floating button screen left offset: 'safe-area-inset-left'; '12px' for gutter. */
     --safe-right-offset: calc(env(safe-area-inset-right) + 12px); /* Floating button screen right offset: 'safe-area-inset-right'; '12px' for gutter. */
 
     --pane-splitter-width: 6px; /* Width of 'PaneSplitter'. Declared here because 'App.vue' subtracts half of it from the studio pane. */
 
-    --status-bar-height: calc(max(env(safe-area-inset-bottom), 21px)); /* Status bar height: 'safe-area-inset-bottom' or '21px'. */
+    --status-bar-height: calc(max(env(safe-area-inset-bottom), 24px)); /* Status bar height: 'safe-area-inset-bottom' or '24px'. */
 
     --vertical-scroll-bottom-embedded-inset: 88px; /* Scroll area bottom inset: '24px' for horizontal scroll bar; '40px' for floating buttons; '16px' for padding above floating buttons. */
-    --vertical-scroll-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 21px) + 88px);
-    --vertical-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 21px) + 72px);
+    --vertical-scroll-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 24px) + 88px);
+    --vertical-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 24px) + 72px);
 
     /* Light mode colors. */
     --backdrop: var(--color-zinc-50);
@@ -320,10 +320,10 @@ html {
     --muted: var(--color-zinc-400);
     --subtle: var(--color-zinc-500);
     --emphasis: var(--color-zinc-100);
-    --accent: var(--color-blue-300);
+    --accent: var(--color-blue-400);
     --accent-hover: var(--color-blue-200);
     --accent-ring: var(--color-blue-500);
-    --focus-ring: var(--accent); /* blue-300: 11:1 on the zinc-950 surface, 10:1 on the zinc-900 backdrop. */
+    --focus-ring: var(--accent); /* blue-400: 7.8:1 on the zinc-950 surface, 7:1 on the zinc-900 backdrop. */
 
     /* Dark mode status colors — Tailwind UI's documented dark badge/alert palette (bg-400/10, text-400, ring-400/20; green uses 500 for bg/text). */
     --success: color-mix(in srgb, var(--color-green-500) 10%, transparent);

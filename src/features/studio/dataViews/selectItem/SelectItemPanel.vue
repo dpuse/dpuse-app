@@ -407,9 +407,21 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 />
                 <TextViewer v-show="activeItemAction === 'text'" class="flex-1" :text="text" />
                 <div v-show="activeItemAction === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
-                <div class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-t border-separator bg-warning text-xs">
-                    <div class="absolute inset-y-0 left-0 bg-success" :style="{ width: `${previewPercentage}%` }"></div>
-                    <div class="relative pl-1">{{ previewMessage }}</div>
+                <!-- How much of the item the preview read, as a thin accent line along the top edge over a neutral bar. A meter
+                     rather than a progress bar, because it shows a settled amount, not work under way. -->
+                <div
+                    :aria-label="t(TEXT, 'preview.aria')"
+                    aria-valuemax="100"
+                    aria-valuemin="0"
+                    :aria-valuenow="Math.round(previewPercentage)"
+                    :aria-valuetext="previewMessage"
+                    class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-t border-separator bg-card pt-0.75 text-xs text-muted"
+                    role="meter"
+                >
+                    <div class="absolute top-0 left-0 h-0.75 bg-accent/40" :style="{ width: `${previewPercentage}%` }" />
+                    <!-- Centred in the space below the blue line ('pt-0.75' clears its 3px), and trimmed to its letters so it is
+                         centred on them rather than sitting high in its line box. -->
+                    <div class="relative pl-1 [text-box:trim-both_cap_alphabetic]">{{ previewMessage }}</div>
                 </div>
             </div>
         </template>

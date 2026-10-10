@@ -39,5 +39,17 @@ const DATA_SOURCE: DataSource<{ id: number; name: string; category: string; valu
 </script>
 
 <template>
-    <Table class="flex-1" :column-definitions="COLUMN_DEFINITIONS" :data-source="DATA_SOURCE" />
+    <div class="flex min-h-0 flex-1 flex-col" data-region="InvestigateDataPanel">
+        <!-- The usual room after the last row, less the status bar's height: the table already ends above it. -->
+        <Table
+            class="flex-1"
+            :column-definitions="COLUMN_DEFINITIONS"
+            :data-source="DATA_SOURCE"
+            scroll-area-padding-bottom="calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))"
+        />
+
+        <!-- Status Bar - Blank for now. Keeps the table, and its horizontal scroll bar, above the bottom safe area on
+             iOS, as the item preview's status bar does. -->
+        <div class="h-(--status-bar-height) w-full flex-none border-t border-separator bg-card" />
+    </div>
 </template>
