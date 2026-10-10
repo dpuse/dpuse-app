@@ -83,15 +83,6 @@ export const APP_ROUTES = [
     { path: '/:catchAll(.*)', redirect: '/' }
 ];
 
-// Query keys that hold a list's row selection for its own route only (written via 'router.replace' by the route
-// that owns each one, to survive a reload or deep link there) — see 'SelectConnectionList', 'SelectItemPanel'.
-// Never meant to outlive that route: whatever a selection actually decided is saved into real state before the app
-// moves on, so carrying the id itself past its own route is pure query-string litter, not state anything depends
-// on. 'PluginList'/'ContextModelList' and 'DataViewList' use an optional path param ('id',
-// 'dataViewId') for the same purpose instead — those need no entry here, since a path param is naturally scoped to
-// the one route that declares it and cannot leak into a different route's query the way these can.
-const ROUTE_SCOPED_QUERY_KEYS = new Set(['connectionId', 'itemId']);
-
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Which 'RouterView' level is waiting on a chunk, or undefined when none is. Each host shows a spinner when this
@@ -113,20 +104,6 @@ export const createAppRouter = (): Router => {
     });
 
     if (import.meta.env.DEV) assertViewDepths(APP_ROUTES);
-
-    // Strips a route-scoped selection id the moment it would cross into a different route. This is the one place
-    // that enforces it: call sites throughout the app forward the current query wholesale (`query: route.query`),
-    // and there is no way to stop a selection id riding along with it short of auditing every one of those call
-    // sites — fragile, and the last attempt at that missed cases. Guarding the navigation itself means it does not
-    // matter how many places spread the query forward.
-    router.beforeEach((to, from) => {
-        if (from.matched.length === 0 || to.name === from.name) return; // Initial load/reload, or writing the selection via a same-route 'replace' — nothing to strip.
-
-        const query = Object.fromEntries(Object.entries(to.query).filter(([key]) => !ROUTE_SCOPED_QUERY_KEYS.has(key)));
-        if (Object.keys(query).length === Object.keys(to.query).length) return; // Nothing to strip.
-
-        return { name: to.name, params: to.params, query, hash: to.hash };
-    });
 
     // Runs for completed and aborted navigations; ones that error only reach 'onError' below. Between the two, the
     // spinner is always cleared.

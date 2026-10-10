@@ -77,6 +77,10 @@ const { virtualRows, totalSize, getRow, rowCount, knownRowCount } = useDataWindo
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const rowWidth = computed(() => columnCount.value * columnWidth.value);
+
+// Compact rows sit almost touching, so a compact list starts a little below the top edge; a full-size cell carries its own
+// top gap. A caller's padding takes precedence.
+const contentPaddingTop = computed(() => scrollAreaPaddingTop ?? (isCompact ? '8px' : undefined));
 const columnOffsets = computed(() => Array.from({ length: columnCount.value }, (_, index) => index));
 // Uses useDataWindow's knownRowCount (not the coerced `rowCount`, and not dataSource.rowCount directly) — a
 // caller's dataSource.rowCount may stay undefined forever by design (e.g. SelectItemPanel's folder browser, which
@@ -119,7 +123,7 @@ function getRowHeight(item: T | undefined): number {
         <Transition mode="out-in" name="action-fade">
             <BusyBar v-if="state === 'busy'" class="mx-4" />
 
-            <ScrollArea v-else-if="state === 'empty'" class="flex-1" :scroll-area-padding-bottom="scrollAreaPaddingBottom" :scroll-area-padding-top="scrollAreaPaddingTop">
+            <ScrollArea v-else-if="state === 'empty'" class="flex-1" :scroll-area-padding-bottom="scrollAreaPaddingBottom" :scroll-area-padding-top="contentPaddingTop">
                 <slot name="no-items" />
             </ScrollArea>
 
@@ -129,7 +133,7 @@ function getRowHeight(item: T | undefined): number {
                 role="list"
                 :row-count="rowCount"
                 :scroll-area-padding-bottom="scrollAreaPaddingBottom"
-                :scroll-area-padding-top="scrollAreaPaddingTop"
+                :scroll-area-padding-top="contentPaddingTop"
                 @initialised="handleScrollAreaInitialised"
             >
                 <!-- <div :class="{ 'mt-2': isCompact }" :style="{ height: totalSize + 'px', position: 'relative' }"> -->
@@ -143,7 +147,10 @@ function getRowHeight(item: T | undefined): number {
                         <template v-for="columnOffset in columnOffsets" :key="columnOffset">
                             <!-- Skip cells beyond the last data item (last row may be partially filled) -->
                             <div v-if="virtualRow.index * columnCount + columnOffset < rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
-                                <div class="h-full pl-4" :class="[isCompact ? 'pt-0.5' : 'pt-4']">
+                                <!-- A compact row is inset 8px on the left, where its own 8px inset then lines its icon up with
+                                     the 16px page edge and its hover and selected fill reach 8px into that margin. On the right
+                                     it runs up to the scroll area's own strip. -->
+                                <div class="h-full" :class="isCompact ? 'pt-0.5 pl-2' : 'pt-4 pl-4'">
                                     <slot
                                         v-if="getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
                                         :item="getRow(virtualRow.index * columnCount + columnOffset) as T"

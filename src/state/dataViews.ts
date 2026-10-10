@@ -35,7 +35,6 @@ const UNTITLED_DATA_VIEW_LABEL = { en: 'Untitled Data View', es: 'Vista de Datos
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const activeConnectionConfig = shallowRef<LocalisedConfig<ConnectionConfig> | undefined>();
 export const activeConnectionNodeConfigs = shallowRef<ConnectionNodeConfig[]>([]);
 
 export const activeDataViewConfig = shallowRef<DataViewConfig | undefined>();
@@ -54,6 +53,13 @@ export const dataViewRetrievalFailure = shallowRef<AppFailure | undefined>();
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const connectionLocalisedConfigs = computed((): LocalisedConfig<ConnectionConfig>[] => localiseConfigs<ConnectionConfig>(connectionConfigs.value, localeId.value, true));
+
+// Read from the data view rather than stored beside it, so it always belongs to the data view being built, however that
+// data view was opened, and follows a change of language. Undefined when none is chosen, or the chosen one has gone.
+export const activeConnectionConfig = computed(() => {
+    const connectionId = activeDataViewConfig.value?.connectionId;
+    return connectionId == null ? undefined : connectionLocalisedConfigs.value.find((config) => config.id === connectionId);
+});
 
 export const dataViewLocalisedConfigs = computed((): LocalisedConfig<DataViewConfig>[] => localiseConfigs<DataViewConfig>(dataViewConfigs.value, localeId.value));
 

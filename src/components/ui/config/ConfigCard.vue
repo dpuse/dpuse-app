@@ -1,8 +1,8 @@
 <script setup lang="ts" generic="T extends BaseConfig = BaseConfig">
 // ── External Dependencies & Registrations
 import type { RouteLocationRaw } from 'vue-router';
-import { useId } from 'vue';
 import { ArrowRightIcon, FunnelIcon, InfoIcon, TrashIcon } from '@lucide/vue';
+import { type Component, computed, useId } from 'vue';
 
 // ── DPUse Framework
 import type { BaseConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
@@ -31,6 +31,7 @@ interface Properties<T extends BaseConfig> {
     actions?: Action<T>[];
     categoryLabel?: string; // Bottom left, as muted text: what kind of thing the card is, for scanning and filtering.
     config: LocalisedConfig<T>;
+    fallbackIcon?: Component; // Shown, in the muted text colour, when there is no icon to show, e.g. a folder.
     icon?: null | string; // Replaces the config's own icon, e.g. with that of the connector behind it.
     iconDark?: null | string;
     isCompact?: boolean;
@@ -40,13 +41,17 @@ interface Properties<T extends BaseConfig> {
     selected?: boolean;
     to?: RouteLocationRaw;
 }
-const { actions = [], categoryLabel, config, icon, iconDark, isCompact, onCategoryClick, overline, prereleaseLabel, selected, to } = defineProps<Properties<T>>();
+const { actions = [], categoryLabel, config, fallbackIcon, icon, iconDark, isCompact, onCategoryClick, overline, prereleaseLabel, selected, to } = defineProps<Properties<T>>();
 
 defineSlots<{ status?: () => unknown }>(); // Small and quiet, at the end of the overline, e.g. progress dots.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const cardId = useId(); // Prefixes the ids of the actions' descriptions, which must be unique on the page.
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const iconIsPresent = computed(() => [icon ?? config.icon, iconDark ?? config.iconDark].some((svg) => svg != null && svg !== ''));
 
 // Listeners like '@click' from the host land on the card-activation button below rather than on the root, which
 // carries no interactive semantics of its own.
@@ -60,7 +65,7 @@ defineOptions({ inheritAttrs: false });
     <div
         class="relative flex size-full border"
         :class="[
-            isCompact ? 'items-center gap-x-2 rounded-md px-2' : 'flex-col gap-y-3 rounded-lg p-3',
+            isCompact ? 'items-center gap-x-2 rounded-md pr-2 pl-1.75' : 'flex-col gap-y-3 rounded-lg p-3', // 'pl-1.75' with the 1px border puts the icon on the 8px the row is inset by.
             // Compact is a plain list row rather than a boxed card: no border or fill until hovered or selected. The border
             // stays, transparent, so a row is the same size in every state. Selected is a step darker than a selected card,
             // which has its border to help it stand out; a row has only the fill, next to rows showing a grey hover. A selected
@@ -84,7 +89,8 @@ defineOptions({ inheritAttrs: false });
         <!-- Header - One line only: the label truncates rather than wraps, because the card cannot grow. -->
         <div class="flex min-w-0 items-center gap-x-2" :class="isCompact ? 'flex-1' : overline ? 'h-9 flex-none' : 'h-7 flex-none'">
             <!-- Icon -->
-            <ConfigIcon :class="isCompact ? 'size-5' : 'size-7'" :icon="icon ?? config.icon" :icon-dark="iconDark ?? config.iconDark" />
+            <ConfigIcon v-if="iconIsPresent" :class="isCompact ? 'size-5' : 'size-7'" :icon="icon ?? config.icon" :icon-dark="iconDark ?? config.iconDark" />
+            <component :is="fallbackIcon" v-else-if="fallbackIcon" aria-hidden="true" class="flex-none text-muted" :class="isCompact ? 'size-5' : 'size-7'" :stroke-width="1.5" />
 
             <div class="flex min-w-0 flex-col">
                 <!-- Overline, with the status after it on the same line so it adds no height. -->

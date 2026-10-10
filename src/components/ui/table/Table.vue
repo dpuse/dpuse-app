@@ -18,6 +18,10 @@ import { type TableFeatureSet, tableFeatureSet } from './tableFeatures.ts';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000; // Empirically chosen — below this width, flat rendering is cheaper than virtualizer overhead.
+// Before the first column and after the last. With the cells' own 12px it starts and ends the text 16px in, on the page
+// edge, while the table and its lines run to the edges of whatever holds it. It scrolls with the columns, so no space is
+// kept empty once the table is scrolled sideways.
+const EDGE_INSET_PX = 4;
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -26,8 +30,9 @@ interface Properties {
     dataSource: DataSource<T>;
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
+    isColumnPickerHidden?: boolean; // Leaves out the toolbar that shows and hides columns, for a table that only previews data.
 }
-const { columnDefinitions, dataSource, cacheBlockSize = 100, maxBlocksInCache = 10 } = defineProps<Properties>();
+const { columnDefinitions, dataSource, cacheBlockSize = 100, maxBlocksInCache = 10, isColumnPickerHidden } = defineProps<Properties>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 // Outer scrolls vertically only (drives the row virtualizer), inner scrolls horizontally only (drives the column
@@ -125,7 +130,7 @@ const rightPinnedWidth = computed(() => rightLeafHeaders.value.reduce((sum, head
 const totalCenterWidth = computed(() =>
     columnVirtualisationIsRequired.value ? columnVirtualizer.value.getTotalSize() : centerLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0)
 );
-const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value + rightPinnedWidth.value);
+const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value + rightPinnedWidth.value + EDGE_INSET_PX * 2);
 const virtualColumns = computed(() => (columnVirtualisationIsRequired.value ? columnVirtualizer.value.getVirtualItems() : []));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -163,7 +168,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
 <template>
     <div class="relative flex h-full flex-col overflow-y-hidden" data-region="Table">
         <!-- Toolbar -->
-        <div>
+        <div v-if="!isColumnPickerHidden">
             <TableColumnPicker :table="table" />
         </div>
 
@@ -172,7 +177,9 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
              ancestor, and inside the body below that would be the horizontal-only inner scroller, which never scrolls
              vertically, so a sticky header nested in there would just scroll away with the rows instead of pinning. -->
         <div ref="headerViewport" class="overflow-hidden" @wheel.passive="handleHeaderWheel">
-            <div class="flex h-10 border-b border-boundary bg-card" :style="{ width: totalWidth + 'px' }">
+            <div class="flex h-10 border-b border-boundary bg-card" :style="{ minWidth: totalWidth + 'px' }">
+                <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
+
                 <!-- Left pinned headers -->
                 <div
                     v-for="leftLeafHeader in leftLeafHeaders"
@@ -215,6 +222,8 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                 >
                     <TableHeaderCell :header="rightLeafHeader" />
                 </div>
+
+                <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
             </div>
         </div>
 
@@ -222,7 +231,8 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
              column virtualizer. Wrapped in its own position:relative container so the ScrollThumb tracks below
              are scoped to this region, not the toolbar/header above it. -->
         <div class="relative flex min-h-0 flex-1 flex-col">
-            <div :id="scrollElementId" ref="scroller" class="dpuse-table-scroll-v flex-1 overflow-x-hidden overflow-y-auto overscroll-none">
+            <!-- Room at the end, as a grid's scroll area has, so the last rows can scroll up clear of a floating button. -->
+            <div :id="scrollElementId" ref="scroller" class="dpuse-table-scroll-v flex-1 overflow-x-hidden overflow-y-auto overscroll-none pb-vertical-scroll-bottom-screen-inset">
                 <div :id="innerScrollElementId" ref="innerScroller" class="dpuse-table-scroll-h overflow-x-auto overflow-y-hidden overscroll-none" @scroll="syncHeaderScroll">
                     <div :style="{ minWidth: totalWidth + 'px' }">
                         <!-- Virtual rows spacer -->
@@ -231,8 +241,10 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                 v-for="(vRow, i) in virtualRows"
                                 :key="vRow.index"
                                 class="group absolute top-0 flex border-b border-boundary bg-surface"
-                                :style="{ transform: `translateY(${vRow.start}px)`, height: vRow.size + 'px', width: totalWidth + 'px' }"
+                                :style="{ transform: `translateY(${vRow.start}px)`, height: vRow.size + 'px', minWidth: totalWidth + 'px', width: '100%' }"
                             >
+                                <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
+
                                 <!-- Left pinned cells -->
                                 <TableCell
                                     v-for="leftLeafHeader in leftLeafHeaders"
@@ -275,6 +287,8 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                     class="sticky shrink-0 border-l border-boundary bg-surface group-hover:bg-card"
                                     :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 1 }"
                                 />
+
+                                <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
                             </div>
                         </div>
                     </div>

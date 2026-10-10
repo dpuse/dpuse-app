@@ -5,12 +5,10 @@
 // - Configuration error notice: the list is empty because the configurations never arrived, not because there are no
 //   connections. Covers the region: there is nothing to pick here, and no way to add one either, until the connection
 //   is back.
-// - Data view error notice: covers the region, because the data view behind this connection is what the list exists to
-//   open, so there is nothing useful left to pick from.
 
 // ── External Dependencies & Registrations
 import { ArrowRightIcon } from '@lucide/vue';
-import { computed, ref, shallowRef, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -20,13 +18,13 @@ import type { ConnectionConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { ignoreReportedNavigationFailure } from '@/router';
+import { raiseAppFailure } from '@/state/errors';
 import { t } from '@/state/locale';
 import { TEXT } from './SelectConnectionList_.json';
 import { useDialogs } from '@/state/dialogs';
 import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
-import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, saveDataViewRecord } from '@/state/dataViews';
+import { activeConnectionConfig, activeConnectionNodeConfigs, activeDataViewConfig, connectionLocalisedConfigs, saveDataViewRecord } from '@/state/dataViews';
 import { activeMetaStoreConnectionConfig, configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded } from '@/state/session';
-import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
@@ -55,7 +53,6 @@ defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig
 const route = useRoute();
 const router = useRouter();
 
-const dataViewFailure = shallowRef<AppFailure | undefined>();
 const dataViewIsSaving = ref(false); // Stops a second commit while the first is still saving.
 
 const { openDialog } = useDialogs();
@@ -73,36 +70,7 @@ const connectionLocalisedConfigsDataSource = computed<DataSource<LocalisedConfig
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Restores the previewed connection from the URL on reload, when the data view record hasn't already resolved one.
-watch(
-    connectionLocalisedConfigs,
-    (newConfigs) => {
-        if (activeConnectionConfig.value != null || typeof route.query.connectionId !== 'string') return;
-        const restoredConnectionConfig = newConfigs.find((config) => config.id === route.query.connectionId);
-        if (restoredConnectionConfig) selectConnection(restoredConnectionConfig);
-    },
-    { immediate: true }
-);
-
-// Caught rather than left to reject: this reaches the engine, and without the catch a failure there escapes as an
-// unhandled rejection and is announced over the app as one, rather than said here in terms of what it cost.
-watch(activeMetaStoreConnectionConfig, (newLocalMetaStoreConnectionConfig) => {
-    dataViewFailure.value = undefined;
-    void getDataViewRecord(newLocalMetaStoreConnectionConfig, route).catch((error: unknown) => {
-        dataViewFailure.value = raiseFailure(new AppError('Failed to open this data view.', 'dpuse-app.SelectConnectionList', { typeId: 'handled' }, { cause: error }));
-    });
-});
-
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-function handleRetryDataView(): void {
-    dataViewFailure.value = undefined;
-    void getDataViewRecord(activeMetaStoreConnectionConfig.value, route).catch((error: unknown) => {
-        dataViewFailure.value = raiseFailure(
-            new AppError('Failed to open this data view.', 'dpuse-app.SelectConnectionList.handleRetryDataView', { typeId: 'handled' }, { cause: error })
-        );
-    });
-}
 
 function handleAddConnection(): void {
     void openDialog('connection');
@@ -142,17 +110,11 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function selectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> | undefined): void {
-    activeConnectionConfig.value = connectionLocalisedConfig;
     activeConnectionNodeConfigs.value = [];
     resetActiveDataViewConfig(connectionLocalisedConfig);
-
-    const query = { ...route.query };
-    if (connectionLocalisedConfig) query.connectionId = connectionLocalisedConfig.id;
-    else delete query.connectionId;
-    void ignoreReportedNavigationFailure(router.replace({ query }));
 }
 
-// Does nothing while the data view is still loading; the selection alone is kept until it arrives.
+// Does nothing while the data view is still loading, because the selection is the data view's connection.
 function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<ConnectionConfig>): void {
     if (activeDataViewConfig.value == null) return;
     activeDataViewConfig.value = {
@@ -168,8 +130,6 @@ function resetActiveDataViewConfig(connectionLocalisedConfig?: LocalisedConfig<C
 
 <template>
     <ErrorNotice v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
-
-    <ErrorNotice v-else-if="dataViewFailure" covers-region :failures="[dataViewFailure]" @retry="handleRetryDataView" />
 
     <GridDetailPanel
         v-else

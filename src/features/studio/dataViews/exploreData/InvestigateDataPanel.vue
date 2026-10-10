@@ -39,5 +39,5 @@ const DATA_SOURCE: DataSource<{ id: number; name: string; category: string; valu
 </script>
 
 <template>
-    <Table class="flex-1 px-4" :column-definitions="COLUMN_DEFINITIONS" :data-source="DATA_SOURCE" />
+    <Table class="flex-1" :column-definitions="COLUMN_DEFINITIONS" :data-source="DATA_SOURCE" />
 </template>

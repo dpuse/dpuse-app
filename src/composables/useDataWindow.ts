@@ -56,9 +56,7 @@
 // Related, outside this file (dpuse-app / dpuse-engine), surfaced while building this:
 // 10. SelectItemPanel.vue: the "Details" tab is still empty — this is where `getInfo` output (see
 //     dpuse-connector-dbnomics) was meant to land, and the select-vs-drill-down / per-row info-icon UI design was
-//     discussed and agreed but never implemented. Also, a reload does not reselect the saved item in the list: the
-//     panel cannot get from an id back to its folder (see the note above 'updateItemIdQuery'). The task bar does show
-//     it, from the saved data view's 'connectionNodeConfig'.
+//     discussed and agreed but never implemented.
 // 11. SelectItemPanel.vue: minor pre-existing issues from the original review, still not addressed — the duplicate
 //     light/dark icon divs (`ConnectionNodeConfig` has no `iconDark` field, so one is dead markup), the
 //     `activeConnectionConfig.value!` non-null assertion, and the preview status bar's byte-size messaging not

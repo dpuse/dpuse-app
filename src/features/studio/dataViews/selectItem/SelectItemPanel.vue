@@ -7,7 +7,7 @@
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
 import { until } from '@vueuse/core';
-import { ArrowRightIcon, HomeIcon } from '@lucide/vue';
+import { ArrowRightIcon, FileIcon, FolderIcon, HomeIcon } from '@lucide/vue';
 import { computed, markRaw, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -30,14 +30,15 @@ import { activeMetaStoreConnectionConfig } from '@/state/session';
 import { constructItemPath } from '../dataViewSummary';
 import type { DataSource } from '@/composables/useDataWindow';
 import { ignoreReportedNavigationFailure } from '@/router';
+import { t } from '@/state/locale';
+import { TEXT } from './SelectItemPanel_.json';
 import { useEngine } from '@/services/useEngine';
-import { activeConnectionConfig, activeDataViewConfig, connectionLocalisedConfigs, getDataViewRecord, saveDataViewRecord } from '@/state/dataViews';
+import { activeConnectionConfig, activeDataViewConfig, saveDataViewRecord } from '@/state/dataViews';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
@@ -147,29 +148,16 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Re-establish the data view when local metastore connection config changes (for example, after a reload or if the metastore connector is reloaded).
-// Immediate so a direct deep-link/refresh into this panel (where activeConnectionConfig was never set this
-// session) still resolves it from the saved record — but skipped when a connection is already set in memory, which
-// is the one SelectConnectionList just saved, so there is nothing to fetch.
+// Opens the saved item's folder with the item selected, so a reload or a return to this step shows what was saved; a
+// pick that was never saved is not restored. Keyed on the connection's id, so a change of language, which re-localises
+// the same connection, does not send the list back to the top folder.
 watch(
-    activeMetaStoreConnectionConfig,
-    async (newLocalMetaStoreConnectionConfig) => {
-        if (newLocalMetaStoreConnectionConfig == null || activeConnectionConfig.value != null) return;
-
-        const dataViewConfig = await getDataViewRecord(newLocalMetaStoreConnectionConfig, route);
-        if (dataViewConfig.connectionId == null) {
-            void ignoreReportedNavigationFailure(router.replace({ name: 'connection', query: route.query }));
-        } else {
-            activeConnectionConfig.value = connectionLocalisedConfigs.value.find((localisedConnectionConfig) => localisedConnectionConfig.id == dataViewConfig.connectionId);
-        }
-    },
-    { immediate: true }
-);
-
-watch(
-    activeConnectionConfig,
-    (newActiveConnectionConfig) => {
-        loadFolderNodes(newActiveConnectionConfig, '');
+    () => activeConnectionConfig.value?.id,
+    () => {
+        const savedItemConfig = activeDataViewConfig.value?.connectionNodeConfig;
+        currentFolderNodes.value = savedItemConfig ? constructFolderNodeConfigs(savedItemConfig.folderPath) : [];
+        activeConnectionObjectConfig.value = savedItemConfig;
+        loadFolderNodes(activeConnectionConfig.value, savedItemConfig?.folderPath ?? '');
     },
     { immediate: true }
 );
@@ -206,7 +194,6 @@ function handleRetryEngine(): void {
 
 function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): void {
     activeConnectionObjectConfig.value = undefined;
-    updateItemIdQuery();
     resetActiveDataViewItem();
     if (index <= 0) {
         currentFolderNodes.value = [];
@@ -222,7 +209,6 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
     if (connectionNodeConfig == null) {
         // Clear the selection.
         activeConnectionObjectConfig.value = undefined;
-        updateItemIdQuery();
         resetActiveDataViewItem();
         return;
     }
@@ -230,14 +216,12 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
     if (connectionNodeConfig.typeId === 'folder') {
         currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
         activeConnectionObjectConfig.value = undefined;
-        updateItemIdQuery();
         resetActiveDataViewItem();
         loadFolderNodes(activeConnectionConfig.value, `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`);
         return;
     }
 
     activeConnectionObjectConfig.value = connectionNodeConfig;
-    updateItemIdQuery(connectionNodeConfig.id);
     resetActiveDataViewItem(connectionNodeConfig);
 }
 
@@ -273,15 +257,6 @@ async function handleCommitDetail(): Promise<void> {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Not restored on reload: rows come from a paginated, folder-scoped 'listNodes' window rather than a full list held
-// in memory, so there is no cheap lookup from a bare id back to the folder that contains it.
-function updateItemIdQuery(itemId?: string): void {
-    const query = { ...route.query };
-    if (typeof itemId === 'string') query.itemId = itemId;
-    else delete query.itemId;
-    void ignoreReportedNavigationFailure(router.replace({ query }));
-}
-
 // Set on pick rather than on commit, as the connection is, so the task bar shows the item as soon as it is picked. The
 // later steps are cleared with it, because they were worked out from the item it replaces.
 function resetActiveDataViewItem(connectionNodeConfig?: ConnectionNodeConfig): void {
@@ -293,6 +268,29 @@ function resetActiveDataViewItem(connectionNodeConfig?: ConnectionNodeConfig): v
         contentAuditConfig: undefined,
         relationshipsAuditConfig: undefined
     };
+}
+
+// The breadcrumb trail down to a folder, rebuilt from its path because only the item itself is saved. Each crumb's
+// 'folderPath' and 'name' join back into the path to that folder, as a listed folder's do.
+function constructFolderNodeConfigs(folderPath: string): ConnectionNodeConfig[] {
+    const names = folderPath.split('/').filter((name) => name !== '');
+    return names.map((name, index) => ({
+        id: `/${names.slice(0, index + 1).join('/')}`,
+        label: name,
+        description: '',
+        icon: null,
+        iconDark: null,
+        childCount: undefined,
+        childNodes: [],
+        extension: undefined,
+        folderPath: index === 0 ? '' : `/${names.slice(0, index).join('/')}`,
+        handle: undefined,
+        lastModifiedAt: undefined,
+        mimeType: undefined,
+        name,
+        size: undefined,
+        typeId: 'folder'
+    }));
 }
 
 // A file handle cannot be stored, and children are listed afresh.
@@ -384,18 +382,27 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
         <template #item="{ item }">
             <!-- <ConfigCard v-if="item" :actions="[{ typeId: 'info', onClick: () => getInfo(item) }]" :config="item" :is-compact="true" @click="handleSelectConnectionNode(item)" /> -->
-            <ConfigCard v-if="item" :config="item" :is-compact="true" @click="handleSelectConnectionNode(item)" />
+            <!-- The icon and the overline tell a folder, which opens, from an item, which is picked. The overline is not shown
+                 on a compact row, but it is read out before the name, so screen readers hear which one it is too. -->
+            <ConfigCard
+                v-if="item"
+                :config="item"
+                :fallback-icon="item.typeId === 'folder' ? FolderIcon : FileIcon"
+                :is-compact="true"
+                :overline="t(TEXT, item.typeId === 'folder' ? 'folder.label' : 'item.label')"
+                @click="handleSelectConnectionNode(item)"
+            />
         </template>
 
-        <template #detail="{ item }">
-            <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
-                <div class="flex size-7 items-center justify-center">
-                    <ConfigIcon class="size-6" :icon="item.icon" :icon-dark="item.iconDark" />
-                </div>
-                <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
-            </div>
-            <div class="relative flex min-h-0 flex-1 flex-col pl-4">
-                <Table v-show="activeItemAction === 'table'" class="flex-1" :column-definitions="previewTableColumnDefinitions" :data-source="previewTableDataSource" />
+        <template #detail>
+            <div class="relative flex min-h-0 flex-1 flex-col">
+                <Table
+                    v-show="activeItemAction === 'table'"
+                    class="flex-1"
+                    :column-definitions="previewTableColumnDefinitions"
+                    :data-source="previewTableDataSource"
+                    is-column-picker-hidden
+                />
                 <TextViewer v-show="activeItemAction === 'text'" class="flex-1" :text="text" />
                 <div v-show="activeItemAction === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
                 <div class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-t border-separator bg-warning text-xs">

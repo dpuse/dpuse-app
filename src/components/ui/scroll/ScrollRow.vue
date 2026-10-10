@@ -26,11 +26,13 @@ const ACTIVE_ITEM_SELECTOR = '[aria-selected="true"], [aria-current="step"]';
 
 const {
     arrowAlignClass = 'items-center py-2',
+    isBorderless,
     keepActiveItemInView,
     rowClass,
     rowTag = 'div'
 } = defineProps<{
     arrowAlignClass?: string; // Where the arrow sits in the row's height. Centred by default; e.g. 'items-start pt-1' for two-line items.
+    isBorderless?: boolean; // Leaves out the bottom line, for a host that draws its own below more content.
     keepActiveItemInView?: boolean; // Scrolls the active item into view when the row first shows and whenever it changes.
     rowClass?: string; // Extra classes for the row, such as the gap between items.
     rowTag?: 'div' | 'ol'; // 'ol' for items in a set order, such as steps. Each item must then be an 'li'.
@@ -188,20 +190,20 @@ function updateScrollState(): void {
         <component
             :is="rowTag"
             ref="row"
-            class="flex min-w-0 flex-1 scrollbar-none overflow-x-auto overscroll-x-none border-b border-separator px-4"
-            :class="rowClass"
+            class="flex min-w-0 flex-1 scrollbar-none overflow-x-auto overscroll-x-none px-4"
+            :class="[rowClass, { 'border-b border-separator': !isBorderless }]"
             :style="{ scrollPaddingInline: `${ARROW_BUTTON_WIDTH}px` }"
             @scroll="handleScroll"
         >
             <slot />
         </component>
 
-        <!-- 'bottom-px' leaves out the row's 1px bottom border, so each arrow is centred on the items. -->
+        <!-- 'bottom-px' leaves out the row's 1px bottom border, if it has one, so each arrow is centred on the items. -->
         <button
             v-if="rowCanScrollLeft"
             :aria-label="t(TEXT, 'scrollLeft.aria')"
-            class="absolute top-0 bottom-px left-0 flex bg-linear-to-r from-surface to-transparent pr-4 pl-1"
-            :class="arrowAlignClass"
+            class="absolute top-0 left-0 flex bg-linear-to-r from-surface to-transparent pr-4 pl-1"
+            :class="[arrowAlignClass, isBorderless ? 'bottom-0' : 'bottom-px']"
             type="button"
             @click="handleScrollRow('left')"
         >
@@ -211,8 +213,8 @@ function updateScrollState(): void {
         <button
             v-if="rowCanScrollRight"
             :aria-label="t(TEXT, 'scrollRight.aria')"
-            class="absolute top-0 right-0 bottom-px flex bg-linear-to-l from-surface to-transparent pr-1 pl-4"
-            :class="arrowAlignClass"
+            class="absolute top-0 right-0 flex bg-linear-to-l from-surface to-transparent pr-1 pl-4"
+            :class="[arrowAlignClass, isBorderless ? 'bottom-0' : 'bottom-px']"
             type="button"
             @click="handleScrollRow('right')"
         >

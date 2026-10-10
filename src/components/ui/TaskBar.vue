@@ -29,11 +29,15 @@ export interface TaskConfig {
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-// 'detail' names what was chosen in a step, such as the connection, and is shown under its label when the bar is wide.
-// 'detailIsPath' cuts a long detail short at its start rather than its end, so a path keeps its file name.
+// 'detail' names what was chosen in a step, such as the connection. It is read out with the step; the host shows it on
+// screen wherever there is room for it.
 const { activeId, items = [] } = defineProps<{
     activeId?: string;
-    items?: (LocalisedConfig<TaskConfig> & { detail?: string; detailIsPath?: boolean; disabled: boolean; to?: RouteLocationRaw })[];
+    items?: (LocalisedConfig<TaskConfig> & { detail?: string; disabled: boolean; to?: RouteLocationRaw })[];
+}>();
+
+defineSlots<{
+    default?(): unknown; // Rendered below the steps, above the bar's bottom line, e.g. a summary of what has been chosen.
 }>();
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -51,9 +55,9 @@ function localiseLine(line: LocaleLabel): string {
 
 <template>
     <!-- '-mt-1.5' pulls the bar up into the empty space at the bottom of the header above it. -->
-    <nav :aria-label="t(TEXT, 'steps.aria')" class="@container -mt-1.5 flex-none" data-region="TaskBar">
-        <!-- The arrows sit level with the number and label line, not centred on the bar, which also holds the detail line. -->
-        <ScrollRow arrow-align-class="items-start pt-1" keep-active-item-in-view row-tag="ol">
+    <nav :aria-label="t(TEXT, 'steps.aria')" class="@container -mt-1.5 flex-none border-b border-separator" data-region="TaskBar">
+        <!-- The arrows sit level with the number and label line. -->
+        <ScrollRow arrow-align-class="items-start pt-1" is-borderless keep-active-item-in-view row-tag="ol">
             <li v-for="(item, index) in items" :key="item.id">
                 <component
                     :is="item.disabled ? 'div' : ActionWrapper"
@@ -92,18 +96,12 @@ function localiseLine(line: LocaleLabel): string {
                                 :class="items[index + 1]?.disabled ? 'bg-muted/50' : 'bg-accent'"
                             />
                         </span>
-                        <!-- Always there, empty until something is chosen, so choosing does not push the panel below down.
-                             'w-0 min-w-full' takes its width from the label and connector above rather than adding to it,
-                             so a value appearing or going never moves the steps sideways; a longer value is cut short. -->
-                        <!-- A path is laid out right to left so the ellipsis falls at its start; 'bdi' keeps the path itself in
-                             reading order. -->
-                        <span class="h-4 w-0 min-w-full truncate text-left text-xs leading-4 text-muted" :class="{ '[direction:rtl]': item.detailIsPath }">
-                            <bdi>{{ item.detail }}</bdi>
-                        </span>
                     </span>
                     <span class="sr-only">{{ describeStep(item) }}</span>
                 </component>
             </li>
         </ScrollRow>
+
+        <slot />
     </nav>
 </template>
