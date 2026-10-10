@@ -135,36 +135,6 @@ watch(
     { immediate: true }
 );
 
-// TODO: TEMPORARY iOS sideways-scroll diagnostic — remove once the cause is found. Alerts once, the first time the page
-// moves sideways: 'scrollX' means the page really scrolled (something made it wider), 'offsetLeft' alone means it was
-// dragged without being wider. 'target' is what the finger started on.
-if (import.meta.env.DEV) {
-    let touchTarget = '';
-    let isReported = false;
-    addEventListener('touchstart', (event) => {
-        const element = event.target as HTMLElement;
-        touchTarget = `${element.closest<HTMLElement>('[data-region]')?.dataset.region ?? ''} ${element.tagName}.${String(element.getAttribute('class')).slice(0, 50)}`;
-    });
-    const report = (): void => {
-        if (isReported || (scrollX === 0 && (visualViewport?.offsetLeft ?? 0) === 0)) return;
-        isReported = true;
-        const viewportWidth = document.documentElement.clientWidth;
-        const sticking = [...document.querySelectorAll<HTMLElement>('body *')]
-            .filter((element) => element.getBoundingClientRect().right > viewportWidth + 1)
-            .slice(0, 6)
-            .map(
-                (element) =>
-                    `${element.dataset.region ?? element.tagName} right=${String(Math.round(element.getBoundingClientRect().right))} .${String(element.getAttribute('class')).slice(0, 50)}`
-            );
-        alert(
-            `scrollX ${String(scrollX)} offsetLeft ${String(visualViewport?.offsetLeft)} zoom ${String(visualViewport?.scale)}\nwidth ${String(viewportWidth)} scrollWidth ${String(document.documentElement.scrollWidth)}\ntarget ${touchTarget}\n` +
-                (sticking.join('\n') || 'nothing sticks out')
-        );
-    };
-    addEventListener('scroll', report);
-    visualViewport?.addEventListener('scroll', report);
-}
-
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleRetryDataView(): void {
@@ -198,6 +168,26 @@ async function loadDataView(): Promise<void> {
         <StudioHeader class="flex-none px-4" :overline="headerOverline" :title="headerTitle" :to="{ name: headerBackRouteName, query: route.query }" />
 
         <!-- Task Bar -->
+        <!-- <TaskBar v-if="activeTaskLocalisedConfig" :active-id="activeTaskLocalisedConfig.id" :items="taskBarLocalisedItems"> -->
+        <!-- Summary - What the data view is built from so far, across the full width, each part with the icon it has
+                 in its own list. Always there, empty until something is chosen, so choosing does not push the panel below
+                 down. Hidden from screen readers, which hear each choice with its step. The connection is never cut short;
+                 a long path is cut in its folder path, so its file name stays in view. -->
+        <!-- <p aria-hidden="true" class="m-0 flex h-7 min-w-0 items-center gap-x-4 px-4 pb-2 text-sm whitespace-nowrap text-muted">
+                <span v-if="activeConnectionConfig" class="flex max-w-1/2 flex-none items-center gap-x-1.5">
+                    <ConfigIcon class="size-4" :icon="activeConnectionConfig.icon" :icon-dark="activeConnectionConfig.iconDark" />
+                    <span class="truncate">{{ activeConnectionConfig.label }}</span>
+                </span>
+                <span v-if="summaryItemConfig && summaryItemPathParts" class="flex min-w-0 items-center gap-x-1.5">
+                    <ConfigIcon v-if="summaryItemIconIsPresent" class="size-4" :icon="summaryItemConfig.icon" :icon-dark="summaryItemConfig.iconDark" />
+                    <FileIcon v-else class="size-4 flex-none" :stroke-width="1.5" />
+                    <span class="flex min-w-0">
+                        <span class="min-w-0 shrink-100 truncate">{{ summaryItemPathParts.folderPath }}</span>
+                        <span class="min-w-0 truncate">{{ summaryItemPathParts.name }}</span>
+                    </span>
+                </span>
+            </p>
+        </TaskBar> -->
 
         <!-- Data View Failure -->
         <ErrorNotice v-if="dataViewFailure" class="min-h-0 flex-1" covers-region :failures="[dataViewFailure]" @retry="handleRetryDataView" />

@@ -181,7 +181,7 @@ function formatDateTime(timestamp: number): string {
                 </StudioDocumentSection>
 
                 <StudioDocumentSection :title="t(TEXT, 'schema.title')">
-                    <div v-if="dataViewLocalisedConfig.previewConfig" class="overflow-x-auto overscroll-x-none">
+                    <div v-if="dataViewLocalisedConfig.previewConfig" class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
                                 <tr class="border-b border-separator text-left text-muted">
@@ -203,9 +203,8 @@ function formatDateTime(timestamp: number): string {
                 <StudioDocumentSection :title="t(TEXT, 'data.title')">
                     <template v-if="dataViewLocalisedConfig.previewConfig">
                         <p class="text-sm text-muted">{{ t(TEXT, 'data.sample.text', { count: previewRows.length }) }}</p>
-                        <!-- Scrolls sideways on its own, so a wide item does not widen the document. 'overscroll-x-none' stops a
-                             swipe that reaches either end carrying on to the page, which iOS Safari otherwise drags sideways. -->
-                        <div class="overflow-x-auto overscroll-x-none">
+                        <!-- Scrolls sideways on its own, so a wide item does not widen the document. -->
+                        <div class="overflow-x-auto">
                             <table class="text-sm whitespace-nowrap">
                                 <thead>
                                     <tr class="border-b border-separator text-left text-muted">
