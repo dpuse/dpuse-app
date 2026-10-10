@@ -31,8 +31,16 @@ interface Properties {
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
     isColumnPickerHidden?: boolean; // Leaves out the toolbar that shows and hides columns, for a table that only previews data.
+    scrollAreaPaddingBottom?: string; // Room after the last row, as a grid's scroll area has. Less where the table already ends above a status bar.
 }
-const { columnDefinitions, dataSource, cacheBlockSize = 100, maxBlocksInCache = 10, isColumnPickerHidden } = defineProps<Properties>();
+const {
+    columnDefinitions,
+    dataSource,
+    cacheBlockSize = 100,
+    maxBlocksInCache = 10,
+    isColumnPickerHidden,
+    scrollAreaPaddingBottom = 'var(--vertical-scroll-bottom-screen-inset)'
+} = defineProps<Properties>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 // Outer scrolls vertically only (drives the row virtualizer), inner scrolls horizontally only (drives the column
@@ -232,7 +240,12 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
              are scoped to this region, not the toolbar/header above it. -->
         <div class="relative flex min-h-0 flex-1 flex-col">
             <!-- Room at the end, as a grid's scroll area has, so the last rows can scroll up clear of a floating button. -->
-            <div :id="scrollElementId" ref="scroller" class="dpuse-table-scroll-v flex-1 overflow-x-hidden overflow-y-auto overscroll-none pb-vertical-scroll-bottom-screen-inset">
+            <div
+                :id="scrollElementId"
+                ref="scroller"
+                class="dpuse-table-scroll-v flex-1 overflow-x-hidden overflow-y-auto overscroll-none"
+                :style="{ paddingBottom: scrollAreaPaddingBottom }"
+            >
                 <div :id="innerScrollElementId" ref="innerScroller" class="dpuse-table-scroll-h overflow-x-auto overflow-y-hidden overscroll-none" @scroll="syncHeaderScroll">
                     <div :style="{ minWidth: totalWidth + 'px' }">
                         <!-- Virtual rows spacer -->

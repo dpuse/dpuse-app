@@ -396,12 +396,14 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
         <template #detail>
             <div class="relative flex min-h-0 flex-1 flex-col">
+                <!-- The usual room after the last row, less the status bar's height: the table already ends above it. -->
                 <Table
                     v-show="activeItemAction === 'table'"
                     class="flex-1"
                     :column-definitions="previewTableColumnDefinitions"
                     :data-source="previewTableDataSource"
                     is-column-picker-hidden
+                    scroll-area-padding-bottom="calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))"
                 />
                 <TextViewer v-show="activeItemAction === 'text'" class="flex-1" :text="text" />
                 <div v-show="activeItemAction === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeDataViewConfig?.connectionNodeConfig }}</div>
