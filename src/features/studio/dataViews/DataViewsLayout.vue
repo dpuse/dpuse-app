@@ -173,7 +173,7 @@ async function loadDataView(): Promise<void> {
                  in its own list. Always there, empty until something is chosen, so choosing does not push the panel below
                  down. Hidden from screen readers, which hear each choice with its step. The connection is never cut short;
                  a long path is cut in its folder path, so its file name stays in view. -->
-            <p aria-hidden="true" class="m-0 flex h-7 min-w-0 items-center gap-x-4 px-4 pb-2 text-sm whitespace-nowrap text-muted">
+            <p aria-hidden="true" class="m-0 flex h-7 min-w-0 items-center gap-x-4 overflow-hidden px-4 pb-2 text-sm whitespace-nowrap text-muted">
                 <span v-if="activeConnectionConfig" class="flex max-w-1/2 flex-none items-center gap-x-1.5">
                     <ConfigIcon class="size-4" :icon="activeConnectionConfig.icon" :icon-dark="activeConnectionConfig.iconDark" />
                     <span class="truncate">{{ activeConnectionConfig.label }}</span>
