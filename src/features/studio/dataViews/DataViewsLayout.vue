@@ -135,6 +135,24 @@ watch(
     { immediate: true }
 );
 
+// TODO: TEMPORARY iOS sideways-scroll diagnostic — remove once the cause is found.
+if (import.meta.env.DEV) {
+    setTimeout(() => {
+        const viewportWidth = document.documentElement.clientWidth;
+        const sticking = [...document.querySelectorAll<HTMLElement>('body *')]
+            .filter((element) => element.getBoundingClientRect().right > viewportWidth + 1)
+            .slice(0, 8)
+            .map(
+                (element) =>
+                    `${element.dataset.region ?? element.tagName} right=${String(Math.round(element.getBoundingClientRect().right))} .${String(element.getAttribute('class')).slice(0, 60)}`
+            );
+        alert(
+            `width ${String(viewportWidth)} scrollWidth ${String(document.documentElement.scrollWidth)} zoom ${String(visualViewport?.scale)}\n` +
+                (sticking.join('\n') || 'nothing sticks out')
+        );
+    }, 3000);
+}
+
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleRetryDataView(): void {
