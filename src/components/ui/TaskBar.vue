@@ -58,7 +58,10 @@ function localiseLine(line: LocaleLabel): string {
     <nav :aria-label="t(TEXT, 'steps.aria')" class="@container -mt-1.5 flex-none border-b border-separator" data-region="TaskBar">
         <!-- The arrows sit level with the number and label line. -->
         <ScrollRow arrow-align-class="items-start pt-1" is-borderless keep-active-item-in-view row-tag="ol">
-            <li v-for="(item, index) in items" :key="item.id">
+            <!-- 'relative' keeps each step's screen-reader text inside the scrolling row. Without it that text, which is
+                 positioned absolutely, belongs to the row's outer wrapper instead, escapes the row's clipping, and iOS
+                 Safari scrolls the whole page sideways to reach the steps past the right edge. -->
+            <li v-for="(item, index) in items" :key="item.id" class="relative">
                 <component
                     :is="item.disabled ? 'div' : ActionWrapper"
                     :aria-current="activeId === item.id ? 'step' : undefined"

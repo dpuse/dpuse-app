@@ -168,12 +168,12 @@ async function loadDataView(): Promise<void> {
         <StudioHeader class="flex-none px-4" :overline="headerOverline" :title="headerTitle" :to="{ name: headerBackRouteName, query: route.query }" />
 
         <!-- Task Bar -->
-        <!-- <TaskBar v-if="activeTaskLocalisedConfig" :active-id="activeTaskLocalisedConfig.id" :items="taskBarLocalisedItems"> -->
-        <!-- Summary - What the data view is built from so far, across the full width, each part with the icon it has
+        <TaskBar v-if="activeTaskLocalisedConfig" :active-id="activeTaskLocalisedConfig.id" :items="taskBarLocalisedItems">
+            <!-- Summary - What the data view is built from so far, across the full width, each part with the icon it has
                  in its own list. Always there, empty until something is chosen, so choosing does not push the panel below
                  down. Hidden from screen readers, which hear each choice with its step. The connection is never cut short;
                  a long path is cut in its folder path, so its file name stays in view. -->
-        <!-- <p aria-hidden="true" class="m-0 flex h-7 min-w-0 items-center gap-x-4 px-4 pb-2 text-sm whitespace-nowrap text-muted">
+            <p aria-hidden="true" class="m-0 flex h-7 min-w-0 items-center gap-x-4 px-4 pb-2 text-sm whitespace-nowrap text-muted">
                 <span v-if="activeConnectionConfig" class="flex max-w-1/2 flex-none items-center gap-x-1.5">
                     <ConfigIcon class="size-4" :icon="activeConnectionConfig.icon" :icon-dark="activeConnectionConfig.iconDark" />
                     <span class="truncate">{{ activeConnectionConfig.label }}</span>
@@ -187,7 +187,7 @@ async function loadDataView(): Promise<void> {
                     </span>
                 </span>
             </p>
-        </TaskBar> -->
+        </TaskBar>
 
         <!-- Data View Failure -->
         <ErrorNotice v-if="dataViewFailure" class="min-h-0 flex-1" covers-region :failures="[dataViewFailure]" @retry="handleRetryDataView" />
