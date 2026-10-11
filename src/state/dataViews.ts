@@ -24,16 +24,19 @@ import {
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DATA_VIEW_LIST_KEY = constructMetaStoreListKey('dataViews');
-const UNTITLED_DATA_VIEW_LABEL = { en: 'Untitled Data View', es: 'Vista de Datos sin Título' }; // Stored with the record, so it carries every language rather than reading the current one.
+const UNTITLED_DATA_VIEW_LABEL = { en: 'Untitled Data View', es: 'Vista de datos sin título' }; // Stored with the record, so it carries every language rather than reading the current one.
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const connectionLocalisedConfigs = computed((): LocalisedConfig<ConnectionConfig>[] => localiseConfigs<ConnectionConfig>(connectionConfigs.value, localeId.value, true));
 
-// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// Read once, as an icon does not change with the language.
+const dataViewIcon = assertDefined(
+    useStudioOptions().value.find((config) => config.id === 'dataViews'),
+    "Expected a 'dataViews' entry from useStudioOptions()."
+).icon;
 
-const workflowOptionConfigs = useStudioOptions();
-const dataViewIcon = workflowOptionConfigs.value[0].icon;
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Read once and then kept current by the mutations below, which write every change into the cache as it is saved.
 export function useDataViews(): UseQueryReturnType<DataViewConfig[], Error> {

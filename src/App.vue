@@ -90,7 +90,6 @@ const viewportRequiresBottomEdgeLine = !isPWA && isSafariBrowser();
 // Panels inside the layout show their own. The key changes only with the studio layout, so the fade plays when the
 // layout changes but not when a panel or query parameter does.
 const studioPaneStyle = computed(() => {
-    if (!studioPaneIsVisible.value) return { width: '0' };
     // Half the splitter comes off each pane, so an even split leaves the two the same width.
     return assistantPaneIsVisible.value ? { minWidth: '0', width: `calc(${String(paneSplitterPercent.value)}% - var(--pane-splitter-width) / 2)` } : { minWidth: '0', flex: '1' };
 });
@@ -99,9 +98,6 @@ const studioLayoutKey = computed(() => route.matched.find((record) => record.com
 
 // Pane Splitter
 const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assistantPaneIsVisible.value);
-
-// Assistant Pane
-const assistantPaneStyle = computed(() => (assistantPaneIsVisible.value ? { minWidth: '0', flex: '1' } : { width: '0' }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -129,7 +125,8 @@ onMounted(() => {
     initialiseServices();
 });
 
-// Writes the panes to the URL only when they change, so moving the pointer within a pane writes nothing.
+// Writes the panes to the URL only when they change, so clicking or scrolling in the pane already in front writes
+// nothing.
 watch([activeAppPaneId, assistantPaneIsActive, studioPaneIsActive], syncPaneQuery);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -142,7 +139,7 @@ function handleToggleAssistantPane(): void {
         return;
     }
 
-    if (assistantPaneIsVisible.value) return; // Already in front on a narrow viewport, so there is nothing to do.
+    if (assistantPaneIsVisible.value) return; // The assistant pane is already in front, so there is nothing to do.
 
     setPaneActiveState('assistant', true);
 }
@@ -189,7 +186,7 @@ function syncPaneQuery(): void {
 
 <template>
     <div class="flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" :class="isPWA ? 'h-screen w-screen' : 'h-dvh w-dvw'" data-region="App">
-        <!-- App Failures - Uncaught errors, failed navigations and service load failures, shown in a modal. -->
+        <!-- App Failures - Failures that no pane or panel shows itself, in a modal. -->
         <ErrorNotice
             v-if="appFailures.length > 0"
             :can-retry="appFailuresCanRetry"
@@ -250,14 +247,14 @@ function syncPaneQuery(): void {
         <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" class="mt-[env(safe-area-inset-top)]" />
 
         <!-- Assistant Pane - Mounted the first time it opens, then hidden rather than removed, so it keeps its
-             state. -->
+             state. It is the page's main content when the studio is hidden, and side content beside it otherwise. -->
         <component
             :is="studioPaneIsVisible ? 'aside' : 'main'"
             v-if="assistantPaneWasActivated"
             :hidden="!assistantPaneIsVisible"
             :aria-label="t(TEXT, 'assistantPane.aria')"
+            class="min-w-0 flex-1"
             data-region="AssistantPane"
-            :style="assistantPaneStyle"
             @focusin="activeAppPaneId = 'assistant'"
             @pointerdown="activeAppPaneId = 'assistant'"
             @scroll.capture="activeAppPaneId = 'assistant'"

@@ -30,7 +30,7 @@ interface StudioOptionTaskConfig {
 const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
     {
         id: 'dataViews',
-        label: { en: 'Establish Data Views', es: 'Establecer Vistas de Datos' },
+        label: { en: 'Establish Data Views', es: 'Establecer vistas de datos' },
         description: {
             en: 'Commodo nec sagittis tortor mauris sed. Turpis tortor quis scelerisque diam id accumsan nullam tempus. Pulvinar etiam lacus volutpat eu.'
         },
@@ -41,7 +41,7 @@ const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
     },
     {
         id: 'eventQueries',
-        label: { en: 'Contextualise Data', es: 'Contextualizar Datos' },
+        label: { en: 'Contextualise Data', es: 'Contextualizar datos' },
         description: {
             en: 'Pellentesque sit elit congue ante nec amet. Dolor aenean curabitur viverra suspendisse iaculis eget. Nec mollis placerat ultricies euismod.'
         },
@@ -52,7 +52,7 @@ const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
     },
     {
         id: 'presentations',
-        label: { en: 'Explore Presentations', es: 'Explorar Presentaciones' },
+        label: { en: 'Explore Presentations', es: 'Explorar presentaciones' },
         description: {
             en: 'Commodo nec sagittis tortor mauris sed. Turpis tortor quis scelerisque diam id accumsan nullam tempus. Pulvinar etiam lacus volutpat eu.'
         },
@@ -63,7 +63,7 @@ const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
     },
     {
         id: 'dataApps',
-        label: { en: 'Build Data Apps', es: 'Crear Aplicaciones de Datos' },
+        label: { en: 'Build Data Apps', es: 'Crear aplicaciones de datos' },
         description: {
             en: 'Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.'
         },
@@ -74,12 +74,13 @@ const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
     },
     {
         id: 'setup',
-        label: { en: 'Manage Configuration' },
+        label: { en: 'Manage Configuration', es: 'Gestionar configuración' },
         description: {
             en: 'Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.'
         },
         icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="2.42 1.39 19.16 21.21" fill="none" stroke="#52525b" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
-        iconDark: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="2.42 1.39 19.16 21.21" fill="none" stroke="#d4d4d8" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
+        iconDark:
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="2.42 1.39 19.16 21.21" fill="none" stroke="#d4d4d8" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
         step: 0,
         tasks: []
     }

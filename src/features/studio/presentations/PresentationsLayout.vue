@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { useRoute } from 'vue-router';
-import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
 import { AppError, localiseReference } from '@dpuse/dpuse-shared';
@@ -60,6 +60,12 @@ watch(appearanceIsDark, (isDark) => {
     for (const presenter of presenters) presenter.setColorMode(isDark ? 'dark' : 'light');
 });
 
+// Each selection gets a new detail container, which mounts only after the previous one has faded out. Rendering when the
+// container appears, rather than straight after the click, means the presentation always lands in the visible one.
+watch(container, (element) => {
+    if (element) void renderPresentation(element);
+});
+
 onMounted(() => {
     void loadPresenters();
 });
@@ -67,28 +73,30 @@ onMounted(() => {
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleRetryRender(): void {
-    void handleSelectPresentation(activePresentationReference.value);
+    if (container.value) void renderPresentation(container.value);
 }
 
-async function handleSelectPresentation(presentationReference: LocalisedReference<ComponentReferenceConfig> | undefined): Promise<void> {
+function handleSelectPresentation(presentationReference: LocalisedReference<ComponentReferenceConfig> | undefined): void {
     renderFailure.value = undefined;
     activePresentationReference.value = presentationReference;
-    if (!activePresentationReference.value) return;
-    const presenter = presenterByPresentationReference.get(activePresentationReference.value);
-    if (!presenter) return;
-
-    await nextTick();
-    if (!container.value) return; // Selection changed again before the detail pane rendered.
-
-    try {
-        await presenter.render(activePresentationReference.value, container.value);
-    } catch (error) {
-        const data = { presentationReferenceId: activePresentationReference.value.id };
-        renderFailure.value = raiseFailure(new AppError('Failed to render presentation.', 'dpuse-app.PresentationsLayout.handleSelectPresentation', data, { cause: error }));
-    }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function renderPresentation(element: HTMLDivElement): Promise<void> {
+    renderFailure.value = undefined;
+    const presentationReference = activePresentationReference.value;
+    if (!presentationReference) return;
+    const presenter = presenterByPresentationReference.get(presentationReference);
+    if (!presenter) return;
+
+    try {
+        await presenter.render(presentationReference, element);
+    } catch (error) {
+        const data = { presentationReferenceId: presentationReference.id };
+        renderFailure.value = raiseFailure(new AppError('Failed to render presentation.', 'dpuse-app.PresentationsLayout.renderPresentation', data, { cause: error }));
+    }
+}
 
 // Each presenter is loaded independently so that one unavailable module costs only its own presentations.
 async function loadPresenters(): Promise<void> {
@@ -159,7 +167,9 @@ async function loadPresenters(): Promise<void> {
 
             <template #detail>
                 <ErrorNotice v-if="renderFailure" :failures="[renderFailure]" @retry="handleRetryRender" />
-                <div v-show="!renderFailure" ref="container" class="dpuse-prose overflow-y-scroll overscroll-y-none px-4 pt-4" />
+                <!-- 'relative' keeps the charts' hidden screen-reader announcers inside the scroll area. Without it they are
+                     placed against an outer element, escape the clipping and make the whole page scroll. -->
+                <div v-show="!renderFailure" ref="container" class="dpuse-prose relative min-h-0 flex-1 overflow-y-scroll overscroll-y-none px-4 pt-4" />
             </template>
 
             <template #no-selection>
