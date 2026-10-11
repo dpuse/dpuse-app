@@ -5,8 +5,8 @@ import { type Ref, ref, shallowRef } from 'vue';
 import { type AppError, serialiseError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { hasReportedAppError } from '@/observability/errorTracking';
 import { newAppVersionIsAvailable } from '@/state/appVersion';
+import { hasReportedAppError, logError } from '@/observability/errorTracking';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -62,6 +62,9 @@ const COMPONENT_LOADER_ERROR_INFOS = new Set(['async component loader', 'https:/
 // app loads for itself. Rendered by 'App.vue' as a strip, which is a placement and not a takeover — the rest of the
 // app stays live underneath, because none of these is worth denying the user the screen they already have.
 export const appFailures = shallowRef<AppFailure[]>([]);
+
+// What each failure on the strip matched on when it was raised, so a repeat of it can be recognised.
+const appFailureKeys = new WeakMap<AppFailure, string>();
 
 // One stale deployment fails every chunk the session goes on to need, so the first report stands for all of them and
 // the rest would only bury it. Never reset: a deployment does not become current again within a session.
@@ -123,19 +126,23 @@ export function markStaleDeployError(error: unknown): void {
     if (error instanceof Error) staleDeployErrors.add(error);
 }
 
-// Adds a failure to the app-level strip. De-duplicated because the same loss reaches here by several routes at once —
-// Vite's 'vite:preloadError' and the rejected import behind it are one chunk failing — and repeating it tells the user
-// nothing they are not already looking at.
+// Adds a failure to the app-level strip, unless the same failure is already showing. Some failures repeat on their own,
+// such as a render error on every update or a timer error on every tick, and listing each one would flood the strip.
 //
-// The check runs before the failure is raised, so a repeat is not reported either. The alternative was reporting a
-// second engine failure that nothing on screen would ever mention, which is a report nobody can act on: whoever reads
-// it cannot tell what the user was shown.
+// A failure given a capability matches on that alone, because the catch site has decided its failures are one loss.
+// Any other failure matches on its component name and the deepest error's message together. That way two different
+// errors in one component both show, even though the catch-all handlers in 'main.ts' give every error the same
+// generic message. A repeat is logged to the console but not reported, so a repeating error cannot flood the reports.
 export function raiseAppFailure(error: AppError, options: AppFailureOptions = {}): AppFailure {
-    const key = options.capability ?? findComponentName(error) ?? error.message;
-    const shownFailure = appFailures.value.find((candidate) => (candidate.capability ?? candidate.error.message) === key);
-    if (shownFailure) return shownFailure; // The one already on screen, so a caller holding the result still has one.
+    const key = options.capability ?? `${findComponentName(error) ?? ''}|${findDeepestMessage(error)}`;
+    const shownFailure = appFailures.value.find((candidate) => appFailureKeys.get(candidate) === key);
+    if (shownFailure) {
+        logError(error);
+        return shownFailure; // The one already on screen, so a caller holding the result still has one.
+    }
 
     const failure = raiseFailure(error, options);
+    appFailureKeys.set(failure, key);
     appFailures.value = [...appFailures.value, failure];
     return failure;
 }
@@ -217,4 +224,9 @@ function findComponentName(error: unknown): string | undefined {
         .map((serialisedError) => serialisedError.data?.[COMPONENT_NAME_DATA_KEY])
         .find((value) => typeof value === 'string' && value.length > 0);
     return typeof name === 'string' ? name : undefined;
+}
+
+// The message of the error at the end of the cause chain, which is the one that says what actually went wrong.
+function findDeepestMessage(error: AppError): string {
+    return serialiseError(error).at(-1)?.message ?? error.message;
 }

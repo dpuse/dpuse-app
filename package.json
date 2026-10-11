@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "1.0.133",
+    "version": "1.0.134",
     "private": false,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -70,6 +70,7 @@
         "@dpuse/dpuse-shared": "^1.0.118",
         "@fontsource-variable/inter": "^5.3.0",
         "@formkit/drag-and-drop": "^0.6.1",
+        "@lucide/vue": "^1.55.0",
         "@tanstack/ai": "^0.68.0",
         "@tanstack/ai-client": "^0.39.2",
         "@tanstack/vue-query": "^5.104.1",
@@ -93,7 +94,6 @@
         "@eslint/css": "^2.0.0",
         "@eslint/js": "^10.0.1",
         "@eslint/json": "^2.1.1",
-        "@lucide/vue": "^1.55.0",
         "@playwright/test": "^1.64.0",
         "@tailwindcss/vite": "^4.3.3",
         "@tsconfig/node24": "^24.0.5",

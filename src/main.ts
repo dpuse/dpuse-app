@@ -23,10 +23,11 @@ import App from '@/App.vue';
 //
 // Some privacy-focused browsers under-report their version, so a browser that fails the version check is still
 // accepted if it supports Trusted Types, which the app needs to start. As a trade-off, this also accepts older Chrome
-// versions back to 83, which lack only 'field-sizing' (text boxes do not grow as the user types).
+// versions back to 83, which lack only 'field-sizing' (the chat box does not grow as the user types).
 //
 // '?fault=browser' forces the check to fail.
-if (!(import.meta.env.DEV && hasFault('browser')) && (__SUPPORTED_BROWSER_REGEXP__.test(navigator.userAgent) || 'trustedTypes' in globalThis)) {
+const isBrowserSupported = !(import.meta.env.DEV && hasFault('browser')) && (__SUPPORTED_BROWSER_REGEXP__.test(navigator.userAgent) || 'trustedTypes' in globalThis);
+if (isBrowserSupported) {
     try {
         // '?fault=bootstrap' throws here to test the message shown when the app fails to start.
         if (import.meta.env.DEV) throwOnFault('bootstrap');
@@ -40,41 +41,46 @@ if (!(import.meta.env.DEV && hasFault('browser')) && (__SUPPORTED_BROWSER_REGEXP
                 return;
             }
 
-            // Recorded for every error, as they are the only location when a plain value such as a string is thrown.
+            // The location is recorded for every error, as it is the only location when a plain value such as a string
+            // is thrown.
             const data = { colno: event.colno, filename: event.filename, lineno: event.lineno, originalMessage: event.message, typeId: 'unhandledRuntime' };
 
-            const cause = event.error instanceof Error ? event.error : new Error(event.message || 'Unknown error.');
+            // A thrown value that is not an Error is passed on as it is, so the report shows its contents.
+            const cause: unknown = event.error ?? new Error(event.message || 'Unknown error.');
             raiseAppFailure(new AppError('Unhandled error.', 'dpuse-app.main', data, { cause }));
+
+            // Stops the browser logging the error a second time, as the app has already logged it.
+            event.preventDefault();
         });
 
         // Reports and shows promise failures that nothing else handled. A promise can fail with a value that is not an
-        // Error, so it is wrapped in one to give the report a message and a stack trace.
+        // Error, so that value is passed on as it is and the report shows its contents.
         addEventListener('unhandledrejection', (event): void => {
             const data = { typeId: 'unhandledPromiseRejection' };
-            const cause = event.reason instanceof Error ? event.reason : new Error(String(event.reason ?? 'Unknown promise rejection error.'));
+            const cause: unknown = event.reason ?? new Error('Unknown promise rejection error.');
             raiseAppFailure(new AppError('Unhandled promise rejection.', 'dpuse-app.main', data, { cause }));
 
-            // Stops the browser logging the failure a second time. Production only, so developers still see it.
-            if (import.meta.env.PROD) event.preventDefault();
+            // Stops the browser logging the failure a second time, as the app has already logged it.
+            event.preventDefault();
         });
 
-        // A new deployment deletes the old version's code files (chunks), so a user still running it cannot load new
-        // ones and Vite raises 'vite:preloadError'. Nothing is shown here, as the chunk may be for a screen the user
-        // never opens; a screen that needs it shows its own reload message. It is reported only if no newer version is
-        // known, because only then is it a fault rather than an old version.
+        // A new deployment deletes the old version's code files (chunks). A user still running the old version then fails
+        // to load one, and Vite raises 'vite:preloadError'. Nothing is shown here, because the user may never open the
+        // screen that needs the chunk. That screen shows its own reload message. The failure is reported only if no newer
+        // version is known, because only then is it a fault rather than an out-of-date page.
         //
         // No 'preventDefault', so Vite passes the error on to the screen that asked for the chunk.
         addEventListener('vite:preloadError', (event): void => {
-            // Marks the error so the screen offers a refresh, not a retry. The message differs between browsers, so it
-            // cannot be used to tell.
+            // Marks the error so the screen offers a refresh, not a retry. Each browser words the error message
+            // differently, so the message cannot be used to recognise this error.
             markStaleDeployError(event.payload);
 
             const data = { typeId: 'vitePreloadError' };
             reportStaleDeployFailure(new AppError('Failed to load part of the app.', 'dpuse-app.main', data, { cause: event.payload }));
         });
 
-        // Trusted Types rejects script URLs and HTML strings that have not passed through a policy. The 'default'
-        // policy handles those that do not use their own.
+        // With Trusted Types enforced, the browser blocks any script URL or HTML string not passed through a policy.
+        // The 'default' policy covers any that are not given a policy of their own.
         if (trustedTypes != null) {
             trustedTypes.createPolicy('default', {
                 // Allows only the blob URLs Vite uses to start inline workers. Any other script URL throws.
@@ -90,15 +96,17 @@ if (!(import.meta.env.DEV && hasFault('browser')) && (__SUPPORTED_BROWSER_REGEXP
         }
 
         const app = createApp(App);
+
+        // Reports and shows any Vue error that no 'ErrorBoundary' caught, in a strip that does not cover the app.
         app.config.errorHandler = (error, instance, info): void => {
             // Panels loaded on demand show and report their own load failures, so those are skipped here.
             if (isComponentLoaderErrorInfo(info)) return;
 
-            // Reports and shows any other error that no 'ErrorBoundary' caught, in a strip that does not cover the app.
-            const data = { componentName: instance?.$.type.name ?? undefined, info, typeId: 'unhandledVueRuntime' };
-            const cause = error instanceof Error ? error : new Error('Unknown Vue runtime error.', { cause: error });
-            raiseAppFailure(new AppError('Unhandled Vue error.', 'dpuse-app.main', data, { cause }));
+            // A thrown value that is not an Error is passed on as it is, so the report shows its contents.
+            const data = { componentName: instance?.$.type.name ?? instance?.$.type.__name, info, typeId: 'unhandledVueRuntime' };
+            raiseAppFailure(new AppError('Unhandled Vue error.', 'dpuse-app.main', data, { cause: error }));
         };
+
         app.use(createAppRouter());
         app.use(VueQueryPlugin, { queryClient });
         app.mount('#app');

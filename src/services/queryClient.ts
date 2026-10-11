@@ -28,8 +28,12 @@ export const queryClient = new QueryClient({
             // back nor the window regaining focus says anything about whether it has changed.
             refetchOnReconnect: false,
             refetchOnWindowFocus: false,
-            retry: false // A failure is shown with its Retry button at once, rather than after several silent attempts.
-        }
+            retry: false, // A failure is shown with its Retry button at once, rather than after several silent attempts.
+            // Cached data is handed out as the plain objects themselves. By default Vue Query wraps every nested object
+            // in a read-only proxy, which the engine worker's 'postMessage' cannot copy, so saving it back would fail.
+            shallow: true
+        },
+        mutations: { shallow: true }
     }
 });
 

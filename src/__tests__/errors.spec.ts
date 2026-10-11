@@ -1,12 +1,12 @@
 import { AppError } from '@dpuse/dpuse-shared';
-import { hasReportedAppError } from '@/observability/errorTracking';
 import { liveAppVersion } from '@/state/appVersion';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { appFailures, clearAppFailures, isStaleDeployError, markStaleDeployError, raiseAppFailure, raiseFailure, reportStaleDeployFailure, retryAppFailures } from '@/state/errors';
+import { hasReportedAppError, logError } from '@/observability/errorTracking';
 
 const NEWER_APP_VERSION = '999.0.0';
 
-vi.mock('@/observability/errorTracking', () => ({ hasReportedAppError: vi.fn(() => Promise.resolve(true)) }));
+vi.mock('@/observability/errorTracking', () => ({ hasReportedAppError: vi.fn(() => Promise.resolve(true)), logError: vi.fn() }));
 
 // Recognising a stale deployment is Vite's 'vite:preloadError' saying so, and nothing read from the error itself: its
 // wording is not something browsers promise, and the imports that event does not cover cannot go stale at all.
@@ -125,6 +125,32 @@ describe('raiseAppFailure', () => {
         raiseAppFailure(new AppError('Navigation failed.', 'test'));
 
         expect(appFailures.value).toHaveLength(2);
+    });
+
+    it('matches on the deepest error, so different errors behind the same generic message all show', () => {
+        raiseAppFailure(new AppError('Unhandled error.', 'test', undefined, { cause: new Error('First failure.') }));
+        raiseAppFailure(new AppError('Unhandled error.', 'test', undefined, { cause: new Error('Second failure.') }));
+
+        expect(appFailures.value).toHaveLength(2);
+    });
+
+    it('shows different errors in the same component, but not a repeat of one', () => {
+        const data = { componentName: 'ChatPanel' };
+        raiseAppFailure(new AppError('Unhandled Vue error.', 'test', data, { cause: new Error('First failure.') }));
+        raiseAppFailure(new AppError('Unhandled Vue error.', 'test', data, { cause: new Error('Second failure.') }));
+        raiseAppFailure(new AppError('Unhandled Vue error.', 'test', data, { cause: new Error('Second failure.') }));
+
+        expect(appFailures.value).toHaveLength(2);
+    });
+
+    it('logs a repeat but neither shows nor reports it again', () => {
+        vi.mocked(logError).mockClear();
+        raiseAppFailure(new AppError('Unhandled error.', 'test', undefined, { cause: new Error('Same failure.') }));
+        raiseAppFailure(new AppError('Unhandled error.', 'test', undefined, { cause: new Error('Same failure.') }));
+
+        expect(appFailures.value).toHaveLength(1);
+        expect(hasReportedAppError).toHaveBeenCalledOnce();
+        expect(logError).toHaveBeenCalledOnce();
     });
 
     it('carries the abandoned destination, so a reload finishes the journey rather than fetching the page being left', () => {
