@@ -21,6 +21,7 @@ interface Properties {
     to?: RouteLocationRaw;
 }
 const { accessibleLabel, disabled, isActive, label, shape = 'square', size = 'lg', to } = defineProps<Properties>();
+defineSlots<{ default: () => unknown }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 

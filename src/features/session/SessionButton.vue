@@ -7,7 +7,7 @@ import { t } from '@/state/locale';
 import { TEXT } from './SessionButton_.json';
 
 // ── Local Framework
-import { defineAsyncPanel } from '@/utilities/index.ts';
+import { defineLazyComponent } from '@/utilities/index.ts';
 import { PRESS_CLASSES } from '@/components/ui/action/action';
 import { expiresIn, lifetime, sessionIsAuthenticated } from '@/state/session';
 import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
@@ -16,7 +16,7 @@ import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 
 // ── Dynamic Components
-const SessionMenu = defineAsyncPanel(() => import('@/features/session/SessionMenu.vue'), 'SessionMenu', {
+const SessionMenu = defineLazyComponent(() => import('@/features/session/SessionMenu.vue'), 'SessionMenu', {
     failureOwnsScreen: { onDismiss: () => (sessionMenuIsOpen.value = false) },
     hasPlaceholder: false
 });

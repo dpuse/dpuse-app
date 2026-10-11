@@ -18,6 +18,7 @@ const {
     isActive?: boolean;
     to?: RouteLocationRaw;
 }>();
+defineSlots<{ default: () => unknown }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

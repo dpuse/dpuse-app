@@ -9,6 +9,7 @@ import type { D3NetworkView, Tool as D3Tool, NetworkDiagramData } from '@dpuse/d
 
 // ── Local Framework
 import { t } from '@/state/locale';
+import { TEXT } from './EventQueriesPanel_.json';
 import { toolConfigs } from '@/state/session';
 import { useConfigsReady } from '@/services/useConfigsReady';
 import { type AppFailure, raiseFailure } from '@/state/errors';
@@ -19,16 +20,6 @@ import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '@/features/studio/_components/StudioHeader.vue';
 import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
-
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const TEXT = {
-    'autoLayout.label': { en: 'Auto-layout', es: 'Diseño automático' },
-    'contextualiseData.title': { en: 'Contextualise Data', es: 'Contextualizar Datos' },
-    'eventQuery.label': { en: 'Event Query', es: 'Consulta de Eventos' },
-    'eventQuery.other.text': { en: 'event queries', es: 'consultas de eventos' },
-    'workflow.label': { en: 'Workflow', es: 'Flujo de Trabajo' }
-};
 
 // ── Data ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -87,16 +78,14 @@ async function renderDiagram(): Promise<void> {
         state.view = null;
         if (container.value) state.view = await d3Tool.renderNetworkDiagram(data, container.value);
     } catch (error) {
-        renderFailure.value = raiseFailure(
-            new AppError('Failed to render network diagram.', 'dpuse-app.EventQueriesLayout.renderDiagram', { typeId: 'handled' }, { cause: error })
-        );
+        renderFailure.value = raiseFailure(new AppError('Failed to render network diagram.', 'dpuse-app.EventQueriesPanel.renderDiagram', { typeId: 'handled' }, { cause: error }));
     }
 }
 </script>
 
 <template>
     <StudioLayout>
-        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(TEXT, 'contextualiseData.title')" :to="{ name: 'studio', query: route.query }" />
+        <StudioHeader class="flex-none px-4" :overline="t(TEXT, 'studio.label')" :title="t(TEXT, 'contextualiseData.title')" :to="{ name: 'studio', query: route.query }" />
 
         <Separator />
 

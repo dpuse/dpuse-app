@@ -25,7 +25,7 @@ import {
     viewportIsWide
 } from '@/state/appLayout';
 import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors';
-import { defineAsyncPanel, isSafariBrowser } from '@/utilities/index.ts';
+import { defineLazyComponent, isSafariBrowser } from '@/utilities/index.ts';
 import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
 
 // ── Static Components
@@ -45,9 +45,9 @@ import SessionButton from '@/features/session/SessionButton.vue';
 import StudioPaneToggle from '@/features/studio/_components/StudioPaneToggle.vue';
 
 // ── Dynamic Components
-const AssistantLayout = defineAsyncPanel(() => import('@/features/assistant/_components/AssistantLayout.vue'), 'AssistantLayout');
-const OptionBar = defineAsyncPanel(() => import('@/features/studio/options/OptionBar.vue'), 'OptionBar', { hasPlaceholder: false });
-const PaneSplitter = defineAsyncPanel(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
+const AssistantLayout = defineLazyComponent(() => import('@/features/assistant/_components/AssistantLayout.vue'), 'AssistantLayout');
+const OptionBar = defineLazyComponent(() => import('@/features/studio/options/OptionBar.vue'), 'OptionBar', { hasPlaceholder: false });
+const PaneSplitter = defineLazyComponent(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -76,8 +76,8 @@ const { activeDialogConfig, activeDialogId, closeDialog } = useDialogs();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Failures — 'Retry' is offered when any failure can be retried. 'Reload App' and closing the dialog are always
-// offered.
+// Failures — 'Retry' is offered when any failure can be retried. 'Reload App' and closing the app-level failure
+// dialog are always offered.
 const appFailuresCanRetry = computed(() => appFailures.value.some((failure) => failure.retry != null));
 
 // Viewport — Safari colours its toolbars to match the page, so without these lines nothing marks where the page starts
@@ -86,15 +86,15 @@ const appFailuresCanRetry = computed(() => appFailures.value.some((failure) => f
 const viewportRequiresTopEdgeLine = isSafariBrowser();
 const viewportRequiresBottomEdgeLine = !isPWA && isSafariBrowser();
 
-// Studio Pane — The studio's 'RouterView' is the outermost one, so its spinner shows only while a studio layout loads.
-// Panels inside the layout show their own. The key changes only with the studio layout, so the fade plays when the
-// layout changes but not when a panel or query parameter does.
+// Studio Pane — The studio's 'RouterView' is the outermost one, so its spinner shows only while its own view loads.
+// Views nested inside it show their own. The key changes only with that view, so the fade plays when the view changes
+// but not when a nested view or query parameter does.
 const studioPaneStyle = computed(() => {
     // Half the splitter comes off each pane, so an even split leaves the two the same width.
     return assistantPaneIsVisible.value ? { minWidth: '0', width: `calc(${String(paneSplitterPercent.value)}% - var(--pane-splitter-width) / 2)` } : { minWidth: '0', flex: '1' };
 });
-const studioLayoutIsLoading = computed(() => navigationPendingDepth.value === 0);
-const studioLayoutKey = computed(() => route.matched.find((record) => record.components?.default)?.path);
+const studioViewIsLoading = computed(() => navigationPendingDepth.value === 0);
+const studioViewKey = computed(() => route.matched.find((record) => record.components?.default)?.path);
 
 // Pane Splitter
 const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assistantPaneIsVisible.value);
@@ -186,7 +186,7 @@ function syncPaneQuery(): void {
 
 <template>
     <div class="flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" :class="isPWA ? 'h-screen w-screen' : 'h-dvh w-dvw'" data-region="App">
-        <!-- App Failures - Failures that no pane or panel shows itself, in a modal. -->
+        <!-- App Failures - Failures that no pane or panel shows itself, in the app-level failure dialog. -->
         <ErrorNotice
             v-if="appFailures.length > 0"
             :can-retry="appFailuresCanRetry"
@@ -236,8 +236,8 @@ function syncPaneQuery(): void {
             <!-- 'col-start-2' keeps the content in the second column while the option bar is still loading, which
                  avoids layout shift. -->
             <div class="min-h-0 min-w-0" :class="{ 'col-start-2': viewportIsWide }" data-region="StudioContent">
-                <RouterViewTransition v-slot="{ component }" :is-loading="studioLayoutIsLoading">
-                    <component :is="component" :key="studioLayoutKey" />
+                <RouterViewTransition v-slot="{ component }" :is-loading="studioViewIsLoading">
+                    <component :is="component" :key="studioViewKey" />
                 </RouterViewTransition>
             </div>
         </main>

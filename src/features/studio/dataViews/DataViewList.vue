@@ -11,7 +11,7 @@ import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import { defineAsyncPanel } from '@/utilities/index.ts';
+import { defineLazyComponent } from '@/utilities/index.ts';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './DataViewList_.json';
@@ -31,10 +31,10 @@ import PillButton from '@/components/ui/action/PillButton.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StepDots from '@/components/ui/StepDots.vue';
-import StudioListPanel from '@/features/studio/_components/StudioListPanel.vue';
+import StudioListLayout from '@/features/studio/_components/StudioListLayout.vue';
 
 // ── Dynamic Components
-const EmptyPlaceholder = defineAsyncPanel(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');
+const EmptyPlaceholder = defineLazyComponent(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -168,7 +168,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
 </script>
 
 <template>
-    <StudioListPanel>
+    <StudioListLayout>
         <Separator class="flex-none" />
 
         <!-- Covers the region: nothing was retrieved, so an empty list with no explanation is what this replaces. The
@@ -239,5 +239,5 @@ function updateDataViewIdParameter(dataViewId?: string): void {
             @cancel="cancelDelete"
             @confirm="confirmDelete"
         />
-    </StudioListPanel>
+    </StudioListLayout>
 </template>

@@ -33,7 +33,7 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
             </div>
 
             <!-- Title -->
-            <div class="ml-0.5 truncate leading-snug">{{ title }}</div>
+            <h1 class="ml-0.5 truncate leading-snug">{{ title }}</h1>
         </component>
     </header>
 </template>

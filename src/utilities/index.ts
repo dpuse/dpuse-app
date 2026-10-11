@@ -16,12 +16,12 @@ import LoadFailureNotice from '@/components/ui/error/LoadFailureNotice.vue';
 
 // How long a load must run before the spinner appears. Below this the load is over before the eye registers it, and
 // showing anything reads as a flicker rather than as progress. Exported so the router can hold lazy route components to
-// the same threshold, which it reaches by its own route rather than through 'defineAsyncPanel'.
+// the same threshold, which it reaches by its own route rather than through 'defineLazyComponent'.
 export const VISIBLE_DELAY_MS = 150;
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export interface AsyncPanelOptions {
+export interface LazyComponentOptions {
     // For an overlay, which has no region for its failure to stand in: in its place the failure would squeeze into
     // whatever the overlay is anchored to, which is a badge at best. It is shown as a modal instead, and dismissing it
     // calls 'onDismiss' so the overlay's open state closes with it.
@@ -59,10 +59,10 @@ export function assertDefined<T>(value: T | null | undefined, message = 'Expecte
 }
 
 // Replaces the Suspense + error/loading-spinner boilerplate with defineAsyncComponent's own
-// loadingComponent/errorComponent options, so lazy panels don't depend on Suspense (unsupported in Vapor mode).
+// loadingComponent/errorComponent options, so lazy components don't depend on Suspense (unsupported in Vapor mode).
 // 'defineAsyncComponent' passes its error component only the error — not the 'retry' its own options document — so
 // the retry offered to the user is built here instead.
-export function defineAsyncPanel(loader: AsyncComponentLoader, name: string, options: AsyncPanelOptions = {}): Component {
+export function defineLazyComponent(loader: AsyncComponentLoader, name: string, options: LazyComponentOptions = {}): Component {
     const { failureOwnsScreen, hasPlaceholder = true, simulation } = options;
 
     // Bumping this remounts the panel, which is what makes a retry actually fetch again: Vue drops its cached request
@@ -122,7 +122,7 @@ export function isSafariBrowser(): boolean {
 // A slow or failing chunk is the one thing about this that cannot be reproduced on a fast local connection, so the
 // simulation is built in rather than left to be hand-edited into a call site and accidentally committed. Ignored
 // outside development, so a stray flag cannot reach users. Route components have their own version of this in the
-// router, because they are loaded by the router rather than through 'defineAsyncPanel'.
+// router, because they are loaded by the router rather than through 'defineLazyComponent'.
 //
 // The '?fault=panel' faults apply to every panel at once unless one is named — '?fault=panel:ChatPanel'. Naming one is
 // what makes a panel nested inside another reachable: without it the outer panel fails first and the inner one never

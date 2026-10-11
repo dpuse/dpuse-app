@@ -10,46 +10,19 @@ import { constructConnectorCategoryConfig, getComponentStatus } from '@dpuse/dpu
 // ── Local Framework
 import { accountId } from '@/state/session';
 import { ignoreReportedNavigationFailure } from '@/router';
-import { localeId } from '@/state/locale';
+import { TEXT } from './SelectConnectionPanel_.json';
 import { useEngine } from '@/services/useEngine';
+import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
-import StudioDetailPanel from '@/features/studio/_components/StudioDetailPanel.vue';
+import StudioDetailLayout from '@/features/studio/_components/StudioDetailLayout.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 import Tag from '@/components/ui/Tag.vue';
 
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const TEXT = {
-    'capabilities.label': { en: 'Capabilities', es: 'Capacidades' },
-    'configuration.text': {
-        en: 'Add connection-specific fields here as this workflow evolves.',
-        es: 'Agregue aquí campos específicos de la conexión a medida que evolucione este flujo de trabajo.'
-    },
-    'configuration.title': { en: 'Configuration', es: 'Configuración' },
-    'connectionType.label': { en: 'Connection Type', es: 'Tipo de Conexión' },
-    'continue.label': { en: 'Continue', es: 'Continuar' },
-    'implementationUnavailable.error': { en: 'Implementation not available', es: 'Implementación no disponible' },
-    'noConnection.text': {
-        en: 'Choose a connection from the list to continue.',
-        es: 'Elija una conexión de la lista para continuar.'
-    },
-    'noConnection.title': { en: 'No connection selected', es: 'No se ha seleccionado ninguna conexión' },
-    'selectConnection.text': {
-        en: 'Review the selected connection and leave space for connection-specific settings before continuing.',
-        es: 'Revise la conexión seleccionada y deje espacio para configuraciones específicas de la conexión antes de continuar.'
-    },
-    'selectConnection.title': { en: 'Select Connection', es: 'Seleccionar Conexión' },
-    'selectedConnection.title': { en: 'Selected Connection', es: 'Conexión Seleccionada' }
-};
-
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-interface Properties {
-    connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>;
-}
-const { connectionLocalisedConfig } = defineProps<Properties>();
+const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> }>();
 
 defineEmits<{ close: [] }>();
 
@@ -57,6 +30,9 @@ defineEmits<{ close: [] }>();
 
 const route = useRoute();
 const router = useRouter();
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
 const connectorCategoryLabel = computed(() => constructConnectorCategoryConfig(connectionLocalisedConfig.connectorConfig.categoryId, localeId.value).label);
 const connectorStatus = computed(() => (connectionLocalisedConfig.statusId ? getComponentStatus(connectionLocalisedConfig.statusId, localeId.value) : undefined));
 
@@ -79,12 +55,12 @@ async function testAuth(): Promise<void> {
 </script>
 
 <template>
-    <StudioDetailPanel data-region="SelectConnectionPanel">
+    <StudioDetailLayout data-region="SelectConnectionPanel">
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <StudioDocumentPanel
                 :icon="connectionLocalisedConfig.icon"
                 :icon-dark="connectionLocalisedConfig.iconDark"
-                overline="Connections"
+                :overline="t(TEXT, 'connections.label')"
                 :title="connectionLocalisedConfig.label"
                 @close="$emit('close')"
             >
@@ -99,7 +75,7 @@ async function testAuth(): Promise<void> {
                 <p v-if="connectionLocalisedConfig.description">{{ connectionLocalisedConfig.description }}</p>
             </StudioDocumentPanel>
         </ScrollArea>
-    </StudioDetailPanel>
+    </StudioDetailLayout>
 
     <!-- <form class="relative flex h-full flex-col pl-4" data-region="SelectConnectionPanel" @submit.prevent="handleSubmit">
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">

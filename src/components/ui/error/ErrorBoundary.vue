@@ -19,6 +19,7 @@ const { name, resetKey } = defineProps<{
     name: string;
     resetKey?: unknown; // A change clears the error, e.g. the route's full path, so it clears on navigation.
 }>();
+defineSlots<{ default: () => unknown }>();
 
 // The failure on show, if any. A model so the parent can react to it, e.g. by hiding an action that belongs to the
 // failed region but sits outside it.
@@ -35,9 +36,9 @@ const slotIsMounted = ref(true); // Cleared for one tick on retry, which is what
 // cannot work. Always returns false: whether this boundary displays the failure or leaves it to the panel that owns
 // it, it is handled below this point and the global handler must not treat it as an uncaught error as well.
 onErrorCaptured((error, _instance, info) => {
-    // A lazy panel that failed to load is already being shown in its own place, by name, by its own
+    // A lazy component that failed to load is already being shown in its own place, by name, by its own
     // 'LoadFailureNotice'. Claiming it here would replace this whole region with a vaguer message for a failure
-    // that costs only the panel.
+    // that costs only that component.
     if (!isComponentLoaderErrorInfo(info)) {
         const data = { region: name, typeId: 'componentRender' };
         capturedFailure.value = raiseFailure(new AppError(`Failed to render ${name}.`, 'dpuse-app.ErrorBoundary', data, { cause: error }));

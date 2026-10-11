@@ -24,8 +24,9 @@ interface RouteComponentLoader {
 
 // ── Dynamic Components
 // Every loader is wrapped so that a failed chunk can be reported by name, and so that loading one raises the spinner.
-// The number is the nesting level of the 'RouterView' that renders the component: 'App.vue' is 0, the studio layouts
-// below it are 1. 'assertViewDepths' checks these against the route table at startup in Dev environment.
+// The number is the nesting level of the 'RouterView' that renders the component. The one in 'App.vue' is 0, and the
+// one inside a layout such as 'DataViewsLayout' is 1. 'assertViewDepths' checks these against the route table at
+// startup in Dev environment.
 const StudioHomePanel = defineLazyLoader('StudioHomePanel', 0, () => import('~/src/features/studio/StudioHomePanel.vue'));
 const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/features/studio/dataViews/DataViewsLayout.vue'));
 const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/features/studio/dataViews/DataViewList.vue'));
@@ -33,9 +34,9 @@ const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => i
 const SelectItemPanel = defineLazyLoader('SelectItemPanel', 1, () => import('@/features/studio/dataViews/selectItem/SelectItemPanel.vue'));
 const AuditContentPanel = defineLazyLoader('AuditContentPanel', 1, () => import('@/features/studio/dataViews/auditContent/AuditContentPanel.vue'));
 const ExploreDataPanel = defineLazyLoader('ExploreDataPanel', 1, () => import('@/features/studio/dataViews/exploreData/ExploreDataPanel.vue'));
-const EventQueriesLayout = defineLazyLoader('EventQueriesLayout', 0, () => import('@/features/studio/eventQueries/EventQueriesLayout.vue'));
-const PresentationsLayout = defineLazyLoader('PresentationsLayout', 0, () => import('@/features/studio/presentations/PresentationsLayout.vue'));
-const DataAppsLayout = defineLazyLoader('DataAppsLayout', 0, () => import('@/features/studio/dataApps/DataAppsLayout.vue'));
+const EventQueriesPanel = defineLazyLoader('EventQueriesPanel', 0, () => import('@/features/studio/eventQueries/EventQueriesPanel.vue'));
+const PresentationsPanel = defineLazyLoader('PresentationsPanel', 0, () => import('@/features/studio/presentations/PresentationsPanel.vue'));
+const DataAppsPanel = defineLazyLoader('DataAppsPanel', 0, () => import('@/features/studio/dataApps/DataAppsPanel.vue'));
 const SetupLayout = defineLazyLoader('SetupLayout', 0, () => import('@/features/studio/setup/SetupLayout.vue'));
 const SetupHomePanel = defineLazyLoader('SetupHomePanel', 1, () => import('@/features/studio/setup/SetupHomePanel.vue'));
 const ContextModelList = defineLazyLoader('ContextModelList', 1, () => import('@/features/studio/setup/context/ContextModelList.vue'));
@@ -64,9 +65,9 @@ export const APP_ROUTES = [
                     }
                 ]
             },
-            { name: 'eventQueries', path: 'eventQueries', component: EventQueriesLayout },
-            { name: 'presentations', path: 'presentations', component: PresentationsLayout },
-            { name: 'dataApps', path: 'dataApps', component: DataAppsLayout },
+            { name: 'eventQueries', path: 'eventQueries', component: EventQueriesPanel },
+            { name: 'presentations', path: 'presentations', component: PresentationsPanel },
+            { name: 'dataApps', path: 'dataApps', component: DataAppsPanel },
             {
                 path: 'setup',
                 component: SetupLayout,

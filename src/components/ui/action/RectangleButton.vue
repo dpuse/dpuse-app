@@ -17,6 +17,7 @@ interface Properties {
     variant?: ButtonVariant;
 }
 const { disabled, to, type, variant = 'neutral' } = defineProps<Properties>();
+defineSlots<{ default: () => unknown }>();
 </script>
 
 <template>

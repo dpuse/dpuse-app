@@ -16,7 +16,7 @@ import type {
 
 // ── Local Framework
 import { TEXT } from './ContextModelPanel_.json';
-import { assertDefined, defineAsyncPanel } from '@/utilities';
+import { assertDefined, defineLazyComponent } from '@/utilities';
 import { localeId, t } from '@/state/locale';
 import { localiseModel, localiseText } from './_context';
 import { purifyText, useMarkedTool } from '@/services/useMarkedTool';
@@ -32,13 +32,13 @@ import ContextSecondaryMeasureList from './ContextSecondaryMeasureList.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
-import StudioDetailPanel from '@/features/studio/_components/StudioDetailPanel.vue';
+import StudioDetailLayout from '@/features/studio/_components/StudioDetailLayout.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 
 // ── Dynamic Components
-const ContextDimensionDiagramPanel = defineAsyncPanel(() => import('./ContextDimensionDiagramPanel.vue'), 'ContextDimensionDiagramPanel');
-const ContextEntityDiagramPanel = defineAsyncPanel(() => import('./ContextEntityDiagramPanel.vue'), 'ContextEntityDiagramPanel');
-const StudioDescriptorsPanel = defineAsyncPanel(() => import('@/features/studio/_components/StudioDescriptorsPanel.vue'), 'StudioDescriptorsPanel');
+const ContextDimensionDiagramPanel = defineLazyComponent(() => import('./ContextDimensionDiagramPanel.vue'), 'ContextDimensionDiagramPanel');
+const ContextEntityDiagramPanel = defineLazyComponent(() => import('./ContextEntityDiagramPanel.vue'), 'ContextEntityDiagramPanel');
+const StudioDescriptorsPanel = defineLazyComponent(() => import('@/features/studio/_components/StudioDescriptorsPanel.vue'), 'StudioDescriptorsPanel');
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -155,7 +155,7 @@ async function loadModel(modelId: string): Promise<ContextModelConfig | undefine
          measure-limited for reading and would otherwise inset the failure from the region it is meant to fill. -->
     <ErrorNotice v-if="markedToolFailure" :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
-    <StudioDetailPanel v-else data-region="ContextModelPanel">
+    <StudioDetailLayout v-else data-region="ContextModelPanel">
         <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <StudioDocumentPanel
                 class="max-w-prose"
@@ -199,5 +199,5 @@ async function loadModel(modelId: string): Promise<ContextModelConfig | undefine
             <ContextDimensionDiagramPanel v-else-if="openDialogId === 'dimensionDiagram'" />
             <ContextEntityDiagramPanel v-else-if="openDialogId === 'erdDiagram'" />
         </Dialog>
-    </StudioDetailPanel>
+    </StudioDetailLayout>
 </template>

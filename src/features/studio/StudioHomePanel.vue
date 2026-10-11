@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import { useRoute } from 'vue-router';
 import { computed, useId } from 'vue';
 
 // ── Local Framework
@@ -17,6 +18,7 @@ import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const route = useRoute();
 const studioOptionConfigs = useStudioOptions();
 const headingIdPrefix = useId(); // Keeps each heading's id unique on the page, for 'aria-labelledby'.
 
@@ -66,7 +68,7 @@ const sections = computed(() => [
                             :key="config.id"
                             :config="config"
                             :overline="section.showsSteps ? t(TEXT, 'step.label', { number: config.step }) : undefined"
-                            :to="{ name: config.id, query: $route.query }"
+                            :to="{ name: config.id, query: route.query }"
                         />
                     </div>
                 </section>

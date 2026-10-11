@@ -5,7 +5,7 @@ import { useRoute } from 'vue-router';
 import { type Component, shallowRef, watch } from 'vue';
 
 // ── Local Framework
-import { defineAsyncPanel } from '@/utilities';
+import { defineLazyComponent } from '@/utilities';
 import { t } from '@/state/locale';
 import { TEXT } from './SessionAccountPanel_.json';
 import { viewportIsWide } from '@/state/appLayout';
@@ -47,15 +47,15 @@ const OPTION_CONFIGS: OptionLocalisedConfig[] = [
 // Each panel is named for itself, not for this one. The name is what a load failure reports and what '?fault=panel:'
 // targets, so sharing the parent's name left every one of them unreportable and unreachable individually.
 const OPTION_COMPONENT_MAP: Record<string, Component> = {
-    managePersonalDetails: defineAsyncPanel(() => import('./ManagePersonalDetailsPanel.vue'), 'ManagePersonalDetailsPanel'),
-    manageSubscription: defineAsyncPanel(() => import('./ManageSubscriptionPanel.vue'), 'ManageSubscriptionPanel'),
-    managePreferences: defineAsyncPanel(() => import('./ManagePreferencesPanel.vue'), 'ManagePreferencesPanel'),
-    manageAccess: defineAsyncPanel(() => import('./ManageAccessPanel.vue'), 'ManageAccessPanel'),
-    manageSessions: defineAsyncPanel(() => import('./ManageSessionsPanel.vue'), 'ManageSessionsPanel'),
-    reviewActivity: defineAsyncPanel(() => import('./ReviewActivityPanel.vue'), 'ReviewActivityPanel'),
-    manageDataServiceTokens: defineAsyncPanel(() => import('./ManageDataServiceTokensPanel.vue'), 'ManageDataServiceTokensPanel'),
-    generateToken: defineAsyncPanel(() => import('./GenerateTokenPanel.vue'), 'GenerateTokenPanel'),
-    deleteAccount: defineAsyncPanel(() => import('./DeleteAccountPanel.vue'), 'DeleteAccountPanel')
+    managePersonalDetails: defineLazyComponent(() => import('./ManagePersonalDetailsPanel.vue'), 'ManagePersonalDetailsPanel'),
+    manageSubscription: defineLazyComponent(() => import('./ManageSubscriptionPanel.vue'), 'ManageSubscriptionPanel'),
+    managePreferences: defineLazyComponent(() => import('./ManagePreferencesPanel.vue'), 'ManagePreferencesPanel'),
+    manageAccess: defineLazyComponent(() => import('./ManageAccessPanel.vue'), 'ManageAccessPanel'),
+    manageSessions: defineLazyComponent(() => import('./ManageSessionsPanel.vue'), 'ManageSessionsPanel'),
+    reviewActivity: defineLazyComponent(() => import('./ReviewActivityPanel.vue'), 'ReviewActivityPanel'),
+    manageDataServiceTokens: defineLazyComponent(() => import('./ManageDataServiceTokensPanel.vue'), 'ManageDataServiceTokensPanel'),
+    generateToken: defineLazyComponent(() => import('./GenerateTokenPanel.vue'), 'GenerateTokenPanel'),
+    deleteAccount: defineLazyComponent(() => import('./DeleteAccountPanel.vue'), 'DeleteAccountPanel')
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────

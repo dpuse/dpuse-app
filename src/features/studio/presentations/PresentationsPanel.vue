@@ -12,6 +12,7 @@ import { appearanceIsDark } from '@/state/appLayout';
 import type { DataSource } from '@/composables/useDataWindow';
 import { hasReportedAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
+import { TEXT } from './PresentationsPanel_.json';
 import { useConfigsReady } from '@/services/useConfigsReady';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 import { presenterConfigs, toolConfigs } from '@/state/session';
@@ -24,13 +25,6 @@ import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '@/features/studio/_components/StudioHeader.vue';
 import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
-
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const TEXT = {
-    'explorePresentations.title': { en: 'Explore Presentations', es: 'Explorar Presentaciones' },
-    'workflow.label': { en: 'Workflow', es: 'Flujo de Trabajo' }
-};
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -94,7 +88,7 @@ async function renderPresentation(element: HTMLDivElement): Promise<void> {
         await presenter.render(presentationReference, element);
     } catch (error) {
         const data = { presentationReferenceId: presentationReference.id };
-        renderFailure.value = raiseFailure(new AppError('Failed to render presentation.', 'dpuse-app.PresentationsLayout.renderPresentation', data, { cause: error }));
+        renderFailure.value = raiseFailure(new AppError('Failed to render presentation.', 'dpuse-app.PresentationsPanel.renderPresentation', data, { cause: error }));
     }
 }
 
@@ -122,7 +116,7 @@ async function loadPresenters(): Promise<void> {
         } catch (error) {
             failedPresenterIds.push(presenterConfig.id);
             const data = { presenterConfigId: presenterConfig.id };
-            void hasReportedAppError(new AppError('Failed to load presenter.', 'dpuse-app.PresentationsLayout.loadPresenters', data, { cause: error }));
+            void hasReportedAppError(new AppError('Failed to load presenter.', 'dpuse-app.PresentationsPanel.loadPresenters', data, { cause: error }));
         }
     }
 
@@ -138,7 +132,7 @@ async function loadPresenters(): Promise<void> {
     raiseAppFailure(
         new AppError(
             `Failed to load ${String(failedPresenterIds.length)} of ${String(presenterConfigs.value.length)} presenters.`,
-            'dpuse-app.PresentationsLayout.loadPresenters',
+            'dpuse-app.PresentationsPanel.loadPresenters',
             data
         ),
         { retry: () => void loadPresenters() }
@@ -149,7 +143,7 @@ async function loadPresenters(): Promise<void> {
 <template>
     <StudioLayout>
         <!-- Header -->
-        <StudioHeader class="flex-none px-4" overline="Studio" :title="t(TEXT, 'explorePresentations.title')" :to="{ name: 'studio', query: route.query }" />
+        <StudioHeader class="flex-none px-4" :overline="t(TEXT, 'studio.label')" :title="t(TEXT, 'explorePresentations.title')" :to="{ name: 'studio', query: route.query }" />
 
         <!-- Body -->
         <Separator />

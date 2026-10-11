@@ -1,6 +1,6 @@
 /* eslint-disable vue/one-component-per-file -- Test files can define several small components to mount. */
 import { AppError } from '@dpuse/dpuse-shared';
-import { defineAsyncPanel } from '@/utilities/index.ts';
+import { defineLazyComponent } from '@/utilities/index.ts';
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import { hasReportedAppError } from '@/observability/errorTracking';
@@ -31,8 +31,8 @@ function appErrorHandler(error: unknown, _instance: unknown, info: string): void
     raiseAppFailure(new AppError('Unhandled Vue error.', 'test', { info, typeId: 'unhandledVueRuntime' }, { cause: error }));
 }
 
-function buildPanel(name: string): ReturnType<typeof defineAsyncPanel> {
-    return defineAsyncPanel(() => Promise.resolve(defineComponent({ template: '<div data-region="Panel" />' })), name);
+function buildPanel(name: string): ReturnType<typeof defineLazyComponent> {
+    return defineLazyComponent(() => Promise.resolve(defineComponent({ template: '<div data-region="Panel" />' })), name);
 }
 
 function reportedMessages(): string[] {

@@ -18,6 +18,7 @@ interface Properties {
     size?: ButtonSize;
 }
 const { accessibleLabel, isOpen, isFloating, isSegment, size = 'lg' } = defineProps<Properties>();
+defineSlots<{ default: () => unknown }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 

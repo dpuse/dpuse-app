@@ -3,15 +3,15 @@ import { computed, type ComputedRef, type Component as VueComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
-import { defineAsyncPanel } from '@/utilities/index.ts';
+import { defineLazyComponent } from '@/utilities/index.ts';
 import { ignoreReportedNavigationFailure } from '@/router';
 
 // ── Dynamic Components
 // Every dialog body is loaded on demand. The frame is rendered from the URL alone, so the body arrives behind its own
 // spinner and none of this is in the initial bundle.
-const ConnectionPanel = defineAsyncPanel(() => import('@/features/studio/connectionPanel/ConnectionPanel.vue'), 'ConnectionPanel', { simulation: { delayMs: 0 } });
-const SessionAccountPanel = defineAsyncPanel(() => import('@/features/session/accountPanel/SessionAccountPanel.vue'), 'SessionAccountPanel');
-const SessionAuthPanel = defineAsyncPanel(() => import('@/features/session/authPanel/SessionAuthPanel.vue'), 'SessionAuthPanel');
+const ConnectionPanel = defineLazyComponent(() => import('@/features/studio/connectionPanel/ConnectionPanel.vue'), 'ConnectionPanel', { simulation: { delayMs: 0 } });
+const SessionAccountPanel = defineLazyComponent(() => import('@/features/session/accountPanel/SessionAccountPanel.vue'), 'SessionAccountPanel');
+const SessionAuthPanel = defineLazyComponent(() => import('@/features/session/authPanel/SessionAuthPanel.vue'), 'SessionAuthPanel');
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

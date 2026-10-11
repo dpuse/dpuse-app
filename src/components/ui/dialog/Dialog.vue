@@ -27,6 +27,7 @@ const {
     title
 } = defineProps<{ isOpen: boolean; maxWidth?: string; minHeight?: string; sizing?: 'full' | 'reserved'; title?: string }>();
 const emit = defineEmits<{ close: [] }>();
+defineSlots<{ default: () => unknown }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -83,10 +84,7 @@ function handleRequestClose(): void {
 
         <slot />
 
-        <CloseButton
-            class="absolute top-[calc(env(safe-area-inset-top)+12px)] right-(--safe-right-offset) md:top-3 md:right-3"
-            @click="handleRequestClose"
-        />
+        <CloseButton class="absolute top-[calc(env(safe-area-inset-top)+12px)] right-(--safe-right-offset) md:top-3 md:right-3" @click="handleRequestClose" />
     </dialog>
 </template>
 

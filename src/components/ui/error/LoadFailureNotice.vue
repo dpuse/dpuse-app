@@ -18,7 +18,7 @@ import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 // raises it, which is what reports it.
 //
 // Only 'error' comes from 'defineAsyncComponent', whatever its options documentation suggests — the error component is
-// mounted with that prop alone. 'name' and 'retry' are supplied by 'defineAsyncPanel', which is also why 'retry' can
+// mounted with that prop alone. 'name' and 'retry' are supplied by 'defineLazyComponent', which is also why 'retry' can
 // remount the panel for a genuine second attempt where Vue's own hook could not. Both stay optional so this still
 // renders if it is ever used by hand, where the reload is the only recovery left.
 const { error, name, ownsScreen, retry } = defineProps<{ error: unknown; name?: string; ownsScreen?: boolean; retry?: () => void }>();

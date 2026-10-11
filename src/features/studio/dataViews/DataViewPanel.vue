@@ -9,7 +9,7 @@ import { AppError, formatNumberAsStorageSize } from '@dpuse/dpuse-shared';
 import type { DataTypeId, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { defineAsyncPanel } from '@/utilities/index.ts';
+import { defineLazyComponent } from '@/utilities/index.ts';
 import { purifyText } from '@/services/useMarkedTool';
 import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './DataViewPanel_.json'; // TODO: 'item.title' names every kind of item until each connector says which one it provides.
@@ -22,13 +22,13 @@ import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
-import StudioDetailPanel from '@/features/studio/_components/StudioDetailPanel.vue';
+import StudioDetailLayout from '@/features/studio/_components/StudioDetailLayout.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Dynamic Components
-const StudioDescriptorsPanel = defineAsyncPanel(() => import('@/features/studio/_components/StudioDescriptorsPanel.vue'), 'StudioDescriptorsPanel');
+const StudioDescriptorsPanel = defineLazyComponent(() => import('@/features/studio/_components/StudioDescriptorsPanel.vue'), 'StudioDescriptorsPanel');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -118,7 +118,7 @@ function formatDateTime(timestamp: number): string {
 </script>
 
 <template>
-    <StudioDetailPanel data-region="DataViewPanel">
+    <StudioDetailLayout data-region="DataViewPanel">
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <StudioDocumentPanel
                 :icon="dataViewConnection?.icon ?? dataViewLocalisedConfig.icon"
@@ -244,5 +244,5 @@ function formatDateTime(timestamp: number): string {
         >
             <StudioDescriptorsPanel v-model:label="editedLabel" v-model:description="editedDescription" />
         </Dialog>
-    </StudioDetailPanel>
+    </StudioDetailLayout>
 </template>

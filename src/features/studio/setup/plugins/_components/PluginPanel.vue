@@ -15,7 +15,7 @@ import type { PluginConfig, SetupOptionConfig } from '@/utilities/index.ts';
 // ── Static Components
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
-import StudioDetailPanel from '@/features/studio/_components/StudioDetailPanel.vue';
+import StudioDetailLayout from '@/features/studio/_components/StudioDetailLayout.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
 import Tag from '@/components/ui/Tag.vue';
@@ -65,7 +65,7 @@ const vendorLinks = computed(() =>
 </script>
 
 <template>
-    <StudioDetailPanel data-region="PluginPanel">
+    <StudioDetailLayout data-region="PluginPanel">
         <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
             <StudioDocumentPanel
                 :icon="pluginLocalisedConfig.icon"
@@ -108,5 +108,5 @@ const vendorLinks = computed(() =>
                 </StudioDocumentSection>
             </StudioDocumentPanel>
         </ScrollArea>
-    </StudioDetailPanel>
+    </StudioDetailLayout>
 </template>

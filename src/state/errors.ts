@@ -110,7 +110,7 @@ export function clearAppFailures(): void {
 // catches errors has to stand back or the one failure is reported twice and displayed twice — once precisely, in the
 // space the component would have occupied, and once as a generic message over a region that is otherwise fine.
 //
-// Assumes every lazy component in the app supplies an 'errorComponent', which 'defineAsyncPanel' guarantees. One that
+// Assumes every lazy component in the app supplies an 'errorComponent', which 'defineLazyComponent' guarantees. One that
 // did not would go unreported; the router does not use 'defineAsyncComponent', so its failures are unaffected.
 export function isComponentLoaderErrorInfo(info: string): boolean {
     return COMPONENT_LOADER_ERROR_INFOS.has(info);

@@ -14,7 +14,7 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared';
 import { TEXT } from './PluginList_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useSetupSelection } from '../../useSetupSelection';
-import { assertDefined, defineAsyncPanel, type PluginConfig, type SetupOptionConfig } from '@/utilities/index.ts';
+import { assertDefined, defineLazyComponent, type PluginConfig, type SetupOptionConfig } from '@/utilities/index.ts';
 import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/session';
 import { localeId, t } from '@/state/locale';
 
@@ -25,10 +25,10 @@ import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 
 // ── Dynamic Components
-const PluginConnectorPanel = defineAsyncPanel(() => import('@/features/studio/setup/plugins/PluginConnectorPanel.vue'), 'PluginConnectorPanel');
-const PluginCookbookPanel = defineAsyncPanel(() => import('@/features/studio/setup/plugins/PluginCookbookPanel.vue'), 'PluginCookbookPanel');
-const PluginPresenterPanel = defineAsyncPanel(() => import('@/features/studio/setup/plugins/PluginPresenterPanel.vue'), 'PluginPresenterPanel');
-const PluginToolPanel = defineAsyncPanel(() => import('@/features/studio/setup/plugins/PluginToolPanel.vue'), 'PluginToolPanel');
+const PluginConnectorPanel = defineLazyComponent(() => import('@/features/studio/setup/plugins/PluginConnectorPanel.vue'), 'PluginConnectorPanel');
+const PluginCookbookPanel = defineLazyComponent(() => import('@/features/studio/setup/plugins/PluginCookbookPanel.vue'), 'PluginCookbookPanel');
+const PluginPresenterPanel = defineLazyComponent(() => import('@/features/studio/setup/plugins/PluginPresenterPanel.vue'), 'PluginPresenterPanel');
+const PluginToolPanel = defineLazyComponent(() => import('@/features/studio/setup/plugins/PluginToolPanel.vue'), 'PluginToolPanel');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

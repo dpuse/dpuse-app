@@ -13,6 +13,7 @@ interface Properties {
     type?: ButtonType;
 }
 const { disabled, to, type = 'button' } = defineProps<Properties>();
+defineSlots<{ default?: () => unknown }>();
 </script>
 
 <template>

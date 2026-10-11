@@ -8,7 +8,9 @@ import { computed, useTemplateRef, watch } from 'vue';
 import { useElementSize, useLocalStorage } from '@vueuse/core';
 
 // ── Local Framework
-import { defineAsyncPanel } from '@/utilities/index.ts';
+import { defineLazyComponent } from '@/utilities/index.ts';
+import { t } from '@/state/locale';
+import { TEXT } from './AssistantLayout_.json';
 import { useAssistantLibrary } from '@/state/assistantLibrary';
 import { useSplitPanes } from '@/composables/useSplitPanes';
 import { ASSISTANT_MODEL_CONFIGS, type AssistantModelConfig } from '../chat/modelConfigs';
@@ -20,8 +22,8 @@ import PaneSplitter from '@/components/ui/PaneSplitter.vue';
 import Separator from '@/components/ui/Separator.vue';
 
 // ── Dynamic Components
-const ChatPanel = defineAsyncPanel(() => import('../chat/ChatPanel.vue'), 'ChatPanel');
-const LibraryPanel = defineAsyncPanel(() => import('../library/LibraryPanel.vue'), 'LibraryPanel');
+const ChatPanel = defineLazyComponent(() => import('../chat/ChatPanel.vue'), 'ChatPanel');
+const LibraryPanel = defineLazyComponent(() => import('../library/LibraryPanel.vue'), 'LibraryPanel');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -121,7 +123,7 @@ function handleTogglePane(paneId: 'chat' | 'library'): void {
              containment also makes this a stacking context, so the splitter's 'z-10' and the search bar's 'z-20' are
              sealed in here rather than competing with the app-level ladder in 'App.vue'. -->
 
-        <AssistantHeader class="mx-4 flex-none" :title="'Assistant'" :toolbar-placement="paneIsWide ? 'end' : 'title'">
+        <AssistantHeader class="mx-4 flex-none" :title="t(TEXT, 'assistant.title')" :toolbar-placement="paneIsWide ? 'end' : 'title'">
             <template #toolbar>
                 <AssistantToolbar :chat-is-visible="isPaneVisible('chat')" :is-switch="!paneIsWide" :library-is-visible="isPaneVisible('library')" @toggle="handleTogglePane" />
             </template>

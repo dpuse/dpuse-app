@@ -55,6 +55,18 @@ Name a component for what it **is**, not for an architectural role. Plain nouns 
 - Avoid vague verb-suffixes (`Display`, `Manager`, `Handler`) only when a more specific noun is obviously
   available; don't force a rename otherwise.
 
+**Pane, Layout and Panel** each have one meaning in this app:
+
+- **Pane** — a resizable part of the screen: the studio and assistant panes in `App.vue`, the chat and library panes
+  in `AssistantLayout`.
+- **Layout** — arranges or frames other components, through a `<slot>` or a nested `<RouterView>`, and has no
+  content of its own beyond a header. `StudioLayout`, `DataViewsLayout`, `SetupLayout`, `AssistantLayout`.
+- **Panel** — content. A page the router shows, a detail area beside a list, an account section. `StudioHomePanel`,
+  `SelectItemPanel`, `DataViewPanel`.
+
+To choose: a component that shows its own content is a panel; one that holds other components' content is a layout.
+What the router shows at a given level is a **view**, whichever of the two it is.
+
 ### Props
 
 Type props inline in `defineProps`, destructured directly — no separate `interface Properties`:
