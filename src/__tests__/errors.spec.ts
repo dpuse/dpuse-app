@@ -1,7 +1,10 @@
 import { AppError } from '@dpuse/dpuse-shared';
 import { hasReportedAppError } from '@/observability/errorTracking';
+import { liveAppVersion } from '@/state/appVersion';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { appFailures, clearAppFailures, isStaleDeployError, markStaleDeployError, raiseAppFailure, raiseFailure, reportStaleDeployFailure, retryAppFailures } from '@/state/errors';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const NEWER_APP_VERSION = '999.0.0';
 
 vi.mock('@/observability/errorTracking', () => ({ hasReportedAppError: vi.fn(() => Promise.resolve(true)) }));
 
@@ -166,5 +169,55 @@ describe('reportStaleDeployFailure', () => {
         reportStaleDeployFailure(new AppError('Failed to load part of the app.', 'test'));
 
         expect(appFailures.value).toStrictEqual([]);
+    });
+});
+
+// Once a newer version is known to be deployed, a missing chunk only means the user is on an old version, which
+// nobody can act on. Without one, the running version is current and a missing chunk is a fault worth reporting.
+describe('a missing chunk once a newer version is deployed', () => {
+    beforeEach(() => {
+        vi.mocked(hasReportedAppError).mockClear();
+        liveAppVersion.value = NEWER_APP_VERSION;
+    });
+
+    afterEach(() => {
+        liveAppVersion.value = undefined;
+    });
+
+    it('still offers a reload, but is not reported and says nothing about reporting', async () => {
+        const cause = new Error('An unfetchable chunk.');
+        markStaleDeployError(cause);
+        const failure = raiseFailure(new AppError('Failed to load a panel.', 'test', undefined, { cause }));
+        await Promise.resolve();
+
+        expect(failure.needsReload).toBe(true);
+        expect(failure.isReportable).toBe(false);
+        expect(failure.wasReported.value).toBeUndefined();
+        expect(hasReportedAppError).not.toHaveBeenCalled();
+    });
+
+    it('still reports an ordinary failure', async () => {
+        const failure = raiseFailure(new AppError('Failed to render.', 'test'));
+
+        expect(failure.isReportable).toBe(true);
+        await vi.waitFor(() => {
+            expect(hasReportedAppError).toHaveBeenCalledOnce();
+        });
+    });
+
+    it('does not report a failed preload either', async () => {
+        // Fresh modules, because the once-per-session guard is likely set by an earlier case and would hide the result.
+        vi.resetModules();
+        const errorTracking = await import('@/observability/errorTracking');
+        const appVersion = await import('@/state/appVersion');
+        const errors = await import('@/state/errors');
+
+        appVersion.liveAppVersion.value = NEWER_APP_VERSION;
+        errors.reportStaleDeployFailure(new AppError('Failed to load part of the app.', 'test'));
+        expect(errorTracking.hasReportedAppError).not.toHaveBeenCalled();
+
+        appVersion.liveAppVersion.value = undefined;
+        errors.reportStaleDeployFailure(new AppError('Failed to load part of the app.', 'test'));
+        expect(errorTracking.hasReportedAppError).toHaveBeenCalledOnce();
     });
 });

@@ -6,6 +6,7 @@ import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 import { initialiseServices } from '@/state/session';
+import { newAppVersionIsAvailable } from '@/state/appVersion';
 import { t } from '@/state/locale';
 import { TEXT } from './App_.json';
 import { throwOnFault } from '@/observability/faultInjection';
@@ -31,6 +32,7 @@ import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/route
 import AssistantPaneToggle from '@/features/assistant/_components/AssistantPaneToggle.vue'; // Always visible.
 import Dialog from '@/components/ui/dialog/Dialog.vue'; // Static, so the frame opens while the dialog's own chunk loads.
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue'; // Static, so it can show even when a chunk fails to load.
+import NewVersionNotice from '@/components/ui/NewVersionNotice.vue'; // Static, because once a new version is deployed this version's chunks are gone.
 import RouterViewTransition from '@/components/ui/RouterViewTransition.vue'; // Static, so its spinner can show while other chunks load.
 import SessionButton from '@/features/session/SessionButton.vue'; // Always visible.
 import StudioPaneToggle from '@/features/studio/_components/StudioPaneToggle.vue'; // Always visible.
@@ -194,6 +196,9 @@ function syncPaneQuery(): void {
             @dismiss="clearAppFailures"
             @retry="retryAppFailures"
         />
+
+        <!-- New Version Notice - For users who stay on one screen, since moving to another loads the new version. -->
+        <NewVersionNotice v-if="newAppVersionIsAvailable" />
 
         <!-- Top Edge Line - Full width on wide viewports, lying exactly over the option bar's own line. -->
         <div v-if="viewportIsWide && viewportRequiresTopEdgeLine" class="pointer-events-none fixed inset-x-0 top-[env(safe-area-inset-top)] z-50 h-px bg-separator" />

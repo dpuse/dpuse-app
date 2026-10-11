@@ -9,6 +9,7 @@ import { AppError } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { raiseAppFailure } from '@/state/errors';
 import { type AsyncPanelSimulation, VISIBLE_DELAY_MS } from '@/utilities/index.ts';
+import { canReloadForNewAppVersion, reloadForNewAppVersion } from '@/state/appVersion';
 import { throwOnFault, throwOnStaleFault } from '@/observability/faultInjection';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -104,6 +105,14 @@ export const createAppRouter = (): Router => {
     });
 
     if (import.meta.env.DEV) assertViewDepths(APP_ROUTES);
+
+    // Once a newer version is deployed, moving to another screen loads it as a fresh page instead, so the user arrives
+    // on the new version. A change to the query alone, such as opening a pane or dialog, is left alone.
+    router.beforeEach((to, from) => {
+        if (to.path === from.path || !canReloadForNewAppVersion()) return true;
+        reloadForNewAppVersion(to.fullPath);
+        return false;
+    });
 
     // Runs for completed and aborted navigations; ones that error only reach 'onError' below. Between the two, the
     // spinner is always cleared.

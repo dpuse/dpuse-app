@@ -59,8 +59,9 @@ if (!(import.meta.env.DEV && hasFault('browser')) && (__SUPPORTED_BROWSER_REGEXP
         });
 
         // A new deployment deletes the old version's code files (chunks), so a user still running it cannot load new
-        // ones and Vite raises 'vite:preloadError'. This only reports it, as the chunk may be for a screen the user
-        // never opens; a screen that needs it shows its own refresh message.
+        // ones and Vite raises 'vite:preloadError'. Nothing is shown here, as the chunk may be for a screen the user
+        // never opens; a screen that needs it shows its own reload message. It is reported only if no newer version is
+        // known, because only then is it a fault rather than an old version.
         //
         // No 'preventDefault', so Vite passes the error on to the screen that asked for the chunk.
         addEventListener('vite:preloadError', (event): void => {

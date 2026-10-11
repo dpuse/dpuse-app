@@ -6,6 +6,7 @@ import { type AppError, serialiseError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { hasReportedAppError } from '@/observability/errorTracking';
+import { newAppVersionIsAvailable } from '@/state/appVersion';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -18,6 +19,9 @@ export interface AppFailure {
     // the catch site where it knows, otherwise read from the cause chain. Undefined when nothing identifiable was lost.
     capability: string | undefined;
     error: AppError;
+    // False for a missing chunk once a newer version is known to be deployed: the user is simply on an old version,
+    // which nobody can act on, so it is not reported and the display says nothing about reporting.
+    isReportable: boolean;
     // A chunk the running deployment can no longer fetch. Nothing but a fresh document will produce a working copy of
     // it, which is why the display says so in words and why only the first of these is reported: one stale deployment
     // fails every chunk the session goes on to need.
@@ -139,10 +143,12 @@ export function raiseAppFailure(error: AppError, options: AppFailureOptions = {}
 // Builds the failure and starts its report. Returns synchronously so a component can render it immediately; the
 // delivery result lands on 'wasReported' when it settles.
 export function raiseFailure(error: AppError, options: AppFailureOptions = {}): AppFailure {
+    const isStaleDeploy = isStaleDeployError(error);
     const failure: AppFailure = {
         capability: options.capability ?? findComponentName(error),
         error,
-        needsReload: isStaleDeployError(error),
+        isReportable: !(isStaleDeploy && newAppVersionIsAvailable.value),
+        needsReload: isStaleDeploy,
         reloadPath: options.reloadPath,
         retry: options.retry,
         wasReported: ref<boolean | undefined>()
@@ -154,8 +160,11 @@ export function raiseFailure(error: AppError, options: AppFailureOptions = {}): 
 // Reported but never displayed. Vite preloads chunks for screens the user may never open, so a preload that fails has
 // lost the user nothing yet — there is no capability to name and no action to offer. It surfaces if and when something
 // actually needs that chunk, through the region that asked for it.
+//
+// Not reported once a newer version is known to be deployed: the chunk is missing because the user is on an old
+// version, which nobody can act on. Without a newer version, the running one is current and a missing chunk is a fault.
 export function reportStaleDeployFailure(error: AppError): void {
-    if (state.staleDeployWasReported) return;
+    if (state.staleDeployWasReported || newAppVersionIsAvailable.value) return;
     state.staleDeployWasReported = true;
     void hasReportedAppError(error);
 }
@@ -163,6 +172,8 @@ export function reportStaleDeployFailure(error: AppError): void {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function deliverReport(failure: AppFailure): Promise<void> {
+    if (!failure.isReportable) return;
+
     if (failure.needsReload) {
         // Reported as delivered rather than left pending: the first failure of this deployment carried the same
         // evidence, so support has it, and telling the user otherwise would be inviting them to report it again.

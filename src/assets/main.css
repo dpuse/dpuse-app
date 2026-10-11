@@ -315,7 +315,7 @@ html {
     --boundary: var(--color-zinc-800);
     --boundary-hover: var(--color-zinc-600);
     --separator: var(--color-zinc-700);
-    --overlay: color-mix(in srgb, var(--color-zinc-700) 75%, transparent);
+    --overlay: color-mix(in srgb, black 60%, transparent); /* Dims the near-black page; a grey scrim lightened it. */
     --content: var(--color-zinc-300); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-400);
     --subtle: var(--color-zinc-500);

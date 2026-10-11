@@ -13,12 +13,13 @@ import { markStaleDeployError } from '@/state/errors';
 //   Neither       'preload'                                    Reported only — proves nothing appears on screen.
 //   Pre-mount     'bootstrap' | 'browser'                      The plain DOM message, before Vue exists.
 //   Modifier      'report-failure'                             Makes delivery fail, so every body says so.
+//   Not a failure 'new-version'                                Fakes a newer deployed version, to show the notice.
 //
 // The four that name a component — the panel and route pairs — accept a target: '?fault=panel:ChatPanel' fails that
 // one and lets everything else load. Without a target they fail every panel or route at once, which cannot reach a
 // panel nested inside another: the outer one fails first and the inner one never loads.
 export type FaultId =
-    'account' | 'auth' | 'bootstrap' | 'browser' | 'config' | 'config-socket' | 'engine' | 'panel' | 'panel-stale' | 'preload' | 'report-failure' | 'route' | 'route-stale' | 'vue';
+    'account' | 'auth' | 'bootstrap' | 'browser' | 'config' | 'config-socket' | 'engine' | 'new-version' | 'panel' | 'panel-stale' | 'preload' | 'report-failure' | 'route' | 'route-stale' | 'vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

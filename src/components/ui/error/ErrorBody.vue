@@ -121,7 +121,7 @@ const needsReload = computed(() => failures.some((failure) => failure.needsReloa
                 </ul>
             </details>
 
-            <p class="mt-2 mb-0! text-xs leading-snug! text-warning-text/80">
+            <p v-if="entry.failure.isReportable" class="mt-2 mb-0! text-xs leading-snug! text-warning-text/80">
                 <span v-if="entry.failure.wasReported.value == null">{{ t(TEXT, 'reporting.pending.text') }}</span>
                 <span v-else-if="entry.failure.wasReported.value">{{ t(TEXT, 'reporting.succeeded.text') }}</span>
                 <span v-else class="font-semibold">{{ t(TEXT, 'reporting.failed.text') }}</span>

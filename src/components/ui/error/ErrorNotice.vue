@@ -338,7 +338,6 @@ function handleShowDetail(): void {
     width: min(65ch, calc(100vw - 2rem));
     max-height: calc(100dvh - 4rem);
     margin: auto;
-    background: transparent;
     padding: 0;
     border: none;
 }
@@ -353,12 +352,23 @@ function handleShowDetail(): void {
 .detail-dialog {
     width: min(24rem, calc(100vw - 2rem));
     margin: auto;
-    background: transparent;
     padding: 0;
     border: none;
 }
 
 .detail-dialog::backdrop {
     background: var(--overlay);
+}
+
+/* Both dialogs float over the scrim, and in dark mode the warning ground on 'ErrorBody' is a 10% tint rather than a
+   solid colour. A solid surface underneath is what keeps the scrim and the page from showing through the card. The
+   radius matches the card's 'rounded-lg', and the shadow matches 'Dialog'. */
+.screen-dialog,
+.detail-dialog {
+    border-radius: 0.5rem;
+    background: var(--surface);
+    box-shadow:
+        0 20px 50px rgb(0 0 0 / 0.25),
+        0 2px 6px rgb(0 0 0 / 0.08);
 }
 </style>

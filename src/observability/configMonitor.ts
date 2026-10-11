@@ -7,6 +7,7 @@ import type { ConnectionConfig, ConnectorConfig, CookbookConfig, EngineConfig, M
 
 // ── Local Framework
 import { hasFault } from '@/observability/faultInjection';
+import { liveAppVersion } from '@/state/appVersion';
 import { raiseFailure } from '@/state/errors';
 import { useMonitorSocket } from '@/observability/monitorSocket';
 import {
@@ -30,6 +31,7 @@ const DPU_API_HOST = 'api.dpuse.app';
 // Reconnect attempts before giving up and surfacing configRetrievalFailed — a persistently unreachable API
 // shouldn't retry silently forever with no way for the user to know why every config list is stuck loading.
 const MAX_RECONNECT_ATTEMPTS = 5;
+const SIMULATED_NEW_APP_VERSION = '999.0.0'; // Newer than any real version, for '?fault=new-version'.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -142,6 +144,7 @@ function doRegister(
     // TODO: Only register if new added or new version. Can we import in parallel for efficiency?
     switch (moduleConfig.typeId) {
         case 'app':
+            registerAppVersion(moduleConfig.version);
             logIt('App', moduleConfig);
             return;
         case 'engine':
@@ -194,6 +197,11 @@ function doRegister(
             return;
         }
     }
+}
+
+// Tells a running copy that a newer version has been deployed. '?fault=new-version' pretends one has.
+function registerAppVersion(deployedVersion: string): void {
+    liveAppVersion.value = import.meta.env.DEV && hasFault('new-version') ? SIMULATED_NEW_APP_VERSION : deployedVersion;
 }
 
 function logIt(name: string, moduleConfig: ModuleConfig): void {
