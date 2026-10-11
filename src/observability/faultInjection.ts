@@ -7,9 +7,9 @@ import { markStaleDeployError } from '@/state/errors';
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Every failure the app can produce, named so one can be asked for from the URL. Grouped by where it is caught, since
-// that is what decides the surface: a region shows its own, everything else lands on the app-level strip.
+// that is what decides the surface: a region shows its own, everything else goes to the app-level failure dialog.
 //   Region        'panel' | 'panel-stale'                     'LoadFailureNotice' → 'ErrorNotice' in the region.
-//   App strip     'route' | 'vue' | the four service faults    Nothing owns these, so 'App.vue' shows them.
+//   App dialog    'route' | 'vue' | the four service faults    Nothing owns these, so 'App.vue' shows them.
 //   Neither       'preload'                                    Reported only — proves nothing appears on screen.
 //   Pre-mount     'bootstrap' | 'browser'                      The plain DOM message, before Vue exists.
 //   Modifier      'report-failure'                             Makes delivery fail, so every body says so.
@@ -19,7 +19,21 @@ import { markStaleDeployError } from '@/state/errors';
 // one and lets everything else load. Without a target they fail every panel or route at once, which cannot reach a
 // panel nested inside another: the outer one fails first and the inner one never loads.
 export type FaultId =
-    'account' | 'auth' | 'bootstrap' | 'browser' | 'config' | 'config-socket' | 'engine' | 'new-version' | 'panel' | 'panel-stale' | 'preload' | 'report-failure' | 'route' | 'route-stale' | 'vue';
+    | 'account'
+    | 'auth'
+    | 'bootstrap'
+    | 'browser'
+    | 'config'
+    | 'config-socket'
+    | 'engine'
+    | 'new-version'
+    | 'panel'
+    | 'panel-stale'
+    | 'preload'
+    | 'report-failure'
+    | 'route'
+    | 'route-stale'
+    | 'vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

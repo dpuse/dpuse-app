@@ -105,7 +105,7 @@ describe('raiseAppFailure', () => {
         expect(appFailures.value).toStrictEqual([failure]);
     });
 
-    it('shows one strip per capability, however many routes report the same loss', () => {
+    it('shows one failure per capability, however many routes report the same loss', () => {
         raiseAppFailure(new AppError('Failed to load the engine.', 'test'), { capability: 'engine' });
         raiseAppFailure(new AppError('Failed to load engine v2.', 'test'), { capability: 'engine' });
 

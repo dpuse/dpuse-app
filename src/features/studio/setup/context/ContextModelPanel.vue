@@ -153,7 +153,7 @@ async function loadModel(modelId: string): Promise<ContextModelConfig | undefine
     <!-- Covers the region, as the same failure does in the chat: the descriptions render blank without the formatter,
          so what is left is a page of empty headings. Placed outside the prose column it replaces, which is padded and
          measure-limited for reading and would otherwise inset the failure from the region it is meant to fill. -->
-    <ErrorNotice v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
+    <ErrorNotice v-if="markedToolFailure" :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
     <StudioDetailPanel v-else data-region="ContextModelPanel">
         <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">

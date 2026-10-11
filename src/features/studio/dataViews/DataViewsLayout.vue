@@ -211,7 +211,7 @@ function findConnectionLocalisedConfig(connectionId: string | undefined): Locali
         </TaskBar>
 
         <!-- Data View Failure -->
-        <ErrorNotice v-if="dataViewFailure" class="min-h-0 flex-1" covers-region :failures="[dataViewFailure]" @retry="handleRetryDataView" />
+        <ErrorNotice v-if="dataViewFailure" class="min-h-0 flex-1" :failures="[dataViewFailure]" @retry="handleRetryDataView" />
 
         <!-- List and Task Panel -->
         <RouterViewTransition v-else v-slot="{ component }" class="min-h-0 flex-1" :is-loading="taskPanelIsLoading">

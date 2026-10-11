@@ -158,7 +158,7 @@ async function loadPresenters(): Promise<void> {
             </template>
 
             <template #detail>
-                <ErrorNotice v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetryRender" />
+                <ErrorNotice v-if="renderFailure" :failures="[renderFailure]" @retry="handleRetryRender" />
                 <div v-show="!renderFailure" ref="container" class="dpuse-prose overflow-y-scroll overscroll-y-none px-4 pt-4" />
             </template>
 

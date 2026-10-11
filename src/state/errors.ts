@@ -59,11 +59,11 @@ const COMPONENT_LOADER_ERROR_INFOS = new Set(['async component loader', 'https:/
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Failures with no region of their own: an uncaught Vue error, a navigation that never reached a view, a service the
-// app loads for itself. Rendered by 'App.vue' as a strip, which is a placement and not a takeover — the rest of the
-// app stays live underneath, because none of these is worth denying the user the screen they already have.
+// app loads for itself. 'App.vue' shows them together in the app-level failure dialog, a modal that blocks the app
+// until the user dismisses it.
 export const appFailures = shallowRef<AppFailure[]>([]);
 
-// What each failure on the strip matched on when it was raised, so a repeat of it can be recognised.
+// What each failure in the app-level failure dialog matched on when it was raised, so a repeat can be recognised.
 const appFailureKeys = new WeakMap<AppFailure, string>();
 
 // One stale deployment fails every chunk the session goes on to need, so the first report stands for all of them and
@@ -126,8 +126,9 @@ export function markStaleDeployError(error: unknown): void {
     if (error instanceof Error) staleDeployErrors.add(error);
 }
 
-// Adds a failure to the app-level strip, unless the same failure is already showing. Some failures repeat on their own,
-// such as a render error on every update or a timer error on every tick, and listing each one would flood the strip.
+// Adds a failure to the app-level failure dialog, unless the same failure is already in it. Some failures repeat on
+// their own, such as a render error on every update or a timer error on every tick, and listing each one would flood
+// the dialog.
 //
 // A failure given a capability matches on that alone, because the catch site has decided its failures are one loss.
 // Any other failure matches on its component name and the deepest error's message together. That way two different

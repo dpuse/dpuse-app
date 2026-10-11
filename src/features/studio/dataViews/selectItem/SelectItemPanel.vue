@@ -371,7 +371,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 </script>
 
 <template>
-    <ErrorNotice v-if="engineFailure" covers-region :failures="[engineFailure]" @retry="handleRetryEngine" />
+    <ErrorNotice v-if="engineFailure" :failures="[engineFailure]" @retry="handleRetryEngine" />
 
     <GridDetailPanel v-else :active-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="400px">
         <template #header="{ isSplit }">

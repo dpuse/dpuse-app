@@ -1,7 +1,7 @@
 // ── External Dependencies & Registrations
 import { promiseTimeout } from '@vueuse/core';
 import { type Component, shallowRef } from 'vue';
-import { createRouter, createWebHistory, isNavigationFailure, NavigationFailureType, type Router, type RouteRecordRaw, type RouterScrollBehavior } from 'vue-router';
+import { createRouter, createWebHistory, isNavigationFailure, NavigationFailureType, type Router, type RouteRecordRaw } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
@@ -101,7 +101,6 @@ export const createAppRouter = (): Router => {
     const router = createRouter({
         history: createWebHistory(import.meta.env.BASE_URL),
         routes: APP_ROUTES
-        // scrollBehavior: handleScrollBehavior
     });
 
     if (import.meta.env.DEV) assertViewDepths(APP_ROUTES);
@@ -124,7 +123,7 @@ export const createAppRouter = (): Router => {
     });
 
     // A failed navigation never reached a view, so there is no region that could render the error and it goes to the
-    // app-level strip.
+    // app-level failure dialog.
     router.onError((error, to) => {
         clearNavigationPending();
 
@@ -147,16 +146,6 @@ export async function ignoreReportedNavigationFailure(navigation: Promise<unknow
     } catch {
         // Already reported by 'router.onError'.
     }
-}
-
-// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-function handleScrollBehavior(
-    _to: Parameters<RouterScrollBehavior>[0],
-    _from: Parameters<RouterScrollBehavior>[1],
-    savedPosition: Parameters<RouterScrollBehavior>[2]
-): ReturnType<RouterScrollBehavior> {
-    return savedPosition ? { ...savedPosition, behavior: 'auto' } : { left: 0, top: 0 }; // NOTE: "behavior: 'auto'" required for Safari iOS v18.3.2.
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

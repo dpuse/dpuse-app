@@ -52,7 +52,7 @@ function handleSelectModel(modelReference: GridListItem<LocalisedConfig<Componen
 </script>
 
 <template>
-    <ErrorNotice v-if="contextConfigRetrievalFailure" covers-region :can-retry="false" :failures="[contextConfigRetrievalFailure]" />
+    <ErrorNotice v-if="contextConfigRetrievalFailure" :can-retry="false" :failures="[contextConfigRetrievalFailure]" />
 
     <GridDetailPanel v-else :active-item="activeModelReference" class="min-h-0 flex-1" :data-source="modelReferencesByAreaDataSource" :is-compact="true" max-grid-width="350px">
         <template #item="{ item }">

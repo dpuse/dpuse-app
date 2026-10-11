@@ -123,7 +123,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 
     <!-- No connectors arrived, so there is nothing here to add a connection with. Covers the region rather than
          leaving an empty picker with no explanation. -->
-    <ErrorNotice v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
+    <ErrorNotice v-if="configRetrievalFailure" :can-retry="false" :failures="[configRetrievalFailure]" />
 
     <GridDetailPanel v-else :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" :row-height="cardRowHeight">
         <template #item="{ item }">

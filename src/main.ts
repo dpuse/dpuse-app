@@ -97,7 +97,7 @@ if (isBrowserSupported) {
 
         const app = createApp(App);
 
-        // Reports and shows any Vue error that no 'ErrorBoundary' caught, in a strip that does not cover the app.
+        // Reports and shows any Vue error that no 'ErrorBoundary' caught, in the app-level failure dialog.
         app.config.errorHandler = (error, instance, info): void => {
             // Panels loaded on demand show and report their own load failures, so those are skipped here.
             if (isComponentLoaderErrorInfo(info)) return;

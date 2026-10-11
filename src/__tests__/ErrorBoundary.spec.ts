@@ -44,7 +44,7 @@ describe('ErrorBoundary', () => {
         expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(true);
         expect(wrapper.find('[data-region="TestChild"]').exists()).toBe(false);
         expect(hasReportedAppError).toHaveBeenCalledOnce();
-        expect(appFailures.value).toStrictEqual([]); // Contained here, so the app-level strip stays out of it.
+        expect(appFailures.value).toStrictEqual([]); // Contained here, so the app-level failure dialog stays out of it.
     });
 
     it('remounts the slot on retry', async () => {

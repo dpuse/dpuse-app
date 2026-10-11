@@ -196,7 +196,7 @@ function updateParentCanScroll(): void {
             {{ label }}
         </div>
 
-        <ErrorNotice v-if="renderFailure" covers-region :failures="[renderFailure]" @retry="handleRetry" />
+        <ErrorNotice v-if="renderFailure" :failures="[renderFailure]" @retry="handleRetry" />
 
         <div
             v-show="!renderFailure"

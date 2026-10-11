@@ -29,13 +29,20 @@ import { defineAsyncPanel, isSafariBrowser } from '@/utilities/index.ts';
 import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
 
 // ── Static Components
-import AssistantPaneToggle from '@/features/assistant/_components/AssistantPaneToggle.vue'; // Always visible.
-import Dialog from '@/components/ui/dialog/Dialog.vue'; // Static, so the frame opens while the dialog's own chunk loads.
-import ErrorNotice from '@/components/ui/error/ErrorNotice.vue'; // Static, so it can show even when a chunk fails to load.
-import NewVersionNotice from '@/components/ui/NewVersionNotice.vue'; // Static, because once a new version is deployed this version's chunks are gone.
-import RouterViewTransition from '@/components/ui/RouterViewTransition.vue'; // Static, so its spinner can show while other chunks load.
-import SessionButton from '@/features/session/SessionButton.vue'; // Always visible.
-import StudioPaneToggle from '@/features/studio/_components/StudioPaneToggle.vue'; // Always visible.
+// Static, because it is always visible.
+import AssistantPaneToggle from '@/features/assistant/_components/AssistantPaneToggle.vue';
+// Static, so the frame opens while the dialog's own chunk loads.
+import Dialog from '@/components/ui/dialog/Dialog.vue';
+// Static, so it can show even when a chunk fails to load.
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
+// Static, because once a new version is deployed this version's chunks are gone.
+import NewVersionNotice from '@/components/ui/NewVersionNotice.vue';
+// Static, so its spinner can show while other chunks load.
+import RouterViewTransition from '@/components/ui/RouterViewTransition.vue';
+// Static, because it is always visible.
+import SessionButton from '@/features/session/SessionButton.vue';
+// Static, because it is always visible.
+import StudioPaneToggle from '@/features/studio/_components/StudioPaneToggle.vue';
 
 // ── Dynamic Components
 const AssistantLayout = defineAsyncPanel(() => import('@/features/assistant/_components/AssistantLayout.vue'), 'AssistantLayout');
@@ -48,61 +55,53 @@ const PANE_SPLITTER_DEFAULT_PERCENT = 50;
 const PANE_SPLITTER_PERCENT_KEY = 'dpuse-paneSplitterPercent';
 const PANE_SPLITTER_PERCENT_SAVE_DEBOUNCE_MS = 250;
 
-// ── State - Route ────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Route
 const route = useRoute();
 const router = useRouter();
 
-// ── State - Studio Option Bar ────────────────────────────────────────────────────────────────────────────────────────
-
+// Studio Option Bar
 const studioOptionBarIsVisible = ref(false); // Narrow displays only, because a wide one always shows the option bar.
 
-// ── State - Pane Splitter ────────────────────────────────────────────────────────────────────────────────────────────
-
-// A drag fires on every pointer move, so the write to storage is debounced and only the value the drag settles on is
-// saved.
+// Pane Splitter — A drag fires on every pointer move, so the write to storage is debounced and only the value the drag
+// settles on is saved.
 const paneSplitterPercent = useLocalStorage(PANE_SPLITTER_PERCENT_KEY, PANE_SPLITTER_DEFAULT_PERCENT, {
     eventFilter: debounceFilter(PANE_SPLITTER_PERCENT_SAVE_DEBOUNCE_MS),
     serializer: { read: (value) => Number(value) || PANE_SPLITTER_DEFAULT_PERCENT, write: String }
 });
 
-// ── State - Dialogs ──────────────────────────────────────────────────────────────────────────────────────────────────
-
+// Dialogs
 const { activeDialogConfig, activeDialogId, closeDialog } = useDialogs();
 
-// ── Derived State - Failures ─────────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Retry is offered if any failure can be retried; the others can only recover by reloading the page.
+// Failures — 'Retry' is offered when any failure can be retried. 'Reload App' and closing the dialog are always
+// offered.
 const appFailuresCanRetry = computed(() => appFailures.value.some((failure) => failure.retry != null));
 
-// ── Derived State - Viewport ─────────────────────────────────────────────────────────────────────────────────────────
-
-// Safari colours its toolbars to match the page, so without these lines nothing marks where the page starts or ends.
-// Chrome and Edge draw their own toolbar edges. The installed app has no bottom toolbar, so it gets no bottom line.
+// Viewport — Safari colours its toolbars to match the page, so without these lines nothing marks where the page starts
+// or ends. Chrome and Edge draw their own toolbar edges. The installed app (PWA) has no bottom toolbar, so it gets no
+// bottom line.
 const viewportRequiresTopEdgeLine = isSafariBrowser();
 const viewportRequiresBottomEdgeLine = !isPWA && isSafariBrowser();
 
-// ── Derived State - Panes ────────────────────────────────────────────────────────────────────────────────────────────
-
+// Studio Pane — The studio's 'RouterView' is the outermost one, so its spinner shows only while a studio layout loads.
+// Panels inside the layout show their own. The key changes only with the studio layout, so the fade plays when the
+// layout changes but not when a panel or query parameter does.
 const studioPaneStyle = computed(() => {
     if (!studioPaneIsVisible.value) return { width: '0' };
     // Half the splitter comes off each pane, so an even split leaves the two the same width.
     return assistantPaneIsVisible.value ? { minWidth: '0', width: `calc(${String(paneSplitterPercent.value)}% - var(--pane-splitter-width) / 2)` } : { minWidth: '0', flex: '1' };
 });
-
-// This is the outermost 'RouterView', so it shows a spinner only while the studio layout itself loads. Panels inside
-// the layout show their own.
 const studioLayoutIsLoading = computed(() => navigationPendingDepth.value === 0);
-
-// Keyed to the top-level layout, so the fade plays when the layout changes but not when a panel or query parameter
-// does.
 const studioLayoutKey = computed(() => route.matched.find((record) => record.components?.default)?.path);
 
+// Pane Splitter
 const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assistantPaneIsVisible.value);
 
-const assistantPaneStyle = computed(() => {
-    return assistantPaneIsVisible.value ? { minWidth: '0', flex: '1' } : { width: '0' };
-});
+// Assistant Pane
+const assistantPaneStyle = computed(() => (assistantPaneIsVisible.value ? { minWidth: '0', flex: '1' } : { width: '0' }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -124,18 +123,21 @@ router
     });
 
 onMounted(() => {
-    if (import.meta.env.DEV) throwOnFault('vue'); // Thrown from the root component, which no 'ErrorBoundary' wraps, so it reaches 'app.config.errorHandler'.
+    // '?fault=vue' throws from the root component. No 'ErrorBoundary' wraps the root, so the error reaches
+    // 'app.config.errorHandler'.
+    if (import.meta.env.DEV) throwOnFault('vue');
     initialiseServices();
 });
 
 // Writes the panes to the URL only when they change, so moving the pointer within a pane writes nothing.
 watch([activeAppPaneId, assistantPaneIsActive, studioPaneIsActive], syncPaneQuery);
 
-// ── Event Handlers - Panes ───────────────────────────────────────────────────────────────────────────────────────────
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleToggleAssistantPane(): void {
     if (viewportIsWide.value) {
-        if (assistantPaneIsVisible.value && !studioPaneIsVisible.value) return; // Don't close the assistant pane if it's the only one visible.
+        // A pane that is the only one showing stays open.
+        if (assistantPaneIsVisible.value && !studioPaneIsVisible.value) return;
         setPaneActiveState('assistant', !assistantPaneIsActive.value);
         return;
     }
@@ -147,7 +149,8 @@ function handleToggleAssistantPane(): void {
 
 function handleToggleStudioPane(): void {
     if (viewportIsWide.value) {
-        if (studioPaneIsVisible.value && !assistantPaneIsVisible.value) return; // Don't close the studio pane if it's the only one visible.
+        // A pane that is the only one showing stays open.
+        if (studioPaneIsVisible.value && !assistantPaneIsVisible.value) return;
         setPaneActiveState('studio', !studioPaneIsActive.value);
         return;
     }
@@ -186,7 +189,7 @@ function syncPaneQuery(): void {
 
 <template>
     <div class="flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" :class="isPWA ? 'h-screen w-screen' : 'h-dvh w-dvw'" data-region="App">
-        <!-- App Failures - Uncaught errors, failed navigations and service load failures, shown full screen. -->
+        <!-- App Failures - Uncaught errors, failed navigations and service load failures, shown in a modal. -->
         <ErrorNotice
             v-if="appFailures.length > 0"
             :can-retry="appFailuresCanRetry"
@@ -221,7 +224,7 @@ function syncPaneQuery(): void {
         <!-- Studio Pane - Mounted the first time it opens, then hidden rather than removed, so it keeps its state. -->
         <main
             v-if="studioPaneWasActivated"
-            v-show="studioPaneIsVisible"
+            :hidden="!studioPaneIsVisible"
             class="@container grid h-full"
             :class="viewportIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
             data-region="StudioPane"
@@ -251,7 +254,7 @@ function syncPaneQuery(): void {
         <component
             :is="studioPaneIsVisible ? 'aside' : 'main'"
             v-if="assistantPaneWasActivated"
-            v-show="assistantPaneIsVisible"
+            :hidden="!assistantPaneIsVisible"
             :aria-label="t(TEXT, 'assistantPane.aria')"
             data-region="AssistantPane"
             :style="assistantPaneStyle"

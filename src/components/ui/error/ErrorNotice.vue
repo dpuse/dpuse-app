@@ -22,11 +22,8 @@ import ErrorBody from '@/components/ui/error/ErrorBody.vue';
 // 'canRetry' is false where nothing local could be retried — a failure with no region of its own, where a fresh
 // document is the only recovery there is. Everywhere else both recoveries are offered; see the note in 'ErrorBody'.
 //
-// A failure fills the space it owns. 'coversRegion' says the region is that space — a panel that never loaded, a view
-// that could not render — so it reads as failed rather than as oddly empty with a card in it. Opt-in, because plenty
-// of failures cost only part of what a region does: a chat whose markdown formatter died still shows its messages, and
-// covering it would claim more than went wrong. It asks nothing of the host, growing in flow rather than being
-// positioned, so no caller needs to be a containing block.
+// A failure fills the space it owns. Within a region it covers the whole region, so the region reads as failed rather
+// than as oddly empty. It grows in flow rather than being positioned, so no caller needs to be a containing block.
 //
 // 'ownsScreen' is the same rule one level up, for a failure no region owns at all: its space is the screen, so it is
 // shown as a modal. That is not the lock this app used to have — that was permanent, suppressed every dialog, and had
@@ -37,13 +34,12 @@ import ErrorBody from '@/components/ui/error/ErrorBody.vue';
 // every failure no region owned, passes more.
 interface Properties {
     canRetry?: boolean;
-    coversRegion?: boolean;
     failures: AppFailure[];
     isDismissible?: boolean;
     ownsScreen?: boolean;
 }
 // eslint-disable-next-line @typescript-eslint/no-useless-default-assignment -- The default is not useless: an absent boolean prop is 'false' to Vue, and retrying is what every caller but 'App.vue' wants.
-const { canRetry = true, coversRegion, failures, isDismissible, ownsScreen } = defineProps<Properties>();
+const { canRetry = true, failures, isDismissible, ownsScreen } = defineProps<Properties>();
 const emit = defineEmits<{ dismiss: []; retry: [] }>();
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -123,7 +119,7 @@ function handleShowDetail(): void {
 </script>
 
 <template>
-    <div class="error-notice" :class="[ownsScreen ? 'owns-screen' : 'is-region', { 'covers-region': coversRegion }]" data-region="ErrorNotice">
+    <div class="error-notice" :class="ownsScreen ? 'owns-screen' : 'is-region'" data-region="ErrorNotice">
         <!-- Both dialogs focus themselves on open. Otherwise the browser focuses the first control, the trace toggle,
              and shows its keyboard focus ring before the user has pressed a key. Chrome ignores 'autofocus' on a
              dialog, so 'tabindex="-1"' and a 'focus()' call do it instead. Tabbing still shows each control's ring. -->
@@ -132,19 +128,13 @@ function handleShowDetail(): void {
              has no region to measure, and shows its body in its own modal below. -->
         <template v-if="!ownsScreen">
             <!-- Badge - the container is too narrow for prose, so the body moves to a dialog. -->
-            <button
-                :aria-label="t(TEXT, 'detail.aria')"
-                class="notice-badge items-center justify-center rounded-md border border-warning-ring/20 bg-warning p-1.5 text-warning-text hover:bg-warning-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring active:bg-warning-active"
-                :title="mainSerialisedError.message"
-                type="button"
-                @click="handleShowDetail"
-            >
-                <span class="notice-badge-body"><TriangleAlertIcon class="size-5" stroke-width="1.3" /></span>
+            <button :aria-label="t(TEXT, 'detail.aria')" class="notice-badge text-warning-text" :title="mainSerialisedError.message" type="button" @click="handleShowDetail">
+                <span class="notice-badge-body"><TriangleAlertIcon stroke-width="1.3" /></span>
             </button>
 
             <!-- Card - room for the whole body. -->
             <div class="notice-card">
-                <ErrorBody class="mx-auto my-8 w-[calc(100%-2rem)] max-w-sm" :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
+                <ErrorBody :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
             </div>
 
             <dialog ref="detailDialogReference" class="detail-dialog outline-none" tabindex="-1" @cancel="handleCloseDetail" @close="handleCloseDetail">
@@ -171,16 +161,13 @@ function handleShowDetail(): void {
 </template>
 
 <style scoped>
+/* Takes the height its host will give it, so the presentation inside has something to fill. Harmless where the host
+   offers none: the presentation falls back to its own minimum. */
 .error-notice.is-region {
-    container-type: inline-size;
-}
-
-/* Takes the height its host will give it, so the covering presentation inside has something to fill. Harmless where the
-   host offers none: the presentation falls back to its own minimum. */
-.error-notice.is-region.covers-region {
     display: flex;
     flex: 1 1 auto;
     min-height: 0;
+    container-type: inline-size;
 }
 
 /* Presentation selection. Narrow rails such as the studio option bar cannot fit prose at any font size, so below the
@@ -193,23 +180,10 @@ function handleShowDetail(): void {
    Panes are 'minWidth: 0', so a dragged splitter really does reach this band; below it the badge stands in, with the
    whole body one click away in its dialog.
 
-*/
+   The badge is the whole region: same warning ground, same 16px inset and same centring as the body it stands in for,
+   so the two read as one treatment at two widths. */
 .is-region .notice-badge {
     display: flex;
-}
-
-/* A pass-through outside the covering case, where the badge is a chip and the icon is all there is to place. */
-.notice-badge-body {
-    display: contents;
-}
-
-/* Covering, the badge is the region rather than a chip inside it: same warning ground, same 16px inset, same centring
-   as the body it stands in for, so the two read as one treatment at two widths. Its chip chrome goes for the same
-   reason the body's does — there is nothing to draw a box around when the whole region is the error.
-
-   Kept outside the width query below, since this is the presentation that shows beneath it; above the threshold the badge is
-   hidden and these have nothing to apply to. */
-.is-region.covers-region .notice-badge {
     flex: 1 1 auto;
     align-items: safe center;
     justify-content: center;
@@ -222,36 +196,33 @@ function handleShowDetail(): void {
 }
 
 /* The three signals that this whole region is a target, rather than a coloured area that happens to contain an icon.
-   They are restated here because the flat background above outranks the utility classes on the element that carry them
-   — a chip's worth of specificity against a filled region's — so without these the covering badge is inert to the eye and only
-   the cursor gives it away.
 
-   'outline' rather than the utilities' ring: a ring is a box-shadow drawn outside the element's edge, and this one
-   fills its region, so the shadow would be the first thing an ancestor's overflow clips. */
-.is-region.covers-region .notice-badge:hover {
+   'outline' rather than a ring: a ring is a box-shadow drawn outside the element's edge, and this one fills its region,
+   so the shadow would be the first thing an ancestor's overflow clips. */
+.is-region .notice-badge:hover {
     background: var(--warning-hover);
 }
 
-.is-region.covers-region .notice-badge:active {
+.is-region .notice-badge:active {
     background: var(--warning-active);
 }
 
-.is-region.covers-region .notice-badge:focus-visible {
+.is-region .notice-badge:focus-visible {
     outline: 2px solid var(--warning-ring);
     outline-offset: -2px;
 }
 
 /* Laid out exactly as the body's own leading icon is: same size, same left edge, inside the same maximum width. The
-   two presentations are one treatment at two widths, so the icon must not move or change size as the region crosses the
-   threshold — only what follows it disappears. */
-.is-region.covers-region .notice-badge-body {
+   two presentations are one treatment at two widths, so the icon must not move or change size as the region crosses
+   the threshold — only what follows it disappears. */
+.is-region .notice-badge-body {
     display: block;
     width: 100%;
     max-width: 65ch;
     text-align: left;
 }
 
-.is-region.covers-region .notice-badge-body > svg {
+.is-region .notice-badge-body > svg {
     width: 2rem;
     height: 2rem;
     transition: transform 150ms;
@@ -259,7 +230,7 @@ function handleShowDetail(): void {
 
 /* The icon leans into the pointer. Small, but it is the only thing on screen with a shape, so it is what the eye
    checks when deciding whether the area under the cursor does anything. */
-.is-region.covers-region .notice-badge:hover .notice-badge-body > svg {
+.is-region .notice-badge:hover .notice-badge-body > svg {
     transform: scale(1.08);
 }
 
@@ -272,23 +243,16 @@ function handleShowDetail(): void {
         display: none;
     }
 
-    .is-region .notice-card {
-        display: block;
-    }
-
     /* Fills the region rather than sitting in it, so the space the content would have occupied reads as failed rather
        than as oddly empty. Grows in flow instead of being positioned, which is what keeps it independent of the host:
        an absolutely positioned version would centre itself over the nearest positioned ancestor, and these callers
        sit in scroll areas, flex columns and detail slots that make no promise about being one.
 
-       Kept inside this query so it cannot outrank the badge: below this width there is no room to centre a body in,
-       and the badge stands in for it.
-
-       Scrolling belongs to the region, not to the body inside it — a scrollbar hugging the card reads as part of the
+       Scrolling belongs to the region, not to the body inside it — a scrollbar hugging the body reads as part of the
        error text rather than as the region having more to show. Centred with 'safe', which is what lets centring and
        scrolling coexist: it centres a body that fits and falls back to the start edge for one that does not, where
        plain centring would push the top out of reach above this container's start edge. */
-    .is-region.covers-region .notice-card {
+    .is-region .notice-card {
         display: flex;
         flex: 1 1 auto;
         align-items: safe center;
@@ -299,21 +263,18 @@ function handleShowDetail(): void {
         background: var(--warning);
     }
 
-    /* Its own width and padding give way to the box above, which is then the only thing setting the inset — the body
-       carries its own card padding for when it is a card, and left alone the two would compound to twice the gap. The
-       maximum matches Tailwind's 'max-w-prose': past about 65 characters the eye loses the line it is returning to,
-       and an error message is read once, carefully, by someone who did not plan to be reading it.
-
-       The chrome goes with them: the body is already standing on the warning ground, so a bordered, rounded card of
-       the same colour would only draw a box around the middle of a region that is uniformly in error. */
-    .is-region.covers-region .notice-card > * {
+    /* The maximum matches Tailwind's 'max-w-prose': past about 65 characters the eye loses the line it is returning
+       to, and an error message is read once, carefully, by someone who did not plan to be reading it. */
+    .is-region .notice-card > * {
         width: 100%;
         max-width: 65ch;
         margin: 0;
     }
 
-    /* Reached by name rather than as a child, because the placement box now sits between this and the card. */
-    .is-region.covers-region [data-region='ErrorBody'] {
+    /* 'ErrorBody' carries its own card padding, border and background for when it stands alone in a dialog. Here it
+       stands on the region's warning ground, so they would only draw a box inside a region that is uniformly in error
+       and double the inset. */
+    .is-region [data-region='ErrorBody'] {
         padding: 0;
         border: none;
         border-radius: 0;

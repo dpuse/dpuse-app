@@ -204,7 +204,7 @@ function onAfterEnter(): void {
          there is nothing here left to keep. The logo is laid over it rather than above it, so the dialog still reads as
          the sign-in dialog; the close button belongs to the frame and is already over everything here. -->
     <div v-if="signInFailure" class="relative flex min-h-0 flex-1">
-        <ErrorNotice covers-region :failures="[signInFailure]" @retry="handleRetrySignIn" />
+        <ErrorNotice :failures="[signInFailure]" @retry="handleRetrySignIn" />
         <DPUseLogo class="absolute top-8 left-8 size-12" />
     </div>
 

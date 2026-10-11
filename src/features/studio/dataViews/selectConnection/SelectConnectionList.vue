@@ -150,7 +150,7 @@ function pickConnection(connectionId: string | undefined): void {
 </script>
 
 <template>
-    <ErrorNotice v-if="configRetrievalFailure" covers-region :can-retry="false" :failures="[configRetrievalFailure]" />
+    <ErrorNotice v-if="configRetrievalFailure" :can-retry="false" :failures="[configRetrievalFailure]" />
 
     <GridDetailPanel
         v-else

@@ -174,7 +174,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
         <!-- Covers the region: nothing was retrieved, so an empty list with no explanation is what this replaces. The
              grid gives way to it rather than sitting behind it — an empty list and a detail pane asking the user to
              pick from it are exactly what the failure is there to account for. -->
-        <ErrorNotice v-if="dataViewRetrievalFailure" covers-region :failures="[dataViewRetrievalFailure]" @retry="handleRetryRetrieval" />
+        <ErrorNotice v-if="dataViewRetrievalFailure" :failures="[dataViewRetrievalFailure]" @retry="handleRetryRetrieval" />
 
         <!-- List and Detail Panel -->
         <GridDetailPanel

@@ -111,8 +111,8 @@ describe('defineAsyncPanel load failure', () => {
         history.replaceState({}, '', '/?fault=panel');
         const wrapper = await render(defineAsyncPanel(() => Promise.resolve(defineComponent({ template: '<div />' })), 'CoveringPanel'));
 
-        // The panel never arrived, so its whole region is what failed — 'covers-region' is what says so in the layout.
-        expect(wrapper.find('[data-region="ErrorNotice"]').classes()).toContain('covers-region');
+        // The panel never arrived, so its whole region is what failed — 'is-region' is what covers it in the layout.
+        expect(wrapper.find('[data-region="ErrorNotice"]').classes()).toContain('is-region');
     });
 
     it('tells the user a stale chunk needs the page reloading, which a retry cannot do', async () => {

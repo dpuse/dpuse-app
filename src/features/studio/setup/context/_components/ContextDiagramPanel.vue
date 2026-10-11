@@ -56,7 +56,7 @@ async function renderDiagram(): Promise<void> {
     <DialogHeader class="flex-none" :title="title" />
 
     <ScrollArea class="min-h-0 flex-1">
-        <ErrorNotice v-if="d3RenderFailure" covers-region :failures="[d3RenderFailure]" @retry="handleRetry" />
+        <ErrorNotice v-if="d3RenderFailure" :failures="[d3RenderFailure]" @retry="handleRetry" />
 
         <!-- v-show, not v-if: keeps this in the DOM so D3 always has an element to draw into, even while hidden. -->
         <div v-show="!d3RenderFailure" ref="d3Container" class="p-6" />

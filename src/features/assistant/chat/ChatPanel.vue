@@ -140,7 +140,7 @@ function handleRetryMarkedTool(): void {
              message in the thread shows literal syntax instead of formatted prose. The chat is not degraded by this,
              it is unreadable, so the thread and the composer give way to the failure rather than sitting beneath it.
              The session component stays mounted throughout, holding the messages a retry brings back. -->
-        <ErrorNotice v-if="markedToolFailure" covers-region :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
+        <ErrorNotice v-if="markedToolFailure" :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
         <template v-else>
             <ScrollArea

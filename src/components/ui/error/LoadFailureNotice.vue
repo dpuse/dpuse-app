@@ -62,13 +62,5 @@ function handleRetry(): void {
 <template>
     <!-- Covers the region: this stands in for a panel that never arrived, so the space it would have occupied is
          exactly what has failed. An overlay has no such space, so its failure takes the screen instead. -->
-    <ErrorNotice
-        v-if="loadFailure"
-        :covers-region="!ownsScreen"
-        :failures="[loadFailure]"
-        :is-dismissible="ownsScreen"
-        :owns-screen="ownsScreen"
-        @dismiss="emit('dismiss')"
-        @retry="handleRetry"
-    />
+    <ErrorNotice v-if="loadFailure" :failures="[loadFailure]" :is-dismissible="ownsScreen" :owns-screen="ownsScreen" @dismiss="emit('dismiss')" @retry="handleRetry" />
 </template>
