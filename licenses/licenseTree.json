@@ -1,5 +1,5 @@
 {
-  "version": "1.0.131",
+  "version": "1.0.132",
   "name": "dpuse-app",
   "dependencies": {
     "@cloudflare/vite-plugin": {
@@ -171,8 +171,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261009.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261009.1.tgz",
+      "version": "5.20261011.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261011.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -181,7 +181,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.116"
+          "version": "1.0.118"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1329,8 +1329,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.116",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.116.tgz",
+      "version": "1.0.118",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.118.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1413,7 +1413,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.116"
+          "version": "1.0.118"
         },
         "@tanstack/charts": {
           "version": "1.0.0",
@@ -4359,7 +4359,7 @@
                   "version": "1.0.9"
                 },
                 "@types/node": {
-                  "version": "26.6.4"
+                  "version": "26.6.5"
                 }
               }
             },
@@ -4807,8 +4807,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.54.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.54.0.tgz",
+      "version": "1.55.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.55.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -4929,8 +4929,8 @@
       }
     },
     "@tanstack/ai-client": {
-      "version": "0.39.0",
-      "resolved": "https://registry.npmjs.org/@tanstack/ai-client/-/ai-client-0.39.0.tgz",
+      "version": "0.39.2",
+      "resolved": "https://registry.npmjs.org/@tanstack/ai-client/-/ai-client-0.39.2.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/ai-event-client": {
@@ -4951,13 +4951,13 @@
           "overridden": false
         },
         "@tanstack/ai": {
-          "version": "0.66.0"
+          "version": "0.68.0"
         }
       }
     },
     "@tanstack/ai": {
-      "version": "0.66.0",
-      "resolved": "https://registry.npmjs.org/@tanstack/ai/-/ai-0.66.0.tgz",
+      "version": "0.68.0",
+      "resolved": "https://registry.npmjs.org/@tanstack/ai/-/ai-0.68.0.tgz",
       "overridden": false,
       "dependencies": {
         "@ag-ui/core": {
@@ -5062,13 +5062,13 @@
       }
     },
     "@tanstack/vue-virtual": {
-      "version": "3.13.39",
-      "resolved": "https://registry.npmjs.org/@tanstack/vue-virtual/-/vue-virtual-3.13.39.tgz",
+      "version": "3.13.40",
+      "resolved": "https://registry.npmjs.org/@tanstack/vue-virtual/-/vue-virtual-3.13.40.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/virtual-core": {
-          "version": "3.17.11",
-          "resolved": "https://registry.npmjs.org/@tanstack/virtual-core/-/virtual-core-3.17.11.tgz",
+          "version": "3.18.0",
+          "resolved": "https://registry.npmjs.org/@tanstack/virtual-core/-/virtual-core-3.18.0.tgz",
           "overridden": false
         },
         "vue": {
@@ -5119,7 +5119,7 @@
       "overridden": false,
       "dependencies": {
         "@types/node": {
-          "version": "26.6.4"
+          "version": "26.6.5"
         },
         "@types/tough-cookie": {
           "version": "4.0.5",
@@ -5146,8 +5146,8 @@
       }
     },
     "@types/node": {
-      "version": "26.6.4",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-26.6.4.tgz",
+      "version": "26.6.5",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-26.6.5.tgz",
       "overridden": false,
       "dependencies": {
         "undici-types": {
@@ -5340,8 +5340,8 @@
       }
     },
     "@vitejs/plugin-vue": {
-      "version": "6.0.9",
-      "resolved": "https://registry.npmjs.org/@vitejs/plugin-vue/-/plugin-vue-6.0.9.tgz",
+      "version": "6.0.10",
+      "resolved": "https://registry.npmjs.org/@vitejs/plugin-vue/-/plugin-vue-6.0.10.tgz",
       "overridden": false,
       "dependencies": {
         "@rolldown/pluginutils": {
@@ -5523,7 +5523,7 @@
               }
             },
             "prettier": {
-              "version": "3.9.9"
+              "version": "3.9.10"
             },
             "synckit": {
               "version": "0.11.13"
@@ -5534,7 +5534,7 @@
           "version": "10.12.0"
         },
         "prettier": {
-          "version": "3.9.9"
+          "version": "3.9.10"
         }
       }
     },
@@ -7131,13 +7131,13 @@
         "prettier-plugin-sort-imports": {},
         "prettier-plugin-svelte": {},
         "prettier": {
-          "version": "3.9.9"
+          "version": "3.9.10"
         }
       }
     },
     "prettier": {
-      "version": "3.9.9",
-      "resolved": "https://registry.npmjs.org/prettier/-/prettier-3.9.9.tgz",
+      "version": "3.9.10",
+      "resolved": "https://registry.npmjs.org/prettier/-/prettier-3.9.10.tgz",
       "overridden": false
     },
     "sonda": {
@@ -7223,7 +7223,7 @@
       "overridden": false,
       "dependencies": {
         "@types/node": {
-          "version": "26.6.4"
+          "version": "26.6.5"
         },
         "@vitejs/devtools": {},
         "esbuild": {
@@ -7399,7 +7399,7 @@
           }
         },
         "@types/node": {
-          "version": "26.6.4"
+          "version": "26.6.5"
         },
         "@vitest/browser-playwright": {},
         "@vitest/browser-preview": {},
@@ -7898,8 +7898,8 @@
       }
     },
     "vue-tsc": {
-      "version": "3.3.12",
-      "resolved": "https://registry.npmjs.org/vue-tsc/-/vue-tsc-3.3.12.tgz",
+      "version": "3.3.13",
+      "resolved": "https://registry.npmjs.org/vue-tsc/-/vue-tsc-3.3.13.tgz",
       "overridden": false,
       "dependencies": {
         "@volar/typescript": {
@@ -7932,8 +7932,8 @@
           }
         },
         "@vue/language-core": {
-          "version": "3.3.12",
-          "resolved": "https://registry.npmjs.org/@vue/language-core/-/language-core-3.3.12.tgz",
+          "version": "3.3.13",
+          "resolved": "https://registry.npmjs.org/@vue/language-core/-/language-core-3.3.13.tgz",
           "overridden": false,
           "dependencies": {
             "@volar/language-core": {
@@ -8047,7 +8047,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261009.1"
+          "version": "5.20261011.1"
         },
         "blake3-wasm": {
           "version": "2.1.5",

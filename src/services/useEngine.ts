@@ -64,7 +64,11 @@ async function loadEngine(engineVersion: string | undefined): Promise<EngineWork
         engineWorker = engineRuntime.invokeWorker((errorEvent: ErrorEvent) => {
             console.error(errorEvent, 'engineWorker@useEngine.1');
         });
-        await engineWorker.initialise({ connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`, toolConfigs: toolConfigs.value });
+        await engineWorker.initialise({
+            connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`,
+            isLogged: import.meta.env.DEV,
+            toolConfigs: toolConfigs.value
+        });
     } catch (error) {
         // Raised to report it, not to display it: this knows the engine failed but not what the user was doing, and
         // every caller is inside a region that does. Each of them shows this as the cause of its own failure — the
