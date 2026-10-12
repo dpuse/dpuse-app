@@ -8,7 +8,7 @@ import { useConfirmDialog, useTimeoutFn } from '@vueuse/core';
 // ── Local Framework
 import { t } from '@/state/locale';
 import { TEXT } from './NewVersionNotice_.json';
-import { newAppVersionIsAvailable, updateAnnouncementCount } from '@/state/appVersion';
+import { moduleUpdateIsAvailable, newAppVersionIsAvailable, updateAnnouncementCount } from '@/state/appVersion';
 import { reloadWithConfirmedLoss, unsavedWorkIsPresent } from '@/state/unsavedWork';
 
 // ── Static Components
@@ -41,8 +41,11 @@ const { cancel: cancelReload, confirm: confirmReload, isRevealed: reloadConfirmI
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A new app version takes priority, because its reload picks up any module changes as well.
-const messageText = computed(() => t(TEXT, newAppVersionIsAvailable.value ? 'newVersion.text' : 'moduleUpdate.text'));
+// Chosen from what is pending, not from what arrived last, so the order the updates came in makes no difference.
+const messageText = computed(() => {
+    if (!newAppVersionIsAvailable.value) return t(TEXT, 'moduleUpdate.text');
+    return t(TEXT, moduleUpdateIsAvailable.value ? 'newVersionAndModuleUpdate.text' : 'newVersion.text');
+});
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -72,18 +75,20 @@ function handleDismiss(): void {
 </script>
 
 <template>
+    <!-- Notice ─ On a narrow screen the message takes the full width, with the close button in its top corner and Reload
+         on a line of its own below. From 'sm' up all three sit in one row. -->
     <div
         v-if="!isDismissed"
-        class="fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.75rem)] z-40 flex max-w-[calc(100%-2rem)] items-center gap-3 rounded-lg border border-separator bg-surface py-2 pr-2 pl-4 text-sm text-content shadow-lg"
+        class="fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.75rem)] left-[calc(1rem+env(safe-area-inset-left))] z-40 grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-2 rounded-lg border border-separator bg-surface py-2 pr-2 pl-4 text-sm text-content shadow-lg sm:left-auto sm:flex sm:max-w-[calc(100%-2rem)]"
         data-region="NewVersionNotice"
         role="status"
     >
         <p>{{ messageText }}</p>
-        <RectangleButton class="flex shrink-0 items-center" variant="primary" @click="handleReload">
+        <RectangleButton class="col-span-2 row-start-2 flex shrink-0 items-center justify-self-end" variant="primary" @click="handleReload">
             <RefreshCwIcon class="mr-1.5 size-4" />
             {{ t(TEXT, 'reload.label') }}
         </RectangleButton>
-        <CloseButton :accessible-label="t(TEXT, 'dismiss.aria')" @click="handleDismiss" />
+        <CloseButton class="col-start-2 row-start-1 self-start sm:self-auto" :accessible-label="t(TEXT, 'dismiss.aria')" @click="handleDismiss" />
     </div>
 
     <ConfirmDialog

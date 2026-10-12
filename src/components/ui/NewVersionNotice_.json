@@ -1,11 +1,12 @@
 {
     "TEXT": {
         "dismiss.aria": { "en": "Dismiss", "es": "Descartar" },
-        "moduleUpdate.text": {
-            "en": "Updates to DPUse's modules are available. Reload to use them.",
-            "es": "Hay actualizaciones de los módulos de DPUse disponibles. Recargue para utilizarlas."
-        },
+        "moduleUpdate.text": { "en": "New versions of DPUse's modules are available.", "es": "Hay nuevas versiones de los módulos de DPUse disponibles." },
         "newVersion.text": { "en": "A new version of DPUse is available.", "es": "Hay una nueva versión de DPUse disponible." },
+        "newVersionAndModuleUpdate.text": {
+            "en": "New versions of DPUse and its modules are available.",
+            "es": "Hay nuevas versiones de DPUse y de sus módulos disponibles."
+        },
         "reload.label": { "en": "Reload", "es": "Recargar" },
         "reloadConfirm.text": {
             "en": "You have unsaved changes. Reloading now will lose them.",
