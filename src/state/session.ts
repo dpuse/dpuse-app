@@ -1,7 +1,7 @@
 // ── External Dependencies & Registrations
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 import { computed, ref, shallowRef, watch } from 'vue';
-import { promiseTimeout, useDocumentVisibility, useEventListener, useIntervalFn } from '@vueuse/core';
+import { promiseTimeout, useDocumentVisibility, useIntervalFn } from '@vueuse/core';
 
 // ── DPUse Framework
 import { AppError, localiseConfig } from '@dpuse/dpuse-shared';
@@ -59,7 +59,6 @@ const state: { hankoInstance: Hanko | undefined; hankoFlowCleanupFunction: (() =
 export const sessionIsAuthenticated = ref<boolean | undefined>(); // Undefined if Hanko session validation pending; false if signed OUT; true if signed IN.
 export const lifetime = ref<number | undefined>();
 const sessionId = ref<string | undefined>();
-const updatesArePending = ref(false);
 
 const { pause: pauseExpiryTimer, resume: resumeExpiryTimer } = useIntervalFn(updateExpiresIn, expiryIntervalMs, { immediate: false });
 
@@ -123,10 +122,7 @@ export const activeMetaStoreConnectionConfig = computed(() => {
 
 // This module is an app-lifetime singleton: watchers are registered once at import and shared by every consumer,
 // not tied to any one component's lifecycle, so they intentionally live at the top level rather than in a hook.
-// Attached only while updates are pending, because the handler always asks the user to confirm leaving.
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
-useEventListener(() => (updatesArePending.value ? globalThis : undefined), 'beforeunload', handleBeforeUnload);
-
+//
 // A backgrounded tab has its timers throttled, so the countdown is brought up to date as soon as the tab is looked at.
 // eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
 watch(useDocumentVisibility(), (visibility) => {
@@ -174,14 +170,6 @@ export function setSessionExpiryTimer(isRunQuickly = false): void {
 
 export async function signOut(): Promise<void> {
     await state.hankoInstance?.logout();
-}
-
-// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-function handleBeforeUnload(event: BeforeUnloadEvent): void {
-    event.preventDefault();
-    // eslint-disable-next-line sonarjs/deprecation, @typescript-eslint/no-deprecated -- This is still required
-    event.returnValue = '';
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

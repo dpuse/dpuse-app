@@ -14,6 +14,11 @@ const RELOADED_FOR_VERSION_KEY = 'dpuse-reloadedForVersion';
 // The app version currently deployed, as announced by the configuration service. Undefined until it has said.
 export const liveAppVersion = shallowRef<string | undefined>();
 
+// True once any module the page uses (engine, connectors, presenters, tools, cookbooks) has changed since it loaded.
+// Nothing is swapped in place, because a loaded module cannot be unloaded and two versions side by side would disagree.
+// A reload is the only clean way to pick up the change, and the user decides when.
+export const moduleUpdateIsAvailable = shallowRef(false);
+
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Newer, not just different: a development build is often ahead of the deployed version and must not count as stale.

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Template Notes — TODO: Revisit later. These belong beside their elements in the template, but a comment at the
+// ── Template Notes ─ TODO: Revisit later. These belong beside their elements in the template, but a comment at the
 // template's root breaks the fade between route views in development: Vue never reports the old view as gone, so the
 // next one never appears. Production builds strip comments, so only development is affected.
 // - Engine error notice: covers the region, because without the engine there is nothing to list, preview or open here.
@@ -71,7 +71,7 @@ const SAVED_PREVIEW_RECORD_COUNT = 11;
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
 const emit = defineEmits<{
-    'choice-changed': [choiceDataViewConfig: DataViewConfig | undefined]; // The data view as the pick would leave it, shown above the step until it is saved.
+    'draft-changed': [draftDataViewConfig: DataViewConfig | undefined]; // The data view as the pick would leave it, shown above the step until it is saved.
     'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>];
 }>();
 
@@ -104,7 +104,7 @@ const previewTableDataSource = shallowRef<DataSource<Record<string, string | nul
 const route = useRoute();
 const router = useRouter();
 
-// Data View — 'isPending' stops a second commit while the first is still saving.
+// ── Data View ─ 'isPending' stops a second commit while the first is still saving.
 const { data: dataViewConfig } = useDataView(() => (typeof route.params.dataViewId === 'string' ? route.params.dataViewId : undefined));
 const { isPending: dataViewIsSaving, mutateAsync: updateDataView } = useUpdateDataView();
 
@@ -263,7 +263,7 @@ async function waitForActiveConnectionConfig(): Promise<LocalisedConfig<Connecti
 function pickItem(connectionNodeConfig?: ConnectionNodeConfig): void {
     activeConnectionObjectConfig.value = connectionNodeConfig;
     if (dataViewConfig.value == null) return;
-    emit('choice-changed', {
+    emit('draft-changed', {
         ...dataViewConfig.value,
         connectionNodeConfig: connectionNodeConfig ? constructStorableNodeConfig(connectionNodeConfig) : undefined,
         previewConfig: undefined,
@@ -373,7 +373,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 <template>
     <ErrorNotice v-if="engineFailure" :failures="[engineFailure]" @retry="handleRetryEngine" />
 
-    <GridDetailPanel v-else :active-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="400px">
+    <GridDetailPanel v-else :selected-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="400px">
         <template #header="{ isSplit }">
             <div class="flex h-full min-w-0 items-center border-b border-separator px-4 text-sm">
                 <!-- The last crumb is the item on show. It leads back to the list, so it stays live only while the list

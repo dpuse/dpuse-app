@@ -16,30 +16,28 @@ const ENGINE_STORAGE_URL_PREFIX = 'https://engine-eu.dpuse.app';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const state: { activeEngineVersion: string | undefined; pendingEngineWorker: Promise<EngineWorker> | undefined } = {
-    activeEngineVersion: undefined,
-    pendingEngineWorker: undefined
-};
+const state: { pendingEngineWorker: Promise<EngineWorker> | undefined } = { pendingEngineWorker: undefined };
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function useEngine(): Promise<EngineWorker> {
+    // The first engine loaded stays for the life of the page, even after a newer version is deployed. Starting a second
+    // worker would leave two engines, each with its own connector instances against the same store. The new version is
+    // picked up when the user reloads, which the module update notice offers.
+    if (state.pendingEngineWorker != null) return state.pendingEngineWorker;
+
     // "useEngine" is not invoked until all modules have been registered in session. So "engineConfig" will be populated.
     const engineVersion = engineConfig.value?.version;
-
-    // Return current value if previously imported and a new version has not been published.
-    if (state.pendingEngineWorker != null && state.activeEngineVersion === engineVersion) return state.pendingEngineWorker;
 
     // The load is cached as a promise rather than as the worker it resolves to, and cached before anything awaits.
     // Callers arrive together — two watchers on 'activeMetaStoreConnectionConfig' call this in the same flush on a
     // refresh — and a cache written only once the load finished would still be empty for the second of them. That
     // gave a second worker, with its own connector instances against the same store.
     const pendingEngineWorker = loadEngine(engineVersion);
-    state.activeEngineVersion = engineVersion;
     state.pendingEngineWorker = pendingEngineWorker;
 
     // A rejected promise stays rejected, so a cached one would replay the original failure to every retry instead of
-    // loading again. The identity check leaves a newer load alone, in case the version changed while this one failed.
+    // loading again. The identity check leaves a later load alone, in case a retry started while this one failed.
     void pendingEngineWorker.catch(() => {
         if (state.pendingEngineWorker === pendingEngineWorker) state.pendingEngineWorker = undefined;
     });

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Template Notes — TODO: Revisit later. These belong beside their elements in the template, but a comment at the
+// ── Template Notes ─ TODO: Revisit later. These belong beside their elements in the template, but a comment at the
 // template's root breaks the fade between route views in development: Vue never reports the old view as gone, so the
 // next one never appears. Production builds strip comments, so only development is affected.
 // - Root element: a single root element is required. DataViewsLayout passes class="min-h-0 flex-1" plus the props/emit

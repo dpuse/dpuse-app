@@ -48,7 +48,7 @@ const DATA_SOURCE: DataSource<{ id: number; name: string; category: string; valu
             scroll-area-padding-bottom="calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))"
         />
 
-        <!-- Status Bar - Blank for now. Keeps the table, and its horizontal scroll bar, above the bottom safe area on
+        <!-- Status Bar ─ Blank for now. Keeps the table, and its horizontal scroll bar, above the bottom safe area on
              iOS, as the item preview's status bar does. -->
         <div class="h-(--status-bar-height) w-full flex-none border-t border-separator bg-card" />
     </div>

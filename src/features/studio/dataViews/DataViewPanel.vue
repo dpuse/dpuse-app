@@ -13,6 +13,7 @@ import { defineLazyComponent } from '@/utilities/index.ts';
 import { purifyText } from '@/services/useMarkedTool';
 import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './DataViewPanel_.json'; // TODO: 'item.title' names every kind of item until each connector says which one it provides.
+import { useUnsavedWork } from '@/state/unsavedWork';
 import { constructItemPath, type DataViewConnection } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
 import { useDataView, useUpdateDataView } from '@/state/dataViews';
@@ -52,12 +53,12 @@ defineEmits<{ close: []; delete: [] }>();
 
 const route = useRoute();
 
-// Data View — the stored record behind the localised one shown, which an edit changes for one language only.
+// ── Data View ─ The stored record behind the localised one shown, which an edit changes for one language only.
 const { data: dataViewConfig } = useDataView(() => dataViewLocalisedConfig.id);
 const { mutateAsync: updateDataView } = useUpdateDataView();
 
-// Edit Dialog — the edits are held here while the dialog is open and saved when it closes, as the context descriptors
-// are applied when theirs closes.
+// ── Edit Dialog ─ The edits are held here while the dialog is open and saved when it closes, as the context
+// descriptors are applied when theirs closes.
 const editDialogIsOpen = ref(false);
 const editedDescription = ref('');
 const editedLabel = ref('');
@@ -65,19 +66,23 @@ const editedSubjectLabel = ref(''); // Taken when the dialog opens, so its title
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Connection — the sentence is split where the connector's name goes, so the name can be a link while the sentence stays
-// one translation, with the name wherever each language puts it.
+// ── Connection ─ The sentence is split where the connector's name goes, so the name can be a link while the sentence
+// stays one translation, with the name wherever each language puts it.
 const connectionTextParts = computed(() => t(TEXT, 'connection.text').split('{connector}'));
 
-// Item
+// ── Item
 const itemPath = computed(() => (dataViewLocalisedConfig.connectionNodeConfig ? constructItemPath(dataViewLocalisedConfig.connectionNodeConfig) : undefined));
 
-// Schema and Data — both read from the preview saved with the item. Its first record is the header row, as SelectItemPanel
-// treats it.
+// ── Schema and Data ─ Both read from the preview saved with the item. Its first record is the header row, as
+// SelectItemPanel treats it.
 const previewColumnLabels = computed(
     () => dataViewLocalisedConfig.previewConfig?.columnConfigs.map((config, index) => config.label[localeId.value] ?? config.label.en ?? String(index + 1)) ?? []
 );
 const previewRows = computed(() => dataViewLocalisedConfig.previewConfig?.parsedRecords.slice(1) ?? []);
+
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+useUnsavedWork(editDialogIsOpen); // The edits are only saved when the dialog closes, so a reload while it is open loses them.
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

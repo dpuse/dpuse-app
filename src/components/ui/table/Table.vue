@@ -180,7 +180,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
             <TableColumnPicker :table="table" />
         </div>
 
-        <!-- Header — a separate viewport from the scrolling body, kept in horizontal sync via scrollLeft mirroring
+        <!-- Header ─ A separate viewport from the scrolling body, kept in horizontal sync via scrollLeft mirroring
              (syncHeaderScroll) rather than CSS `sticky`: sticky always resolves against the *nearest* scroll-container
              ancestor, and inside the body below that would be the horizontal-only inner scroller, which never scrolls
              vertically, so a sticky header nested in there would just scroll away with the rows instead of pinning. -->
@@ -235,7 +235,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
             </div>
         </div>
 
-        <!-- Body — outer (vertical-only) drives the row virtualizer, inner (horizontal-only, nested) drives the
+        <!-- Body ─ Outer (vertical-only) drives the row virtualizer, inner (horizontal-only, nested) drives the
              column virtualizer. Wrapped in its own position:relative container so the ScrollThumb tracks below
              are scoped to this region, not the toolbar/header above it. -->
         <div class="relative flex min-h-0 flex-1 flex-col">

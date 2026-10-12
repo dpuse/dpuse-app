@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { ArrowRightIcon } from '@lucide/vue';
 import { useConfirmDialog } from '@vueuse/core';
-import { computed, shallowRef, watch } from 'vue';
+import { computed, shallowRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -18,19 +18,18 @@ import { TEXT } from './DataViewList_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useQueryFailure } from '@/services/queryClient';
 import { connectionLocalisedConfigs, useCreateDataView, useDataViews, useDeleteDataView } from '@/state/dataViews';
-import { constructDataViewSteps, type DataViewConnection, resolveCurrentDataViewStepId } from './dataViewSummary';
+import { type DataViewConnection, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
-import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
+import DataViewCard from './DataViewCard.vue';
 import DataViewPanel from './DataViewPanel.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
-import StepDots from '@/components/ui/StepDots.vue';
 import StudioListLayout from '@/features/studio/_components/StudioListLayout.vue';
 
 // ── Dynamic Components
@@ -38,27 +37,32 @@ const EmptyPlaceholder = defineLazyComponent(() => import('@/components/ui/place
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// ── Route
 const route = useRoute();
 const router = useRouter();
 
-const activeDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig> | undefined>();
-
-// Data Views — 'isPending' on each change stops a second click starting a second one while the first is saving.
+// ── Data Views ─ 'isPending' on each change stops a second click starting a second one while the first is saving.
 const { data: dataViewConfigs, error: dataViewRetrievalError, isError: dataViewRetrievalFailed, isSuccess: dataViewRetrievalSucceeded, refetch: refetchDataViews } = useDataViews();
 const { isPending: dataViewIsAdding, mutateAsync: createDataView } = useCreateDataView();
 const { isPending: dataViewIsDeleting, mutateAsync: deleteDataView } = useDeleteDataView();
 
+// ── Delete Confirmation
 const { cancel: cancelDelete, confirm: confirmDelete, isRevealed: deleteConfirmIsOpen, reveal: revealDeleteConfirm } = useConfirmDialog();
 const deletingDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig>>(); // Kept after the dialog closes, so its text does not blank while it fades out.
 
-// ── Derived State - Data Views ───────────────────────────────────────────────────────────────────────────────────────
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// ── Data Views
 const dataViewLocalisedConfigs = computed((): LocalisedConfig<DataViewConfig>[] => localiseConfigs<DataViewConfig>(dataViewConfigs.value ?? [], localeId.value));
 const dataViewRetrievalFailure = useQueryFailure(dataViewRetrievalError);
 
-// ── Derived State - Grid ─────────────────────────────────────────────────────────────────────────────────────────────
+// ── Selection ─ The URL is the one source of the selection, so reload, deep links and back/forward all land on the
+// same card. It is matched again whenever the list arrives or is rebuilt, which also drops a selection whose data view
+// has gone.
+const selectedDataViewLocalisedConfig = computed(() => dataViewLocalisedConfigs.value.find((config) => config.id === route.params.dataViewId));
 
-// 'rowCount' stays undefined, which keeps the grid busy, until retrieval settles either way; 0 means confirmed empty.
+// ── Grid ─ 'rowCount' stays undefined, which keeps the grid busy, until retrieval settles either way; 0 means
+// confirmed empty.
 const dataViewDataSource = computed((): DataSource<LocalisedConfig<DataViewConfig>> => ({
     rowCount: dataViewRetrievalSucceeded.value || dataViewRetrievalFailed.value ? dataViewLocalisedConfigs.value.length : undefined,
     getRows: (start, end): Promise<{ rows: LocalisedConfig<DataViewConfig>[] }> => Promise.resolve({ rows: dataViewLocalisedConfigs.value.slice(start, end) })
@@ -67,24 +71,9 @@ const dataViewDataSource = computed((): DataSource<LocalisedConfig<DataViewConfi
 // Cards here carry actions, which take a second row, and an overline naming the connector.
 const cardRowHeight = useCardRowHeight(true, true);
 
-// ── Derived State - Data View Summary ────────────────────────────────────────────────────────────────────────────────
-
-// The connector behind each data view, keyed by data view id; undefined until a connection is chosen.
+// ── Data View Summary ─ The connector behind each data view, keyed by data view id; undefined until a connection is
+// chosen.
 const dataViewConnectionsById = computed(() => new Map(dataViewLocalisedConfigs.value.map((config) => [config.id, constructDataViewConnection(config)])));
-
-const dataViewStepsById = computed(() => new Map(dataViewLocalisedConfigs.value.map((config) => [config.id, constructDataViewSteps(config)]))); // Each card reads its steps in several places.
-
-// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// The URL is the one source of the selection, so reload, deep links and back/forward all land on the same card. It is
-// matched again whenever the list arrives or is rebuilt, which also drops a selection whose data view has gone.
-watch(
-    [dataViewLocalisedConfigs, (): string | string[] | undefined => route.params.dataViewId],
-    ([newDataViewLocalisedConfigs, newDataViewId]) => {
-        activeDataViewLocalisedConfig.value = newDataViewLocalisedConfigs.find((config) => config.id === newDataViewId);
-    },
-    { immediate: true }
-);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -105,10 +94,10 @@ async function handleAddDataView(): Promise<void> {
 }
 
 function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
-    updateDataViewIdParameter(activeDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id ? undefined : dataViewLocalisedConfig.id);
+    updateDataViewIdParameter(selectedDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id ? undefined : dataViewLocalisedConfig.id);
 }
 
-// The step opens on the list's copy of the data view, so it is not read from the store again.
+// Opens the data view at the first task it has not finished, or at Explore Data once every other task is done.
 function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
     const routeName = resolveCurrentDataViewStepId(dataViewLocalisedConfig);
     void ignoreReportedNavigationFailure(router.push({ name: routeName, params: { dataViewId: dataViewLocalisedConfig.id }, query: route.query }));
@@ -123,10 +112,10 @@ async function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<Dat
 
     try {
         await deleteDataView(dataViewLocalisedConfig.id);
-        if (activeDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id) updateDataViewIdParameter();
+        if (selectedDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id) updateDataViewIdParameter();
     } catch (error) {
-        // Announced rather than shown in the list: the delete did not happen, so the row and everything around it are
-        // still there and still work. There is no space here this failure has taken, which is what makes it a modal.
+        // The failure goes to the app-level failure dialog, not the list. The delete did not happen, so the row is
+        // still there and still works, and the list has nothing to explain.
         raiseAppFailure(new AppError('Failed to remove data view.', 'dpuse-app.DataViewList.handleDeleteDataView', { typeId: 'handled' }, { cause: error }));
     }
 }
@@ -153,15 +142,8 @@ function constructDataViewConnection(dataViewLocalisedConfig: LocalisedConfig<Da
     };
 }
 
-// Read after the open action's name, standing in for the step dots, which screen readers do not see.
-function resolveProgressDescription(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): string {
-    const steps = dataViewStepsById.value.get(dataViewLocalisedConfig.id) ?? [];
-    const done = steps.filter((step) => step.state === 'done').length;
-    return done === steps.length ? t(TEXT, 'progress.complete.text') : t(TEXT, 'progress.text', { done, total: steps.length });
-}
-
-// An explicit 'name' is required even though this stays on the same route: it is what makes an absent 'dataViewId'
-// actually clear the param instead of inheriting the one already in the URL — see 'router/index.ts' for why.
+// An explicit 'name' is needed even though this stays on the same route. Without it, an absent 'dataViewId' keeps the
+// one already in the URL instead of clearing it.
 function updateDataViewIdParameter(dataViewId?: string): void {
     void ignoreReportedNavigationFailure(router.replace({ name: 'dataViews', params: { dataViewId }, query: route.query }));
 }
@@ -171,15 +153,14 @@ function updateDataViewIdParameter(dataViewId?: string): void {
     <StudioListLayout>
         <Separator class="flex-none" />
 
-        <!-- Covers the region: nothing was retrieved, so an empty list with no explanation is what this replaces. The
-             grid gives way to it rather than sitting behind it — an empty list and a detail pane asking the user to
-             pick from it are exactly what the failure is there to account for. -->
+        <!-- Retrieval Failure ─ Replaces the list and detail pane when the data views could not be retrieved. Otherwise
+             the user would see an empty list, and a detail pane asking them to choose from it, with no explanation. -->
         <ErrorNotice v-if="dataViewRetrievalFailure" :failures="[dataViewRetrievalFailure]" @retry="handleRetryRetrieval" />
 
         <!-- List and Detail Panel -->
         <GridDetailPanel
             v-else
-            :active-item="activeDataViewLocalisedConfig"
+            :selected-item="selectedDataViewLocalisedConfig"
             :add-label="t(TEXT, 'dataView.label')"
             class="min-h-0 flex-1"
             :data-source="dataViewDataSource"
@@ -188,21 +169,14 @@ function updateDataViewIdParameter(dataViewId?: string): void {
             @add="handleAddDataView"
         >
             <template #item="{ item }">
-                <ConfigCard
-                    :actions="[{ typeId: 'open', description: resolveProgressDescription(item), label: t(TEXT, 'open.label', { name: item.label }), onClick: handleOpenDataView }]"
-                    :category-label="dataViewConnectionsById.get(item.id)?.categoryLabel"
-                    :config="item"
-                    :icon="dataViewConnectionsById.get(item.id)?.icon"
-                    :icon-dark="dataViewConnectionsById.get(item.id)?.iconDark"
-                    :overline="dataViewConnectionsById.get(item.id)?.label ?? t(TEXT, 'noConnection.label')"
-                    :selected="item.id === activeDataViewLocalisedConfig?.id"
+                <DataViewCard
+                    :data-view-connection="dataViewConnectionsById.get(item.id)"
+                    :data-view-localised-config="item"
+                    :selected="item.id === selectedDataViewLocalisedConfig?.id"
                     @category-click="handleFilterByCategory"
                     @click="handleSelectDataView(item)"
-                >
-                    <template #status>
-                        <StepDots :steps="dataViewStepsById.get(item.id) ?? []" />
-                    </template>
-                </ConfigCard>
+                    @open="handleOpenDataView(item)"
+                />
             </template>
 
             <template #detail="{ item, close }">

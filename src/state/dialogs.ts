@@ -25,8 +25,8 @@ export interface DialogConfig {
 }
 
 interface Dialogs {
-    activeDialogConfig: ComputedRef<DialogConfig | undefined>;
-    activeDialogId: ComputedRef<DialogId | undefined>;
+    currentDialogConfig: ComputedRef<DialogConfig | undefined>;
+    currentDialogId: ComputedRef<DialogId | undefined>;
     closeDialog: () => void;
     openDialog: (dialogId: DialogId) => Promise<void>;
 }
@@ -56,11 +56,11 @@ export function useDialogs(): Dialogs {
     const route = useRoute();
     const router = useRouter();
 
-    const activeDialogId = computed<DialogId | undefined>(() => {
+    const currentDialogId = computed<DialogId | undefined>(() => {
         const dialogId = String(route.query.dlg ?? '');
         return Object.hasOwn(DIALOG_CONFIGS, dialogId) ? (dialogId as DialogId) : undefined;
     });
-    const activeDialogConfig = computed(() => (activeDialogId.value ? DIALOG_CONFIGS[activeDialogId.value] : undefined));
+    const currentDialogConfig = computed(() => (currentDialogId.value ? DIALOG_CONFIGS[currentDialogId.value] : undefined));
 
     // Called by the close button, by Escape, and by a dialog that has finished its own work, so it has to be safe to
     // call when there is nothing open — a body that commits and then unmounts would otherwise navigate twice.
@@ -78,5 +78,5 @@ export function useDialogs(): Dialogs {
         await ignoreReportedNavigationFailure(router.replace({ query: { ...route.query, dlg: dialogId } }));
     }
 
-    return { activeDialogConfig, activeDialogId, closeDialog, openDialog };
+    return { currentDialogConfig, currentDialogId, closeDialog, openDialog };
 }

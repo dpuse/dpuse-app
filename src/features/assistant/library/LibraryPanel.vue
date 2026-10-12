@@ -187,7 +187,7 @@ function handleSelectBreadcrumb(index: number): void {
                      job here — hence its absence at the top level, where there is nothing to go back to. -->
                 <Breadcrumbs v-if="breadcrumbsAreVisible" class="pb-3 text-xs" disable-last :items="breadcrumbs" @select="handleSelectBreadcrumb" />
 
-                <!-- Search - a flat list of what matches, whatever folder the index was left on. The trail is kept
+                <!-- Search ─ A flat list of what matches, whatever folder the index was left on. The trail is kept
                      rather than cleared, so clearing the query returns the user to where they were browsing. -->
                 <div v-if="searchIsActive">
                     <ActionWrapper
@@ -207,7 +207,7 @@ function handleSelectBreadcrumb(index: number): void {
                     <div v-if="searchResults.length === 0" class="py-8 text-center text-sm text-muted">{{ t(TEXT, 'noResults.text') }}</div>
                 </div>
 
-                <!-- Index - browse by folder, one level deep. -->
+                <!-- Index ─ Browse by folder, one level deep. -->
                 <div v-else>
                     <template v-if="activeTypeId">
                         <ActionWrapper

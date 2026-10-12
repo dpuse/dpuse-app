@@ -7,10 +7,6 @@
         "delete.confirm.text": { "en": "Delete “{name}”? This cannot be undone.", "es": "¿Eliminar «{name}»? No se puede deshacer." },
         "delete.confirm.title": { "en": "Delete Data View", "es": "Eliminar Vista de Datos" },
         "detail.open.label": { "en": "Open", "es": "Abrir" },
-        "noConnection.label": { "en": "No connection", "es": "Sin conexión" },
-        "noSelection.text": { "en": "Select a data view from the list.", "es": "Selecciona una vista de datos de la lista." },
-        "open.label": { "en": "Open {name}", "es": "Abrir {name}" },
-        "progress.complete.text": { "en": "All steps complete", "es": "Todos los pasos completados" },
-        "progress.text": { "en": "{done} of {total} steps complete", "es": "{done} de {total} pasos completados" }
+        "noSelection.text": { "en": "Select a data view from the list.", "es": "Selecciona una vista de datos de la lista." }
     }
 }

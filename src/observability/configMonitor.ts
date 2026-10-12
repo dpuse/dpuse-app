@@ -7,7 +7,6 @@ import type { ConnectionConfig, ConnectorConfig, CookbookConfig, EngineConfig, M
 
 // ── Local Framework
 import { hasFault } from '@/observability/faultInjection';
-import { liveAppVersion } from '@/state/appVersion';
 import { raiseFailure } from '@/state/errors';
 import { useMonitorSocket } from '@/observability/monitorSocket';
 import {
@@ -20,10 +19,11 @@ import {
     presenterConfigs,
     toolConfigs
 } from '@/state/session';
+import { liveAppVersion, moduleUpdateIsAvailable } from '@/state/appVersion';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-type ConfigMessage = { typeId: 'delete'; id: string } | { typeId: 'deploy'; module: ModuleConfig } | { typeId: 'init'; modules: ModuleConfig[] };
+type ConfigMessage = { typeId: 'clear' } | { typeId: 'delete'; id: string } | { typeId: 'deploy'; module: ModuleConfig } | { typeId: 'init'; modules: ModuleConfig[] };
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -35,7 +35,10 @@ const SIMULATED_NEW_APP_VERSION = '999.0.0'; // Newer than any real version, for
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const state = { reconnectAttempts: 0 }; // Kept for the failure report, which is raised after the count has been used.
+const state: { moduleListSignature: string | undefined; reconnectAttempts: number } = {
+    moduleListSignature: undefined, // The modules this page started with, to compare against the list a reconnect brings.
+    reconnectAttempts: 0 // Kept for the failure report, which is raised after the count has been used.
+};
 
 // Retries a limited number of times (the reconnected socket's 'open' resetting the count), then gives up and surfaces
 // the failure rather than retrying silently forever with no way for the user to know every config list is stuck
@@ -56,13 +59,19 @@ const socket = useMonitorSocket<ConfigMessage>({
         switch (message.typeId) {
             case 'init':
                 registerConfigurations(message.modules);
+                compareModuleList(message.modules);
                 configRetrievalSucceeded.value = true;
                 return;
             case 'deploy':
                 registerConfigurations([message.module]);
+                if (message.module.typeId !== 'app') moduleUpdateIsAvailable.value = true; // A new app version has its own notice.
                 return;
             case 'delete':
                 unregisterModuleConfig(message.id);
+                moduleUpdateIsAvailable.value = true;
+                return;
+            case 'clear':
+                moduleUpdateIsAvailable.value = true; // The reload fetches the emptied list, so the lists are left as they are.
                 return;
         }
     },
@@ -197,6 +206,22 @@ function doRegister(
             return;
         }
     }
+}
+
+// The first list is what this page loaded with. A list arriving after a reconnect may hold changes made while the socket
+// was down, which no 'deploy' or 'delete' message reported. '?fault=module-update' pretends one has changed.
+function compareModuleList(moduleConfigs: ModuleConfig[]): void {
+    const signature = moduleConfigs
+        .filter((moduleConfig) => moduleConfig.typeId !== 'app')
+        .map((moduleConfig) => `${moduleConfig.id}@${moduleConfig.version}`)
+        .toSorted((left, right) => left.localeCompare(right))
+        .join('|');
+    if (state.moduleListSignature == null) {
+        state.moduleListSignature = signature;
+        if (import.meta.env.DEV && hasFault('module-update')) moduleUpdateIsAvailable.value = true;
+        return;
+    }
+    if (signature !== state.moduleListSignature) moduleUpdateIsAvailable.value = true;
 }
 
 // Tells a running copy that a newer version has been deployed. '?fault=new-version' pretends one has.

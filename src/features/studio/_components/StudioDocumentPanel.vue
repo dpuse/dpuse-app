@@ -57,7 +57,7 @@ const headerMarginRight = computed(() => `${String(Math.max(36, actionsWidth.val
                 </div>
             </ActionWrapper>
 
-            <!-- Actions — beside the header button rather than inside it, because a button may not contain buttons. They sit in
+            <!-- Actions ─ Beside the header button rather than inside it, because a button may not contain buttons. They sit in
                  the right margin the header keeps clear, and are centred on the title row whatever the overline's height. -->
             <div v-if="$slots.actions" ref="actionsElement" class="absolute right-0 bottom-0 flex h-10 items-center gap-x-2">
                 <slot name="actions" />

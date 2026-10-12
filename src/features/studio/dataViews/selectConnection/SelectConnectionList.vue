@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Template Notes — TODO: Revisit later. These belong beside their elements in the template, but a comment at the
+// ── Template Notes ─ TODO: Revisit later. These belong beside their elements in the template, but a comment at the
 // template's root breaks the fade between route views in development: Vue never reports the old view as gone, so the
 // next one never appears. Production builds strip comments, so only development is affected.
 // - Configuration error notice: the list is empty because the configurations never arrived, not because there are no
@@ -47,7 +47,7 @@ const ACTION_CONFIGS: Action<ConnectionConfig>[] = [
 defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
 const emit = defineEmits<{
-    'choice-changed': [choiceDataViewConfig: DataViewConfig | undefined]; // The data view as the pick would leave it, shown above the step until it is saved.
+    'draft-changed': [draftDataViewConfig: DataViewConfig | undefined]; // The data view as the pick would leave it, shown above the step until it is saved.
     'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>];
 }>();
 
@@ -58,11 +58,11 @@ const router = useRouter();
 
 const { openDialog } = useDialogs();
 
-// Data View — 'isPending' stops a second commit while the first is still saving.
+// ── Data View ─ 'isPending' stops a second commit while the first is still saving.
 const { data: dataViewConfig } = useDataView(() => (typeof route.params.dataViewId === 'string' ? route.params.dataViewId : undefined));
 const { isPending: dataViewIsSaving, mutateAsync: updateDataView } = useUpdateDataView();
 
-// Choice — the connection picked in this step, saved only when it is committed. Starts as the saved one.
+// ── Choice ─ The connection picked in this step, saved only when it is committed. Starts as the saved one.
 const pickedConnectionId = ref<string>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -101,9 +101,9 @@ async function handleCommitDetail(): Promise<void> {
     if (dataViewConfig.value == null || pickedConnectionId.value == null || dataViewIsSaving.value) return;
 
     try {
-        const choiceDataViewConfig = constructChoiceDataViewConfig(dataViewConfig.value, pickedConnectionId.value);
-        if (choiceDataViewConfig !== dataViewConfig.value) await updateDataView(choiceDataViewConfig);
-        void ignoreReportedNavigationFailure(router.push({ name: 'item', params: { dataViewId: choiceDataViewConfig.id }, query: route.query }));
+        const draftDataViewConfig = constructDraftDataViewConfig(dataViewConfig.value, pickedConnectionId.value);
+        if (draftDataViewConfig !== dataViewConfig.value) await updateDataView(draftDataViewConfig);
+        void ignoreReportedNavigationFailure(router.push({ name: 'item', params: { dataViewId: draftDataViewConfig.id }, query: route.query }));
     } catch (error) {
         // Announced rather than shown in the list: the save did not happen, so the selection is still here to commit
         // again, and there is no space here this failure has taken.
@@ -129,7 +129,7 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
 
 // The saved data view itself when the connection is unchanged. A different one clears the later steps, because they were
 // worked out from the connection it replaces.
-function constructChoiceDataViewConfig(savedDataViewConfig: DataViewConfig, connectionId: string | undefined): DataViewConfig {
+function constructDraftDataViewConfig(savedDataViewConfig: DataViewConfig, connectionId: string | undefined): DataViewConfig {
     if (connectionId === savedDataViewConfig.connectionId) return savedDataViewConfig;
     return {
         ...savedDataViewConfig,
@@ -145,7 +145,7 @@ function constructChoiceDataViewConfig(savedDataViewConfig: DataViewConfig, conn
 function pickConnection(connectionId: string | undefined): void {
     if (dataViewConfig.value == null) return;
     pickedConnectionId.value = connectionId;
-    emit('choice-changed', constructChoiceDataViewConfig(dataViewConfig.value, connectionId));
+    emit('draft-changed', constructDraftDataViewConfig(dataViewConfig.value, connectionId));
 }
 </script>
 
@@ -154,7 +154,7 @@ function pickConnection(connectionId: string | undefined): void {
 
     <GridDetailPanel
         v-else
-        :active-item="pickedConnectionLocalisedConfig"
+        :selected-item="pickedConnectionLocalisedConfig"
         :add-label="t(TEXT, 'connection.label')"
         :data-source="connectionLocalisedConfigsDataSource"
         max-detail-width="65ch"

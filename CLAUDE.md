@@ -7,10 +7,14 @@ Conventions shared by all DPUse projects (section banners, sub-groups, comments)
 
 ### Section banners
 
-Common banners, in order: `External Dependencies & Registrations`, `Constants`, `State`, `Derived State`, `Side Effects`,
-`Event Handlers`, `Helpers`.
+The canonical list of banner names, in order, is [src/template.ts](src/template.ts). Check it before adding or
+reviewing a banner.
 
 See [PaneSplitter.vue](src/components/ui/PaneSplitter.vue) for a worked example of banners and sub-groups.
+
+### Imports
+
+Import app modules through `@/`, never `~/src/` or a long relative path.
 
 ### Comments
 
@@ -34,9 +38,52 @@ than three. Cut anything the code already shows.
 - **Plain, active sentences, one idea each.** Avoid chains of semicolons and dashes, and casual phrasing.
 - **Accurate.** Every claim must match the code. Check claims about browser or library behaviour before writing
   them, and state security trade-offs plainly.
-- **Format.** Put code names in single quotes. Wrap at column 120.
+- **Log is not report.** "Logs" means to the console, "reports" means to the DPUse API. Never use one for the other,
+  and name both when code does one but not the other.
+- **Format.** Put code names in single quotes. Comments on their own lines wrap at column 120; end-of-line comments
+  have no limit.
+
+Comment anything a reader would stop and puzzle over, in the template as well as the script: an unusual `v-show`
+instead of `v-if`, a non-obvious class binding.
 
 See [main.ts](src/main.ts) for a worked example.
+
+### Vue
+
+These are required, not preferences:
+
+- **Template refs use `useTemplateRef`.** The string key stays the plain template name and the variable takes a suffix:
+  `const containerElement = useTemplateRef<HTMLDivElement>('container')` with `ref="container"`. Never
+  `ref<HTMLElement | null>(null)`.
+- **v-model uses `defineModel`**, in the State section. Never a prop paired with a manual `emit('update:…')`.
+- **Every component that renders a `<slot>` declares it with `defineSlots`**, with typed slot props, including the
+  default slot and slots with no props. It goes between `defineProps` and `defineEmits`. Mark a slot optional
+  (`tags?()`) when callers do not always fill it.
+
+Design rules:
+
+- **Declarative first.** A value derived from other state is a `computed`, not a ref that a watcher sets.
+- **Immediate watchers.** A watcher that sets state from a value that can already be set at mount (a URL-restored
+  selection, cached data, a first-render prop) takes `{ immediate: true }`, or becomes a `computed`.
+- **VueUse wherever it fits.** Do not hand-write listeners, observers, media queries, storage, timers, debounce or
+  WebSockets that VueUse covers. Raw `addEventListener` and `setTimeout` stay only where there is no effect scope
+  (`main.ts`, `errorTracking.ts`, `router/index.ts`). Use VueUse's own options before adding wrappers, e.g.
+  `eventFilter: debounceFilter(ms)` on `useLocalStorage`.
+- **Composables and size.** Share reactive logic through composables. Split a component or module when it grows
+  unwieldy rather than letting it absorb more.
+- **Repeated markup becomes data.** Three or more template blocks with the same structure that would change together
+  become a typed constant list, a `computed` that filters it, and one `v-for` keyed by id. Leave two blocks, or blocks
+  alike by coincidence, as they are. Do not add flags to force a block to fit.
+- **Copy imported JSON before editing it.** JSON that stands in for a fetch is passed through `structuredClone` before it
+  becomes editable state, because the import is one object shared by the whole session.
+
+### Feature folders
+
+- A `_` prefix (`_components/`, `_data/`, `_context.ts`) marks files private to their feature folder.
+- Variants of a shared panel are thin wrapper files (`PluginToolPanel.vue` around `PluginPanel.vue`), not branches
+  inside one generic component.
+- Setup master-detail screens use `GridDetailPanel` with `useSetupSelection()`. The selection lives in the route's
+  `id` param, and the detail panel is keyed by item id so each selection starts fresh.
 
 ### Component names
 
@@ -121,7 +168,45 @@ The key is `subject.role`, in lowerCamel segments, quoted, alphabetical. Rules:
   down: name the contract, not the content, because the content is the part that changes. A key reading
   `Select_a_connection_to_configure_the_data_view_before_continuing` outlived the sentence it was named for.
 
+Using the strings:
+
+- **Whole phrases.** A phrase containing a name is one entry with a placeholder (`"{label} Website"`), used as
+  `t(TEXT, 'website.label', { label })`. Never place a variable beside a translated word, because word order differs
+  between languages.
+- **No raw ids on screen.** Turn ids into labels with the dpuse-shared helpers, passing `localeId.value`:
+  `constructConnectorCategoryConfig`, `constructConnectorUsageConfig`, `getComponentStatus`. Hide a status tag whose
+  label is empty.
+- **Translate in a `computed`** that reads `localeId.value`, never in a watcher or on load. Translating re-creates the
+  objects, so a watcher on a selection watches its id, not the object.
+- **TODOs about JSON contents** go as a trailing comment on the import line, naming the key and languages, because
+  JSON cannot hold comments.
+
+### Accessibility
+
+- An icon-only button has an `:aria-label` from `TEXT` (role `aria`). A button repeated on every row includes the
+  row's name: "Edit {label}".
+- Never nest interactive elements inside a button, link or heading. An expandable row is a heading holding a text
+  button, with its actions beside the heading ([ContextDisclosure.vue](src/features/studio/setup/context/_components/ContextDisclosure.vue)).
+  A whole clickable card uses a stretched overlay with its actions above it, and no heading around the overlay.
+- A custom widget implements the whole WAI-ARIA Authoring Practices pattern: roles, states, relationships and
+  keyboard support. `ContextEntityList.vue` is the worked example for tabs.
+
+### Errors
+
+Error locators follow `dpuse-app.<fileName>[.<functionName>]`, e.g. `dpuse-app.faultInjection.throwOnFault`. A file
+named `index` uses its parent folder's name: `dpuse-app.router`.
+
+### Pitfalls
+
+- `.dpuse-prose` rules sit outside any `@layer`, so they beat Tailwind utilities. Use the `!` form (`m-0!`) or style a
+  wrapper element.
+- An absolutely positioned element, including `sr-only` text, inside a horizontal scroller needs a positioned ancestor
+  inside the scroller. Otherwise iOS Safari scrolls the whole page sideways, and no emulator shows it.
+
 ### Template comments
+
+A template comment that labels a block names it, then explains it after `─`: `<!-- Pane Splitter ─ Only when both
+panes are visible. -->`. A label with nothing to explain is just the name: `<!-- Header -->`.
 
 A template comment may sit above a component's root element. It does not make the component multi-root: in
 development Vue skips comments when it looks for the single root to pass attributes to, and production builds strip

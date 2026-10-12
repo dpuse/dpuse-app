@@ -8,6 +8,7 @@ import { serialiseError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { AppFailure } from '@/state/errors';
+import { moduleUpdateIsAvailable } from '@/state/appVersion';
 import { t } from '@/state/locale';
 
 // ── Static Components
@@ -81,8 +82,9 @@ const entries = computed(() =>
 );
 
 // Shown once however many failures share the reason. A stale deployment fails every chunk the session goes on to need,
-// so repeating the same sentence per entry would say nothing new four times.
-const needsReload = computed(() => failures.some((failure) => failure.needsReload));
+// so repeating the same sentence per entry would say nothing new four times. A module update counts too: the page is
+// still running the modules it loaded, and a failure may come from them disagreeing with the newer ones.
+const needsReload = computed(() => moduleUpdateIsAvailable.value || failures.some((failure) => failure.needsReload));
 </script>
 
 <template>

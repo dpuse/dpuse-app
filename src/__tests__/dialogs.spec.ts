@@ -30,15 +30,15 @@ describe('useDialogs', () => {
     it('resolves the dialog the URL asks for', async () => {
         const { dialogs } = await buildDialogs('?dlg=auth');
 
-        expect(dialogs.activeDialogId.value).toBe('auth');
-        expect(dialogs.activeDialogConfig.value?.sizing).toBe('reserved');
+        expect(dialogs.currentDialogId.value).toBe('auth');
+        expect(dialogs.currentDialogConfig.value?.sizing).toBe('reserved');
     });
 
     it('ignores a "dlg" value that names no dialog', async () => {
         const { dialogs } = await buildDialogs('?dlg=nonsense');
 
-        expect(dialogs.activeDialogId.value).toBeUndefined();
-        expect(dialogs.activeDialogConfig.value).toBeUndefined();
+        expect(dialogs.currentDialogId.value).toBeUndefined();
+        expect(dialogs.currentDialogConfig.value).toBeUndefined();
     });
 
     it('opens a dialog without disturbing the rest of the query', async () => {

@@ -148,7 +148,7 @@ async function loadPresenters(): Promise<void> {
         <!-- Body -->
         <Separator />
         <GridDetailPanel
-            :active-item="activePresentationReference"
+            :selected-item="activePresentationReference"
             class="min-h-0 flex-1"
             :data-source="presentationReferencesDataSource"
             :is-compact="true"

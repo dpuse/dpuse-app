@@ -18,7 +18,7 @@ export const viewportIsWide = useMediaQuery('(min-width: 768px)'); // 768px is T
 
 // ── State - Application Panes ────────────────────────────────────────────────────────────────────────────────────────
 
-export const activeAppPaneId = ref<AppPaneId | undefined>(); // Undefined until the initial URL has been read.
+export const currentAppPaneId = ref<AppPaneId | undefined>(); // Undefined until the initial URL has been read.
 export const assistantPaneIsActive = ref(false);
 export const assistantPaneWasActivated = ref(false); // Latches on first activation and never clears; see 'setPaneActiveState'.
 export const studioPaneIsActive = ref(false);
@@ -33,7 +33,7 @@ export const sessionMenuIsOpen = ref(false);
 export const appearanceIsDark: ComputedRef<boolean> = computed(() => appearance.state.value === 'dark');
 
 // A wide display can show both active panes side by side. A narrow one has room for only one, so being active is not
-// enough — the pane also has to be the one in front. 'activeAppPaneId' is what decides that, which is why a pointer, a
+// enough — the pane also has to be the one in front. 'currentAppPaneId' is what decides that, which is why a pointer, a
 // scroll or focus anywhere in a pane claims it: on a narrow display the claim is already true, and on a wide one it
 // records which pane the user was last working in, so the narrow layout knows what to show if the display shrinks.
 export const assistantPaneIsVisible: ComputedRef<boolean> = computed(() => isPaneVisible('assistant'));
@@ -47,7 +47,7 @@ export const studioPaneIsVisible: ComputedRef<boolean> = computed(() => isPaneVi
 //
 // Which pane is in front follows from the same change, so it is settled here rather than at each call site: switching a
 // pane on puts it in front, and switching one off leaves the other. The bootstrap in 'App.vue' is the one caller that
-// assigns 'activeAppPaneId' afterwards, because the URL records which pane was in front and that cannot be derived.
+// assigns 'currentAppPaneId' afterwards, because the URL records which pane was in front and that cannot be derived.
 export function setPaneActiveState(paneId: AppPaneId, isActive: boolean): void {
     const otherPaneId: AppPaneId = paneId === 'assistant' ? 'studio' : 'assistant';
 
@@ -59,12 +59,12 @@ export function setPaneActiveState(paneId: AppPaneId, isActive: boolean): void {
         if (isActive) studioPaneWasActivated.value = true;
     }
 
-    activeAppPaneId.value = isActive ? paneId : otherPaneId;
+    currentAppPaneId.value = isActive ? paneId : otherPaneId;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function isPaneVisible(paneId: AppPaneId): boolean {
     const isActive = paneId === 'assistant' ? assistantPaneIsActive.value : studioPaneIsActive.value;
-    return isActive && (viewportIsWide.value || activeAppPaneId.value === paneId);
+    return isActive && (viewportIsWide.value || currentAppPaneId.value === paneId);
 }

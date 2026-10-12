@@ -13,7 +13,7 @@ import Grid from '@/components/ui/grid/Grid.vue';
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
-    activeItem?: T;
+    selectedItem?: T;
     addLabel?: string;
     dataSource: DataSource<T>;
     isCompact?: boolean;
@@ -22,7 +22,7 @@ interface Properties {
     rowHeight?: number; // Row height in px. Default: 'Grid''s own.
     scrollAreaPaddingTop?: number | string;
 }
-const { activeItem, addLabel, dataSource, isCompact, maxDetailWidth, maxGridWidth, rowHeight, scrollAreaPaddingTop } = defineProps<Properties>();
+const { selectedItem, addLabel, dataSource, isCompact, maxDetailWidth, maxGridWidth, rowHeight, scrollAreaPaddingTop } = defineProps<Properties>();
 
 defineSlots<{
     header(properties: { isSplit: boolean }): unknown;
@@ -54,7 +54,7 @@ provide(gridDetailIsSplitKey, isSplit);
 // re-localises every row), and that must not reopen a detail the user has dismissed. Immediate, because returning to a
 // page with an item already selected (e.g. by the back button) must open its detail without the selection changing.
 watch(
-    () => activeItem?.id,
+    () => selectedItem?.id,
     (newActiveItemId) => {
         detailIsOpen.value = newActiveItemId !== undefined;
     },
@@ -104,16 +104,16 @@ watch(
                      route views: the card's highlight changes on the click, so the old detail must not linger beside it.
                      The comments stay out here because a comment between the branches would sit inside the transition. -->
                 <Transition name="action-fade-in" mode="out-in">
-                    <div v-if="activeItem" :key="activeItem.id" class="relative flex h-full min-h-0 flex-col">
-                        <slot name="detail" :item="activeItem" :close="() => (detailIsOpen = false)" />
+                    <div v-if="selectedItem" :key="selectedItem.id" class="relative flex h-full min-h-0 flex-col">
+                        <slot name="detail" :item="selectedItem" :close="() => (detailIsOpen = false)" />
                     </div>
                     <div v-else key="noSelection" class="mx-4 mt-6">
                         <slot name="no-selection" />
                     </div>
                 </Transition>
 
-                <!-- Detail Action - Outside the transition, so the button stays put while the item's details fade in. -->
-                <slot v-if="activeItem" name="detail-action" :item="activeItem" />
+                <!-- Detail Action ─ Outside the transition, so the button stays put while the item's details fade in. -->
+                <slot v-if="selectedItem" name="detail-action" :item="selectedItem" />
             </div>
         </div>
     </div>

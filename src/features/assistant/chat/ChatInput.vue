@@ -14,6 +14,7 @@ import { computed, useTemplateRef } from 'vue';
 
 import { t } from '@/state/locale';
 import { TEXT } from './ChatInput_.json';
+import { useUnsavedWork } from '@/state/unsavedWork';
 
 // ── Local Framework
 import type { AssistantModelConfig } from './modelConfigs';
@@ -64,6 +65,8 @@ const sendButtonClasses = computed(() =>
 // Measured rather than stated: this grows with the text typed into it, so no constant could stand in for its height.
 // The observer also reports once as it starts, which gives the first height.
 useResizeObserver(inputElement, reportHeight);
+
+useUnsavedWork(() => draft.value.trim() !== ''); // A message typed but not sent is lost by a reload.
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

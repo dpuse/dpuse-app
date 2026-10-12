@@ -21,9 +21,9 @@ import App from '@/App.vue';
 
 // Checks browser support first, so an unsupported browser gets a clear message rather than a failure later on.
 //
-// Some privacy-focused browsers under-report their version, so a browser that fails the version check is still
-// accepted if it supports Trusted Types, which the app needs to start. As a trade-off, this also accepts older Chrome
-// versions back to 83, which lack only 'field-sizing' (the chat box does not grow as the user types).
+// Some privacy-focused browsers under-report their version, so a browser that fails the version check is still accepted
+// if it supports Trusted Types, which the app needs to start. As a trade-off, this also accepts older Chrome versions
+// back to 83, which lack only 'field-sizing' (the chat box does not grow as the user types).
 //
 // '?fault=browser' forces the check to fail.
 const isBrowserSupported = !(import.meta.env.DEV && hasFault('browser')) && (__SUPPORTED_BROWSER_REGEXP__.test(navigator.userAgent) || 'trustedTypes' in globalThis);
@@ -64,10 +64,10 @@ if (isBrowserSupported) {
             event.preventDefault();
         });
 
-        // A new deployment deletes the old version's code files (chunks). A user still running the old version then fails
-        // to load one, and Vite raises 'vite:preloadError'. Nothing is shown here, because the user may never open the
-        // screen that needs the chunk. That screen shows its own reload message. The failure is reported only if no newer
-        // version is known, because only then is it a fault rather than an out-of-date page.
+        // A new deployment deletes the old version's code files (chunks). A user still running the old version then
+        // fails to load one, and Vite raises 'vite:preloadError'. Nothing is shown here, because the user may never
+        // open the screen that needs the chunk. That screen shows its own reload message. The failure is reported only
+        // if no newer version is known, because only then is it a fault rather than an out-of-date page.
         //
         // No 'preventDefault', so Vite passes the error on to the screen that asked for the chunk.
         addEventListener('vite:preloadError', (event): void => {

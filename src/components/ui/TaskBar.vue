@@ -31,8 +31,8 @@ export interface TaskConfig {
 
 // 'detail' names what was chosen in a step, such as the connection. It is read out with the step; the host shows it on
 // screen wherever there is room for it.
-const { activeId, items = [] } = defineProps<{
-    activeId?: string;
+const { currentId, items = [] } = defineProps<{
+    currentId?: string;
     items?: (LocalisedConfig<TaskConfig> & { detail?: string; disabled: boolean; to?: RouteLocationRaw })[];
 }>();
 
@@ -64,7 +64,7 @@ function localiseLine(line: LocaleLabel): string {
             <li v-for="(item, index) in items" :key="item.id" class="relative">
                 <component
                     :is="item.disabled ? 'div' : ActionWrapper"
-                    :aria-current="activeId === item.id ? 'step' : undefined"
+                    :aria-current="currentId === item.id ? 'step' : undefined"
                     class="group flex items-start gap-x-1.5 pt-1 pb-2 text-sm"
                     :to="item.to"
                 >
@@ -74,8 +74,8 @@ function localiseLine(line: LocaleLabel): string {
                         aria-hidden="true"
                         class="flex size-5 flex-none items-center justify-center rounded-full border-[1.25px] text-xs font-semibold"
                         :class="[
-                            activeId === item.id ? 'border-accent bg-accent text-surface' : 'bg-surface',
-                            activeId !== item.id && (item.disabled ? 'border-muted text-muted' : 'border-accent text-accent')
+                            currentId === item.id ? 'border-accent bg-accent text-surface' : 'bg-surface',
+                            currentId !== item.id && (item.disabled ? 'border-muted text-muted' : 'border-accent text-accent')
                         ]"
                     >
                         <!-- 'text-box' trims the font's empty space above and below the digits, so they sit in the middle of the circle. -->
@@ -86,7 +86,7 @@ function localiseLine(line: LocaleLabel): string {
                          wide: the bar sits in an app pane the splitter resizes. Narrower, the verb is dropped and only the
                          noun stays. Screen readers get the whole step from the hidden text instead, so they hear the
                          number and whether it is locked. -->
-                    <span aria-hidden="true" class="flex flex-col" :class="activeId === item.id ? 'text-accent' : item.disabled ? 'text-muted' : 'group-hover:text-accent'">
+                    <span aria-hidden="true" class="flex flex-col" :class="currentId === item.id ? 'text-accent' : item.disabled ? 'text-muted' : 'group-hover:text-accent'">
                         <span class="flex items-center">
                             <span class="leading-5 whitespace-nowrap">
                                 <span class="hidden @min-[40rem]:inline">{{ item.label }}</span>

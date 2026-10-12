@@ -125,7 +125,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
          leaving an empty picker with no explanation. -->
     <ErrorNotice v-if="configRetrievalFailure" :can-retry="false" :failures="[configRetrievalFailure]" />
 
-    <GridDetailPanel v-else :active-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" :row-height="cardRowHeight">
+    <GridDetailPanel v-else :selected-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" :row-height="cardRowHeight">
         <template #item="{ item }">
             <ConfigCard v-if="item" :config="item" @click="handleSelectConnector(item)" />
         </template>

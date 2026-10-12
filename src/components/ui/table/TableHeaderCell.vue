@@ -87,7 +87,7 @@ onClickOutside(menuElement, () => {
             </div>
         </div>
 
-        <!-- Resize handle — touch-none prevents scroll interference on mobile -->
+        <!-- Resize Handle ─ 'touch-none' prevents scroll interference on mobile -->
         <div
             v-if="header.column.getCanResize()"
             class="absolute top-0 right-0 h-full w-1 cursor-col-resize touch-none select-none hover:bg-zinc-300 dark:hover:bg-zinc-600"

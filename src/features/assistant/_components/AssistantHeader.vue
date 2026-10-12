@@ -57,12 +57,12 @@ const paddingClasses = computed(() => {
             </div>
         </component>
 
-        <!-- Toolbar - In the title's place, so aligned as the title would be. -->
+        <!-- Toolbar ─ In the title's place, so aligned as the title would be. -->
         <div v-if="toolbarPlacement === 'title'" class="flex min-w-0 flex-1" :class="viewportIsWide ? 'justify-start' : 'justify-center'">
             <slot name="toolbar" />
         </div>
 
-        <!-- Toolbar - After the title. Full height, so a toolbar can place itself against the header's top edge. -->
+        <!-- Toolbar ─ After the title. Full height, so a toolbar can place itself against the header's top edge. -->
         <div v-else-if="toolbarPlacement === 'end'" class="col-start-3 flex flex-none justify-end self-stretch">
             <slot name="toolbar" />
         </div>

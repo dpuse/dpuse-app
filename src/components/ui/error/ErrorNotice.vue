@@ -53,7 +53,7 @@ const TEXT = {
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Detail dialog — reachable from the badge, which has no room to show the body in place. The element itself always
+// ── Detail Dialog ─ Reachable from the badge, which has no room to show the body in place. The element itself always
 // exists so its ref is available on the click that opens it; only its contents are conditional.
 const detailDialog = useTemplateRef<HTMLDialogElement>('detailDialogReference');
 const detailIsVisible = ref(false);
@@ -127,12 +127,12 @@ function handleShowDetail(): void {
         <!-- The region's presentations, and the dialog the badge opens. A screen-owning failure has no use for any of them: it
              has no region to measure, and shows its body in its own modal below. -->
         <template v-if="!ownsScreen">
-            <!-- Badge - the container is too narrow for prose, so the body moves to a dialog. -->
+            <!-- Badge ─ The container is too narrow for prose, so the body moves to a dialog. -->
             <button :aria-label="t(TEXT, 'detail.aria')" class="notice-badge text-warning-text" :title="mainSerialisedError.message" type="button" @click="handleShowDetail">
                 <span class="notice-badge-body"><TriangleAlertIcon stroke-width="1.3" /></span>
             </button>
 
-            <!-- Card - room for the whole body. -->
+            <!-- Card ─ Room for the whole body. -->
             <div class="notice-card">
                 <ErrorBody :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
             </div>
@@ -148,7 +148,7 @@ function handleShowDetail(): void {
             </dialog>
         </template>
 
-        <!-- Screen - a failure no region owns, so the space it has lost is the screen. Opened by the failure rather
+        <!-- Screen ─ A failure no region owns, so the space it has lost is the screen. Opened by the failure rather
              than by a click, and closed by the corner button: an acknowledgement, not the dead end this app used to
              show, which suppressed every dialog for the rest of the session and had no way out at all. -->
         <dialog v-else ref="screenDialogReference" class="screen-dialog outline-none" tabindex="-1" @cancel="emit('dismiss')" @close="emit('dismiss')">

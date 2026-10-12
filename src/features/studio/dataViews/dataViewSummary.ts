@@ -30,7 +30,7 @@ export interface DataViewConnection {
     version: string; // The connector's.
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The item's full path within its connection, as the engine takes it.
 export function constructItemPath(connectionNodeConfig: ConnectionNodeConfig): string {

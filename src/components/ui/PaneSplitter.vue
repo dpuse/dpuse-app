@@ -15,8 +15,8 @@ import { TEXT } from './PaneSplitter_.json';
 
 // Half pills butting onto the bar, so with it they read as one pill and the pointer never crosses a gap that would end
 // hover. Shown on hover, or while the splitter has focus, which pressing it gives, so a tap reveals them on touch
-// screens. Hidden buttons ignore the pointer, so they cannot be pressed unseen. 44px on touch is Apple's minimum target.
-// The background is translucent, so the content behind shows through.
+// screens. Hidden buttons ignore the pointer, so they cannot be pressed unseen. 44px on touch is Apple's minimum
+// target. The background is translucent, so the content behind shows through.
 const ARROW_BUTTON_CLASS = [
     'pointer-events-none absolute top-1/2 flex size-7 -translate-y-1/2 items-center justify-center border border-boundary',
     'bg-surface/70 text-content opacity-0 transition-opacity pointer-coarse:size-11',
@@ -36,14 +36,14 @@ const PRESET_TOLERANCE_PERCENT = 0.5; // A drag rarely lands exactly on a preset
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Model
+// ── Model
 const splitterLeftPanePercent = defineModel<number>({ default: BALANCED_PERCENT });
 
-// Template
+// ── Template
 const paneSplitterElement = useTemplateRef<HTMLDivElement>('paneSplitter');
 const separatorElement = useTemplateRef<HTMLDivElement>('separator');
 
-// Drag — only meaningful while a drag is in progress. Refs rather than plain variables because the lint rules forbid
+// ── Drag ─ Only meaningful while a drag is in progress. Refs rather than plain variables because the lint rules forbid
 // reassigning a top-level variable from inside a function.
 const previousBodyUserSelect = ref(''); // Text selection is switched off page-wide while dragging; this restores it.
 const previousBodyWebkitUserSelect = ref(''); // Safari, including every iPad browser, only honours the prefixed form.
@@ -183,9 +183,10 @@ function moveToPreset(percent: number): void {
             :aria-valuenow="Math.round(splitterLeftPanePercent)"
             :class="[
                 'group relative flex-1 cursor-col-resize touch-none border-x border-boundary transition-colors select-none',
-                // The handle is a few pixels wide, so it shows focus by lighting up rather than by being ringed. 'outline-hidden'
-                // rather than 'outline-none': in Tailwind v4 the former keeps an outline in forced-colors mode, where this
-                // background change is not rendered and would otherwise leave no indicator at all.
+                // The handle is a few pixels wide, so it shows focus by lighting up rather than by being ringed.
+                // 'outline-hidden' rather than 'outline-none': in Tailwind v4 the former keeps an outline in
+                // forced-colors mode, where this background change is not rendered and would otherwise leave no
+                // indicator at all.
                 'hover:bg-separator focus-visible:bg-separator focus-visible:outline-hidden',
                 splitterIsDragging && 'bg-separator'
             ]"
@@ -199,10 +200,11 @@ function moveToPreset(percent: number): void {
             @pointermove="handlePointerMove"
             @pointerup="handlePointerUp"
         >
-            <!-- Widens the grab area equally over both panes without affecting layout. The root's z-index keeps it above
-                 them. A splitter's width on each side, so the target is three times what is drawn — a size chosen for the
-                 pointer rather than tied to the divider, which is why it repeats the value instead of sharing it. On touch
-                 screens a fingertip needs more, so it fills the 16px gutter each side, close to Apple's 44pt minimum. -->
+            <!-- Widens the grab area equally over both panes without affecting layout. The root's z-index keeps it
+                 above them. A splitter's width on each side, so the target is three times what is drawn — a size chosen
+                 for the pointer rather than tied to the divider, which is why it repeats the value instead of sharing
+                 it. On touch screens a fingertip needs more, so it fills the 16px gutter each side, close to Apple's
+                 44pt minimum. -->
             <div class="absolute -inset-x-(--pane-splitter-width) inset-y-0 pointer-coarse:-inset-x-4" />
 
             <div class="pointer-events-none absolute top-1/2 left-1/2 flex -translate-1/2 flex-col gap-0.75">

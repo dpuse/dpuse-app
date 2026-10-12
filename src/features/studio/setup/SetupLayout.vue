@@ -60,7 +60,7 @@ function handleSelectTab(setupTabItem: { id: string }): void {
             </template>
         </TabBar>
 
-        <!-- Body - Active setup tab's panel. -->
+        <!-- Body ─ Active setup tab's panel. -->
         <RouterView v-slot="{ Component }">
             <ComponentLoadingSpinner v-if="setupOptionPanelIsLoading" />
 

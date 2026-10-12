@@ -27,7 +27,7 @@ interface RouteComponentLoader {
 // The number is the nesting level of the 'RouterView' that renders the component. The one in 'App.vue' is 0, and the
 // one inside a layout such as 'DataViewsLayout' is 1. 'assertViewDepths' checks these against the route table at
 // startup in Dev environment.
-const StudioHomePanel = defineLazyLoader('StudioHomePanel', 0, () => import('~/src/features/studio/StudioHomePanel.vue'));
+const StudioHomePanel = defineLazyLoader('StudioHomePanel', 0, () => import('@/features/studio/StudioHomePanel.vue'));
 const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/features/studio/dataViews/DataViewsLayout.vue'));
 const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/features/studio/dataViews/DataViewList.vue'));
 const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/features/studio/dataViews/selectConnection/SelectConnectionList.vue'));

@@ -86,7 +86,7 @@ defineOptions({ inheritAttrs: false });
              stacking order rather than inside it. The title shows the full label, which the row may truncate. -->
         <ActionWrapper :aria-label="overline ? `${overline}: ${config.label}` : config.label" class="absolute inset-0 z-10" :title="config.label" :to="to" v-bind="$attrs" />
 
-        <!-- Header - One line only: the label truncates rather than wraps, because the card cannot grow. -->
+        <!-- Header ─ One line only: the label truncates rather than wraps, because the card cannot grow. -->
         <div class="flex min-w-0 items-center gap-x-2" :class="isCompact ? 'flex-1' : overline ? 'h-9 flex-none' : 'h-7 flex-none'">
             <!-- Icon -->
             <ConfigIcon v-if="iconIsPresent" :class="isCompact ? 'size-5' : 'size-7'" :icon="icon ?? config.icon" :icon-dark="iconDark ?? config.iconDark" />
@@ -113,13 +113,13 @@ defineOptions({ inheritAttrs: false });
             </span>
         </div>
 
-        <!-- Footer - The category on the left and the actions on the right. A compact row has no footer: the wrapper steps
+        <!-- Footer ─ The category on the left and the actions on the right. A compact row has no footer: the wrapper steps
              aside ('contents') and the actions join the end of the single row. -->
         <div
             v-if="isCompact ? actions.length > 0 : categoryLabel || actions.length > 0"
             :class="isCompact ? 'contents' : 'flex h-7 flex-none items-center gap-x-3 pointer-coarse:h-8.5'"
         >
-            <!-- Category - Muted text, so it stays below the title in weight. When the host can filter by it, a pill: the
+            <!-- Category ─ Muted text, so it stays below the title in weight. When the host can filter by it, a pill: the
                  actions' round shape but shorter, with a lighter border and no fill, so it reads as a button without
                  outranking them. The border stays at rest because touch has no hover to reveal it. On hover it takes the
                  actions' border and fill and shows a funnel. -->
