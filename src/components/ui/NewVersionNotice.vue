@@ -76,7 +76,7 @@ function handleDismiss(): void {
 <template>
     <div
         v-if="!isDismissed"
-        class="fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 flex max-w-[calc(100%-2rem)] items-center gap-3 rounded-lg border border-separator bg-surface py-2 pr-2 pl-4 text-sm text-content shadow-lg"
+        class="fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.75rem)] z-40 flex max-w-[calc(100%-2rem)] items-center gap-3 rounded-lg border border-separator bg-surface py-2 pr-2 pl-4 text-sm text-content shadow-lg"
         data-region="NewVersionNotice"
         role="status"
     >
