@@ -50,7 +50,7 @@ const enrichedItems = computed(() =>
             >
                 <!-- Display as icon. -->
                 <span v-if="item.icon">
-                    <component :is="item.icon" aria-hidden="true" class="size-5!" />
+                    <component :is="item.icon" aria-hidden="true" class="size-5!" :stroke-width="1.5" />
                 </span>
 
                 <!-- Display as label. -->
