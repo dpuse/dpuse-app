@@ -90,6 +90,7 @@ const config = defineConfigWithVueTs(
                 {
                     whitelist: [
                         'busy-bar-shimmer',
+                        'confirm-dialog',
                         'ddp--detail',
                         'ddp-back',
                         'ddp-detail',

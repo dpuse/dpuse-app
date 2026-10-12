@@ -58,7 +58,8 @@ describe('defineLazyComponent load failure', () => {
 
         expect(wrapper.find('.owns-screen').exists()).toBe(true);
         expect(wrapper.find('.notice-badge').exists()).toBe(false);
-        wrapper.find('dialog').element.dispatchEvent(new Event('close'));
+        (wrapper.find('dialog').element as HTMLDialogElement).close(); // As Escape and the close button both do.
+        await settle(); // The dismissal waits for the fade-out, so it lands a tick later.
         expect(onDismiss).toHaveBeenCalledOnce();
         wrapper.unmount();
     });

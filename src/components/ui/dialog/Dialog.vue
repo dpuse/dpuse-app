@@ -1,15 +1,16 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { onMounted, useTemplateRef, watch } from 'vue';
-
-// ── Local Framework
+import { useTemplateRef } from 'vue';
 
 // ── Static Components
 import CloseButton from '@/components/ui/action/CloseButton.vue';
+import DialogBase from '@/components/ui/dialog/DialogBase.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
+// A dialog that shows content, closed with its ✕ or Escape. A dialog that asks a question is 'ConfirmDialog' instead.
+//
 // Sizing is declared by the caller rather than taken from the content, because the frame is rendered before the body's
 // chunk has loaded and so has nothing to measure.
 //   'full'      A set size, independent of content. The size itself is a parameter: the wide dialogs and the
@@ -17,8 +18,7 @@ import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 //   'reserved'  Starts at 'minHeight' and grows with its content — what a multi-step body needs.
 // Below 'md' both modes take the whole screen.
 //
-// 'isOpen' is required rather than defaulting: a dialog that silently fails to open looks identical to a click that
-// did nothing, so the caller has to say. URL-driven dialogs are mounted only while open and pass a literal true.
+// URL-driven dialogs are mounted only while open and pass a literal true for 'isOpen'.
 const {
     isOpen,
     maxWidth = '48rem',
@@ -31,43 +31,22 @@ defineSlots<{ default: () => unknown }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const dialogElement = useTemplateRef<HTMLDialogElement>('dialogReference');
-
-// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// 'showModal' is what promotes the element to the top layer, and with it comes Escape, focus containment, focus
-// returned to whatever opened it, and the rest of the document marked inert. None of that is reimplemented here.
-onMounted(() => {
-    if (isOpen) dialogElement.value?.showModal();
-});
-
-watch(
-    () => isOpen,
-    (newIsOpen) => {
-        if (newIsOpen) {
-            dialogElement.value?.showModal();
-        } else {
-            dialogElement.value?.close();
-        }
-    }
-);
+const dialogBase = useTemplateRef<InstanceType<typeof DialogBase>>('dialogBaseReference');
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Fired by the close button, by Escape, and by 'close()'. What dismissal then means is the caller's: a URL-driven
-// dialog clears its 'dlg' parameter through 'useDialogs', so the back button and the dialog agree on the app's state.
 function handleClose(): void {
     emit('close');
 }
 
 function handleRequestClose(): void {
-    dialogElement.value?.close(); // Fires 'close', so dismissal runs through one path however it was triggered.
+    dialogBase.value?.requestClose();
 }
 </script>
 
 <template>
-    <dialog
-        ref="dialogReference"
+    <DialogBase
+        ref="dialogBaseReference"
         :class="[
             'dialog-modal hidden flex-col overflow-y-hidden bg-surface text-content open:flex',
             'm-0 size-full max-h-full max-w-full',
@@ -76,8 +55,8 @@ function handleRequestClose(): void {
             sizing === 'full' ? '' : 'dialog-modal-content-height'
         ]"
         data-region="Dialog"
+        :is-open="isOpen"
         :style="{ 'container-type': 'inline-size', '--dialog-modal-max-width': maxWidth, '--dialog-modal-min-height': minHeight ?? '0px' }"
-        @cancel="handleClose"
         @close="handleClose"
     >
         <DialogHeader v-if="title" class="flex-none" :title="title" />
@@ -85,7 +64,7 @@ function handleRequestClose(): void {
         <slot />
 
         <CloseButton class="absolute top-[calc(env(safe-area-inset-top)+12px)] right-(--safe-right-offset) md:top-3 md:right-3" @click="handleRequestClose" />
-    </dialog>
+    </DialogBase>
 </template>
 
 <style scoped>
@@ -114,16 +93,25 @@ function handleRequestClose(): void {
     }
 }
 
+/* The closed state is stated as well as the open one, so closing plays the opening in reverse. Without it the dialog and
+   its backdrop stay fully visible for the length of the transition and then vanish together, which reads as a flash.
+   'overlay' and 'display' keep the element in the top layer while it animates out. */
 .dialog-modal {
     box-shadow:
         0 20px 50px rgb(0 0 0 / 0.25),
         0 2px 6px rgb(0 0 0 / 0.08);
-    transform: scale(1);
+    opacity: 0;
+    transform: scale(0.96);
     transition:
         opacity 0.15s ease-out,
         transform 0.15s ease-out,
         overlay 0.15s ease-out allow-discrete,
         display 0.15s ease-out allow-discrete;
+}
+
+.dialog-modal[open] {
+    opacity: 1;
+    transform: scale(1);
 }
 
 @starting-style {
@@ -135,8 +123,15 @@ function handleRequestClose(): void {
 
 .dialog-modal::backdrop {
     background: var(--overlay);
+    opacity: 0;
+    transition:
+        opacity 0.15s ease-out,
+        overlay 0.15s ease-out allow-discrete,
+        display 0.15s ease-out allow-discrete;
+}
+
+.dialog-modal[open]::backdrop {
     opacity: 1;
-    transition: opacity 0.15s ease-out allow-discrete;
 }
 
 @starting-style {

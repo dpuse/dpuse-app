@@ -103,8 +103,19 @@ function handleRetry(): void {
     emit('retry');
 }
 
-function handleCloseDetail(): void {
+// Clears the contents only once the fade-out has finished, so the card does not fade out empty.
+async function handleCloseDetail(): Promise<void> {
+    await waitForCloseAnimation(detailDialog.value);
+    if (detailDialog.value?.open === true) return; // Opened again while it was fading out.
     detailIsVisible.value = false;
+}
+
+// Reports the dismissal only once the fade-out has finished. The host removes this notice as soon as it hears, which
+// would otherwise take the dialog off the screen halfway through.
+async function handleCloseScreen(): Promise<void> {
+    await waitForCloseAnimation(screenDialog.value);
+    if (screenDialog.value?.open === true) return; // A new failure opened it again while it was fading out.
+    emit('dismiss');
 }
 
 function handleRequestCloseDetail(): void {
@@ -115,6 +126,17 @@ function handleShowDetail(): void {
     detailIsVisible.value = true;
     detailDialog.value?.showModal();
     detailDialog.value?.focus();
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Resolves once the dialog and its backdrop have finished fading out, or at once when nothing is animating: reduced
+// motion, or a browser that cannot animate a dialog leaving the top layer. 'getAnimations' brings the styles up to date
+// first, so a transition the close has only just started is included. Escape closes the dialog too, so 'close' is the
+// one event both ways of dismissing it share.
+async function waitForCloseAnimation(dialogElement: HTMLDialogElement | null): Promise<void> {
+    if (dialogElement == null || !('getAnimations' in dialogElement)) return; // jsdom, in the tests, has no animations.
+    await Promise.allSettled(dialogElement.getAnimations({ subtree: true }).map((animation) => animation.finished));
 }
 </script>
 
@@ -137,7 +159,7 @@ function handleShowDetail(): void {
                 <ErrorBody :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
             </div>
 
-            <dialog ref="detailDialogReference" class="detail-dialog outline-none" tabindex="-1" @cancel="handleCloseDetail" @close="handleCloseDetail">
+            <dialog ref="detailDialogReference" class="detail-dialog outline-none" tabindex="-1" @close="handleCloseDetail">
                 <!-- Closed from the corner rather than by a button under the body, which sat outside the panel and read
                      as belonging to the page behind it. Placed as 'Dialog' places its own, so a dialog opened from
                      here is dismissed the same way as every other one. -->
@@ -151,7 +173,7 @@ function handleShowDetail(): void {
         <!-- Screen ─ A failure no region owns, so the space it has lost is the screen. Opened by the failure rather
              than by a click, and closed by the corner button: an acknowledgement, not the dead end this app used to
              show, which suppressed every dialog for the rest of the session and had no way out at all. -->
-        <dialog v-else ref="screenDialogReference" class="screen-dialog outline-none" tabindex="-1" @cancel="emit('dismiss')" @close="emit('dismiss')">
+        <dialog v-else ref="screenDialogReference" class="screen-dialog outline-none" tabindex="-1" @close="handleCloseScreen">
             <div class="relative">
                 <ErrorBody :can-retry="canRetry" :failures="failures" @reload="handleReload" @retry="handleRetry" />
                 <CloseButton v-if="isDismissible" :aria-label="t(TEXT, 'dismiss.aria')" class="absolute top-2 right-2" @click="screenDialog?.close()" />
@@ -331,5 +353,63 @@ function handleShowDetail(): void {
     box-shadow:
         0 20px 50px rgb(0 0 0 / 0.25),
         0 2px 6px rgb(0 0 0 / 0.08);
+}
+
+/* Both fade and scale in and out as 'Dialog' does. The closed state is stated as well as the open one, so closing plays
+   the opening in reverse rather than holding the dialog for the length of the transition and then dropping it.
+   'overlay' and 'display' keep the element in the top layer while it animates out. */
+.screen-dialog,
+.detail-dialog {
+    opacity: 0;
+    transform: scale(0.96);
+    transition:
+        opacity 0.15s ease-out,
+        transform 0.15s ease-out,
+        overlay 0.15s ease-out allow-discrete,
+        display 0.15s ease-out allow-discrete;
+}
+
+.screen-dialog[open],
+.detail-dialog[open] {
+    opacity: 1;
+    transform: scale(1);
+}
+
+@starting-style {
+    .screen-dialog[open],
+    .detail-dialog[open] {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+}
+
+.screen-dialog::backdrop,
+.detail-dialog::backdrop {
+    opacity: 0;
+    transition:
+        opacity 0.15s ease-out,
+        overlay 0.15s ease-out allow-discrete,
+        display 0.15s ease-out allow-discrete;
+}
+
+.screen-dialog[open]::backdrop,
+.detail-dialog[open]::backdrop {
+    opacity: 1;
+}
+
+@starting-style {
+    .screen-dialog[open]::backdrop,
+    .detail-dialog[open]::backdrop {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .screen-dialog,
+    .detail-dialog,
+    .screen-dialog::backdrop,
+    .detail-dialog::backdrop {
+        transition: none;
+    }
 }
 </style>

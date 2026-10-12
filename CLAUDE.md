@@ -74,8 +74,8 @@ Design rules:
 - **Repeated markup becomes data.** Three or more template blocks with the same structure that would change together
   become a typed constant list, a `computed` that filters it, and one `v-for` keyed by id. Leave two blocks, or blocks
   alike by coincidence, as they are. Do not add flags to force a block to fit.
-- **Copy imported JSON before editing it.** JSON that stands in for a fetch is passed through `structuredClone` before it
-  becomes editable state, because the import is one object shared by the whole session.
+- **Copy imported JSON before editing it.** JSON that stands in for a fetch is passed through `structuredClone` before
+  it becomes editable state, because the import is one object shared by the whole session.
 
 ### Feature folders
 
@@ -181,13 +181,46 @@ Using the strings:
 - **TODOs about JSON contents** go as a trailing comment on the import line, naming the key and languages, because
   JSON cannot hold comments.
 
+### Dialogs and notices
+
+If it asks a question, answer it with buttons. If it only shows something, close it with an ✕.
+
+- **Questions** (confirm a delete, reload now, lose unsaved changes): labelled buttons only, no ✕, because an ✕ does not
+  say whether it means yes or no. The safe choice ('Cancel', 'Later') sits to the left of the main action. Escape means
+  the safe choice.
+- **Content** (an edit dialog, error detail, a panel) and purely informational notices keep the ✕, because closing them
+  is not a decision.
+
+The components follow the same split. `DialogBase` holds only the shared behaviour (`showModal`, Escape, focus, one
+close path) and none of the look.
+
+- `Dialog` ─ content. Header, ✕, 'full' or 'reserved' sizing, full screen below `md`.
+- `ConfirmDialog` ─ questions. `role="alertdialog"`, no ✕, a bottom sheet below `md` (in thumb reach, page still
+  visible) and a small centred box from `md` up.
+
+Floating notices sit above the bottom row of controls (the session button and the pill actions), never over it:
+`bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.75rem)]`.
+
+### Updates and unsaved work
+
+- **Never swap loaded code in place.** A browser cannot unload a module, and two versions side by side disagree. The
+  engine keeps its first worker and its first connectors until the page reloads.
+- **Any module change asks for a reload.** A `deploy`, `delete` or `clear` for the engine, a connector, presenter, tool
+  or cookbook, or a changed list after a reconnect, sets `moduleUpdateIsAvailable`. The notice offers Later and Reload,
+  and the user decides. Only a new app version also reloads by itself, on the next screen change.
+- **The notice's wording comes from what is pending**, not from what arrived last: app, modules, or both.
+- **Later hides it for an hour**, or until the next screen change or a newer update, whichever comes first.
+- **Screens report unsaved work** with `useUnsavedWork(() => …)`. A reload or leaving the page then warns, and the
+  notice's Reload asks first in the app's own `ConfirmDialog`.
+
 ### Accessibility
 
 - An icon-only button has an `:aria-label` from `TEXT` (role `aria`). A button repeated on every row includes the
   row's name: "Edit {label}".
 - Never nest interactive elements inside a button, link or heading. An expandable row is a heading holding a text
-  button, with its actions beside the heading ([ContextDisclosure.vue](src/features/studio/setup/context/_components/ContextDisclosure.vue)).
-  A whole clickable card uses a stretched overlay with its actions above it, and no heading around the overlay.
+  button, with its actions beside the heading
+  ([ContextDisclosure.vue](src/features/studio/setup/context/_components/ContextDisclosure.vue)). A whole clickable card
+  uses a stretched overlay with its actions above it, and no heading around the overlay.
 - A custom widget implements the whole WAI-ARIA Authoring Practices pattern: roles, states, relationships and
   keyboard support. `ContextEntityList.vue` is the worked example for tabs.
 

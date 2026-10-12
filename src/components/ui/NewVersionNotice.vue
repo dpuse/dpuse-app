@@ -12,7 +12,6 @@ import { moduleUpdateIsAvailable, newAppVersionIsAvailable, updateAnnouncementCo
 import { reloadWithConfirmedLoss, unsavedWorkIsPresent } from '@/state/unsavedWork';
 
 // ── Static Components
-import CloseButton from '@/components/ui/action/CloseButton.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 
@@ -75,20 +74,22 @@ function handleDismiss(): void {
 </script>
 
 <template>
-    <!-- Notice ─ On a narrow screen the message takes the full width, with the close button in its top corner and Reload
-         on a line of its own below. From 'sm' up all three sit in one row. -->
+    <!-- Notice ─ 'Later' sits to the left of Reload, as Cancel does in the app's dialogs. On a narrow screen the message
+         takes the full width with the buttons on a line below it. From 'sm' up everything sits in one row. -->
     <div
         v-if="!isDismissed"
-        class="fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.75rem)] left-[calc(1rem+env(safe-area-inset-left))] z-40 grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-2 rounded-lg border border-separator bg-surface py-2 pr-2 pl-4 text-sm text-content shadow-lg sm:left-auto sm:flex sm:max-w-[calc(100%-2rem)]"
+        class="fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.75rem)] left-[calc(1rem+env(safe-area-inset-left))] z-40 flex flex-col gap-3 rounded-lg border border-separator bg-surface p-4 text-sm text-content shadow-lg sm:left-auto sm:max-w-[calc(100%-2rem)] sm:flex-row sm:items-center sm:py-2 sm:pr-2"
         data-region="NewVersionNotice"
         role="status"
     >
         <p>{{ messageText }}</p>
-        <RectangleButton class="col-span-2 row-start-2 flex shrink-0 items-center justify-self-end" variant="primary" @click="handleReload">
-            <RefreshCwIcon class="mr-1.5 size-4" />
-            {{ t(TEXT, 'reload.label') }}
-        </RectangleButton>
-        <CloseButton class="col-start-2 row-start-1 self-start sm:self-auto" :accessible-label="t(TEXT, 'dismiss.aria')" @click="handleDismiss" />
+        <div class="flex shrink-0 justify-end gap-2">
+            <RectangleButton @click="handleDismiss">{{ t(TEXT, 'later.label') }}</RectangleButton>
+            <RectangleButton class="flex items-center" variant="primary" @click="handleReload">
+                <RefreshCwIcon class="mr-1.5 size-4" />
+                {{ t(TEXT, 'reload.label') }}
+            </RectangleButton>
+        </div>
     </div>
 
     <ConfirmDialog
