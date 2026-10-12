@@ -6,9 +6,9 @@ import { computed, ref, watch } from 'vue';
 import { useConfirmDialog, useTimeoutFn } from '@vueuse/core';
 
 // ── Local Framework
-import { newAppVersionIsAvailable } from '@/state/appVersion';
 import { t } from '@/state/locale';
 import { TEXT } from './NewVersionNotice_.json';
+import { newAppVersionIsAvailable, updateAnnouncementCount } from '@/state/appVersion';
 import { reloadWithConfirmedLoss, unsavedWorkIsPresent } from '@/state/unsavedWork';
 
 // ── Static Components
@@ -46,14 +46,12 @@ const messageText = computed(() => t(TEXT, newAppVersionIsAvailable.value ? 'new
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Moving to another screen is a natural pause, so a dismissed notice comes back then rather than waiting out the hour.
-watch(
-    () => route.path,
-    () => {
-        isDismissed.value = false;
-        stopDismissTimer();
-    }
-);
+// A dismissed notice comes back early when the user moves to another screen, a natural pause, or when a newer update
+// arrives that they have not yet been told about.
+watch([(): string => route.path, updateAnnouncementCount], () => {
+    isDismissed.value = false;
+    stopDismissTimer();
+});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

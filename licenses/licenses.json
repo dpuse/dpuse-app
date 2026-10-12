@@ -51,12 +51,12 @@
         "path": "node_modules/@tanstack/ai",
         "licenseFile": "downloads/@tanstack/ai@0.68.0-LICENSE.txt"
     },
-    "@tanstack/query-core@5.104.1": {
+    "@tanstack/query-core@5.104.2": {
         "licenses": "MIT",
         "repository": "https://github.com/TanStack/query",
         "publisher": "tannerlinsley",
         "path": "node_modules/@tanstack/query-core",
-        "licenseFile": "downloads/@tanstack/query-core@5.104.1-LICENSE.txt"
+        "licenseFile": "downloads/@tanstack/query-core@5.104.2-LICENSE.txt"
     },
     "@tanstack/store@0.11.2": {
         "licenses": "MIT",
@@ -72,19 +72,19 @@
         "path": "node_modules/@tanstack/table-core",
         "licenseFile": "downloads/@tanstack/table-core@9.2.8-LICENSE.txt"
     },
-    "@tanstack/virtual-core@3.18.0": {
+    "@tanstack/virtual-core@3.19.2": {
         "licenses": "MIT",
         "repository": "https://github.com/TanStack/virtual",
         "publisher": "Tanner Linsley",
         "path": "node_modules/@tanstack/virtual-core",
-        "licenseFile": "downloads/@tanstack/virtual-core@3.18.0-LICENSE.txt"
+        "licenseFile": "downloads/@tanstack/virtual-core@3.19.2-LICENSE.txt"
     },
-    "@tanstack/vue-query@5.104.1": {
+    "@tanstack/vue-query@5.104.2": {
         "licenses": "MIT",
         "repository": "https://github.com/TanStack/query",
         "publisher": "Damian Osipiuk",
         "path": "node_modules/@tanstack/vue-query",
-        "licenseFile": "downloads/@tanstack/vue-query@5.104.1-LICENSE.txt"
+        "licenseFile": "downloads/@tanstack/vue-query@5.104.2-LICENSE.txt"
     },
     "@tanstack/vue-table@9.2.8": {
         "licenses": "MIT",
@@ -93,12 +93,12 @@
         "path": "node_modules/@tanstack/vue-table",
         "licenseFile": "downloads/@tanstack/vue-table@9.2.8-LICENSE.txt"
     },
-    "@tanstack/vue-virtual@3.13.40": {
+    "@tanstack/vue-virtual@3.13.43": {
         "licenses": "MIT",
         "repository": "https://github.com/TanStack/virtual",
         "publisher": "Tanner Linsley",
         "path": "node_modules/@tanstack/vue-virtual",
-        "licenseFile": "downloads/@tanstack/vue-virtual@3.13.40-LICENSE.txt"
+        "licenseFile": "downloads/@tanstack/vue-virtual@3.13.43-LICENSE.txt"
     },
     "@teamhanko/hanko-frontend-sdk@3.1.0": {
         "licenses": "MIT",
@@ -152,13 +152,13 @@
         "path": "node_modules/@vueuse/shared",
         "licenseFile": "downloads/@vueuse/shared@15.0.0-LICENSE.txt"
     },
-    "dompurify@3.4.16": {
+    "dompurify@3.4.17": {
         "licenses": "(MPL-2.0 OR Apache-2.0)",
         "repository": "https://github.com/cure53/DOMPurify",
         "publisher": "Dr.-Ing. Mario Heiderich, Cure53",
         "email": "mario@cure53.de",
         "path": "node_modules/dompurify",
-        "licenseFile": "downloads/dompurify@3.4.16-LICENSE.txt"
+        "licenseFile": "downloads/dompurify@3.4.17-LICENSE.txt"
     },
     "fast-json-patch@3.1.1": {
         "licenses": "MIT",

@@ -9,6 +9,7 @@ import type { ConnectionConfig, ConnectorConfig, CookbookConfig, EngineConfig, M
 import { hasFault } from '@/observability/faultInjection';
 import { raiseFailure } from '@/state/errors';
 import { useMonitorSocket } from '@/observability/monitorSocket';
+import { announceAppVersion, announceModuleUpdate } from '@/state/appVersion';
 import {
     configRetrievalFailed,
     configRetrievalFailure,
@@ -19,7 +20,6 @@ import {
     presenterConfigs,
     toolConfigs
 } from '@/state/session';
-import { liveAppVersion, moduleUpdateIsAvailable } from '@/state/appVersion';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -64,14 +64,14 @@ const socket = useMonitorSocket<ConfigMessage>({
                 return;
             case 'deploy':
                 registerConfigurations([message.module]);
-                if (message.module.typeId !== 'app') moduleUpdateIsAvailable.value = true; // A new app version has its own notice.
+                if (message.module.typeId !== 'app') announceModuleUpdate(); // A new app version has its own notice.
                 return;
             case 'delete':
                 unregisterModuleConfig(message.id);
-                moduleUpdateIsAvailable.value = true;
+                announceModuleUpdate();
                 return;
             case 'clear':
-                moduleUpdateIsAvailable.value = true; // The reload fetches the emptied list, so the lists are left as they are.
+                announceModuleUpdate(); // The reload fetches the emptied list, so the lists are left as they are.
                 return;
         }
     },
@@ -218,15 +218,15 @@ function compareModuleList(moduleConfigs: ModuleConfig[]): void {
         .join('|');
     if (state.moduleListSignature == null) {
         state.moduleListSignature = signature;
-        if (import.meta.env.DEV && hasFault('module-update')) moduleUpdateIsAvailable.value = true;
+        if (import.meta.env.DEV && hasFault('module-update')) announceModuleUpdate();
         return;
     }
-    if (signature !== state.moduleListSignature) moduleUpdateIsAvailable.value = true;
+    if (signature !== state.moduleListSignature) announceModuleUpdate();
 }
 
 // Tells a running copy that a newer version has been deployed. '?fault=new-version' pretends one has.
 function registerAppVersion(deployedVersion: string): void {
-    liveAppVersion.value = import.meta.env.DEV && hasFault('new-version') ? SIMULATED_NEW_APP_VERSION : deployedVersion;
+    announceAppVersion(import.meta.env.DEV && hasFault('new-version') ? SIMULATED_NEW_APP_VERSION : deployedVersion);
 }
 
 function logIt(name: string, moduleConfig: ModuleConfig): void {

@@ -19,12 +19,27 @@ export const liveAppVersion = shallowRef<string | undefined>();
 // A reload is the only clean way to pick up the change, and the user decides when.
 export const moduleUpdateIsAvailable = shallowRef(false);
 
+// Goes up with every update announced while the page is open, so a notice the user dismissed shows again for a newer one.
+export const updateAnnouncementCount = shallowRef(0);
+
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Newer, not just different: a development build is often ahead of the deployed version and must not count as stale.
 export const newAppVersionIsAvailable = computed(() => liveAppVersion.value != null && isNewerVersion(liveAppVersion.value, version));
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+export function announceModuleUpdate(): void {
+    moduleUpdateIsAvailable.value = true;
+    updateAnnouncementCount.value += 1;
+}
+
+// Records the deployed app version. A change counts as an announcement, so a dismissed notice comes back for it.
+export function announceAppVersion(deployedVersion: string): void {
+    if (deployedVersion === liveAppVersion.value) return;
+    liveAppVersion.value = deployedVersion;
+    updateAnnouncementCount.value += 1;
+}
 
 // True when a newer version is deployed and no reload has been made for it yet. Only once per version: if the page
 // served is still the old one, reloading again would only loop.
