@@ -3,15 +3,11 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
-// ── DPUse Framework
-import type { LocalisedConfig } from '@dpuse/dpuse-shared';
-
 // ── Local Framework
-import { activeStudioOptionConfig } from '@/state/activeStudioOption';
-import { isPWA } from '@/state/appLayout';
+import { isPWA } from '@/state/device';
 import { isSafariBrowser } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
-import { type StudioOptionConfig, useStudioOptions } from './useStudioOptions';
+import { useStudioOptions } from './useStudioOptions';
 
 // ── Static Components
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
@@ -48,8 +44,7 @@ const hasTopEdgeLine = isPWA || isSafariBrowser();
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
-    if (config != null) activeStudioOptionConfig.value = config;
+function handleComplete(): void {
     emit('continue');
 }
 </script>
@@ -72,7 +67,7 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
                     :aria-current="selectedOptionId === 'home' ? 'page' : undefined"
                     :is-active="selectedOptionId === 'home'"
                     :to="{ name: 'studio', query: $route.query }"
-                    @click="handleComplete({ id: 'home', label: '', description: '', icon: '', iconDark: null, step: 0, tasks: [] })"
+                    @click="handleComplete"
                 >
                     <StudioHomeIcon aria-hidden="true" />
                 </IconButton>
@@ -83,7 +78,7 @@ function handleComplete(config?: LocalisedConfig<StudioOptionConfig>): void {
                         :aria-current="selectedOptionId === config.id ? 'page' : undefined"
                         :is-active="selectedOptionId === config.id"
                         :to="{ name: config.id, query: $route.query }"
-                        @click="handleComplete(config)"
+                        @click="handleComplete"
                     >
                         <ConfigIcon class="size-5.5" :icon="config.icon" :icon-dark="config.iconDark" />
                     </IconButton>

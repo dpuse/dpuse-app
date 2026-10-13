@@ -10,7 +10,7 @@ import type { D3NetworkView, Tool as D3Tool, NetworkDiagramData } from '@dpuse/d
 // ── Local Framework
 import { t } from '@/state/locale';
 import { TEXT } from './EventQueriesPanel_.json';
-import { toolConfigs } from '@/state/session';
+import { toolConfigs } from '@/state/configs';
 import { useConfigsReady } from '@/services/useConfigsReady';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 

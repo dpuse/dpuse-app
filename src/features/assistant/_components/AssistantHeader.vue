@@ -4,7 +4,8 @@ import { computed } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 
 // ── Local Framework
-import { studioPaneIsVisible, viewportIsWide } from '@/state/appLayout';
+import { studioPaneIsVisible } from '@/state/appPanes';
+import { viewportIsWide } from '@/state/device';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

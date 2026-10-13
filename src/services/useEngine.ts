@@ -8,7 +8,7 @@ import type { EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { raiseFailure } from '@/state/errors';
 import { throwOnFault } from '@/observability/faultInjection';
-import { engineConfig, toolConfigs } from '@/state/session';
+import { engineConfig, toolConfigs } from '@/state/configs';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -30,7 +30,7 @@ export function useEngine(): Promise<EngineWorker> {
     const engineVersion = engineConfig.value?.version;
 
     // The load is cached as a promise rather than as the worker it resolves to, and cached before anything awaits.
-    // Callers arrive together — two watchers on 'activeMetaStoreConnectionConfig' call this in the same flush on a
+    // Callers arrive together — two watchers on 'metaStoreConnectionConfig' call this in the same flush on a
     // refresh — and a cache written only once the load finished would still be empty for the second of them. That
     // gave a second worker, with its own connector instances against the same store.
     const pendingEngineWorker = loadEngine(engineVersion);

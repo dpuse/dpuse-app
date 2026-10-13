@@ -94,7 +94,7 @@ const SAMPLE_DOCUMENTS: LibraryDocument[] = [
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const { path, query, searchIsActive, setPath } = useAssistantLibrary();
+const { path, query, searchHasQuery, setPath } = useAssistantLibrary();
 
 // The document a row opened, or nothing. Held here rather than by the layout because the panel that shows it covers
 // this pane alone.
@@ -124,7 +124,7 @@ const breadcrumbs = computed<BreadcrumbConfig[]>(() => {
 // looking at, and the field above it already says what this is — so it earns its place only when there is somewhere to
 // go back from. It gives way to a search for the same reason it always did: results are a flat list, and a flat list
 // has no position in the index for a trail to describe.
-const breadcrumbsAreVisible = computed(() => activeTypeId.value !== undefined && !searchIsActive.value);
+const breadcrumbsAreVisible = computed(() => activeTypeId.value !== undefined && !searchHasQuery.value);
 
 // Inside a folder the list is that folder's documents; at the top it is the folders themselves.
 const indexDocuments = computed(() => (activeTypeId.value ? SAMPLE_DOCUMENTS.filter((document) => document.type === activeTypeId.value) : []));
@@ -189,7 +189,7 @@ function handleSelectBreadcrumb(index: number): void {
 
                 <!-- Search ─ A flat list of what matches, whatever folder the index was left on. The trail is kept
                      rather than cleared, so clearing the query returns the user to where they were browsing. -->
-                <div v-if="searchIsActive">
+                <div v-if="searchHasQuery">
                     <ActionWrapper
                         v-for="document in searchResults"
                         :key="document.id"

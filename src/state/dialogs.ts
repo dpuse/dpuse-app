@@ -15,7 +15,7 @@ const SessionAuthPanel = defineLazyComponent(() => import('@/features/session/au
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Only the outer chrome is listed: each dialog still owns its own header, keeping its title with its translations. The
+// Only the frame is listed: each dialog still owns its own header, keeping its title with its translations. The
 // shape has to be known here because the frame is rendered from the URL, before the dialog's own chunk exists.
 export interface DialogConfig {
     component: VueComponent;
@@ -39,8 +39,8 @@ interface Dialogs {
 // would reopen over nothing, since panel selection is not in the URL.
 const DIALOG_CONFIGS = {
     account: { component: SessionAccountPanel, sizing: 'full' },
-    // Reserved rather than fixed: the sign-in body moves between steps of differing height, and the minimum is the
-    // tallest of the short ones, so the frame neither collapses around the loading spinner nor towers over the first step.
+    // A minimum height rather than a fixed one, because the sign-in steps differ in height. The minimum stops the frame
+    // collapsing around the loading spinner without being taller than the first step.
     auth: { component: SessionAuthPanel, maxWidth: '24rem', minHeight: '250px', sizing: 'reserved' },
     connection: { component: ConnectionPanel, sizing: 'full' }
 } satisfies Record<string, DialogConfig>;
@@ -49,8 +49,8 @@ export type DialogId = keyof typeof DIALOG_CONFIGS;
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The whole dialog contract: which one the URL asks for, and the two navigations that change it. Opening replaces and
-// closing pushes, so the dialog itself never becomes a step the back button has to walk through, while the state it
+// Reads which dialog the URL asks for, and opens and closes dialogs by changing the URL. Opening replaces and closing
+// pushes, so the dialog itself never becomes a step the back button has to walk through, while the state it
 // was opened over stays reachable.
 export function useDialogs(): Dialogs {
     const route = useRoute();
@@ -63,7 +63,7 @@ export function useDialogs(): Dialogs {
     const currentDialogConfig = computed(() => (currentDialogId.value ? DIALOG_CONFIGS[currentDialogId.value] : undefined));
 
     // Called by the close button, by Escape, and by a dialog that has finished its own work, so it has to be safe to
-    // call when there is nothing open — a body that commits and then unmounts would otherwise navigate twice.
+    // call when there is nothing open. A body that commits and then unmounts would otherwise navigate twice.
     function closeDialog(): void {
         if (route.query.dlg == null) return;
 
@@ -72,8 +72,8 @@ export function useDialogs(): Dialogs {
         void ignoreReportedNavigationFailure(router.push({ query }));
     }
 
-    // Awaitable, because a menu that opens a dialog should close only once the URL carries it. The failure is caught
-    // here rather than at the call site so that the caller still gets its turn either way.
+    // Awaitable, because a menu that opens a dialog should close only once the URL carries it. A failed navigation is
+    // caught here, so the caller carries on either way.
     async function openDialog(dialogId: DialogId): Promise<void> {
         await ignoreReportedNavigationFailure(router.replace({ query: { ...route.query, dlg: dialogId } }));
     }

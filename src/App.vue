@@ -13,19 +13,19 @@ import { useDialogs } from '@/state/dialogs';
 import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors';
 import {
     type AppPaneId,
-    assistantPaneIsActive,
+    appPaneSplitterIsVisible,
+    assistantPaneIsOpen,
     assistantPaneIsVisible,
-    assistantPaneWasActivated,
+    assistantPaneWasOpened,
     currentAppPaneId,
-    isPWA,
-    setPaneActiveState,
-    studioPaneIsActive,
+    setPaneOpenState,
+    studioPaneIsOpen,
     studioPaneIsVisible,
-    studioPaneWasActivated,
-    viewportIsWide
-} from '@/state/appLayout';
+    studioPaneWasOpened
+} from '@/state/appPanes';
 import { defineLazyComponent, isSafariBrowser } from '@/utilities/index.ts';
 import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
+import { isPWA, viewportIsWide } from '@/state/device';
 import { moduleUpdateIsAvailable, newAppVersionIsAvailable } from '@/state/appVersion';
 
 // ── Static Components
@@ -57,8 +57,7 @@ const router = useRouter();
 // ── Studio Option Bar
 const studioOptionBarIsVisible = ref(false); // Narrow displays only, because a wide one always shows the option bar.
 
-// ── Pane Splitter ─ A drag fires on every pointer move, so the write to storage is debounced and only the value the
-// drag settles on is saved.
+// ── Pane Splitter ─ A drag fires on every pointer move, so the write to storage is debounced and the last value saved.
 const paneSplitterPercent = useLocalStorage(PANE_SPLITTER_PERCENT_KEY, PANE_SPLITTER_DEFAULT_PERCENT, {
     eventFilter: debounceFilter(PANE_SPLITTER_PERCENT_SAVE_DEBOUNCE_MS),
     serializer: { read: (value) => Number(value) || PANE_SPLITTER_DEFAULT_PERCENT, write: String }
@@ -89,9 +88,6 @@ const studioPaneStyle = computed(() => {
 const studioViewIsLoading = computed(() => navigationPendingDepth.value === 0);
 const studioViewKey = computed(() => route.matched.find((record) => record.components?.default)?.path);
 
-// ── Pane Splitter
-const paneSplitterIsVisible = computed(() => studioPaneIsVisible.value && assistantPaneIsVisible.value);
-
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
@@ -110,20 +106,20 @@ router
     .then(() => {
         // Runs once, after the first navigation, to set up the panes from the URL. The studio opens unless the URL has
         // only the assistant open.
-        setPaneActiveState('studio', route.query.studio === '1' || route.query.assistant !== '1');
-        setPaneActiveState('assistant', route.query.assistant === '1');
+        setPaneOpenState('studio', route.query.studio === '1' || route.query.assistant !== '1');
+        setPaneOpenState('assistant', route.query.assistant === '1');
         currentAppPaneId.value = establishCurrentPaneId();
     })
     // eslint-disable-next-line unicorn/prefer-await, unicorn/prefer-top-level-await -- top-level await in <script setup> suspends the component; .catch() keeps the mount non-blocking.
     .catch(() => {
         // If the router fails to start, the studio pane is shown.
-        setPaneActiveState('studio', true);
-        setPaneActiveState('assistant', false);
+        setPaneOpenState('studio', true);
+        setPaneOpenState('assistant', false);
     });
 
 // Writes the panes to the URL only when they change, so clicking or scrolling in the pane already in front writes
 // nothing.
-watch([currentAppPaneId, assistantPaneIsActive, studioPaneIsActive], syncPaneQuery);
+watch([currentAppPaneId, assistantPaneIsOpen, studioPaneIsOpen], syncPaneQuery);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -131,7 +127,7 @@ function handleToggleStudioPane(): void {
     if (viewportIsWide.value) {
         // A pane that is the only one showing stays open.
         if (studioPaneIsVisible.value && !assistantPaneIsVisible.value) return;
-        setPaneActiveState('studio', !studioPaneIsActive.value);
+        setPaneOpenState('studio', !studioPaneIsOpen.value);
         return;
     }
 
@@ -141,27 +137,27 @@ function handleToggleStudioPane(): void {
         return;
     }
 
-    setPaneActiveState('studio', true);
+    setPaneOpenState('studio', true);
 }
 
 function handleToggleAssistantPane(): void {
     if (viewportIsWide.value) {
         // A pane that is the only one showing stays open.
         if (assistantPaneIsVisible.value && !studioPaneIsVisible.value) return;
-        setPaneActiveState('assistant', !assistantPaneIsActive.value);
+        setPaneOpenState('assistant', !assistantPaneIsOpen.value);
         return;
     }
 
     if (assistantPaneIsVisible.value) return; // The assistant pane is already in front, so there is nothing to do.
 
-    setPaneActiveState('assistant', true);
+    setPaneOpenState('assistant', true);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function establishCurrentPaneId(): AppPaneId {
-    if (!studioPaneIsActive.value) return 'assistant';
-    if (!assistantPaneIsActive.value) return 'studio';
+    if (!studioPaneIsOpen.value) return 'assistant';
+    if (!assistantPaneIsOpen.value) return 'studio';
     return route.query.pane === 'assistant' ? 'assistant' : 'studio';
 }
 
@@ -170,10 +166,10 @@ function establishCurrentPaneId(): AppPaneId {
 function syncPaneQuery(): void {
     const query: LocationQueryRaw = {
         ...route.query,
-        studio: studioPaneIsActive.value ? '1' : undefined,
-        assistant: assistantPaneIsActive.value ? '1' : undefined,
+        studio: studioPaneIsOpen.value ? '1' : undefined,
+        assistant: assistantPaneIsOpen.value ? '1' : undefined,
         // Which pane is in front, only needed when both are open.
-        pane: studioPaneIsActive.value && assistantPaneIsActive.value ? currentAppPaneId.value : undefined
+        pane: studioPaneIsOpen.value && assistantPaneIsOpen.value ? currentAppPaneId.value : undefined
     };
 
     void ignoreReportedNavigationFailure(router.replace({ query }));
@@ -216,7 +212,7 @@ function syncPaneQuery(): void {
 
         <!-- Studio Pane ─ Mounted the first time it opens, then hidden rather than removed, so it keeps its state. -->
         <main
-            v-if="studioPaneWasActivated"
+            v-if="studioPaneWasOpened"
             :hidden="!studioPaneIsVisible"
             class="@container grid h-full"
             :class="viewportIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
@@ -240,13 +236,13 @@ function syncPaneQuery(): void {
 
         <!-- Pane Splitter ─ Only when both panes are visible. The top margin starts it below the status bar, level with
              the pane headers. -->
-        <PaneSplitter v-if="paneSplitterIsVisible" v-model="paneSplitterPercent" class="mt-[env(safe-area-inset-top)]" />
+        <PaneSplitter v-if="appPaneSplitterIsVisible" v-model="paneSplitterPercent" class="mt-[env(safe-area-inset-top)]" />
 
         <!-- Assistant Pane ─ Mounted the first time it opens, then hidden rather than removed, so it keeps its
              state. It is the page's main content when the studio is hidden, and side content beside it otherwise. -->
         <component
             :is="studioPaneIsVisible ? 'aside' : 'main'"
-            v-if="assistantPaneWasActivated"
+            v-if="assistantPaneWasOpened"
             :hidden="!assistantPaneIsVisible"
             :aria-label="t(TEXT, 'assistantPane.aria')"
             class="min-w-0 flex-1"

@@ -8,7 +8,7 @@ import { computed, type ComputedRef } from 'vue';
 import type { BaseConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { pointerIsCoarse } from '@/state/appLayout';
+import { pointerIsCoarse } from '@/state/device';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

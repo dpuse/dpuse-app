@@ -14,8 +14,8 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { TEXT } from './ConnectionPanel_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useDialogs } from '@/state/dialogs';
-import { viewportIsWide } from '@/state/appLayout';
-import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs } from '@/state/session';
+import { viewportIsWide } from '@/state/device';
+import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs } from '@/state/configs';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components

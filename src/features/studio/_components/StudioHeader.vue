@@ -4,7 +4,8 @@ import { ArrowLeftIcon } from '@lucide/vue';
 import type { RouteLocationRaw } from 'vue-router';
 
 // ── Local Framework
-import { assistantPaneIsVisible, viewportIsWide } from '@/state/appLayout';
+import { assistantPaneIsVisible } from '@/state/appPanes';
+import { viewportIsWide } from '@/state/device';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

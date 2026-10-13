@@ -9,8 +9,8 @@ import { ignoreReportedNavigationFailure } from '@/router';
 
 export type LibraryDocumentType = 'connector' | 'context' | 'dataView' | 'document';
 
-// One entry in the library. Declared here rather than with the list that renders it, because the panel that opens a
-// document is hosted by the layout rather than by the library pane, so both ends need the shape.
+// One entry in the library. Declared here because both the library pane and the document panel, which the layout
+// hosts, use it.
 export interface LibraryDocument {
     id: string;
     type: LibraryDocumentType;
@@ -20,15 +20,12 @@ export interface LibraryDocument {
 }
 
 interface AssistantLibrary {
-    // Whether the library pane is open. Held here rather than only in the pane model so a reload or a shared link
-    // reopens on it — and held in one place, because the search control is the library's and showing one without the
-    // other is the state this used to be able to reach.
+    // Whether the library pane is open. Held in the URL, so a reload or shared link reopens the library.
     paneIsOpen: WritableComputedRef<boolean>;
     // The breadcrumb trail through the index, as document ids from the root down. Empty at the top level.
     path: ComputedRef<string[]>;
     query: WritableComputedRef<string>;
-    // Searching is what the query decides; there is no separate mode to be out of step with it.
-    searchIsActive: ComputedRef<boolean>;
+    searchHasQuery: ComputedRef<boolean>;
     setPath: (path: string[]) => void;
 }
 
@@ -47,14 +44,9 @@ const PATH_SEPARATOR = '/';
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The library's state, held in the URL so a reload or a shared link reopens on the same search, filter and trail.
-//
-// The search bar floats above both panes rather than sitting inside the library, so bar and pane are not parent and
-// child and cannot pass this between them. Routing it through the URL is what lets each read the state without either
-// owning it — and it has to be in the URL regardless, which is why this is the shared medium rather than a store.
-//
-// Every write replaces rather than pushes: a search is a refinement of where the user already is, not a place of its
-// own, so the back button leaves the assistant rather than walking back through keystrokes.
+// The library's state, held in the URL so a reload or shared link reopens the same search and folder. The search bar
+// and the library pane are not parent and child, so the URL is also how both read it. Writes replace the history
+// entry, so Back leaves the assistant rather than undoing each keystroke.
 export function useAssistantLibrary(): AssistantLibrary {
     const route = useRoute();
     const router = useRouter();
@@ -79,8 +71,7 @@ export function useAssistantLibrary(): AssistantLibrary {
         }
     });
 
-    // The query decides, and nothing else does: there is no mode to fall out of step with it.
-    const searchIsActive = computed(() => query.value.trim().length > 0);
+    const searchHasQuery = computed(() => query.value.trim().length > 0);
 
     function setPath(newPath: string[]): void {
         replaceQuery({ lPath: newPath.length === 0 ? undefined : newPath.join(PATH_SEPARATOR) });
@@ -90,5 +81,5 @@ export function useAssistantLibrary(): AssistantLibrary {
         void ignoreReportedNavigationFailure(router.replace({ query: { ...route.query, ...changes } }));
     }
 
-    return { paneIsOpen, path, query, searchIsActive, setPath };
+    return { paneIsOpen, path, query, searchHasQuery, setPath };
 }

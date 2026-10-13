@@ -7,7 +7,7 @@ import type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parse
 import { AppError, loadTool } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { toolConfigs } from '@/state/session';
+import { toolConfigs } from '@/state/configs';
 import { useConfigsReady } from '@/services/useConfigsReady';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 

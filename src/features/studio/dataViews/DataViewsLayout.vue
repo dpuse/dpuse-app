@@ -9,9 +9,10 @@ import type { ConnectionConfig, DataViewConfig, LocalisedConfig } from '@dpuse/d
 import { localiseConfig, localiseConfigs } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { sessionIsAuthenticated } from '@/state/session';
 import { useQueryFailure } from '@/services/queryClient';
 import { useUnsavedWork } from '@/state/unsavedWork';
-import { accountConfigsAreRetrieved, configRetrievalSucceeded, sessionIsAuthenticated } from '@/state/session';
+import { accountConfigsAreRetrieved, configRetrievalSucceeded } from '@/state/configs';
 import { connectionLocalisedConfigs, useDataView } from '@/state/dataViews';
 import { constructItemPath, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';

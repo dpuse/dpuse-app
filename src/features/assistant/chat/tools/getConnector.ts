@@ -1,5 +1,5 @@
 // ── External Dependencies & Registrations
-import { connectorConfigs } from '@/state/session';
+import { connectorConfigs } from '@/state/configs';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

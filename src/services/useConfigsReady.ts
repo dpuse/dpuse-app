@@ -1,6 +1,6 @@
 // ── Local Framework
 import { whenRetrievalSettles } from '@/services/retrievalReady';
-import { configRetrievalFailed, configRetrievalSucceeded } from '@/state/session';
+import { configRetrievalFailed, configRetrievalSucceeded } from '@/state/configs';
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 

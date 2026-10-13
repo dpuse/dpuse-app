@@ -44,15 +44,15 @@ const { studioPaneIsHidden } = defineProps<{ studioPaneIsHidden: boolean }>();
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const layoutElement = useTemplateRef<HTMLElement>('layoutElement');
-const modelId = useLocalStorage(MODEL_ID_KEY, ASSISTANT_MODEL_CONFIGS[0].id); // An id no longer offered falls back in 'activeModelConfig'.
+const modelId = useLocalStorage(MODEL_ID_KEY, ASSISTANT_MODEL_CONFIGS[0].id); // An id no longer offered falls back in 'selectedModelConfig'.
 const splitterPercent = useLocalStorage(SPLITTER_PERCENT_KEY, SPLITTER_DEFAULT_PERCENT, {
     serializer: { read: (value) => Number(value) || SPLITTER_DEFAULT_PERCENT, write: String }
 });
 
-const { paneIsOpen: libraryIsOpen, searchIsActive } = useAssistantLibrary();
+const { paneIsOpen: libraryIsOpen, searchHasQuery } = useAssistantLibrary();
 const { width: layoutWidth } = useElementSize(layoutElement);
 const paneIsWide = computed(() => layoutWidth.value >= WIDE_PANE_THRESHOLD_PX);
-const { activePaneId, isPaneActive, isPaneVisible, wasPaneActivated, splitterIsVisible, setPaneActiveState } = useSplitPanes(['chat', 'library'] as const, {
+const { currentPaneId, isPaneOpen, isPaneVisible, wasPaneOpened, splitterIsVisible, setPaneOpenState } = useSplitPanes(['chat', 'library'] as const, {
     containerIsWide: paneIsWide,
     initialPaneId: 'chat'
 });
@@ -60,7 +60,7 @@ const { activePaneId, isPaneActive, isPaneVisible, wasPaneActivated, splitterIsV
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The selected model — only meaningful while viewing Chat.
-const activeModelConfig = computed<AssistantModelConfig>(() => ASSISTANT_MODEL_CONFIGS.find((config) => config.id === modelId.value) ?? ASSISTANT_MODEL_CONFIGS[0]);
+const selectedModelConfig = computed<AssistantModelConfig>(() => ASSISTANT_MODEL_CONFIGS.find((config) => config.id === modelId.value) ?? ASSISTANT_MODEL_CONFIGS[0]);
 
 const chatPaneStyle = computed(() => {
     if (!isPaneVisible('chat')) return { width: '0' };
@@ -77,17 +77,17 @@ const libraryPaneStyle = computed(() => {
 // Chat is always open; the library joins it only once asked for. The toggle is the request, and a link that arrives
 // with the library open, or with a search already in it, carries the same request — which is what reopens it on a
 // reload or a shared link.
-setPaneActiveState('chat', true);
-if (libraryIsOpen.value || searchIsActive.value) setPaneActiveState('library', true);
+setPaneOpenState('chat', true);
+if (libraryIsOpen.value || searchHasQuery.value) setPaneOpenState('library', true);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // One direction only: the pane model is the truth while the app runs, and the URL is where it is written down so a
 // reload can restore it. Reading it back here would fight the toggle.
 watch(
-    () => isPaneActive('library'),
-    (newLibraryIsActive) => {
-        libraryIsOpen.value = newLibraryIsActive;
+    () => isPaneOpen('library'),
+    (newLibraryIsOpen) => {
+        libraryIsOpen.value = newLibraryIsOpen;
     }
 );
 
@@ -99,13 +99,13 @@ function handleModelChange(newModelConfig: AssistantModelConfig): void {
 
 // A pointer, a scroll, or focus arriving anywhere in a pane makes it the one the user is working in — the same three
 // signals 'App.vue' uses, and for the same reason: none of them covers the others.
-function handlePaneActivate(paneId: 'chat' | 'library'): void {
-    activePaneId.value = paneId;
+function handleClaimPane(paneId: 'chat' | 'library'): void {
+    currentPaneId.value = paneId;
 }
 
-// Keyed to what is on screen rather than to what is merely open. On a narrow pane a pane can be active and still behind
+// Keyed to what is on screen rather than to what is merely open. On a narrow pane a pane can be open and still behind
 // the other, and there the toggle has to bring it forward — closing something the user cannot see would read as the
-// button doing nothing. Opening brings it to the front, which 'setPaneActiveState' settles.
+// button doing nothing. Opening brings it to the front, which 'setPaneOpenState' settles.
 //
 // The last visible pane will not close, the guard 'App.vue' puts on its own two toggles: an assistant showing neither
 // chat nor library is an empty pane the user has no way out of, since both toggles live inside it.
@@ -113,7 +113,7 @@ function handleTogglePane(paneId: 'chat' | 'library'): void {
     const otherPaneId = paneId === 'chat' ? 'library' : 'chat';
     if (isPaneVisible(paneId) && !isPaneVisible(otherPaneId)) return;
 
-    setPaneActiveState(paneId, !isPaneVisible(paneId));
+    setPaneOpenState(paneId, !isPaneVisible(paneId));
 }
 </script>
 
@@ -138,12 +138,12 @@ function handleTogglePane(paneId: 'chat' | 'library'): void {
                 class="flex min-h-0"
                 data-region="AssistantChatPane"
                 :style="chatPaneStyle"
-                @focusin="handlePaneActivate('chat')"
-                @pointerdown="handlePaneActivate('chat')"
-                @scroll.capture="handlePaneActivate('chat')"
+                @focusin="handleClaimPane('chat')"
+                @pointerdown="handleClaimPane('chat')"
+                @scroll.capture="handleClaimPane('chat')"
             >
                 <ChatPanel
-                    :model-config="activeModelConfig"
+                    :model-config="selectedModelConfig"
                     :model-configs="ASSISTANT_MODEL_CONFIGS"
                     :studio-pane-is-hidden="studioPaneIsHidden"
                     @model-change="handleModelChange"
@@ -154,14 +154,14 @@ function handleTogglePane(paneId: 'chat' | 'library'): void {
 
             <!-- Mounted on first use and kept, so a closed library does not lose the folder it was left on. -->
             <div
-                v-if="wasPaneActivated('library')"
+                v-if="wasPaneOpened('library')"
                 v-show="isPaneVisible('library')"
                 class="flex min-h-0"
                 data-region="AssistantLibraryPane"
                 :style="libraryPaneStyle"
-                @focusin="handlePaneActivate('library')"
-                @pointerdown="handlePaneActivate('library')"
-                @scroll.capture="handlePaneActivate('library')"
+                @focusin="handleClaimPane('library')"
+                @pointerdown="handleClaimPane('library')"
+                @scroll.capture="handleClaimPane('library')"
             >
                 <LibraryPanel />
             </div>

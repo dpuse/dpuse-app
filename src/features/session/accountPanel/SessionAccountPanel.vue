@@ -8,7 +8,7 @@ import { type Component, shallowRef, watch } from 'vue';
 import { defineLazyComponent } from '@/utilities';
 import { t } from '@/state/locale';
 import { TEXT } from './SessionAccountPanel_.json';
-import { viewportIsWide } from '@/state/appLayout';
+import { viewportIsWide } from '@/state/device';
 
 // ── Static Components
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';

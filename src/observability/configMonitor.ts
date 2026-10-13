@@ -19,7 +19,7 @@ import {
     engineConfig,
     presenterConfigs,
     toolConfigs
-} from '@/state/session';
+} from '@/state/configs';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

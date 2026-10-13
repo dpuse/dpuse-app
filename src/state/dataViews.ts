@@ -11,7 +11,7 @@ import { assertDefined } from '@/utilities/index.ts';
 import { localeId } from '@/state/locale';
 import { queryClient } from '@/services/queryClient';
 import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
-import { activeMetaStoreConnectionConfig, connectionConfigs } from '@/state/session';
+import { connectionConfigs, metaStoreConnectionConfig } from '@/state/configs';
 import {
     constructMetaStoreListKey,
     constructMetaStoreRecordKey,
@@ -43,7 +43,7 @@ export function useDataViews(): UseQueryReturnType<DataViewConfig[], Error> {
     return useQuery({
         queryKey: DATA_VIEW_LIST_KEY,
         queryFn: retrieveDataViewConfigs,
-        enabled: () => activeMetaStoreConnectionConfig.value != null,
+        enabled: () => metaStoreConnectionConfig.value != null,
         staleTime: Infinity
     });
 }
@@ -57,7 +57,7 @@ export function useDataView(dataViewId: MaybeRefOrGetter<string | undefined>): U
         return {
             queryKey: constructMetaStoreRecordKey('dataViews', id),
             queryFn: () => getDataViewConfig(assertDefined(id)),
-            enabled: id != null && activeMetaStoreConnectionConfig.value != null,
+            enabled: id != null && metaStoreConnectionConfig.value != null,
             initialData: () => queryClient.getQueryData<DataViewConfig[]>(DATA_VIEW_LIST_KEY)?.find((config) => config.id === id),
             initialDataUpdatedAt: () => queryClient.getQueryState(DATA_VIEW_LIST_KEY)?.dataUpdatedAt,
             staleTime: Infinity
@@ -140,7 +140,7 @@ async function removeDataViewConfig(id: string): Promise<void> {
     }
 }
 
-// A list not read yet is left unread: it will hold the change when it is read.
+// A list not loaded yet is left alone. Loading it later picks up the change.
 function writeDataViewConfigToCache(dataViewConfig: DataViewConfig): void {
     queryClient.setQueryData(constructMetaStoreRecordKey('dataViews', dataViewConfig.id), dataViewConfig);
     queryClient.setQueryData<DataViewConfig[]>(DATA_VIEW_LIST_KEY, (dataViewConfigs) => {

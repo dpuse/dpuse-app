@@ -20,8 +20,8 @@ import type {
 } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { activeMetaStoreConnectionConfig } from '@/state/session';
 import { assertDefined } from '@/utilities/index.ts';
+import { metaStoreConnectionConfig } from '@/state/configs';
 import { queryClient } from '@/services/queryClient';
 import { useEngine } from '@/services/useEngine';
 
@@ -40,10 +40,10 @@ const META_STORE_QUERY_KEY = ['metaStore'] as const;
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Without its connection the meta store cannot be read, so everything read from it is dropped, as the configurations it
-// came with were. Registered once at import and app-lifetime, as with the watchers in '@/state/session'.
+// came with were. Registered once at import and app-lifetime, as with the watcher in '@/state/session'.
 // eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
 watch(
-    () => activeMetaStoreConnectionConfig.value == null,
+    () => metaStoreConnectionConfig.value == null,
     (newMetaStoreIsGone) => {
         if (newMetaStoreIsGone) void queryClient.resetQueries({ queryKey: META_STORE_QUERY_KEY });
     }
@@ -104,7 +104,7 @@ function constructNodePath(nodeId: MetaStoreNodeId): string {
 
 // Creates the node the first time it is used, so a new store needs no setup step.
 async function establishMetaStoreNode(nodeId: MetaStoreNodeId): Promise<ConnectionConfig> {
-    const connectionConfig = assertDefined(activeMetaStoreConnectionConfig.value, 'No meta store connection configuration.');
+    const connectionConfig = assertDefined(metaStoreConnectionConfig.value, 'No meta store connection configuration.');
     const { processRequest } = await useEngine();
     const findObjectOptions: FindObjectOptions = { storeId: META_STORE_ID, nodeId };
     const findObjectResult = (await processRequest('findObject', connectionConfig, findObjectOptions)) as FindObjectResult;

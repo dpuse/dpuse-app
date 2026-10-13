@@ -10,7 +10,7 @@ import type { ComponentBaseConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 import type { GridListItem } from './_context';
 import { TEXT } from './ContextModelList_.json';
 import { useSetupSelection } from '../useSetupSelection';
-import { contextConfig, contextConfigRetrievalFailed, contextConfigRetrievalFailure, contextConfigRetrievalSucceeded } from '@/state/session';
+import { contextConfig, contextConfigRetrievalFailed, contextConfigRetrievalFailure, contextConfigRetrievalSucceeded } from '@/state/configs';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components

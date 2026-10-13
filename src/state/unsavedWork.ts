@@ -37,7 +37,7 @@ useEventListener(() => (unsavedWorkIsPresent.value ? globalThis : undefined), 'b
 function handleBeforeUnload(event: BeforeUnloadEvent): void {
     if (state.reloadIsConfirmed) return;
     event.preventDefault();
-    // eslint-disable-next-line sonarjs/deprecation, @typescript-eslint/no-deprecated -- This is still required
+    // eslint-disable-next-line sonarjs/deprecation, @typescript-eslint/no-deprecated -- Chrome and Edge before version 119 show the prompt only when 'returnValue' is set.
     event.returnValue = '';
 }
 

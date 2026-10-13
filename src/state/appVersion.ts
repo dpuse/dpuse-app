@@ -11,7 +11,7 @@ const RELOADED_FOR_VERSION_KEY = 'dpuse-reloadedForVersion';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The app version currently deployed, as announced by the configuration service. Undefined until it has said.
+// The app version currently deployed, as announced by the configuration service. Undefined until it is announced.
 export const liveAppVersion = shallowRef<string | undefined>();
 
 // True once any module the page uses (engine, connectors, presenters, tools, cookbooks) has changed since it loaded.
@@ -19,7 +19,7 @@ export const liveAppVersion = shallowRef<string | undefined>();
 // A reload is the only clean way to pick up the change, and the user decides when.
 export const moduleUpdateIsAvailable = shallowRef(false);
 
-// Goes up with every update announced while the page is open, so a notice the user dismissed shows again for a newer one.
+// Goes up with every update announced while the page is open, so a dismissed notice shows again for a newer one.
 export const updateAnnouncementCount = shallowRef(0);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -51,7 +51,8 @@ export function canReloadForNewAppVersion(): boolean {
     return reloadedForVersion !== undefined && reloadedForVersion !== targetVersion;
 }
 
-// Loads the path as a fresh page so the new version is fetched.
+// Loads the path as a fresh page so the new version is fetched. The version is recorded first, so a page that still
+// comes back old is not reloaded for it again.
 export function reloadForNewAppVersion(path: string): void {
     if (liveAppVersion.value != null) writeReloadedForVersion(liveAppVersion.value);
     location.assign(path);

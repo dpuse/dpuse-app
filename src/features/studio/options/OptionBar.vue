@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── Local Framework
-import { viewportIsWide } from '@/state/appLayout';
+import { viewportIsWide } from '@/state/device';
 
 // ── Static Components
 import OptionPanel from './OptionPanel.vue';

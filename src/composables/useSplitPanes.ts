@@ -6,60 +6,56 @@ import { computed, type ComputedRef, type Ref, ref } from 'vue';
 interface SplitPanes<TPaneId extends string> {
     // Which pane is in front. Decides what a narrow container shows, and records where the user last worked so a
     // container that narrows knows which pane to keep.
-    activePaneId: Ref<TPaneId>;
-    // Latches on first activation and never clears, so a pane that has been open once stays mounted behind its
-    // 'v-show' and does not lose what the user had done in it.
-    wasPaneActivated: (paneId: TPaneId) => boolean;
-    isPaneActive: (paneId: TPaneId) => boolean;
+    currentPaneId: Ref<TPaneId>;
+    // Latches on first opening and never clears, so a pane that has been open once stays mounted behind its 'v-show'
+    // and does not lose what the user had done in it.
+    wasPaneOpened: (paneId: TPaneId) => boolean;
+    isPaneOpen: (paneId: TPaneId) => boolean;
     isPaneVisible: (paneId: TPaneId) => boolean;
     splitterIsVisible: ComputedRef<boolean>;
-    setPaneActiveState: (paneId: TPaneId, isActive: boolean) => void;
+    setPaneOpenState: (paneId: TPaneId, isOpen: boolean) => void;
 }
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A two-pane split: each pane is active or not, and where there is room for only one, the active pane in front is the
-// one shown. The same model 'App.vue' runs at the top level, scoped to a container rather than the viewport, so it can
-// be nested inside a pane that is itself one half of a split.
-//
-// Deliberately not shared with the app-level model in '@/state/appLayout': that one is a module singleton tied to the
-// URL and to the app's own two panes, and generalising it would put a parameterised store behind a component that only
-// ever needs one instance of this.
+// A two-pane split: each pane is open or not, and where there is room for only one, the open pane in front is the one
+// shown. Scoped to a container rather than the viewport, so it can be nested inside a pane that is itself one half of a
+// split. '@/state/appPanes' runs one instance at module level for the app's studio and assistant panes, and
+// 'AssistantLayout' runs one per component for its chat and library panes.
 export function useSplitPanes<TPaneId extends string>(
     paneIds: readonly [TPaneId, TPaneId],
     options: { containerIsWide: Ref<boolean>; initialPaneId: TPaneId }
 ): SplitPanes<TPaneId> {
     const { containerIsWide, initialPaneId } = options;
 
-    const activePaneId = ref(initialPaneId) as Ref<TPaneId>;
-    const activeStates = ref(new Map<TPaneId, boolean>()) as Ref<Map<TPaneId, boolean>>;
-    const activatedStates = ref(new Map<TPaneId, boolean>()) as Ref<Map<TPaneId, boolean>>;
+    const currentPaneId = ref(initialPaneId) as Ref<TPaneId>;
+    const openStates = ref(new Map<TPaneId, boolean>()) as Ref<Map<TPaneId, boolean>>;
+    const openedStates = ref(new Map<TPaneId, boolean>()) as Ref<Map<TPaneId, boolean>>;
 
-    // Both panes have to be active for a splitter to divide anything, and a narrow container shows one at a time, so
+    // Both panes have to be open for a splitter to divide anything, and a narrow container shows one at a time, so
     // there is nothing between them to drag.
-    const splitterIsVisible = computed(() => containerIsWide.value && paneIds.every((paneId) => activeStates.value.get(paneId) === true));
+    const splitterIsVisible = computed(() => containerIsWide.value && paneIds.every((paneId) => openStates.value.get(paneId) === true));
 
-    function isPaneActive(paneId: TPaneId): boolean {
-        return activeStates.value.get(paneId) === true;
+    function isPaneOpen(paneId: TPaneId): boolean {
+        return openStates.value.get(paneId) === true;
     }
 
     function isPaneVisible(paneId: TPaneId): boolean {
-        return isPaneActive(paneId) && (containerIsWide.value || activePaneId.value === paneId);
+        return isPaneOpen(paneId) && (containerIsWide.value || currentPaneId.value === paneId);
     }
 
-    function wasPaneActivated(paneId: TPaneId): boolean {
-        return activatedStates.value.get(paneId) === true;
+    function wasPaneOpened(paneId: TPaneId): boolean {
+        return openedStates.value.get(paneId) === true;
     }
 
-    // The only way a pane's active state is changed. Which pane is in front follows from the same change, so it is
-    // settled here rather than at each call site: switching a pane on puts it in front, and switching one off leaves
-    // the other.
-    function setPaneActiveState(paneId: TPaneId, isActive: boolean): void {
-        activeStates.value = new Map(activeStates.value).set(paneId, isActive);
-        if (isActive) activatedStates.value = new Map(activatedStates.value).set(paneId, true);
+    // The only way a pane's open state is changed. Which pane is in front follows from the same change, so it is
+    // settled here rather than at each call site: opening a pane puts it in front, and closing one leaves the other.
+    function setPaneOpenState(paneId: TPaneId, isOpen: boolean): void {
+        openStates.value = new Map(openStates.value).set(paneId, isOpen);
+        if (isOpen) openedStates.value = new Map(openedStates.value).set(paneId, true);
 
-        activePaneId.value = isActive ? paneId : (paneIds.find((candidateId) => candidateId !== paneId) ?? paneId);
+        currentPaneId.value = isOpen ? paneId : (paneIds.find((candidateId) => candidateId !== paneId) ?? paneId);
     }
 
-    return { activePaneId, isPaneActive, isPaneVisible, wasPaneActivated, splitterIsVisible, setPaneActiveState };
+    return { currentPaneId, isPaneOpen, isPaneVisible, wasPaneOpened, splitterIsVisible, setPaneOpenState };
 }

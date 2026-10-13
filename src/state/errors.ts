@@ -10,28 +10,25 @@ import { hasReportedAppError, logError } from '@/observability/errorTracking';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// One failure, held for as long as it is on screen. Every catch site in the app produces one of these and nothing else:
-// there is no severity and no second surface, because once the app is running no failure is worth locking it for. The
-// only thing left for a failure to decide is where it renders, which the catch site already knows, and which action to
-// offer, which 'needsReload' answers.
+// One failure, held for as long as it is on screen. Every catch site produces one of these. There is no severity,
+// because no failure is worth locking the running app for. The catch site decides where it shows, and 'needsReload'
+// decides which action it offers.
 export interface AppFailure {
-    // Identifies what the user lost, for de-duplication only — the text on screen comes from the error itself. Set by
-    // the catch site where it knows, otherwise read from the cause chain. Undefined when nothing identifiable was lost.
+    // Identifies what the user lost, used only to spot duplicates. The text on screen comes from the error. Set by the
+    // catch site where it knows, otherwise read from the cause chain. Undefined when nothing identifiable was lost.
     capability: string | undefined;
     error: AppError;
     // False for a missing chunk once a newer version is known to be deployed: the user is simply on an old version,
     // which nobody can act on, so it is not reported and the display says nothing about reporting.
     isReportable: boolean;
-    // A chunk the running deployment can no longer fetch. Nothing but a fresh document will produce a working copy of
-    // it, which is why the display says so in words and why only the first of these is reported: one stale deployment
-    // fails every chunk the session goes on to need.
+    // A chunk the running deployment can no longer fetch. Only a reload can fetch it again, so the display says so.
     needsReload: boolean;
     // Where the user was heading when the failure abandoned the navigation. A route that cannot fetch its chunk
     // leaves the URL untouched, so without this a reload would return them to the screen they were leaving.
     reloadPath: string | undefined;
-    // What to run if the user asks to try again, for the failures shown at app level — where the display has no idea
-    // what was being attempted. Undefined where nothing can be retried, which is most of them: a service loaded once
-    // at startup has no second attempt to offer, and a fresh document is the only recovery.
+    // What to run if the user asks to try again, for failures shown at app level, where the display does not know what
+    // was being attempted. Undefined for most failures: a service loaded once at startup has nothing to retry, and only
+    // a reload recovers it.
     retry: (() => void) | undefined;
     // A ref rather than a plain field so the display can show delivery pending, then settled, without the holder of
     // this object having to be a deep reactive source.
@@ -52,7 +49,7 @@ interface AppFailureOptions {
 const COMPONENT_NAME_DATA_KEY = 'componentName';
 
 // What Vue passes as 'info' for error code 13, 'async component loader'. It is worded in development and reduced to a
-// documentation link in production, so both forms are matched. Revisit if Vue changes either; a miss costs a duplicate
+// documentation link in production, so both forms are matched. Revisit if Vue changes either. A miss costs a duplicate
 // report rather than a lost one.
 const COMPONENT_LOADER_ERROR_INFOS = new Set(['async component loader', 'https://vuejs.org/error-reference/#runtime-13']);
 
@@ -66,33 +63,23 @@ export const appFailures = shallowRef<AppFailure[]>([]);
 // What each failure in the app-level failure dialog matched on when it was raised, so a repeat can be recognised.
 const appFailureKeys = new WeakMap<AppFailure, string>();
 
-// One stale deployment fails every chunk the session goes on to need, so the first report stands for all of them and
-// the rest would only bury it. Never reset: a deployment does not become current again within a session.
+// One stale deployment fails every chunk the session goes on to need, so only the first is reported. Never reset,
+// because a deployment does not become current again within a session.
 const state = { staleDeployWasReported: false };
 
-// Errors Vite itself has told us are a chunk this deployment can no longer fetch. Its 'vite:preloadError' event
-// carries the very error object that then propagates to whoever awaited the import, so marking it here and reading it
-// back through the cause chain recognises the failure without inspecting anything about it.
-//
-// The only signal there is. Reading the browser's wording was tried and dropped: it was a guess against text nobody
-// promises, and in a production build it could only ever reach the imports carrying '@vite-ignore' — the engine and
-// the presenters — which cannot go stale, since their version is read from configuration at run time.
+// Errors Vite has reported through 'vite:preloadError' as chunks this deployment can no longer fetch. The same error
+// object reaches the catch site, so a failure is recognised by finding it in the cause chain.
 const staleDeployErrors = new WeakSet<object>();
 
-// Every error already delivered, and every error in its cause chain. A single failure is routinely raised more than
-// once — a service reports its own failure and rethrows, and each caller that catches it wraps it with context of its
-// own — so without this the same root cause arrives in Axiom several times over, and the first, most specific report
-// is the one buried. Weakly held, so nothing here keeps an error alive.
-//
-// Only the report is suppressed. Each failure still displays wherever it was raised: two regions that both lost
-// something to one dead service both have something worth saying to the user, even though support needs telling once.
+// Every error already reported, with its cause chain. One root cause is often raised several times, as each caller
+// wraps and rethrows it, so this reports it only once. Only the report is suppressed: every region that lost something
+// still shows the failure.
 const reportedErrors = new WeakSet<object>();
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Runs whatever the retryable app-level failures offered, and removes them first: a second attempt that fails again
-// has to be able to raise, and de-duplication would suppress it while the first is still listed. Failures with nothing
-// to retry are left where they are — the modal stays open for them.
+// Runs the retry of each app-level failure that offers one. Those failures are removed first, so a retry that fails
+// again is raised rather than suppressed as a duplicate. Failures with nothing to retry stay listed.
 export function retryAppFailures(): void {
     const retryableFailures = appFailures.value.filter((failure) => failure.retry != null);
     appFailures.value = appFailures.value.filter((failure) => failure.retry == null);
@@ -105,13 +92,9 @@ export function clearAppFailures(): void {
     appFailures.value = [];
 }
 
-// True for a failure that a lazy component's own 'errorComponent' is already showing. Vue notifies every ancestor
-// 'errorCaptured' hook and the app handler about these *in addition to* rendering that component, so anything that
-// catches errors has to stand back or the one failure is reported twice and displayed twice — once precisely, in the
-// space the component would have occupied, and once as a generic message over a region that is otherwise fine.
-//
-// Assumes every lazy component in the app supplies an 'errorComponent', which 'defineLazyComponent' guarantees. One that
-// did not would go unreported; the router does not use 'defineAsyncComponent', so its failures are unaffected.
+// True for a failure that a lazy component's own 'errorComponent' is already showing. Vue also passes these to every
+// 'errorCaptured' hook and the app error handler, which must ignore them or the failure is reported and shown twice.
+// 'defineLazyComponent' gives every lazy component an 'errorComponent', so none is missed.
 export function isComponentLoaderErrorInfo(info: string): boolean {
     return COMPONENT_LOADER_ERROR_INFOS.has(info);
 }
@@ -120,20 +103,13 @@ export function isStaleDeployError(error: unknown): boolean {
     return collectCauseChain(error).some((causeError) => staleDeployErrors.has(causeError));
 }
 
-// Records what 'vite:preloadError' handed us. The same object reaches the catch site, so a failure that wraps it as a
-// cause is recognised without reading a single message.
 export function markStaleDeployError(error: unknown): void {
     if (error instanceof Error) staleDeployErrors.add(error);
 }
 
-// Adds a failure to the app-level failure dialog, unless the same failure is already in it. Some failures repeat on
-// their own, such as a render error on every update or a timer error on every tick, and listing each one would flood
-// the dialog.
-//
-// A failure given a capability matches on that alone, because the catch site has decided its failures are one loss.
-// Any other failure matches on its component name and the deepest error's message together. That way two different
-// errors in one component both show, even though the catch-all handlers in 'main.ts' give every error the same
-// generic message. A repeat is logged to the console but not reported, so a repeating error cannot flood the reports.
+// Adds a failure to the app-level failure dialog unless it is already listed, because some failures repeat on every
+// update or tick. A failure with a capability matches on that. Any other matches on its component name and deepest
+// message, so two different errors in one component both show. A repeat is logged, not reported.
 export function raiseAppFailure(error: AppError, options: AppFailureOptions = {}): AppFailure {
     const key = options.capability ?? `${findComponentName(error) ?? ''}|${findDeepestMessage(error)}`;
     const shownFailure = appFailures.value.find((candidate) => appFailureKeys.get(candidate) === key);
@@ -165,12 +141,9 @@ export function raiseFailure(error: AppError, options: AppFailureOptions = {}): 
     return failure;
 }
 
-// Reported but never displayed. Vite preloads chunks for screens the user may never open, so a preload that fails has
-// lost the user nothing yet — there is no capability to name and no action to offer. It surfaces if and when something
-// actually needs that chunk, through the region that asked for it.
-//
-// Not reported once a newer version is known to be deployed: the chunk is missing because the user is on an old
-// version, which nobody can act on. Without a newer version, the running one is current and a missing chunk is a fault.
+// Reported but never shown. Vite preloads chunks for screens the user may never open, so a failed preload has cost
+// the user nothing yet. If something later needs the chunk, the region that asked for it shows the failure. Not
+// reported once a newer version is deployed, because the user is simply on an old one.
 export function reportStaleDeployFailure(error: AppError): void {
     if (state.staleDeployWasReported || newAppVersionIsAvailable.value) return;
     state.staleDeployWasReported = true;
@@ -192,8 +165,8 @@ async function deliverReport(failure: AppFailure): Promise<void> {
         state.staleDeployWasReported = true;
     }
 
-    // Same reasoning for a failure whose cause has already been delivered: support has the evidence, so the display
-    // says so rather than leaving the user thinking nobody has been told.
+    // A failure whose cause was already reported is marked as reported, so the display does not suggest nobody was
+    // told.
     const causeChain = collectCauseChain(failure.error);
     if (causeChain.some((error) => reportedErrors.has(error))) {
         failure.wasReported.value = true;

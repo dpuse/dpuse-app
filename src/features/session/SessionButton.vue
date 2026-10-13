@@ -9,8 +9,8 @@ import { TEXT } from './SessionButton_.json';
 // ── Local Framework
 import { defineLazyComponent } from '@/utilities/index.ts';
 import { PRESS_CLASSES } from '@/components/ui/action/action';
+import { viewportIsWide } from '@/state/device';
 import { expiresIn, lifetime, sessionIsAuthenticated } from '@/state/session';
-import { sessionMenuIsOpen, viewportIsWide } from '@/state/appLayout';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -26,6 +26,9 @@ const SessionMenu = defineLazyComponent(() => import('@/features/session/Session
 const { studioOptionBarIsVisible } = defineProps<{ studioOptionBarIsVisible: boolean }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// ── Session Menu
+const sessionMenuIsOpen = ref(false);
 
 // ??? Avatar ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

@@ -8,14 +8,14 @@ import { AppError, localiseReference } from '@dpuse/dpuse-shared';
 import type { ComponentReferenceConfig, LocalisedReference, PresenterInterface } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { appearanceIsDark } from '@/state/appLayout';
+import { appearanceIsDark } from '@/state/appearance';
 import type { DataSource } from '@/composables/useDataWindow';
 import { hasReportedAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import { TEXT } from './PresentationsPanel_.json';
 import { useConfigsReady } from '@/services/useConfigsReady';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
-import { presenterConfigs, toolConfigs } from '@/state/session';
+import { presenterConfigs, toolConfigs } from '@/state/configs';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';

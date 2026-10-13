@@ -8,9 +8,10 @@ import { useEventListener, useFullscreen } from '@vueuse/core';
 import { formatNumberAsDuration, type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { appearance } from '@/state/appearance';
 import { useDialogs } from '@/state/dialogs';
-import { appearance, isPWA, viewportIsWide } from '@/state/appLayout';
 import { expiresIn, lifetime, sessionIsAuthenticated, setSessionExpiryTimer, signOut } from '@/state/session';
+import { isPWA, viewportIsWide } from '@/state/device';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components

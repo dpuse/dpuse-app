@@ -15,7 +15,7 @@ import { TEXT } from './PluginList_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useSetupSelection } from '../../useSetupSelection';
 import { assertDefined, defineLazyComponent, type PluginConfig, type SetupOptionConfig } from '@/utilities/index.ts';
-import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/session';
+import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/configs';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components

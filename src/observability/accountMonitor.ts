@@ -1,6 +1,7 @@
 // ── Local Framework
+import { accountId } from '@/state/session';
 import { useMonitorSocket } from '@/observability/monitorSocket';
-import { accountConfigsAreRetrieved, accountId, type ConnectionAccountConfig, connectionAccountConfigs } from '@/state/session';
+import { accountConfigsAreRetrieved, type ConnectionAccountConfig, connectionAccountConfigs } from '@/state/configs';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

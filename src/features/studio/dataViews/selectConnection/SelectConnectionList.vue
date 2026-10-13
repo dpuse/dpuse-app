@@ -23,7 +23,7 @@ import { t } from '@/state/locale';
 import { TEXT } from './SelectConnectionList_.json';
 import { useDialogs } from '@/state/dialogs';
 import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
-import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded } from '@/state/session';
+import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded } from '@/state/configs';
 import { connectionLocalisedConfigs, useDataView, useUpdateDataView } from '@/state/dataViews';
 
 // ── Static Components

@@ -33,11 +33,13 @@ function establishLocaleId(): LocaleId {
     return DEFAULT_LOCALE_ID;
 }
 
+// '{name}' is replaced by the parameter of that name. "{'text'}" is replaced by the text inside the quotes, so a
+// translation can include a brace or other character that would otherwise be read as a placeholder.
 function interpolateParameters(text: string, parameters: Record<string, number | string>): string {
     return text.replaceAll(/\{(\w+)\}|\{('.*?')\}/gu, (match, parameterId, fixedString): string => {
         if (fixedString != null) {
-            return fixedString.slice(1, -1); // Remove surrounding quotes and return fixed string.
+            return fixedString.slice(1, -1);
         }
-        return Object.hasOwn(parameters, parameterId) ? String(parameters[parameterId]) : parameterId; // Return parameter value or parameter identifier if not found.
+        return Object.hasOwn(parameters, parameterId) ? String(parameters[parameterId]) : parameterId;
     });
 }
