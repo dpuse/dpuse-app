@@ -71,6 +71,9 @@ Design rules:
   `eventFilter: debounceFilter(ms)` on `useLocalStorage`.
 - **Composables and size.** Share reactive logic through composables. Split a component or module when it grows
   unwieldy rather than letting it absorb more.
+- **Where composables live.** `src/composables/` holds only generic composables that any part of the app could use
+  (`useSplitPanes`). Any other composable lives in the file or folder of what it serves: shared state in `src/state/`
+  (`useConfigsReady` in `configs.ts`), a feature in its folder, a component beside it.
 - **Repeated markup becomes data.** Three or more template blocks with the same structure that would change together
   become a typed constant list, a `computed` that filters it, and one `v-for` keyed by id. Leave two blocks, or blocks
   alike by coincidence, as they are. Do not add flags to force a block to fit.

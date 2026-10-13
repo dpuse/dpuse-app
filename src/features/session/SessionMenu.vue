@@ -57,7 +57,7 @@ const elapsed = computed(() => {
     return lifetime.value == null || lifetime.value === 0 ? 0 : ((lifetime.value - (expiresIn.value ?? 0)) / lifetime.value) * 100;
 });
 
-const formattedExpiresIn = computed(() => formatNumberAsDuration(expiresIn.value, 'secs'));
+const formattedExpiresIn = computed(() => formatNumberAsDuration(expiresIn.value, 'second', localeId.value));
 
 // ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
 

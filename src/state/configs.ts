@@ -1,6 +1,6 @@
 // ── External Dependencies & Registrations
-import { promiseTimeout } from '@vueuse/core';
-import { computed, ref, shallowRef } from 'vue';
+import { computed, type Ref, ref, shallowRef } from 'vue';
+import { promiseTimeout, until } from '@vueuse/core';
 
 // ── DPUse Framework
 import { AppError, localiseConfig } from '@dpuse/dpuse-shared';
@@ -33,6 +33,17 @@ export interface ConnectionAccountConfig {
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const LOCAL_META_STORE_CONNECTOR_ID = 'dpuse-connector-dexie-js'; // The meta store is kept in the browser, through this connector.
+
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Resolves once the config monitor has either handled its first message or given up reconnecting. Await this before
+// reading 'toolConfigs', 'presenterConfigs' or 'cookbookConfigs'. See 'whenRetrievalSettles'.
+//
+// Retrieval is started by the config monitor at application boot, so awaiting this never depends on which component
+// mounted.
+export function useConfigsReady(): Promise<void> {
+    return whenRetrievalSettles(configRetrievalSucceeded, configRetrievalFailed);
+}
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -130,6 +141,12 @@ export function getLocalisedConnection(id: string | undefined, localeId: LocaleI
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Resolves rather than rejects when retrieval fails. A caller cannot recover from it, and the failure is already shown
+// to the user, so the caller carries on and its own load attempt fails.
+async function whenRetrievalSettles(retrievalSucceeded: Ref<boolean>, retrievalFailed: Ref<boolean>): Promise<void> {
+    await until(() => retrievalSucceeded.value || retrievalFailed.value).toBe(true);
+}
 
 function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
     return {

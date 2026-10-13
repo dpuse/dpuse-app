@@ -19,10 +19,10 @@ export const currentAppPaneId: Ref<AppPaneId> = appPanes.currentPaneId;
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const assistantPaneIsOpen: ComputedRef<boolean> = computed(() => appPanes.isPaneOpen('assistant'));
-export const assistantPaneWasOpened: ComputedRef<boolean> = computed(() => appPanes.wasPaneOpened('assistant')); // Never clears, so 'App.vue' keeps the pane mounted once opened.
 export const studioPaneIsOpen: ComputedRef<boolean> = computed(() => appPanes.isPaneOpen('studio'));
 export const studioPaneWasOpened: ComputedRef<boolean> = computed(() => appPanes.wasPaneOpened('studio')); // Never clears, so 'App.vue' keeps the pane mounted once opened.
+export const assistantPaneIsOpen: ComputedRef<boolean> = computed(() => appPanes.isPaneOpen('assistant'));
+export const assistantPaneWasOpened: ComputedRef<boolean> = computed(() => appPanes.wasPaneOpened('assistant')); // Never clears, so 'App.vue' keeps the pane mounted once opened.
 
 // A wide display shows both open panes. A narrow one shows only the pane in front, 'currentAppPaneId'.
 export const studioPaneIsVisible: ComputedRef<boolean> = computed(() => appPanes.isPaneVisible('studio'));

@@ -13,9 +13,8 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { hasReportedAppError } from '@/observability/errorTracking';
 import { t } from '@/state/locale';
 import { TEXT } from './PresentationsPanel_.json';
-import { useConfigsReady } from '@/services/useConfigsReady';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
-import { presenterConfigs, toolConfigs } from '@/state/configs';
+import { presenterConfigs, toolConfigs, useConfigsReady } from '@/state/configs';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
