@@ -11,16 +11,16 @@ export type EventTypeId = 'error' | 'interaction' | 'page' | 'performance';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const DPUSE_API_HOST = 'api.dpuse.app';
+export const DPUSE_API_HOST = 'api.dpuse.app';
 const FLUSH_INTERVAL_INITIAL = 5000;
 const FLUSH_INTERVAL_SUBSEQUENT = 30_000;
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const flushInterval = ref(FLUSH_INTERVAL_INITIAL);
-const state: { activeSessionId: string | undefined; activeUserId: string | undefined } = {
-    activeSessionId: undefined, // Tracked session identity for event attribution.
-    activeUserId: undefined // Tracked user identity for event attribution.
+const state: { currentSessionId: string | undefined; currentUserId: string | undefined } = {
+    currentSessionId: undefined,
+    currentUserId: undefined
 };
 const pendingEvents: Record<string, unknown>[] = [];
 
@@ -44,14 +44,13 @@ useEventListener(document, 'visibilitychange', () => {
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function forgetUser(): void {
-    state.activeUserId = undefined;
-    state.activeSessionId = undefined;
+    state.currentUserId = undefined;
+    state.currentSessionId = undefined;
 }
 
-// TODO: Change to 'accountId'?
 export function identifyUser(userId: string, sessionId: string, _emailAddress?: string): void {
-    state.activeUserId = userId;
-    state.activeSessionId = sessionId;
+    state.currentUserId = userId;
+    state.currentSessionId = sessionId;
 }
 
 // Queues the event for the next periodic/visibilitychange flush. Use for anything that doesn't need delivery confirmed.
@@ -59,6 +58,10 @@ export function trackEvent(typeId: EventTypeId, data: Record<string, unknown>): 
     pendingEvents.push(buildEvent(typeId, data));
 }
 
+// TODO: Outbox, so no report is lost to an unload or a network failure. Save each event to IndexedDB before sending it,
+// delete it once the API answers 'ok', and resend whatever is left on the next app start, as Sentry's
+// 'makeBrowserOfflineTransport' does. Cap the outbox so an unreachable API cannot fill the browser's storage.
+//
 // Sends immediately, bypassing the batch queue, and reports whether delivery succeeded. Use when the caller needs to
 // confirm the event actually reached the server (e.g. to inform the user).
 // eslint-disable-next-line unicorn/consistent-boolean-name -- primarily performs the send; the boolean is a secondary delivery-confirmation result.
@@ -76,15 +79,15 @@ export async function trackEventImmediately(typeId: EventTypeId, data: Record<st
     }
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function buildEvent(typeId: EventTypeId, data: Record<string, unknown>): Record<string, unknown> {
     return {
         typeId,
         asAt: Date.now(),
         appVersion: version,
-        sessionId: state.activeSessionId,
-        userId: state.activeUserId,
+        sessionId: state.currentSessionId,
+        userId: state.currentUserId,
         spanId: undefined,
         referrer: document.referrer,
         url: location.href,
@@ -96,5 +99,6 @@ function flushEvents(): void {
     if (pendingEvents.length === 0) return;
     const events = [...pendingEvents];
     pendingEvents.length = 0;
-    navigator.sendBeacon(`https://${DPUSE_API_HOST}/events`, JSON.stringify({ events, userAgentString: navigator.userAgent })); // Fails silently if browser cannot queue request
+    const isQueued = navigator.sendBeacon(`https://${DPUSE_API_HOST}/events`, JSON.stringify({ events, userAgentString: navigator.userAgent }));
+    if (!isQueued) pendingEvents.unshift(...events); // The browser refused the beacon, so the events wait for the next flush.
 }

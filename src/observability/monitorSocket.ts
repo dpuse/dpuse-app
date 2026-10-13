@@ -44,7 +44,7 @@ const RECONNECT_DELAY_MS = 5000;
 export function useMonitorSocket<TMessage>(options: MonitorSocketOptions<TMessage>): MonitorSocket {
     const { canReconnect = (): boolean => true, isLogged, label } = options;
     const online = useOnline();
-    const state: { heartbeat: Pausable | undefined; isShutdown: boolean } = { heartbeat: undefined, isShutdown: false };
+    const state: { heartbeat: Pausable | undefined; isShutdown: boolean } = { heartbeat: undefined, isShutdown: true }; // Starts shut down, so only 'open' can connect a socket that was never opened.
 
     const socket = useWebSocket(options.url, {
         autoClose: false, // Its 'beforeunload' listener would keep the page out of the back/forward cache; 'pagehide' is used instead.

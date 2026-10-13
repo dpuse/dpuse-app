@@ -12,7 +12,7 @@ import { createAppRouter } from '@/router';
 import { queryClient } from '@/services/queryClient';
 import { hasFault, throwOnFault } from '@/observability/faultInjection';
 import { isComponentLoaderErrorInfo, markStaleDeployError, raiseAppFailure, reportStaleDeployFailure } from '@/state/errors';
-import { reportFatalError, reportUnsupportedBrowser } from '@/observability/errorTracking';
+import { showFatalError, showUnsupportedBrowser } from '@/observability/errorTracking';
 
 // ── Static Components
 import App from '@/App.vue';
@@ -121,8 +121,8 @@ if (isBrowserSupported) {
         }
     } catch (error) {
         // The app failed to start, so the error is shown as plain HTML.
-        reportFatalError(error);
+        showFatalError(error);
     }
 } else {
-    reportUnsupportedBrowser();
+    showUnsupportedBrowser();
 }

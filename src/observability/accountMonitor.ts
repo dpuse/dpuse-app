@@ -1,5 +1,6 @@
 // ── Local Framework
 import { accountId } from '@/state/session';
+import { DPUSE_API_HOST } from '@/observability/eventTracking';
 import { useMonitorSocket } from '@/observability/monitorSocket';
 import { accountConfigsAreRetrieved, type ConnectionAccountConfig, connectionAccountConfigs } from '@/state/configs';
 
@@ -9,15 +10,11 @@ interface AccountMessage {
     config?: { connections?: ConnectionAccountConfig[] };
 }
 
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const DPU_API_HOST = 'api.dpuse.app';
-
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const socket = useMonitorSocket<AccountMessage>({
     canReconnect: () => accountId.value != null, // Signed out, so there is no account socket to restore.
-    isLogged: import.meta.env.DEV || import.meta.env.PROD,
+    isLogged: true,
     label: 'Account',
     onDisconnected: () => {
         accountConfigsAreRetrieved.value = false; // Data from a previous connection can't be trusted as current until the next one has proven itself.
@@ -27,7 +24,7 @@ const socket = useMonitorSocket<AccountMessage>({
         accountConfigsAreRetrieved.value = true;
     },
     retries: -1,
-    url: () => `wss://${DPU_API_HOST}/accounts/${String(accountId.value)}/websocket`
+    url: () => `wss://${DPUSE_API_HOST}/accounts/${String(accountId.value)}/websocket`
 });
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────

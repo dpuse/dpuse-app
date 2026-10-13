@@ -32,7 +32,7 @@ for (const entry of browserslist()) {
     if (lowestSoFar === undefined || majorVersion < lowestSoFar) minimumVersions.set(displayName, majorVersion);
 }
 
-const supportedBrowsersText = [...minimumVersions].map(([name, version]) => `${name} ${String(version)}`).join(', ');
+const supportedBrowsers = [...minimumVersions].map(([name, version]) => `${name} ${String(version)}`);
 
 // ── Vite Configuration ───────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -47,7 +47,7 @@ const viteConfig = defineConfig({
         target: ['chrome123', 'edge123', 'firefox148', 'safari26', 'ios26']
     },
     define: {
-        __SUPPORTED_BROWSERS_TEXT__: JSON.stringify(supportedBrowsersText),
+        __SUPPORTED_BROWSERS__: JSON.stringify(supportedBrowsers),
         // Inlined as a regex literal, so nothing from 'browserslist-useragent-regexp' reaches the browser.
         // 'allowHigherVersions' keeps browsers released after this build matching.
         __SUPPORTED_BROWSER_REGEXP__: getUserAgentRegex({ allowHigherVersions: true }).toString()

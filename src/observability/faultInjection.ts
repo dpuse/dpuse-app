@@ -9,11 +9,13 @@ import { markStaleDeployError } from '@/state/errors';
 // Every failure the app can produce, named so one can be asked for from the URL. Grouped by where it is caught, since
 // that is what decides the surface: a region shows its own, everything else goes to the app-level failure dialog.
 //   Region        'panel' | 'panel-stale'                     'LoadFailureNotice' → 'ErrorNotice' in the region.
-//   App dialog    'route' | 'vue' | the four service faults    Nothing owns these, so 'App.vue' shows them.
-//   Neither       'preload'                                    Reported only — proves nothing appears on screen.
-//   Pre-mount     'bootstrap' | 'browser'                      The plain DOM message, before Vue exists.
-//   Modifier      'report-failure'                             Makes delivery fail, so every body says so.
-//   Not a failure 'new-version' | 'module-update'              Fakes a new app or module version, to show the notice.
+//                 'config-socket'                             Each list that needs the configuration shows it.
+//   App dialog    'route' | 'route-stale' | 'vue'             Nothing owns these, so 'App.vue' shows them.
+//                 'account' | 'auth' | 'config' | 'engine'
+//   Neither       'preload'                                   Reported only — proves nothing appears on screen.
+//   Pre-mount     'bootstrap' | 'browser'                     The plain DOM message, before Vue exists.
+//   Modifier      'report-failure'                            Makes delivery fail, so every body says so.
+//   Not a failure 'new-version' | 'module-update'             Fakes a new app or module version, to show the notice.
 //
 // The four that name a component — the panel and route pairs — accept a target: '?fault=panel:ChatPanel' fails that
 // one and lets everything else load. Without a target they fail every panel or route at once, which cannot reach a
@@ -68,13 +70,13 @@ export function hasFault(id: FaultId, target?: string): boolean {
 
 // Throws when the named fault is requested, for a call site that has no failure of its own to borrow. Drop it inside
 // any 'try', or at the top of a component's setup to make its 'ErrorBoundary' catch a render failure — behind an
-// 'import.meta.env.DEV' guard, for the reason above.
+// 'import.meta.env.DEV' guard, so the build drops the call.
 export function throwOnFault(id: FaultId, target?: string, message = `Simulated '${id}' failure.`): void {
     if (!hasFault(id, target)) return;
     throw new AppError(message, 'dpuse-app.faultInjection.throwOnFault', { faultId: id, target, typeId: 'simulated' });
 }
 
-// As above, for a chunk the running deployment can no longer fetch. Marked rather than worded: recognising one is
+// Throws when the named fault is requested, as a chunk the running deployment can no longer fetch. Marked rather than worded: recognising one is
 // Vite's 'vite:preloadError' saying so, and nothing reads the browser's message, so a rehearsal has to arrive by the
 // same route the real thing does. The wording is left recognisable for whoever reads the console.
 export function throwOnStaleFault(id: FaultId, target?: string): void {

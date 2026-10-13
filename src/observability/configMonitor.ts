@@ -6,6 +6,7 @@ import { AppError } from '@dpuse/dpuse-shared';
 import type { ConnectionConfig, ConnectorConfig, CookbookConfig, EngineConfig, ModuleConfig, PresenterConfig, ToolConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { DPUSE_API_HOST } from '@/observability/eventTracking';
 import { hasFault } from '@/observability/faultInjection';
 import { raiseFailure } from '@/state/errors';
 import { useMonitorSocket } from '@/observability/monitorSocket';
@@ -25,11 +26,15 @@ import {
 
 type ConfigMessage = { typeId: 'clear' } | { typeId: 'delete'; id: string } | { typeId: 'deploy'; module: ModuleConfig } | { typeId: 'init'; modules: ModuleConfig[] };
 
+interface RegistrationState {
+    isConnectorRegistered: boolean;
+    isCookbookRegistered: boolean;
+    isPresenterRegistered: boolean;
+    isToolRegistered: boolean;
+}
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const DPU_API_HOST = 'api.dpuse.app';
-// Reconnect attempts before giving up and surfacing configRetrievalFailed — a persistently unreachable API
-// shouldn't retry silently forever with no way for the user to know why every config list is stuck loading.
 const MAX_RECONNECT_ATTEMPTS = 5;
 const SIMULATED_NEW_APP_VERSION = '999.0.0'; // Newer than any real version, for '?fault=new-version'.
 
@@ -58,12 +63,12 @@ const socket = useMonitorSocket<ConfigMessage>({
     onMessage: (message) => {
         switch (message.typeId) {
             case 'init':
-                registerConfigurations(message.modules);
+                registerConfigurations(message.modules, true);
                 compareModuleList(message.modules);
                 configRetrievalSucceeded.value = true;
                 return;
             case 'deploy':
-                registerConfigurations([message.module]);
+                registerConfigurations([message.module], false);
                 if (message.module.typeId !== 'app') announceModuleUpdate(); // A new app version has its own notice.
                 return;
             case 'delete':
@@ -85,7 +90,7 @@ const socket = useMonitorSocket<ConfigMessage>({
         state.reconnectAttempts = retried;
         return retried < MAX_RECONNECT_ATTEMPTS && socket.online.value;
     },
-    url: `wss://${DPU_API_HOST}/configs/websocket`
+    url: `wss://${String(DPUSE_API_HOST)}/configs/websocket`
 });
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -97,6 +102,7 @@ export function initialise(): void {
         handleRetrievalFailed();
         return;
     }
+
     socket.open();
 }
 
@@ -112,28 +118,31 @@ function handleRetrievalFailed(): void {
     // no rows, a picker with nothing to pick — and those regions each show this. Announcing it over the top as well put
     // the same sentence on screen twice at once, which reads as two problems.
     configRetrievalFailed.value = true;
-    const data = { host: DPU_API_HOST, isOnline, reconnectAttempts: state.reconnectAttempts, typeId: 'handled' };
+    const data = { host: DPUSE_API_HOST, isOnline, reconnectAttempts: state.reconnectAttempts, typeId: 'handled' };
     configRetrievalFailure.value = raiseFailure(new AppError('Unable to connect to DPUse.', 'dpuse-app.configMonitor.handleRetrievalFailed', data), {
         capability: 'configuration'
     });
 }
 
-// ── Helpers - Registration ───────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
-    const registrationState = {
-        isConnectorRegistered: false,
-        isPresenterRegistered: false,
-        isCookbookRegistered: false,
-        isToolRegistered: false
+// ── Registration
+// A full list replaces every list, so a module deleted while the socket was down does not stay listed. A single
+// module is merged into the lists as they are.
+function registerConfigurations(moduleConfigs: ModuleConfig[], isFullList: boolean): void {
+    const registrationState: RegistrationState = {
+        isConnectorRegistered: isFullList,
+        isCookbookRegistered: isFullList,
+        isPresenterRegistered: isFullList,
+        isToolRegistered: isFullList
     };
-    const pendingConnectorConfigs = [...connectorConfigs.value];
-    const pendingCookbookConfigs = [...cookbookConfigs.value];
-    const pendingPresenterConfigs = [...presenterConfigs.value];
-    const pendingToolConfigs = [...toolConfigs.value];
+    const pendingConnectorConfigs = isFullList ? [] : [...connectorConfigs.value];
+    const pendingCookbookConfigs = isFullList ? [] : [...cookbookConfigs.value];
+    const pendingPresenterConfigs = isFullList ? [] : [...presenterConfigs.value];
+    const pendingToolConfigs = isFullList ? [] : [...toolConfigs.value];
 
     for (const moduleConfig of moduleConfigs) {
-        doRegister(moduleConfig, pendingConnectorConfigs, pendingCookbookConfigs, pendingPresenterConfigs, pendingToolConfigs, registrationState);
+        registerModuleConfig(moduleConfig, pendingConnectorConfigs, pendingCookbookConfigs, pendingPresenterConfigs, pendingToolConfigs, registrationState);
     }
 
     if (registrationState.isConnectorRegistered) connectorConfigs.value = [...pendingConnectorConfigs];
@@ -142,69 +151,55 @@ function registerConfigurations(moduleConfigs: ModuleConfig[]): void {
     if (registrationState.isToolRegistered) toolConfigs.value = [...pendingToolConfigs];
 }
 
-function doRegister(
+function registerModuleConfig(
     moduleConfig: ModuleConfig,
     pendingConnectorConfigs: ConnectorConfig[],
     pendingCookbookConfigs: CookbookConfig[],
     pendingPresenterConfigs: PresenterConfig[],
     pendingToolConfigs: ToolConfig[],
-    registrationState: Record<string, boolean>
+    registrationState: RegistrationState
 ): void {
     // TODO: Only register if new added or new version. Can we import in parallel for efficiency?
     switch (moduleConfig.typeId) {
         case 'app':
             registerAppVersion(moduleConfig.version);
-            logIt('App', moduleConfig);
+            logRegistered('App', moduleConfig);
             return;
         case 'engine':
             engineConfig.value = moduleConfig as EngineConfig;
-            logIt('Engine', moduleConfig);
+            logRegistered('Engine', moduleConfig);
             return;
-        case 'connector': {
+        case 'connector':
             if (moduleConfig.id === 'dpuse-connector-template') return;
             registrationState.isConnectorRegistered = true;
-            const index = pendingConnectorConfigs.findIndex((connectorConfig) => connectorConfig.id === moduleConfig.id);
-            if (index === -1) {
-                pendingConnectorConfigs.push(moduleConfig as ConnectorConfig);
-            } else {
-                pendingConnectorConfigs[index] = moduleConfig as ConnectorConfig;
-            }
-            logIt('Connector', moduleConfig);
+            upsertConfig(pendingConnectorConfigs, moduleConfig as ConnectorConfig);
+            logRegistered('Connector', moduleConfig);
             return;
-        }
-        case 'cookbook': {
+        case 'cookbook':
             registrationState.isCookbookRegistered = true;
-            const index = pendingCookbookConfigs.findIndex((cookbookConfig) => cookbookConfig.id === moduleConfig.id);
-            if (index === -1) {
-                pendingCookbookConfigs.push(moduleConfig as CookbookConfig);
-            } else {
-                pendingCookbookConfigs[index] = moduleConfig as CookbookConfig;
-            }
-            logIt('Cookbook', moduleConfig);
+            upsertConfig(pendingCookbookConfigs, moduleConfig as CookbookConfig);
+            logRegistered('Cookbook', moduleConfig);
             return;
-        }
-        case 'presenter': {
+        case 'presenter':
             registrationState.isPresenterRegistered = true;
-            const index = pendingPresenterConfigs.findIndex((presenterConfig) => presenterConfig.id === moduleConfig.id);
-            if (index === -1) {
-                pendingPresenterConfigs.push(moduleConfig as PresenterConfig);
-            } else {
-                pendingPresenterConfigs[index] = moduleConfig as PresenterConfig;
-            }
-            logIt('Presenter', moduleConfig);
+            upsertConfig(pendingPresenterConfigs, moduleConfig as PresenterConfig);
+            logRegistered('Presenter', moduleConfig);
             return;
-        }
-        case 'tool': {
+        case 'tool':
             registrationState.isToolRegistered = true;
-            const index = pendingToolConfigs.findIndex((toolConfig) => toolConfig.id === moduleConfig.id);
-            if (index === -1) {
-                pendingToolConfigs.push(moduleConfig as ToolConfig);
-            } else {
-                pendingToolConfigs[index] = moduleConfig as ToolConfig;
-            }
-            logIt('Tool', moduleConfig);
+            upsertConfig(pendingToolConfigs, moduleConfig as ToolConfig);
+            logRegistered('Tool', moduleConfig);
             return;
-        }
+    }
+}
+
+// Replaces the config with the same id, or adds it when the list has none.
+function upsertConfig<Config extends { id: string }>(configs: Config[], config: Config): void {
+    const index = configs.findIndex((existingConfig) => existingConfig.id === config.id);
+    if (index === -1) {
+        configs.push(config);
+    } else {
+        configs[index] = config;
     }
 }
 
@@ -229,7 +224,7 @@ function registerAppVersion(deployedVersion: string): void {
     announceAppVersion(import.meta.env.DEV && hasFault('new-version') ? SIMULATED_NEW_APP_VERSION : deployedVersion);
 }
 
-function logIt(name: string, moduleConfig: ModuleConfig): void {
+function logRegistered(name: string, moduleConfig: ModuleConfig): void {
     if (import.meta.env.DEV) console.info(`[dpuse:app] ℹ️  ${name} '${moduleConfig.id}' v${moduleConfig.version} registered.`);
 }
 
@@ -247,8 +242,7 @@ function removeConfig<Config extends { id: string }>(configs: ShallowRef<Config[
     configs.value = configs.value.filter((config) => config.id !== id);
 }
 
-// ── Helpers - Connection ─────────────────────────────────────────────────────────────────────────────────────────────
-
+// ── Connection
 function constructConnectionConfig(connectorConfig: ConnectorConfig): ConnectionConfig {
     return {
         id: connectorConfig.id,
