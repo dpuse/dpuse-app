@@ -88,6 +88,19 @@ Design rules:
 - Setup master-detail screens use `GridDetailPanel` with `useSetupSelection()`. The selection lives in the route's
   `id` param, and the detail panel is keyed by item id so each selection starts fresh.
 
+### Services
+
+- `src/services/` holds shared plumbing that talks to something outside the app: the engine worker, the meta store,
+  the query client, authentication, and the loaders for tools and presenters. It has no business logic and no UI.
+- Network calls and module loads live in a service. A component or composable holds only the reactive state around
+  them: loading, failure and retry.
+- A client that only one feature uses lives in that feature's folder (`features/assistant/chat/useChatSession.ts`).
+- `src/observability/` keeps its own folder for telemetry, error reporting and the live monitors.
+- The engine runs in a worker and loads only connectors. Tools and presenters need the DOM, so they load on the main
+  thread through the dpuse-shared loaders (`loadTool`, `loadPresenter`).
+- A module loaded once for the whole app uses `shareLoad`, so callers that arrive together share one load and a failed
+  load can be tried again.
+
 ### Component names
 
 Name a component for what it **is**, not for an architectural role. Plain nouns by default — `Button`, `Card`,

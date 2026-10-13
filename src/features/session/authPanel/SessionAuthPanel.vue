@@ -5,10 +5,11 @@ import { onMounted, onUnmounted, ref, shallowRef, useTemplateRef } from 'vue';
 
 // ── Local Framework
 import { AppError } from '@dpuse/dpuse-shared';
+import { emailAddress } from '@/state/session';
 import { t } from '@/state/locale';
 import { useDialogs } from '@/state/dialogs';
 import { type AppFailure, raiseFailure } from '@/state/errors';
-import { constructFlow, destroyFlow, emailAddress } from '@/state/session';
+import { constructFlow, destroyFlow } from '@/services/auth';
 
 // ── Static Components
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';

@@ -9,8 +9,9 @@ import { formatNumberAsDuration, type LocaleId, SUPPORTED_LANGUAGES } from '@dpu
 
 // ── Local Framework
 import { appearance } from '@/state/appearance';
+import { signOut } from '@/services/auth';
 import { useDialogs } from '@/state/dialogs';
-import { expiresIn, lifetime, sessionIsAuthenticated, setSessionExpiryTimer, signOut } from '@/state/session';
+import { expiresIn, lifetime, sessionIsAuthenticated, setSessionExpiryTimer } from '@/state/session';
 import { isPWA, viewportIsWide } from '@/state/device';
 import { localeId, t } from '@/state/locale';
 

@@ -3,11 +3,11 @@
 import { onMounted, shallowRef, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
+import { AppError } from '@dpuse/dpuse-shared';
 import type { Tool as D3Tool } from '@dpuse/dpuse-tool-d3-visualiser';
-import { AppError, loadTool } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { toolConfigs } from '@/state/configs';
+import { establishTool } from '@/services/tools';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
@@ -41,7 +41,7 @@ function handleRetry(): void {
 async function renderDiagram(): Promise<void> {
     d3RenderFailure.value = undefined;
     try {
-        const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiser');
+        const d3Tool = await establishTool<D3Tool>('d3-visualiser');
         if (d3ContainerElement.value) await render(d3Tool, d3ContainerElement.value);
     } catch (error) {
         // The title goes in the message because the context below is shared by every diagram.

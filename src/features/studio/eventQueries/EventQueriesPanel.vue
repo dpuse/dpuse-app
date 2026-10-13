@@ -4,14 +4,14 @@ import { useRoute } from 'vue-router';
 import { onBeforeUnmount, onMounted, shallowRef, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
-import { AppError, loadTool } from '@dpuse/dpuse-shared';
+import { AppError } from '@dpuse/dpuse-shared';
 import type { D3NetworkView, Tool as D3Tool, NetworkDiagramData } from '@dpuse/dpuse-tool-d3-visualiser';
 
 // ── Local Framework
+import { establishTool } from '@/services/tools';
 import { t } from '@/state/locale';
 import { TEXT } from './EventQueriesPanel_.json';
 import { type AppFailure, raiseFailure } from '@/state/errors';
-import { toolConfigs, useConfigsReady } from '@/state/configs';
 
 // ── Static Components
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
@@ -70,8 +70,7 @@ function handleRetry(): void {
 async function renderDiagram(): Promise<void> {
     renderFailure.value = undefined;
     try {
-        await useConfigsReady();
-        const d3Tool = await loadTool<D3Tool>(toolConfigs.value, 'd3-visualiser');
+        const d3Tool = await establishTool<D3Tool>('d3-visualiser');
 
         state.view?.destroy(); // Discard any earlier view so a retry replaces it rather than rendering a second one.
         state.view = null;

@@ -1,5 +1,5 @@
 // ── External Dependencies & Registrations
-import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
+import type { Claims } from '@teamhanko/hanko-frontend-sdk';
 import { ref, watch } from 'vue';
 import { useDocumentVisibility, useIntervalFn } from '@vueuse/core';
 
@@ -12,12 +12,12 @@ import { raiseAppFailure } from '@/state/errors';
 import { throwOnFault } from '@/observability/faultInjection';
 import { accountConfigsAreRetrieved, connectionAccountConfigs, initialiseConfigMonitor, initialiseContextConfig } from '@/state/configs';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
+import { loadAuthClient, validateAuthSession } from '@/services/auth';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
 const EXPIRE_INTERVAL_SLOW = 60_000; // Milliseconds (1 minute).
-const HANKO_API_URL = import.meta.env.PROD ? 'https://auth.dpuse.app' : 'https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io'; // Public addresses, kept here so a build needs no '.env'.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -28,10 +28,6 @@ const emailIsVerified = ref<boolean | undefined>();
 export const expiresAt = ref<number | undefined>();
 export const expiresIn = ref<number | undefined>();
 const expiryIntervalMs = ref(EXPIRE_INTERVAL_SLOW);
-const state: { hankoInstance: Hanko | undefined; hankoFlowCleanupFunction: (() => void) | undefined } = {
-    hankoInstance: undefined,
-    hankoFlowCleanupFunction: undefined
-};
 export const sessionIsAuthenticated = ref<boolean | undefined>(); // Undefined while Hanko checks the session, then true when signed in and false when signed out.
 export const lifetime = ref<number | undefined>();
 const sessionId = ref<string | undefined>();
@@ -54,33 +50,17 @@ export function initialiseServices(): void {
     void initialiseContextConfig();
 }
 
-export async function constructFlow(name: FlowName, stateHandler: ({ state }: { state: AnyState }) => void): Promise<void> {
-    state.hankoFlowCleanupFunction = state.hankoInstance?.onAfterStateChange(stateHandler);
-    await state.hankoInstance?.createState(name);
-}
-
-export function destroyFlow(): void {
-    state.hankoFlowCleanupFunction?.();
-    state.hankoFlowCleanupFunction = undefined;
-}
-
 export function setSessionExpiryTimer(isRunQuickly = false): void {
     if (isRunQuickly && expiresAt.value != null) updateExpiresIn();
     expiryIntervalMs.value = isRunQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW;
     resumeExpiryTimer();
 }
 
-export async function signOut(): Promise<void> {
-    await state.hankoInstance?.logout();
-}
-
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function initialiseHanko(): Promise<void> {
-    let hankoModule;
     try {
-        if (import.meta.env.DEV) throwOnFault('auth');
-        hankoModule = await import('@teamhanko/hanko-frontend-sdk');
+        await loadAuthClient(establishSession);
     } catch (error) {
         // Without this the session stays pending, so every view that depends on it waits for ever. 'validationFailure'
         // marks the user as signed out, as a failed validation would.
@@ -94,22 +74,8 @@ async function initialiseHanko(): Promise<void> {
         return;
     }
 
-    state.hankoInstance = new hankoModule.Hanko(HANKO_API_URL);
-    state.hankoInstance.onSessionCreated((sessionDetails) => {
-        establishSession('created', sessionDetails.claims);
-    });
-    state.hankoInstance.onSessionExpired(() => {
-        establishSession('expired');
-    });
-    state.hankoInstance.onUserDeleted(() => {
-        establishSession('deleted');
-    });
-    state.hankoInstance.onUserLoggedOut(() => {
-        establishSession('terminated');
-    });
     try {
-        const result = await state.hankoInstance.validateSession();
-        establishSession('validated', result.is_valid ? result.claims : undefined);
+        establishSession('validated', await validateAuthSession());
         void initialisePerformanceTracking();
     } catch (error) {
         // The same capability as a failed SDK load, and for the user the same loss: they cannot sign in. Named
