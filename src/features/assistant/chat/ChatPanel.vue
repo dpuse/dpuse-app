@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import DOMPurify from 'dompurify';
 import { useMutationObserver } from '@vueuse/core';
 import { computed, onMounted, ref } from 'vue';
 
@@ -11,8 +10,8 @@ import { TEXT } from './ChatPanel_.json';
 import type { AssistantChatMessage } from './assistantChat';
 import type { AssistantModelConfig } from './modelConfigs';
 import { getMessageSteps } from './assistantChat';
-import { useMarkedTool } from '@/services/useMarkedTool';
-import { isRunningStatus, useChatSession } from '@/services/useChatSession';
+import { isRunningStatus, useChatSession } from './useChatSession';
+import { renderMarkdown, useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Static Components
 import ChatEmptyState from './ChatEmptyState.vue';
@@ -43,7 +42,7 @@ const emit = defineEmits<{ modelChange: [modelConfig: AssistantModelConfig] }>()
 const input = ref<string | undefined>();
 const scrollElement = ref<HTMLElement | null>(null);
 const composerHeight = ref(0); // Reported by 'ChatInput', which measures itself and adds its own bottom inset.
-const { markedTool, failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
+const { failure: markedToolFailure, initialise: initialiseMarkedTool } = useMarkedTool();
 // The model is passed as a getter so a change reaches the live session rather than rebuilding it, which would start
 // the conversation again from nothing.
 const { messages, status, sendFailure, unansweredQuestionIds, sendMessage, stop } = useChatSession(() => modelConfig);
@@ -85,11 +84,6 @@ function isResponseStreaming(message: AssistantChatMessage): boolean {
 // steps on the way to it.
 function responseHeading(message: AssistantChatMessage): string {
     return message.id === messages.value.at(-1)?.id ? 'Done' : 'Response';
-}
-
-function renderText(text: string): string {
-    // Formatter unavailable: fall back to sanitized plain text rather than blanking the message.
-    return markedTool.value ? DOMPurify.sanitize(markedTool.value.render(text)) : DOMPurify.sanitize(text);
 }
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -136,7 +130,7 @@ function handleRetryMarkedTool(): void {
              pane is one half of a split nested inside another split, so its width changes whenever either splitter
              moves, which no viewport breakpoint ever reports. -->
 
-        <!-- Covers the region: 'renderText' falls back to raw, unformatted markdown without the formatter, so every
+        <!-- Covers the region: 'renderMarkdown' falls back to raw, unformatted markdown without the formatter, so every
              message in the thread shows literal syntax instead of formatted prose. The chat is not degraded by this,
              it is unreadable, so the thread and the composer give way to the failure rather than sitting beneath it.
              The session component stays mounted throughout, holding the messages a retry brings back. -->
@@ -184,7 +178,7 @@ function handleRetryMarkedTool(): void {
                                 <template v-else>
                                     <PendingLabel v-if="isResponseStreaming(message)" class="mb-1 text-xs font-medium tracking-wide text-subtle" />
                                     <div v-else class="mb-3 text-xs font-medium tracking-wide text-subtle">{{ responseHeading(message) }}</div>
-                                    <div v-for="part in step.parts" :key="part.content" class="text-sm" v-html="renderText(part.content)" />
+                                    <div v-for="part in step.parts" :key="part.content" class="text-sm" v-html="renderMarkdown(part.content)" />
                                 </template>
                             </div>
                         </div>

@@ -9,9 +9,9 @@ import { constructConnectorCategoryConfig, getComponentStatus } from '@dpuse/dpu
 
 // ── Local Framework
 import { accountId } from '@/state/session';
+import { establishEngineWorker } from '@/services/engine';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { TEXT } from './SelectConnectionPanel_.json';
-import { useEngine } from '@/services/useEngine';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -45,7 +45,7 @@ function handleSubmit(): void {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function testAuth(): Promise<void> {
-    const { processRequest } = await useEngine();
+    const { processRequest } = await establishEngineWorker();
     (await processRequest('authenticateConnection', connectionLocalisedConfig, {
         accountId: accountId.value,
         windowCenterX: screen.width / 2,

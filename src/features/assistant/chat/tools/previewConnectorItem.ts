@@ -2,10 +2,10 @@
 import { AppError, serialiseError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { establishEngineWorker } from '@/services/engine';
 import { getLocalisedConnection } from '@/state/configs';
 import { localeId } from '@/state/locale';
 import { raiseFailure } from '@/state/errors';
-import { useEngine } from '@/services/useEngine';
 import type { PreviewConfig, PreviewObjectOptions } from '@dpuse/dpuse-shared';
 
 // ── Tools ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -20,7 +20,7 @@ export async function executePreviewConnectorItem(arguments_: unknown): Promise<
     // shown against the message that asked for it. Letting it escape would make an unhandled rejection out of
     // something the chat already knows how to say.
     try {
-        const engine = await useEngine();
+        const engine = await establishEngineWorker();
         const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path };
         const previewConfig = (await engine.processRequest('previewObject', connection, options)) as PreviewConfig;
 

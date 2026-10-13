@@ -142,7 +142,7 @@ const config = defineConfigWithVueTs(
 
             'vue/multi-word-component-names': ['warn', { ignores: ['Breadcrumbs', 'Button', 'Dialog', 'Grid', 'Input', 'Pill', 'Separator', 'Table', 'Tag'] }],
             'vue/no-bare-strings-in-template': 'error',
-            'vue/no-v-html': ['error', { ignorePattern: String.raw`^(?:icon|.*\.icon|purified|purify|renderText\()` }],
+            'vue/no-v-html': ['error', { ignorePattern: String.raw`^(?:icon|.*\.icon|purified|purify|renderMarkdown\()` }],
             'vue/require-default-prop': 'off', // Too much noise for properties with undefined values.
 
             'vuejs-accessibility/label-has-for': ['error', { required: { some: ['id', 'nesting'] } }]

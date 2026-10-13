@@ -3,7 +3,7 @@
 import { ChevronRightIcon, SquarePenIcon } from '@lucide/vue';
 
 // ── Local Framework
-import { purifyText } from '@/services/useMarkedTool';
+import { renderMarkdown } from '@/services/useMarkedTool';
 import { t } from '@/state/locale';
 import { TEXT } from './ContextDisclosure_.json';
 
@@ -51,7 +51,7 @@ defineEmits<{ edit: []; toggle: [] }>();
         <!-- Body -->
         <div v-if="isExpanded" class="overflow-y-hidden rounded-b-md px-4 pb-4">
             <!-- Description -->
-            <div v-html="purifyText(description)" />
+            <div v-html="renderMarkdown(description)" />
 
             <slot />
         </div>

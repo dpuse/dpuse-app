@@ -5,9 +5,9 @@ import { flushPromises, mount } from '@vue/test-utils';
 
 // The panel reads its session from the composable, so the spec drives that directly rather than standing up a fake
 // component: the refs below are the session, and the tests move them the way a real run would.
-vi.mock('@/services/useChatSession', async (importOriginal) => {
+vi.mock('@/features/assistant/chat/useChatSession', async (importOriginal) => {
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
-    const actual = await importOriginal<typeof import('@/services/useChatSession')>();
+    const actual = await importOriginal<typeof import('@/features/assistant/chat/useChatSession')>();
     const { ref } = await import('vue');
     const session = {
         messages: ref([] as AssistantChatMessage[]),
@@ -29,6 +29,7 @@ vi.mock('@/services/useMarkedTool', async () => {
     const markedTool = ref(undefined);
     const failure = ref(undefined);
     return {
+        renderMarkdown: (text: string): string => text,
         useMarkedTool: (): { markedTool: typeof markedTool; failure: typeof failure; initialise: () => Promise<undefined> } => ({
             markedTool,
             failure,
@@ -49,7 +50,7 @@ interface SessionForTest {
 }
 
 async function getSession(): Promise<SessionForTest> {
-    const module_ = (await import('@/services/useChatSession')) as unknown as { sessionForTest: SessionForTest };
+    const module_ = (await import('@/features/assistant/chat/useChatSession')) as unknown as { sessionForTest: SessionForTest };
     return module_.sessionForTest;
 }
 

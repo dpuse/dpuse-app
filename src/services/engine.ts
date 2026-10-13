@@ -8,59 +8,36 @@ import type { EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { raiseFailure } from '@/state/errors';
 import { throwOnFault } from '@/observability/faultInjection';
-import { engineConfig, toolConfigs } from '@/state/configs';
+import { assertDefined, shareLoad } from '@/utilities/index.ts';
+import { engineConfig, toolConfigs, useConfigsReady } from '@/state/configs';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const ENGINE_STORAGE_URL_PREFIX = 'https://engine-eu.dpuse.app';
 
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const state: { pendingEngineWorker: Promise<EngineWorker> | undefined } = { pendingEngineWorker: undefined };
-
-// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
-
-export function useEngine(): Promise<EngineWorker> {
-    // The first engine loaded stays for the life of the page, even after a newer version is deployed. Starting a second
-    // worker would leave two engines, each with its own connector instances against the same store. The new version is
-    // picked up when the user reloads, which the module update notice offers.
-    if (state.pendingEngineWorker != null) return state.pendingEngineWorker;
-
-    // "useEngine" is not invoked until all modules have been registered in session. So "engineConfig" will be populated.
-    const engineVersion = engineConfig.value?.version;
-
-    // The load is cached as a promise rather than as the worker it resolves to, and cached before anything awaits.
-    // Callers arrive together — two watchers on 'metaStoreConnectionConfig' call this in the same flush on a
-    // refresh — and a cache written only once the load finished would still be empty for the second of them. That
-    // gave a second worker, with its own connector instances against the same store.
-    const pendingEngineWorker = loadEngine(engineVersion);
-    state.pendingEngineWorker = pendingEngineWorker;
-
-    // A rejected promise stays rejected, so a cached one would replay the original failure to every retry instead of
-    // loading again. The identity check leaves a later load alone, in case a retry started while this one failed.
-    void pendingEngineWorker.catch(() => {
-        if (state.pendingEngineWorker === pendingEngineWorker) state.pendingEngineWorker = undefined;
-    });
-
-    return pendingEngineWorker;
-}
+// The first engine loaded stays for the life of the page, even after a newer version is deployed, because a second
+// worker would open its own connectors against the same stores. The user picks up the new version by reloading.
+export const establishEngineWorker = shareLoad(loadEngineWorker);
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function loadEngine(engineVersion: string | undefined): Promise<EngineWorker> {
-    // Import engine and initialise interface. Reported here rather than left to the caller: every data operation in
-    // the app funnels through this one load, most call sites have no failure path of their own, and the failure is
-    // the same one whoever triggered it — so this is the single place that can guarantee it reaches the console,
-    // Axiom and the UI. Callers that do catch may report again with their own context; the cause chain still carries
-    // this error, so the two reports agree.
+// Every data operation waits on this one load, and most callers have no failure path of their own, so its failure is
+// reported here.
+async function loadEngineWorker(): Promise<EngineWorker> {
+    await useConfigsReady();
+    const engineVersion = engineConfig.value?.version;
     const engineURL = `${ENGINE_STORAGE_URL_PREFIX}/engine_v${String(engineVersion)}/dpuse-engine.es.js`;
     let engineWorker: EngineWorker;
     try {
         if (import.meta.env.DEV) throwOnFault('engine');
+        assertDefined(engineVersion, 'No engine configuration.');
         const module = await import(/* @vite-ignore */ engineURL);
         const engineRuntime = module.engineRuntime as EngineRuntime;
         engineWorker = engineRuntime.invokeWorker((errorEvent: ErrorEvent) => {
-            console.error(errorEvent, 'engineWorker@useEngine.1');
+            const workerError = new AppError('Engine worker failed.', 'dpuse-app.engine.loadEngineWorker', { engineVersion, typeId: 'handled' }, { cause: errorEvent.error ?? errorEvent.message });
+            raiseFailure(workerError, { capability: 'engine' });
         });
         await engineWorker.initialise({
             connectorStorageURLPrefix: `${ENGINE_STORAGE_URL_PREFIX}/connectors`,
@@ -68,12 +45,10 @@ async function loadEngine(engineVersion: string | undefined): Promise<EngineWork
             toolConfigs: toolConfigs.value
         });
     } catch (error) {
-        // Raised to report it, not to display it: this knows the engine failed but not what the user was doing, and
-        // every caller is inside a region that does. Each of them shows this as the cause of its own failure — the
-        // same loss described in the words of whatever it prevented — and the de-duplication in 'deliverReport' keeps
-        // that to one report however many regions were waiting on this load.
+        // Raised to report it, not to display it. Each waiting caller shows it as the cause of its own failure, and
+        // 'deliverReport' sends it only once.
         const data = { engineURL, engineVersion, typeId: 'handled' };
-        const appError = new AppError(`Failed to load engine v${String(engineVersion)}.`, 'dpuse-app.useEngine.useEngine', data, { cause: error });
+        const appError = new AppError(`Failed to load engine v${String(engineVersion)}.`, 'dpuse-app.engine.loadEngineWorker', data, { cause: error });
         raiseFailure(appError, { capability: 'engine' });
         throw appError;
     }

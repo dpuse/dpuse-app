@@ -19,7 +19,7 @@ import { TEXT } from './ContextModelPanel_.json';
 import { assertDefined, defineLazyComponent } from '@/utilities';
 import { localeId, t } from '@/state/locale';
 import { localiseModel, localiseText } from './_context';
-import { purifyText, useMarkedTool } from '@/services/useMarkedTool';
+import { renderMarkdown, useMarkedTool } from '@/services/useMarkedTool';
 
 // ── Data
 import modelConfigsData from './_data/modelConfigs.json'; // TODO: remove once loadModel fetches remotely
@@ -172,7 +172,7 @@ async function loadModel(modelId: string): Promise<ContextModelConfig | undefine
                 </template>
 
                 <!-- Description -->
-                <div v-html="purifyText(modelReferenceDescription)" />
+                <div v-html="renderMarkdown(modelReferenceDescription)" />
 
                 <ContextEntityList :entities="activeModel?.entities ?? []" @edit="handleEditItem('entities', $event)" @show-erd-diagram="handleOpenDialog('erdDiagram')" />
 

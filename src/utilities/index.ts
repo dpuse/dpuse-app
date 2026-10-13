@@ -117,6 +117,21 @@ export function isSafariBrowser(): boolean {
     return /^(?:(?!chrome|chromium|android|crios|edgios|fxios).)*safari/i.test(navigator.userAgent);
 }
 
+// Callers that arrive while a load is running share it, and a load that succeeded is kept. A failed load is dropped,
+// because a rejected promise would hand the same failure to every retry.
+export function shareLoad<T>(load: () => Promise<T>): () => Promise<T> {
+    const state: { pendingLoad: Promise<T> | undefined } = { pendingLoad: undefined };
+    return (): Promise<T> => {
+        if (state.pendingLoad != null) return state.pendingLoad;
+        const pendingLoad = load();
+        state.pendingLoad = pendingLoad;
+        void pendingLoad.catch(() => {
+            state.pendingLoad = undefined;
+        });
+        return pendingLoad;
+    };
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // A slow or failing chunk is the one thing about this that cannot be reproduced on a fast local connection, so the

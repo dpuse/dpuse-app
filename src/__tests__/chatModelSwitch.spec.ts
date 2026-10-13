@@ -1,5 +1,5 @@
 import type { AssistantModelConfig } from '@/features/assistant/chat/modelConfigs';
-import { useChatSession } from '@/services/useChatSession';
+import { useChatSession } from '@/features/assistant/chat/useChatSession';
 import { defineComponent, h, nextTick, ref } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';

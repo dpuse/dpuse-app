@@ -29,10 +29,10 @@ import type {
 // ── Local Framework
 import { constructItemPath } from '../dataViewSummary';
 import type { DataSource } from '@/composables/useDataWindow';
+import { establishEngineWorker } from '@/services/engine';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { t } from '@/state/locale';
 import { TEXT } from './SelectItemPanel_.json';
-import { useEngine } from '@/services/useEngine';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 import { connectionLocalisedConfigs, useDataView, useUpdateDataView } from '@/state/dataViews';
 
@@ -130,7 +130,7 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
         getRows: async (start: number, end: number): Promise<{ rows: LocalisedConfig<ConnectionNodeConfig>[]; totalCount: number }> => {
             try {
                 const activeConnection = await waitForActiveConnectionConfig();
-                const { processRequest } = await useEngine();
+                const { processRequest } = await establishEngineWorker();
                 const result = (await processRequest('listNodes', activeConnection, {
                     folderPath,
                     limit: end - start,
@@ -170,7 +170,7 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
     if (newActiveItem == null) return;
 
     try {
-        const { processRequest } = await useEngine();
+        const { processRequest } = await establishEngineWorker();
         if (!activeConnectionConfig.value) return;
 
         const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: constructItemPath(newActiveItem) };
@@ -356,7 +356,7 @@ const infoString = ref('');
 async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
     try {
         const activeConnection = await waitForActiveConnectionConfig();
-        const { processRequest } = await useEngine();
+        const { processRequest } = await establishEngineWorker();
         const options: GetInfoOptions = { path: constructItemPath(connectionNodeConfig) };
         const { info } = (await processRequest('getInfo', activeConnection, options)) as GetInfoResult;
         const infoWithoutChildren = { ...info };

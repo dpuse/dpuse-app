@@ -10,8 +10,8 @@ import type { DataTypeId, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-s
 
 // ── Local Framework
 import { defineLazyComponent } from '@/utilities/index.ts';
-import { purifyText } from '@/services/useMarkedTool';
 import { raiseAppFailure } from '@/state/errors';
+import { renderMarkdown } from '@/services/useMarkedTool';
 import { TEXT } from './DataViewPanel_.json'; // TODO: 'item.title' names every kind of item until each connector says which one it provides.
 import { useUnsavedWork } from '@/state/unsavedWork';
 import { constructItemPath, type DataViewConnection } from './dataViewSummary';
@@ -139,7 +139,7 @@ function formatDateTime(timestamp: number): string {
                 </template>
 
                 <!-- Description -->
-                <div v-if="dataViewLocalisedConfig.description" v-html="purifyText(dataViewLocalisedConfig.description)" />
+                <div v-if="dataViewLocalisedConfig.description" v-html="renderMarkdown(dataViewLocalisedConfig.description)" />
 
                 <!-- One section per part of the task, in the order it is done, each documenting what that part produced. A
                      section not reached yet keeps its heading and says so in one line, so the document's shape never
