@@ -90,7 +90,7 @@ const socket = useMonitorSocket<ConfigMessage>({
         state.reconnectAttempts = retried;
         return retried < MAX_RECONNECT_ATTEMPTS && socket.online.value;
     },
-    url: `wss://${String(DPUSE_API_HOST)}/configs/websocket`
+    url: `wss://${DPUSE_API_HOST}/configs/websocket`
 });
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
