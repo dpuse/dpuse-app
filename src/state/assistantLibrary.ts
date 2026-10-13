@@ -4,6 +4,8 @@ import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 import { ignoreReportedNavigationFailure } from '@/router';
+import { t } from '@/state/locale';
+import { TEXT } from './assistantLibrary_.json';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -30,15 +32,6 @@ interface AssistantLibrary {
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// Shared rather than held with the list: the library labels a row's type and the document panel labels the same type
-// again, and the two must not be able to disagree about what a 'dataView' is called.
-export const LIBRARY_DOCUMENT_TYPE_LABELS: Record<LibraryDocumentType, string> = {
-    connector: 'Connector',
-    context: 'Context',
-    dataView: 'Data view',
-    document: 'Document'
-};
 
 const PATH_SEPARATOR = '/';
 
@@ -83,3 +76,16 @@ export function useAssistantLibrary(): AssistantLibrary {
 
     return { paneIsOpen, path, query, searchHasQuery, setPath };
 }
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Shared rather than held with the list: the library labels a row's type and the document panel labels the same type
+// again, and the two must not be able to disagree about what a 'dataView' is called.
+export const libraryDocumentTypeLabels = computed(
+    (): Record<LibraryDocumentType, string> => ({
+        connector: t(TEXT, 'connector.label'),
+        context: t(TEXT, 'context.label'),
+        dataView: t(TEXT, 'dataView.label'),
+        document: t(TEXT, 'document.label')
+    })
+);

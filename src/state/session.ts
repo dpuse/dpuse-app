@@ -11,13 +11,13 @@ import { hasReportedAppError } from '@/observability/errorTracking';
 import { raiseAppFailure } from '@/state/errors';
 import { throwOnFault } from '@/observability/faultInjection';
 import { accountConfigsAreRetrieved, connectionAccountConfigs, initialiseConfigMonitor, initialiseContextConfig } from '@/state/configs';
+import { type AuthSessionChangeId, loadAuthClient, validateAuthSession } from '@/services/auth';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
-import { loadAuthClient, validateAuthSession } from '@/services/auth';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const EXPIRE_INTERVAL_FAST = 1000; // Milliseconds (1 second).
-const EXPIRE_INTERVAL_SLOW = 60_000; // Milliseconds (1 minute).
+const EXPIRE_INTERVAL_FAST_MS = 1000;
+const EXPIRE_INTERVAL_SLOW_MS = 60_000;
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -27,10 +27,11 @@ const emailIsPrimary = ref<boolean | undefined>();
 const emailIsVerified = ref<boolean | undefined>();
 export const expiresAt = ref<number | undefined>();
 export const expiresIn = ref<number | undefined>();
-const expiryIntervalMs = ref(EXPIRE_INTERVAL_SLOW);
+const expiryIntervalMs = ref(EXPIRE_INTERVAL_SLOW_MS);
 export const sessionIsAuthenticated = ref<boolean | undefined>(); // Undefined while Hanko checks the session, then true when signed in and false when signed out.
 export const lifetime = ref<number | undefined>();
 const sessionId = ref<string | undefined>();
+const state = { accountMonitorIsStarted: false }; // A visitor who never signed in has no account monitor, so signing out skips loading its code.
 
 const { pause: pauseExpiryTimer, resume: resumeExpiryTimer } = useIntervalFn(updateExpiresIn, expiryIntervalMs, { immediate: false });
 
@@ -52,7 +53,7 @@ export function initialiseServices(): void {
 
 export function setSessionExpiryTimer(isRunQuickly = false): void {
     if (isRunQuickly && expiresAt.value != null) updateExpiresIn();
-    expiryIntervalMs.value = isRunQuickly ? EXPIRE_INTERVAL_FAST : EXPIRE_INTERVAL_SLOW;
+    expiryIntervalMs.value = isRunQuickly ? EXPIRE_INTERVAL_FAST_MS : EXPIRE_INTERVAL_SLOW_MS;
     resumeExpiryTimer();
 }
 
@@ -103,6 +104,7 @@ async function initialiseAccountMonitor(): Promise<void> {
         if (import.meta.env.DEV) throwOnFault('account');
         const accountMonitorModule = await import('@/observability/accountMonitor');
         accountMonitorModule.initialise();
+        state.accountMonitorIsStarted = true;
     } catch (error) {
         // 'accountConfigsAreRetrieved' never becomes true, so connection lists stay loading. The failure says why.
         raiseAppFailure(new AppError('Failed to load the account service.', 'dpuse-app.session.initialiseAccountMonitor', { typeId: 'handled' }, { cause: error }), {
@@ -111,9 +113,11 @@ async function initialiseAccountMonitor(): Promise<void> {
     }
 }
 
-// Not shown to the user: the module is already loaded by the time sign-out runs, and a skipped teardown in a tab that
-// is discarding its session state is not something the user can act on.
+// Not shown to the user: a skipped teardown in a tab that is discarding its session state is not something the user can
+// act on.
 async function terminateAccountMonitor(): Promise<void> {
+    if (!state.accountMonitorIsStarted) return;
+    state.accountMonitorIsStarted = false;
     try {
         const accountMonitorModule = await import('@/observability/accountMonitor');
         accountMonitorModule.terminate();
@@ -122,7 +126,7 @@ async function terminateAccountMonitor(): Promise<void> {
     }
 }
 
-function establishSession(actionId: 'created' | 'expired' | 'deleted' | 'terminated' | 'validated' | 'validationFailure', claims?: Claims): void {
+function establishSession(actionId: AuthSessionChangeId | 'validated' | 'validationFailure', claims?: Claims): void {
     if (claims) {
         if (claims.email) {
             emailAddress.value = claims.email.address;

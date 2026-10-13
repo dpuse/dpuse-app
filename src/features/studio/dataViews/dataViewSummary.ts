@@ -1,8 +1,6 @@
 // What a data view's list card and detail panel both show: its progress through the steps and the connection behind it.
 // Held in one place so the card, the panel and the open action always agree.
 
-// ── External Dependencies & Registrations ────────────────────────────────────────────────────────────────────────────
-
 // ── DPUse Framework
 import type { ConnectionNodeConfig, DataViewConfig, getComponentStatus } from '@dpuse/dpuse-shared';
 
@@ -10,12 +8,12 @@ import type { ConnectionNodeConfig, DataViewConfig, getComponentStatus } from '@
 
 type DataViewProgress = Pick<DataViewConfig, 'connectionId' | 'connectionNodeConfig' | 'contentAuditConfig'>;
 
-export type DataViewStepId = 'connection' | 'content' | 'data' | 'item'; // Each id is also the route name of its step.
-
 export interface DataViewStep {
     id: DataViewStepId;
     state: 'done' | 'pending';
 }
+
+export type DataViewStepId = 'connection' | 'content' | 'data' | 'item'; // Each id is also the route name of its step.
 
 // A data view's connection, already localised. A connector such as Dropbox can have several connections ('Personal',
 // 'Work'), so the connection's own name leads, and the connector's details describe what kind of connection it is.

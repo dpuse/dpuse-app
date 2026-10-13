@@ -4,6 +4,10 @@ import { ref } from 'vue';
 // ── DPUse Framework
 import { DEFAULT_LOCALE_ID, type LocaleId, type LocaleLabel, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared';
 
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+type Translations = Record<string, LocaleLabel>;
+
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const localeId = ref<LocaleId>(establishLocaleId());
@@ -14,9 +18,9 @@ export function n(value: number, options?: Intl.NumberFormatOptions): string {
     return new Intl.NumberFormat(localeId.value, options).format(value);
 }
 
-type Translations = Record<string, LocaleLabel>;
-export function t(translations: Translations, id: keyof Translations, parameters?: Record<string, number | string>): string {
-    const text = translations[id][localeId.value] ?? translations[id][DEFAULT_LOCALE_ID] ?? id;
+export function t<T extends Translations>(translations: T, id: keyof T & string, parameters?: Record<string, number | string>): string {
+    const translation = translations[id] as LocaleLabel | undefined; // Undefined only when a key is built at run time, so the key is shown rather than crashing.
+    const text = translation?.[localeId.value] ?? translation?.[DEFAULT_LOCALE_ID] ?? id;
     return parameters ? interpolateParameters(text, parameters) : text;
 }
 

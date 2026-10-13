@@ -23,8 +23,8 @@ import { t } from '@/state/locale';
 import { TEXT } from './SelectConnectionList_.json';
 import { useDialogs } from '@/state/dialogs';
 import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
-import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded } from '@/state/configs';
-import { connectionLocalisedConfigs, useDataView, useUpdateDataView } from '@/state/dataViews';
+import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
+import { useDataView, useUpdateDataView } from '@/state/dataViews';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
@@ -67,7 +67,7 @@ const pickedConnectionId = ref<string>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const pickedConnectionLocalisedConfig = computed(() => connectionLocalisedConfigs.value.find((config) => config.id === pickedConnectionId.value));
+const pickedConnectionLocalisedConfig = computed(() => findConnectionLocalisedConfig(pickedConnectionId.value));
 
 // Cards here carry actions, which take a second row.
 const cardRowHeight = useCardRowHeight(true);

@@ -49,9 +49,8 @@ export type DialogId = keyof typeof DIALOG_CONFIGS;
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Reads which dialog the URL asks for, and opens and closes dialogs by changing the URL. Opening replaces and closing
-// pushes, so the dialog itself never becomes a step the back button has to walk through, while the state it
-// was opened over stays reachable.
+// Reads which dialog the URL asks for, and opens and closes dialogs by changing the URL. Both replace the history
+// entry rather than adding one, so Back never reopens a dialog the user has closed.
 export function useDialogs(): Dialogs {
     const route = useRoute();
     const router = useRouter();
@@ -69,7 +68,7 @@ export function useDialogs(): Dialogs {
 
         const query = { ...route.query };
         delete query.dlg;
-        void ignoreReportedNavigationFailure(router.push({ query }));
+        void ignoreReportedNavigationFailure(router.replace({ query }));
     }
 
     // Awaitable, because a menu that opens a dialog should close only once the URL carries it. A failed navigation is

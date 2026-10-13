@@ -60,6 +60,20 @@ describe('useDialogs', () => {
         expect(router.currentRoute.value.query.keep).toBe('1');
     });
 
+    it('does not reopen a closed dialog on Back', async () => {
+        const { dialogs, router } = await buildDialogs('?previous=1');
+        await router.push('/?keep=1');
+
+        await dialogs.openDialog('account');
+        dialogs.closeDialog();
+        await flushPromises();
+        router.back();
+        await flushPromises();
+
+        expect(router.currentRoute.value.query.dlg).toBeUndefined();
+        expect(router.currentRoute.value.query.previous).toBe('1');
+    });
+
     it('does not navigate when there is no dialog to close', async () => {
         const { dialogs, router } = await buildDialogs('?keep=1');
         const { fullPath } = router.currentRoute.value;

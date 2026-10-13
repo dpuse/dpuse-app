@@ -2,7 +2,7 @@
 import { promiseTimeout } from '@vueuse/core';
 import { type AsyncComponentLoader, type Component, type ComponentPublicInstance, defineAsyncComponent, defineComponent, h, ref, type VNode } from 'vue';
 
-// ── DPUse Tools
+// ── DPUse Framework
 import type { BaseConfig, ConnectorConfig, CookbookConfig, PresenterConfig, ToolConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
@@ -12,29 +12,20 @@ import { throwOnFault, throwOnStaleFault } from '@/observability/faultInjection'
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
 import LoadFailureNotice from '@/components/ui/error/LoadFailureNotice.vue';
 
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// How long a load must run before the spinner appears. Below this the load is over before the eye registers it, and
-// showing anything reads as a flicker rather than as progress. Exported so the router can hold lazy route components to
-// the same threshold, which it reaches by its own route rather than through 'defineLazyComponent'.
-export const VISIBLE_DELAY_MS = 150;
-
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface LazyComponentOptions {
-    // For an overlay, which has no region for its failure to stand in: in its place the failure would squeeze into
-    // whatever the overlay is anchored to, which is a badge at best. It is shown as a modal instead, and dismissing it
-    // calls 'onDismiss' so the overlay's open state closes with it.
+    // An overlay has no region of its own to show a load failure in, so its failure is shown as a modal. Dismissing
+    // the modal calls 'onDismiss', which closes the overlay too.
     failureOwnsScreen?: { onDismiss: () => void };
-    // Overlays and layout chrome — dialogs, menus, the pane splitter — must not be stood in for while they load. The
-    // spinner sits in the normal flow, so in their place it either appears where an overlay never would or, for the
-    // splitter, claims a full flex share and shoves the panes it divides. They are invisible until ready instead.
+    // False for overlays and layout parts, such as dialogs, menus and the pane splitter. The spinner takes up space in
+    // the page, so it would appear where an overlay never does, or push apart the panes the splitter divides.
     hasPlaceholder?: boolean;
     simulation?: AsyncPanelSimulation;
 }
 
-// Development-only levers for exercising the loading spinner and the load-failure display, which a fast local
-// connection otherwise never shows.
+// Development-only settings that slow or fail a load, because a fast local connection never shows the spinner or the
+// failure display.
 export interface AsyncPanelSimulation {
     delayMs?: number;
     failsToLoad?: boolean;
@@ -47,9 +38,15 @@ export interface SetupOptionConfig<TIcon = string> extends Omit<BaseConfig, 'ico
     rightAligned?: boolean;
 }
 
-// The module types that are dynamically loaded and executable in their own right, as listed under 'Manage
-// Configuration'. A union rather than 'ModuleConfig' so that each panel can narrow on 'typeId' and reach its own fields.
+// The module types loaded at run time, as listed under 'Manage Configuration'. A union rather than 'ModuleConfig', so
+// each panel can narrow on 'typeId' and reach its own fields.
 export type PluginConfig = ConnectorConfig | CookbookConfig | PresenterConfig | ToolConfig;
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// How long a load runs before the spinner appears, so a fast load does not flash one. Exported so the router's lazy
+// route components wait just as long.
+export const VISIBLE_DELAY_MS = 150;
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -58,42 +55,33 @@ export function assertDefined<T>(value: T | null | undefined, message = 'Expecte
     return value;
 }
 
-// Replaces the Suspense + error/loading-spinner boilerplate with defineAsyncComponent's own
-// loadingComponent/errorComponent options, so lazy components don't depend on Suspense (unsupported in Vapor mode).
-// 'defineAsyncComponent' passes its error component only the error — not the 'retry' its own options document — so
-// the retry offered to the user is built here instead.
+// Uses the loading and error options of 'defineAsyncComponent' rather than 'Suspense', which Vapor mode does not
+// support. Vue passes the error component only the error, not a retry, so the retry is built here.
 export function defineLazyComponent(loader: AsyncComponentLoader, name: string, options: LazyComponentOptions = {}): Component {
     const { failureOwnsScreen, hasPlaceholder = true, simulation } = options;
 
-    // Bumping this remounts the panel, which is what makes a retry actually fetch again: Vue drops its cached request
-    // as soon as a load fails, so a fresh mount is a fresh attempt rather than a replay of the failure. The failure
-    // display cannot do this itself — it is rendered inside the very component that has to be remounted, which is why
-    // the counter lives out here. Shared by every instance of this panel, which in practice means the one.
+    // Vue forgets a failed load, so remounting the panel fetches it again. A retry bumps this counter, which is the
+    // panel's key. It lives here because the failure display sits inside the panel being remounted.
     const attempt = ref(0);
 
-    // A functional component rather than 'defineComponent({ extends: LoadFailureNotice, props: { name } })'. That
-    // reads correctly and is silently inert: Vue takes 'setup' from the component's own definition, and 'extends' does
-    // not put it there, so the base's template was inherited while none of its script ran — no display, no report.
-    // Forwarding the props by hand is what makes the failure component actually run.
+    // A function rather than a component that extends 'LoadFailureNotice'. 'extends' would copy the template but not
+    // 'setup', so the failure would be neither shown nor reported.
     const errorComponent = (failureProperties: { error: unknown }): VNode =>
         h(LoadFailureNotice, { ...failureProperties, name, onDismiss: failureOwnsScreen?.onDismiss, ownsScreen: failureOwnsScreen != null, retry: () => attempt.value++ });
 
-    // 'delay' is stated rather than left to defineAsyncComponent's own default of 200ms, which is a number this app
-    // never chose. A failure is always shown, even where the load itself is not: it is the one thing the user has to
-    // be told about, and appearing in the wrong place beats not appearing.
+    // 'delay' replaces Vue's default of 200ms, so every spinner in the app waits the same time. A failure is shown
+    // even when no spinner is, because the user must always be told.
     const loadingComponent = hasPlaceholder ? ComponentLoadingSpinner : undefined;
     const asyncComponent = defineAsyncComponent({ loader: buildLoader(loader, name, simulation), loadingComponent, delay: VISIBLE_DELAY_MS, errorComponent });
 
-    // Wrapped only to hold the key, since a component cannot key itself. Attributes are forwarded by hand with
-    // fallthrough switched off, so what the caller passes lands on the panel once rather than on both.
+    // A wrapper, because a component cannot set its own key. Attributes are passed on by hand with fallthrough off,
+    // so they reach the panel once rather than twice.
     return defineComponent({
         name: `${name}Host`,
         inheritAttrs: false,
         setup(_properties, { attrs, expose, slots }) {
-            // A template ref on a panel has to be forwarded by hand as well, and cannot go through 'attrs': Vue takes
-            // 'ref' off the vnode before the wrapper ever sees it, so a caller's ref lands on this host — which exposes
-            // nothing of its own — rather than on the panel. Holding the panel's instance and re-exposing it is what
-            // keeps the panel's 'defineExpose' reachable from the call site.
+            // Vue removes 'ref' before the wrapper sees it, so a caller's template ref lands on the wrapper. The
+            // wrapper exposes the panel's instance, so the panel's 'defineExpose' is still reachable.
             const panel = ref<ComponentPublicInstance | null>(null);
 
             expose(
@@ -134,14 +122,11 @@ export function shareLoad<T>(load: () => Promise<T>): () => Promise<T> {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A slow or failing chunk is the one thing about this that cannot be reproduced on a fast local connection, so the
-// simulation is built in rather than left to be hand-edited into a call site and accidentally committed. Ignored
-// outside development, so a stray flag cannot reach users. Route components have their own version of this in the
-// router, because they are loaded by the router rather than through 'defineLazyComponent'.
+// Adds the development-only faults and simulation, so a slow or failing load can be tried without editing a call site.
+// Route components have their own version in the router.
 //
-// The '?fault=panel' faults apply to every panel at once unless one is named — '?fault=panel:ChatPanel'. Naming one is
-// what makes a panel nested inside another reachable: without it the outer panel fails first and the inner one never
-// loads, so its failure can never be seen.
+// '?fault=panel' fails every panel unless one is named, as in '?fault=panel:ChatPanel'. Naming one is the only way to
+// fail a panel nested inside another, because otherwise the outer panel fails first.
 function buildLoader(loader: AsyncComponentLoader, name: string, simulation?: AsyncPanelSimulation): AsyncComponentLoader {
     if (!import.meta.env.DEV) return loader;
 

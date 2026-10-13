@@ -33,7 +33,7 @@ const SPLITTER_DEFAULT_PERCENT = 55; // Chat is the pane the user acts in, so it
 const SPLITTER_PERCENT_KEY = 'dpuse-assistantPaneSplitterPercent';
 
 // Below this the pane cannot hold two readable columns, so it shows one at a time. Deliberately not Tailwind's 'md'
-// (768px) that 'viewportIsWide' uses: this is a pane inside a pane, and two columns of chat and library need less than
+// (48rem) that 'viewportIsWide' uses: this is a pane inside a pane, and two columns of chat and library need less than
 // a whole application does.
 const WIDE_PANE_THRESHOLD_PX = 640;
 

@@ -1,17 +1,16 @@
 // ── External Dependencies & Registrations
-import { computed, type MaybeRefOrGetter, toValue } from 'vue';
+import { type MaybeRefOrGetter, toValue } from 'vue';
 import { useMutation, type UseMutationReturnType, useQuery, type UseQueryReturnType } from '@tanstack/vue-query';
 
 // ── DPUse Framework
-import { AppError, localiseConfigs } from '@dpuse/dpuse-shared';
-import type { ConnectionConfig, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
+import { AppError } from '@dpuse/dpuse-shared';
+import type { DataViewConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
-import { localeId } from '@/state/locale';
+import { metaStoreConnectionConfig } from '@/state/configs';
 import { queryClient } from '@/services/queryClient';
 import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
-import { connectionConfigs, metaStoreConnectionConfig } from '@/state/configs';
 import {
     constructMetaStoreListKey,
     constructMetaStoreRecordKey,
@@ -26,19 +25,9 @@ import {
 const DATA_VIEW_LIST_KEY = constructMetaStoreListKey('dataViews');
 const UNTITLED_DATA_VIEW_LABEL = { en: 'Untitled Data View', es: 'Vista de datos sin título' }; // Stored with the record, so it carries every language rather than reading the current one.
 
-// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
-
-export const connectionLocalisedConfigs = computed((): LocalisedConfig<ConnectionConfig>[] => localiseConfigs<ConnectionConfig>(connectionConfigs.value, localeId.value, true));
-
-// Read once, as an icon does not change with the language.
-const dataViewIcon = assertDefined(
-    useStudioOptions().value.find((config) => config.id === 'dataViews'),
-    "Expected a 'dataViews' entry from useStudioOptions()."
-).icon;
-
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Read once and then kept current by the mutations below, which write every change into the cache as it is saved.
+// Read once and then kept current by the data view mutations, which write every change into the cache as it is saved.
 export function useDataViews(): UseQueryReturnType<DataViewConfig[], Error> {
     return useQuery({
         queryKey: DATA_VIEW_LIST_KEY,
@@ -82,6 +71,14 @@ export function useDeleteDataView(): UseMutationReturnType<void, Error, string, 
         }
     });
 }
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Read once, as an icon does not change with the language.
+const dataViewIcon = assertDefined(
+    useStudioOptions().value.find((config) => config.id === 'dataViews'),
+    "Expected a 'dataViews' entry from useStudioOptions()."
+).icon;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

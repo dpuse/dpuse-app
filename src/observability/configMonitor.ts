@@ -203,8 +203,8 @@ function upsertConfig<Config extends { id: string }>(configs: Config[], config: 
     }
 }
 
-// The first list is what this page loaded with. A list arriving after a reconnect may hold changes made while the socket
-// was down, which no 'deploy' or 'delete' message reported. '?fault=module-update' pretends one has changed.
+// The first list is what this page loaded with. A list arriving after a reconnect may hold changes made while the
+// socket was down, which no 'deploy' or 'delete' message reported. '?fault=module-update' pretends one has changed.
 function compareModuleList(moduleConfigs: ModuleConfig[]): void {
     const signature = moduleConfigs
         .filter((moduleConfig) => moduleConfig.typeId !== 'app')

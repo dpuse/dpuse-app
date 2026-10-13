@@ -3,13 +3,15 @@ import DOMPurify from 'dompurify';
 import { type ShallowRef, shallowRef } from 'vue';
 
 // ── DPUse Framework
+import { AppError } from '@dpuse/dpuse-shared';
+
+// ── DPUse Tools
 import type { Tool as MarkedTool } from '@dpuse/dpuse-tool-marked-markdown-parser';
-import { AppError, loadTool } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { establishTool } from '@/services/tools';
 import { shareLoad } from '@/utilities/index.ts';
 import { type AppFailure, raiseFailure } from '@/state/errors';
-import { toolConfigs, useConfigsReady } from '@/state/configs';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -21,6 +23,13 @@ interface MarkedToolState {
     initialise: () => Promise<MarkedTool | undefined>; // Loads the tool, or retries after 'failure' is set.
 }
 
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// For a caller that needs the tool itself (not just rendered text) or wants to show its own failure/retry UI.
+export function useMarkedTool(): MarkedToolState {
+    return { markedTool, failure, initialise };
+}
+
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Module-level, not created per call: the tool is a stateless renderer shared by the whole app, so one load (and one
@@ -28,13 +37,6 @@ interface MarkedToolState {
 const markedTool = shallowRef<MarkedTool | undefined>();
 const failure = shallowRef<AppFailure | undefined>();
 const establishMarkedTool = shareLoad(loadMarkedTool);
-
-// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// For a caller that needs the tool itself (not just rendered text) or wants to show its own failure/retry UI.
-export function useMarkedTool(): MarkedToolState {
-    return { markedTool, failure, initialise };
-}
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -59,8 +61,7 @@ async function initialise(): Promise<MarkedTool | undefined> {
 async function loadMarkedTool(): Promise<MarkedTool> {
     failure.value = undefined;
     try {
-        await useConfigsReady();
-        markedTool.value = await loadTool<MarkedTool>(toolConfigs.value, 'marked-markdown-parser');
+        markedTool.value = await establishTool<MarkedTool>('marked-markdown-parser');
         return markedTool.value;
     } catch (error) {
         failure.value = raiseFailure(new AppError('Failed to load markdown formatter.', 'dpuse-app.useMarkedTool.loadMarkedTool', { typeId: 'handled' }, { cause: error }));

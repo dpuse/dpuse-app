@@ -68,8 +68,9 @@ export function useMonitorSocket<TMessage>(options: MonitorSocketOptions<TMessag
                 options.onDisconnected?.();
                 return;
             }
-            // VueUse pauses the heartbeat whenever any socket closes, including one already replaced — a 'pagehide' close
-            // arriving after 'pageshow' has reconnected. Resumed so the live socket keeps its keepalive.
+            // VueUse pauses the heartbeat whenever any socket closes, including one already replaced, such as a
+            // 'pagehide' close arriving after 'pageshow' has reconnected. Resumed so the live socket keeps its
+            // keepalive.
             if (socket.status.value === 'OPEN') state.heartbeat?.resume();
         },
         onError: (_webSocket, error) => {
@@ -91,9 +92,9 @@ export function useMonitorSocket<TMessage>(options: MonitorSocketOptions<TMessag
         if (event.persisted && canReconnect()) restart();
     });
 
-    // A backgrounded tab has its timers throttled and eventually frozen, so the ping stops and the connection is dropped
-    // as idle, and a network that has come back is a better signal than any retry timer. Both reconnect at once rather
-    // than wait — unless the socket was closed on purpose, which neither is a reason to undo.
+    // A backgrounded tab has its timers throttled and then frozen, so the ping stops and the connection is dropped as
+    // idle. A network that has come back is a better signal than any retry timer. Both reconnect at once, unless the
+    // socket was closed on purpose.
     watch([useDocumentVisibility(), online], ([visibility, isOnline]) => {
         if (visibility === 'visible' && isOnline) restartIfDisconnected();
     });

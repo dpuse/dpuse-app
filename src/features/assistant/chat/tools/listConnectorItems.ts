@@ -3,8 +3,7 @@ import { AppError, serialiseError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { establishEngineWorker } from '@/services/engine';
-import { getLocalisedConnection } from '@/state/configs';
-import { localeId } from '@/state/locale';
+import { findConnectionLocalisedConfig } from '@/state/configs';
 import { raiseFailure } from '@/state/errors';
 import type { ListNodesOptions, ListNodesResult } from '@dpuse/dpuse-shared';
 
@@ -15,7 +14,7 @@ export async function executeListConnectorItems(
 ): Promise<{ items: { name: string; label: string; typeId: string; folderPath: string; extension: string | undefined; size: number | undefined }[] } | { error: string }> {
     const { connectionId, folderPath = '' } = arguments_ as { connectionId: string; folderPath?: string };
 
-    const connection = getLocalisedConnection(connectionId, localeId.value);
+    const connection = findConnectionLocalisedConfig(connectionId);
     if (!connection) return { error: `No connection found with id '${connectionId}'` };
 
     // Returned rather than thrown, and reported on the way: this tool's region is the conversation, where an error is

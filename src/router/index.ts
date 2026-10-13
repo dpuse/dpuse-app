@@ -12,16 +12,6 @@ import { type AsyncPanelSimulation, VISIBLE_DELAY_MS } from '@/utilities/index.t
 import { canReloadForNewAppVersion, reloadForNewAppVersion } from '@/state/appVersion';
 import { throwOnFault, throwOnStaleFault } from '@/observability/faultInjection';
 
-// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// A lazy route component is just a loader function, so the label and depth ride on it as properties. They are there
-// for 'assertViewDepths', which reads them straight off the route table.
-interface RouteComponentLoader {
-    (): Promise<Component>;
-    label: string;
-    viewDepth: number;
-}
-
 // ── Dynamic Components
 // Every loader is wrapped so that a failed chunk can be reported by name, and so that loading one raises the spinner.
 // The number is the nesting level of the 'RouterView' that renders the component. The one in 'App.vue' is 0, and the
@@ -41,6 +31,16 @@ const SetupLayout = defineLazyLoader('SetupLayout', 0, () => import('@/features/
 const SetupHomePanel = defineLazyLoader('SetupHomePanel', 1, () => import('@/features/studio/setup/SetupHomePanel.vue'));
 const ContextModelList = defineLazyLoader('ContextModelList', 1, () => import('@/features/studio/setup/context/ContextModelList.vue'));
 const PluginList = defineLazyLoader('PluginList', 1, () => import('@/features/studio/setup/plugins/_components/PluginList.vue'));
+
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A lazy route component is just a loader function, so the label and depth ride on it as properties. They are there
+// for 'assertViewDepths', which reads them straight off the route table.
+interface RouteComponentLoader {
+    (): Promise<Component>;
+    label: string;
+    viewDepth: number;
+}
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -92,13 +92,13 @@ export const APP_ROUTES = [
 // just keeps the old screen up until the new one is ready.
 export const navigationPendingDepth = shallowRef<number | undefined>();
 
-// Staging for the ref above. The level is known the moment a loader runs, but the spinner must not appear for
-// 'VISIBLE_DELAY_MS' yet, so it is held here — plain and non-reactive — until the timer copies it across.
+// The level waiting on a chunk, held until 'VISIBLE_DELAY_MS' has passed and the timer copies it into
+// 'navigationPendingDepth'. The delay stops a fast load flashing a spinner.
 const pending = { depth: undefined as number | undefined, timer: undefined as ReturnType<typeof setTimeout> | undefined };
 
-// ── Router Creation Function ─────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const createAppRouter = (): Router => {
+export function createAppRouter(): Router {
     const router = createRouter({
         history: createWebHistory(import.meta.env.BASE_URL),
         routes: APP_ROUTES
@@ -114,11 +114,10 @@ export const createAppRouter = (): Router => {
         return false;
     });
 
-    // Runs for completed and aborted navigations; ones that error only reach 'onError' below. Between the two, the
-    // spinner is always cleared.
+    // Runs for completed and aborted navigations. Ones that error reach only 'router.onError'. Both clear the spinner.
     router.afterEach((_to, _from, failure) => {
-        // Except for a cancelled navigation, which means a newer one superseded it. That one now owns the pending
-        // state — its chunks may still be fetching — and will clear it itself when it settles.
+        // A cancelled navigation was replaced by a newer one, which may still be loading chunks. The newer one clears
+        // the spinner when it finishes.
         if (isNavigationFailure(failure, NavigationFailureType.cancelled)) return;
         clearNavigationPending();
     });
@@ -135,12 +134,10 @@ export const createAppRouter = (): Router => {
     });
 
     return router;
-};
+}
 
-// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// A failed navigation is already reported by 'router.onError' above, so a caller only needs to stop the rejection being
-// reported a second time as unhandled. Never rejects, so it can be awaited or left to run.
+// A failed navigation is already reported by 'router.onError' in 'createAppRouter', so a caller only needs to stop the
+// rejection being reported a second time as unhandled. Never rejects, so it can be awaited or left to run.
 export async function ignoreReportedNavigationFailure(navigation: Promise<unknown>): Promise<void> {
     try {
         await navigation;
@@ -193,9 +190,7 @@ function defineLazyLoader(label: string, depth: number, loader: () => Promise<Co
     return routeLoader;
 }
 
-// Loads the chunk, wrapping any failure in an error that names the component. The development-only simulation can slow
-// or fail the load; the simulated failure copies Chromium's wording for an unfetchable chunk so it is classified as a
-// stale deployment, exactly as the real thing would be.
+// Loads the chunk, wrapping any failure in an error that names the component.
 async function loadRouteComponent(label: string, loader: () => Promise<Component>, simulation?: AsyncPanelSimulation): Promise<Component> {
     try {
         if (import.meta.env.DEV) {
@@ -205,7 +200,7 @@ async function loadRouteComponent(label: string, loader: () => Promise<Component
         if (simulation && import.meta.env.DEV) {
             const { delayMs = 0, failsToLoad = false } = simulation;
             if (delayMs > 0) await promiseTimeout(delayMs);
-            if (failsToLoad) throw new TypeError('Failed to fetch dynamically imported module: simulated route load failure.');
+            if (failsToLoad) throw new Error('Simulated route load error.');
         }
         return await loader();
     } catch (error) {

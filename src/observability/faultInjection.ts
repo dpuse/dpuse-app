@@ -40,8 +40,8 @@ export type FaultId =
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Copies Chromium's wording for a chunk the running deployment can no longer fetch, so a simulated failure is
-// classified exactly as the real thing is and offers a refresh rather than a retry.
+// Worded like Chromium's message for a chunk that can no longer be fetched, for whoever reads the console. The app
+// treats the error as a stale deployment only because 'throwOnStaleFault' marks it.
 const STALE_DEPLOY_MESSAGE = 'Failed to fetch dynamically imported module: simulated stale deployment.';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -76,9 +76,9 @@ export function throwOnFault(id: FaultId, target?: string, message = `Simulated 
     throw new AppError(message, 'dpuse-app.faultInjection.throwOnFault', { faultId: id, target, typeId: 'simulated' });
 }
 
-// Throws when the named fault is requested, as a chunk the running deployment can no longer fetch. Marked rather than worded: recognising one is
-// Vite's 'vite:preloadError' saying so, and nothing reads the browser's message, so a rehearsal has to arrive by the
-// same route the real thing does. The wording is left recognisable for whoever reads the console.
+// Throws when the named fault is requested, as a chunk the running deployment can no longer fetch. The error is marked
+// as a stale deployment, because the app recognises one only by that mark, never by the browser's message. The
+// message is worded like the real one for whoever reads the console.
 export function throwOnStaleFault(id: FaultId, target?: string): void {
     if (!hasFault(id, target)) return;
     const error = new TypeError(STALE_DEPLOY_MESSAGE);

@@ -3,7 +3,7 @@ import { computed, type Ref, ref, shallowRef } from 'vue';
 import { promiseTimeout, until } from '@vueuse/core';
 
 // ── DPUse Framework
-import { AppError, localiseConfig } from '@dpuse/dpuse-shared';
+import { AppError, localiseConfigs } from '@dpuse/dpuse-shared';
 import type {
     ConnectionConfig,
     ConnectorConfig,
@@ -11,13 +11,13 @@ import type {
     CookbookConfig,
     EngineConfig,
     EventQueryConfig,
-    LocaleId,
     LocalisedConfig,
     PresenterConfig,
     ToolConfig
 } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { localeId } from '@/state/locale';
 import { throwOnFault } from '@/observability/faultInjection';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 
@@ -83,8 +83,8 @@ export const connectionConfigs = computed<ConnectionConfig[]>(() => {
         if (connectorConfig.implementations.default && connectorConfig.implementations.default.authMethodId === 'none') configs.push(constructConnectionConfig(connectorConfig));
     }
 
-    for (const accountConfigs of connectionAccountConfigs.value) {
-        const connectorConfig = connectorConfigs.value.find((config) => config.id === accountConfigs.connectorId);
+    for (const connectionAccountConfig of connectionAccountConfigs.value) {
+        const connectorConfig = connectorConfigs.value.find((config) => config.id === connectionAccountConfig.connectorId);
         if (connectorConfig != null) {
             configs.push(constructConnectionConfig(connectorConfig));
         }
@@ -92,6 +92,8 @@ export const connectionConfigs = computed<ConnectionConfig[]>(() => {
 
     return configs;
 });
+
+export const connectionLocalisedConfigs = computed((): LocalisedConfig<ConnectionConfig>[] => localiseConfigs<ConnectionConfig>(connectionConfigs.value, localeId.value, true));
 
 export const metaStoreConnectionConfig = computed(() => {
     const metaStoreConnectorConfig: ConnectorConfig | undefined = connectorConfigs.value.find((connectorConfig) => connectorConfig.id === LOCAL_META_STORE_CONNECTOR_ID);
@@ -134,10 +136,9 @@ export async function initialiseContextConfig(): Promise<void> {
     }
 }
 
-export function getLocalisedConnection(id: string | undefined, localeId: LocaleId): LocalisedConfig<ConnectionConfig> | undefined {
-    const connectionConfig = connectionConfigs.value.find((connectionConfig) => connectionConfig.id === id);
-    if (connectionConfig == null) return;
-    return localiseConfig<ConnectionConfig>(connectionConfig, localeId);
+// Undefined when no id is given, or the connection has gone.
+export function findConnectionLocalisedConfig(connectionId: string | undefined): LocalisedConfig<ConnectionConfig> | undefined {
+    return connectionId == null ? undefined : connectionLocalisedConfigs.value.find((config) => config.id === connectionId);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

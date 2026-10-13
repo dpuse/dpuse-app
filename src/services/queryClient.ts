@@ -8,6 +8,13 @@ import { AppError } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
+// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The failure to show for a query's error, for an 'ErrorNotice'.
+export function useQueryFailure(error: Ref<Error | null>): ComputedRef<AppFailure | undefined> {
+    return computed(() => (error.value == null ? undefined : queryFailures.get(error.value)));
+}
+
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The failure raised for each failed fetch, keyed by the error the query holds. Raised in the cache's 'onError', which
@@ -36,10 +43,3 @@ export const queryClient = new QueryClient({
         mutations: { shallow: true }
     }
 });
-
-// ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// The failure to show for a query's error, for an 'ErrorNotice'.
-export function useQueryFailure(error: Ref<Error | null>): ComputedRef<AppFailure | undefined> {
-    return computed(() => (error.value == null ? undefined : queryFailures.get(error.value)));
-}

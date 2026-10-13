@@ -33,7 +33,7 @@ const StudioDescriptorsPanel = defineLazyComponent(() => import('@/features/stud
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const DATA_TYPE_LABEL_KEYS: Record<DataTypeId, string> = {
+const DATA_TYPE_LABEL_KEYS: Record<DataTypeId, keyof typeof TEXT> = {
     boolean: 'dataType.boolean.label',
     numeric: 'dataType.numeric.label',
     string: 'dataType.string.label',

@@ -12,14 +12,15 @@ import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { defineLazyComponent } from '@/utilities/index.ts';
+import { findConnectionLocalisedConfig } from '@/state/configs';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './DataViewList_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useQueryFailure } from '@/services/queryClient';
-import { connectionLocalisedConfigs, useCreateDataView, useDataViews, useDeleteDataView } from '@/state/dataViews';
 import { type DataViewConnection, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
+import { useCreateDataView, useDataViews, useDeleteDataView } from '@/state/dataViews';
 
 // ── Static Components
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
@@ -88,7 +89,8 @@ async function handleAddDataView(): Promise<void> {
         const dataViewConfig = await createDataView();
         void ignoreReportedNavigationFailure(router.push({ name: 'connection', params: { dataViewId: dataViewConfig.id }, query: route.query }));
     } catch (error) {
-        // Announced rather than shown in the list: nothing was added, so the list is unchanged and still works.
+        // The failure goes to the app-level failure dialog, not the list. Nothing was added, so the list is unchanged
+        // and still works.
         raiseAppFailure(new AppError('Failed to add data view.', 'dpuse-app.DataViewList.handleAddDataView', { typeId: 'handled' }, { cause: error }));
     }
 }
@@ -127,7 +129,7 @@ function handleFilterByCategory(): void {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function constructDataViewConnection(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): DataViewConnection | undefined {
-    const connectionLocalisedConfig = connectionLocalisedConfigs.value.find((config) => config.id === dataViewLocalisedConfig.connectionId);
+    const connectionLocalisedConfig = findConnectionLocalisedConfig(dataViewLocalisedConfig.connectionId);
     if (!connectionLocalisedConfig) return undefined;
     const { connectorConfig } = connectionLocalisedConfig;
     return {

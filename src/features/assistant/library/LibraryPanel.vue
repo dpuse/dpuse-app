@@ -18,7 +18,7 @@ import { TEXT } from './LibraryPanel_.json';
 
 // ── Local Framework
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
-import { LIBRARY_DOCUMENT_TYPE_LABELS, type LibraryDocument, type LibraryDocumentType, useAssistantLibrary } from '@/state/assistantLibrary';
+import { type LibraryDocument, type LibraryDocumentType, libraryDocumentTypeLabels, useAssistantLibrary } from '@/state/assistantLibrary';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -107,7 +107,7 @@ const activeDocument = shallowRef<LibraryDocument | undefined>();
 // name a folder that no longer exists, and that has to fall back to the top level rather than an empty one.
 const activeTypeId = computed<LibraryDocumentType | undefined>(() => {
     const [typeId] = path.value;
-    return Object.hasOwn(LIBRARY_DOCUMENT_TYPE_LABELS, typeId) ? (typeId as LibraryDocumentType) : undefined;
+    return Object.hasOwn(libraryDocumentTypeLabels.value, typeId) ? (typeId as LibraryDocumentType) : undefined;
 });
 
 const breadcrumbs = computed<BreadcrumbConfig[]>(() => {
@@ -115,7 +115,7 @@ const breadcrumbs = computed<BreadcrumbConfig[]>(() => {
 
     // Built from 'activeTypeId' rather than from the path itself, which is what drops a folder that no longer exists
     // instead of showing it as a step that leads nowhere.
-    if (activeTypeId.value) items.push({ id: activeTypeId.value, label: LIBRARY_DOCUMENT_TYPE_LABELS[activeTypeId.value] });
+    if (activeTypeId.value) items.push({ id: activeTypeId.value, label: libraryDocumentTypeLabels.value[activeTypeId.value] });
 
     return items;
 });
@@ -197,7 +197,7 @@ function handleSelectBreadcrumb(index: number): void {
                         @click="handleOpenDocument(document)"
                     >
                         <div class="flex max-w-full items-center gap-x-2">
-                            <Tag :color="DOCUMENT_TYPE_COLORS[document.type]" :text="LIBRARY_DOCUMENT_TYPE_LABELS[document.type]" />
+                            <Tag :color="DOCUMENT_TYPE_COLORS[document.type]" :text="libraryDocumentTypeLabels[document.type]" />
                             <div class="truncate text-sm font-medium">{{ document.title }}</div>
                         </div>
                         <p class="mt-1 text-sm text-muted">{{ document.snippet }}</p>
@@ -244,7 +244,7 @@ function handleSelectBreadcrumb(index: number): void {
             :snippet="activeDocument.snippet"
             :source="activeDocument.source"
             :title="activeDocument.title"
-            :type-label="LIBRARY_DOCUMENT_TYPE_LABELS[activeDocument.type]"
+            :type-label="libraryDocumentTypeLabels[activeDocument.type]"
             @close="handleCloseDocument"
         />
     </div>

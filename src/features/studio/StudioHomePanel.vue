@@ -40,7 +40,7 @@ const setupOptionConfig = computed(() =>
 );
 
 // ── Sections ─ The page's sections, in order. Only the workflow cards are numbered steps.
-const sections = computed(() => [
+const sections = computed((): { id: string; configs: typeof workflowOptionConfigs.value; showsSteps: boolean; textKey: keyof typeof TEXT; titleKey: keyof typeof TEXT }[] => [
     { id: 'workflow', configs: workflowOptionConfigs.value, showsSteps: true, textKey: 'workflow.text', titleKey: 'workflow.title' },
     { id: 'buildDataApps', configs: [buildDataAppsOptionConfig.value], showsSteps: false, textKey: 'buildDataApps.text', titleKey: 'buildDataApps.title' },
     { id: 'configuration', configs: [setupOptionConfig.value], showsSteps: false, textKey: 'configuration.text', titleKey: 'configuration.title' }

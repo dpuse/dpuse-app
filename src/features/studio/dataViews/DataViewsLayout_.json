@@ -3,44 +3,44 @@
         {
             "id": "connection",
             "number": 1,
-            "label": { "en": "Select Connection", "es": "Seleccionar Conexión" },
+            "label": { "en": "Select Connection", "es": "Seleccionar conexión" },
             "labelLine1": { "en": "Select", "es": "Seleccionar" },
-            "labelLine2": { "en": "Connection", "es": "Conexión" },
+            "labelLine2": { "en": "Connection", "es": "conexión" },
             "description": {},
             "enableUpTo": 1
         },
         {
             "id": "item",
             "number": 2,
-            "label": { "en": "Select Item", "es": "Seleccionar Elemento" },
+            "label": { "en": "Select Item", "es": "Seleccionar elemento" },
             "labelLine1": { "en": "Select", "es": "Seleccionar" },
-            "labelLine2": { "en": "Item", "es": "Elemento" },
+            "labelLine2": { "en": "Item", "es": "elemento" },
             "description": {},
             "enableUpTo": 2
         },
         {
             "id": "content",
             "number": 3,
-            "label": { "en": "Audit Content", "es": "Auditar Contenido" },
+            "label": { "en": "Audit Content", "es": "Auditar contenido" },
             "labelLine1": { "en": "Audit", "es": "Auditar" },
-            "labelLine2": { "en": "Content", "es": "Contenido" },
+            "labelLine2": { "en": "Content", "es": "contenido" },
             "description": {},
             "enableUpTo": 3
         },
         {
             "id": "data",
             "number": 4,
-            "label": { "en": "Explore Data", "es": "Explorar Datos" },
+            "label": { "en": "Explore Data", "es": "Explorar datos" },
             "labelLine1": { "en": "Explore", "es": "Explorar" },
-            "labelLine2": { "en": "Data", "es": "Datos" },
+            "labelLine2": { "en": "Data", "es": "datos" },
             "description": {},
             "enableUpTo": 4
         }
     ],
     "TEXT": {
-        "dataView.failed.title": { "en": "Data View Unavailable", "es": "Vista de Datos no Disponible" },
+        "dataView.failed.title": { "en": "Data View Unavailable", "es": "Vista de datos no disponible" },
         "dataView.pending.title": { "en": "Loading…", "es": "Cargando…" },
-        "establishDataViews.title": { "en": "Establish Data Views", "es": "Establecer Vistas de Datos" },
+        "establishDataViews.title": { "en": "Establish Data Views", "es": "Establecer vistas de datos" },
         "studio.label": { "en": "Studio", "es": "Estudio" }
     }
 }

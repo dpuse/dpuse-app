@@ -10,9 +10,9 @@ import { hasReportedAppError, logError } from '@/observability/errorTracking';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// One failure, held for as long as it is on screen. Every catch site produces one of these. There is no severity,
-// because no failure is worth locking the running app for. The catch site decides where it shows, and 'needsReload'
-// decides which action it offers.
+// One failure, held for as long as it is on screen. Most catch sites produce one, and a few only report. There is no
+// severity, because no failure is worth locking the running app for. The catch site decides where it shows, and
+// 'needsReload' decides which action it offers.
 export interface AppFailure {
     // Identifies what the user lost, used only to spot duplicates. The text on screen comes from the error. Set by the
     // catch site where it knows, otherwise read from the cause chain. Undefined when nothing identifiable was lost.

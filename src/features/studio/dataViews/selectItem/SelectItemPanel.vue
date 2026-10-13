@@ -30,11 +30,12 @@ import type {
 import { constructItemPath } from '../dataViewSummary';
 import type { DataSource } from '@/composables/useDataWindow';
 import { establishEngineWorker } from '@/services/engine';
+import { findConnectionLocalisedConfig } from '@/state/configs';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { t } from '@/state/locale';
 import { TEXT } from './SelectItemPanel_.json';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
-import { connectionLocalisedConfigs, useDataView, useUpdateDataView } from '@/state/dataViews';
+import { useDataView, useUpdateDataView } from '@/state/dataViews';
 
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
@@ -117,7 +118,7 @@ const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as
 
 // The saved connection, which this step lists the items of. Looked up again from the list, so it follows a change of
 // language.
-const activeConnectionConfig = computed(() => connectionLocalisedConfigs.value.find((config) => config.id === dataViewConfig.value?.connectionId));
+const activeConnectionConfig = computed(() => findConnectionLocalisedConfig(dataViewConfig.value?.connectionId));
 
 const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...currentFolderNodes.value]);
 
