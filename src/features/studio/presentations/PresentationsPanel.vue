@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
-import { AppError, localiseReference } from '@dpuse/dpuse-shared';
+import { AppError, loadPresenter, localiseReference } from '@dpuse/dpuse-shared';
 import type { ComponentReferenceConfig, LocalisedReference, PresenterInterface } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
@@ -101,12 +101,7 @@ async function loadPresenters(): Promise<void> {
     const failedPresenterIds: string[] = [];
     for (const presenterConfig of presenterConfigs.value) {
         try {
-            const presenterId = presenterConfig.id.split('-').pop();
-            if (presenterId == null) throw new Error(`Presenter id could not be derived from '${presenterConfig.id}'.`);
-
-            const url = `https://engine-eu.dpuse.app/presenters/${presenterId}_v${presenterConfig.version}/${presenterConfig.id}.es.js`;
-            const module = (await import(/* @vite-ignore */ url)) as { Presenter: new (toolConfigs: unknown, colorMode: string) => PresenterInterface };
-            const presenter = new module.Presenter(toolConfigs.value, appearanceIsDark.value ? 'dark' : 'light');
+            const presenter = await loadPresenter(presenterConfig, toolConfigs.value, appearanceIsDark.value ? 'dark' : 'light');
             presenters.push(presenter);
 
             const newPresentationReferences = presenter.list().map((presentationReference) => localiseReference(presentationReference, 'en')); // TODO: Could also use 'presenterConfig.presentations', though it is a map, not an array.
