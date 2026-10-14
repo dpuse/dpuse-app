@@ -1,4 +1,4 @@
-import App from '../App.vue';
+import App from '@/App.vue';
 import { createAppRouter } from '@/router';
 import { queryClient } from '@/services/queryClient';
 import { VueQueryPlugin } from '@tanstack/vue-query';

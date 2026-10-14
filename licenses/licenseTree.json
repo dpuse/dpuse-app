@@ -1,7 +1,24 @@
 {
-  "version": "1.0.155",
+  "version": "1.0.156",
   "name": "dpuse-app",
   "dependencies": {
+    "@axe-core/playwright": {
+      "version": "4.13.0",
+      "resolved": "https://registry.npmjs.org/@axe-core/playwright/-/playwright-4.13.0.tgz",
+      "overridden": false,
+      "dependencies": {
+        "axe-core": {
+          "version": "4.13.0",
+          "resolved": "https://registry.npmjs.org/axe-core/-/axe-core-4.13.0.tgz",
+          "overridden": false
+        },
+        "playwright-core": {
+          "version": "1.64.0",
+          "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.64.0.tgz",
+          "overridden": false
+        }
+      }
+    },
     "@cloudflare/vite-plugin": {
       "version": "1.64.0",
       "resolved": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.64.0.tgz",
@@ -4827,9 +4844,7 @@
           "overridden": false,
           "dependencies": {
             "playwright-core": {
-              "version": "1.64.0",
-              "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.64.0.tgz",
-              "overridden": false
+              "version": "1.64.0"
             }
           }
         }

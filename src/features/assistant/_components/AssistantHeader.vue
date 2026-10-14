@@ -52,10 +52,11 @@ const paddingClasses = computed(() => {
                 {{ overline }}
             </div>
 
-            <!-- Title -->
-            <div class="truncate leading-snug">
+            <!-- Title ─ The page's main heading when the assistant pane is shown alone, and a section heading when it sits
+                 beside the studio, whose own title is then the 'h1'. -->
+            <component :is="studioPaneIsVisible ? 'h2' : 'h1'" class="truncate leading-snug">
                 {{ title }}
-            </div>
+            </component>
         </component>
 
         <!-- Toolbar ─ In the title's place, so aligned as the title would be. -->

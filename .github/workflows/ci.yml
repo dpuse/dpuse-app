@@ -69,6 +69,15 @@ jobs:
             - name: Lint
               run: npm run lint
 
+            # Only in projects with end-to-end tests. 'vite.config.ts' serves over HTTPS with a certificate from
+            # '../../localhost/', which exists only on a developer's machine, so the runner gets a throwaway self-signed one
+            # at the same path. 'playwright.config.ts' accepts it on CI.
+            - name: Create localhost certificate
+              if: hashFiles('playwright.config.ts') != ''
+              run: |
+                  mkdir -p ../../localhost
+                  openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=localhost" -keyout ../../localhost/localhost+1-key.pem -out ../../localhost/localhost+1.pem
+
             - name: Test
               run: npm test
 

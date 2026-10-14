@@ -49,10 +49,10 @@ const config = defineConfigWithVueTs(
     vueTsConfigs.stylisticTypeChecked,
     { ...pluginTailwindCSS.configs['recommended'], files: ['**/*.{vue,ts,mts,tsx,js,jsx}'] },
     { ...pluginPlaywright.configs['flat/recommended'], files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'] },
-    { ...pluginVitest.configs.recommended, files: ['src/**/__tests__/*'] },
+    { ...pluginVitest.configs.recommended, files: ['tests/**/*.test.ts'] },
     // Browser API support, checked against 'browserslist' in 'package.json'. Scoped to 'src' because the e2e specs
     // and the config files run in Node, where the browser floor does not apply.
-    { ...pluginCompat.configs['flat/recommended'], files: ['src/**/*.{vue,ts,mts,tsx}'], ignores: ['src/**/__tests__/**'] },
+    { ...pluginCompat.configs['flat/recommended'], files: ['src/**/*.{vue,ts,mts,tsx}'] },
     skipFormatting,
 
     // Shared DPUse base configuration: ignores, import-x/jsdoc/regexp/security/sonarjs/unicorn, Markdown, and common rule
@@ -135,7 +135,7 @@ const config = defineConfigWithVueTs(
 
             'unicorn/filename-case': [
                 'error',
-                { cases: { camelCase: true, pascalCase: true }, ignore: ['__tests__', 'DPUseLogo.vue', 'ContextERDPanel.vue', /PENDING\.vue$/ /*'src/components/icon(?:/.*)?'*/] } // 'PENDING' marks a parked component.
+                { cases: { camelCase: true, pascalCase: true }, ignore: ['DPUseLogo.vue', 'ContextERDPanel.vue', /PENDING\.vue$/ /*'src/components/icon(?:/.*)?'*/] } // 'PENDING' marks a parked component.
             ],
             'unicorn/no-non-function-verb-prefix': 'off',
             'unicorn/prefer-top-level-await': 'warn',

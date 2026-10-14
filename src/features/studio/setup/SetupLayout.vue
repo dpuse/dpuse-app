@@ -36,7 +36,11 @@ const activeSetupOptionLocalisedConfig = computed(
 );
 const setupOptionPanelIsLoading = computed(() => navigationPendingDepth.value === 1); // Depth 1 is this layout's own child route (the active tab's panel); true only past the spinner delay, not the whole navigation.
 const setupTabItems = computed(() =>
-    setupOptionLocalisedConfigs.value.map((config) => ({ ...config, to: config.to == null ? undefined : { name: config.to, query: route.query } }))
+    setupOptionLocalisedConfigs.value.map((config) => ({
+        ...config,
+        ariaLabel: config.id === 'home' ? t(TEXT, 'home.aria') : undefined, // The home tab shows only an icon.
+        to: config.to == null ? undefined : { name: config.to, query: route.query }
+    }))
 );
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -53,7 +57,7 @@ function handleSelectTab(setupTabItem: { id: string }): void {
         <StudioHeader :overline="t(TEXT, 'studio.label')" :title="t(TEXT, 'manageSetup.title')" :to="{ name: 'studio', query: route.query }" />
 
         <!-- Tab Bar -->
-        <TabBar :active-id="activeSetupOptionLocalisedConfig.id" :items="setupTabItems" @select="handleSelectTab">
+        <TabBar :active-id="activeSetupOptionLocalisedConfig.id" :aria-label="t(TEXT, 'sections.aria')" :items="setupTabItems" @select="handleSelectTab">
             <template #default="{ item }">
                 <HomeIcon v-if="item.id === 'home'" class="size-4.75! [&>path]:stroke-2" />
                 <div v-else class="text-sm">{{ item.label }}</div>

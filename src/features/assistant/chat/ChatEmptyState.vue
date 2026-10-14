@@ -28,19 +28,16 @@ const workflowOptionConfigs = useStudioOptions();
 
         <!-- One column until the pane is genuinely wide enough for two. A container query, not a viewport one: this sits
              inside a pane nested in another pane, so neither splitter's position is visible to a media query. -->
-        <dl class="mt-6 grid grid-cols-1 gap-3 @md:grid-cols-2">
-            <ActionWrapper
-                v-for="config in workflowOptionConfigs"
-                :key="config.id"
-                class="flex flex-col items-start rounded-md border border-separator p-3 text-left"
-                :to="{ name: config.id, query: $route.query }"
-            >
-                <dt class="flex items-center gap-x-2 text-sm font-semibold text-emphasis">
-                    <ConfigIcon class="size-6" :icon="config.icon" :icon-dark="config.iconDark" />
-                    {{ config.label }}
-                </dt>
-                <dd class="mt-1 text-sm text-muted">{{ config.description }}</dd>
-            </ActionWrapper>
-        </dl>
+        <ul class="mt-6 grid grid-cols-1 gap-3 @md:grid-cols-2">
+            <li v-for="config in workflowOptionConfigs" :key="config.id" class="flex">
+                <ActionWrapper class="flex flex-1 flex-col items-start rounded-md border border-separator p-3 text-left" :to="{ name: config.id, query: $route.query }">
+                    <span class="flex items-center gap-x-2 text-sm font-semibold text-emphasis">
+                        <ConfigIcon class="size-6" :icon="config.icon" :icon-dark="config.iconDark" />
+                        {{ config.label }}
+                    </span>
+                    <p class="mt-1 text-sm text-muted">{{ config.description }}</p>
+                </ActionWrapper>
+            </li>
+        </ul>
     </div>
 </template>

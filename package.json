@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "1.0.156",
+    "version": "1.0.157",
     "private": false,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -54,7 +54,7 @@
         "build-only": "vite build",
         "type-check": "vue-tsc --build",
         "lint": "node -e \"import('@dpuse/dpuse-development').then(m => m.lintCode())\"",
-        "lint:app": "eslint . --ignore-pattern 'scripts/**' --ignore-pattern '**/__tests__/**' --fix --cache",
+        "lint:app": "eslint . --ignore-pattern 'scripts/**' --ignore-pattern 'tests/**' --fix --cache",
         "format": "prettier --write --experimental-cli src/",
         "index:knowledge": "op run --env-file=.env -- node ./scripts/indexKnowledge.mjs",
         "test:knowledge": "op run --env-file=.env -- node ./scripts/testKnowledge.mjs",
@@ -85,6 +85,7 @@
         "web-vitals": "^6.2.3"
     },
     "devDependencies": {
+        "@axe-core/playwright": "^4.13.0",
         "@cloudflare/vite-plugin": "1.64.0",
         "@cloudflare/workers-types": "^5.20261014.1",
         "@dpuse/dpuse-development": "^1.0.124",

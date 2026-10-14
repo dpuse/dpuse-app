@@ -38,9 +38,19 @@ const config = defineConfig({
         }
     },
     test: {
+        coverage: {
+            // 'json' writes the coverage-final.json that `fallow health --coverage` reads; 'json-summary' writes the totals
+            // the README's Testing table reports.
+            exclude: ['dist/**', 'scripts/**', 'tests/**'],
+            include: ['src/**/*.{ts,vue}'],
+            provider: 'v8',
+            reporter: ['text', 'json', 'json-summary'],
+            reportsDirectory: './coverage'
+        },
         environment: 'jsdom',
         exclude: [...configDefaults.exclude, 'e2e/**'],
-        setupFiles: ['./src/__tests__/setup.ts'],
+        include: ['tests/**/*.test.ts'],
+        setupFiles: ['./tests/support/setup.ts'],
         root: fileURLToPath(new URL('./', import.meta.url))
     }
 });
