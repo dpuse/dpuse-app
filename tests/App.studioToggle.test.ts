@@ -2,8 +2,16 @@ import App from '@/App.vue';
 import { createAppRouter } from '@/router';
 import { queryClient } from '@/services/queryClient';
 import { VueQueryPlugin } from '@tanstack/vue-query';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
+
+// 'App' starts the Hanko session check on mount, which calls the real sign-in service. These tests are about routing,
+// so the check is left out rather than failing against the network and logging an error.
+vi.mock('@/state/session', async (importOriginal) => ({
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
+    ...(await importOriginal<typeof import('@/state/session')>()),
+    initialiseServices: vi.fn()
+}));
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
