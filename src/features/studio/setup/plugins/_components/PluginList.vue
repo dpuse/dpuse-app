@@ -1,9 +1,4 @@
 <script setup lang="ts">
-// ── Template Notes ─ TODO: Revisit later. These belong beside their elements in the template, but a comment at the
-// template's root breaks the fade between route views in development: Vue never reports the old view as gone, so the
-// next one never appears. Production builds strip comments, so only development is affected.
-// - Error notice: failed to retrieve context/plugin configuration.
-
 // ── External Dependencies & Registrations
 import { type Component, computed, type ShallowRef } from 'vue';
 
@@ -15,13 +10,13 @@ import { TEXT } from './PluginList_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useSetupSelection } from '../../useSetupSelection';
 import { assertDefined, defineLazyComponent, type PluginConfig, type SetupOptionConfig } from '@/utilities/index.ts';
-import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/configs';
+import { configStatus, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/configs';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
+import RetrievalGate from '@/components/ui/RetrievalGate.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 
 // ── Dynamic Components
@@ -54,7 +49,7 @@ const {
     activeItem: pluginLocalisedConfigActive,
     dataSource: pluginLocalisedConfigsDataSource,
     selectItem
-} = useSetupSelection(pluginLocalisedConfigs, () => configRetrievalSucceeded.value || configRetrievalFailed.value);
+} = useSetupSelection(pluginLocalisedConfigs, () => configStatus.value.typeId !== 'pending');
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -64,26 +59,25 @@ function handleSelectPlugin(localisedConfig: LocalisedConfig<PluginConfig>): voi
 </script>
 
 <template>
-    <ErrorNotice v-if="configRetrievalFailure" :can-retry="false" :failures="[configRetrievalFailure]" />
+    <RetrievalGate :status="configStatus">
+        <GridDetailPanel
+            :selected-item="pluginLocalisedConfigActive"
+            class="min-h-0 flex-1"
+            :data-source="pluginLocalisedConfigsDataSource"
+            max-detail-width="65ch"
+            :row-height="cardRowHeight"
+        >
+            <template #item="{ item }">
+                <ConfigCard :config="item" :selected="item.id === pluginLocalisedConfigActive?.id" @click="handleSelectPlugin(item)" />
+            </template>
 
-    <GridDetailPanel
-        v-else
-        :selected-item="pluginLocalisedConfigActive"
-        class="min-h-0 flex-1"
-        :data-source="pluginLocalisedConfigsDataSource"
-        max-detail-width="65ch"
-        :row-height="cardRowHeight"
-    >
-        <template #item="{ item }">
-            <ConfigCard :config="item" :selected="item.id === pluginLocalisedConfigActive?.id" @click="handleSelectPlugin(item)" />
-        </template>
+            <template #detail="{ item, close }">
+                <component :is="tabActiveConfig.panel" :plugin-localised-config="item" :setup-option-localised-config="setupOptionLocalisedConfig" @close="close" />
+            </template>
 
-        <template #detail="{ item, close }">
-            <component :is="tabActiveConfig.panel" :plugin-localised-config="item" :setup-option-localised-config="setupOptionLocalisedConfig" @close="close" />
-        </template>
-
-        <template #no-selection>
-            <SelectPlaceholder :message="t(TEXT, tabActiveConfig.selectKey)" />
-        </template>
-    </GridDetailPanel>
+            <template #no-selection>
+                <SelectPlaceholder :message="t(TEXT, tabActiveConfig.selectKey)" />
+            </template>
+        </GridDetailPanel>
+    </RetrievalGate>
 </template>

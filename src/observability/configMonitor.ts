@@ -11,16 +11,7 @@ import { hasFault } from '@/observability/faultInjection';
 import { raiseFailure } from '@/state/errors';
 import { useMonitorSocket } from '@/observability/monitorSocket';
 import { announceAppVersion, announceModuleUpdate } from '@/state/appVersion';
-import {
-    configRetrievalFailed,
-    configRetrievalFailure,
-    configRetrievalSucceeded,
-    connectorConfigs,
-    cookbookConfigs,
-    engineConfig,
-    presenterConfigs,
-    toolConfigs
-} from '@/state/configs';
+import { configStatus, connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/configs';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -56,16 +47,13 @@ const state: { moduleListSignature: string | undefined; reconnectAttempts: numbe
 const socket = useMonitorSocket<ConfigMessage>({
     isLogged: import.meta.env.DEV,
     label: 'Configuration',
-    onConnected: () => {
-        configRetrievalFailed.value = false;
-    },
     onFailed: handleRetrievalFailed,
     onMessage: (message) => {
         switch (message.typeId) {
             case 'init':
                 registerConfigurations(message.modules, true);
                 compareModuleList(message.modules);
-                configRetrievalSucceeded.value = true;
+                configStatus.value = { typeId: 'ready' };
                 return;
             case 'deploy':
                 registerConfigurations([message.module], false);
@@ -83,8 +71,7 @@ const socket = useMonitorSocket<ConfigMessage>({
     // Clears the give-up state for the cases where another try is worth it: a page restored from the back/forward
     // cache, a network that has come back, a tab brought back to the foreground.
     onRestart: () => {
-        configRetrievalFailed.value = false;
-        configRetrievalFailure.value = undefined;
+        if (configStatus.value.typeId === 'failed') configStatus.value = { typeId: 'pending' };
     },
     retries: (retried): boolean => {
         state.reconnectAttempts = retried;
@@ -111,17 +98,13 @@ export function initialise(): void {
 function handleRetrievalFailed(): void {
     const isOnline = socket.online.value;
     if (import.meta.env.DEV) console.info(`[dpuse:app] ❌  Configuration WebSocket giving up — ${isOnline ? 'reconnect attempts exhausted' : 'browser reports no network'}.`);
-    // The flag releases the awaits gated on retrieval; the failure is what tells the user why the lists they are
-    // looking at came back empty.
-    //
-    // Not raised at app level, though nothing owns the connection: every consequence of it is regional — a list with
-    // no rows, a picker with nothing to pick — and those regions each show this. Announcing it over the top as well put
-    // the same sentence on screen twice at once, which reads as two problems.
-    configRetrievalFailed.value = true;
+    // The failed status releases 'useConfigsReady' and shows the failure on each screen that needs the configuration.
+    // It is not raised at app level as well, because the same message on screen twice reads as two problems.
     const data = { host: DPUSE_API_HOST, isOnline, reconnectAttempts: state.reconnectAttempts, typeId: 'handled' };
-    configRetrievalFailure.value = raiseFailure(new AppError('Unable to connect to DPUse.', 'dpuse-app.configMonitor.handleRetrievalFailed', data), {
+    const failure = raiseFailure(new AppError('Unable to connect to DPUse.', 'dpuse-app.configMonitor.handleRetrievalFailed', data), {
         capability: 'configuration'
     });
+    configStatus.value = { typeId: 'failed', failure };
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

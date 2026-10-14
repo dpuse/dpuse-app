@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 import { defineLazyComponent } from '@/utilities/index.ts';
-import { ignoreReportedNavigationFailure } from '@/router';
+import { replaceRouteQuery } from '@/router';
 
 // ── Dynamic Components
 // Every dialog body is loaded on demand. The frame is rendered from the URL alone, so the body arrives behind its own
@@ -66,15 +66,13 @@ export function useDialogs(): Dialogs {
     function closeDialog(): void {
         if (route.query.dlg == null) return;
 
-        const query = { ...route.query };
-        delete query.dlg;
-        void ignoreReportedNavigationFailure(router.replace({ query }));
+        void replaceRouteQuery(router, { dlg: undefined });
     }
 
-    // Awaitable, because a menu that opens a dialog should close only once the URL carries it. A failed navigation is
-    // caught here, so the caller carries on either way.
+    // Awaitable, because a menu that opens a dialog should close only once the URL carries it. Never rejects, so the
+    // caller carries on either way.
     async function openDialog(dialogId: DialogId): Promise<void> {
-        await ignoreReportedNavigationFailure(router.replace({ query: { ...route.query, dlg: dialogId } }));
+        await replaceRouteQuery(router, { dlg: dialogId });
     }
 
     return { currentDialogConfig, currentDialogId, closeDialog, openDialog };

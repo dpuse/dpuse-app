@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-10-13T13:21:53.245Z",
+    "generatedAt": "2026-10-14T09:12:25.535Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -21,10 +21,10 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 12402,
-      "gzip": 2953,
+      "uncompressed": 12475,
+      "gzip": 2989,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "chunk",
@@ -41,10 +41,10 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 1858,
-      "gzip": 692,
+      "uncompressed": 1885,
+      "gzip": 703,
       "brotli": 0,
-      "parent": "dist/client/assets/AssistantLayout-DbS9NXDR.js"
+      "parent": "dist/client/assets/AssistantLayout-BA7oIQAb.js"
     },
     {
       "kind": "chunk",
@@ -52,9 +52,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 558,
-      "gzip": 325,
+      "gzip": 321,
       "brotli": 0,
-      "parent": "dist/client/assets/AuditContentPanel-Cxl5UFFv.js"
+      "parent": "dist/client/assets/AuditContentPanel-Bg7Te8a5.js"
     },
     {
       "kind": "chunk",
@@ -71,10 +71,20 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 1404,
+      "uncompressed": 145,
+      "gzip": 124,
+      "brotli": 0,
+      "parent": "dist/client/assets/BusyBar-CpJrcwwK.js"
+    },
+    {
+      "kind": "chunk",
+      "name": "[unassigned]",
+      "type": "other",
+      "format": "other",
+      "uncompressed": 1396,
       "gzip": 607,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "chunk",
@@ -82,9 +92,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 407,
-      "gzip": 222,
+      "gzip": 221,
       "brotli": 0,
-      "parent": "dist/client/assets/ConfigCard-DFj1c16T.js"
+      "parent": "dist/client/assets/ConfigCard-C3dT165X.js"
     },
     {
       "kind": "chunk",
@@ -101,10 +111,10 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 1296,
-      "gzip": 599,
+      "uncompressed": 1330,
+      "gzip": 611,
       "brotli": 0,
-      "parent": "dist/client/assets/ConnectionPanel-6viPccw1.js"
+      "parent": "dist/client/assets/ConnectionPanel-BwgCzLV6.js"
     },
     {
       "kind": "chunk",
@@ -112,9 +122,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 526,
-      "gzip": 305,
+      "gzip": 302,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextDiagramPanel-obk4M3cD.js"
+      "parent": "dist/client/assets/ContextDiagramPanel-D1Nuo9Ip.js"
     },
     {
       "kind": "chunk",
@@ -122,9 +132,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 357,
-      "gzip": 224,
+      "gzip": 223,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextDimensionDiagramPanel-BK2i2z9g.js"
+      "parent": "dist/client/assets/ContextDimensionDiagramPanel-CDGm30hQ.js"
     },
     {
       "kind": "chunk",
@@ -132,19 +142,19 @@
       "type": "other",
       "format": "other",
       "uncompressed": 313,
-      "gzip": 214,
+      "gzip": 212,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextEntityDiagramPanel-CKC2RnLY.js"
+      "parent": "dist/client/assets/ContextEntityDiagramPanel-BPqY0W6m.js"
     },
     {
       "kind": "chunk",
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 2004,
-      "gzip": 770,
+      "uncompressed": 2052,
+      "gzip": 792,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextModelList-B0B0iDB7.js"
+      "parent": "dist/client/assets/ContextModelList-CUAjGrW1.js"
     },
     {
       "kind": "chunk",
@@ -154,27 +164,27 @@
       "uncompressed": 494,
       "gzip": 288,
       "brotli": 0,
-      "parent": "dist/client/assets/DataAppsPanel-ChKO5NdM.js"
+      "parent": "dist/client/assets/DataAppsPanel-D6rVCC5b.js"
     },
     {
       "kind": "chunk",
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 3222,
-      "gzip": 1153,
+      "uncompressed": 3249,
+      "gzip": 1165,
       "brotli": 0,
-      "parent": "dist/client/assets/DataViewList-xoVzmwF6.js"
+      "parent": "dist/client/assets/DataViewList-DbDtXx9D.js"
     },
     {
       "kind": "chunk",
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 2424,
-      "gzip": 950,
+      "uncompressed": 2480,
+      "gzip": 976,
       "brotli": 0,
-      "parent": "dist/client/assets/DataViewsLayout-3iXtv8AC.js"
+      "parent": "dist/client/assets/DataViewsLayout-FUnVMFzr.js"
     },
     {
       "kind": "chunk",
@@ -194,7 +204,7 @@
       "uncompressed": 938,
       "gzip": 461,
       "brotli": 0,
-      "parent": "dist/client/assets/EmptyPlaceholder-BgLRPOuk.js"
+      "parent": "dist/client/assets/EmptyPlaceholder-vrDAMhM4.js"
     },
     {
       "kind": "chunk",
@@ -204,7 +214,7 @@
       "uncompressed": 556,
       "gzip": 260,
       "brotli": 0,
-      "parent": "dist/client/assets/ErrorNotice-C8Llhn35.js"
+      "parent": "dist/client/assets/ErrorNotice-CTSGRCYh.js"
     },
     {
       "kind": "chunk",
@@ -212,19 +222,19 @@
       "type": "other",
       "format": "other",
       "uncompressed": 1012,
-      "gzip": 517,
+      "gzip": 512,
       "brotli": 0,
-      "parent": "dist/client/assets/EventQueriesPanel-C_NcYt5g.js"
+      "parent": "dist/client/assets/EventQueriesPanel-BlwUUl0U.js"
     },
     {
       "kind": "chunk",
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 758,
+      "uncompressed": 757,
       "gzip": 357,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "chunk",
@@ -251,10 +261,10 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 536,
-      "gzip": 260,
+      "uncompressed": 518,
+      "gzip": 255,
       "brotli": 0,
-      "parent": "dist/client/assets/GridDetailPanel-AgyfnIKf.js"
+      "parent": "dist/client/assets/GridDetailPanel-Dc_3dWay.js"
     },
     {
       "kind": "chunk",
@@ -272,9 +282,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 1378,
-      "gzip": 606,
+      "gzip": 607,
       "brotli": 0,
-      "parent": "dist/client/assets/LibraryPanel-CdEr3qiB.js"
+      "parent": "dist/client/assets/LibraryPanel-BD1eSavO.js"
     },
     {
       "kind": "chunk",
@@ -312,9 +322,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 317,
-      "gzip": 222,
+      "gzip": 219,
       "brotli": 0,
-      "parent": "dist/client/assets/ManagePreferencesPanel-Bal3Fm39.js"
+      "parent": "dist/client/assets/ManagePreferencesPanel-FbB2ZlnJ.js"
     },
     {
       "kind": "chunk",
@@ -344,7 +354,7 @@
       "uncompressed": 783,
       "gzip": 385,
       "brotli": 0,
-      "parent": "dist/client/assets/OptionBar-xDzFujbk.js"
+      "parent": "dist/client/assets/OptionBar-DUH5P56E.js"
     },
     {
       "kind": "chunk",
@@ -354,7 +364,7 @@
       "uncompressed": 980,
       "gzip": 500,
       "brotli": 0,
-      "parent": "dist/client/assets/PaneSplitter-C-w1a90_.js"
+      "parent": "dist/client/assets/PaneSplitter-CxJu37FI.js"
     },
     {
       "kind": "chunk",
@@ -372,9 +382,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 512,
-      "gzip": 294,
+      "gzip": 293,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginConnectorPanel-BnUYCo3R.js"
+      "parent": "dist/client/assets/PluginConnectorPanel-7I9nU7bR.js"
     },
     {
       "kind": "chunk",
@@ -382,19 +392,19 @@
       "type": "other",
       "format": "other",
       "uncompressed": 243,
-      "gzip": 155,
+      "gzip": 157,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginCookbookPanel-5oYEd5kY.js"
+      "parent": "dist/client/assets/PluginCookbookPanel-DTTuxqt7.js"
     },
     {
       "kind": "chunk",
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 2436,
-      "gzip": 968,
+      "uncompressed": 2445,
+      "gzip": 991,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginList-__hay3St.js"
+      "parent": "dist/client/assets/PluginList--ynU9yj4.js"
     },
     {
       "kind": "chunk",
@@ -402,9 +412,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 547,
-      "gzip": 258,
+      "gzip": 257,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginPanel-DaLQmD_0.js"
+      "parent": "dist/client/assets/PluginPanel-N_ypnAIH.js"
     },
     {
       "kind": "chunk",
@@ -414,7 +424,7 @@
       "uncompressed": 244,
       "gzip": 154,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginPresenterPanel-BC-ou0XO.js"
+      "parent": "dist/client/assets/PluginPresenterPanel-BB1rXeQo.js"
     },
     {
       "kind": "chunk",
@@ -422,9 +432,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 239,
-      "gzip": 153,
+      "gzip": 155,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginToolPanel-DMX8b0zX.js"
+      "parent": "dist/client/assets/PluginToolPanel-BOwPUxfG.js"
     },
     {
       "kind": "chunk",
@@ -432,9 +442,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 1013,
-      "gzip": 526,
+      "gzip": 523,
       "brotli": 0,
-      "parent": "dist/client/assets/PresentationsPanel-DuT02zNI.js"
+      "parent": "dist/client/assets/PresentationsPanel-DXs11qyt.js"
     },
     {
       "kind": "chunk",
@@ -445,6 +455,16 @@
       "gzip": 123,
       "brotli": 0,
       "parent": "dist/client/assets/RectangleButton-LDdQdek-.js"
+    },
+    {
+      "kind": "chunk",
+      "name": "[unassigned]",
+      "type": "other",
+      "format": "other",
+      "uncompressed": 263,
+      "gzip": 189,
+      "brotli": 0,
+      "parent": "dist/client/assets/RetrievalGate-BiVZQfot.js"
     },
     {
       "kind": "chunk",
@@ -474,27 +494,27 @@
       "uncompressed": 576,
       "gzip": 331,
       "brotli": 0,
-      "parent": "dist/client/assets/ScrollRow-BWlp_mWK.js"
+      "parent": "dist/client/assets/ScrollRow-4wgqDl2S.js"
     },
     {
       "kind": "chunk",
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 2488,
-      "gzip": 968,
+      "uncompressed": 2428,
+      "gzip": 935,
       "brotli": 0,
-      "parent": "dist/client/assets/SelectConnectionList-icLyYlnH.js"
+      "parent": "dist/client/assets/SelectConnectionList-1DABWFEG.js"
     },
     {
       "kind": "chunk",
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 1139,
-      "gzip": 522,
+      "uncompressed": 1134,
+      "gzip": 517,
       "brotli": 0,
-      "parent": "dist/client/assets/SelectItemPanel-CqwEPm0O.js"
+      "parent": "dist/client/assets/SelectItemPanel-BWFO_YBf.js"
     },
     {
       "kind": "chunk",
@@ -524,7 +544,7 @@
       "uncompressed": 1234,
       "gzip": 555,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionAccountPanel-S0fmIGsV.js"
+      "parent": "dist/client/assets/SessionAccountPanel-tfrAvJzd.js"
     },
     {
       "kind": "chunk",
@@ -532,9 +552,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 733,
-      "gzip": 340,
+      "gzip": 339,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionAuthPanel-BC-TQxh3.js"
+      "parent": "dist/client/assets/SessionAuthPanel-ClhtE1K8.js"
     },
     {
       "kind": "chunk",
@@ -542,9 +562,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 779,
-      "gzip": 364,
+      "gzip": 363,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionMenu-DlFjTPG1.js"
+      "parent": "dist/client/assets/SessionMenu-BXPsdKxw.js"
     },
     {
       "kind": "chunk",
@@ -554,7 +574,7 @@
       "uncompressed": 371,
       "gzip": 250,
       "brotli": 0,
-      "parent": "dist/client/assets/SetupHomePanel-DlD9No0J.js"
+      "parent": "dist/client/assets/SetupHomePanel-Dsbnc2mQ.js"
     },
     {
       "kind": "chunk",
@@ -562,9 +582,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 727,
-      "gzip": 384,
+      "gzip": 382,
       "brotli": 0,
-      "parent": "dist/client/assets/SetupLayout-DVV-rbQa.js"
+      "parent": "dist/client/assets/SetupLayout-eJksIFww.js"
     },
     {
       "kind": "chunk",
@@ -572,9 +592,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 1085,
-      "gzip": 511,
+      "gzip": 512,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioDescriptorsPanel-BqlvaOrC.js"
+      "parent": "dist/client/assets/StudioDescriptorsPanel-tDRZF2gw.js"
     },
     {
       "kind": "chunk",
@@ -584,7 +604,7 @@
       "uncompressed": 604,
       "gzip": 314,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioDocumentPanel-CbX47GLe.js"
+      "parent": "dist/client/assets/StudioDocumentPanel-BNg3GVeG.js"
     },
     {
       "kind": "chunk",
@@ -601,10 +621,10 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 2347,
-      "gzip": 1144,
+      "uncompressed": 2345,
+      "gzip": 1143,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioHomePanel-D3ZwZqBc.js"
+      "parent": "dist/client/assets/StudioHomePanel-DiTL3A8F.js"
     },
     {
       "kind": "chunk",
@@ -614,7 +634,7 @@
       "uncompressed": 397,
       "gzip": 239,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioLayout-DvD4NBj1.js"
+      "parent": "dist/client/assets/StudioLayout-C2wzJSie.js"
     },
     {
       "kind": "chunk",
@@ -622,9 +642,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 593,
-      "gzip": 226,
+      "gzip": 227,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "chunk",
@@ -642,9 +662,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 572,
-      "gzip": 363,
+      "gzip": 362,
       "brotli": 0,
-      "parent": "dist/client/assets/TextInput-D0OVHPAr.js"
+      "parent": "dist/client/assets/TextInput-Ck26wy0w.js"
     },
     {
       "kind": "chunk",
@@ -654,7 +674,7 @@
       "uncompressed": 150,
       "gzip": 119,
       "brotli": 0,
-      "parent": "dist/client/assets/accountMonitor-x5duVe86.js"
+      "parent": "dist/client/assets/accountMonitor-D9p3p0pu.js"
     },
     {
       "kind": "chunk",
@@ -722,19 +742,19 @@
       "type": "other",
       "format": "other",
       "uncompressed": 99,
-      "gzip": 90,
+      "gzip": 91,
       "brotli": 0,
-      "parent": "dist/client/assets/configCard-CkFgT0iB.js"
+      "parent": "dist/client/assets/configCard-Zfh6zWNl.js"
     },
     {
       "kind": "chunk",
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 276,
-      "gzip": 183,
+      "uncompressed": 262,
+      "gzip": 179,
       "brotli": 0,
-      "parent": "dist/client/assets/configMonitor-B8VNzJ8S.js"
+      "parent": "dist/client/assets/configMonitor-C8A27GEK.js"
     },
     {
       "kind": "chunk",
@@ -761,10 +781,10 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 522,
-      "gzip": 256,
+      "uncompressed": 509,
+      "gzip": 248,
       "brotli": 0,
-      "parent": "dist/client/assets/dataViews-CyC2H2DJ.js"
+      "parent": "dist/client/assets/dataViews-CR43ONv6.js"
     },
     {
       "kind": "chunk",
@@ -782,9 +802,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 194,
-      "gzip": 140,
+      "gzip": 139,
       "brotli": 0,
-      "parent": "dist/client/assets/engine-DjTii4mU.js"
+      "parent": "dist/client/assets/engine-in5hOmjo.js"
     },
     {
       "kind": "chunk",
@@ -792,9 +812,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 214,
-      "gzip": 156,
+      "gzip": 157,
       "brotli": 0,
-      "parent": "dist/client/assets/errors-D81JG85d.js"
+      "parent": "dist/client/assets/errors-BsZDnf9v.js"
     },
     {
       "kind": "chunk",
@@ -804,7 +824,7 @@
       "uncompressed": 122,
       "gzip": 117,
       "brotli": 0,
-      "parent": "dist/client/assets/eventTracking-D8ATbBdT.js"
+      "parent": "dist/client/assets/eventTracking-BUyniHPO.js"
     },
     {
       "kind": "chunk",
@@ -834,7 +854,7 @@
       "uncompressed": 1568,
       "gzip": 809,
       "brotli": 0,
-      "parent": "dist/client/assets/locale-DGGT3Do6.js"
+      "parent": "dist/client/assets/locale-DqfFhpLA.js"
     },
     {
       "kind": "chunk",
@@ -854,7 +874,7 @@
       "uncompressed": 48,
       "gzip": 66,
       "brotli": 0,
-      "parent": "dist/client/assets/performanceTracking-DYSrOwh-.js"
+      "parent": "dist/client/assets/performanceTracking-CUoz1xA7.js"
     },
     {
       "kind": "chunk",
@@ -912,9 +932,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 132,
-      "gzip": 101,
+      "gzip": 100,
       "brotli": 0,
-      "parent": "dist/client/assets/tools-BWSxHMqw.js"
+      "parent": "dist/client/assets/tools-C8QQkmSi.js"
     },
     {
       "kind": "chunk",
@@ -934,17 +954,17 @@
       "uncompressed": 151,
       "gzip": 128,
       "brotli": 0,
-      "parent": "dist/client/assets/useDataWindow-C3nAzDpW.js"
+      "parent": "dist/client/assets/useDataWindow-C2Mq1uet.js"
     },
     {
       "kind": "chunk",
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 320,
-      "gzip": 232,
+      "uncompressed": 311,
+      "gzip": 222,
       "brotli": 0,
-      "parent": "dist/client/assets/useMarkedTool-DVgdCCin.js"
+      "parent": "dist/client/assets/useMarkedTool-2-WgSmbd.js"
     },
     {
       "kind": "chunk",
@@ -954,7 +974,7 @@
       "uncompressed": 156,
       "gzip": 124,
       "brotli": 0,
-      "parent": "dist/client/assets/useSetupRoute-CAuZfobz.js"
+      "parent": "dist/client/assets/useSetupRoute-mOYHWpxA.js"
     },
     {
       "kind": "chunk",
@@ -962,9 +982,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 114,
-      "gzip": 101,
+      "gzip": 103,
       "brotli": 0,
-      "parent": "dist/client/assets/useSetupSelection-BQCXWr-1.js"
+      "parent": "dist/client/assets/useSetupSelection-CEG4n-Gi.js"
     },
     {
       "kind": "chunk",
@@ -974,7 +994,7 @@
       "uncompressed": 107,
       "gzip": 107,
       "brotli": 0,
-      "parent": "dist/client/assets/useStudioOptions-ch1GVoyn.js"
+      "parent": "dist/client/assets/useStudioOptions-DRGpQCNb.js"
     },
     {
       "kind": "chunk",
@@ -982,9 +1002,9 @@
       "type": "other",
       "format": "other",
       "uncompressed": 325,
-      "gzip": 176,
+      "gzip": 178,
       "brotli": 0,
-      "parent": "dist/client/assets/utilities-BH1NrZd4.js"
+      "parent": "dist/client/assets/utilities-B_ov5QY2.js"
     },
     {
       "kind": "chunk",
@@ -1006,10 +1026,10 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/accountMonitor-x5duVe86.js",
+      "name": "dist/client/assets/accountMonitor-D9p3p0pu.js",
       "type": "script",
-      "uncompressed": 506,
-      "gzip": 352,
+      "uncompressed": 559,
+      "gzip": 376,
       "brotli": 0
     },
     {
@@ -1046,18 +1066,18 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/AssistantLayout-DbS9NXDR.js",
+      "name": "dist/client/assets/AssistantLayout-BA7oIQAb.js",
       "type": "script",
-      "uncompressed": 9507,
-      "gzip": 3810,
+      "uncompressed": 9743,
+      "gzip": 3863,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/AuditContentPanel-Cxl5UFFv.js",
+      "name": "dist/client/assets/AuditContentPanel-Bg7Te8a5.js",
       "type": "script",
       "uncompressed": 811,
-      "gzip": 510,
+      "gzip": 508,
       "brotli": 0
     },
     {
@@ -1070,10 +1090,18 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ChatPanel-D-IVjdx-.js",
+      "name": "dist/client/assets/BusyBar-CpJrcwwK.js",
       "type": "script",
-      "uncompressed": 203291,
-      "gzip": 54977,
+      "uncompressed": 440,
+      "gzip": 336,
+      "brotli": 0
+    },
+    {
+      "kind": "asset",
+      "name": "dist/client/assets/ChatPanel-BwOKkABd.js",
+      "type": "script",
+      "uncompressed": 208678,
+      "gzip": 56262,
       "brotli": 0
     },
     {
@@ -1102,18 +1130,18 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/configCard-CkFgT0iB.js",
+      "name": "dist/client/assets/ConfigCard-C3dT165X.js",
       "type": "script",
-      "uncompressed": 245,
-      "gzip": 208,
+      "uncompressed": 6115,
+      "gzip": 2179,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ConfigCard-DFj1c16T.js",
+      "name": "dist/client/assets/configCard-Zfh6zWNl.js",
       "type": "script",
-      "uncompressed": 6115,
-      "gzip": 2179,
+      "uncompressed": 245,
+      "gzip": 210,
       "brotli": 0
     },
     {
@@ -1126,50 +1154,50 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/configMonitor-B8VNzJ8S.js",
+      "name": "dist/client/assets/configMonitor-C8A27GEK.js",
       "type": "script",
-      "uncompressed": 2245,
-      "gzip": 1031,
+      "uncompressed": 2261,
+      "gzip": 1038,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ConnectionPanel-6viPccw1.js",
+      "name": "dist/client/assets/ConnectionPanel-BwgCzLV6.js",
       "type": "script",
-      "uncompressed": 6146,
-      "gzip": 2417,
+      "uncompressed": 6124,
+      "gzip": 2408,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ContextDiagramPanel-obk4M3cD.js",
+      "name": "dist/client/assets/ContextDiagramPanel-D1Nuo9Ip.js",
       "type": "script",
       "uncompressed": 1116,
-      "gzip": 665,
+      "gzip": 662,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ContextDimensionDiagramPanel-BK2i2z9g.js",
+      "name": "dist/client/assets/ContextDimensionDiagramPanel-CDGm30hQ.js",
       "type": "script",
       "uncompressed": 824,
-      "gzip": 457,
+      "gzip": 456,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ContextEntityDiagramPanel-CKC2RnLY.js",
+      "name": "dist/client/assets/ContextEntityDiagramPanel-BPqY0W6m.js",
       "type": "script",
       "uncompressed": 1730,
-      "gzip": 629,
+      "gzip": 627,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ContextModelList-B0B0iDB7.js",
+      "name": "dist/client/assets/ContextModelList-CUAjGrW1.js",
       "type": "script",
-      "uncompressed": 46105,
-      "gzip": 11325,
+      "uncompressed": 46139,
+      "gzip": 11355,
       "brotli": 0
     },
     {
@@ -1182,34 +1210,34 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/DataAppsPanel-ChKO5NdM.js",
+      "name": "dist/client/assets/DataAppsPanel-D6rVCC5b.js",
       "type": "script",
       "uncompressed": 854,
-      "gzip": 517,
+      "gzip": 518,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/DataViewList-xoVzmwF6.js",
+      "name": "dist/client/assets/DataViewList-DbDtXx9D.js",
       "type": "script",
-      "uncompressed": 17460,
-      "gzip": 5795,
+      "uncompressed": 17468,
+      "gzip": 5810,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/dataViews-CyC2H2DJ.js",
+      "name": "dist/client/assets/dataViews-CR43ONv6.js",
       "type": "script",
-      "uncompressed": 13642,
-      "gzip": 4716,
+      "uncompressed": 13613,
+      "gzip": 4693,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/DataViewsLayout-3iXtv8AC.js",
+      "name": "dist/client/assets/DataViewsLayout-FUnVMFzr.js",
       "type": "script",
-      "uncompressed": 7757,
-      "gzip": 3045,
+      "uncompressed": 7886,
+      "gzip": 3096,
       "brotli": 0
     },
     {
@@ -1238,7 +1266,7 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/EmptyPlaceholder-BgLRPOuk.js",
+      "name": "dist/client/assets/EmptyPlaceholder-vrDAMhM4.js",
       "type": "script",
       "uncompressed": 1612,
       "gzip": 836,
@@ -1246,23 +1274,23 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/engine-DjTii4mU.js",
+      "name": "dist/client/assets/engine-in5hOmjo.js",
       "type": "script",
       "uncompressed": 995,
-      "gzip": 564,
+      "gzip": 562,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ErrorNotice-C8Llhn35.js",
+      "name": "dist/client/assets/ErrorNotice-CTSGRCYh.js",
       "type": "script",
       "uncompressed": 8995,
-      "gzip": 3550,
+      "gzip": 3548,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/errors-D81JG85d.js",
+      "name": "dist/client/assets/errors-BsZDnf9v.js",
       "type": "script",
       "uncompressed": 6136,
       "gzip": 2893,
@@ -1270,15 +1298,15 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/EventQueriesPanel-C_NcYt5g.js",
+      "name": "dist/client/assets/EventQueriesPanel-BlwUUl0U.js",
       "type": "script",
       "uncompressed": 2349,
-      "gzip": 1156,
+      "gzip": 1151,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/eventTracking-D8ATbBdT.js",
+      "name": "dist/client/assets/eventTracking-BUyniHPO.js",
       "type": "script",
       "uncompressed": 1103,
       "gzip": 616,
@@ -1286,10 +1314,10 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js",
+      "name": "dist/client/assets/ExploreDataPanel-HMEEveU5.js",
       "type": "script",
-      "uncompressed": 59932,
-      "gzip": 16313,
+      "uncompressed": 59933,
+      "gzip": 16312,
       "brotli": 0
     },
     {
@@ -1318,10 +1346,10 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/GridDetailPanel-AgyfnIKf.js",
+      "name": "dist/client/assets/GridDetailPanel-Dc_3dWay.js",
       "type": "script",
-      "uncompressed": 5562,
-      "gzip": 2342,
+      "uncompressed": 5256,
+      "gzip": 2204,
       "brotli": 0
     },
     {
@@ -1334,10 +1362,10 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/index-h7A1L-7s.js",
+      "name": "dist/client/assets/index-I_huAjNh.js",
       "type": "script",
-      "uncompressed": 87755,
-      "gzip": 28994,
+      "uncompressed": 88529,
+      "gzip": 29279,
       "brotli": 0
     },
     {
@@ -1350,18 +1378,18 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/LibraryPanel-CdEr3qiB.js",
+      "name": "dist/client/assets/LibraryPanel-BD1eSavO.js",
       "type": "script",
-      "uncompressed": 8589,
-      "gzip": 3373,
+      "uncompressed": 8601,
+      "gzip": 3379,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/locale-DGGT3Do6.js",
+      "name": "dist/client/assets/locale-DqfFhpLA.js",
       "type": "script",
-      "uncompressed": 14244,
-      "gzip": 5606,
+      "uncompressed": 14248,
+      "gzip": 5611,
       "brotli": 0
     },
     {
@@ -1390,10 +1418,10 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ManagePreferencesPanel-Bal3Fm39.js",
+      "name": "dist/client/assets/ManagePreferencesPanel-FbB2ZlnJ.js",
       "type": "script",
       "uncompressed": 538,
-      "gzip": 366,
+      "gzip": 364,
       "brotli": 0
     },
     {
@@ -1422,15 +1450,15 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/OptionBar-xDzFujbk.js",
+      "name": "dist/client/assets/OptionBar-DUH5P56E.js",
       "type": "script",
       "uncompressed": 3344,
-      "gzip": 1600,
+      "gzip": 1604,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/PaneSplitter-C-w1a90_.js",
+      "name": "dist/client/assets/PaneSplitter-CxJu37FI.js",
       "type": "script",
       "uncompressed": 4522,
       "gzip": 1963,
@@ -1438,7 +1466,7 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/performanceTracking-DYSrOwh-.js",
+      "name": "dist/client/assets/performanceTracking-CUoz1xA7.js",
       "type": "script",
       "uncompressed": 8803,
       "gzip": 3295,
@@ -1454,7 +1482,7 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/PluginConnectorPanel-BnUYCo3R.js",
+      "name": "dist/client/assets/PluginConnectorPanel-7I9nU7bR.js",
       "type": "script",
       "uncompressed": 1793,
       "gzip": 891,
@@ -1462,31 +1490,31 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/PluginCookbookPanel-5oYEd5kY.js",
+      "name": "dist/client/assets/PluginCookbookPanel-DTTuxqt7.js",
       "type": "script",
       "uncompressed": 457,
-      "gzip": 263,
+      "gzip": 264,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/PluginList-__hay3St.js",
+      "name": "dist/client/assets/PluginList--ynU9yj4.js",
       "type": "script",
-      "uncompressed": 4455,
-      "gzip": 1759,
+      "uncompressed": 4460,
+      "gzip": 1769,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/PluginPanel-DaLQmD_0.js",
+      "name": "dist/client/assets/PluginPanel-N_ypnAIH.js",
       "type": "script",
       "uncompressed": 3512,
-      "gzip": 1543,
+      "gzip": 1544,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/PluginPresenterPanel-BC-ou0XO.js",
+      "name": "dist/client/assets/PluginPresenterPanel-BB1rXeQo.js",
       "type": "script",
       "uncompressed": 458,
       "gzip": 262,
@@ -1494,7 +1522,7 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/PluginToolPanel-DMX8b0zX.js",
+      "name": "dist/client/assets/PluginToolPanel-BOwPUxfG.js",
       "type": "script",
       "uncompressed": 453,
       "gzip": 261,
@@ -1510,10 +1538,10 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/PresentationsPanel-DuT02zNI.js",
+      "name": "dist/client/assets/PresentationsPanel-DXs11qyt.js",
       "type": "script",
       "uncompressed": 3191,
-      "gzip": 1580,
+      "gzip": 1576,
       "brotli": 0
     },
     {
@@ -1522,6 +1550,14 @@
       "type": "script",
       "uncompressed": 1937,
       "gzip": 819,
+      "brotli": 0
+    },
+    {
+      "kind": "asset",
+      "name": "dist/client/assets/RetrievalGate-BiVZQfot.js",
+      "type": "script",
+      "uncompressed": 506,
+      "gzip": 355,
       "brotli": 0
     },
     {
@@ -1550,7 +1586,7 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/ScrollRow-BWlp_mWK.js",
+      "name": "dist/client/assets/ScrollRow-4wgqDl2S.js",
       "type": "script",
       "uncompressed": 3743,
       "gzip": 1731,
@@ -1574,18 +1610,18 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/SelectConnectionList-icLyYlnH.js",
+      "name": "dist/client/assets/SelectConnectionList-1DABWFEG.js",
       "type": "script",
-      "uncompressed": 5537,
-      "gzip": 2328,
+      "uncompressed": 5351,
+      "gzip": 2237,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/SelectItemPanel-CqwEPm0O.js",
+      "name": "dist/client/assets/SelectItemPanel-BWFO_YBf.js",
       "type": "script",
-      "uncompressed": 7783,
-      "gzip": 3438,
+      "uncompressed": 7757,
+      "gzip": 3421,
       "brotli": 0
     },
     {
@@ -1606,7 +1642,7 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/SessionAccountPanel-S0fmIGsV.js",
+      "name": "dist/client/assets/SessionAccountPanel-tfrAvJzd.js",
       "type": "script",
       "uncompressed": 5258,
       "gzip": 2014,
@@ -1614,7 +1650,7 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/SessionAuthPanel-BC-TQxh3.js",
+      "name": "dist/client/assets/SessionAuthPanel-ClhtE1K8.js",
       "type": "script",
       "uncompressed": 12783,
       "gzip": 5069,
@@ -1622,15 +1658,15 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/SessionMenu-DlFjTPG1.js",
+      "name": "dist/client/assets/SessionMenu-BXPsdKxw.js",
       "type": "script",
       "uncompressed": 7245,
-      "gzip": 2803,
+      "gzip": 2804,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/SetupHomePanel-DlD9No0J.js",
+      "name": "dist/client/assets/SetupHomePanel-Dsbnc2mQ.js",
       "type": "script",
       "uncompressed": 740,
       "gzip": 499,
@@ -1638,10 +1674,10 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/SetupLayout-DVV-rbQa.js",
+      "name": "dist/client/assets/SetupLayout-eJksIFww.js",
       "type": "script",
       "uncompressed": 7051,
-      "gzip": 2322,
+      "gzip": 2323,
       "brotli": 0
     },
     {
@@ -1654,18 +1690,18 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/StudioDescriptorsPanel-BqlvaOrC.js",
+      "name": "dist/client/assets/StudioDescriptorsPanel-tDRZF2gw.js",
       "type": "script",
       "uncompressed": 65932,
-      "gzip": 20555,
+      "gzip": 20556,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/StudioDocumentPanel-CbX47GLe.js",
+      "name": "dist/client/assets/StudioDocumentPanel-BNg3GVeG.js",
       "type": "script",
       "uncompressed": 2172,
-      "gzip": 1122,
+      "gzip": 1124,
       "brotli": 0
     },
     {
@@ -1678,15 +1714,15 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/StudioHomePanel-D3ZwZqBc.js",
+      "name": "dist/client/assets/StudioHomePanel-DiTL3A8F.js",
       "type": "script",
-      "uncompressed": 3802,
-      "gzip": 1833,
+      "uncompressed": 3800,
+      "gzip": 1832,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/StudioLayout-DvD4NBj1.js",
+      "name": "dist/client/assets/StudioLayout-C2wzJSie.js",
       "type": "script",
       "uncompressed": 1278,
       "gzip": 725,
@@ -1694,10 +1730,10 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/Table-w2-dZmaz.js",
+      "name": "dist/client/assets/Table-BKYXHXxP.js",
       "type": "script",
       "uncompressed": 51951,
-      "gzip": 13831,
+      "gzip": 13828,
       "brotli": 0
     },
     {
@@ -1710,18 +1746,18 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/TextInput-D0OVHPAr.js",
+      "name": "dist/client/assets/TextInput-Ck26wy0w.js",
       "type": "script",
       "uncompressed": 2081,
-      "gzip": 1178,
+      "gzip": 1177,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/tools-BWSxHMqw.js",
+      "name": "dist/client/assets/tools-C8QQkmSi.js",
       "type": "script",
       "uncompressed": 250,
-      "gzip": 205,
+      "gzip": 203,
       "brotli": 0
     },
     {
@@ -1734,39 +1770,39 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/useDataWindow-C3nAzDpW.js",
+      "name": "dist/client/assets/useDataWindow-C2Mq1uet.js",
       "type": "script",
-      "uncompressed": 27288,
-      "gzip": 8404,
+      "uncompressed": 27495,
+      "gzip": 8480,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/useMarkedTool-DVgdCCin.js",
+      "name": "dist/client/assets/useMarkedTool-2-WgSmbd.js",
       "type": "script",
-      "uncompressed": 29839,
-      "gzip": 11770,
+      "uncompressed": 29812,
+      "gzip": 11750,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/useSetupRoute-CAuZfobz.js",
+      "name": "dist/client/assets/useSetupRoute-mOYHWpxA.js",
       "type": "script",
       "uncompressed": 394,
-      "gzip": 285,
+      "gzip": 284,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/useSetupSelection-BQCXWr-1.js",
+      "name": "dist/client/assets/useSetupSelection-CEG4n-Gi.js",
       "type": "script",
       "uncompressed": 489,
-      "gzip": 327,
+      "gzip": 331,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/useStudioOptions-ch1GVoyn.js",
+      "name": "dist/client/assets/useStudioOptions-DRGpQCNb.js",
       "type": "script",
       "uncompressed": 6065,
       "gzip": 2264,
@@ -1774,10 +1810,10 @@
     },
     {
       "kind": "asset",
-      "name": "dist/client/assets/utilities-BH1NrZd4.js",
+      "name": "dist/client/assets/utilities-B_ov5QY2.js",
       "type": "script",
-      "uncompressed": 2413,
-      "gzip": 1314,
+      "uncompressed": 2430,
+      "gzip": 1322,
       "brotli": 0
     },
     {
@@ -1822,9 +1858,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1170,
-      "gzip": 278,
+      "gzip": 279,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -1839,9 +1875,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 12156,
-      "gzip": 4465,
+      "gzip": 4466,
       "brotli": 0,
-      "parent": "dist/client/assets/locale-DGGT3Do6.js"
+      "parent": "dist/client/assets/locale-DqfFhpLA.js"
     },
     {
       "kind": "filesystem",
@@ -1862,10 +1898,10 @@
       "name": "node_modules/@formkit/drag-and-drop/index.mjs",
       "type": "script",
       "format": "esm",
-      "uncompressed": 29449,
-      "gzip": 7628,
+      "uncompressed": 29452,
+      "gzip": 7627,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -1882,7 +1918,7 @@
       "uncompressed": 716,
       "gzip": 348,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -2342,7 +2378,7 @@
       "uncompressed": 939,
       "gzip": 451,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionAccountPanel-S0fmIGsV.js"
+      "parent": "dist/client/assets/SessionAccountPanel-tfrAvJzd.js"
     },
     {
       "kind": "filesystem",
@@ -2636,9 +2672,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 119,
-      "gzip": 101,
+      "gzip": 102,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -3090,6 +3126,13 @@
     },
     {
       "kind": "filesystem",
+      "name": "node_modules/@lucide/vue/dist/esm/icons/belarusian-ruble.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 605
+    },
+    {
+      "kind": "filesystem",
       "name": "node_modules/@lucide/vue/dist/esm/icons/bell-check.mjs",
       "type": "script",
       "format": "esm",
@@ -3299,7 +3342,7 @@
       "uncompressed": 138,
       "gzip": 128,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioDescriptorsPanel-BqlvaOrC.js"
+      "parent": "dist/client/assets/StudioDescriptorsPanel-tDRZF2gw.js"
     },
     {
       "kind": "filesystem",
@@ -3884,6 +3927,13 @@
     },
     {
       "kind": "filesystem",
+      "name": "node_modules/@lucide/vue/dist/esm/icons/calendar-chevrons-left.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 822
+    },
+    {
+      "kind": "filesystem",
       "name": "node_modules/@lucide/vue/dist/esm/icons/calendar-chevrons-right.mjs",
       "type": "script",
       "format": "esm",
@@ -3904,7 +3954,7 @@
       "uncompressed": 341,
       "gzip": 197,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -4017,9 +4067,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 211,
-      "gzip": 148,
+      "gzip": 147,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -4559,7 +4609,7 @@
       "uncompressed": 84,
       "gzip": 91,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -4819,6 +4869,13 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 932
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@lucide/vue/dist/esm/icons/circle-fading-play.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 988
     },
     {
       "kind": "filesystem",
@@ -5260,9 +5317,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 125,
-      "gzip": 116,
+      "gzip": 117,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -5704,6 +5761,13 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 571
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@lucide/vue/dist/esm/icons/cpu-ai.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1225
     },
     {
       "kind": "filesystem",
@@ -6399,7 +6463,7 @@
       "uncompressed": 346,
       "gzip": 166,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionMenu-DlFjTPG1.js"
+      "parent": "dist/client/assets/SessionMenu-BXPsdKxw.js"
     },
     {
       "kind": "filesystem",
@@ -6416,7 +6480,7 @@
       "uncompressed": 210,
       "gzip": 135,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginPanel-DaLQmD_0.js"
+      "parent": "dist/client/assets/PluginPanel-N_ypnAIH.js"
     },
     {
       "kind": "filesystem",
@@ -7319,6 +7383,20 @@
     },
     {
       "kind": "filesystem",
+      "name": "node_modules/@lucide/vue/dist/esm/icons/folder-user.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 752
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@lucide/vue/dist/esm/icons/folder-users.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 908
+    },
+    {
+      "kind": "filesystem",
       "name": "node_modules/@lucide/vue/dist/esm/icons/folder-x.mjs",
       "type": "script",
       "format": "esm",
@@ -7339,7 +7417,7 @@
       "uncompressed": 432,
       "gzip": 287,
       "brotli": 0,
-      "parent": "dist/client/assets/SelectItemPanel-CqwEPm0O.js"
+      "parent": "dist/client/assets/SelectItemPanel-BWFO_YBf.js"
     },
     {
       "kind": "filesystem",
@@ -7426,7 +7504,7 @@
       "uncompressed": 234,
       "gzip": 168,
       "brotli": 0,
-      "parent": "dist/client/assets/ConfigCard-DFj1c16T.js"
+      "parent": "dist/client/assets/ConfigCard-C3dT165X.js"
     },
     {
       "kind": "filesystem",
@@ -7469,9 +7547,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 190,
-      "gzip": 135,
+      "gzip": 134,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -7754,7 +7832,7 @@
       "uncompressed": 197,
       "gzip": 126,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginPanel-DaLQmD_0.js"
+      "parent": "dist/client/assets/PluginPanel-N_ypnAIH.js"
     },
     {
       "kind": "filesystem",
@@ -7783,6 +7861,13 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1011
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@lucide/vue/dist/esm/icons/graph-star.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1128
     },
     {
       "kind": "filesystem",
@@ -7848,7 +7933,7 @@
       "uncompressed": 326,
       "gzip": 142,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -7870,6 +7955,13 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 842
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@lucide/vue/dist/esm/icons/guitar-electric.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1043
     },
     {
       "kind": "filesystem",
@@ -8019,7 +8111,7 @@
       "uncompressed": 252,
       "gzip": 133,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -8421,7 +8513,7 @@
       "name": "node_modules/@lucide/vue/dist/esm/icons/index.mjs",
       "type": "script",
       "format": "esm",
-      "uncompressed": 112321
+      "uncompressed": 113061
     },
     {
       "kind": "filesystem",
@@ -8452,7 +8544,7 @@
       "uncompressed": 159,
       "gzip": 123,
       "brotli": 0,
-      "parent": "dist/client/assets/ConfigCard-DFj1c16T.js"
+      "parent": "dist/client/assets/ConfigCard-C3dT165X.js"
     },
     {
       "kind": "filesystem",
@@ -8476,7 +8568,7 @@
       "uncompressed": 201,
       "gzip": 137,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioDescriptorsPanel-BqlvaOrC.js"
+      "parent": "dist/client/assets/StudioDescriptorsPanel-tDRZF2gw.js"
     },
     {
       "kind": "filesystem",
@@ -8549,7 +8641,7 @@
       "uncompressed": 311,
       "gzip": 198,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -8886,9 +8978,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 189,
-      "gzip": 122,
+      "gzip": 121,
       "brotli": 0,
-      "parent": "dist/client/assets/AssistantLayout-DbS9NXDR.js"
+      "parent": "dist/client/assets/AssistantLayout-BA7oIQAb.js"
     },
     {
       "kind": "filesystem",
@@ -8996,7 +9088,7 @@
       "uncompressed": 213,
       "gzip": 153,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioDescriptorsPanel-BqlvaOrC.js"
+      "parent": "dist/client/assets/StudioDescriptorsPanel-tDRZF2gw.js"
     },
     {
       "kind": "filesystem",
@@ -9181,7 +9273,7 @@
       "uncompressed": 188,
       "gzip": 143,
       "brotli": 0,
-      "parent": "dist/client/assets/utilities-BH1NrZd4.js"
+      "parent": "dist/client/assets/utilities-B_ov5QY2.js"
     },
     {
       "kind": "filesystem",
@@ -9811,10 +9903,10 @@
       "name": "node_modules/@lucide/vue/dist/esm/icons/message-square.mjs",
       "type": "script",
       "format": "esm",
-      "uncompressed": 243,
-      "gzip": 166,
+      "uncompressed": 443,
+      "gzip": 234,
       "brotli": 0,
-      "parent": "dist/client/assets/AssistantLayout-DbS9NXDR.js"
+      "parent": "dist/client/assets/AssistantLayout-BA7oIQAb.js"
     },
     {
       "kind": "filesystem",
@@ -10069,7 +10161,7 @@
       "uncompressed": 214,
       "gzip": 140,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionMenu-DlFjTPG1.js"
+      "parent": "dist/client/assets/SessionMenu-BXPsdKxw.js"
     },
     {
       "kind": "filesystem",
@@ -10093,7 +10185,7 @@
       "uncompressed": 172,
       "gzip": 138,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionMenu-DlFjTPG1.js"
+      "parent": "dist/client/assets/SessionMenu-BXPsdKxw.js"
     },
     {
       "kind": "filesystem",
@@ -10390,7 +10482,7 @@
       "uncompressed": 642,
       "gzip": 299,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextModelList-B0B0iDB7.js"
+      "parent": "dist/client/assets/ContextModelList-CUAjGrW1.js"
     },
     {
       "kind": "filesystem",
@@ -10930,6 +11022,13 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 631
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@lucide/vue/dist/esm/icons/perfume-bottle.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1110
     },
     {
       "kind": "filesystem",
@@ -11607,7 +11706,7 @@
       "uncompressed": 280,
       "gzip": 150,
       "brotli": 0,
-      "parent": "dist/client/assets/ErrorNotice-C8Llhn35.js"
+      "parent": "dist/client/assets/ErrorNotice-CTSGRCYh.js"
     },
     {
       "kind": "filesystem",
@@ -11666,7 +11765,7 @@
       "uncompressed": 227,
       "gzip": 130,
       "brotli": 0,
-      "parent": "dist/client/assets/ErrorNotice-C8Llhn35.js"
+      "parent": "dist/client/assets/ErrorNotice-CTSGRCYh.js"
     },
     {
       "kind": "filesystem",
@@ -12302,7 +12401,7 @@
       "uncompressed": 211,
       "gzip": 109,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -12585,7 +12684,7 @@
       "uncompressed": 259,
       "gzip": 161,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionMenu-DlFjTPG1.js"
+      "parent": "dist/client/assets/SessionMenu-BXPsdKxw.js"
     },
     {
       "kind": "filesystem",
@@ -13463,10 +13562,10 @@
       "name": "node_modules/@lucide/vue/dist/esm/icons/square.mjs",
       "type": "script",
       "format": "esm",
-      "uncompressed": 521,
+      "uncompressed": 522,
       "gzip": 289,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -13740,9 +13839,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 968,
-      "gzip": 392,
+      "gzip": 393,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionMenu-DlFjTPG1.js"
+      "parent": "dist/client/assets/SessionMenu-BXPsdKxw.js"
     },
     {
       "kind": "filesystem",
@@ -14254,9 +14353,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 155,
-      "gzip": 130,
+      "gzip": 129,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -14427,7 +14526,7 @@
       "uncompressed": 914,
       "gzip": 407,
       "brotli": 0,
-      "parent": "dist/client/assets/ConfigCard-DFj1c16T.js"
+      "parent": "dist/client/assets/ConfigCard-C3dT165X.js"
     },
     {
       "kind": "filesystem",
@@ -14493,7 +14592,7 @@
       "uncompressed": 470,
       "gzip": 261,
       "brotli": 0,
-      "parent": "dist/client/assets/ErrorNotice-C8Llhn35.js"
+      "parent": "dist/client/assets/ErrorNotice-CTSGRCYh.js"
     },
     {
       "kind": "filesystem",
@@ -14622,7 +14721,7 @@
       "uncompressed": 365,
       "gzip": 220,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -14653,7 +14752,7 @@
       "uncompressed": 250,
       "gzip": 194,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioDescriptorsPanel-BqlvaOrC.js"
+      "parent": "dist/client/assets/StudioDescriptorsPanel-tDRZF2gw.js"
     },
     {
       "kind": "filesystem",
@@ -14845,7 +14944,7 @@
       "uncompressed": 398,
       "gzip": 238,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionAuthPanel-BC-TQxh3.js"
+      "parent": "dist/client/assets/SessionAuthPanel-ClhtE1K8.js"
     },
     {
       "kind": "filesystem",
@@ -14902,9 +15001,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 668,
-      "gzip": 335,
+      "gzip": 336,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginPanel-DaLQmD_0.js"
+      "parent": "dist/client/assets/PluginPanel-N_ypnAIH.js"
     },
     {
       "kind": "filesystem",
@@ -14940,6 +15039,20 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 555
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@lucide/vue/dist/esm/icons/users-collaboration.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 879
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@lucide/vue/dist/esm/icons/users-round-collaboration.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 884
     },
     {
       "kind": "filesystem",
@@ -15600,7 +15713,7 @@
       "name": "node_modules/@lucide/vue/dist/esm/lucide-vue.mjs",
       "type": "script",
       "format": "esm",
-      "uncompressed": 251755
+      "uncompressed": 253265
     },
     {
       "kind": "filesystem",
@@ -15726,7 +15839,7 @@
       "uncompressed": 179,
       "gzip": 125,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -15743,7 +15856,7 @@
       "uncompressed": 164,
       "gzip": 111,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -15765,9 +15878,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 44568,
-      "gzip": 9021,
+      "gzip": 9043,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -15782,9 +15895,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 2377,
-      "gzip": 558,
+      "gzip": 559,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -15799,9 +15912,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 4308,
-      "gzip": 1037,
+      "gzip": 1039,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -15815,10 +15928,10 @@
       "name": "node_modules/@tanstack/ai-client/dist/esm/connection-adapters.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 10113,
-      "gzip": 3072,
+      "uncompressed": 10111,
+      "gzip": 3079,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -15833,9 +15946,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 686,
-      "gzip": 293,
+      "gzip": 294,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -15857,9 +15970,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1850,
-      "gzip": 514,
+      "gzip": 515,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -15901,10 +16014,10 @@
       "name": "node_modules/@tanstack/ai-client/dist/esm/interrupt-manager.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 21953,
-      "gzip": 4454,
+      "uncompressed": 21952,
+      "gzip": 4459,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -15928,7 +16041,7 @@
       "uncompressed": 436,
       "gzip": 194,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -15952,7 +16065,7 @@
       "uncompressed": 686,
       "gzip": 307,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -15976,7 +16089,7 @@
       "uncompressed": 105,
       "gzip": 85,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -15998,9 +16111,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 27,
-      "gzip": 38,
+      "gzip": 39,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16070,7 +16183,7 @@
       "name": "node_modules/@tanstack/ai-utils/dist/esm/transforms.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 3515
+      "uncompressed": 3519
     },
     {
       "kind": "filesystem",
@@ -16085,9 +16198,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1696,
-      "gzip": 576,
+      "gzip": 577,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16101,24 +16214,24 @@
       "name": "node_modules/@tanstack/ai/dist/esm/activities/chat/agents/route.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 2516
+      "uncompressed": 3906
     },
     {
       "kind": "filesystem",
       "name": "node_modules/@tanstack/ai/dist/esm/activities/chat/messages.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 34649
+      "uncompressed": 38860
     },
     {
       "kind": "chunk",
       "name": "node_modules/@tanstack/ai/dist/esm/activities/chat/messages.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 10472,
-      "gzip": 2673,
+      "uncompressed": 11113,
+      "gzip": 2803,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16135,7 +16248,7 @@
       "uncompressed": 118,
       "gzip": 90,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16150,26 +16263,26 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 3099,
-      "gzip": 800,
+      "gzip": 802,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
       "name": "node_modules/@tanstack/ai/dist/esm/activities/chat/stream/processor.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 82753
+      "uncompressed": 87520
     },
     {
       "kind": "chunk",
       "name": "node_modules/@tanstack/ai/dist/esm/activities/chat/stream/processor.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 38624,
-      "gzip": 7787,
+      "uncompressed": 41654,
+      "gzip": 8284,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16186,7 +16299,7 @@
       "uncompressed": 40,
       "gzip": 49,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16201,9 +16314,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1876,
-      "gzip": 715,
+      "gzip": 716,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16218,9 +16331,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 2922,
-      "gzip": 968,
+      "gzip": 970,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16237,14 +16350,14 @@
       "uncompressed": 601,
       "gzip": 198,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
       "name": "node_modules/@tanstack/ai/dist/esm/activities/error-payload.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 5534
+      "uncompressed": 5829
     },
     {
       "kind": "filesystem",
@@ -16301,9 +16414,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 494,
-      "gzip": 206,
+      "gzip": 207,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16325,9 +16438,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 263,
-      "gzip": 133,
+      "gzip": 134,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16342,9 +16455,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 85,
-      "gzip": 83,
+      "gzip": 84,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16373,9 +16486,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 717,
-      "gzip": 302,
+      "gzip": 303,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16392,7 +16505,7 @@
       "uncompressed": 813,
       "gzip": 378,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16407,9 +16520,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1621,
-      "gzip": 549,
+      "gzip": 551,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16424,9 +16537,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 2764,
-      "gzip": 1265,
+      "gzip": 1267,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16441,9 +16554,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 172,
-      "gzip": 123,
+      "gzip": 124,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16488,24 +16601,41 @@
       "uncompressed": 971,
       "gzip": 338,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
       "name": "node_modules/@tanstack/ai/dist/esm/utilities/ag-ui-wire.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 13885
+      "uncompressed": 15306
     },
     {
       "kind": "chunk",
       "name": "node_modules/@tanstack/ai/dist/esm/utilities/ag-ui-wire.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 6548,
-      "gzip": 1947,
+      "uncompressed": 7113,
+      "gzip": 2095,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@tanstack/ai/dist/esm/utilities/block-order.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 3063
+    },
+    {
+      "kind": "chunk",
+      "name": "node_modules/@tanstack/ai/dist/esm/utilities/block-order.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1169,
+      "gzip": 430,
+      "brotli": 0,
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16522,7 +16652,7 @@
       "uncompressed": 168,
       "gzip": 116,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16537,9 +16667,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 208,
-      "gzip": 123,
+      "gzip": 125,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16553,10 +16683,10 @@
       "name": "node_modules/@tanstack/ai/dist/esm/utilities/merge-metadata.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 508,
-      "gzip": 201,
+      "uncompressed": 507,
+      "gzip": 202,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16580,7 +16710,7 @@
       "uncompressed": 189,
       "gzip": 128,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16597,7 +16727,7 @@
       "uncompressed": 101,
       "gzip": 83,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16612,9 +16742,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 599,
-      "gzip": 261,
+      "gzip": 262,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16638,7 +16768,7 @@
       "uncompressed": 1715,
       "gzip": 610,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16655,7 +16785,7 @@
       "uncompressed": 779,
       "gzip": 315,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -16700,7 +16830,7 @@
       "uncompressed": 64,
       "gzip": 58,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -16717,7 +16847,7 @@
       "uncompressed": 697,
       "gzip": 280,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -16746,9 +16876,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1217,
-      "gzip": 459,
+      "gzip": 460,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -16772,7 +16902,7 @@
       "uncompressed": 3370,
       "gzip": 857,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -16789,7 +16919,7 @@
       "uncompressed": 1425,
       "gzip": 509,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -16804,9 +16934,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1765,
-      "gzip": 562,
+      "gzip": 563,
       "brotli": 0,
-      "parent": "dist/client/assets/dataViews-CyC2H2DJ.js"
+      "parent": "dist/client/assets/dataViews-CR43ONv6.js"
     },
     {
       "kind": "filesystem",
@@ -16821,9 +16951,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 374,
-      "gzip": 196,
+      "gzip": 197,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -16840,7 +16970,7 @@
       "uncompressed": 617,
       "gzip": 239,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -16862,9 +16992,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 6274,
-      "gzip": 1646,
+      "gzip": 1648,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -16879,9 +17009,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 997,
-      "gzip": 375,
+      "gzip": 374,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -16896,9 +17026,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 4313,
-      "gzip": 1091,
+      "gzip": 1093,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -16912,10 +17042,10 @@
       "name": "node_modules/@tanstack/query-core/build/modern/queryObserver.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 6195,
-      "gzip": 1823,
+      "uncompressed": 6199,
+      "gzip": 1821,
       "brotli": 0,
-      "parent": "dist/client/assets/dataViews-CyC2H2DJ.js"
+      "parent": "dist/client/assets/dataViews-CR43ONv6.js"
     },
     {
       "kind": "filesystem",
@@ -16932,7 +17062,7 @@
       "uncompressed": 315,
       "gzip": 157,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -16949,7 +17079,7 @@
       "uncompressed": 1245,
       "gzip": 526,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -16971,9 +17101,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 278,
-      "gzip": 123,
+      "gzip": 124,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -16988,9 +17118,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 407,
-      "gzip": 142,
+      "gzip": 143,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -17012,9 +17142,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 3082,
-      "gzip": 1035,
+      "gzip": 1036,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -17050,9 +17180,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 676,
-      "gzip": 212,
+      "gzip": 211,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17076,7 +17206,7 @@
       "uncompressed": 360,
       "gzip": 164,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17093,7 +17223,7 @@
       "uncompressed": 171,
       "gzip": 96,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17110,7 +17240,7 @@
       "uncompressed": 250,
       "gzip": 105,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17125,9 +17255,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 808,
-      "gzip": 313,
+      "gzip": 312,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17144,7 +17274,7 @@
       "uncompressed": 926,
       "gzip": 215,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17161,7 +17291,7 @@
       "uncompressed": 1116,
       "gzip": 327,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17178,7 +17308,7 @@
       "uncompressed": 137,
       "gzip": 67,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17195,7 +17325,7 @@
       "uncompressed": 709,
       "gzip": 203,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17212,7 +17342,7 @@
       "uncompressed": 1612,
       "gzip": 486,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17229,7 +17359,7 @@
       "uncompressed": 514,
       "gzip": 205,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17246,7 +17376,7 @@
       "uncompressed": 704,
       "gzip": 196,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17263,7 +17393,7 @@
       "uncompressed": 627,
       "gzip": 185,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17280,7 +17410,7 @@
       "uncompressed": 127,
       "gzip": 84,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17297,7 +17427,7 @@
       "uncompressed": 554,
       "gzip": 125,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17314,7 +17444,7 @@
       "uncompressed": 1622,
       "gzip": 229,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17331,7 +17461,7 @@
       "uncompressed": 604,
       "gzip": 240,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17348,7 +17478,7 @@
       "uncompressed": 456,
       "gzip": 205,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17365,7 +17495,7 @@
       "uncompressed": 854,
       "gzip": 269,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17382,7 +17512,7 @@
       "uncompressed": 1793,
       "gzip": 489,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17399,7 +17529,7 @@
       "uncompressed": 2467,
       "gzip": 653,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17416,7 +17546,7 @@
       "uncompressed": 110,
       "gzip": 77,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17431,9 +17561,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1236,
-      "gzip": 375,
+      "gzip": 374,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17588,9 +17718,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 3563,
-      "gzip": 445,
+      "gzip": 444,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17607,7 +17737,7 @@
       "uncompressed": 4194,
       "gzip": 664,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17624,7 +17754,7 @@
       "uncompressed": 403,
       "gzip": 157,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17641,7 +17771,7 @@
       "uncompressed": 562,
       "gzip": 195,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17658,7 +17788,7 @@
       "uncompressed": 2861,
       "gzip": 758,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17675,7 +17805,7 @@
       "uncompressed": 1633,
       "gzip": 330,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17692,7 +17822,7 @@
       "uncompressed": 1683,
       "gzip": 497,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17709,7 +17839,7 @@
       "uncompressed": 1439,
       "gzip": 313,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17726,7 +17856,7 @@
       "uncompressed": 1466,
       "gzip": 379,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17897,7 +18027,7 @@
       "uncompressed": 24,
       "gzip": 30,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -17928,24 +18058,24 @@
       "uncompressed": 2652,
       "gzip": 785,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
       "name": "node_modules/@tanstack/virtual-core/dist/esm/index.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 53519
+      "uncompressed": 54156
     },
     {
       "kind": "chunk",
       "name": "node_modules/@tanstack/virtual-core/dist/esm/index.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 23915,
-      "gzip": 6467,
+      "uncompressed": 24122,
+      "gzip": 6543,
       "brotli": 0,
-      "parent": "dist/client/assets/useDataWindow-C3nAzDpW.js"
+      "parent": "dist/client/assets/useDataWindow-C2Mq1uet.js"
     },
     {
       "kind": "filesystem",
@@ -17962,7 +18092,7 @@
       "uncompressed": 394,
       "gzip": 254,
       "brotli": 0,
-      "parent": "dist/client/assets/useDataWindow-C3nAzDpW.js"
+      "parent": "dist/client/assets/useDataWindow-C2Mq1uet.js"
     },
     {
       "kind": "filesystem",
@@ -17979,7 +18109,7 @@
       "uncompressed": 505,
       "gzip": 320,
       "brotli": 0,
-      "parent": "dist/client/assets/useDataWindow-C3nAzDpW.js"
+      "parent": "dist/client/assets/useDataWindow-C2Mq1uet.js"
     },
     {
       "kind": "filesystem",
@@ -18024,7 +18154,7 @@
       "uncompressed": 95,
       "gzip": 68,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -18048,7 +18178,7 @@
       "uncompressed": 95,
       "gzip": 68,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -18063,9 +18193,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1690,
-      "gzip": 395,
+      "gzip": 396,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -18086,10 +18216,10 @@
       "name": "node_modules/@tanstack/vue-query/build/modern/useBaseQuery.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1074,
-      "gzip": 436,
+      "uncompressed": 1073,
+      "gzip": 434,
       "brotli": 0,
-      "parent": "dist/client/assets/dataViews-CyC2H2DJ.js"
+      "parent": "dist/client/assets/dataViews-CR43ONv6.js"
     },
     {
       "kind": "filesystem",
@@ -18118,9 +18248,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 475,
-      "gzip": 258,
+      "gzip": 256,
       "brotli": 0,
-      "parent": "dist/client/assets/dataViews-CyC2H2DJ.js"
+      "parent": "dist/client/assets/dataViews-CR43ONv6.js"
     },
     {
       "kind": "filesystem",
@@ -18165,7 +18295,7 @@
       "uncompressed": 33,
       "gzip": 42,
       "brotli": 0,
-      "parent": "dist/client/assets/dataViews-CyC2H2DJ.js"
+      "parent": "dist/client/assets/dataViews-CR43ONv6.js"
     },
     {
       "kind": "filesystem",
@@ -18179,10 +18309,10 @@
       "name": "node_modules/@tanstack/vue-query/build/modern/useQueryClient.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 287,
+      "uncompressed": 286,
       "gzip": 177,
       "brotli": 0,
-      "parent": "dist/client/assets/dataViews-CyC2H2DJ.js"
+      "parent": "dist/client/assets/dataViews-CR43ONv6.js"
     },
     {
       "kind": "filesystem",
@@ -18199,7 +18329,7 @@
       "uncompressed": 764,
       "gzip": 338,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -18216,7 +18346,7 @@
       "uncompressed": 506,
       "gzip": 223,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -18359,7 +18489,7 @@
       "uncompressed": 903,
       "gzip": 317,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -18376,7 +18506,7 @@
       "uncompressed": 639,
       "gzip": 224,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -18393,7 +18523,7 @@
       "uncompressed": 920,
       "gzip": 379,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -18408,9 +18538,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 378,
-      "gzip": 244,
+      "gzip": 245,
       "brotli": 0,
-      "parent": "dist/client/assets/useDataWindow-C3nAzDpW.js"
+      "parent": "dist/client/assets/useDataWindow-C2Mq1uet.js"
     },
     {
       "kind": "filesystem",
@@ -18497,9 +18627,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 16652,
-      "gzip": 5381,
+      "gzip": 5384,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -18571,10 +18701,10 @@
       "name": "node_modules/dompurify/dist/purify.es.mjs",
       "type": "script",
       "format": "esm",
-      "uncompressed": 28993,
-      "gzip": 11233,
+      "uncompressed": 28988,
+      "gzip": 11223,
       "brotli": 0,
-      "parent": "dist/client/assets/useMarkedTool-DVgdCCin.js"
+      "parent": "dist/client/assets/useMarkedTool-2-WgSmbd.js"
     },
     {
       "kind": "filesystem",
@@ -18591,7 +18721,7 @@
       "uncompressed": 110,
       "gzip": 92,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -18605,10 +18735,10 @@
       "name": "node_modules/fast-json-patch/module/core.mjs",
       "type": "script",
       "format": "esm",
-      "uncompressed": 6175,
-      "gzip": 1729,
+      "uncompressed": 6180,
+      "gzip": 1732,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -18623,9 +18753,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 2182,
-      "gzip": 673,
+      "gzip": 674,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -18639,10 +18769,10 @@
       "name": "node_modules/fast-json-patch/module/helpers.mjs",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1848,
-      "gzip": 721,
+      "uncompressed": 1849,
+      "gzip": 723,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -18671,9 +18801,9 @@
       "type": "script",
       "format": "cjs",
       "uncompressed": 3059,
-      "gzip": 1022,
+      "gzip": 1024,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -18688,9 +18818,9 @@
       "type": "script",
       "format": "cjs",
       "uncompressed": 642,
-      "gzip": 275,
+      "gzip": 276,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -18714,7 +18844,7 @@
       "uncompressed": 60022,
       "gzip": 17711,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioDescriptorsPanel-BqlvaOrC.js"
+      "parent": "dist/client/assets/StudioDescriptorsPanel-tDRZF2gw.js"
     },
     {
       "kind": "filesystem",
@@ -18789,7 +18919,7 @@
       "uncompressed": 8560,
       "gzip": 3076,
       "brotli": 0,
-      "parent": "dist/client/assets/performanceTracking-DYSrOwh-.js"
+      "parent": "dist/client/assets/performanceTracking-CUoz1xA7.js"
     },
     {
       "kind": "filesystem",
@@ -18824,17 +18954,17 @@
       "name": "src/App.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 3989,
-      "gzip": 1396,
+      "uncompressed": 3962,
+      "gzip": 1385,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
       "name": "src/App.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 11000
+      "uncompressed": 10916
     },
     {
       "kind": "filesystem",
@@ -18858,7 +18988,7 @@
       "uncompressed": 1618,
       "gzip": 724,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionAuthPanel-BC-TQxh3.js"
+      "parent": "dist/client/assets/SessionAuthPanel-ClhtE1K8.js"
     },
     {
       "kind": "filesystem",
@@ -18882,7 +19012,7 @@
       "uncompressed": 676,
       "gzip": 302,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -18904,9 +19034,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1089,
-      "gzip": 474,
+      "gzip": 475,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -18947,7 +19077,7 @@
       "uncompressed": 1511,
       "gzip": 633,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionAuthPanel-BC-TQxh3.js"
+      "parent": "dist/client/assets/SessionAuthPanel-ClhtE1K8.js"
     },
     {
       "kind": "filesystem",
@@ -18971,7 +19101,7 @@
       "uncompressed": 484,
       "gzip": 243,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionAuthPanel-BC-TQxh3.js"
+      "parent": "dist/client/assets/SessionAuthPanel-ClhtE1K8.js"
     },
     {
       "kind": "filesystem",
@@ -19017,9 +19147,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 424,
-      "gzip": 243,
+      "gzip": 244,
       "brotli": 0,
-      "parent": "dist/client/assets/OptionBar-xDzFujbk.js"
+      "parent": "dist/client/assets/OptionBar-DUH5P56E.js"
     },
     {
       "kind": "filesystem",
@@ -19084,7 +19214,7 @@
       "uncompressed": 1369,
       "gzip": 506,
       "brotli": 0,
-      "parent": "dist/client/assets/ErrorNotice-C8Llhn35.js"
+      "parent": "dist/client/assets/ErrorNotice-CTSGRCYh.js"
     },
     {
       "kind": "filesystem",
@@ -19108,7 +19238,7 @@
       "uncompressed": 520,
       "gzip": 285,
       "brotli": 0,
-      "parent": "dist/client/assets/ErrorNotice-C8Llhn35.js"
+      "parent": "dist/client/assets/ErrorNotice-CTSGRCYh.js"
     },
     {
       "kind": "filesystem",
@@ -19202,9 +19332,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 434,
-      "gzip": 252,
+      "gzip": 253,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -19249,10 +19379,10 @@
       "name": "src/components/ui/BusyBar.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 392,
-      "gzip": 245,
+      "uncompressed": 295,
+      "gzip": 212,
       "brotli": 0,
-      "parent": "dist/client/assets/GridDetailPanel-AgyfnIKf.js"
+      "parent": "dist/client/assets/BusyBar-CpJrcwwK.js"
     },
     {
       "kind": "filesystem",
@@ -19281,9 +19411,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 146,
-      "gzip": 118,
+      "gzip": 119,
       "brotli": 0,
-      "parent": "dist/client/assets/configCard-CkFgT0iB.js"
+      "parent": "dist/client/assets/configCard-Zfh6zWNl.js"
     },
     {
       "kind": "filesystem",
@@ -19300,7 +19430,7 @@
       "uncompressed": 4401,
       "gzip": 1258,
       "brotli": 0,
-      "parent": "dist/client/assets/ConfigCard-DFj1c16T.js"
+      "parent": "dist/client/assets/ConfigCard-C3dT165X.js"
     },
     {
       "kind": "filesystem",
@@ -19353,9 +19483,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1460,
-      "gzip": 601,
+      "gzip": 603,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -19383,10 +19513,10 @@
       "name": "src/components/ui/dialog/Dialog.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 1834,
-      "gzip": 729,
+      "uncompressed": 1833,
+      "gzip": 730,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -19417,7 +19547,7 @@
       "uncompressed": 503,
       "gzip": 260,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -19439,9 +19569,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 195,
-      "gzip": 140,
+      "gzip": 139,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -19463,9 +19593,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 3308,
-      "gzip": 1165,
+      "gzip": 1164,
       "brotli": 0,
-      "parent": "dist/client/assets/ErrorNotice-C8Llhn35.js"
+      "parent": "dist/client/assets/ErrorNotice-CTSGRCYh.js"
     },
     {
       "kind": "filesystem",
@@ -19487,9 +19617,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 660,
-      "gzip": 384,
+      "gzip": 385,
       "brotli": 0,
-      "parent": "dist/client/assets/ConnectionPanel-6viPccw1.js"
+      "parent": "dist/client/assets/ConnectionPanel-BwgCzLV6.js"
     },
     {
       "kind": "filesystem",
@@ -19511,9 +19641,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 2265,
-      "gzip": 793,
+      "gzip": 792,
       "brotli": 0,
-      "parent": "dist/client/assets/ErrorNotice-C8Llhn35.js"
+      "parent": "dist/client/assets/ErrorNotice-CTSGRCYh.js"
     },
     {
       "kind": "filesystem",
@@ -19544,7 +19674,7 @@
       "uncompressed": 507,
       "gzip": 275,
       "brotli": 0,
-      "parent": "dist/client/assets/utilities-BH1NrZd4.js"
+      "parent": "dist/client/assets/utilities-B_ov5QY2.js"
     },
     {
       "kind": "filesystem",
@@ -19566,9 +19696,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 3178,
-      "gzip": 1174,
+      "gzip": 1199,
       "brotli": 0,
-      "parent": "dist/client/assets/GridDetailPanel-AgyfnIKf.js"
+      "parent": "dist/client/assets/GridDetailPanel-Dc_3dWay.js"
     },
     {
       "kind": "filesystem",
@@ -19589,10 +19719,10 @@
       "name": "src/components/ui/grid/gridDetail.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 42,
-      "gzip": 52,
+      "uncompressed": 146,
+      "gzip": 126,
       "brotli": 0,
-      "parent": "dist/client/assets/GridDetailPanel-AgyfnIKf.js"
+      "parent": "dist/client/assets/GridDetailPanel-Dc_3dWay.js"
     },
     {
       "kind": "filesystem",
@@ -19607,9 +19737,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1414,
-      "gzip": 612,
+      "gzip": 624,
       "brotli": 0,
-      "parent": "dist/client/assets/GridDetailPanel-AgyfnIKf.js"
+      "parent": "dist/client/assets/GridDetailPanel-Dc_3dWay.js"
     },
     {
       "kind": "filesystem",
@@ -19637,10 +19767,10 @@
       "name": "src/components/ui/NewVersionNotice.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 1159,
-      "gzip": 508,
+      "uncompressed": 1152,
+      "gzip": 507,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -19671,7 +19801,7 @@
       "uncompressed": 3542,
       "gzip": 1463,
       "brotli": 0,
-      "parent": "dist/client/assets/PaneSplitter-C-w1a90_.js"
+      "parent": "dist/client/assets/PaneSplitter-CxJu37FI.js"
     },
     {
       "kind": "filesystem",
@@ -19693,9 +19823,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 4691,
-      "gzip": 1026,
+      "gzip": 1027,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -19719,7 +19849,7 @@
       "uncompressed": 471,
       "gzip": 278,
       "brotli": 0,
-      "parent": "dist/client/assets/utilities-BH1NrZd4.js"
+      "parent": "dist/client/assets/utilities-B_ov5QY2.js"
     },
     {
       "kind": "filesystem",
@@ -19750,7 +19880,7 @@
       "uncompressed": 674,
       "gzip": 375,
       "brotli": 0,
-      "parent": "dist/client/assets/EmptyPlaceholder-BgLRPOuk.js"
+      "parent": "dist/client/assets/EmptyPlaceholder-vrDAMhM4.js"
     },
     {
       "kind": "filesystem",
@@ -19785,6 +19915,30 @@
     },
     {
       "kind": "filesystem",
+      "name": "src/components/ui/RetrievalGate.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 302
+    },
+    {
+      "kind": "chunk",
+      "name": "src/components/ui/RetrievalGate.vue",
+      "type": "component",
+      "format": "other",
+      "uncompressed": 243,
+      "gzip": 166,
+      "brotli": 0,
+      "parent": "dist/client/assets/RetrievalGate-BiVZQfot.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/components/ui/RetrievalGate.vue?vue&type=script&setup=true&lang.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 940
+    },
+    {
+      "kind": "filesystem",
       "name": "src/components/ui/RouterViewTransition.vue",
       "type": "component",
       "format": "other",
@@ -19796,9 +19950,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 731,
-      "gzip": 321,
+      "gzip": 322,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -19860,7 +20014,7 @@
       "uncompressed": 3167,
       "gzip": 1400,
       "brotli": 0,
-      "parent": "dist/client/assets/ScrollRow-BWlp_mWK.js"
+      "parent": "dist/client/assets/ScrollRow-4wgqDl2S.js"
     },
     {
       "kind": "filesystem",
@@ -19939,7 +20093,7 @@
       "uncompressed": 469,
       "gzip": 250,
       "brotli": 0,
-      "parent": "dist/client/assets/DataViewList-xoVzmwF6.js"
+      "parent": "dist/client/assets/DataViewList-DbDtXx9D.js"
     },
     {
       "kind": "filesystem",
@@ -19961,9 +20115,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 261,
-      "gzip": 181,
+      "gzip": 182,
       "brotli": 0,
-      "parent": "dist/client/assets/DataViewList-xoVzmwF6.js"
+      "parent": "dist/client/assets/DataViewList-DbDtXx9D.js"
     },
     {
       "kind": "filesystem",
@@ -19987,7 +20141,7 @@
       "uncompressed": 659,
       "gzip": 391,
       "brotli": 0,
-      "parent": "dist/client/assets/SetupLayout-DVV-rbQa.js"
+      "parent": "dist/client/assets/SetupLayout-eJksIFww.js"
     },
     {
       "kind": "filesystem",
@@ -20009,9 +20163,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 5771,
-      "gzip": 1179,
+      "gzip": 1178,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -20049,7 +20203,7 @@
       "uncompressed": 1402,
       "gzip": 529,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -20073,7 +20227,7 @@
       "uncompressed": 273,
       "gzip": 130,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -20097,7 +20251,7 @@
       "uncompressed": 1825,
       "gzip": 432,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -20121,7 +20275,7 @@
       "uncompressed": 501,
       "gzip": 233,
       "brotli": 0,
-      "parent": "dist/client/assets/Table-w2-dZmaz.js"
+      "parent": "dist/client/assets/Table-BKYXHXxP.js"
     },
     {
       "kind": "filesystem",
@@ -20173,10 +20327,10 @@
       "name": "src/components/ui/TaskBar.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 1849,
-      "gzip": 824,
+      "uncompressed": 1848,
+      "gzip": 826,
       "brotli": 0,
-      "parent": "dist/client/assets/DataViewsLayout-3iXtv8AC.js"
+      "parent": "dist/client/assets/DataViewsLayout-FUnVMFzr.js"
     },
     {
       "kind": "filesystem",
@@ -20205,9 +20359,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1200,
-      "gzip": 567,
+      "gzip": 569,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20238,7 +20392,7 @@
       "uncompressed": 3634,
       "gzip": 1502,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioDescriptorsPanel-BqlvaOrC.js"
+      "parent": "dist/client/assets/StudioDescriptorsPanel-tDRZF2gw.js"
     },
     {
       "kind": "filesystem",
@@ -20262,7 +20416,7 @@
       "uncompressed": 1509,
       "gzip": 815,
       "brotli": 0,
-      "parent": "dist/client/assets/TextInput-D0OVHPAr.js"
+      "parent": "dist/client/assets/TextInput-Ck26wy0w.js"
     },
     {
       "kind": "filesystem",
@@ -20286,7 +20440,7 @@
       "uncompressed": 507,
       "gzip": 307,
       "brotli": 0,
-      "parent": "dist/client/assets/SelectItemPanel-CqwEPm0O.js"
+      "parent": "dist/client/assets/SelectItemPanel-BWFO_YBf.js"
     },
     {
       "kind": "filesystem",
@@ -20310,7 +20464,7 @@
       "uncompressed": 1945,
       "gzip": 991,
       "brotli": 0,
-      "parent": "dist/client/assets/useDataWindow-C3nAzDpW.js"
+      "parent": "dist/client/assets/useDataWindow-C2Mq1uet.js"
     },
     {
       "kind": "filesystem",
@@ -20325,9 +20479,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 503,
-      "gzip": 218,
+      "gzip": 217,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -20342,9 +20496,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1399,
-      "gzip": 591,
+      "gzip": 589,
       "brotli": 0,
-      "parent": "dist/client/assets/AssistantLayout-DbS9NXDR.js"
+      "parent": "dist/client/assets/AssistantLayout-BA7oIQAb.js"
     },
     {
       "kind": "filesystem",
@@ -20372,10 +20526,10 @@
       "name": "src/features/assistant/_components/AssistantLayout.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 2614,
-      "gzip": 1067,
+      "uncompressed": 2619,
+      "gzip": 1063,
       "brotli": 0,
-      "parent": "dist/client/assets/AssistantLayout-DbS9NXDR.js"
+      "parent": "dist/client/assets/AssistantLayout-BA7oIQAb.js"
     },
     {
       "kind": "filesystem",
@@ -20404,9 +20558,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1387,
-      "gzip": 625,
+      "gzip": 627,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20430,7 +20584,7 @@
       "uncompressed": 443,
       "gzip": 245,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -20459,9 +20613,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1243,
-      "gzip": 513,
+      "gzip": 511,
       "brotli": 0,
-      "parent": "dist/client/assets/AssistantLayout-DbS9NXDR.js"
+      "parent": "dist/client/assets/AssistantLayout-BA7oIQAb.js"
     },
     {
       "kind": "filesystem",
@@ -20483,9 +20637,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1326,
-      "gzip": 510,
+      "gzip": 511,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20516,7 +20670,7 @@
       "uncompressed": 259,
       "gzip": 136,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20538,9 +20692,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1153,
-      "gzip": 562,
+      "gzip": 564,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20569,9 +20723,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 2044,
-      "gzip": 808,
+      "gzip": 810,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20602,7 +20756,7 @@
       "uncompressed": 1405,
       "gzip": 656,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20630,10 +20784,10 @@
       "name": "src/features/assistant/chat/ChatPanel.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 3135,
-      "gzip": 1076,
+      "uncompressed": 3140,
+      "gzip": 1079,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20661,10 +20815,10 @@
       "name": "src/features/assistant/chat/modelConfigs.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1403,
-      "gzip": 378,
+      "uncompressed": 1400,
+      "gzip": 375,
       "brotli": 0,
-      "parent": "dist/client/assets/AssistantLayout-DbS9NXDR.js"
+      "parent": "dist/client/assets/AssistantLayout-BA7oIQAb.js"
     },
     {
       "kind": "filesystem",
@@ -20679,9 +20833,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 276,
-      "gzip": 157,
+      "gzip": 156,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20698,7 +20852,7 @@
       "uncompressed": 366,
       "gzip": 194,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20715,7 +20869,7 @@
       "uncompressed": 158,
       "gzip": 110,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20730,26 +20884,26 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 145,
-      "gzip": 101,
+      "gzip": 100,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
       "name": "src/features/assistant/chat/tools/listConnectorItems.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1198
+      "uncompressed": 1153
     },
     {
       "kind": "chunk",
       "name": "src/features/assistant/chat/tools/listConnectorItems.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 546,
-      "gzip": 281,
+      "uncompressed": 537,
+      "gzip": 276,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20766,24 +20920,24 @@
       "uncompressed": 135,
       "gzip": 98,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
       "name": "src/features/assistant/chat/tools/previewConnectorItem.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1669
+      "uncompressed": 1624
     },
     {
       "kind": "chunk",
       "name": "src/features/assistant/chat/tools/previewConnectorItem.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 739,
-      "gzip": 381,
+      "uncompressed": 730,
+      "gzip": 379,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20800,7 +20954,7 @@
       "uncompressed": 3423,
       "gzip": 916,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20822,9 +20976,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 2559,
-      "gzip": 1055,
+      "gzip": 1058,
       "brotli": 0,
-      "parent": "dist/client/assets/ChatPanel-D-IVjdx-.js"
+      "parent": "dist/client/assets/ChatPanel-BwOKkABd.js"
     },
     {
       "kind": "filesystem",
@@ -20839,9 +20993,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1756,
-      "gzip": 725,
+      "gzip": 726,
       "brotli": 0,
-      "parent": "dist/client/assets/LibraryPanel-CdEr3qiB.js"
+      "parent": "dist/client/assets/LibraryPanel-BD1eSavO.js"
     },
     {
       "kind": "filesystem",
@@ -20869,17 +21023,17 @@
       "name": "src/features/assistant/library/LibraryPanel.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 3811,
-      "gzip": 1341,
+      "uncompressed": 3823,
+      "gzip": 1345,
       "brotli": 0,
-      "parent": "dist/client/assets/LibraryPanel-CdEr3qiB.js"
+      "parent": "dist/client/assets/LibraryPanel-BD1eSavO.js"
     },
     {
       "kind": "filesystem",
       "name": "src/features/assistant/library/LibraryPanel.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 9591
+      "uncompressed": 9588
     },
     {
       "kind": "filesystem",
@@ -20901,9 +21055,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1644,
-      "gzip": 700,
+      "gzip": 701,
       "brotli": 0,
-      "parent": "dist/client/assets/LibraryPanel-CdEr3qiB.js"
+      "parent": "dist/client/assets/LibraryPanel-BD1eSavO.js"
     },
     {
       "kind": "filesystem",
@@ -21010,9 +21164,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 221,
-      "gzip": 144,
+      "gzip": 145,
       "brotli": 0,
-      "parent": "dist/client/assets/ManagePreferencesPanel-Bal3Fm39.js"
+      "parent": "dist/client/assets/ManagePreferencesPanel-FbB2ZlnJ.js"
     },
     {
       "kind": "filesystem",
@@ -21094,7 +21248,7 @@
       "uncompressed": 3085,
       "gzip": 1007,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionAccountPanel-S0fmIGsV.js"
+      "parent": "dist/client/assets/SessionAccountPanel-tfrAvJzd.js"
     },
     {
       "kind": "filesystem",
@@ -21116,9 +21270,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 2569,
-      "gzip": 814,
+      "gzip": 813,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionAuthPanel-BC-TQxh3.js"
+      "parent": "dist/client/assets/SessionAuthPanel-ClhtE1K8.js"
     },
     {
       "kind": "filesystem",
@@ -21140,9 +21294,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1935,
-      "gzip": 831,
+      "gzip": 832,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionAuthPanel-BC-TQxh3.js"
+      "parent": "dist/client/assets/SessionAuthPanel-ClhtE1K8.js"
     },
     {
       "kind": "filesystem",
@@ -21164,9 +21318,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 3535,
-      "gzip": 1246,
+      "gzip": 1247,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionAuthPanel-BC-TQxh3.js"
+      "parent": "dist/client/assets/SessionAuthPanel-ClhtE1K8.js"
     },
     {
       "kind": "filesystem",
@@ -21201,10 +21355,10 @@
       "name": "src/features/session/SessionButton.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 2025,
-      "gzip": 921,
+      "uncompressed": 2026,
+      "gzip": 924,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -21233,9 +21387,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 4507,
-      "gzip": 1441,
+      "gzip": 1442,
       "brotli": 0,
-      "parent": "dist/client/assets/SessionMenu-DlFjTPG1.js"
+      "parent": "dist/client/assets/SessionMenu-BXPsdKxw.js"
     },
     {
       "kind": "filesystem",
@@ -21273,7 +21427,7 @@
       "uncompressed": 389,
       "gzip": 219,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioDescriptorsPanel-BqlvaOrC.js"
+      "parent": "dist/client/assets/StudioDescriptorsPanel-tDRZF2gw.js"
     },
     {
       "kind": "filesystem",
@@ -21295,9 +21449,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 453,
-      "gzip": 270,
+      "gzip": 271,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioDocumentPanel-CbX47GLe.js"
+      "parent": "dist/client/assets/StudioDocumentPanel-BNg3GVeG.js"
     },
     {
       "kind": "filesystem",
@@ -21319,9 +21473,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1115,
-      "gzip": 538,
+      "gzip": 539,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioDocumentPanel-CbX47GLe.js"
+      "parent": "dist/client/assets/StudioDocumentPanel-BNg3GVeG.js"
     },
     {
       "kind": "filesystem",
@@ -21376,7 +21530,7 @@
       "uncompressed": 816,
       "gzip": 416,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioLayout-DvD4NBj1.js"
+      "parent": "dist/client/assets/StudioLayout-C2wzJSie.js"
     },
     {
       "kind": "filesystem",
@@ -21400,7 +21554,7 @@
       "uncompressed": 65,
       "gzip": 70,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioLayout-DvD4NBj1.js"
+      "parent": "dist/client/assets/StudioLayout-C2wzJSie.js"
     },
     {
       "kind": "filesystem",
@@ -21424,7 +21578,7 @@
       "uncompressed": 81,
       "gzip": 83,
       "brotli": 0,
-      "parent": "dist/client/assets/DataViewList-xoVzmwF6.js"
+      "parent": "dist/client/assets/DataViewList-DbDtXx9D.js"
     },
     {
       "kind": "filesystem",
@@ -21448,7 +21602,7 @@
       "uncompressed": 577,
       "gzip": 289,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -21470,9 +21624,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1946,
-      "gzip": 526,
+      "gzip": 527,
       "brotli": 0,
-      "parent": "dist/client/assets/ConnectionPanel-6viPccw1.js"
+      "parent": "dist/client/assets/ConnectionPanel-BwgCzLV6.js"
     },
     {
       "kind": "filesystem",
@@ -21500,17 +21654,17 @@
       "name": "src/features/studio/connectionPanel/ConnectionPanel.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 2244,
-      "gzip": 908,
+      "uncompressed": 2188,
+      "gzip": 885,
       "brotli": 0,
-      "parent": "dist/client/assets/ConnectionPanel-6viPccw1.js"
+      "parent": "dist/client/assets/ConnectionPanel-BwgCzLV6.js"
     },
     {
       "kind": "filesystem",
       "name": "src/features/studio/connectionPanel/ConnectionPanel.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 6643
+      "uncompressed": 6448
     },
     {
       "kind": "filesystem",
@@ -21532,9 +21686,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 360,
-      "gzip": 229,
+      "gzip": 230,
       "brotli": 0,
-      "parent": "dist/client/assets/DataAppsPanel-ChKO5NdM.js"
+      "parent": "dist/client/assets/DataAppsPanel-D6rVCC5b.js"
     },
     {
       "kind": "filesystem",
@@ -21563,9 +21717,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 253,
-      "gzip": 185,
+      "gzip": 187,
       "brotli": 0,
-      "parent": "dist/client/assets/AuditContentPanel-Cxl5UFFv.js"
+      "parent": "dist/client/assets/AuditContentPanel-Bg7Te8a5.js"
     },
     {
       "kind": "filesystem",
@@ -21594,9 +21748,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 3897,
-      "gzip": 1261,
+      "gzip": 1262,
       "brotli": 0,
-      "parent": "dist/client/assets/DataViewList-xoVzmwF6.js"
+      "parent": "dist/client/assets/DataViewList-DbDtXx9D.js"
     },
     {
       "kind": "filesystem",
@@ -21624,17 +21778,17 @@
       "name": "src/features/studio/dataViews/DataViewList.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 3308,
-      "gzip": 1161,
+      "uncompressed": 3287,
+      "gzip": 1157,
       "brotli": 0,
-      "parent": "dist/client/assets/DataViewList-xoVzmwF6.js"
+      "parent": "dist/client/assets/DataViewList-DbDtXx9D.js"
     },
     {
       "kind": "filesystem",
       "name": "src/features/studio/dataViews/DataViewList.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 9483
+      "uncompressed": 9486
     },
     {
       "kind": "filesystem",
@@ -21655,10 +21809,10 @@
       "name": "src/features/studio/dataViews/DataViewPanel.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 6222,
-      "gzip": 1706,
+      "uncompressed": 6224,
+      "gzip": 1710,
       "brotli": 0,
-      "parent": "dist/client/assets/DataViewList-xoVzmwF6.js"
+      "parent": "dist/client/assets/DataViewList-DbDtXx9D.js"
     },
     {
       "kind": "filesystem",
@@ -21686,17 +21840,17 @@
       "name": "src/features/studio/dataViews/DataViewsLayout.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 3484,
-      "gzip": 1270,
+      "uncompressed": 3558,
+      "gzip": 1294,
       "brotli": 0,
-      "parent": "dist/client/assets/DataViewsLayout-3iXtv8AC.js"
+      "parent": "dist/client/assets/DataViewsLayout-FUnVMFzr.js"
     },
     {
       "kind": "filesystem",
       "name": "src/features/studio/dataViews/DataViewsLayout.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 11087
+      "uncompressed": 11232
     },
     {
       "kind": "filesystem",
@@ -21737,7 +21891,7 @@
       "uncompressed": 1176,
       "gzip": 397,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -21761,7 +21915,7 @@
       "uncompressed": 1589,
       "gzip": 702,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -21785,7 +21939,7 @@
       "uncompressed": 1156,
       "gzip": 579,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -21806,10 +21960,10 @@
       "name": "src/features/studio/dataViews/exploreData/TransformDataPanel.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 18227,
-      "gzip": 3900,
+      "uncompressed": 18226,
+      "gzip": 3901,
       "brotli": 0,
-      "parent": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js"
+      "parent": "dist/client/assets/ExploreDataPanel-HMEEveU5.js"
     },
     {
       "kind": "filesystem",
@@ -21844,17 +21998,17 @@
       "name": "src/features/studio/dataViews/selectConnection/SelectConnectionList.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 1896,
-      "gzip": 874,
+      "uncompressed": 1770,
+      "gzip": 821,
       "brotli": 0,
-      "parent": "dist/client/assets/SelectConnectionList-icLyYlnH.js"
+      "parent": "dist/client/assets/SelectConnectionList-1DABWFEG.js"
     },
     {
       "kind": "filesystem",
       "name": "src/features/studio/dataViews/selectConnection/SelectConnectionList.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 6108
+      "uncompressed": 5686
     },
     {
       "kind": "filesystem",
@@ -21876,9 +22030,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1153,
-      "gzip": 486,
+      "gzip": 481,
       "brotli": 0,
-      "parent": "dist/client/assets/SelectConnectionList-icLyYlnH.js"
+      "parent": "dist/client/assets/SelectConnectionList-1DABWFEG.js"
     },
     {
       "kind": "filesystem",
@@ -21906,17 +22060,17 @@
       "name": "src/features/studio/dataViews/selectItem/SelectItemPanel.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 5705,
-      "gzip": 2322,
+      "uncompressed": 5684,
+      "gzip": 2310,
       "brotli": 0,
-      "parent": "dist/client/assets/SelectItemPanel-CqwEPm0O.js"
+      "parent": "dist/client/assets/SelectItemPanel-BWFO_YBf.js"
     },
     {
       "kind": "filesystem",
       "name": "src/features/studio/dataViews/selectItem/SelectItemPanel.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 15878
+      "uncompressed": 15881
     },
     {
       "kind": "filesystem",
@@ -21940,7 +22094,7 @@
       "uncompressed": 1337,
       "gzip": 639,
       "brotli": 0,
-      "parent": "dist/client/assets/EventQueriesPanel-C_NcYt5g.js"
+      "parent": "dist/client/assets/EventQueriesPanel-BlwUUl0U.js"
     },
     {
       "kind": "filesystem",
@@ -21962,9 +22116,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 588,
-      "gzip": 310,
+      "gzip": 311,
       "brotli": 0,
-      "parent": "dist/client/assets/OptionBar-xDzFujbk.js"
+      "parent": "dist/client/assets/OptionBar-DUH5P56E.js"
     },
     {
       "kind": "filesystem",
@@ -21993,9 +22147,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1549,
-      "gzip": 661,
+      "gzip": 663,
       "brotli": 0,
-      "parent": "dist/client/assets/OptionBar-xDzFujbk.js"
+      "parent": "dist/client/assets/OptionBar-DUH5P56E.js"
     },
     {
       "kind": "filesystem",
@@ -22019,7 +22173,7 @@
       "uncompressed": 5958,
       "gzip": 2157,
       "brotli": 0,
-      "parent": "dist/client/assets/useStudioOptions-ch1GVoyn.js"
+      "parent": "dist/client/assets/useStudioOptions-DRGpQCNb.js"
     },
     {
       "kind": "filesystem",
@@ -22041,9 +22195,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 2178,
-      "gzip": 1054,
+      "gzip": 1053,
       "brotli": 0,
-      "parent": "dist/client/assets/PresentationsPanel-DuT02zNI.js"
+      "parent": "dist/client/assets/PresentationsPanel-DXs11qyt.js"
     },
     {
       "kind": "filesystem",
@@ -22081,7 +22235,7 @@
       "uncompressed": 590,
       "gzip": 360,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextDiagramPanel-obk4M3cD.js"
+      "parent": "dist/client/assets/ContextDiagramPanel-D1Nuo9Ip.js"
     },
     {
       "kind": "filesystem",
@@ -22110,9 +22264,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1059,
-      "gzip": 477,
+      "gzip": 479,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextModelList-B0B0iDB7.js"
+      "parent": "dist/client/assets/ContextModelList-CUAjGrW1.js"
     },
     {
       "kind": "filesystem",
@@ -22134,9 +22288,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 665,
-      "gzip": 340,
+      "gzip": 341,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextModelList-B0B0iDB7.js"
+      "parent": "dist/client/assets/ContextModelList-CUAjGrW1.js"
     },
     {
       "kind": "filesystem",
@@ -22158,9 +22312,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 33586,
-      "gzip": 5973,
+      "gzip": 5979,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextModelList-B0B0iDB7.js"
+      "parent": "dist/client/assets/ContextModelList-CUAjGrW1.js"
     },
     {
       "kind": "filesystem",
@@ -22198,7 +22352,7 @@
       "uncompressed": 467,
       "gzip": 233,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextDimensionDiagramPanel-BK2i2z9g.js"
+      "parent": "dist/client/assets/ContextDimensionDiagramPanel-CDGm30hQ.js"
     },
     {
       "kind": "filesystem",
@@ -22229,7 +22383,7 @@
       "uncompressed": 1097,
       "gzip": 510,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextModelList-B0B0iDB7.js"
+      "parent": "dist/client/assets/ContextModelList-CUAjGrW1.js"
     },
     {
       "kind": "filesystem",
@@ -22260,7 +22414,7 @@
       "uncompressed": 1417,
       "gzip": 415,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextEntityDiagramPanel-CKC2RnLY.js"
+      "parent": "dist/client/assets/ContextEntityDiagramPanel-BPqY0W6m.js"
     },
     {
       "kind": "filesystem",
@@ -22289,9 +22443,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 2456,
-      "gzip": 1031,
+      "gzip": 1033,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextModelList-B0B0iDB7.js"
+      "parent": "dist/client/assets/ContextModelList-CUAjGrW1.js"
     },
     {
       "kind": "filesystem",
@@ -22319,17 +22473,17 @@
       "name": "src/features/studio/setup/context/ContextModelList.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 990,
-      "gzip": 497,
+      "uncompressed": 974,
+      "gzip": 491,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextModelList-B0B0iDB7.js"
+      "parent": "dist/client/assets/ContextModelList-CUAjGrW1.js"
     },
     {
       "kind": "filesystem",
       "name": "src/features/studio/setup/context/ContextModelList.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 3593
+      "uncompressed": 3428
     },
     {
       "kind": "filesystem",
@@ -22350,10 +22504,10 @@
       "name": "src/features/studio/setup/context/ContextModelPanel.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 3299,
-      "gzip": 1232,
+      "uncompressed": 3301,
+      "gzip": 1236,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextModelList-B0B0iDB7.js"
+      "parent": "dist/client/assets/ContextModelList-CUAjGrW1.js"
     },
     {
       "kind": "filesystem",
@@ -22384,7 +22538,7 @@
       "uncompressed": 307,
       "gzip": 195,
       "brotli": 0,
-      "parent": "dist/client/assets/ContextModelList-B0B0iDB7.js"
+      "parent": "dist/client/assets/ContextModelList-CUAjGrW1.js"
     },
     {
       "kind": "filesystem",
@@ -22412,17 +22566,17 @@
       "name": "src/features/studio/setup/plugins/_components/PluginList.vue",
       "type": "component",
       "format": "other",
-      "uncompressed": 2019,
-      "gzip": 791,
+      "uncompressed": 2015,
+      "gzip": 778,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginList-__hay3St.js"
+      "parent": "dist/client/assets/PluginList--ynU9yj4.js"
     },
     {
       "kind": "filesystem",
       "name": "src/features/studio/setup/plugins/_components/PluginList.vue?vue&type=script&setup=true&lang.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 4459
+      "uncompressed": 4285
     },
     {
       "kind": "filesystem",
@@ -22444,9 +22598,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1890,
-      "gzip": 689,
+      "gzip": 690,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginPanel-DaLQmD_0.js"
+      "parent": "dist/client/assets/PluginPanel-N_ypnAIH.js"
     },
     {
       "kind": "filesystem",
@@ -22475,9 +22629,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1281,
-      "gzip": 597,
+      "gzip": 598,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginConnectorPanel-BnUYCo3R.js"
+      "parent": "dist/client/assets/PluginConnectorPanel-7I9nU7bR.js"
     },
     {
       "kind": "filesystem",
@@ -22499,9 +22653,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 214,
-      "gzip": 108,
+      "gzip": 107,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginCookbookPanel-5oYEd5kY.js"
+      "parent": "dist/client/assets/PluginCookbookPanel-DTTuxqt7.js"
     },
     {
       "kind": "filesystem",
@@ -22525,7 +22679,7 @@
       "uncompressed": 214,
       "gzip": 108,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginPresenterPanel-BC-ou0XO.js"
+      "parent": "dist/client/assets/PluginPresenterPanel-BB1rXeQo.js"
     },
     {
       "kind": "filesystem",
@@ -22547,9 +22701,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 214,
-      "gzip": 108,
+      "gzip": 106,
       "brotli": 0,
-      "parent": "dist/client/assets/PluginToolPanel-DMX8b0zX.js"
+      "parent": "dist/client/assets/PluginToolPanel-BOwPUxfG.js"
     },
     {
       "kind": "filesystem",
@@ -22573,7 +22727,7 @@
       "uncompressed": 369,
       "gzip": 249,
       "brotli": 0,
-      "parent": "dist/client/assets/SetupHomePanel-DlD9No0J.js"
+      "parent": "dist/client/assets/SetupHomePanel-Dsbnc2mQ.js"
     },
     {
       "kind": "filesystem",
@@ -22602,9 +22756,9 @@
       "type": "component",
       "format": "other",
       "uncompressed": 1008,
-      "gzip": 523,
+      "gzip": 524,
       "brotli": 0,
-      "parent": "dist/client/assets/SetupLayout-DVV-rbQa.js"
+      "parent": "dist/client/assets/SetupLayout-eJksIFww.js"
     },
     {
       "kind": "filesystem",
@@ -22626,9 +22780,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 4657,
-      "gzip": 1024,
+      "gzip": 1025,
       "brotli": 0,
-      "parent": "dist/client/assets/SetupLayout-DVV-rbQa.js"
+      "parent": "dist/client/assets/SetupLayout-eJksIFww.js"
     },
     {
       "kind": "filesystem",
@@ -22643,9 +22797,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 238,
-      "gzip": 161,
+      "gzip": 160,
       "brotli": 0,
-      "parent": "dist/client/assets/useSetupRoute-CAuZfobz.js"
+      "parent": "dist/client/assets/useSetupRoute-mOYHWpxA.js"
     },
     {
       "kind": "filesystem",
@@ -22660,16 +22814,16 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 375,
-      "gzip": 226,
+      "gzip": 228,
       "brotli": 0,
-      "parent": "dist/client/assets/useSetupSelection-BQCXWr-1.js"
+      "parent": "dist/client/assets/useSetupSelection-CEG4n-Gi.js"
     },
     {
       "kind": "filesystem",
       "name": "src/features/studio/StudioHomePanel_.json",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1700
+      "uncompressed": 1698
     },
     {
       "kind": "filesystem",
@@ -22686,7 +22840,7 @@
       "uncompressed": 1455,
       "gzip": 689,
       "brotli": 0,
-      "parent": "dist/client/assets/StudioHomePanel-D3ZwZqBc.js"
+      "parent": "dist/client/assets/StudioHomePanel-DiTL3A8F.js"
     },
     {
       "kind": "filesystem",
@@ -22707,44 +22861,44 @@
       "name": "src/main.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 2315,
-      "gzip": 888,
+      "uncompressed": 2297,
+      "gzip": 881,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
       "name": "src/observability/accountMonitor.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 861
+      "uncompressed": 924
     },
     {
       "kind": "chunk",
       "name": "src/observability/accountMonitor.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 356,
-      "gzip": 233,
+      "uncompressed": 409,
+      "gzip": 257,
       "brotli": 0,
-      "parent": "dist/client/assets/accountMonitor-x5duVe86.js"
+      "parent": "dist/client/assets/accountMonitor-D9p3p0pu.js"
     },
     {
       "kind": "filesystem",
       "name": "src/observability/configMonitor.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 6694
+      "uncompressed": 6586
     },
     {
       "kind": "chunk",
       "name": "src/observability/configMonitor.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1969,
-      "gzip": 848,
+      "uncompressed": 1999,
+      "gzip": 859,
       "brotli": 0,
-      "parent": "dist/client/assets/configMonitor-B8VNzJ8S.js"
+      "parent": "dist/client/assets/configMonitor-C8A27GEK.js"
     },
     {
       "kind": "filesystem",
@@ -22768,14 +22922,14 @@
       "uncompressed": 2218,
       "gzip": 1066,
       "brotli": 0,
-      "parent": "dist/client/assets/errors-D81JG85d.js"
+      "parent": "dist/client/assets/errors-BsZDnf9v.js"
     },
     {
       "kind": "filesystem",
       "name": "src/observability/eventTracking.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1926
+      "uncompressed": 1938
     },
     {
       "kind": "chunk",
@@ -22785,7 +22939,7 @@
       "uncompressed": 981,
       "gzip": 499,
       "brotli": 0,
-      "parent": "dist/client/assets/eventTracking-D8ATbBdT.js"
+      "parent": "dist/client/assets/eventTracking-BUyniHPO.js"
     },
     {
       "kind": "filesystem",
@@ -22826,24 +22980,24 @@
       "uncompressed": 195,
       "gzip": 152,
       "brotli": 0,
-      "parent": "dist/client/assets/performanceTracking-DYSrOwh-.js"
+      "parent": "dist/client/assets/performanceTracking-CUoz1xA7.js"
     },
     {
       "kind": "filesystem",
       "name": "src/router/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 6924
+      "uncompressed": 7202
     },
     {
       "kind": "chunk",
       "name": "src/router/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 4046,
-      "gzip": 1146,
+      "uncompressed": 4446,
+      "gzip": 1296,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -22860,7 +23014,7 @@
       "uncompressed": 729,
       "gzip": 290,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -22875,9 +23029,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 801,
-      "gzip": 424,
+      "gzip": 423,
       "brotli": 0,
-      "parent": "dist/client/assets/engine-DjTii4mU.js"
+      "parent": "dist/client/assets/engine-in5hOmjo.js"
     },
     {
       "kind": "filesystem",
@@ -22891,10 +23045,10 @@
       "name": "src/services/metaStore.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1152,
-      "gzip": 451,
+      "uncompressed": 1151,
+      "gzip": 450,
       "brotli": 0,
-      "parent": "dist/client/assets/dataViews-CyC2H2DJ.js"
+      "parent": "dist/client/assets/dataViews-CR43ONv6.js"
     },
     {
       "kind": "filesystem",
@@ -22908,10 +23062,10 @@
       "name": "src/services/queryClient.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 2035,
-      "gzip": 548,
+      "uncompressed": 2031,
+      "gzip": 542,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -22926,26 +23080,26 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 118,
-      "gzip": 104,
+      "gzip": 103,
       "brotli": 0,
-      "parent": "dist/client/assets/tools-BWSxHMqw.js"
+      "parent": "dist/client/assets/tools-C8QQkmSi.js"
     },
     {
       "kind": "filesystem",
       "name": "src/services/useMarkedTool.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1224
+      "uncompressed": 1159
     },
     {
       "kind": "chunk",
       "name": "src/services/useMarkedTool.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 526,
+      "uncompressed": 513,
       "gzip": 304,
       "brotli": 0,
-      "parent": "dist/client/assets/useMarkedTool-DVgdCCin.js"
+      "parent": "dist/client/assets/useMarkedTool-2-WgSmbd.js"
     },
     {
       "kind": "filesystem",
@@ -22979,7 +23133,7 @@
       "uncompressed": 578,
       "gzip": 242,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -22996,58 +23150,65 @@
       "uncompressed": 2126,
       "gzip": 969,
       "brotli": 0,
-      "parent": "dist/client/assets/errors-D81JG85d.js"
+      "parent": "dist/client/assets/errors-BsZDnf9v.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/state/assistantLibrary_.json",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 261
     },
     {
       "kind": "filesystem",
       "name": "src/state/assistantLibrary.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1319
+      "uncompressed": 1374
     },
     {
       "kind": "chunk",
       "name": "src/state/assistantLibrary.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 558,
-      "gzip": 281,
+      "uncompressed": 565,
+      "gzip": 267,
       "brotli": 0,
-      "parent": "dist/client/assets/AssistantLayout-DbS9NXDR.js"
+      "parent": "dist/client/assets/AssistantLayout-BA7oIQAb.js"
     },
     {
       "kind": "filesystem",
       "name": "src/state/configs.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 4044
+      "uncompressed": 4315
     },
     {
       "kind": "chunk",
       "name": "src/state/configs.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1454,
-      "gzip": 552,
+      "uncompressed": 1699,
+      "gzip": 636,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
       "name": "src/state/dataViews.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 4888
+      "uncompressed": 4660
     },
     {
       "kind": "chunk",
       "name": "src/state/dataViews.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 2139,
-      "gzip": 710,
+      "uncompressed": 2122,
+      "gzip": 702,
       "brotli": 0,
-      "parent": "dist/client/assets/dataViews-CyC2H2DJ.js"
+      "parent": "dist/client/assets/dataViews-CR43ONv6.js"
     },
     {
       "kind": "filesystem",
@@ -23062,26 +23223,26 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 160,
-      "gzip": 104,
+      "gzip": 102,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
       "name": "src/state/dialogs.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1719
+      "uncompressed": 1582
     },
     {
       "kind": "chunk",
       "name": "src/state/dialogs.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1025,
-      "gzip": 442,
+      "uncompressed": 962,
+      "gzip": 419,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -23096,43 +23257,43 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1578,
-      "gzip": 702,
+      "gzip": 701,
       "brotli": 0,
-      "parent": "dist/client/assets/errors-D81JG85d.js"
+      "parent": "dist/client/assets/errors-BsZDnf9v.js"
     },
     {
       "kind": "filesystem",
       "name": "src/state/locale.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1172
+      "uncompressed": 1205
     },
     {
       "kind": "chunk",
       "name": "src/state/locale.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 520,
-      "gzip": 332,
+      "uncompressed": 524,
+      "gzip": 336,
       "brotli": 0,
-      "parent": "dist/client/assets/locale-DGGT3Do6.js"
+      "parent": "dist/client/assets/locale-DqfFhpLA.js"
     },
     {
       "kind": "filesystem",
       "name": "src/state/session.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 5366
+      "uncompressed": 5643
     },
     {
       "kind": "chunk",
       "name": "src/state/session.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 2274,
-      "gzip": 672,
+      "uncompressed": 2449,
+      "gzip": 716,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
@@ -23147,26 +23308,26 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 642,
-      "gzip": 334,
+      "gzip": 335,
       "brotli": 0,
-      "parent": "dist/client/assets/index-h7A1L-7s.js"
+      "parent": "dist/client/assets/index-I_huAjNh.js"
     },
     {
       "kind": "filesystem",
       "name": "src/utilities/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 2525
+      "uncompressed": 2571
     },
     {
       "kind": "chunk",
       "name": "src/utilities/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 922,
-      "gzip": 443,
+      "uncompressed": 939,
+      "gzip": 448,
       "brotli": 0,
-      "parent": "dist/client/assets/utilities-BH1NrZd4.js"
+      "parent": "dist/client/assets/utilities-B_ov5QY2.js"
     },
     {
       "kind": "filesystem",
@@ -23216,7 +23377,7 @@
     },
     {
       "kind": "import",
-      "source": "src/state/configs.ts",
+      "source": "src/state/dialogs.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
@@ -23228,25 +23389,19 @@
     },
     {
       "kind": "import",
+      "source": "src/state/configs.ts",
+      "target": "vite/preload-helper.js",
+      "original": "\u0000vite/preload-helper.js"
+    },
+    {
+      "kind": "import",
       "source": "src/services/engine.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
     {
       "kind": "import",
-      "source": "src/state/dialogs.ts",
-      "target": "vite/preload-helper.js",
-      "original": "\u0000vite/preload-helper.js"
-    },
-    {
-      "kind": "import",
       "source": "src/features/assistant/_components/AssistantLayout.vue?vue&type=script&setup=true&lang.ts",
-      "target": "vite/preload-helper.js",
-      "original": "\u0000vite/preload-helper.js"
-    },
-    {
-      "kind": "import",
-      "source": "src/features/session/SessionButton.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
@@ -23264,13 +23419,19 @@
     },
     {
       "kind": "import",
-      "source": "src/features/session/accountPanel/SessionAccountPanel.vue?vue&type=script&setup=true&lang.ts",
+      "source": "src/features/session/SessionButton.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
     {
       "kind": "import",
       "source": "src/features/studio/dataViews/DataViewPanel.vue?vue&type=script&setup=true&lang.ts",
+      "target": "vite/preload-helper.js",
+      "original": "\u0000vite/preload-helper.js"
+    },
+    {
+      "kind": "import",
+      "source": "src/features/session/accountPanel/SessionAccountPanel.vue?vue&type=script&setup=true&lang.ts",
       "target": "vite/preload-helper.js",
       "original": "\u0000vite/preload-helper.js"
     },
@@ -23546,67 +23707,67 @@
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/index-h7A1L-7s.js",
+      "source": "dist/client/assets/index-I_huAjNh.js",
       "target": "index.html",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/AssistantLayout-DbS9NXDR.js",
+      "source": "dist/client/assets/AssistantLayout-BA7oIQAb.js",
       "target": "src/features/assistant/_components/AssistantLayout.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/AuditContentPanel-Cxl5UFFv.js",
+      "source": "dist/client/assets/AuditContentPanel-Bg7Te8a5.js",
       "target": "src/features/studio/dataViews/auditContent/AuditContentPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/ChatPanel-D-IVjdx-.js",
+      "source": "dist/client/assets/ChatPanel-BwOKkABd.js",
       "target": "src/features/assistant/chat/ChatPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/ConnectionPanel-6viPccw1.js",
+      "source": "dist/client/assets/ConnectionPanel-BwgCzLV6.js",
       "target": "src/features/studio/connectionPanel/ConnectionPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/ContextDimensionDiagramPanel-BK2i2z9g.js",
+      "source": "dist/client/assets/ContextDimensionDiagramPanel-CDGm30hQ.js",
       "target": "src/features/studio/setup/context/ContextDimensionDiagramPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/ContextEntityDiagramPanel-CKC2RnLY.js",
+      "source": "dist/client/assets/ContextEntityDiagramPanel-BPqY0W6m.js",
       "target": "src/features/studio/setup/context/ContextEntityDiagramPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/ContextModelList-B0B0iDB7.js",
+      "source": "dist/client/assets/ContextModelList-CUAjGrW1.js",
       "target": "src/features/studio/setup/context/ContextModelList.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/DataAppsPanel-ChKO5NdM.js",
+      "source": "dist/client/assets/DataAppsPanel-D6rVCC5b.js",
       "target": "src/features/studio/dataApps/DataAppsPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/DataViewList-xoVzmwF6.js",
+      "source": "dist/client/assets/DataViewList-DbDtXx9D.js",
       "target": "src/features/studio/dataViews/DataViewList.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/DataViewsLayout-3iXtv8AC.js",
+      "source": "dist/client/assets/DataViewsLayout-FUnVMFzr.js",
       "target": "src/features/studio/dataViews/DataViewsLayout.vue",
       "original": null
     },
@@ -23618,19 +23779,19 @@
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/EmptyPlaceholder-BgLRPOuk.js",
+      "source": "dist/client/assets/EmptyPlaceholder-vrDAMhM4.js",
       "target": "src/components/ui/placeholder/EmptyPlaceholder.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/EventQueriesPanel-C_NcYt5g.js",
+      "source": "dist/client/assets/EventQueriesPanel-BlwUUl0U.js",
       "target": "src/features/studio/eventQueries/EventQueriesPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/ExploreDataPanel-CaoR8zRf.js",
+      "source": "dist/client/assets/ExploreDataPanel-HMEEveU5.js",
       "target": "src/features/studio/dataViews/exploreData/ExploreDataPanel.vue",
       "original": null
     },
@@ -23642,7 +23803,7 @@
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/LibraryPanel-CdEr3qiB.js",
+      "source": "dist/client/assets/LibraryPanel-BD1eSavO.js",
       "target": "src/features/assistant/library/LibraryPanel.vue",
       "original": null
     },
@@ -23666,7 +23827,7 @@
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/ManagePreferencesPanel-Bal3Fm39.js",
+      "source": "dist/client/assets/ManagePreferencesPanel-FbB2ZlnJ.js",
       "target": "src/features/session/accountPanel/ManagePreferencesPanel.vue",
       "original": null
     },
@@ -23684,43 +23845,43 @@
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/OptionBar-xDzFujbk.js",
+      "source": "dist/client/assets/OptionBar-DUH5P56E.js",
       "target": "src/features/studio/options/OptionBar.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/PluginConnectorPanel-BnUYCo3R.js",
+      "source": "dist/client/assets/PluginConnectorPanel-7I9nU7bR.js",
       "target": "src/features/studio/setup/plugins/PluginConnectorPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/PluginCookbookPanel-5oYEd5kY.js",
+      "source": "dist/client/assets/PluginCookbookPanel-DTTuxqt7.js",
       "target": "src/features/studio/setup/plugins/PluginCookbookPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/PluginList-__hay3St.js",
+      "source": "dist/client/assets/PluginList--ynU9yj4.js",
       "target": "src/features/studio/setup/plugins/_components/PluginList.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/PluginPresenterPanel-BC-ou0XO.js",
+      "source": "dist/client/assets/PluginPresenterPanel-BB1rXeQo.js",
       "target": "src/features/studio/setup/plugins/PluginPresenterPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/PluginToolPanel-DMX8b0zX.js",
+      "source": "dist/client/assets/PluginToolPanel-BOwPUxfG.js",
       "target": "src/features/studio/setup/plugins/PluginToolPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/PresentationsPanel-DuT02zNI.js",
+      "source": "dist/client/assets/PresentationsPanel-DXs11qyt.js",
       "target": "src/features/studio/presentations/PresentationsPanel.vue",
       "original": null
     },
@@ -23732,73 +23893,73 @@
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/SelectConnectionList-icLyYlnH.js",
+      "source": "dist/client/assets/SelectConnectionList-1DABWFEG.js",
       "target": "src/features/studio/dataViews/selectConnection/SelectConnectionList.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/SelectItemPanel-CqwEPm0O.js",
+      "source": "dist/client/assets/SelectItemPanel-BWFO_YBf.js",
       "target": "src/features/studio/dataViews/selectItem/SelectItemPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/SessionAccountPanel-S0fmIGsV.js",
+      "source": "dist/client/assets/SessionAccountPanel-tfrAvJzd.js",
       "target": "src/features/session/accountPanel/SessionAccountPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/SessionAuthPanel-BC-TQxh3.js",
+      "source": "dist/client/assets/SessionAuthPanel-ClhtE1K8.js",
       "target": "src/features/session/authPanel/SessionAuthPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/SessionMenu-DlFjTPG1.js",
+      "source": "dist/client/assets/SessionMenu-BXPsdKxw.js",
       "target": "src/features/session/SessionMenu.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/SetupHomePanel-DlD9No0J.js",
+      "source": "dist/client/assets/SetupHomePanel-Dsbnc2mQ.js",
       "target": "src/features/studio/setup/SetupHomePanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/SetupLayout-DVV-rbQa.js",
+      "source": "dist/client/assets/SetupLayout-eJksIFww.js",
       "target": "src/features/studio/setup/SetupLayout.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/StudioDescriptorsPanel-BqlvaOrC.js",
+      "source": "dist/client/assets/StudioDescriptorsPanel-tDRZF2gw.js",
       "target": "src/features/studio/_components/StudioDescriptorsPanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/StudioHomePanel-D3ZwZqBc.js",
+      "source": "dist/client/assets/StudioHomePanel-DiTL3A8F.js",
       "target": "src/features/studio/StudioHomePanel.vue",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/accountMonitor-x5duVe86.js",
+      "source": "dist/client/assets/accountMonitor-D9p3p0pu.js",
       "target": "src/observability/accountMonitor.ts",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/configMonitor-B8VNzJ8S.js",
+      "source": "dist/client/assets/configMonitor-C8A27GEK.js",
       "target": "src/observability/configMonitor.ts",
       "original": null
     },
     {
       "kind": "entrypoint",
-      "source": "dist/client/assets/performanceTracking-DYSrOwh-.js",
+      "source": "dist/client/assets/performanceTracking-CUoz1xA7.js",
       "target": "src/observability/performanceTracking.ts",
       "original": null
     },

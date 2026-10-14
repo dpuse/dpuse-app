@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { computed, onMounted, ref, watch } from 'vue';
 import { debounceFilter, useLocalStorage } from '@vueuse/core';
-import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 import { initialiseServices } from '@/state/session';
@@ -24,9 +24,9 @@ import {
     studioPaneWasOpened
 } from '@/state/appPanes';
 import { defineLazyComponent, isSafariBrowser } from '@/utilities/index.ts';
-import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
 import { isPWA, viewportIsWide } from '@/state/device';
 import { moduleUpdateIsAvailable, newAppVersionIsAvailable } from '@/state/appVersion';
+import { navigationPendingDepth, replaceRouteQuery } from '@/router';
 
 // ── Static Components
 import AssistantPaneToggle from '@/features/assistant/_components/AssistantPaneToggle.vue'; // Static, because it is always visible.
@@ -164,15 +164,12 @@ function establishCurrentPaneId(): AppPaneId {
 // Saves which panes are open, not which are showing, so a reload or shared link restores both even when a narrow
 // display shows only one.
 function syncPaneQuery(): void {
-    const query: LocationQueryRaw = {
-        ...route.query,
+    void replaceRouteQuery(router, {
         studio: studioPaneIsOpen.value ? '1' : undefined,
         assistant: assistantPaneIsOpen.value ? '1' : undefined,
         // Which pane is in front, only needed when both are open.
         pane: studioPaneIsOpen.value && assistantPaneIsOpen.value ? currentAppPaneId.value : undefined
-    };
-
-    void ignoreReportedNavigationFailure(router.replace({ query }));
+    });
 }
 </script>
 

@@ -10,7 +10,7 @@ import { AppError } from '@dpuse/dpuse-shared';
 import { hasReportedAppError } from '@/observability/errorTracking';
 import { raiseAppFailure } from '@/state/errors';
 import { throwOnFault } from '@/observability/faultInjection';
-import { accountConfigsAreRetrieved, connectionAccountConfigs, initialiseConfigMonitor, initialiseContextConfig } from '@/state/configs';
+import { accountConfigStatus, connectionAccountConfigs, initialiseConfigMonitor, initialiseContextConfig } from '@/state/configs';
 import { type AuthSessionChangeId, loadAuthClient, validateAuthSession } from '@/services/auth';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
 
@@ -106,10 +106,15 @@ async function initialiseAccountMonitor(): Promise<void> {
         accountMonitorModule.initialise();
         state.accountMonitorIsStarted = true;
     } catch (error) {
-        // 'accountConfigsAreRetrieved' never becomes true, so connection lists stay loading. The failure says why.
-        raiseAppFailure(new AppError('Failed to load the account service.', 'dpuse-app.session.initialiseAccountMonitor', { typeId: 'handled' }, { cause: error }), {
-            capability: 'account'
-        });
+        // Raised at app level because no screen shows the account's connections on their own. The status stops screens
+        // waiting for a list that will never arrive.
+        const failure = raiseAppFailure(
+            new AppError('Failed to load the account service.', 'dpuse-app.session.initialiseAccountMonitor', { typeId: 'handled' }, { cause: error }),
+            {
+                capability: 'account'
+            }
+        );
+        accountConfigStatus.value = { typeId: 'failed', failure };
     }
 }
 
@@ -158,7 +163,7 @@ function establishSession(actionId: AuthSessionChangeId | 'validated' | 'validat
         void terminateAccountMonitor();
 
         connectionAccountConfigs.value = [];
-        accountConfigsAreRetrieved.value = false;
+        accountConfigStatus.value = { typeId: 'pending' };
         emailAddress.value = undefined;
         emailIsPrimary.value = undefined;
         emailIsVerified.value = undefined;

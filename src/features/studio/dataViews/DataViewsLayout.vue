@@ -13,7 +13,7 @@ import { sessionIsAuthenticated } from '@/state/session';
 import { useDataView } from '@/state/dataViews';
 import { useQueryFailure } from '@/services/queryClient';
 import { useUnsavedWork } from '@/state/unsavedWork';
-import { accountConfigsAreRetrieved, configRetrievalFailure, configRetrievalSucceeded, connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
+import { accountConfigStatus, configStatus, connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
 import { constructItemPath, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
 import { localeId, t } from '@/state/locale';
@@ -22,6 +22,7 @@ import { TASK_CONFIGS, TEXT } from './DataViewsLayout_.json';
 // ── Static Components
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
+import RetrievalGate from '@/components/ui/RetrievalGate.vue';
 import RouterViewTransition from '@/components/ui/RouterViewTransition.vue';
 import StudioHeader from '@/features/studio/_components/StudioHeader.vue';
 import StudioLayout from '@/features/studio/_components/StudioLayout.vue';
@@ -73,7 +74,7 @@ const headerOverline = computed(() => t(TEXT, currentTaskLocalisedConfig.value ?
 const headerTitle = computed(() => {
     if (!currentTaskLocalisedConfig.value) return t(TEXT, 'establishDataViews.title');
     if (dataViewConfig.value) return localiseConfig(dataViewConfig.value, localeId.value).label;
-    return t(TEXT, dataViewFailure.value || configRetrievalFailure.value ? 'dataView.failed.title' : 'dataView.pending.title');
+    return t(TEXT, dataViewFailure.value || configStatus.value.typeId === 'failed' ? 'dataView.failed.title' : 'dataView.pending.title');
 });
 const headerBackRoute = computed(() =>
     route.name === 'dataViews' ? { name: 'studio', query: route.query } : { name: 'dataViews', params: { dataViewId: currentDataViewId.value }, query: route.query }
@@ -154,8 +155,8 @@ watch(
 watch(
     [connectionLocalisedConfigs, (): string | undefined => dataViewConfig.value?.connectionId],
     ([newConnectionLocalisedConfigs, newConnectionId]) => {
-        const areAccountConnectionsKnown = sessionIsAuthenticated.value === false || accountConfigsAreRetrieved.value; // Signed out means none.
-        if (!areAccountConnectionsKnown || !configRetrievalSucceeded.value) return; // Still loading, so a short list proves nothing.
+        const areAccountConnectionsKnown = sessionIsAuthenticated.value === false || accountConfigStatus.value.typeId === 'ready'; // Signed out means none.
+        if (!areAccountConnectionsKnown || configStatus.value.typeId !== 'ready') return; // Still loading, so a short list proves nothing.
         if (newConnectionId == null || currentTaskLocalisedConfig.value == null || newConnectionLocalisedConfigs.some((config) => config.id === newConnectionId)) return;
 
         void ignoreReportedNavigationFailure(router.replace({ name: 'dataViews', params: { dataViewId: currentDataViewId.value }, query: route.query }));
@@ -205,26 +206,25 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
             </p>
         </TaskBar>
 
-        <!-- Configuration Failure ─ Without the configuration no data view can be read, so the list and tasks never
-             load. There is no Retry, because the configuration service reconnects when the network or tab comes
-             back. -->
-        <ErrorNotice v-if="configRetrievalFailure" class="min-h-0 flex-1" :can-retry="false" :failures="[configRetrievalFailure]" />
+        <!-- Body ─ Waits for the configuration, because no data view can be read without it. -->
+        <RetrievalGate class="min-h-0 flex-1" :status="configStatus">
+            <!-- Data View Failure -->
+            <ErrorNotice v-if="dataViewFailure" class="min-h-0 flex-1" :failures="[dataViewFailure]" @retry="handleRetryDataView" />
 
-        <!-- Data View Failure -->
-        <ErrorNotice v-else-if="dataViewFailure" class="min-h-0 flex-1" :failures="[dataViewFailure]" @retry="handleRetryDataView" />
-
-        <!-- List and Task Panel ─ The list takes no task props or events, so it is rendered apart from the tasks. -->
-        <RouterViewTransition v-else v-slot="{ component }" class="min-h-0 flex-1" :is-loading="taskPanelIsLoading">
-            <component :is="component" v-if="route.name === 'dataViews'" key="dataViews" class="min-h-0 flex-1" />
-            <component
-                :is="component"
-                v-else
-                :key="route.name"
-                class="min-h-0 flex-1"
-                :task-localised-config="currentTaskLocalisedConfig"
-                @draft-changed="handleDraftChanged"
-                @task-completed="handleTaskCompleted"
-            />
-        </RouterViewTransition>
+            <!-- List and Task Panel ─ The list takes no task props or events, so it is rendered apart from the
+                 tasks. -->
+            <RouterViewTransition v-else v-slot="{ component }" class="min-h-0 flex-1" :is-loading="taskPanelIsLoading">
+                <component :is="component" v-if="route.name === 'dataViews'" key="dataViews" class="min-h-0 flex-1" />
+                <component
+                    :is="component"
+                    v-else
+                    :key="route.name"
+                    class="min-h-0 flex-1"
+                    :task-localised-config="currentTaskLocalisedConfig"
+                    @draft-changed="handleDraftChanged"
+                    @task-completed="handleTaskCompleted"
+                />
+            </RouterViewTransition>
+        </RetrievalGate>
     </StudioLayout>
 </template>

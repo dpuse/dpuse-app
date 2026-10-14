@@ -1,16 +1,14 @@
 // ── External Dependencies & Registrations
-import { promiseTimeout } from '@vueuse/core';
 import { type Component, shallowRef } from 'vue';
-import { createRouter, createWebHistory, isNavigationFailure, NavigationFailureType, type Router, type RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory, isNavigationFailure, type LocationQueryRaw, NavigationFailureType, type Router, type RouteRecordRaw } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { raiseAppFailure } from '@/state/errors';
-import { type AsyncPanelSimulation, VISIBLE_DELAY_MS } from '@/utilities/index.ts';
+import { addDevelopmentFaults, type AsyncPanelSimulation, VISIBLE_DELAY_MS } from '@/utilities/index.ts';
 import { canReloadForNewAppVersion, reloadForNewAppVersion } from '@/state/appVersion';
-import { throwOnFault, throwOnStaleFault } from '@/observability/faultInjection';
 
 // ── Dynamic Components
 // Every loader is wrapped so that a failed chunk can be reported by name, and so that loading one raises the spinner.
@@ -40,6 +38,13 @@ interface RouteComponentLoader {
     (): Promise<Component>;
     label: string;
     viewDepth: number;
+}
+
+// Query changes waiting to be written to one router's URL.
+interface QueryUpdate {
+    changes: LocationQueryRaw;
+    flush: Promise<void> | undefined; // The write that will include changes made now. Cleared once that write starts.
+    settled: Promise<void>; // The latest write. The next one waits for it, so it reads the URL that write produced.
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -96,6 +101,8 @@ export const navigationPendingDepth = shallowRef<number | undefined>();
 // 'navigationPendingDepth'. The delay stops a fast load flashing a spinner.
 const pending = { depth: undefined as number | undefined, timer: undefined as ReturnType<typeof setTimeout> | undefined };
 
+const queryUpdatesByRouter = new WeakMap<Router, QueryUpdate>();
+
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function createAppRouter(): Router {
@@ -146,6 +153,18 @@ export async function ignoreReportedNavigationFailure(navigation: Promise<unknow
     }
 }
 
+// Changes the URL query without leaving the screen. Changes made in the same tick are merged into one 'router.replace',
+// and each write waits for the one before, so no change is lost to another that read the URL before it was updated. An
+// undefined value removes the parameter. Never rejects, as 'ignoreReportedNavigationFailure'.
+export function replaceRouteQuery(router: Router, changes: LocationQueryRaw): Promise<void> {
+    const queryUpdate = queryUpdatesByRouter.get(router) ?? { changes: {}, flush: undefined, settled: Promise.resolve() };
+    queryUpdatesByRouter.set(router, queryUpdate);
+    Object.assign(queryUpdate.changes, changes);
+    queryUpdate.flush ??= writeQueryUpdate(router, queryUpdate);
+    queryUpdate.settled = queryUpdate.flush;
+    return queryUpdate.flush;
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The depths are hand-written, so a re-nested route would silently show the wrong level's spinner and nothing else
@@ -169,6 +188,7 @@ function clearNavigationPending(): void {
 
 // eslint-disable-next-line unicorn/no-unnecessary-parameters -- Kept for the development-only load simulation, switched on by passing one at a call site.
 function defineLazyLoader(label: string, depth: number, loader: () => Promise<Component>, simulation?: AsyncPanelSimulation): RouteComponentLoader {
+    const developmentLoader = addDevelopmentFaults(loader, label, 'route', simulation);
     const routeLoader = (): Promise<Component> => {
         // Tells the 'RouterView' at this level to show a spinner while the chunk is fetched. The shallowest level
         // wins, since its spinner covers the levels below. Delayed, so a fast load does not flash one.
@@ -177,7 +197,7 @@ function defineLazyLoader(label: string, depth: number, loader: () => Promise<Co
             pending.timer ??= setTimeout(() => (navigationPendingDepth.value = pending.depth), VISIBLE_DELAY_MS);
         }
 
-        const componentPromise = loadRouteComponent(label, loader, simulation);
+        const componentPromise = loadRouteComponent(label, developmentLoader);
         void componentPromise.catch(() => {
             // Stops a duplicate report. vue-router starts every level's loader at once but listens to them one at a
             // time, so a chunk failing before its turn has no listener and the browser reports it as unhandled.
@@ -191,20 +211,19 @@ function defineLazyLoader(label: string, depth: number, loader: () => Promise<Co
 }
 
 // Loads the chunk, wrapping any failure in an error that names the component.
-async function loadRouteComponent(label: string, loader: () => Promise<Component>, simulation?: AsyncPanelSimulation): Promise<Component> {
+async function loadRouteComponent(label: string, loader: () => Promise<Component>): Promise<Component> {
     try {
-        if (import.meta.env.DEV) {
-            throwOnFault('route', label, `Simulated ${label} route load failure.`);
-            throwOnStaleFault('route-stale', label);
-        }
-        if (simulation && import.meta.env.DEV) {
-            const { delayMs = 0, failsToLoad = false } = simulation;
-            if (delayMs > 0) await promiseTimeout(delayMs);
-            if (failsToLoad) throw new Error('Simulated route load error.');
-        }
         return await loader();
     } catch (error) {
         const data = { componentName: label, typeId: 'componentLoad' };
         throw new AppError(`Failed to load the ${label} route component.`, 'dpuse-app.router.loadRouteComponent', data, { cause: error });
     }
+}
+
+async function writeQueryUpdate(router: Router, queryUpdate: QueryUpdate): Promise<void> {
+    await queryUpdate.settled;
+    const query = { ...router.currentRoute.value.query, ...queryUpdate.changes };
+    queryUpdate.changes = {};
+    queryUpdate.flush = undefined;
+    await ignoreReportedNavigationFailure(router.replace({ query }));
 }

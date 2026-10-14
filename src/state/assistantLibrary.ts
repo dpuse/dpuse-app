@@ -1,9 +1,9 @@
 // ── External Dependencies & Registrations
 import { computed, type ComputedRef, type WritableComputedRef } from 'vue';
-import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
-import { ignoreReportedNavigationFailure } from '@/router';
+import { replaceRouteQuery } from '@/router';
 import { t } from '@/state/locale';
 import { TEXT } from './assistantLibrary_.json';
 
@@ -48,7 +48,7 @@ export function useAssistantLibrary(): AssistantLibrary {
     const paneIsOpen = computed({
         get: () => route.query.lState === '1',
         set: (isOpen: boolean) => {
-            replaceQuery({ lState: isOpen ? '1' : undefined });
+            void replaceRouteQuery(router, { lState: isOpen ? '1' : undefined });
         }
     });
 
@@ -60,18 +60,14 @@ export function useAssistantLibrary(): AssistantLibrary {
     const query = computed({
         get: () => String(route.query.lQuery ?? ''),
         set: (newQuery: string) => {
-            replaceQuery({ lQuery: newQuery.length === 0 ? undefined : newQuery });
+            void replaceRouteQuery(router, { lQuery: newQuery.length === 0 ? undefined : newQuery });
         }
     });
 
     const searchHasQuery = computed(() => query.value.trim().length > 0);
 
     function setPath(newPath: string[]): void {
-        replaceQuery({ lPath: newPath.length === 0 ? undefined : newPath.join(PATH_SEPARATOR) });
-    }
-
-    function replaceQuery(changes: LocationQueryRaw): void {
-        void ignoreReportedNavigationFailure(router.replace({ query: { ...route.query, ...changes } }));
+        void replaceRouteQuery(router, { lPath: newPath.length === 0 ? undefined : newPath.join(PATH_SEPARATOR) });
     }
 
     return { paneIsOpen, path, query, searchHasQuery, setPath };
@@ -81,11 +77,9 @@ export function useAssistantLibrary(): AssistantLibrary {
 
 // Shared rather than held with the list: the library labels a row's type and the document panel labels the same type
 // again, and the two must not be able to disagree about what a 'dataView' is called.
-export const libraryDocumentTypeLabels = computed(
-    (): Record<LibraryDocumentType, string> => ({
-        connector: t(TEXT, 'connector.label'),
-        context: t(TEXT, 'context.label'),
-        dataView: t(TEXT, 'dataView.label'),
-        document: t(TEXT, 'document.label')
-    })
-);
+export const libraryDocumentTypeLabels = computed((): Record<LibraryDocumentType, string> => ({
+    connector: t(TEXT, 'connector.label'),
+    context: t(TEXT, 'context.label'),
+    dataView: t(TEXT, 'dataView.label'),
+    document: t(TEXT, 'document.label')
+}));

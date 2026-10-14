@@ -10,14 +10,14 @@ import type { ComponentBaseConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 import type { GridListItem } from './_context';
 import { TEXT } from './ContextModelList_.json';
 import { useSetupSelection } from '../useSetupSelection';
-import { contextConfig, contextConfigRetrievalFailed, contextConfigRetrievalFailure, contextConfigRetrievalSucceeded } from '@/state/configs';
+import { contextConfig, contextConfigStatus } from '@/state/configs';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ContextModelPanel from './ContextModelPanel.vue';
-import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
+import RetrievalGate from '@/components/ui/RetrievalGate.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ const {
     selectItem
 } = useSetupSelection(
     modelReferencesByArea,
-    () => contextConfigRetrievalSucceeded.value || contextConfigRetrievalFailed.value,
+    () => contextConfigStatus.value.typeId !== 'pending',
     (item) => !item.isHeader
 );
 
@@ -52,22 +52,23 @@ function handleSelectModel(modelReference: GridListItem<LocalisedConfig<Componen
 </script>
 
 <template>
-    <ErrorNotice v-if="contextConfigRetrievalFailure" :can-retry="false" :failures="[contextConfigRetrievalFailure]" />
+    <RetrievalGate :status="contextConfigStatus">
+        <GridDetailPanel :selected-item="activeModelReference" class="min-h-0 flex-1" :data-source="modelReferencesByAreaDataSource" :is-compact="true" max-grid-width="350px">
+            <template #item="{ item }">
+                <div v-if="item.isHeader" class="flex h-full items-end pl-2 text-left text-xs font-bold text-muted uppercase">{{ item.label }}</div>
+                <ConfigCard v-else :is-compact="true" :config="item" :selected="item.id === activeModelReference?.id" @click="handleSelectModel(item)" />
+            </template>
 
-    <GridDetailPanel v-else :selected-item="activeModelReference" class="min-h-0 flex-1" :data-source="modelReferencesByAreaDataSource" :is-compact="true" max-grid-width="350px">
-        <template #item="{ item }">
-            <div v-if="item.isHeader" class="flex h-full items-end pl-2 text-left text-xs font-bold text-muted uppercase">{{ item.label }}</div>
-            <ConfigCard v-else :is-compact="true" :config="item" :selected="item.id === activeModelReference?.id" @click="handleSelectModel(item)" />
-        </template>
+            <template #detail="{ item, close }">
+                <!-- Headers are never selectable, so 'v-if' always passes; it is here to narrow the row's type. Keyed
+                     so each model starts from a fresh panel, rather than showing the previous model's content and open
+                     rows while it loads. -->
+                <ContextModelPanel v-if="!item.isHeader" :key="item.id" :model-reference="item" @close="close" />
+            </template>
 
-        <template #detail="{ item, close }">
-            <!-- Headers are never selectable, so 'v-if' always passes; it is here to narrow the row's type. Keyed so each model
-                 starts from a fresh panel, rather than showing the previous model's content and open rows while it loads. -->
-            <ContextModelPanel v-if="!item.isHeader" :key="item.id" :model-reference="item" @close="close" />
-        </template>
-
-        <template #no-selection>
-            <SelectPlaceholder :message="t(TEXT, 'selectFocus.text')" />
-        </template>
-    </GridDetailPanel>
+            <template #no-selection>
+                <SelectPlaceholder :message="t(TEXT, 'selectFocus.text')" />
+            </template>
+        </GridDetailPanel>
+    </RetrievalGate>
 </template>

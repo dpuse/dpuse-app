@@ -1,11 +1,4 @@
 <script setup lang="ts">
-// ── Template Notes ─ TODO: Revisit later. These belong beside their elements in the template, but a comment at the
-// template's root breaks the fade between route views in development: Vue never reports the old view as gone, so the
-// next one never appears. Production builds strip comments, so only development is affected.
-// - Configuration error notice: the list is empty because the configurations never arrived, not because there are no
-//   connections. Covers the region: there is nothing to pick here, and no way to add one either, until the connection
-//   is back.
-
 // ── External Dependencies & Registrations
 import { ArrowRightIcon } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
@@ -23,12 +16,11 @@ import { t } from '@/state/locale';
 import { TEXT } from './SelectConnectionList_.json';
 import { useDialogs } from '@/state/dialogs';
 import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
-import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
+import { connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
 import { useDataView, useUpdateDataView } from '@/state/dataViews';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
 import SelectConnectionPanel from './SelectConnectionPanel.vue';
@@ -73,8 +65,7 @@ const pickedConnectionLocalisedConfig = computed(() => findConnectionLocalisedCo
 const cardRowHeight = useCardRowHeight(true);
 
 const connectionLocalisedConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
-    // Known once retrieval has finished, whether or not it worked: an undefined count keeps the grid busy.
-    rowCount: configRetrievalSucceeded.value || configRetrievalFailed.value ? connectionLocalisedConfigs.value.length : undefined,
+    rowCount: connectionLocalisedConfigs.value.length, // Known, because 'DataViewsLayout' shows this list only once the configuration has arrived.
     rows: connectionLocalisedConfigs.value
 }));
 
@@ -150,10 +141,7 @@ function pickConnection(connectionId: string | undefined): void {
 </script>
 
 <template>
-    <ErrorNotice v-if="configRetrievalFailure" :can-retry="false" :failures="[configRetrievalFailure]" />
-
     <GridDetailPanel
-        v-else
         :selected-item="pickedConnectionLocalisedConfig"
         :add-label="t(TEXT, 'connection.label')"
         :data-source="connectionLocalisedConfigsDataSource"

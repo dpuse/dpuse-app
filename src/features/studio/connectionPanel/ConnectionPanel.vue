@@ -15,7 +15,7 @@ import { TEXT } from './ConnectionPanel_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useDialogs } from '@/state/dialogs';
 import { viewportIsWide } from '@/state/device';
-import { configRetrievalFailed, configRetrievalFailure, configRetrievalSucceeded, connectorConfigs } from '@/state/configs';
+import { configStatus, connectorConfigs } from '@/state/configs';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -24,9 +24,9 @@ import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
-import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
+import RetrievalGate from '@/components/ui/RetrievalGate.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -71,9 +71,7 @@ const connectionFormFailure = shallowRef<AppFailure | undefined>(); // Set by th
 const cardRowHeight = useCardRowHeight(false);
 
 const connectorConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectorConfig>>>(() => ({
-    // Settled either way: an undefined count means 'not yet known' and leaves the grid busy, so checking only the
-    // success flag left it spinning for the rest of the session when retrieval failed.
-    rowCount: configRetrievalSucceeded.value || configRetrievalFailed.value ? connectorLocalisedConfigs.value.length : undefined,
+    rowCount: connectorLocalisedConfigs.value.length, // Known, because the grid is shown only once the configuration has arrived.
     getRows: (start, end): Promise<{ rows: LocalisedConfig<ConnectorConfig>[] }> => Promise.resolve({ rows: connectorLocalisedConfigs.value.slice(start, end) })
 }));
 
@@ -121,31 +119,30 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 <template>
     <DialogHeader class="flex-none" :title="t(TEXT, 'manageConnection.title')" />
 
-    <!-- No connectors arrived, so there is nothing here to add a connection with. Covers the region rather than
-         leaving an empty picker with no explanation. -->
-    <ErrorNotice v-if="configRetrievalFailure" :can-retry="false" :failures="[configRetrievalFailure]" />
+    <!-- Connectors ─ Waits for the configuration, because without it there is nothing to add a connection with. -->
+    <RetrievalGate :status="configStatus">
+        <GridDetailPanel :selected-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" :row-height="cardRowHeight">
+            <template #item="{ item }">
+                <ConfigCard v-if="item" :config="item" @click="handleSelectConnector(item)" />
+            </template>
 
-    <GridDetailPanel v-else :selected-item="activeConnectorConfig" class="flex-1" :data-source="connectorConfigsDataSource" :row-height="cardRowHeight">
-        <template #item="{ item }">
-            <ConfigCard v-if="item" :config="item" @click="handleSelectConnector(item)" />
-        </template>
+            <template #detail="{ item }">
+                <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
+                    <ConfigIcon class="mt-1 h-7" :icon="item.icon" :icon-dark="item.iconDark" />
+                    <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
+                </div>
 
-        <template #detail="{ item }">
-            <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
-                <ConfigIcon class="mt-1 h-7" :icon="item.icon" :icon-dark="item.iconDark" />
-                <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
-            </div>
+                <div class="relative min-h-0 flex-1">
+                    <ErrorBoundary v-model:failure="connectionFormFailure" name="ConnectionDetail" :reset-key="route.fullPath">
+                        <AddConnectionForm :connector-localised-config="item" />
+                    </ErrorBoundary>
+                </div>
+            </template>
 
-            <div class="relative min-h-0 flex-1">
-                <ErrorBoundary v-model:failure="connectionFormFailure" name="ConnectionDetail" :reset-key="route.fullPath">
-                    <AddConnectionForm :connector-localised-config="item" />
-                </ErrorBoundary>
-            </div>
-        </template>
-
-        <!-- Hidden while the form has failed, as there is nothing to commit. -->
-        <template #detail-action>
-            <PillButton v-if="!connectionFormFailure" :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
-        </template>
-    </GridDetailPanel>
+            <!-- Hidden while the form has failed, as there is nothing to commit. -->
+            <template #detail-action>
+                <PillButton v-if="!connectionFormFailure" :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
+            </template>
+        </GridDetailPanel>
+    </RetrievalGate>
 </template>

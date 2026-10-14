@@ -8,7 +8,7 @@ import type { DataViewConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
-import { metaStoreConnectionConfig } from '@/state/configs';
+import { configStatus } from '@/state/configs';
 import { queryClient } from '@/services/queryClient';
 import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
 import {
@@ -32,7 +32,7 @@ export function useDataViews(): UseQueryReturnType<DataViewConfig[], Error> {
     return useQuery({
         queryKey: DATA_VIEW_LIST_KEY,
         queryFn: retrieveDataViewConfigs,
-        enabled: () => metaStoreConnectionConfig.value != null,
+        enabled: () => configStatus.value.typeId === 'ready', // Fails, rather than waits, when the meta store connector is missing.
         staleTime: Infinity
     });
 }
@@ -46,7 +46,7 @@ export function useDataView(dataViewId: MaybeRefOrGetter<string | undefined>): U
         return {
             queryKey: constructMetaStoreRecordKey('dataViews', id),
             queryFn: () => getDataViewConfig(assertDefined(id)),
-            enabled: id != null && metaStoreConnectionConfig.value != null,
+            enabled: id != null && configStatus.value.typeId === 'ready',
             initialData: () => queryClient.getQueryData<DataViewConfig[]>(DATA_VIEW_LIST_KEY)?.find((config) => config.id === id),
             initialDataUpdatedAt: () => queryClient.getQueryState(DATA_VIEW_LIST_KEY)?.dataUpdatedAt,
             staleTime: Infinity
