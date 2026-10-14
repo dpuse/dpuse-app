@@ -27,6 +27,7 @@ const config = defineConfig({
         trace: 'on-first-retry'
     },
 
+    // CI runs Chromium only, to keep every push quick. Firefox and WebKit run locally.
     projects: [
         {
             name: 'chromium',
@@ -78,7 +79,7 @@ const config = defineConfig({
         //     channel: 'chrome',
         //   },
         // },
-    ],
+    ].filter((project) => process.env.CI == null || project.name === 'chromium'),
 
     /*
     Folder for test artifacts such as screenshots, videos, traces, etc.
